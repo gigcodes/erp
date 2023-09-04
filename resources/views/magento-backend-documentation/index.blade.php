@@ -1425,7 +1425,7 @@
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
-                        $("#template-magneto-frontend-list").find(".feature-magnetolist-view").html(html);
+                        $("#template-magneto-frontend-list").find(".template-magnetolist-view").html(html);
                         $("#template-magneto-frontend-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
@@ -1481,7 +1481,6 @@
 
 
         $(document).on('click', '.load-bugsolutions', function() {
-            alert('df');
             var id = $(this).attr('data-id');
             var location = $(this).attr('data-type');
 
@@ -1500,8 +1499,8 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_bug_details;
-                            old_location = v.old_bug_details;
+                            remarkText=v.new_bug_solutions;
+                            old_location = v.old_bug_solutions;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
@@ -1514,8 +1513,8 @@
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
                         });
-                        $("#bug-detail-magneto-frontend-list").find(".bug-detail-magnetolist-view").html(html);
-                        $("#bug-detail-magneto-frontend-list").modal("show");
+                        $("#bug-solution-magneto-frontend-list").find(".bug-solution-magnetolist-view").html(html);
+                        $("#bug-solution-magneto-frontend-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
