@@ -142,7 +142,8 @@
                 <div class="row m-4">
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <select class="form-control select-multiple category_name" id="category-select" name="magento_docs_category_id">
+                            <h5>Search Category</h5>
+                            <select class="form-control globalSelect2 category_name" multiple="true" id="category-select" name="magento_docs_category_id[]">
                                 @php
                                  $storecategories = \App\SiteDevelopmentCategory::select('title', 'id')->wherenotNull('title')->get();
                                  @endphp
@@ -157,7 +158,8 @@
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
-                            <select class="form-control select-multiple location_name" id="location_select" name="location_name">
+                            <h5>Search locations</h5>
+                            <select class="form-control  globalSelect2 location_name" multiple="true" id="location_select" name="location_name[]">
                                 @php
                                  $locations = \App\Models\MagentoFrontendDocumentation::select('location', 'id')->get();
                                  @endphp
@@ -172,6 +174,7 @@
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
+                            <h5>Search Admin config</h5>
                             <input name="search_admin_config" type="text" class="form-control search_admin_config" value="{{ request('status') }}"
                                     placeholder="search Admin Config" id="search_admin_config">
                         </div>
@@ -179,27 +182,27 @@
 
                     <div class="col-xs-3 col-sm-2">
                         <div class="form-group">
+                            <h5>Search Frontend config</h5>
                             <input name="search_frontend_confid" type="text" class="form-control search_frontend_config" value="{{ request('status') }}"
                             placeholder="search Frontend Config" id="search_frontend_config">                     
                           </div>
                     </div>
 
-                    <div class="col-xs-2 col-sm-1 pt-2 ">
-                        <div class="d-flex" >
+                    <div class="col-xs-2 col-sm-1 pt-2 "><br>
+                        <div class="d-flex">
                             <div class="form-group pull-left ">
                                 <button type="submit" class="btn btn-image search">
                                     <img src="/images/search.png" alt="Search" style="cursor: inherit;">
                                 </button>
                             </div>
                             <div class="form-group pull-left ">
-                                <button type="submit" id="searchReset" class="btn btn-image search ml-3">
-                                    <img src="/images/resend2.png" alt="Search" style="cursor: inherit;">
-                                </button>
+                                <a href="{{route('magento_frontend_listing')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="pull-right pr-5">
+                    <div class="pull-right pr-5"><br>
+                        <h5></h5>
                         <button type="button" class="btn btn-secondary" data-toggle="modal"
                             data-target="#create-magento-frontend-docs"> Create Magento FrontEnd Documentation </button>
                     </div>
