@@ -266,7 +266,7 @@
                     @csrf
                     {!! Form::hidden('id', null, ['id'=>'id']) !!}
                     <div class="modal-header">
-                        <h4 class="modal-title">Update Magneto Frontend Documentation</h4>
+                        <h4 class="modal-title">Update Magneto Backend Documentation</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -284,8 +284,11 @@
     <div id="category-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Category History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -313,7 +316,10 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-body">
-    
+                    <div class="modal-header">
+                        <h4 class="modal-title">Post Man Api History</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -341,7 +347,10 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-body">
-    
+                    <div class="modal-header">
+                        <h4 class="modal-title">Module History</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -368,8 +377,12 @@
     <div id="remark-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remark History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
+
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -396,8 +409,11 @@
     <div id="description-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Description History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -424,8 +440,11 @@
     <div id="admin-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Admin Config History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -921,6 +940,8 @@
                 $('#moduleCreateModal #magento_module_edit_form').find('.invalid-feedback').remove();
                 $('#moduleCreateModal #magento_module_edit_form').find('.alert').remove();
                 toastr["success"](response.message);
+                $("#moduleEditModal").modal("hide");
+                location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){
@@ -1351,7 +1372,7 @@
 
         $(document).on('click', '.load-feature', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1359,7 +1380,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1368,15 +1389,15 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_features;
-                            old_location = v.old_features;
+                            newFeature=v.new_features;
+                            oldfeature = v.old_features;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${oldfeature}
                                         </td>
                                         <td> 
-                                            ${old_location}
+                                            ${newFeature}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
@@ -1394,7 +1415,7 @@
 
         $(document).on('click', '.load-template', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1402,7 +1423,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1411,16 +1432,16 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_template_file;
-                            old_location = v.old_template_file;
+                            newTemplate =v.new_template_file;
+                            oldTemplate = v.old_template_file;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${oldTemplate}
                                         </td>
                                         <td> 
-                                            ${old_location}
-                                        </td>
+                                            ${newTemplate}
+                                        </td>                           
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
@@ -1438,7 +1459,7 @@
 
         $(document).on('click', '.load-bugdetails', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1446,7 +1467,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1455,16 +1476,16 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_bug_details;
-                            old_location = v.old_bug_details;
+                            oldBug=v.new_bug_details;
+                            newBug = v.old_bug_details;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${newBug}
                                         </td>
                                         <td> 
-                                            ${old_location}
-                                        </td>
+                                            ${oldBug}
+                                        </td>                                   
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
@@ -1482,7 +1503,7 @@
 
         $(document).on('click', '.load-bugsolutions', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1490,7 +1511,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1499,16 +1520,16 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_bug_solutions;
-                            old_location = v.old_bug_solutions;
+                            new_bug_sol=v.new_bug_solutions;
+                            old_bug_sol = v.old_bug_solutions;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${old_bug_sol}
                                         </td>
                                         <td> 
-                                            ${old_location}
-                                        </td>
+                                            ${new_bug_sol}
+                                        </td>                              
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;

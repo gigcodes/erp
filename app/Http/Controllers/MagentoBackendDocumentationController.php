@@ -105,7 +105,7 @@ class MagentoBackendDocumentationController extends Controller
     public function magentoBackendOptions(Request $request)
     {
         $oldData = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
-        $updateMagentoModule = MagentoBackendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
+        $updateMagentoModule = MagentoBackendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data ,'updated_by' =>  \Auth::id()]);
         $newData = MagentoBackendDocumentation::where('id', (int) $request->id)->first();
 
         $columnname = $request->columnName;
@@ -466,7 +466,7 @@ class MagentoBackendDocumentationController extends Controller
 
     public function magentoFeatureget(Request $request)
     {
-        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('feature_type',$request->location)->latest()->get();
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('feature_type',$request->type)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -478,7 +478,7 @@ class MagentoBackendDocumentationController extends Controller
 
     public function magentoTemplateget(Request $request)
     {
-        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('template_file_type',$request->location)->latest()->get();
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('template_file_type',$request->type)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -490,7 +490,7 @@ class MagentoBackendDocumentationController extends Controller
 
     public function magentoBugDetailget(Request $request)
     {
-        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_type',$request->location)->latest()->get();
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_type',$request->type)->latest()->get();
 
         return response()->json([
             'status' => true,
@@ -503,7 +503,7 @@ class MagentoBackendDocumentationController extends Controller
 
     public function magentoBugSolutionget(Request $request)
     {
-        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_solutuion_type',$request->location)->latest()->get();
+        $remarks = MagentoBackendDocumentationHistory::with(['user'])->where('magento_backend_docs_id', $request->id)->where('old_bug_solutuion_type',$request->type)->latest()->get();
 
         return response()->json([
             'status' => true,
