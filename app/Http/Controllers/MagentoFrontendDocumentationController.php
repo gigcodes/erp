@@ -37,10 +37,10 @@ class MagentoFrontendDocumentationController extends Controller
                 $items->where('magento_frontend_docs.admin_configuration', 'LIKE', '%' . $request->admin_configuration . '%');
             }
             if (isset($request->location)) {
-                $items->where('magento_frontend_docs.location', 'LIKE', '%' . $request->location . '%');
+                $items->whereIn('magento_frontend_docs.location', $request->location);
             }
             if (isset($request->categoryname)) {
-                $items->where('magento_frontend_docs.store_website_category_id', $request->categoryname);
+                $items->whereIn('magento_frontend_docs.store_website_category_id', $request->categoryname);
             }
 
             return datatables()->eloquent($items)->addColumn('categories', $storecategories)->toJson();
@@ -245,6 +245,7 @@ class MagentoFrontendDocumentationController extends Controller
         $oldData->frontend_configuration = $request->frontend_configuration;
         $oldData->child_folder = $request->child_folder;
         $oldData->parent_folder = $request->parent_folder;
+        $oldData->user_id =  \Auth::id();
         $oldData->save();
 
         if ($request->hasFile('child_folder_image')) {
