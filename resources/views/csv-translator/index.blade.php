@@ -68,6 +68,10 @@
             top: 5px !important;
         }
 
+        .history_model {
+            top: 10px;
+        }
+
         @media (max-width: 1280px) {
             table.table {
                 width: 0px;
@@ -433,40 +437,78 @@
         cols =  [{ data: 'id' },
             { data: 'key' },
             { data: 'en', render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_en == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="en" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             }},
             { data: 'es',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_es == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else 
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="es" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+
             } },
             { data: 'ru',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_ru == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ru" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+
             } },
             { data: 'ko' ,render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_ko == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ko" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             }},
             { data: 'ja',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_ja == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else 
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ja" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'it',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_it == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else 
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="it" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'de',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_de == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="de" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'fr',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_fr == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="fr" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'nl',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_nl == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="nl" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'zh',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_zh == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="zh" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'ar',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_ar == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ar" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } },
             { data: 'ur',render: function(data, type, row, meta) {
-                return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                if(row.status_ur == 'checked')
+                    return '<div class="bg-success text-white show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
+                else 
+                    return '<div class="show_csv_co">'+data+'</div>' +'<a href="#" class="history_model position-absolute float-right text-wrap" data-lang="ur" data-key='+row.key+' data-id=' + row.id +' data-toggle="modal" data-target="#history"> <i class="fa fa-history" aria-hidden="true"></i></a>';
             } }]
     </script>
  @else
