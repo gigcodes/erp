@@ -64,6 +64,10 @@
             padding-bottom: 10px !important;
         }
 
+        .viewbtn_model {
+            top: 5px !important;
+        }
+
         @media (max-width: 1280px) {
             table.table {
                 width: 0px;
@@ -152,7 +156,7 @@
 </div>
 
 <div class="float-right my-3">
-    @if(auth()->user()->hasRole('Lead Translator'))
+    @if(auth()->user()->hasRole('Lead Translator') || auth()->user()->hasRole('Admin'))
     <button data-toggle="modal" data-target="#csv_import_model" class="btn btn-secondary btn_import">Import CSV</button>
     <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
     @endif
@@ -164,7 +168,7 @@
     <table class="table table-bordered text-wrap csvData-table w-100" style="border: 1px solid #ddd;" id="csvData-table">
         <thead>
             <tr>
-            @if(auth()->user()->hasRole('Lead Translator'))
+            @if(auth()->user()->hasRole('Lead Translator') || auth()->user()->hasRole('Admin'))
                 <th>Id</th>
                 <th>Keyword</th>
                 <th>En</th>
@@ -243,6 +247,14 @@
                             <option value="edit">edit</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label>Permission Type</label>
+                        <select class="form-control" name="type" id="typeId">
+                            <option>Select</option>
+                            <option value="basic">Basic</option>
+                            <option value="advance">Advance</option>
+                        </select>
+                    </div>
                     <div class="d-none alert alert-class">
 
                     </div>
@@ -307,39 +319,14 @@
 </div>
 </div>
 
-<div class="modal fade" id="history" role="dialog">
+<div class="modal fade" id="history" role="dialog" >
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title position-absolute">History</h4>
             </div>
-            <div class="modal-body">
-                <table class="table table-bordered text-wrap w-auto min-w-100">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Keyword</th>
-                            <th>En</th>
-                            <th>ES</th>
-                            <th>RU</th>
-                            <th>KO</th>
-                            <th>JA</th>
-                            <th>IT</th>
-                            <th>DE</th>
-                            <th>FR</th>
-                            <th>NL</th>
-                            <th>ZH</th>
-                            <th>AR</th>
-                            <th>UR</th>
-                            <th>Updator</th>
-                            <th>Approver</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody class="data_history">
-                    </tbody>
-                </table>
+            <div class="modal-body" id="history-body-content">
 
             </div>
             <div class="modal-footer">
@@ -412,11 +399,12 @@
         var userId = $("#selectUserId").val();
         var langId = $("#selectLangId").val();
         var actionId = $("#actionId").val();
+        var typeId = $("#typeId").val();
         $(".alert-class").text('');
         $.ajax({
             url:'/csv-translator/permissions',
             method:'POST',
-            data:{'user_id':userId,'lang_id':langId,'action':actionId,'_token':"{{csrf_token()}}"},
+            data:{'user_id':userId,'lang_id':langId,'action':actionId,'type':typeId,'_token':"{{csrf_token()}}"},
             success:function(response){
                 if(response.status === 200){       
                     $(".alert-class").text("Successfully added");
@@ -428,6 +416,7 @@
                     $("#selectUserId").val('');
                     $("#selectLangId").val('');
                     $("#actionId").val('');
+                    $("#typeId").val('');
                     $(".alert-class").removeClass("alert-success");
                     $(".alert-class").text("Permission already exist");
                     $(".alert-class").removeClass("d-none");
@@ -439,7 +428,7 @@
     var cols;
 </script>
 
-@if(auth()->user()->hasRole('Lead Translator'))
+@if(auth()->user()->hasRole('Lead Translator') || auth()->user()->hasRole('Admin'))
     <script>   
         cols =  [{ data: 'id' },
             { data: 'key' },
@@ -549,41 +538,15 @@
         var key = $(this).data('key');
         var language = $(this).data('lang');
 
+        $('#history-body-content').empty();
+
         $.ajax({
             url:"{{ route('csvTranslator.history') }}",
             method:'POST',
             data:{'id':id,"key":key,"language":language,'_token':"{{csrf_token()}}"},
             success:function(response){
                 $("#Show_message_display").modal('hide');
-                let html;
-                $(".data_history").html('');
-                if(response.data.length == 0){
-                    $(".data_history").html('<tr colspan="12"><td class="text-center">No Data Found</td></tr>');
-                }else{
-                    $.each(response.data,function(key,value){
-                        html += `
-                        <tr>
-                        <td>${value.id}</td>
-                        <td>${value.key}</td>
-                        <td>${value.en}</td>
-                        <td>${value.es}</td>
-                        <td>${value.ru}</td>
-                        <td>${value.ko}</td>
-                        <td>${value.ja}</td>
-                        <td>${value.it}</td>
-                        <td>${value.de}</td>
-                        <td>${value.fr}</td>
-                        <td>${value.nl}</td>
-                        <td>${value.zh}</td>
-                        <td>${value.ar}</td>
-                        <td>${value.ur}</td>
-                        <td>${value.updater}</td>
-                        <td>${value.approver}</td>
-                        <td>${value.created_at}</td>
-                        </tr>`;
-                   });
-                   $(".data_history").html(html);
-                }  
+                $('#history-body-content').empty().html(response.html);
             }
         })
     });
