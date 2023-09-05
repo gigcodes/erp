@@ -114,7 +114,6 @@ class TaskModuleController extends Controller
         } else {
             $type = $request->input('type');
         }
-        // $activeCategories = TaskCategory::where('is_active', 1)->pluck('id')->all();
 
         $categoryWhereClause = '';
         $category = '';
@@ -1485,7 +1484,6 @@ class TaskModuleController extends Controller
         } else {
             $type = $request->input('type');
         }
-        $activeCategories = TaskCategory::where('is_active', 1)->pluck('id')->all();
 
         $term = $request->term ?? '';
         $searchWhereClause = '';
