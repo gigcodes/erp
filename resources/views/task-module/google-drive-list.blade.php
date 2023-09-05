@@ -2,7 +2,7 @@
     @forelse ($result as $file)
         <tr>
             <td>{{$file['file_name']}}</td>
-            <td>{{$file['file_creation_date']}}</td>
+            <td>{{ $file['created_at']->format('Y-m-d') }}</td>
             <td>
                 <a href ="{{env('GOOGLE_DRIVE_FILE_URL').$file['google_drive_file_id']}}/view?usp=share_link" target="_blank"><input class="fileUrl" type="text" value="{{env('GOOGLE_DRIVE_FILE_URL').$file['google_drive_file_id']}}/view?usp=share_link" /></a>
                 <button class="copy-button btn btn-secondary" data-message="{{env('GOOGLE_DRIVE_FILE_URL').$file['google_drive_file_id']}}/view?usp=share_link">Copy</button>

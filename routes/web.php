@@ -691,6 +691,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-backend/template', [MagentoBackendDocumentationController::class, 'magentoTemplateget'])->name('magento-template-list');
     Route::get('magento-backend/details', [MagentoBackendDocumentationController::class, 'magentoBugDetailget'])->name('magento-bug-detail-list');
     Route::get('magento-backend/solutions', [MagentoBackendDocumentationController::class, 'magentoBugSolutionget'])->name('magento-bug-solution-list');
+    Route::get('magento-backend/files/record', [MagentoBackendDocumentationController::class, 'getUploadedFilesList'])->name('magento-backend.files.record');
 
 
 });

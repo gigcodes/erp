@@ -5,12 +5,18 @@
 
     </div>
 </div>
-{{-- <div class="col-sm-12">
+<div class="col-sm-12">
     <div class="form-group">
-        <label>Bug</label>
-        {!! Form::text('bug', null, ['id'=>'bug', 'placeholder' => 'Template Files', 'class' => 'form-control bug']) !!}
+        <label>description</label>
+        {!! Form::text('description', null, ['id'=>'description', 'placeholder' => 'Template Files', 'class' => 'form-control description']) !!}
     </div>
-</div> --}}
+</div>
+<div class="col-sm-12">
+    <div class="form-group">
+        <label>admin Configuration</label>
+        {!! Form::text('admin_configuration', null, ['id'=>'admin_configuration', 'placeholder' => 'Template AdminConfiguration', 'class' => 'form-control admin_configuration']) !!}
+    </div>
+</div>
 <div class="col-sm-12">
     <div class="form-group">
         <label>Teamplate File</label>
