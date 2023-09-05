@@ -145,7 +145,7 @@
         <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
         <a href="#" class="btn btn-xs btn-secondary delete-orders">Archive</a>
         <a href="#" class="btn btn-xs update-customer btn-secondary">Update</a>
-        <a href="{{ route('order.status.color') }}" class="btn btn-xs btn-secondary">Add Color Code For Order Status</a>
+        <button type="button" class="btn btn-xs btn-secondary order-status-listing" onclick="listStatusColor()">Add Color Code For Order Status</button>
     </div>
   </div>
 </div>
@@ -953,6 +953,31 @@
   </div>
 </div>
 
+
+<div id="order-status-list-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <div>
+                  <h4 class="modal-title"><b>Order Status Color Listing</b></h4>
+              </div>
+              <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-lg-12">
+                      <div class="row">
+                          <div class="col-12" id="order-status-list-modal-html">
+
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
 <div id="estdelhistoryresponse"></div>
 @endsection
 @include('common.commonEmailModal')
@@ -2382,5 +2407,71 @@
           }
         }
 
+        function listStatusColor(pageNumber = 1) {
+          var button = document.querySelector('.order-status-listing');
+              $.ajax({
+                  url: '{{ route('order.status.color') }}',
+                  dataType: "json",
+                  data: {
+                      page:pageNumber,
+                  },
+                  beforeSend: function() {
+                  $("#loading-image-preview").show();
+              }
+              }).done(function(response) {
+                  $('#order-status-list-modal-html').empty().html(response.html);
+                  $('#order-status-list-modal').modal('show');
+                  renderOrderStatusPagination(response.data);
+                  $("#loading-image-preview").hide();
+              }).fail(function(response) {
+                  $('.loading-image-preview').show();
+                  console.log(response);
+              });
+        }
+
+        function renderOrderStatusPagination(response) {
+            var paginationContainer = $(".pagination-container-order-status");
+            var currentPage = response.current_page;
+            var totalPages = response.last_page;
+            var html = "";
+            var maxVisiblePages = 10;
+
+            if (totalPages > 1) {
+                html += "<ul class='pagination'>";
+                if (currentPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeOrderStatusPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+                }
+                var startPage = 1;
+                var endPage = totalPages;
+
+                if (totalPages > maxVisiblePages) {
+                if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                    endPage = maxVisiblePages;
+                } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                    startPage = totalPages - maxVisiblePages + 1;
+                } else {
+                    startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                    endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+                }
+
+                if (startPage > 1) {
+                    html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeOrderStatusPage(1)'>1</a></li>";
+                    if (startPage > 2) {
+                    html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                    }
+                }
+                }
+
+                for (var i = startPage; i <= endPage; i++) {
+                html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeOrderStatusPage(" + i + ")'>" + i + "</a></li>";
+                }
+                html += "</ul>";
+            }
+            paginationContainer.html(html);
+         }
+
+        function changeOrderStatusPage(pageNumber) {
+          listStatusColor(pageNumber);
+        }
   </script>
 @endsection

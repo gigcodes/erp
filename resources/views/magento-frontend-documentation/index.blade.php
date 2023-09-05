@@ -470,7 +470,7 @@
 
                             let datas =
                                 `<div class="data-content">
-                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container">${setStringLength(data, 15)}</div><div class="flex items-center justify-left td-full-container hidden">${data}</div></div>`}
                                 </div>`;
 
                                 return `<div class="flex justify-left items-center" style="position: relative;">
@@ -487,7 +487,7 @@
                            
                                 let datas =
                                 `<div class="data-content">
-                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden">${data}</div></div>`}
                                 </div>`;
 
                             return `<div class="flex justify-left items-center" style="position: relative;">
@@ -504,7 +504,7 @@
                            
                                 let datas =
                                 `<div class="data-content">
-                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container" title="${data}">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden" title="${data}">${data}</div></div>`}
+                                        ${data == null ? '' : `<div class="expand-row module-text" style="word-break: break-all"><div class="flex items-center justify-left td-mini-container">${setStringLength(data, 20)}</div><div class="flex items-center justify-left td-full-container hidden">${data}</div></div>`}
                                 </div>`;
 
                             return `<div class="flex justify-left items-center" style="position: relative;">
@@ -515,7 +515,7 @@
                     {
                         data: null,
                         render: function(data, type, row, meta) {
-                            // Extract file_name and google_drive_file_id from the row data
+                           // Extract file_name and google_drive_file_id from the row data
                             let file_name = data.file_name;
                             let fullFimeName = data.file_name;;
                             if (file_name !== null) {
@@ -556,7 +556,7 @@
                         name: 'magento_frontend_docs.user_id',
                         render: function(data, type, row, meta) {
                             var userName = '';
-                            if (data !== null) {
+                            if (data !== undefined && data !== null) {
                                 userName = data.length > 30 ? data.substring(0, 30) + '...' : data;
                             }
 
@@ -566,8 +566,8 @@
                                         <span class="td-full-container hidden">${data}</span>
                                 </div>
                                     </td>`;
-                         }
-                    },
+                        }
+                     },
                     {
                         data: 'created_at',
                         name: 'magento_frontend_docs.created_at',
@@ -696,19 +696,20 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.location;
                             old_location = v.old_location;
+                            new_loaction= v.location;
+
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${old_location}
                                         </td>
                                         <td> 
-                                            ${old_location}
+                                            ${new_loaction}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
-                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${new_loaction}'></i></td>
                                     </tr>`;
                         });
                         $("#location-magneto-frontend-list").find(".location-magnetolist-view").html(html);
@@ -740,19 +741,19 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.admin_configuration;
-                            old_location = v.old_admin_configuration;
+                            new_admin=v.admin_configuration;
+                            old_admin = v.old_admin_configuration;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${remarkText}
+                                            ${old_admin}
                                         </td>
                                         <td> 
-                                            ${old_location}
+                                            ${new_admin}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
-                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${new_admin}'></i></td>
                                     </tr>`;
                         });
                         $("#admin-magneto-frontend-list").find(".admin-magnetolist-view").html(html);
@@ -784,19 +785,19 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.old_admin_configuration;
-                            old_location = v.frontend_configuration;
+                            old_frontend=v.old_frontend_configuration;
+                            new_frontend = v.frontend_configuration;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${remarkText}
+                                            ${old_frontend}
                                         </td>
                                         <td> 
-                                            ${old_location}
+                                            ${new_frontend}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
-                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${remarkText}'></i></td>
+                                        <td><i class='fa fa-copy copy_remark' data-remark_text='${new_frontend}'></i></td>
                                     </tr>`;
                         });
                         $("#frontend-magneto-frontend-list").find(".frontend-magnetolist-view").html(html);
@@ -951,6 +952,8 @@
                 $('#moduleCreateModal #magento_module_edit_form').find('.invalid-feedback').remove();
                 $('#moduleCreateModal #magento_module_edit_form').find('.alert').remove();
                 toastr["success"](response.message);
+                $("#moduleEditModal").modal("hide");
+                location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){
