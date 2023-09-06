@@ -238,8 +238,8 @@
                         <th width="10%"> Site Development Category </th>
                         <th width="10%"> PostMan Api </th>
                         <th width="10%"> Magento Module </th>
-                        <th width="10%"> Description </th>
-                        <th width="10%"> Admin Configuration </th>
+                        <th width="15%"> Description </th>
+                        <th width="15%"> Admin Configuration </th>
                         <th width="10%"> Remark </th>
                         <th width="10%"> Feature </th>
                         <th width="8%"> Template Files </th>
@@ -266,7 +266,7 @@
                     @csrf
                     {!! Form::hidden('id', null, ['id'=>'id']) !!}
                     <div class="modal-header">
-                        <h4 class="modal-title">Update Magneto Frontend Documentation</h4>
+                        <h4 class="modal-title">Update Magneto Backend Documentation</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -284,8 +284,11 @@
     <div id="category-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Category History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -313,7 +316,10 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-body">
-    
+                    <div class="modal-header">
+                        <h4 class="modal-title">Post Man Api History</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -341,7 +347,10 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-body">
-    
+                    <div class="modal-header">
+                        <h4 class="modal-title">Module History</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -368,8 +377,12 @@
     <div id="remark-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remark History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
+
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -396,8 +409,11 @@
     <div id="description-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Description History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -424,8 +440,11 @@
     <div id="admin-backend-listing" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Admin Config History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
                 <div class="modal-body">
-    
                     <div class="col-md-12">
                         <table class="table table-bordered">
                             <thead>
@@ -449,6 +468,39 @@
         </div>
     </div>
 
+    <div id="magnetobackendFileUpload" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-xl">
+    
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Google Drive Uploaded files</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+    
+                <div class="modal-body">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>File Creation Date</th>
+                                    <th>URL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="magnetoFileUpload">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+    
+    
+            </div>
+    
+        </div>
+    </div>
+
     <div class="modal fade" id="descriptionUploadModal" tabindex="-1" role="dialog" aria-labelledby="descriptionUploadModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -456,7 +508,7 @@
             @csrf
             {!! Form::hidden('magento_backend_id', null, ['id'=>'magento_backend_id']) !!}  
             <div class="modal-header">
-              <h5 class="modal-title" id="uploaddescriptionModalLabel">Upload Description Image</h5>
+              <h5 class="modal-title" id="uploaddescriptionModalLabel">Upload Description Screencast/File to Google Drive </h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -466,8 +518,8 @@
                     <div class="col-xs-6 col-sm-6">
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <input type="file" name="upload_description" id="upload_description">
-                            </div>
+                                <input type="file" name="upload_description[]" id="upload_description" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple>       
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -662,9 +714,14 @@
                             
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="savedescription(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                            data = (data == null) ? '' : '';                      
+                            data = (data == null) ? '' : '';   
+                               
+                            let ViewFiles = `
+                            <button class="btn btn-image view-upload-files-button ml-2" type="button" title="View Uploaded Files" data-id="${row['id']}" data-type="description">
+                                                            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                                                        </button>`;
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} ${ViewFiles} </div>`;
 
                             return retun_data;
                         }
@@ -683,8 +740,14 @@
                             let remark_send_button =
                                 `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveadminConfig(${row['id']})"><img src="/images/filled-sent.png"></button>`;
                             data = (data == null) ? '' : '';
+
+                            let ViewFiles = `
+                            <button class="btn btn-image view-admin-upload-files-button ml-2" type="button" title="View Uploaded Files" data-id="${row['id']}" data-type="admin_configuration">
+                                                            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                                                        </button>`;
+
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} ${ViewFiles}</div>`;
 
                             return retun_data;
                         }
@@ -879,8 +942,8 @@
             $("#magento_module_edit_form #template_file").val(response.data.template_file);
             $("#magento_module_edit_form #bug_details").val(response.data.bug_details);
             $("#magento_module_edit_form #bug_resolution").val(response.data.bug_resolution);
-            // $("#magento_module_edit_form #bug").val(response.data.bug);
-            // $("#magento_module_edit_form #filename").val(response.data.child_folder_image);
+            $("#magento_module_edit_form #description").val(response.data.description);
+            $("#magento_module_edit_form #admin_configuration").val(response.data.admin_configuration);
 			// var image = "/magentofrontend-child-image/" + response.data.child_folder_image; 
 			// $('#magento_module_edit_form #filename').attr('src', image);
             $("#moduleEditModal").modal("show");
@@ -921,6 +984,8 @@
                 $('#moduleCreateModal #magento_module_edit_form').find('.invalid-feedback').remove();
                 $('#moduleCreateModal #magento_module_edit_form').find('.alert').remove();
                 toastr["success"](response.message);
+                $("#moduleEditModal").modal("hide");
+                location.reload();
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){
@@ -1351,7 +1416,7 @@
 
         $(document).on('click', '.load-feature', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1359,7 +1424,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1368,15 +1433,15 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_features;
-                            old_location = v.old_features;
+                            newFeature=v.new_features;
+                            oldfeature = v.old_features;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${oldfeature}
                                         </td>
                                         <td> 
-                                            ${old_location}
+                                            ${newFeature}
                                         </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
@@ -1394,7 +1459,7 @@
 
         $(document).on('click', '.load-template', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1402,7 +1467,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1411,16 +1476,16 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_template_file;
-                            old_location = v.old_template_file;
+                            newTemplate =v.new_template_file;
+                            oldTemplate = v.old_template_file;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${oldTemplate}
                                         </td>
                                         <td> 
-                                            ${old_location}
-                                        </td>
+                                            ${newTemplate}
+                                        </td>                           
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
@@ -1438,7 +1503,7 @@
 
         $(document).on('click', '.load-bugdetails', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1446,7 +1511,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1455,16 +1520,16 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_bug_details;
-                            old_location = v.old_bug_details;
+                            oldBug=v.new_bug_details;
+                            newBug = v.old_bug_details;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${newBug}
                                         </td>
                                         <td> 
-                                            ${old_location}
-                                        </td>
+                                            ${oldBug}
+                                        </td>                                   
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
@@ -1482,7 +1547,7 @@
 
         $(document).on('click', '.load-bugsolutions', function() {
             var id = $(this).attr('data-id');
-            var location = $(this).attr('data-type');
+            var type = $(this).attr('data-type');
 
             $.ajax({
                 method: "GET",
@@ -1490,7 +1555,7 @@
                 dataType: "json",
                 data: {
                     id:id,
-                    location:location,
+                    type:type,
                 },
                 beforeSend: function() {
                     $("#loading-image").show();
@@ -1499,16 +1564,16 @@
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
-                            remarkText=v.new_bug_solutions;
-                            old_location = v.old_bug_solutions;
+                            new_bug_sol=v.new_bug_solutions;
+                            old_bug_sol = v.old_bug_solutions;
                             html += `<tr>
                                         <td> ${k + 1} </td>
                                         <td> 
-                                            ${location}
+                                            ${old_bug_sol}
                                         </td>
                                         <td> 
-                                            ${old_location}
-                                        </td>
+                                            ${new_bug_sol}
+                                        </td>                              
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
@@ -1525,28 +1590,78 @@
 
 
 
-       
+        $(document).on("click", ".view-upload-files-button", function (e) {
+                e.preventDefault();
+                let id = $(this).data("id");
+                let type = $(this).data("type");
+                $.ajax({
+                    type: "get",
+                    url: "{{route('magento-backend.files.record')}}",
+                    data: {
+                        id,
+                        type,
+                    },
+                    success: function (response) {
+                        if(typeof response.data != 'undefined') {
+                            $("#magnetoFileUpload").html(response.data);
+                        } else {
+                            $("#magnetoFileUpload").html(response);
+                        }
+                        
+                        $("#magnetobackendFileUpload").modal("show")
+                    },
+                    error: function (response) {
+                        toastr['error']("Something went wrong!");
+                    }
+                });
+        });
+
+         $(document).on("click", ".view-admin-upload-files-button", function (e) {
+            e.preventDefault();
+            let id = $(this).data("id");
+            let type = $(this).data("type");            
+                $.ajax({
+                    type: "get",
+                    url: "{{route('magento-backend.files.record')}}",
+                    data: {
+                        id,
+                        type,
+                    },
+                    success: function (response) {
+                        if(typeof response.data != 'undefined') {
+                            $("#magnetoFileUpload").html(response.data);
+                        } else {
+                            $("#magnetoFileUpload").html(response);
+                        }
+                        
+                        $("#magnetobackendFileUpload").modal("show")
+                    },
+                    error: function (response) {
+                        toastr['error']("Something went wrong!");
+                    }
+                });
+        });
 
         $(document).on('click', '.load-backend-delete', function () {
-        var id = $(this).attr('data-id');
-        if (confirm('Are you sure you want to delete this item?')) {
-                    $.ajax({
-                        url: '/magento-backend/delete/' + id, // Add a slash before id
-                        type: 'DELETE',
-                        headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                     },
-                        dataType: 'json',
-                        success: function(response) {
-                            location.reload();
-                            toastr["success"](response.message);
+            var id = $(this).attr('data-id');
+            if (confirm('Are you sure you want to delete this item?')) {
+                        $.ajax({
+                            url: '/magento-backend/delete/' + id, // Add a slash before id
+                            type: 'DELETE',
+                            headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
                         },
-                        error: function(xhr) {
-                            alert('Error: ' + xhr.responseText);
-                        }
-                    });
-                }
-    });
+                            dataType: 'json',
+                            success: function(response) {
+                                location.reload();
+                                toastr["success"](response.message);
+                            },
+                            error: function(xhr) {
+                                alert('Error: ' + xhr.responseText);
+                            }
+                        });
+             }
+       });
 
     $(document).on('click', '.expand-row', function () {
         var selection = window.getSelection();

@@ -832,26 +832,25 @@ class Select2Controller extends Controller
 
     public function magentoCreateFromCategory(Request $request)
     {
-        $magnetoCategories =  \App\SiteDevelopmentCategory::wherenotNull('title')->get()->pluck('id', 'title');
+        $magnetoCategories = \App\SiteDevelopmentCategory::wherenotNull('title');
 
-        if (! empty($request->q)) {
-            $magnetoCategories->where(function ($q) use ($request) {
-                $q->where('title', 'LIKE', '%' . $request->q . '%');
-            });
+        if (!empty($request->q)) {
+            $magnetoCategories->where('title', 'LIKE', '%' . $request->q . '%');
         }
 
+        $magnetoCategories = $magnetoCategories->pluck('title', 'id');
         $result = [];
 
-        if (empty($magnetoCategories)) {
+        if ($magnetoCategories->isEmpty()) {
             $result['items'][] = [
                 'id' => '',
-                'text' => 'categories not available',
+                'text' => 'Categories not available',
             ];
         } else {
-            foreach ($magnetoCategories as $key => $email) {
+            foreach ($magnetoCategories as $key => $title) {
                 $result['items'][] = [
-                    'id' => $email,
-                    'text' => $key,
+                    'id' => $key,
+                    'text' => $title,
                 ];
             }
         }

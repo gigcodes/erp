@@ -13,12 +13,10 @@
                 <div class="modal-body">
                     <div class="col-sm-12">
                         <div class="form-group">
-                            <div class="form-group">
-                                {!! Form::label('magento_docs_category_id', 'Category', ['class' => 'form-control-label']) !!}
-                                <?php echo Form::select("magento_docs_category_id",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.magento-frontend-category'), 'data-placeholder' => 'Add Categories']); ?>
+                                <label for="magento_docs_category_id">Add Category <span class="text-danger">*</span></label>
+                                <select name="magento_docs_category_id" class="globalSelect2 form-control" multiple="true"></select>
                             </div>
                         </div>
-                    </div>
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label>location</label>
@@ -125,6 +123,31 @@
 
 
 <script>
+
+    $(document).ready(function() {
+        $('select[name="magento_docs_category_id"]').select2({
+            ajax: {
+                url: "{{ route('select2.magento-frontend-category') }}",
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        q: params.term,
+                        page: params.page
+                    };
+                },
+                processResults: function(data, params) {
+                    return {
+                        results: data.items // Use the "items" property from the response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2, // Set your minimum input length
+            maximumSelectionLength: 1 // Limit selection to a single value
+        });
+    });
+
     $("#id_label_permission_read").select2();
     $("#id_label_permission_write").select2();
 

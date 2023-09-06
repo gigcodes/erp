@@ -5505,13 +5505,14 @@ class OrderController extends Controller
 
     public function orderStatusColorCode(Request $request)
     {
-        $orderstatus = new OrderStatus();
+        $perPage = 10;
 
-        $allorderStatus = OrderStatus::all();
+        $orderStatus = OrderStatus::latest()
+        ->paginate($perPage);
 
-        $orderstatus = $orderstatus->latest()->paginate(\App\Setting::get('pagination', 25));
+        $html = view('orders.order-status-modal-html')->with('orderStatus', $orderStatus)->render();
 
-        return view('orders.order-status-color-list', compact('orderstatus','allorderStatus'));
+        return response()->json(['code' => 200, 'data' => $orderStatus, 'html' => $html, 'message' => 'Content render']);
     }
 
     public function orderStatusColorCodeUpdate(Request $request)
