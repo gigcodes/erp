@@ -15,8 +15,8 @@
                         <div class="form-group custom-select2">
                             <label>Categories
                             </label>
-                            <select class="w-100 js-example-basic-multiple js-states" id="site_category"
-                                name="site_development_category">
+                            <select class="globalSelect2 form-control" id="site_category"
+                                name="site_development_category" multiple="true" >
                                 <option value="" class="form-control" required>Select Categories</option>
                             </select>
                         </div>
@@ -48,8 +48,8 @@
                     <div class="col-sm-12">
                         <div class="form-group custom-select2">
                             <label>Api</label>
-                            <select class="w-100 js-example-basic-multiple js-states" id="post_man_api"
-                                name="post_man_api_id" required>
+                            <select class="globalSelect2 form-control" id="post_man_api"
+                                name="post_man_api_id"  multiple="true"  required>
                                 <option value="" class="form-control" required>Select Api</option>
                             </select>
                         </div>
@@ -57,12 +57,46 @@
                     <div class="col-sm-12">
                         <div class="form-group custom-select2">
                             <label>Extension Used</label>
-                            <select class="w-100 js-example-basic-multiple js-states" id="mageneto_module"
+                            <select class="globalSelect2 form-control" multiple="true" id="mageneto_module"
                                 name="mageneto_module_id" required>
                                 <option value="" class="form-control">Select Extension</option>
                             </select>
                         </div>
                     </div>
+                    @if (auth()->user() &&
+                            auth()->user()->isAdmin())
+                        @php
+                            $users = \App\User::select('id', 'name', 'email', 'gmail')
+                                ->whereNotNull('gmail')
+                                ->get();
+                        @endphp
+                        <div class="col-sm-12">
+                            <div class="form-group custom-select2">
+                                <label>Read Permission for Users
+                                </label>
+                                <select class="w-100 js-example-basic-multiple js-states" id="id_label_permission_read"
+                                    multiple="multiple" name="read[]" required>
+                                    @foreach ($users as $val)
+                                        <option value="{{ $val->gmail }}" class="form-control">{{ $val->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group custom-select2">
+                                <label>Write Permission for Users
+                                </label>
+                                <select class="w-100 js-example-basic-multiple js-states" id="id_label_permission_write"
+                                    multiple="multiple" name="write[]" required>
+                                    @foreach ($users as $val)
+                                        <option value="{{ $val->gmail }}" class="form-control">{{ $val->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endif
                     <div class="col-sm-12">
                         <div class="form-group custom-select2">
                         <label>Bug</label>
@@ -109,13 +143,15 @@
 <script>
     // $('#id_label_categories').select2({
     //     minimumInputLength: 3 // only start searching when the user has input 3 or more characters
-    // });
     $('#site_category').select2();
     $('#post_man_api').select2();
     $('#mageneto_module').select2();
 
     $(document).ready(function() {
 
+    $("#id_label_permission_write").select2();
+    $("#id_label_permission_read").select2();
+    
         $.ajax({
             url: "{{ route('getBackendDropdownDatas') }}",
             type: "GET",
@@ -162,6 +198,42 @@
         });
     });
 
+
+    $(document).ready(function() {
+        $('select[name="mageneto_module_id"]').select2({
+            minimumInputLength: 2, // Set your minimum input length
+            maximumSelectionLength: 1, // Limit selection to a single value
+        });
+
+        // Add an event listener for the change event
+        $('select[name="mageneto_module_id"]').on('change', function (event) {
+            var selectedValue = $(this).val(); // Get the selected value
+        });
+   });
+
+   $(document).ready(function() {
+        $('select[name="post_man_api_id"]').select2({
+            minimumInputLength: 2, // Set your minimum input length
+            maximumSelectionLength: 1, // Limit selection to a single value
+        });
+
+        // Add an event listener for the change event
+        $('select[name="post_man_api_id"]').on('change', function (event) {
+            var selectedValue = $(this).val(); // Get the selected value
+        });
+   });
+
+   $(document).ready(function() {
+        $('select[name="site_development_category"]').select2({
+            minimumInputLength: 2, // Set your minimum input length
+            maximumSelectionLength: 1, // Limit selection to a single value
+        });
+
+        // Add an event listener for the change event
+        $('select[name="site_development_category"]').on('change', function (event) {
+            var selectedValue = $(this).val(); // Get the selected value
+        });
+   });
 
     $(document).on('submit', '#magento-backend-create', function(e) {
         e.preventDefault();
