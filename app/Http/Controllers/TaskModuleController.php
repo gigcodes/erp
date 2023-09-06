@@ -471,28 +471,14 @@ class TaskModuleController extends Controller
 
         // Lead user process starts
         $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
-        // $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
         $isTeamLeader = head($model_team);
         $team_members_array[] = auth()->user()->id;
         $team_id_array = [];
         $team_members_array_unique_ids = '';
         $isTeamLeader = null;
         if (count($model_team) > 0) $isTeamLeader = $model_team[0];
-        // if (count($model_team) > 0) {
-        //     for ($k = 0; $k < count($model_team); $k++) {
-        //         $team_id_array[] = $model_team[$k]->id;
-        //     }
-        //     $team_ids = implode(',', $team_id_array);
-        //     $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
-        //     for ($m = 0; $m < count($model_user_model); $m++) {
-        //         $team_members_array[] = $model_user_model[$m]->user_id;
-        //     }
-        // }
-        // $team_members_array_unique = array_unique($team_members_array);
-        // $team_members_array_unique_ids = implode(',', $team_members_array_unique);
         // Lead user process ends
 
-        //My code start
         $selected_user = $request->input('selected_user');
 
         if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
@@ -554,7 +540,7 @@ class TaskModuleController extends Controller
         if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
             return response()->json(['user not allowed'], 405);
         }
-        //My code end
+
         $tasks_view = [];
         $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 
@@ -1372,7 +1358,6 @@ class TaskModuleController extends Controller
         if (count($model_team) > 0) $isTeamLeader = $model_team[0];
         // Lead user process ends
 
-        //My code start
         $selected_user = $request->input('selected_user');
 
         if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
@@ -1422,7 +1407,6 @@ class TaskModuleController extends Controller
         if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
             return response()->json(['user not allowed'], 405);
         }
-        //My code end
         $tasks_view = [];
         $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 
