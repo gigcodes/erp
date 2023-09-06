@@ -476,53 +476,80 @@ class TaskModuleController extends Controller
         $team_members_array[] = auth()->user()->id;
         $team_id_array = [];
         $team_members_array_unique_ids = '';
-        if (count($model_team) > 0) {
-            for ($k = 0; $k < count($model_team); $k++) {
-                $team_id_array[] = $model_team[$k]->id;
-            }
-            $team_ids = implode(',', $team_id_array);
-            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
-            for ($m = 0; $m < count($model_user_model); $m++) {
-                $team_members_array[] = $model_user_model[$m]->user_id;
-            }
-        }
-        $team_members_array_unique = array_unique($team_members_array);
-        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+        $isTeamLeader = null;
+        if (count($model_team) > 0) $isTeamLeader = $model_team[0];
+        // if (count($model_team) > 0) {
+        //     for ($k = 0; $k < count($model_team); $k++) {
+        //         $team_id_array[] = $model_team[$k]->id;
+        //     }
+        //     $team_ids = implode(',', $team_id_array);
+        //     $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+        //     for ($m = 0; $m < count($model_user_model); $m++) {
+        //         $team_members_array[] = $model_user_model[$m]->user_id;
+        //     }
+        // }
+        // $team_members_array_unique = array_unique($team_members_array);
+        // $team_members_array_unique_ids = implode(',', $team_members_array_unique);
         // Lead user process ends
 
         //My code start
         $selected_user = $request->input('selected_user');
 
-        if (Auth::user()->hasRole('Admin')) {
-            $usrlst = $usersOrderByName;
-        } elseif ($isTeamLeader) {
-            $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
+        if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
+            $usrlst = [];
+
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+
+            foreach ($usersOrderByName as $user) {
+                if (in_array($user->id, $team_members_array)) $usrlst[] = $user;
+            }
+
         } else {
             $usrlst = $usersOrderByName;
         }
 
         $users = Helpers::getUserArray($usrlst);
 
-        $taskCategories = TaskCategory::all();
-        $task_categories = $taskCategories->where('parent_id', 0);
+        $all_task_categories = TaskCategory::all();
         $selected_category = $request->category;
         if (Auth::user()->hasRole('Admin')) {
             if (empty($request->category)) {
                 $selected_category = 1;
             }
         }
-        $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
+        $categories = $approved_categories = $task_categories = [];
+        foreach ($all_task_categories as $category) {
+            if($category->parent_id == 0)
+                $task_categories[] = $category;
+
+            $categories[$category->id] = $category->title;
+
+            if($category->is_approved == 1) {
+                $approved_categories[] = $category->toArray();
+            }
+        }
+
+        $selected_category = $request->category;
+
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
+
+        $task_categories_dropdown = nestable($approved_categories)->attr(
             [
                 'name' => 'category',
                 'class' => 'form-control input-sm',
             ]
         )->selected($selected_category)->renderAsDropdown();
-
-        // $categories = [];
-        // foreach (TaskCategory::all() as $category) {
-        //     $categories[$category->id] = $category->title;
-        // }
-        $categories = $taskCategories->pluck('title', 'id')->toArray();
 
         if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
             return response()->json(['user not allowed'], 405);
@@ -1333,59 +1360,64 @@ class TaskModuleController extends Controller
             }
         }
         //task pending backup
-        $data['users'] = User::orderBy('name')->get()->toArray();
+        $usersOrderByName = User::orderBy('name')->get();
+        $data['users'] = $usersOrderByName->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
         // Lead user process starts
-        $isTeamLeader = \App\Team::where('user_id', auth()->user()->id)->first();
         $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
         $team_members_array[] = auth()->user()->id;
         $team_id_array = [];
-        $team_members_array_unique_ids = '';
-        if (count($model_team) > 0) {
-            for ($k = 0; $k < count($model_team); $k++) {
-                $team_id_array[] = $model_team[$k]->id;
-            }
-            $team_ids = implode(',', $team_id_array);
-            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
-            for ($m = 0; $m < count($model_user_model); $m++) {
-                $team_members_array[] = $model_user_model[$m]->user_id;
-            }
-        }
-        $team_members_array_unique = array_unique($team_members_array);
-        $team_members_array_unique_ids = implode(',', $team_members_array_unique);
+        $isTeamLeader = null;
+        if (count($model_team) > 0) $isTeamLeader = $model_team[0];
         // Lead user process ends
 
         //My code start
         $selected_user = $request->input('selected_user');
 
-        if (Auth::user()->hasRole('Admin')) {
-            $usrlst = User::orderby('name')->get();
-        } elseif ($isTeamLeader) {
-            $usrlst = User::orderby('name')->whereIn('id', $team_members_array_unique)->get();
+        if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
+            $usrlst = [];
+
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+
+            foreach ($usersOrderByName as $user) {
+                if (in_array($user->id, $team_members_array)) $usrlst[] = $user;
+            }
+
         } else {
-            $usrlst = User::orderby('name')->get();
+            $usrlst = $usersOrderByName;
         }
 
         $users = Helpers::getUserArray($usrlst);
-        $task_categories = TaskCategory::where('parent_id', 0)->get();
+        $all_task_categories = TaskCategory::all();
         $selected_category = $request->category;
         if (Auth::user()->hasRole('Admin')) {
             if (empty($request->category)) {
                 $selected_category = 1;
             }
         }
-        $task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(
+        $categories = $approved_categories = [];
+        foreach ($all_task_categories as $category) {
+
+            $categories[$category->id] = $category->title;
+
+            if($category->is_approved == 1) {
+                $approved_categories[] = $category->toArray();
+            }
+        }
+
+        $task_categories_dropdown = nestable($approved_categories)->attr(
             [
                 'name' => 'category',
                 'class' => 'form-control input-sm',
             ]
         )->selected($selected_category)->renderAsDropdown();
-
-        $categories = [];
-        foreach (TaskCategory::all() as $category) {
-            $categories[$category->id] = $category->title;
-        }
 
         if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
             return response()->json(['user not allowed'], 405);
@@ -1404,7 +1436,7 @@ class TaskModuleController extends Controller
 
         $task_statuses = TaskStatus::all();
 
-        return view('task-module.partials.menu-search-task-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+        return view('task-module.partials.menu-search-task-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
     }
 
 
