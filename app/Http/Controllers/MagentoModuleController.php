@@ -1058,6 +1058,33 @@ class MagentoModuleController extends Controller
         }
     }
 
+    public function storeUnitTestStatus(Request $request)
+    {
+        $this->validate($request, [
+            'unit_test_status_name' => 'required|max:150|unique:magento_modules_unit_test_statuses',
+        ]);
+
+        $input = $request->except(['_token']);
+
+        $data = MagentoModuleUnitTestStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
+
     protected function saveVerifiedStatusHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
     {
         $history = new MagentoModuleVerifiedStatusHistory();

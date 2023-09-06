@@ -1120,7 +1120,7 @@
                             var dev_list = row['developer_list'];
                             var dev_list =  dev_list.replace(/&quot;/g, '"');
                             if(dev_list && dev_list != "" ){
-                                var dev_html = '<select id="unit_test_user_id" class="form-control edit_mm" name="unit_test_user_id"><option selected="selected" value="">Select test uuser </option>';
+                                var dev_html = '<select id="unit_test_user_id" class="form-control edit_mm" name="unit_test_user_id"><option selected="selected" value="">Select test user </option>';
                                 var dev_list = JSON.parse(dev_list);
                                 dev_list.forEach(function(dev){
                                     dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
