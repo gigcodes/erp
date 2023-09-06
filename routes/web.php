@@ -2573,6 +2573,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
     Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
     Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
+    Route::post('vendors/sync-meetings-recordings', [VendorController::class, 'syncMeetingsRecordings'])->name('vendor.meetings.recordings.sync');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
