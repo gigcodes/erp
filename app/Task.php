@@ -212,6 +212,11 @@ class Task extends Model
         return $this->belongsTo(\App\User::class, 'assign_to', 'id');
     }
 
+    public function taskDueDateHistoryLog()
+    {
+        return $this->hasMany(\App\TaskDueDateHistoryLog::class);
+    }
+
     public function contacts()
     {
         return $this->belongsToMany(\App\Contact::class, 'task_users', 'task_id', 'user_id')->where('type', \App\Contact::class);

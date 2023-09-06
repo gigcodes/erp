@@ -1,22 +1,19 @@
-@php
-    $status_color = \App\TaskStatus::where('id',$task->status)->first();
-@endphp
-<tr style="background-color: {{$status_color->task_color}}!important;" id="task_{{ $task->id }}">
+<tr style="background-color: {{$task->taskStatus->task_color}}!important;" id="task_{{ $task->id }}">
     <td class="p-2">
         @if(auth()->user()->isAdmin())
-        <input type="checkbox" name="selected_issue[]" title="Task is in priority" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+            <input type="checkbox" name="selected_issue[]" title="Task is in priority" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
         @endif
         {{ $task->id }}
     </td>
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
     <td class="expand-row table-hover-cell p-2">
         @if (isset($categories[$task->category]))
-        <span class="td-mini-container">
-            {{ strlen($categories[$task->category]) > 10 ? substr($categories[$task->category], 0, 10) : $categories[$task->category] }}
-        </span>
-        <span class="td-full-container hidden">
-            {{ $categories[$task->category] }}
-        </span>
+            <span class="td-mini-container">
+                {{ strlen($categories[$task->category]) > 10 ? substr($categories[$task->category], 0, 10) : $categories[$task->category] }}
+            </span>
+            <span class="td-full-container hidden">
+                {{ $categories[$task->category] }}
+            </span>
         @endif
     </td>
     <td class="expand-row table-hover-cell p-2" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
@@ -51,30 +48,28 @@
     </td> -->
     <td class="expand-row table-hover-cell p-2">
         @php
-        $special_task = \App\Task::find($task->id);
-        $users_list = '';
+            $special_task = $task;
+            $users_list = '';
 
-        foreach ($special_task->users as $key => $user) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
+            foreach ($special_task->users as $key => $user) {
+                if ($key != 0) {
+                    $users_list .= ', ';
+                }
 
-        if (array_key_exists($user->id, $users)) {
-        $users_list .= $users[$user->id];
-        } else {
-        $users_list = 'User Does Not Exist';
-        }
-        }
+                if (array_key_exists($user->id, $users)) {
+                    $users_list .= $users[$user->id];
+                } else {
+                    $users_list = 'User Does Not Exist';
+                }
+            }
 
-        $users_list .= ' ';
-
-        foreach ($special_task->contacts as $key => $contact) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
-
-        $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-        }
+            $users_list .= ' ';
+            foreach ($special_task->contacts as $key => $contact) {
+                if ($key != 0) {
+                    $users_list .= ', ';
+                }
+                $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
+            }
         @endphp
 
         <span class="td-mini-container">
@@ -89,53 +84,53 @@
     </td>
     <td>
         @if(auth()->user()->id == $task->assign_to || auth()->user()->isAdmin())
-        <button type="button" style="width:10%;display:inline-block;padding:0px;" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+            <button type="button" style="width:10%;display:inline-block;padding:0px;" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
         @else
-        <span class="apx-val">{{$task->approximate}}</span>
+            <span class="apx-val">{{$task->approximate}}</span>
         @endif
     </td>
     <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
-        <?php
-        $text_box = "";
-        ?>
-        <div class="d-flex">
-            @if($task->communication_status == 0)
-            <input type="text" id="getMsg{{$task->id}}" style="width: 100%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-            <button class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
-            @endif
-            @if($task->communication_status == 1)
-            <input type="text" id="getMsg{{$task->id}}" style="width: 100%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" readonly>
-            <button readonly class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
-            @endif
-            @if (isset($task->message))
-            <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-            @endif
-            <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
-                <i class="fa fa-cloud-upload" aria-hidden="true"></i>
-            </button>
-            <button class="btn btn-image view-task-files-button ml-2" type="button" title="View Uploaded Files" data-task_id="{{$task->id}}">
-                <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
-            </button>
-        </div>
-        @if (isset($task->message))
-        <div style="margin-bottom:10px;width: 100%;">
-            <div class="d-flex justify-content-between">
-                @if (isset($task->is_audio) && $task->is_audio)
-                    <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio> 
-                @else
-                <span class="td-mini-container">
-                    {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
-                </span>
-                <span class="td-full-container hidden">
-                    {{ $task->message }}
-                </span>
+            @php
+                $text_box = "";
+            @endphp
+            <div class="d-flex">
+                @if($task->communication_status == 0)
+                <input type="text" id="getMsg{{$task->id}}" style="width: 100%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                <button class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
                 @endif
+                @if($task->communication_status == 1)
+                <input type="text" id="getMsg{{$task->id}}" style="width: 100%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="" readonly>
+                <button readonly class="btn btn-sm btn-image send-message" id="sendMsg{{$task->id}}" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
+                @endif
+                @if (isset($task->message))
+                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                @endif
+                <button class="btn btn-image upload-task-files-button ml-2" type="button" title="Uploaded Files" data-task_id="{{$task->id}}">
+                    <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-image view-task-files-button ml-2" type="button" title="View Uploaded Files" data-task_id="{{$task->id}}">
+                    <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                </button>
             </div>
-        </div>
-        @endif
+            @if (isset($task->message))
+                <div style="margin-bottom:10px;width: 100%;">
+                    <div class="d-flex justify-content-between">
+                        @if (isset($task->is_audio) && $task->is_audio)
+                            <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio> 
+                        @else
+                        <span class="td-mini-container">
+                            {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
+                        </span>
+                        <span class="td-full-container hidden">
+                            {{ $task->message }}
+                        </span>
+                        @endif
+                    </div>
+                </div>
+            @endif
         @else
-        Private
+            Private
         @endif
     </td>
     <td class="p-2">

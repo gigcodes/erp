@@ -1,7 +1,4 @@
-@php
-    $status_color = \App\TaskStatus::where('id',$task->status)->first();
-@endphp
-<tr style="background-color: {{$status_color->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
+<tr style="background-color: {{$task->taskStatus->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
     <td class="p-2">
         @if(auth()->user()->isAdmin())
         <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>
@@ -12,16 +9,13 @@
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
         <br>
         @if($task->customer_id)
-        Cus-{{$task->customer_id}}
-        <br>
-        @if(Auth::user()->isAdmin())
-        @php
-        $customer = \App\Customer::find($task->customer_id);
-        @endphp
-        <span>
-            {{ isset($customer ) ? $customer->name : '' }}
-        </span>
-        @endif
+            Cus-{{$task->customer_id}}
+            <br>
+            @if(Auth::user()->isAdmin())
+                <span>
+                    {{ isset($task->customer ) ? $task->customer->name : '' }}
+                </span>
+            @endif
         @endif
     </td>
     <td class="expand-row table-hover-cell p-2">
@@ -67,28 +61,28 @@
     </td> -->
     <td class="table-hover-cell p-2">
         @php
-        $special_task = \App\Task::find($task->id);
-        $users_list = '';
-        foreach ($special_task->users as $key => $user) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
-        if (array_key_exists($user->id, $users)) {
-        $users_list .= $users[$user->id];
-        } else {
-        $users_list = 'User Does Not Exist';
-        }
-        }
+            $special_task = $task;
+            $users_list = '';
+            foreach ($special_task->users as $key => $user) {
+                if ($key != 0) {
+                    $users_list .= ', ';
+                }
+                if (array_key_exists($user->id, $users)) {
+                    $users_list .= $users[$user->id];
+                } else {
+                    $users_list = 'User Does Not Exist';
+                }
+            }
 
-        $users_list .= ' ';
+            $users_list .= ' ';
 
-        foreach ($special_task->contacts as $key => $contact) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
+            foreach ($special_task->contacts as $key => $contact) {
+                if ($key != 0) {
+                    $users_list .= ', ';
+                }
 
-        $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-        }
+                $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
+            }
         @endphp
 
         <!--<span class="td-mini-container">
@@ -96,25 +90,25 @@
         </span>-->
 
         @if(auth()->user()->isAdmin())
-        <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
-            <option value="">Select...</option>
-            <?php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; ?>
-            @foreach($users as $id=>$name)
-            @if( $masterUser == $id )
-            <option value="{{$id}}" selected>{{ $name }}</option>
-            @else
-            <option value="{{$id}}">{{ $name }}</option>
+            <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
+                <option value="">Select...</option>
+                <@php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; @endphp
+                @foreach($users as $id=>$name)
+                    @if( $masterUser == $id )
+                        <option value="{{$id}}" selected>{{ $name }}</option>
+                    @else
+                        <option value="{{$id}}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+        @else
+            @if($task->assign_to)
+                @if(isset($users[$task->assign_to]))
+                    <p>{{$users[$task->assign_to]}}</p>
+                @else
+                    <p>-</p>
+                @endif
             @endif
-            @endforeach
-        </select>
-        @else
-        @if($task->assign_to)
-        @if(isset($users[$task->assign_to]))
-        <p>{{$users[$task->assign_to]}}</p>
-        @else
-        <p>-</p>
-        @endif
-        @endif
         @endif
 
         <span class="td-full-container hidden">
@@ -208,9 +202,9 @@
             <button type="button" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
         </div>
         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
-        {{ formatDuration($special_task->timeSpent->tracked) }}
+            {{ formatDuration($special_task->timeSpent->tracked) }}
 
-        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
     </td>
     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
