@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon\Carbon;
 use App\CronJobReport;
+use App\Meetings\ZoomMeetingDetails;
 use App\Meetings\ZoomMeetings;
 use App\ZoomOAuthHelper;
 use Illuminate\Console\Command;
@@ -71,6 +72,59 @@ class ZoomMeetingsSync extends Command
                             'host_zoom_id' => $meeting['host_id'],
                         ]
                     );
+
+                    // Fetch recordings for this meeting
+                    $recordingsResponse = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $accessToken,
+                    ])->get('https://api.zoom.us/v2/meetings/' . $meeting['id'] . '/recordings');
+
+                    $meetingRecording = $recordingsResponse->json();
+
+                    \Log::info('meetingRecording -->' . json_encode($meetingRecording));
+
+                    // Code copied from app/Meetings/ZoomMeetings.php:saveRecordings()
+                    if ($meetingRecording && isset($meetingRecording['recording_files'])) {
+                        $folderPath = public_path() . '/zoom/0/' . $meeting['id'];
+                        $databsePath = '/zoom/0/' . $meeting['id'];
+                        \Log::info('folderPath -->' . $folderPath);
+                        foreach ($meetingRecording['recording_files'] as $recordings) {
+                            $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
+                            if (! $checkfile) {
+                                if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
+                                    \Log::info('shared_screen_with_speaker_view');
+                                    $fileName = $meeting['id'] . '_' . time() . '.mp4';
+                                    $urlOfFile = $recordings['download_url'];
+                                    $filePath = $folderPath . '/' . $fileName;
+                                    if (! file_exists($filePath) && ! is_dir($folderPath)) {
+                                        mkdir($folderPath, 0777, true);
+                                    }
+                                    $ch = curl_init($urlOfFile);
+                                    curl_exec($ch);
+                                    if (! curl_errno($ch)) {
+                                        $info = curl_getinfo($ch);
+                                        $downloadLink = $info['redirect_url'];
+                                    }
+                                    curl_close($ch);
+
+                                    if ($downloadLink) {
+                                        copy($downloadLink, $filePath);     
+                                    }
+
+                                    $zoom_meeting_details = new ZoomMeetingDetails();
+                                    $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
+                                    $zoom_meeting_details->file_name = $fileName;
+                                    $zoom_meeting_details->download_url_id = $recordings['id'];
+                                    $zoom_meeting_details->meeting_id = $recordings['meeting_id'];
+                                    $zoom_meeting_details->file_type = $recordings['file_type'];
+                                    $zoom_meeting_details->download_url = $recordings['download_url'];
+                                    $zoom_meeting_details->file_path = $recordings['file_path'];
+                                    $zoom_meeting_details->file_size = $recordings['file_size'];
+                                    $zoom_meeting_details->file_extension = $recordings['file_extension'];
+                                    $zoom_meeting_details->save();
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
