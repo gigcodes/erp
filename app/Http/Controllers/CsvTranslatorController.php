@@ -22,8 +22,10 @@ class CsvTranslatorController extends Controller
         $permissions = [];
 
         foreach ($allCsvPermission as $permission) {
-            $cols[] = $permission['lang_id'];
-            $lang[] = ['data' => $permission['lang_id']];
+            if(!in_array($permission['lang_id'], $cols)) {
+                $cols[] = $permission['lang_id'];
+                $lang[] = ['data' => $permission['lang_id']];
+            }
             $permissions[$permission['lang_id']][] = $permission['action'];
         }
 
@@ -34,7 +36,7 @@ class CsvTranslatorController extends Controller
         $res = explode(',', $colums);
         if ($request->ajax()) {
             $data = Csvtranslator::all();
-            if (\Auth::user()->hasRole('Lead Translator')) {
+            if (\Auth::user()->hasRole('Lead Translator') || \Auth::user()->hasRole('Admin')) {
                 $res = datatables()->of($data)->addIndexColumn();
                 $res->editColumn('en', function ($data) {
                     return $this->commanRadioLoad('en', $data->id, $data->toArray());
@@ -198,37 +200,29 @@ class CsvTranslatorController extends Controller
         }
 
         if (count($permissions[$lang]) == 2) {
+            $return = '';
+            if ($data['status_' . $lang] == 'checked') {
+                $return .=  '<div class="bg-success text-white show_csv_co">' . $language . "</div>";
+            } else {
+                $return .=  '<div class="bg-custom-grey show_csv_co">' . $language . "</div>";
+            }
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'view') {
-                if ($data['status_' . $lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
-                } else {
-                    return   '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
-                }
+                $return .= "<a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][0]) && $permissions[$lang][0] == 'edit') {
-                if ($data['status_' . $lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
-                } else {
-                    return  '<div class="bg-custom-grey p-2 show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
-                }
+                $return .= "<a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][1]) && $permissions[$lang][1] == 'view') {
-                if ($data['status_' . $lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
-                } else {
-                    return   '<div class="bg-custom-grey show_csv_co">' . $language . "</div><a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
-                }
+                $return .= "<a href='#' class='history_model viewbtn_model' data-key='$key' data-lang='$lang' data-id='$id' data-toggle='modal'  data-target='#history'> <i class='fa fa-eye'></i> </a>";
             }
 
             if (isset($permissions[$lang]) && isset($permissions[$lang][1]) && $permissions[$lang][1] == 'edit') {
-                if ($data['status_' . $lang] == 'checked') {
-                    return  '<div class="bg-success text-white show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
-                } else {
-                    return  '<div class="bg-custom-grey p-2 show_csv_co">' . $language . "</div><a href='#' class='editbtn_model' data-value='$language' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
-                }
+                $return .= "<a href='#' class='editbtn_model' data-value='.$language.' data-lang='$lang' data-user='" . auth()->user()->id . "' data-id='$id' data-toggle='modal' data-target='#edit_model'> <i class='fa fa-pencil'></i> </a>";
             }
+
+            return $return;
         }
     }
 
@@ -305,6 +299,20 @@ class CsvTranslatorController extends Controller
         $historyData['created_at'] = \Carbon\Carbon::now();
         CsvTranslatorHistory::insert($historyData);
 
+        // If User has advance permission type - Then auto approve
+        $csvPermissionAdvance = CsvPermissions::where('user_id', $request->update_by_user_id)->where('lang_id', $request->lang_id)->where('type', 'advance')->first();
+
+        if ($csvPermissionAdvance) {
+            $record['status_' . $request->lang_id] = 'checked';
+            $record['approved_by_user_id'] = \Auth::user()->id;
+            $record->update();
+            
+            $record_history = CsvTranslatorHistory::where('csv_translator_id', $record->id)->where($request->lang_id, '!=', '')->orderBy('id', 'desc')->first();
+            $record_history['status_' . $request->lang_id] = "checked";
+            $record_history['approved_by_user_id'] = \Auth::user()->id;
+            $record_history->update();
+        }
+        
         return redirect()->route('csvTranslator.list')->with(['success' => 'Successfully Updated']);
     }
 
@@ -338,7 +346,9 @@ class CsvTranslatorController extends Controller
             }
         }
 
-        return response()->json(['status' => 200, 'data' => $history]);
+        $html = view('csv-translator.history', compact('language', 'history'))->render();
+
+        return response()->json(['status' => 200, 'data' => $history, 'html' => $html]);
     }
 
     public function filterCsvTranslator(Request $request)
@@ -391,7 +401,7 @@ class CsvTranslatorController extends Controller
     public function userPermissions(Request $request)
     {
         if ($request->ajax()) {
-            $data = $request->only('user_id', 'lang_id', 'action');
+            $data = $request->only('user_id', 'lang_id', 'action', 'type');
             $checkExists = CsvPermissions::where('user_id', $data['user_id'])->where('lang_id', $data['lang_id'])->where('action', $data['action'])->first();
 
             if ($checkExists) {
