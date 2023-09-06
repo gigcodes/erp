@@ -466,4 +466,188 @@ class Task extends Model
     {
         return '#TASK-' . $obj->id . '-' . $obj->task_subject . ' => ';
     }
+
+    /* Common function to get tasks filtered and for Task & Activity module */    
+    public static function getSearchedTasks($type = '', $request)
+    {
+        $term = $request->term ?? '';
+        $paginate = 50;
+        $page = $request->get('page', 1);
+        $offSet = ($page * $paginate) - $paginate;
+
+        $chatSubQuery = DB::table('chat_messages')
+                    ->select(
+                        'chat_messages.id as message_id',
+                        'chat_messages.task_id',
+                        'chat_messages.message',
+                        'chat_messages.is_audio',
+                        'chat_messages.status as message_status',
+                        'chat_messages.sent as message_type',
+                        'chat_messages.created_at as message_created_at',
+                        'chat_messages.is_reminder as message_is_reminder',
+                        'chat_messages.user_id as message_user_id'
+                    )
+                    ->join('chat_messages_quick_datas', 'chat_messages_quick_datas.last_communicated_message_id', '=', 'chat_messages.id')
+                    ->whereNotIn('chat_messages.status', [7, 8, 9])
+                    ->where('chat_messages_quick_datas.model', '=',  \App\Task::class);
+
+
+
+         $qb = self::select(
+                'tasks.*', 
+                'assign_from_user.name as assign_from_username', 
+                'assign_to_user.name as assign_to_username', 
+                'message_id', 
+                'task_id', 
+                'message', 
+                'message_status', 
+                'message_type', 
+                'message_created_at', 
+                'message_is_reminder', 
+                'message_user_id' 
+            )
+            ->leftJoinSub($chatSubQuery, 'chat_messages', function ($join) {
+                $join->on('chat_messages.task_id', '=', 'tasks.id');
+            })
+            ->leftJoin('users as assign_from_user', 'tasks.assign_from', '=', 'assign_from_user.id')
+            ->leftJoin('users as assign_to_user', 'tasks.assign_to', '=', 'assign_to_user.id')
+            ->leftJoin('task_categories', 'tasks.category', '=', 'task_categories.id')
+            ->leftJoin('users', 'tasks.assign_from', '=', 'users.id')
+            ->whereNull('tasks.deleted_at')
+            ->whereNotNull('tasks.id');
+
+            if ($type != 'statutory_not_completed_list') {
+                if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null ) {
+                    $qb->where('is_statutory', '=', $request->get('is_statutory_query'));
+                } else {
+                    $qb->where('is_statutory', '!=', 3);
+                }
+            }
+
+            if ($term != '') {
+                $qb->where(function ($query) use($term) {
+                    $query->where('tasks.id', 'LIKE', "%". $term . "%")
+                    ->orWhere('task_categories.title', 'LIKE', "%". $term . "%")
+                    ->orWhere('tasks.task_subject', 'LIKE', "%". $term . "%")
+                    ->orWhere('tasks.task_details', 'LIKE', "%". $term . "%")
+                    ->orWhere('assign_from_user.name', 'LIKE', "%". $term . "%")
+                    ->orWhere('users.name', 'LIKE', "%". $term . "%")
+                    ->orWhereIn('tasks.id', function ($subquery) use($term) {
+                        $subquery->select('task_id')
+                        ->from('task_users')
+                        ->whereIn('task_users.user_id', function($sq2) use($term) {
+                            $sq2->select('id')
+                            ->from('users')
+                            ->where('name', 'LIKE', "%". $term . "%");
+                        });
+                    });
+                });
+            }
+
+
+
+            if ($request->sort_by == 1) {
+                $qb->orderByDesc('tasks.created_at');
+            } elseif ($request->sort_by == 2) {
+                $qb->orderBy('tasks.created_at');   
+            }
+
+
+        if ($type == 'pending') {
+            
+            $qb->where('is_statutory', '!=', 1);
+            $qb->whereIn('tasks.status', TaskStatus::pluck('id')->toArray());
+        
+            if ($term != '') $qb->where('tasks.id', '=', $term);
+
+            $qb->orderByDesc('tasks.is_flagged')
+            ->orderByDesc('chat_messages.message_created_at')
+            ->offset($offSet)
+            ->limit($paginate);
+
+            return $qb->get();
+
+        } else if (in_array($type, ['pending_list', 'completed_list', 'statutory_not_completed_list'])) {
+            $qb->selectRaw("customers.name AS customer_name")
+            ->leftJoin('customers', 'tasks.customer_id', '=', 'customers.id');
+            
+            if ($request->filter_status) {
+                $qb->whereIn('tasks.status', $request->filter_status);
+            } else {
+                $qb->whereNotIn('tasks.status', [1]);
+            }
+
+
+            $userIdsString = $request->input('selected_user');
+            $selectedUser = $userIdsString;
+            if ($userIdsString == '') $userIdsString = [Auth::id()];
+
+
+            $searchMasterUserId = $userIdsString;
+            if ($request->search_master_user_id != '') {
+                $searchMasterUserId = $request->search_master_user_id;
+            }
+
+            $searchSecondMasterUserId = $userIdsString;
+            if ($request->search_second_master_user_id != '') {
+                $searchSecondMasterUserId = $request->search_second_master_user_id;
+            }
+
+            $qb->where(function ($query) use($searchMasterUserId, $searchSecondMasterUserId, $userIdsString, $selectedUser) {
+                if ($selectedUser == '') {
+                    $query->whereIn('tasks.assign_from', $userIdsString);
+                } else {
+                    $query->whereIn('tasks.assign_to', $userIdsString);
+                }
+
+
+                $query
+                ->orWhere('tasks.second_master_user_id', $searchSecondMasterUserId)
+                ->orWhere('tasks.master_user_id', $searchMasterUserId)
+                ->orWhereIn('tasks.id', function ($subquery) use($userIdsString) {
+                    $subquery->select('task_id')
+                    ->from('task_users')
+                    ->whereIn('task_users.user_id', function($sq2) use($userIdsString) {
+                        $sq2->select('id')
+                        ->from('users')
+                        ->whereIn('user_id', $userIdsString)
+                        ->where('type', 'LIKE', "%User%");
+                    });
+                });
+            });
+
+            if ($request->ajax() && !$request->flag_filter) $qb->where("tasks.is_flagged", 0);
+
+
+            if ($request->category != '' && $request->category != 1) {
+                $qb->where("tasks.category", $request->category);
+            }
+            if ($type != "statutory_not_completed_list") {
+                $qb->where('is_statutory', '!=', 1);
+            } else if ($type == "statutory_not_completed_list") {
+                $qb->where('is_statutory', '=', 1);
+                $qb->whereNull('is_verified');
+            }
+            if ($type === "completed_list" || $type == "statutory_not_completed_list" ) {
+
+                if ($type == 'completed_list') $qb->whereNotNull('is_verified');
+
+                $qb->selectRaw('message_created_at as last_communicated_at');
+                $qb->orderByDesc('last_communicated_at');
+
+            } else if ($type === "pending_list") {
+
+                if ($request->filter_by == 1) $qb->whereNull('is_completed');
+                if ($request->filter_by == 2) $qb->whereNotNull('is_completed');
+                if ($request->filter_by != 1) $qb->whereNull('is_verified');
+
+                $qb->orderByDesc('tasks.is_flagged');
+                $qb->orderByDesc('message_created_at');
+            }
+            $qb->offset($offSet);
+            $qb->limit($paginate);
+
+            return $qb->get();
+        }
+    }
 }
