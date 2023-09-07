@@ -63,6 +63,16 @@ class MagnetoGoogledriveUpload
                 $this->googleScreencast->admin_config_google_drive_file_id = $screencastId;
                 $this->googleScreencast->save();
             }
+            if($this->googleScreencast->parent_google_file_drive_id)
+            {
+                $this->googleScreencast->parent_google_file_drive_id = $screencastId;
+                $this->googleScreencast->save();
+            }
+            if($this->googleScreencast->google_drive_file_id)
+            {
+                $this->googleScreencast->google_drive_file_id = $screencastId;
+                $this->googleScreencast->save();
+            }
 
             if ($this->updatable != null) {
                 $this->updateData($this->updatable, $screencastId);

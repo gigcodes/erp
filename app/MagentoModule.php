@@ -48,6 +48,10 @@ class MagentoModule extends Model
         'return_type_error_status',
         'm2_error_status_id',
         'm2_error_assignee',
+        'm2_error_remark',
+        'unit_test_status_id',
+        'unit_test_remark',
+        'unit_test_user_id'
     ];
 
     public function module_category()

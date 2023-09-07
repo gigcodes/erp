@@ -1,24 +1,19 @@
-<div id="childImageAddModal" class="modal fade " role="dialog">
-    <div class="modal-dialog modal-lg">
+<div id="unitTestStatusCreateModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            <form id="magento_frontend_child_image_form" class="form mb-15" enctype="multipart/form-data">
+            <form id="unit_test_status_form" class="form mb-15" >
             @csrf
-            {!! Form::hidden('magento_frontend_id', null, ['id'=>'magento_frontend_id']) !!}
             <div class="modal-header">
-                <h4 class="modal-title">Add Child Folder Image</h4>
+                <h4 class="modal-title">Add Unit Test Status</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
+            
             <div class="modal-body">
-                <div class="row ml-2 mr-2">
-                    <div class="col-xs-6 col-sm-6">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label>Child Folder Image</label>
-                                <input type="file" name="child_folder_image[]" id="child_folder_image">
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <strong>Unit Test Status :</strong>
+                    {!! Form::text('unit_test_status_name', null, ['placeholder' => 'Unit Test Status', 'id' => 'unit_test_status_name', 'class' => 'form-control', 'required' => 'required']) !!}
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -30,16 +25,15 @@
 </div>
 
 
+@push('scripts')
     <script>
-
-    $(document).on('submit', '#magento_frontend_child_image_form', function(e){
+    $(document).on('submit', '#unit_test_status_form', function(e){
         e.preventDefault();
         var self = $(this);
-        let formData = new FormData(document.getElementById("magento_frontend_child_image_form"));
+        let formData = new FormData(document.getElementById("unit_test_status_form"));
         var button = $(this).find('[type="submit"]');
-        console.log(button);
         $.ajax({
-            url: '{{ route("magento-frontend-child-image-store") }}',
+            url: '{{ route("magento_modules.store-unit-test-status") }}',
             type: "POST",
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType: 'json',
@@ -58,9 +52,13 @@
                 button.removeClass('disabled');
             },
             success: function(response) {
-                $('#apiDataAddModal #magento_frontend_child_image_form').trigger('reset');
-                magentofrontendTable.draw();
+                $('#unitTestStatusCreateModal #unit_test_status_form').trigger('reset');
+                $('#unitTestStatusCreateModal #unit_test_status_form').find('.error-help-block').remove();
+                $('#unitTestStatusCreateModal #unit_test_status_form').find('.invalid-feedback').remove();
+                $('#unitTestStatusCreateModal #unit_test_status_form').find('.alert').remove();
                 toastr["success"](response.message);
+                oTable.draw();
+                $('#unitTestStatusCreateModal').modal('hide');
             },
             error: function(xhr, status, error) { // if error occured
                 if(xhr.status == 422){
@@ -73,6 +71,6 @@
             },
         });
     });
-
     </script>
 
+@endpush

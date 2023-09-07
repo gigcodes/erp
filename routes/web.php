@@ -577,6 +577,13 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module_customized_histories/{magento_module}', [MagentoModuleCustomizedHistoryController::class, 'show'])->name('magento_module_customized_histories.show');
 
     Route::get('magento_module_histories/{magento_module}', [MagentoModuleHistoryController::class, 'show'])->name('magento_module_histories.show');
+    Route::post('magento_modules/M2remark', [MagentoModuleController::class, 'storeM2Remark'])->name('magento_module_m2_remark.store');
+    Route::post('magento_modules/unit-test-status', [MagentoModuleController::class, 'storeUnitTestStatus'])->name('magento_modules.store-unit-test-status');
+    Route::post('magento_modules/unit-testremark', [MagentoModuleController::class, 'storeUniTestRemark'])->name('magento_module_unit_test_remark.store');
+    Route::get('magento_module/unit-test-user-history', [MagentoModuleController::class, 'getUnitTestUserHistories'])->name('magento_module.unit-test-user-history');
+    Route::get('magento_module/unit-test-remark-history', [MagentoModuleController::class, 'getUnitTestRemarkHistories'])->name('magento_module.unit-test-remark-history');
+    Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
+    Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
 
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
@@ -654,6 +661,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
     Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
     Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontenddelete'])->name('magento-frontend.destroy');
+    Route::get('magento-frontend/files/record', [MagentoFrontendDocumentationController::class, 'frontnedUploadedFilesList'])->name('magento-frontend.files.record');
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name('magento-css-variable.value-histories');
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name('magento-css-variable.verify-histories');

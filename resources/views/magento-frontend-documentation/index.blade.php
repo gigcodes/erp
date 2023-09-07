@@ -285,7 +285,7 @@
                     <div class="col-xs-6 col-sm-6">
                         <div class="col-sm-12">
                             <div class="form-group">
-                                <input type="file" name="parent_folder_image" id="parent_folder_image">
+                                <input type="file" name="parent_folder_image[]" id="parent_folder_image">
                             </div>
                         </div>
                     </div>
@@ -300,6 +300,40 @@
         </div>
       </div>
 
+      <div id="magnetobackendFileUpload" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-xl">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Google Drive Uploaded files</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>File Creation Date</th>
+                                    <th>URL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="magnetoFileUpload">
+
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+    @include('magento-frontend-documentation.upload-file-listing')
     @include('magento-frontend-documentation.partials.magento-fronent-create')
     @include('magento-frontend-documentation.remark_list')
     @include('magento-frontend-documentation.location-list')
@@ -419,13 +453,18 @@
                             let remark_history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-module-parent-folder p-0"  data-id="${row['id']}" title="Parent Folder History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
-                            let Upload_button =  `<button style="display: inline-block;" class="btn btn-sm upload-parent-folder-modal  p-0" type="submit" id="submit_message" data-id="${row['id']}" data-toggle="modal" data-target="#parentImageAddModal"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
+                            let Upload_button =  `<button style="display: inline-block;" class="btn btn-sm upload-parent-folder-modal  p-0" type="submit" id="submit_message" data-type="parentFolder" data-id="${row['id']}" data-toggle="modal" data-target="#parentImageAddModal"> <i class="fa fa-upload" aria-hidden="true"></i></button>`;
                             
                             let remark_send_button =
                                 `<button style="display: inline-block;" class="btn btn-sm btn-image p-0" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveparentFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
-                            data = (data == null) ? '' : '';                      
+                            data = (data == null) ? '' : '';  
+
+                            let ViewFiles = `
+                            <button class="btn btn-image view-upload-parent-files-button ml-2" type="button" title="View Uploaded Files" data-id="${row['id']}" data-type="description">
+                                                            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                                                        </button>`;                    
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} ${ViewFiles} </div>`;
 
                             return retun_data;
                         }
@@ -442,10 +481,16 @@
                             `<button type="button" class="btn btn-xs btn-image load-module-child-folder p-0"  data-id="${row['id']}" title="Child Folder History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
 
                             let remark_send_button =
-                                `<button style="display: inline-block;" class="btn btn-sm btn-image p-0" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveChildFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+                                `<button style="display: inline-block;" class="btn btn-sm btn-image p-0" type="submit" id="submit_message"  data-type="childFolder" data-id="${row['id']}" onclick="saveChildFolder(${row['id']})"><img src="/images/filled-sent.png"></button>`;
                             data = (data == null) ? '' : '';
+
+                            let ViewFiles = `
+                            <button class="btn btn-image view-upload-files-button ml-2" type="button" title="View Uploaded Files" data-id="${row['id']}" data-type="description">
+                                                            <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                                                        </button>`;
+
                             let retun_data =
-                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} </div>`;
+                                `${data} <div class="general-remarks"> ${message} ${remark_send_button} ${Upload_button} ${remark_history_button} ${ViewFiles}</div>`;
 
                             return retun_data;
                         }
@@ -682,6 +727,58 @@
                 $("#loading-image").hide();
             });
         }
+
+
+        $(document).on("click", ".view-upload-parent-files-button", function (e) {
+                e.preventDefault();
+                let id = $(this).data("id");
+                let type = $(this).data("type");
+                $.ajax({
+                    type: "get",
+                    url: "{{route('magento-frontend.files.record')}}",
+                    data: {
+                        id,
+                        type,
+                    },
+                    success: function (response) {
+                        if(typeof response.data != 'undefined') {
+                            $("#magnetoFileUpload").html(response.data);
+                        } else {
+                            $("#magnetoFileUpload").html(response);
+                        }
+                        
+                        $("#magnetobackendFileUpload").modal("show")
+                    },
+                    error: function (response) {
+                        toastr['error']("Something went wrong!");
+                    }
+                });
+        });
+         $(document).on("click", ".view-upload-files-button", function (e) {
+            e.preventDefault();
+            let id = $(this).data("id");
+            let type = $(this).data("type");            
+                $.ajax({
+                    type: "get",
+                    url: "{{route('magento-frontend.files.record')}}",
+                    data: {
+                        id,
+                        type,
+                    },
+                    success: function (response) {
+                        if(typeof response.data != 'undefined') {
+                            $("#magnetoFileUpload").html(response.data);
+                        } else {
+                            $("#magnetoFileUpload").html(response);
+                        }
+                        
+                        $("#magnetobackendFileUpload").modal("show")
+                    },
+                    error: function (response) {
+                        toastr['error']("Something went wrong!");
+                    }
+                });
+        });
 
         $(document).on('click', '.load-location-remark', function() {
             var id = $(this).attr('data-id');

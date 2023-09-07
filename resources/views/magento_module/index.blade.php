@@ -196,6 +196,11 @@
                             {!! Form::select('lead_verified_status_id[]', $verified_status_array, null, ['class' => 'form-control multiselect-lead-status',"multiple" => true]) !!}
                         </div>
                     </div>
+                    <div class="col-xs-3 col-sm-2">
+                        <div class="form-group">
+                            {!! Form::select('m2_error_status_id[]', $m2_error_status_array, null, ['class' => 'form-control multiselect-m2-error-status',"multiple" => true]) !!}
+                        </div>
+                    </div>
 
                     <div class="col-xs-2 col-sm-1 pt-2 ">
                         <div class="d-flex" >
@@ -224,6 +229,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleLocationCreateModal"> Module Location Create  </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleReturnTypeCreateModal"> Module Return Type Error Create  </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#m2ErrorStatusCreateModal">M2 Error Status Create</button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#unitTestStatusCreateModal">Unit test Status Create</button>
                     </div>
                 </div>
             </form>
@@ -283,7 +289,11 @@
                         <th> Return Type Error </th>
                         <th> Return Type Error Status </th>
                         <th> M2 Error Status </th>
+                        <th> M2 Error Remark </th>
                         <th> M2 Error Assignee </th>
+                        <th> Unit Test status </th>
+                        <th> Unit Test Remarks </th>
+                        <th> Unit test User </th>
                         <th> Dependancies </th>
                         <th> Action </th>
     
@@ -355,7 +365,16 @@
     @include('magento-return-type-status.return-type-history')
      {{-- moduleDependcyModal --}}
      @include('magento_module.partials.dependency_list')
-
+    {{-- moduleM2ErrorRemark --}}
+     @include('magento_module.magento-m2-error-remark-list')
+    {{-- Unit Test Status CreateModal --}}
+    @include('magento_module.magento-unit-test-status.unit-test-status-create-modal')
+    {{-- moduleTestUser --}}
+    @include('magento_module.magneto-unit-test-user-list')
+    {{-- moduleTestRemark --}}
+    @include('magento_module.magento-unit-test-remark-list')
+    {{-- moduleTestStatus --}}
+    @include('magento_module.magneto-unit-test-status-list')
 
 
 
@@ -403,6 +422,12 @@
                 includeSelectAllOption: true,
                // enableFiltering: true,
                 nonSelectedText: 'Select Lead Verified Status',
+            });
+            $(".multiselect-m2-error-status").multiselect({
+                allSelectedText: 'All',
+                includeSelectAllOption: true,
+               // enableFiltering: true,
+                nonSelectedText: 'Select M2 error  Status',
             });
         });
         $(document).on('click', '#searchReset', function(e) {
@@ -472,6 +497,8 @@
                         d.lead_verified_by = $('.multiselect-lead').val();
                         d.lead_verified_status_id = $('.multiselect-lead-status').val();
                         d.return_type_error_status = $('.filter-return_type_name').val();
+                        d.m2_error_status_id = $('.multiselect-m2-error-status').val();
+                        
                         
                         
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
@@ -1007,6 +1034,24 @@
                         }
                     },
                     {
+                        data: 'm2_error_remark',
+                        name: 'magento_modules.m2_error_remark',
+                        render: function(data, type, row, meta) {
+                            
+                            let message = `<input type="text" id="m2_error_remark_${row['id']}" name="m2_error_remark" class="form-control m2_error_remark_input" placeholder="M2 Error Remark" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-unit-m2-remark ml-2" data-id="${row['id']}" title="Unit Test Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveM2Remarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+
+                            let retun_data = `<div class="general-remarks"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
                         data: 'm2_error_assignee',
                         name: 'm2_error_assignee',
                         render: function(data, type, row, meta) {
@@ -1023,6 +1068,67 @@
                             }
                             let history_button =
                                 `<button type="button" class="btn btn-xs btn-image load-m2-error-assignee-history ml-2" data-id="${row['id']}" title="Assignee Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
+
+                            return `<div class="flex items-center gap-5">${dev_html} ${history_button}</div>`;
+                        }
+                    },
+                    {
+                        data: 'unit_test_status_id',
+                        name: 'magento_modules.unit_test_status_id',
+                        render: function(data, type, row, meta) {
+                            
+                            var unitTestStatuses= row['unit_test_status'];
+                            var unitTestStatuses =  unitTestStatuses.replace(/&quot;/g, '"');
+                            if(unitTestStatuses && unitTestStatuses != "" ){
+                                var dev_html = '<select id="unit_test_status_id" class="form-control edit_mm" name="unit_test_status_id"><option selected="selected" value="">Select unit Test Status </option>';
+                                var unitTestStatuses = JSON.parse(unitTestStatuses);
+                                unitTestStatuses.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.unit_test_status_name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+
+                            let history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-unit-test-status-history ml-2" data-id="${row['id']}" title="Load histories"> <i class="fa fa-info-circle"> </button>`;
+
+                            return `<div class="flex items-center gap-5">${dev_html} ${history_button}</div>`;
+                        }
+                    },
+                    {
+                        data: 'unit_test_remark',
+                        name: 'magento_modules.unit_test_remark',
+                        render: function(data, type, row, meta) {
+                            
+                            let message = `<input type="text" id="unit_test_remark_${row['id']}" name="unit_test_remark" class="form-control unit_test_remark_input" placeholder="Unit Test Remark" />`;
+
+                            let remark_history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-module-unit-test-remark ml-2" data-id="${row['id']}" title="Unit Test Remark History"> <img src="/images/chat.png" alt="" style="cursor: default;"> </button>`;
+
+                            let remark_send_button =
+                                `<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" type="submit" id="submit_message"  data-id="${row['id']}" onclick="saveUnitTestRemarks(${row['id']})"><img src="/images/filled-sent.png"></button>`;
+
+                            let retun_data = `<div class="general-remarks"> ${message} ${remark_send_button} ${remark_history_button} </div>`;
+                            
+                            return retun_data;
+                        }
+                    },
+                    {
+                        data: 'unit_test_user_id',
+                        name: 'unit_test_user_id',
+                        render: function(data, type, row, meta) {
+                            
+                            var dev_list = row['developer_list'];
+                            var dev_list =  dev_list.replace(/&quot;/g, '"');
+                            if(dev_list && dev_list != "" ){
+                                var dev_html = '<select id="unit_test_user_id" class="form-control edit_mm" name="unit_test_user_id"><option selected="selected" value="">Select test user </option>';
+                                var dev_list = JSON.parse(dev_list);
+                                dev_list.forEach(function(dev){
+                                    dev_html += `<option value="${dev.id}" `+(dev.id == data ? 'selected' :'') +`>${dev.name}</option>`;
+                                });
+                                dev_html +="</select>";
+                            }
+                            let history_button =
+                                `<button type="button" class="btn btn-xs btn-image load-test-user-history ml-2" data-id="${row['id']}" title="Assignee Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </button>`;
 
                             return `<div class="flex items-center gap-5">${dev_html} ${history_button}</div>`;
                         }
@@ -1159,6 +1265,87 @@
             });
         }
 
+
+         // Store M2 Remark
+         function saveM2Remarks(row_id, selector = 'm2_error_remark') {
+            var remark = $("#"+selector+"_" + row_id).val();
+            var val = $("#"+selector+"_" + row_id).val();
+
+            $.ajax({
+                url: `{{ route('magento_module_m2_remark.store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    remark: remark,
+                    magento_module_id: row_id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    $("#"+selector+"_" + row_id).val('');
+                    toastr["success"](response.message);
+                    oTable.draw();
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        // $('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
+
+
+         // Store M2 Remark
+         function saveUnitTestRemarks(row_id, selector = 'unit_test_remark') {
+            var remark = $("#"+selector+"_" + row_id).val();
+            var val = $("#"+selector+"_" + row_id).val();
+
+            $.ajax({
+                url: `{{ route('magento_module_unit_test_remark.store') }}`,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                data: {
+                    remark: remark,
+                    magento_module_id: row_id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                if (response.status) {
+                    $("#"+selector+"_" + row_id).val('');
+                    toastr["success"](response.message);
+                    oTable.draw();
+                } else {
+                    toastr["error"](response.message);
+                }
+                $("#loading-image").hide();
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.responseJSON.errors !== undefined) {
+                    $.each(jqXHR.responseJSON.errors, function(key, value) {
+                        // $('#validation-errors').append('<div class="alert alert-danger">' + value + '</div');
+                        toastr["warning"](value);
+                    });
+                } else {
+                    toastr["error"]("Oops,something went wrong");
+                }
+                $("#loading-image").hide();
+            });
+        }
 
         $(document).on("click", ".add-api-data-modal", function() {
             let magento_module_id = $(this).data('id');
@@ -1533,6 +1720,127 @@
                         });
                         $("#magento-m2-error-assignee-list").find(".magento-m2-error-assignee-list-view").html(html);
                         $("#magento-m2-error-assignee-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-test-user-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.unit-test-user-history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_test_user ? v.old_test_user.name : ''} </td>
+                                        <td> ${v.new_test_user ? v.new_test_user.name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#magento-unit-test-user-list").find(".magento-unit-test-user-list-view").html(html);
+                        $("#magento-unit-test-user-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-module-unit-test-remark', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.unit-test-remark-history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_unit_test_remark ? v.old_unit_test_remark : ''} </td>
+                                        <td> ${v.new_unit_test_remark ? v.new_unit_test_remark : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#magento-unit-test-remark-list").find(".magento-unit-test-remark-list-view").html(html);
+                        $("#magento-unit-test-remark-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.load-unit-test-status-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.unit-status-history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_test_status ? v.old_test_status.unit_test_status_name : ''} </td>
+                                        <td> ${v.new_test_status ? v.new_test_status.unit_test_status_name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#magento-unit-test-status-list").find(".magento-unit-test-status-list-view").html(html);
+                        $("#magento-unit-test-status-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+
+        $(document).on('click', '.load-module-unit-m2-remark', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: "{{ route('magento_module.m2-error-remark-history')}}",
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.old_m2_error_remark ? v.old_m2_error_remark : ''} </td>
+                                        <td> ${v.new_m2_error_remark ? v.new_m2_error_remark : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#magento-m2-error-remark-list").find(".magento-m2-error-remark-list-view").html(html);
+                        $("#magento-m2-error-remark-list").modal("show");
                     } else {
                         toastr["error"](response.error, "Message");
                     }
