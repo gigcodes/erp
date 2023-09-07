@@ -1503,4 +1503,11 @@ class VendorController extends Controller
 
         return redirect()->back();
     }
+
+    public function syncMeetingsRecordings(Request $request)
+    {
+        \Artisan::call('zoom:meetings-sync');
+
+        return redirect()->back();
+    }
 }

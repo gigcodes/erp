@@ -15,6 +15,7 @@
 </style>
 @endsection
 @section('content')
+    <button type="button" class="btn btn-danger float-right-addbtn" id="sync_meetings_recordings"> Sync Meetings & Recordings</button>
     <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_recordings"> Refresh Recordings</button>
     <div class="table-responsive">
         <table class="table table-bordered" id="users-table">
@@ -74,6 +75,17 @@
         }
     });
   });  
+
+  $(document).on('click', '#sync_meetings_recordings', function(e){
+      $.ajax({
+        type: "POST",
+        url: "{{ route('vendor.meetings.recordings.sync') }}",          
+        success: function(response) {
+          toastr['success'](response.message, 'success');
+          window.location.reload();
+        }
+    });
+  });
     
 </script>
 
