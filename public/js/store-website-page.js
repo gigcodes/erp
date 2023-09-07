@@ -166,6 +166,7 @@ var page = {
 
     var common = $(".common-modal");
     common.find(".modal-dialog").html(tplHtml);
+    page.assignSelect2();
     common.modal("show");
   },
   editRecord: function (ele) {
