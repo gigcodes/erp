@@ -212,11 +212,6 @@ class Task extends Model
         return $this->belongsTo(\App\User::class, 'assign_to', 'id');
     }
 
-    public function taskDueDateHistoryLog()
-    {
-        return $this->hasMany(\App\TaskDueDateHistoryLog::class);
-    }
-
     public function contacts()
     {
         return $this->belongsToMany(\App\Contact::class, 'task_users', 'task_id', 'user_id')->where('type', \App\Contact::class);
@@ -264,6 +259,21 @@ class Task extends Model
             'id',
             'status'
         );
+    }
+
+    public function developerTasksHistory() 
+    {
+        return $this->hasMany(DeveloperTaskHistory::class, 'developer_task_id')->orderByDesc("id", "DESC");
+    }
+
+    public function taskHistoryForStartDate() 
+    {
+        return $this->hasMany(TaskHistoryForStartDate::class, 'task_id')->orderByDesc("id", "DESC");
+    }
+
+    public function taskDueDateHistoryLogs() 
+    {
+        return $this->hasMany(TaskDueDateHistoryLog::class, 'task_id')->orderByDesc("id", "DESC");
     }
 
     public function createTaskFromSortcuts($request)
@@ -654,5 +664,14 @@ class Task extends Model
 
             return $qb->get();
         }
+    }
+
+    public static function getDeveloperTasksHistory($id)
+    {
+        return self::with([
+            "developerTasksHistory",
+            "taskHistoryForStartDate",
+            "taskDueDateHistoryLogs"
+        ])->where("tasks.id", $id)->first();
     }
 }
