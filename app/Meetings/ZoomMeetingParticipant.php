@@ -12,5 +12,12 @@ class ZoomMeetingParticipant extends Model
 
     protected $table = 'zoom_meeting_participants';
 
-    protected $fillable = ['meeting_id', 'name', 'email'];
+    protected $fillable = [
+        'meeting_id', 
+        'name', 
+        'email',
+        'join_time',
+        'leave_time',
+        'duration'
+    ];
 }
