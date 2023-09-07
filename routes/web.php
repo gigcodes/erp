@@ -685,6 +685,15 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-backend-description/histories', [MagentoBackendDocumentationController::class, 'magentoBackenddescriptionHistoryShow'])->name('magentobackend_description.histories.show');
     Route::get('magento-backend-admin-config/histories', [MagentoBackendDocumentationController::class, 'magentoBackendAdminHistoryShow'])->name('magentobackend_admin.histories.show');
     Route::delete('/magento-backend/delete/{id}', [MagentoBackendDocumentationController::class, 'magentobackenddelete'])->name('magento-backend.destroy');
+    Route::get('/magento-backend/edit/{id}', [MagentoBackendDocumentationController::class, 'magentoBackendEdit'])->name('magento_backend_edit');
+    Route::post('/magento-backend/update/{id}', [MagentoBackendDocumentationController::class, 'magentoBackendUpdate'])->name('magento_backend.update');
+    Route::get('magento-backend/feature', [MagentoBackendDocumentationController::class, 'magentoFeatureget'])->name('magento-feature-list');
+    Route::get('magento-backend/template', [MagentoBackendDocumentationController::class, 'magentoTemplateget'])->name('magento-template-list');
+    Route::get('magento-backend/details', [MagentoBackendDocumentationController::class, 'magentoBugDetailget'])->name('magento-bug-detail-list');
+    Route::get('magento-backend/solutions', [MagentoBackendDocumentationController::class, 'magentoBugSolutionget'])->name('magento-bug-solution-list');
+    Route::get('magento-backend/files/record', [MagentoBackendDocumentationController::class, 'getUploadedFilesList'])->name('magento-backend.files.record');
+
+
 });
 /** redis Job Module */
 Route::middleware('auth')->group(function () {
@@ -1604,6 +1613,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
     Route::post('order/change-return-status', [OrderController::class, 'returnStatus'])->name('order.change_return_status');
+    Route::get('order/status/color-code', [OrderController::class, 'orderStatusColorCode'])->name('order.status.color');
+    Route::post('order/status/Update', [OrderController::class, 'orderStatusColorCodeUpdate'])->name('order.status.color.Update');
 
     Route::resource('order', OrderController::class);
 
@@ -2582,6 +2593,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
     Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
     Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
+    Route::post('vendors/sync-meetings-recordings', [VendorController::class, 'syncMeetingsRecordings'])->name('vendor.meetings.recordings.sync');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -4918,6 +4930,14 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
     Route::get('/{id?}/download', [GoogleFileTranslator::class, 'download'])->name('googlefiletranslator.download');
     Route::post('/store', [GoogleFileTranslator::class, 'store'])->name('googlefiletranslator.store');
     Route::post('/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
+    Route::get('/{id}/list-view', [GoogleFileTranslator::class, 'dataViewPage'])->name('googlefiletranslator.list-page.view');
+    Route::get('/download-permission', [GoogleFileTranslator::class, 'downloadPermission'])->name('googlefiletranslator.downlaod.permission');
+    Route::post('/user-view-permission', [GoogleFileTranslator::class, 'userViewPermission'])->name('googlefiletranslator.user-view.permission');
+    Route::get('/edit-value', [GoogleFileTranslator::class, 'editValue'])->name('googlefiletranslator.edit.value');
+    Route::post('/googlefiletranslator/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
+    Route::get('googlefiletranslator/{id}', [GoogleFileTranslator::class, 'tranalteHistoryShow'])->name('googlefiletranslator_histories.show');
+    Route::post('status-change', [GoogleFileTranslator::class, 'statusChange'])->name('googlefiletranslator_histories.status');
+    
 });
 
 //Translation
