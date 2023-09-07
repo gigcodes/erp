@@ -45,6 +45,18 @@
                         <span id="event_user_id_error" class="text-danger"></span>
                     </div>
                     <div class="form-group duration">
+                        <strong>Recurring type</strong>
+                        <select class="form-control select2" name="recurring_type" id="recurring_type">
+                            <option value="">-- Select Recurring Type  --</option>
+                            <option value="Daily" {{ old('recurring_type') == 'Daily'? 'selected' : '' }}>Daily</option>
+                            <option value="Weekly" {{ old('recurring_type') == 'Weekly'? 'selected' : '' }}>Weekly</option>
+                            <option value="Bi-Weekly" {{ old('recurring_type') == 'Bi-Weekly'? 'selected' : '' }}>Bi-Weekly</option>
+                            <option value="Monthly" {{ old('recurring_type') == 'Monthly'? 'selected' : '' }}>Monthly</option>
+                            <option value="Yearly" {{ old('recurring_type') == 'Yearly'? 'selected' : '' }}>Yearly</option>
+                            <option value="One time" {{ old('recurring_type') == 'One time'? 'selected' : '' }}>One time</option>
+                        </select>
+                      </div>
+                    <div class="form-group duration">
                         <label for="event-name">Event Vendor
                             <button type="button" class="btn custom-button float-right mr-3 add-vendor">Add Vendor</button>
                         </label>
