@@ -43,4 +43,9 @@ class TaskDueDateHistoryLog extends Model
             'approved_by' => loginId(),
         ]);
     }
+
+    public function task()
+    {
+        return belongsTo(\App\Task::class);
+    }
 }

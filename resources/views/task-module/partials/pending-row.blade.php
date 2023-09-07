@@ -1,7 +1,4 @@
-@php
-    $status_color = \App\TaskStatus::where('id',$task->status)->first();
-@endphp
-<tr style="background-color: {{$status_color->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
+<tr style="background-color: {{$task->taskStatus->task_color}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
     <td class="p-2">
         @if(auth()->user()->isAdmin())
         <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>
@@ -12,16 +9,13 @@
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
         <br>
         @if($task->customer_id)
-        Cus-{{$task->customer_id}}
-        <br>
-        @if(Auth::user()->isAdmin())
-        @php
-        $customer = \App\Customer::find($task->customer_id);
-        @endphp
-        <span>
-            {{ isset($customer ) ? $customer->name : '' }}
-        </span>
-        @endif
+            Cus-{{$task->customer_id}}
+            <br>
+            @if(Auth::user()->isAdmin())
+                <span>
+                    {{ isset($task->customer ) ? $task->customer->name : '' }}
+                </span>
+            @endif
         @endif
     </td>
     <td class="expand-row table-hover-cell p-2">
@@ -67,28 +61,28 @@
     </td> -->
     <td class="table-hover-cell p-2">
         @php
-        $special_task = \App\Task::find($task->id);
-        $users_list = '';
-        foreach ($special_task->users as $key => $user) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
-        if (array_key_exists($user->id, $users)) {
-        $users_list .= $users[$user->id];
-        } else {
-        $users_list = 'User Does Not Exist';
-        }
-        }
+            $special_task = $task;
+            $users_list = '';
+            foreach ($special_task->users as $key => $user) {
+                if ($key != 0) {
+                    $users_list .= ', ';
+                }
+                if (array_key_exists($user->id, $users)) {
+                    $users_list .= $users[$user->id];
+                } else {
+                    $users_list = 'User Does Not Exist';
+                }
+            }
 
-        $users_list .= ' ';
+            $users_list .= ' ';
 
-        foreach ($special_task->contacts as $key => $contact) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
+            foreach ($special_task->contacts as $key => $contact) {
+                if ($key != 0) {
+                    $users_list .= ', ';
+                }
 
-        $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-        }
+                $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
+            }
         @endphp
 
         <!--<span class="td-mini-container">
@@ -96,25 +90,25 @@
         </span>-->
 
         @if(auth()->user()->isAdmin())
-        <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
-            <option value="">Select...</option>
-            <?php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; ?>
-            @foreach($users as $id=>$name)
-            @if( $masterUser == $id )
-            <option value="{{$id}}" selected>{{ $name }}</option>
-            @else
-            <option value="{{$id}}">{{ $name }}</option>
+            <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
+                <option value="">Select...</option>
+                <@php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; @endphp
+                @foreach($users as $id=>$name)
+                    @if( $masterUser == $id )
+                        <option value="{{$id}}" selected>{{ $name }}</option>
+                    @else
+                        <option value="{{$id}}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+        @else
+            @if($task->assign_to)
+                @if(isset($users[$task->assign_to]))
+                    <p>{{$users[$task->assign_to]}}</p>
+                @else
+                    <p>-</p>
+                @endif
             @endif
-            @endforeach
-        </select>
-        @else
-        @if($task->assign_to)
-        @if(isset($users[$task->assign_to]))
-        <p>{{$users[$task->assign_to]}}</p>
-        @else
-        <p>-</p>
-        @endif
-        @endif
         @endif
 
         <span class="td-full-container hidden">
@@ -208,9 +202,9 @@
             <button type="button" class="btn btn-xs show-time-history" title="Show Estimation History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
         </div>
         @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
-        {{ formatDuration($special_task->timeSpent->tracked) }}
+            {{ formatDuration($special_task->timeSpent->tracked) }}
 
-        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
     </td>
     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
@@ -276,7 +270,7 @@
         @endif
     </td>
     @php
-        $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
+        $single = \App\Task::getDeveloperTasksHistory($task->id);
     @endphp
     <td class="p-2">
         <div style="margin-bottom:10px;width: 100%;">
@@ -289,7 +283,7 @@
     <td class="p-2">
         <div class="form-group d-flex">
             <div class='input-group date cls-start-due-date'>
-                <input type="text" class="form-control" name="start_dates{{$task->id}}" value="{{$single->task_start_date}}" autocomplete="off" />
+                <input type="text" class="form-control" name="start_dates{{$task->id}}" value="{{$single->taskhistoryForStartDate->first() ? $single->taskhistoryForStartDate->first()->new_value : ''}}" autocomplete="off" />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
@@ -298,7 +292,7 @@
     <td class="p-2">
         <div class="form-group d-flex">
             <div class='input-group date cls-start-due-date'>
-                <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->task_new_due_date}}" autocomplete="off" />
+                <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->taskDueDateHistoryLogs->first() ? $single->taskDueDateHistoryLogs->first()->new_due_date : ''}}" autocomplete="off" />
                 <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
