@@ -27,7 +27,7 @@
       {{if data}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <select class="form-control globalSelect2" id="website-page-copy-to">
+          <select class="form-control globalSelect2 select-searchable" id="website-page-copy-to">
           <option value="">Copy To Page</option>
             <?php foreach ($pages as $k => $page) { ?>
               <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
@@ -46,7 +46,7 @@
 			{{/if}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <select name="page" class="form-control website-page-change" id="website-page-change">
+          <select name="page" class="form-control website-page-change select-searchable" id="website-page-change">
             <option value="">Copy From Page</option>
               <?php foreach ($pages as $k => $page) { ?>
                 <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
@@ -195,7 +195,7 @@
                 {{else}}
                   <div class="form-group col-md-6">
                      <label for="store_website_id" class="font-weight-normal">Store website</label>
-                     <select name="store_website_id" class="form-control store-website-change">
+                     <select name="store_website_id" class="form-control store-website-change select-searchable">
                         <option value="">-- N/A --</option>
                         <?php
         foreach ($storeWebsites as $k => $l) {
