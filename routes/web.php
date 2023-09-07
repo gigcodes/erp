@@ -661,6 +661,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
     Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
     Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontenddelete'])->name('magento-frontend.destroy');
+    Route::get('magento-frontend/files/record', [MagentoFrontendDocumentationController::class, 'frontnedUploadedFilesList'])->name('magento-frontend.files.record');
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name('magento-css-variable.value-histories');
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name('magento-css-variable.verify-histories');

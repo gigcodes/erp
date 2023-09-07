@@ -15,7 +15,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Child Folder Image</label>
-                                <input type="file" name="child_folder_image" id="child_folder_image">
+                                <input type="file" name="child_folder_image[]" id="child_folder_image">
                             </div>
                         </div>
                     </div>
