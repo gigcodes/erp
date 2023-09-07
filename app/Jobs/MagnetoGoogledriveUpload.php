@@ -4,13 +4,13 @@ namespace App\Jobs;
 
 use Exception;
 use Google\Client;
-use App\GoogleScreencast;
 use Google\Service\Drive;
 use Illuminate\Queue\SerializesModels;
+use App\Models\MagentoBackendDocumentation;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\MagentoFrontendDocumentation;
 
-class UploadGoogleDriveScreencast
+class MagnetoGoogledriveUpload
 {
     use Dispatchable, SerializesModels;
 
@@ -27,7 +27,7 @@ class UploadGoogleDriveScreencast
      *
      * @return void
      */
-    public function __construct(GoogleScreencast|MagentoFrontendDocumentation $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
+    public function __construct(MagentoFrontendDocumentation|MagentoBackendDocumentation $googleScreencast, $uploadedFile, $permissionForAll = null, $updatable = null)
     {
         $this->googleScreencast = $googleScreencast;
         $this->uploadedFile = $uploadedFile;
@@ -49,10 +49,20 @@ class UploadGoogleDriveScreencast
         $client->addScope(Drive::DRIVE);
         try {
             $createFile = $this->uploadScreencast(env('GOOGLE_SCREENCAST_FOLDER'), $this->googleScreencast->read, $this->googleScreencast->write);
+          
             $screencastId = $createFile->id;
 
-            $this->googleScreencast->google_drive_file_id = $screencastId;
-            $this->googleScreencast->save();
+            if($this->googleScreencast->description_file_name )
+            {
+                $this->googleScreencast->google_drive_file_id = $screencastId;
+                $this->googleScreencast->save();
+            }
+
+            if($this->googleScreencast->admin_configuration_file_name )
+            {
+                $this->googleScreencast->admin_config_google_drive_file_id = $screencastId;
+                $this->googleScreencast->save();
+            }
 
             if ($this->updatable != null) {
                 $this->updateData($this->updatable, $screencastId);

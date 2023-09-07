@@ -81,4 +81,10 @@ return [
         'offlineMessage' => 'Your status has changed to Offline. Reply with "On" to get back Online',
     ],
 
+    'zoom' => [
+        'client_id' => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+        'account_id' => env('ZOOM_ACCOUNT_ID'),
+    ],
+
 ];

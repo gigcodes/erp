@@ -15,7 +15,7 @@
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Admin Config file</label>
-                                <input type="file" name="child_folder_image" id="child_folder_image">
+                                <input type="file" name="admin_config_image[]" id="admin_config_image" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple>       
                             </div>
                         </div>
                     </div>
@@ -37,7 +37,6 @@
         var self = $(this);
         let formData = new FormData(document.getElementById("magento_frontend_child_image_form"));
         var button = $(this).find('[type="submit"]');
-        console.log(button);
         $.ajax({
             url: '{{ route("magento-backend-admin-upload") }}',
             type: "POST",
@@ -58,7 +57,7 @@
                 button.removeClass('disabled');
             },
             success: function(response) {
-                $('#apiDataAddModal #magento_frontend_child_image_form').trigger('reset');
+                $('#magento_frontend_child_image_form').trigger('reset');
                 magentofrontendTable.draw();
                 toastr["success"](response.message);
             },
