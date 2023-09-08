@@ -257,6 +257,17 @@
                 </div>
             </div>
         @endif
+
+        {{-- <div id="columnVisibilityControls">
+            <label><input type="checkbox" id="columnVisibility_14"> Dev Verified Status</label>
+            <label><input type="checkbox" id="columnVisibility_15"> Lead Verified By</label>
+            <label><input type="checkbox" id="columnVisibility_16"> Lead Verified Status</label>
+            <label><input type="checkbox" id="columnVisibility_28"> M2 Error Remark</label>
+            <label><input type="checkbox" id="columnVisibility_29"> M2 Error Assignee</label>
+            <label><input type="checkbox" id="columnVisibility_31"> Unit Test Remarks</label>
+            <label><input type="checkbox" id="columnVisibility_32"> Unit test User</label>
+            <!-- Add more checkboxes for other columns as needed -->
+        </div> --}}
         <div class="erp_table_data">
             <table class="table table-bordered" id="erp_table">
                 <thead>
@@ -303,8 +314,8 @@
                 </tbody>
             </table>
         </div>
-        
-    </div>
+        <div id="colvis"></div>
+        </div>
 
     {{-- #blank-modal --}}
     @include('partials.plain-modal')
@@ -384,6 +395,7 @@
 @endsection
 
 @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
     <script
@@ -393,6 +405,11 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
     <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.colVis.min.js"></script>
     <script>
         $(document).ready(function() {
             $(".filter-module").multiselect({
@@ -463,6 +480,13 @@
                     [0, 'desc']
                 ],
                 targets: 'no-sort',
+                dom: '<"colvis-buttons"B>frtip',
+                                buttons: [
+                    {
+                        extend: 'colvis',
+                        columns: [14,15,16,28,29,31,32]
+                    }
+                 ],
                 bSort: false,
 
                 oLanguage: {
@@ -504,12 +528,12 @@
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
                 }, 
-                columnDefs: [{
-                    targets: [],
-                    orderable: false,
-                    searchable: false,
-                    // className: 'mdl-data-table__cell--non-numeric'
-                }],
+                columnDefs: [
+                        {
+                            targets: [14,15,16,28,29,31,32], // Indices of columns to hide initially
+                            visible: false, // Hide these columns by default
+                        },
+                 ],
                 columns: [{
                         data: 'id',
                         name: 'magento_modules.id',
@@ -1176,7 +1200,16 @@
                     $('#total-count-magento-modules').text(recordsTotal);
                 },
             });
-            
+
+
+        //    // JavaScript to toggle column visibility based on checkboxes
+        //     $('#columnVisibilityControls input[type="checkbox"]').on('change', function() {
+        //         var columnIdx = parseInt(this.id.split('_')[1]);
+        //         var column = oTable.column(columnIdx);
+
+        //         // Toggle the visibility of the selected column
+        //         column.visible(this.checked);
+        //     })
         });
         // END Print Table Using datatable
 
@@ -1221,7 +1254,6 @@
         
         // Store Reark
         function saveRemarks(row_id, type = 'general', selector = 'remark') {
-            console.log(row_id);
             var remark = $("#"+selector+"_" + row_id).val();
             // var send_to = $("#send_to_" + row_id).val();
 
@@ -2045,7 +2077,6 @@
                     id:id,
                 },
                 success: function(response) {
-                    console.log(response);
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
@@ -2280,7 +2311,6 @@
             }).fail(function (response) {
                 $("#loading-image").hide();
                 oTable.draw();
-                console.log("failed");
                 toastr['error'](response.message);
             });
         });
