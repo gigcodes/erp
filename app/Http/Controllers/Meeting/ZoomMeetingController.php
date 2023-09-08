@@ -394,4 +394,60 @@ class ZoomMeetingController extends Controller
             'type' => $type,
         ]);
     }
+
+    public function listParticipants(Request $request)
+    {
+        $perPage = 5;
+
+        $participants = ZoomMeetingParticipant::where('meeting_id', $request->meetingId)
+        ->latest()
+        ->paginate($perPage);
+
+        $html = view('zoom-meetings.participations-listing-modal-html')->with('participants', $participants)->render();
+
+        return response()->json(['code' => 200, 'data' => $participants, 'html' => $html, 'message' => 'Content render']);
+    }
+
+    public function listErrorLogs(Request $request)
+    {
+        $zoomApiLogs = new ZoomApiLog();
+        
+        $zoomApiLogs = $zoomApiLogs->latest()->paginate(\App\Setting::get('pagination', 10));
+
+        return view('zoom-meetings.zoom-error-logs', compact('zoomApiLogs'));
+    }
+
+    public function listRecordings($meetingId)
+    {
+
+        $zoomRecordings = new ZoomMeetingDetails();
+        
+        $zoomRecordings = $zoomRecordings->where('meeting_id', $meetingId)->latest()->paginate(\App\Setting::get('pagination', 10));
+        
+        return view('zoom-meetings.zoom-recodring-list', compact('zoomRecordings'));
+    }
+
+    public function updateMeetingDescription(Request $request)
+    {
+        $meetingdata = ZoomMeetingDetails::find($request->id);
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+
+        return response()->json(['code' => 200, 'message' => 'Meeting Added SuccessFully'], 200);
+    }
+
+    public function downloadRecords($id)
+    {
+        $fileName = ZoomMeetingDetails::find($id);
+        $file_name = basename($fileName->local_file_path);
+        $meetingId = $fileName->meeting_id;
+
+        $filePath = public_path("zoom/zoom/0/$meetingId/$file_name");
+
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
+        } else {
+            abort(404, 'The file you are trying to download does not exist.');
+        }
+    }
 }
