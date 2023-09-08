@@ -1690,6 +1690,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');
     Route::get('meetings/show', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.show');
     Route::get('meetings/all', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.all.data');
+    Route::post('meeting/fetch-recordings', [Meeting\ZoomMeetingController::class, 'fetchRecordings'])->name('meeting.fetch.recordings');
+    Route::post('meeting/fetch-participants', [Meeting\ZoomMeetingController::class, 'fetchParticipants'])->name('meeting.fetch.participants');
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {

@@ -125,49 +125,51 @@ class ZoomMeetingsSync extends Command
                 'response_data' => json_encode($recordingsResponse->json()),
             ]);
 
-            $meetingRecording = $recordingsResponse->json();
+            if ($recordingsResponse->successful()) {
+                $meetingRecording = $recordingsResponse->json();
 
-            \Log::info('meetingRecording -->' . json_encode($meetingRecording));
+                \Log::info('meetingRecording -->' . json_encode($meetingRecording));
 
-            // Code copied from app/Meetings/ZoomMeetings.php:saveRecordings()
-            if ($meetingRecording && isset($meetingRecording['recording_files'])) {
-                $folderPath = public_path() . '/zoom/0/' . $meeting['id'];
-                $databsePath = '/zoom/0/' . $meeting['id'];
-                \Log::info('folderPath -->' . $folderPath);
-                foreach ($meetingRecording['recording_files'] as $recordings) {
-                    $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
-                    if (! $checkfile) {
-                        if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
-                            \Log::info('shared_screen_with_speaker_view');
-                            $fileName = $meeting['id'] . '_' . time() . '.mp4';
-                            $urlOfFile = $recordings['download_url'];
-                            $filePath = $folderPath . '/' . $fileName;
-                            if (! file_exists($filePath) && ! is_dir($folderPath)) {
-                                mkdir($folderPath, 0777, true);
+                // Code copied from app/Meetings/ZoomMeetings.php:saveRecordings()
+                if ($meetingRecording && isset($meetingRecording['recording_files'])) {
+                    $folderPath = public_path() . '/zoom/0/' . $meeting['id'];
+                    $databsePath = '/zoom/0/' . $meeting['id'];
+                    \Log::info('folderPath -->' . $folderPath);
+                    foreach ($meetingRecording['recording_files'] as $recordings) {
+                        $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
+                        if (! $checkfile) {
+                            if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
+                                \Log::info('shared_screen_with_speaker_view');
+                                $fileName = $meeting['id'] . '_' . time() . '.mp4';
+                                $urlOfFile = $recordings['download_url'];
+                                $filePath = $folderPath . '/' . $fileName;
+                                if (! file_exists($filePath) && ! is_dir($folderPath)) {
+                                    mkdir($folderPath, 0777, true);
+                                }
+                                $ch = curl_init($urlOfFile);
+                                curl_exec($ch);
+                                if (! curl_errno($ch)) {
+                                    $info = curl_getinfo($ch);
+                                    $downloadLink = $info['redirect_url'];
+                                }
+                                curl_close($ch);
+
+                                if ($downloadLink) {
+                                    copy($downloadLink, $filePath);     
+                                }
+
+                                $zoom_meeting_details = new ZoomMeetingDetails();
+                                $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
+                                $zoom_meeting_details->file_name = $fileName;
+                                $zoom_meeting_details->download_url_id = $recordings['id'];
+                                $zoom_meeting_details->meeting_id = $recordings['meeting_id'];
+                                $zoom_meeting_details->file_type = $recordings['file_type'];
+                                $zoom_meeting_details->download_url = $recordings['download_url'];
+                                // $zoom_meeting_details->file_path = $recordings['file_path']; // this field for Zoom On-Premise accounts.
+                                $zoom_meeting_details->file_size = $recordings['file_size'];
+                                $zoom_meeting_details->file_extension = $recordings['file_extension'];
+                                $zoom_meeting_details->save();
                             }
-                            $ch = curl_init($urlOfFile);
-                            curl_exec($ch);
-                            if (! curl_errno($ch)) {
-                                $info = curl_getinfo($ch);
-                                $downloadLink = $info['redirect_url'];
-                            }
-                            curl_close($ch);
-
-                            if ($downloadLink) {
-                                copy($downloadLink, $filePath);     
-                            }
-
-                            $zoom_meeting_details = new ZoomMeetingDetails();
-                            $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
-                            $zoom_meeting_details->file_name = $fileName;
-                            $zoom_meeting_details->download_url_id = $recordings['id'];
-                            $zoom_meeting_details->meeting_id = $recordings['meeting_id'];
-                            $zoom_meeting_details->file_type = $recordings['file_type'];
-                            $zoom_meeting_details->download_url = $recordings['download_url'];
-                            // $zoom_meeting_details->file_path = $recordings['file_path']; // this field for Zoom On-Premise accounts.
-                            $zoom_meeting_details->file_size = $recordings['file_size'];
-                            $zoom_meeting_details->file_extension = $recordings['file_extension'];
-                            $zoom_meeting_details->save();
                         }
                     }
                 }
@@ -204,20 +206,22 @@ class ZoomMeetingsSync extends Command
                 'response_data' => json_encode($participantsResponse->json()),
             ]);
 
-            $participants = $participantsResponse->json();
+            if ($participantsResponse->successful()) {
+                $participants = $participantsResponse->json();
 
-            if ($participants['total_records'] > 0) {
-                // Store participants in the participants table
-                foreach ($participants['participants'] as $participant) {
-                    ZoomMeetingParticipant::updateOrCreate(
-                        ['meeting_id' => $meeting['id'], 'email' => $participant['user_email']],
-                        [
-                            'name' => $participant['name'],
-                            'join_time' => $participant['join_time'],
-                            'leave_time' => $participant['leave_time'],
-                            'duration' => $participant['duration']
-                        ]
-                    );
+                if ($participants['total_records'] > 0) {
+                    // Store participants in the participants table
+                    foreach ($participants['participants'] as $participant) {
+                        ZoomMeetingParticipant::updateOrCreate(
+                            ['meeting_id' => $meeting['id'], 'email' => $participant['user_email']],
+                            [
+                                'name' => $participant['name'],
+                                'join_time' => $participant['join_time'],
+                                'leave_time' => $participant['leave_time'],
+                                'duration' => $participant['duration']
+                            ]
+                        );
+                    }
                 }
             }
         } catch (\Exception $e) {
