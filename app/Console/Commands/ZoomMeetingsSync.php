@@ -87,8 +87,10 @@ class ZoomMeetingsSync extends Command
                             ]
                         );
 
-                        $this->fetchRecordings($accessToken, $meeting);
-                        $this->fetchParticipants($accessToken, $meeting);
+                        // These 2 logics are moved to meeting list page (/meetings/all) in actions columns. 
+                        // So these 2 functions not need, But use code for future reference. 
+                        // $this->fetchRecordings($accessToken, $meeting);
+                        // $this->fetchParticipants($accessToken, $meeting);
                     }
                 }
 

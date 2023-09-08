@@ -27,6 +27,7 @@
     <div class="row" style="margin:10px;">
         <!-- <h4>List Of Upcoming Meetings</h4> -->
         <div class="col-lg-12 margin-tb">
+            <button type="button" class="btn btn-secondary pull-right" id="sync_meetings"> Sync Meetings </button>
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
@@ -82,6 +83,22 @@
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script> --}}
 
     <script type="text/javascript">
+        $(document).on('click', '#sync_meetings', function(e){
+            $("#loading-image-preview").show();
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "POST",
+                url: "{{ route('vendor.meetings.recordings.sync') }}",          
+                success: function(response) {
+                    $("#loading-image-preview").hide();
+                    toastr['success'](response.message, 'success');
+                    window.location.reload();
+                }
+            });
+        });
+
         $('.fetch-zoom-meeting-recordings').click(function() {
             var $this = $(this);
             var meetingId = $this.data('meeting_id');

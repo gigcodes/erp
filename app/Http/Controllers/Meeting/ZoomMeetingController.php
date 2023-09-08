@@ -323,13 +323,14 @@ class ZoomMeetingController extends Controller
         
         if (isset($tokenResponse['access_token'])) {
             $accessToken = $tokenResponse['access_token'];
-            $participantURL = 'https://api.zoom.us/v2/meetings/' . $request->meetingId . '/participants';
+            $participantURL = 'https://api.zoom.us/v2/past_meetings/' . $request->meetingId . '/participants';
 
             try {
                 // Fetch participants for this meeting
                 $participantsResponse = Http::withHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ])->get($participantURL);
+
     
                 // Log the API request and response to the database
                 ZoomApiLog::create([
