@@ -321,7 +321,7 @@ class GoogleFileTranslator extends Controller
                 return response()->json([
                     'status' => true,
                     'data' => $google_file_translate_csv_data_id,
-                    'message' => 'Remark added successfully',
+                    'message' => 'history added successfully',
                     'status_name' => 'success',
                 ], 200);
         
@@ -332,7 +332,7 @@ class GoogleFileTranslator extends Controller
             return response()->json([
                 'status' => false,
                 'data' => $google_file_translate_csv_data_id,
-                'message' => 'Remark added successfully',
+                'message' => 'history added successfully',
                 'status_name' => 'failed',
             ], 500);
     
@@ -341,10 +341,17 @@ class GoogleFileTranslator extends Controller
 
     public function statusChange(Request $request)
     {
+        $googleTranslateDatas =  GoogleTranslateCsvData::find(($request->id));
+        $google_file_translate_csv_data_id = GoogleFileTranslateHistory::with(['user'])->Where('google_file_translate_csv_data_id', $request->id)
+                                            ->latest('updated_at') 
+                                            ->first(); 
+        $oldvalue = $google_file_translate_csv_data_id->old_value;
 
-        $googleTranslateDatas=  GoogleTranslateCsvData::find(($request->id));
+        if($request->status == 'accept')
+        {
             $googleTranslateDatas->status = 2;
-            $$googleTranslateDatas->save();
+            $googleTranslateDatas->approved_by_user_id = \Auth::id();
+            $googleTranslateDatas->save();
 
             return response()->json([
                 'status' => true,
@@ -352,6 +359,21 @@ class GoogleFileTranslator extends Controller
                 'message' => 'Update successfully',
                 'status_name' => 'success',
             ], 200);
+        }
+           
+        if($request->status == 'reject')
+        {
+            $googleTranslateDatas->status = 2;
+            $googleTranslateDatas->value = $oldvalue;
+            $googleTranslateDatas->save();
+
+            return response()->json([
+                'status' => false,
+                'data' => $googleTranslateDatas,
+                'message' => 'Rejected successfully',
+                'status_name' => 'failed',
+            ], 500);
+        }
        
     }
 }

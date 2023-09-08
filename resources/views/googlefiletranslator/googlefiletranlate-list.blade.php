@@ -113,7 +113,7 @@
 </div>
 <div class="row w-100">
     <div class="col-md-2">
-       <label>Language</label> 
+       {{-- <label>Language</label> 
        <select class="form-control" name="lang_filter" id="lang_filter">
             <option value="">Select</option>
             <option value="en">EN</option>
@@ -128,19 +128,19 @@
             <option value="zh">ZH</option>
             <option value="ar">AR</option>
             <option value="ur">UR</option>
-        </select>
+        </select> --}}
     </div>
     <div class="col-md-2">
-    <label>Status</label>
+    {{-- <label>Status</label>
         <select class="form-control" name="status_filter" id="status_filter">
             <option value="">Status</option>
             <option value="checked">checked</option>
             <option value="unchecked">unchecked</option>
             <option value="">others</option>
-        </select>
+        </select> --}}
     </div>
     <div class="col-md-2">
-    <label>Users</label>
+    {{-- <label>Users</label>
         <select class="form-control" name="users_filter" id="users_filter">
             <option value="">Select</option>
             @php
@@ -149,12 +149,12 @@
             @foreach (User::all() as $users)
                 <option value="{{$users->id}}">{{$users->name}}</option>
             @endforeach
-        </select>
+        </select> --}}
     </div>
     <div class="col-md-1 my-5">
-    <a href="#" class="filterSearch">
+    {{-- <a href="#" class="filterSearch">
             <i class="fa fa-search"></i>
-        </a>
+        </a> --}}
     </div>
 
 </div>
@@ -266,7 +266,7 @@
     <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Magento FronrEnd History</h4>
+                <h4 class="modal-title">Google Translate History</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
@@ -474,7 +474,7 @@
                 contentType: false, // Prevent jQuery from setting the content type
                 success: function(response) {
                     toastr['success'](response.message);
-                    loacation.reload();
+                    window.location.reload();           
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     // Handle any errors that occur during the AJAX request
@@ -490,7 +490,6 @@
     $(document).on("click", ".view-history", function (e) {
         e.preventDefault();
         let id = $(this).data("id");
-        alert(id);
         $.ajax({
                 method: "GET",
                 url: '{{ route("googlefiletranslator_histories.show", '') }}/' + id,
@@ -538,10 +537,11 @@
             data: { status: selectedValue , id:id },
             success: function(response) {
                 toastr['success']("update successfully");
-                console.log('Status value stored successfully.');
+                window.location.reload();           
             },
             error: function(error) {
                 // Handle any errors here
+                window.location.reload();          
                 console.error('Error storing status value: ' + error);
             }
         });
