@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Vendor Meeting Info')
+@section('title', 'Meeting Records Info')
 
 @section('styles')
 <style>
@@ -15,19 +15,35 @@
 </style>
 @endsection
 @section('content')
-    <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_recordings"> Refresh Recordings</button>
-    <div class="table-responsive">
+  <br>
+      <div class="table-responsive">
         <table class="table table-bordered" id="users-table">
             <thead>
             <tr>
                 <th style="width:10%;">No</th>
                 <th style="width:20%;">File Name</th>
-                <th style="width:60%;">Description</th>
-                <th style="width:10%;">Action</th>
+                <th style="width:50%;">Description</th>
+                <th style="width:5%;">Created At</th>
+                <th style="width:5%;">Action</th>
             </tr>
             </thead>
             <tbody>
-                @include('vendors.partials.list-meetings')
+                @php $i=0; 
+            $base_url = config('env.APP_URL');
+            @endphp
+
+            @foreach ($zoomRecordings as $key => $metting)
+                <tr>
+                    <td>{{ ++$i }}</td>
+                    <td>{{ $metting->file_name }}</td>
+                    <td><textarea name="description" class="form-control description" placeholder="Description" style="height: 90px;width:70%;">{{ $metting->description }}</textarea>
+                    <button class="btn btn-secondary btn-xs update_description" data-id="{{ $metting->id }}">Update</button>
+                    </td>
+                    <td>{{ $metting->created_at->format('Y-m-d') }}</td>                    <td>
+                        <a class="btn btn-secondary mx-3" href="{{ route('meeting.download.file', ['id' =>$metting->id]) }}" title="CSV Downlaod"><i class="fa fa-download"></i></a>
+                    </td>
+                </tr>
+            @endforeach
             </tbody>
         </table>
     </div>
@@ -49,7 +65,7 @@
         if(description != ''){
             $.ajax({
                 type: "POST",
-                url: "{{ route('vendor.meeting.update') }}",
+                url: "{{ route('meeting.description.update') }}",
                 data: {'_token': "{{ csrf_token() }}",id:meetingId,description:description},
                 success: function(response) {
                   if(response.code == 200){
@@ -63,17 +79,6 @@
             toastr['success'](response.message, 'success');
         }
     });
-
-    $(document).on('click', '#refresh_recordings', function(e){
-      $.ajax({
-        type: "POST",
-        url: "{{ route('vendor.meeting.refresh') }}",          
-        success: function(response) {
-          toastr['success'](response.message, 'success');
-          window.location.reload();
-        }
-    });
-  });  
     
 </script>
 
