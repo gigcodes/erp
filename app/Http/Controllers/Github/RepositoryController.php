@@ -1171,11 +1171,15 @@ class RepositoryController extends Controller
                     foreach ($activities as $activity) {
                         if (isset($activity['id']) && $activity['event']) {
                             // Check if the event is a "labeled" event and contains label information
-                            $labelName = $labelColor = '';
+                            $labelName = $labelColor = $commentText = '' ;
                             if ($activity['event'] === 'labeled' && isset($activity['label'])) {
                                 // Add the label name to the array
                                 $labelName = $activity['label']['name'];
                                 $labelColor = '#' . $activity['label']['color'];
+                            }
+
+                            if ($activity['event'] === 'commented' && isset($activity['body'])) {
+                                $commentText = $activity['body'];
                             }
 
                             $user = '';
@@ -1195,6 +1199,7 @@ class RepositoryController extends Controller
                                 'event' => $activity['event'],
                                 'label_name' => $labelName,
                                 'label_color' => $labelColor,
+                                'comment_text' => $commentText
                             ]);
                         }
                     }
