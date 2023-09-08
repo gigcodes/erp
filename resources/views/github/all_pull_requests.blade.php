@@ -147,7 +147,7 @@
 </div>
 <!-- Modal markup -->
 <div class="modal" id="pr-activities-modal">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content" id="pr-activities-modal-content">
             <!-- AJAX content will be loaded here -->
         </div>

@@ -15,6 +15,7 @@ class AddCommentTextColumnInGithubPrActivitiesTable extends Migration
     {
         Schema::table('github_pr_activities', function (Blueprint $table) {
             $table->text('comment_text')->nullable();
+            $table->dateTime('activity_created_at')->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ class AddCommentTextColumnInGithubPrActivitiesTable extends Migration
     {
         Schema::table('github_pr_activities', function (Blueprint $table) {
             $table->dropColumn('comment_text');
+            $table->dropColumn('activity_created_at');
         });
     }
 }

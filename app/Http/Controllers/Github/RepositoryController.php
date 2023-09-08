@@ -986,7 +986,7 @@ class RepositoryController extends Controller
         // Set the number of activities per page
         $perPage = 10;
 
-        $githubPrActivities = GithubPrActivity::latest();
+        $githubPrActivities = GithubPrActivity::latest('id');
         $githubPrActivities = $githubPrActivities
             ->where('github_organization_id', $organization->id)
             ->where('github_repository_id', $repo)
@@ -1182,6 +1182,11 @@ class RepositoryController extends Controller
                                 $commentText = $activity['body'];
                             }
 
+                            $activity_created_at = null;
+                            if (isset($activity['created_at'])) {
+                                $activity_created_at = $activity['created_at'];
+                            }
+
                             $user = '';
                             if (isset($activity['user'])) {
                                 $user = $activity['user']['login'];
@@ -1199,7 +1204,8 @@ class RepositoryController extends Controller
                                 'event' => $activity['event'],
                                 'label_name' => $labelName,
                                 'label_color' => $labelColor,
-                                'comment_text' => $commentText
+                                'comment_text' => $commentText,
+                                'activity_created_at' => $activity_created_at
                             ]);
                         }
                     }
