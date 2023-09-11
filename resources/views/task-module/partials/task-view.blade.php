@@ -62,30 +62,8 @@
       </td>
       <td class="expand-row table-hover-cell p-2">
         @php
-        $special_task = \App\Task::find($task->id);
-        $users_list = '';
-
-        foreach ($special_task->users as $key => $user) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
-
-        if (array_key_exists($user->id, $users)) {
-        $users_list .= $users[$user->id];
-        } else {
-        $users_list = 'User Does Not Exist';
-        }
-        }
-
-        $users_list .= ' ';
-
-        foreach ($special_task->contacts as $key => $contact) {
-        if ($key != 0) {
-        $users_list .= ', ';
-        }
-
-        $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-        }
+        $special_task = $task; 
+        $users_list = \App\Helpers::getTaskUserList($task, $users);
         @endphp
 
         <span class="td-mini-container">
