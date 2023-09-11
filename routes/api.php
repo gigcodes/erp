@@ -333,3 +333,4 @@ Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystem
 
 Route::post('/github-action', [GitHubActionController::class, 'store']);
 Route::post('/github-pr-store', [RepositoryController::class, 'githubPRStore']);
+Route::post('/github-pr-activity-store', [RepositoryController::class, 'githubPRActivityStore']);

@@ -1487,4 +1487,25 @@ class RepositoryController extends Controller
             return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
         }
     }
+
+    public function githubPRActivityStore(Request $request)
+    {
+        try {
+            $githubPRActivity = new GithubPrActivity();
+
+            $githubPRActivity->pull_number = $request->input('pull_number') ?? '';
+            $githubPRActivity->event = $request->input('event') ?? '';
+            $githubPRActivity->action = $request->input('action') ?? '';
+            $githubPRActivity->body = $request->input('body') ?? '';
+            $githubPRActivity->description = $request->input('description') ?? '';
+            $githubPRActivity->user = $request->input('user') ?? '';
+            $githubPRActivity->save();
+
+            return response()->json(['message' => 'GitHub Pull Request Activity Stored Successfully'], 200);
+        } catch (\Exception $e) {
+            Log::channel('github_error')->error($e->getMessage());
+
+            return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
+        }
+    }
 }
