@@ -1529,6 +1529,10 @@ class RepositoryController extends Controller
                         $githubPRActivity->label_color = $labelColor;
                     }
 
+                    if ($eventHeader == 'issue_comment' && $requestData['action'] == 'created' && $body == '') {
+                        $body = $requestData['comment']['body'];
+                    }
+
                     $githubPRActivity->body = $body;
                     $githubPRActivity->user = $createdBy;
                     $githubPRActivity->activity_created_at = $activityCreatedAt;
