@@ -36,11 +36,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\DeveoperTaskPullRequestMerge;
+use App\Github\GithubPullRequest;
 use App\Github\GithubRepositoryLabel;
 use App\Github\GithubTaskPullRequest;
 use App\Models\DeletedGithubBranchLog;
 use App\Http\Requests\DeleteBranchRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class RepositoryController extends Controller
 {
@@ -1463,5 +1465,26 @@ class RepositoryController extends Controller
         $label->save();
 
         return response()->json(['message' => 'Label message updated successfully!']);
+    }
+
+    public function githubPRStore(Request $request)
+    {
+        try {
+            $githubPullRequest = new GithubPullRequest();
+
+            $githubPullRequest->pr_number = $request->input('pr_number') ?? '';
+            $githubPullRequest->repo_name = $request->input('repo_name') ?? '';
+            $githubPullRequest->pr_title = $request->input('pr_title') ?? '';
+            $githubPullRequest->pr_url = $request->input('pr_url') ?? '';
+            $githubPullRequest->state = $request->input('state') ?? '';
+            $githubPullRequest->created_by = $request->input('created_by') ?? '';
+            $githubPullRequest->save();
+
+            return response()->json(['message' => 'GitHub Pull Request Stored Successfully'], 200);
+        } catch (\Exception $e) {
+            Log::channel('github_error')->error($e->getMessage());
+
+            return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
+        }
     }
 }

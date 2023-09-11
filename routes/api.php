@@ -42,6 +42,7 @@ use App\Http\Controllers\InstantMessagingController;
 use App\Http\Controllers\PriceComparisionController;
 use App\Http\Controllers\ProductTemplatesController;
 use App\Http\Controllers\BrokenLinkCheckerController;
+use App\Http\Controllers\Github\RepositoryController;
 use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutyCurrencyController;
 use App\Http\Controllers\SimplyDutyCalculationController;
@@ -331,3 +332,4 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
 
 Route::post('/github-action', [GitHubActionController::class, 'store']);
+Route::post('/github-pr-store', [RepositoryController::class, 'githubPRStore']);
