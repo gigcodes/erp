@@ -1086,7 +1086,8 @@
                             <tbody class="statutory-row-render-view infinite-scroll-statutory-inner">
                             @if(count($data['task']['statutory_not_completed']) >0)
                                 @foreach( $data['task']['statutory_not_completed'] as $task)
-                                    @include("task-module.partials.statutory-row",compact('task'))
+                                    @php $row_type = "statutory"; @endphp
+                                    @include("task-module.partials.task-row",compact('task', 'row_type'))
                                 @endforeach
                             @endif
                             </tbody>
@@ -1115,7 +1116,8 @@
                         <tbody class="completed-row-render-view infinite-scroll-completed-inner">
                         @if(count($data['task']['completed']) >0)
                             @foreach( $data['task']['completed'] as $task)
-                                @include("task-module.partials.completed-row",compact('task'))
+                                @php $row_type = "completed"; @endphp
+                                @include("task-module.partials.task-row",compact('task', 'row_type'))
                             @endforeach
                         @endif
                         </tbody>

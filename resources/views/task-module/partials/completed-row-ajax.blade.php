@@ -1,3 +1,4 @@
 @foreach( $data['task']['completed'] as $task)
-    @include("task-module.partials.completed-row",compact('task'))
+    @php $row_type = "completed"; @endphp
+    @include("task-module.partials.task-row",compact('task', 'row_type'))
 @endforeach

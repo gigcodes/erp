@@ -70,17 +70,12 @@
         </span>-->
 
         @if(auth()->user()->isAdmin())
-            <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
-                <option value="">Select...</option>
-                <@php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; @endphp
-                @foreach($users as $id=>$name)
-                    @if( $masterUser == $id )
-                        <option value="{{$id}}" selected>{{ $name }}</option>
-                    @else
-                        <option value="{{$id}}">{{ $name }}</option>
-                    @endif
-                @endforeach
-            </select>
+            @php 
+                $selectBoxId = 'assign_to';  
+                $selectClass = "assign-user";
+                $type="assign-user";
+            @endphp
+            @include('task-module.partials.select-user',compact('task', 'users', 'selectBoxId', 'selectClass', 'type'))
         @else
             @if($task->assign_to)
                 @if(isset($users[$task->assign_to]))
@@ -98,39 +93,29 @@
         <div class="col-md-12 expand-col-lead{{$task->id}} dis-none" style="padding:0px;">
             <br>
             <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
-            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
-                <option value="">Select...</option>
-                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
-                @foreach($users as $id=>$name)
-                @if( $masterUser == $id )
-                <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                <option value="{{$id}}">{{ $name }}</option>
-                @endif
-                @endforeach
-            </select>
+            @php 
+                $selectBoxId = 'master_user_id';  
+                $selectClass = "assign-master-user";
+                $type="master-user";
+            @endphp
+            @include('task-module.partials.select-user',compact('task', 'users', 'selectBoxId', 'selectClass', 'type'))
             <br />
             @if(auth()->user()->isAdmin())
-            <label for="" style="font-size: 12px;margin-top:10px;">Lead 2 :</label>
-            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="2" name="master_user_id" id="user_{{$task->id}}">
-                <option value="">Select...</option>
-                <?php $masterUser = isset($task->second_master_user_id) ? $task->second_master_user_id : 0; ?>
-                @foreach($users as $id=>$name)
-                @if( $masterUser == $id )
-                <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                <option value="{{$id}}">{{ $name }}</option>
+                <label for="" style="font-size: 12px;margin-top:10px;">Lead 2 :</label>
+                @php 
+                    $selectBoxId = 'master_user_id';  
+                    $selectClass = "assign-master-user";
+                    $type="second-master-user";
+                @endphp
+                @include('task-module.partials.select-user',compact('task', 'users', 'selectBoxId', 'selectClass', 'type'))
+            @else
+                @if($task->second_master_user_id)
+                    @if(isset($users[$task->second_master_user_id]))
+                        <p>{{$users[$task->second_master_user_id]}}</p>
+                    @else
+                        <p>-</p>
+                    @endif
                 @endif
-                @endforeach
-            </select>
-            @else
-            @if($task->second_master_user_id)
-            @if(isset($users[$task->second_master_user_id]))
-            <p>{{$users[$task->second_master_user_id]}}</p>
-            @else
-            <p>-</p>
-            @endif
-            @endif
             @endif
 
 
@@ -138,13 +123,10 @@
             <div class="d-flex">
                 <div class="form-group" style="padding-top:5px;">
                     <div class='input-group date due-datetime'>
-
                         <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}" />
-
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
-
                     </div>
                 </div>
                 <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}" /></button>
