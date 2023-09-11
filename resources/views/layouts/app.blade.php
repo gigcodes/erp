@@ -2141,7 +2141,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                     </li>
                                     <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        <a class="dropdown-item" href="{{ route('meetings.all.data') }}">Zoom
                                             Meeting List</a>
                                     </li>
                                 </ul>

@@ -986,7 +986,7 @@ class RepositoryController extends Controller
         // Set the number of activities per page
         $perPage = 10;
 
-        $githubPrActivities = GithubPrActivity::latest();
+        $githubPrActivities = GithubPrActivity::latest('id');
         $githubPrActivities = $githubPrActivities
             ->where('github_organization_id', $organization->id)
             ->where('github_repository_id', $repo)
@@ -1171,11 +1171,20 @@ class RepositoryController extends Controller
                     foreach ($activities as $activity) {
                         if (isset($activity['id']) && $activity['event']) {
                             // Check if the event is a "labeled" event and contains label information
-                            $labelName = $labelColor = '';
+                            $labelName = $labelColor = $commentText = '' ;
                             if ($activity['event'] === 'labeled' && isset($activity['label'])) {
                                 // Add the label name to the array
                                 $labelName = $activity['label']['name'];
                                 $labelColor = '#' . $activity['label']['color'];
+                            }
+
+                            if ($activity['event'] === 'commented' && isset($activity['body'])) {
+                                $commentText = $activity['body'];
+                            }
+
+                            $activity_created_at = null;
+                            if (isset($activity['created_at'])) {
+                                $activity_created_at = $activity['created_at'];
                             }
 
                             $user = '';
@@ -1195,6 +1204,8 @@ class RepositoryController extends Controller
                                 'event' => $activity['event'],
                                 'label_name' => $labelName,
                                 'label_color' => $labelColor,
+                                'comment_text' => $commentText,
+                                'activity_created_at' => $activity_created_at
                             ]);
                         }
                     }

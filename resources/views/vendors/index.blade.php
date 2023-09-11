@@ -237,6 +237,7 @@
                 </div>
                 <div class="form-group col-md-1 p-0 mr-2">
                     <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                    <a href="{{route('vendors.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                 </div>
 
             </form>

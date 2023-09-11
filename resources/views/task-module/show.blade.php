@@ -770,72 +770,43 @@
                                             </td> -->
                                         <td class="table-hover-cell p-2">
                                         @php
-                                            $special_task = \App\Task::find($task->id);
-                                    $users_list = '';
-                                    foreach ($special_task->users as $key => $user) {
-                                    if ($key != 0) {
-                                    $users_list .= ', ';
-                                    }
-                                    if (array_key_exists($user->id, $users)) {
-                                    $users_list .= $users[$user->id];
-                                    } else {
-                                    $users_list = 'User Does Not Exist';
-                                    }
-                                    }
-                                    $users_list .= ' ';
-                                    foreach ($special_task->contacts as $key => $contact) {
-                                    if ($key != 0) {
-                                    $users_list .= ', ';
-                                    }
-                                    $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
-                                    }
+                                            $special_task = $task; 
+                                            $users_list = \App\Helpers::getTaskUserList($task, $users);
                                         @endphp
+                                        {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
 
-                                        <!--<span class="td-mini-container">
-                                                {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
-                                                </span>-->
-
-                                            @if(auth()->user()->isAdmin() || $isTeamLeader)
-                                                <select id="assign_to" class="form-control assign-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
-                                                    <option value="">Select...</option>
-                                                    <?php $masterUser = isset($task->assign_to) ? $task->assign_to : 0; ?>
-                                                    @foreach($users as $id=>$name)
-                                                        @if( $masterUser == $id )
-                                                            <option value="{{$id}}" selected>{{ $name }}</option>
-                                                        @else
-                                                            <option value="{{$id}}">{{ $name }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            @else
-                                                @if($task->assign_to)
-                                                    @if(isset($users[$task->assign_to]))
-                                                        <p>{{$users[$task->assign_to]}}</p>
-                                                    @else
-                                                        <p>-</p>
-                                                    @endif
+                                        @if(auth()->user()->isAdmin() || $isTeamLeader)
+                                            @php 
+                                                $selectBoxId = 'assign_to';  
+                                                $selectClass = "assign-user";
+                                                $type="assign-user";
+                                            @endphp
+                                            @include('task-module.partials.select-user',compact('task', 'users', 'selectBoxId', 'selectClass', 'type'))
+                                        @else
+                                            @if($task->assign_to)
+                                                @if(isset($users[$task->assign_to]))
+                                                    <p>{{$users[$task->assign_to]}}</p>
+                                                @else
+                                                    <p>-</p>
                                                 @endif
                                             @endif
+                                        @endif
 
-                                            <span class="td-full-container hidden">
-                                        {{ $users_list }}
-                                    </span>
-                                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+                                        <span class="td-full-container hidden">
+                                            {{ $users_list }}
+                                        </span>
+                                        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                             <div class="col-md-12 expand-col-lead{{$task->id}} dis-none" style="padding:0px;">
                                                 <br>
                                                 @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
-                                                    <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="1" name="master_user_id" id="user_{{$task->id}}">
-                                                        <option value="">Select...</option>
-                                                        <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
-                                                        @foreach($users as $id=>$name)
-                                                            @if( $masterUser == $id )
-                                                                <option value="{{$id}}" selected>{{ $name }}</option>
-                                                            @else
-                                                                <option value="{{$id}}">{{ $name }}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
+                                                    @php 
+                                                        $selectBoxId = 'master_user_id';  
+                                                        $selectClass = "assign-master-user";
+                                                        $type="master-user";
+                                                    @endphp
+                                                    @include('task-module.partials.select-user',compact('task', 'users', 'selectBoxId', 'selectClass', 'type'))
+
                                                 @else
                                                     @if($task->master_user_id)
                                                         @if(isset($users[$task->master_user_id]))
@@ -850,17 +821,12 @@
 
                                                 @if(auth()->user()->isAdmin()  || $isTeamLeader)
                                                     <label for="" style="font-size: 12px;margin-top:10px;">Lead 2 :</label>
-                                                    <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" data-lead="2" name="master_user_id" id="user_{{$task->id}}">
-                                                        <option value="">Select...</option>
-                                                        <?php $masterUser = isset($task->second_master_user_id) ? $task->second_master_user_id : 0; ?>
-                                                        @foreach($users as $id=>$name)
-                                                            @if( $masterUser == $id )
-                                                                <option value="{{$id}}" selected>{{ $name }}</option>
-                                                            @else
-                                                                <option value="{{$id}}">{{ $name }}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
+                                                    @php 
+                                                        $selectBoxId = 'master_user_id';  
+                                                        $selectClass = "assign-master-user";
+                                                        $type="second-master-user";
+                                                    @endphp
+                                                    @include('task-module.partials.select-user',compact('task', 'users', 'selectBoxId', 'selectClass', 'type'))
                                                 @else
                                                     @if($task->second_master_user_id)
                                                         @if(isset($users[$task->second_master_user_id]))
