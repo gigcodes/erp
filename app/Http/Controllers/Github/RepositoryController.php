@@ -1471,27 +1471,55 @@ class RepositoryController extends Controller
     {
         try {
             $requestData = $request->all();
+            $eventHeader = "";
+            if ($request->hasHeader('X-GitHub-Event')) {
+                $eventHeader = $request->header('X-GitHub-Event');
+            }
+
             if ($requestData && isset($requestData['action'])) {
                 // Find first or Create PR
-                $githubPullRequest = GithubPullRequest::firstOrCreate([
-                    'pull_number' => $requestData['pull_request']['number'],
+                $pullNumber = '';
+                if (isset($requestData['pull_request'])) {
+                    $pullNumber = $requestData['pull_request']['number'];
+                    $prTitle = $requestData['pull_request']['title'];
+                    $prUrl = $requestData['pull_request']['url'];
+                    $state = $requestData['pull_request']['state'];
+                    $createdBy = $requestData['pull_request']['user']['login'];
+                    $body = $requestData['pull_request']['body'];
+                    $activityCreatedAt = $requestData['pull_request']['created_at'];
+                } elseif(isset($requestData['issue'])) {
+                    $pullNumber = $requestData['issue']['number'];
+                    $prTitle = $requestData['issue']['title'];
+                    $prUrl = $requestData['issue']['url'];
+                    $state = $requestData['issue']['state'];
+                    $createdBy = $requestData['issue']['user']['login'];
+                    $body = $requestData['issue']['body'];
+                    $activityCreatedAt = $requestData['issue']['created_at'];
+                }
+
+                if ($pullNumber == "") {
+                    return response()->json(['message' => 'GitHub Pull Request Number is missing'], 200);
+                }
+
+                $githubPullRequest = GithubPullRequest::updateOrCreate([
+                    'pull_number' => $pullNumber,
                     'github_repository_id' => $requestData['repository']['id'],
                 ], [
                     'repo_name' => $requestData['repository']['name'],
-                    'pr_title' => $requestData['pull_request']['title'],
-                    'pr_url' => $requestData['pull_request']['url'],
-                    'state' => $requestData['pull_request']['state'],
-                    'created_by' => $requestData['pull_request']['user']['login']
+                    'pr_title' => $prTitle,
+                    'pr_url' => $prUrl,
+                    'state' => $state,
+                    'created_by' => $createdBy
                 ]);
 
                 // Create PR activity
                 if ($githubPullRequest) {
                     $githubPRActivity = new GithubPrActivity();
 
-                    $githubPRActivity->pull_number = $requestData['pull_request']['number'];
+                    $githubPRActivity->pull_number = $pullNumber;
                     $githubPRActivity->github_repository_id = $requestData['repository']['id'];
                     $githubPRActivity->event = $requestData['action'];
-                    $githubPRActivity->action = $requestData['action'];
+                    $githubPRActivity->event_header = $eventHeader;
 
                     if ($requestData['action'] === 'labeled' && isset($requestData['label'])) {
                         // Add the label name to the array
@@ -1501,8 +1529,9 @@ class RepositoryController extends Controller
                         $githubPRActivity->label_color = $labelColor;
                     }
 
-                    $githubPRActivity->body = $requestData['pull_request']['body'];
-                    $githubPRActivity->user = $requestData['pull_request']['user']['login'];
+                    $githubPRActivity->body = $body;
+                    $githubPRActivity->user = $createdBy;
+                    $githubPRActivity->activity_created_at = $activityCreatedAt;
                     $githubPRActivity->save();
                 }
             }
