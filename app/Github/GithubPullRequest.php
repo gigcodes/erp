@@ -10,7 +10,7 @@ class GithubPullRequest extends Model
     use HasFactory;
 
     public $fillable = [
-        'pr_number',
+        'pull_number',
         'repo_name',
         'github_repository_id',
         'pr_title',

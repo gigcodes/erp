@@ -332,5 +332,4 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
 
 Route::post('/github-action', [GitHubActionController::class, 'store']);
-Route::post('/github-pr-store', [RepositoryController::class, 'githubPRStore']);
-Route::post('/github-pr-activity-store', [RepositoryController::class, 'githubPRActivityStore']);
+Route::post('/github-pr-and-activity-store', [RepositoryController::class, 'githubPRAndActivityStore']);

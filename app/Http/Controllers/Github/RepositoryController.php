@@ -1467,41 +1467,47 @@ class RepositoryController extends Controller
         return response()->json(['message' => 'Label message updated successfully!']);
     }
 
-    public function githubPRStore(Request $request)
+    public function githubPRAndActivityStore(Request $request)
     {
         try {
-            $githubPullRequest = new GithubPullRequest();
+            $requestData = $request->all();
+            if ($requestData && isset($requestData['action'])) {
+                // Find first or Create PR
+                $githubPullRequest = GithubPullRequest::firstOrCreate([
+                    'pull_number' => $requestData['pull_request']['number'],
+                    'github_repository_id' => $requestData['repository']['id'],
+                ], [
+                    'repo_name' => $requestData['repository']['name'],
+                    'pr_title' => $requestData['pull_request']['title'],
+                    'pr_url' => $requestData['pull_request']['url'],
+                    'state' => $requestData['pull_request']['state'],
+                    'created_by' => $requestData['pull_request']['user']['login']
+                ]);
 
-            $githubPullRequest->pr_number = $request->input('pr_number') ?? '';
-            $githubPullRequest->repo_name = $request->input('repo_name') ?? '';
-            $githubPullRequest->pr_title = $request->input('pr_title') ?? '';
-            $githubPullRequest->pr_url = $request->input('pr_url') ?? '';
-            $githubPullRequest->state = $request->input('state') ?? '';
-            $githubPullRequest->created_by = $request->input('created_by') ?? '';
-            $githubPullRequest->save();
+                // Create PR activity
+                if ($githubPullRequest) {
+                    $githubPRActivity = new GithubPrActivity();
+
+                    $githubPRActivity->pull_number = $requestData['pull_request']['number'];
+                    $githubPRActivity->github_repository_id = $requestData['repository']['id'];
+                    $githubPRActivity->event = $requestData['action'];
+                    $githubPRActivity->action = $requestData['action'];
+
+                    if ($requestData['action'] === 'labeled' && isset($requestData['label'])) {
+                        // Add the label name to the array
+                        $labelName = $requestData['label']['name'];
+                        $labelColor = '#' . $requestData['label']['color'];
+                        $githubPRActivity->label_name = $labelName;
+                        $githubPRActivity->label_color = $labelColor;
+                    }
+
+                    $githubPRActivity->body = $requestData['pull_request']['body'];
+                    $githubPRActivity->user = $requestData['pull_request']['user']['login'];
+                    $githubPRActivity->save();
+                }
+            }
 
             return response()->json(['message' => 'GitHub Pull Request Stored Successfully'], 200);
-        } catch (\Exception $e) {
-            Log::channel('github_error')->error($e->getMessage());
-
-            return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
-        }
-    }
-
-    public function githubPRActivityStore(Request $request)
-    {
-        try {
-            $githubPRActivity = new GithubPrActivity();
-
-            $githubPRActivity->pull_number = $request->input('pull_number') ?? '';
-            $githubPRActivity->event = $request->input('event') ?? '';
-            $githubPRActivity->action = $request->input('action') ?? '';
-            $githubPRActivity->body = $request->input('body') ?? '';
-            $githubPRActivity->description = $request->input('description') ?? '';
-            $githubPRActivity->user = $request->input('user') ?? '';
-            $githubPRActivity->save();
-
-            return response()->json(['message' => 'GitHub Pull Request Activity Stored Successfully'], 200);
         } catch (\Exception $e) {
             Log::channel('github_error')->error($e->getMessage());
 

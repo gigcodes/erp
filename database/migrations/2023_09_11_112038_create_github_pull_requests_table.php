@@ -16,7 +16,7 @@ class CreateGithubPullRequestsTable extends Migration
         Schema::create('github_pull_requests', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->bigInteger('pr_number');
+            $table->bigInteger('pull_number');
             $table->string('repo_name')->nullable();
             $table->bigInteger('github_repository_id')->nullable();
             $table->string('pr_title')->nullable();
