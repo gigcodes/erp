@@ -16,28 +16,50 @@
 	</div>
 	<div class="mt-3 col-md-12">
 		<form action="{{route('meeting.list.error-logs')}}" method="get" class="search">
-			@csrf
-			<div class="col-1">
-				{{-- <b>Search</b>  --}}
-			</div>
 			<div class="col-md-2 pd-sm">
-				{{-- {{ Form::select("website_ids[]", \App\WebsiteLog::pluck('website_id','website_id')->toArray(),request('website_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }} --}}
+                <h5> <b>Search Type </b></h5>
+                <?php 
+                    if(request('zoom_type')){   $zoom_type_search = request('zoom_type'); }
+                    else{ $zoom_type_search = []; }
+                ?>
+                <select name="zoom_type[]" id="zoom_type" class="form-control select2" multiple>
+                    <option value="" @if($zoom_type_search=='') selected @endif>-- Select a Zoom Type --</option>
+                    @forelse($zoomApiLogTypes as $swId => $zoomApiLogType)
+                    <option value="{{ $zoomApiLogType }}" @if(in_array($zoomApiLogType, $zoom_type_search)) selected @endif>{!! $zoomApiLogType !!}</option>
+                    @empty
+                    @endforelse
+                </select>
+            </div>
+            <div class="col-md-2 pd-sm">
+                <h5> <b> Search Request Url</b> </h5>
+                <?php 
+                    $zoom_url_search = request('zoom_type') ? request('req_urls') : [];
+                ?>
+                <select name="req_urls[]" id="req_urls" class="form-control select2" multiple>
+                    @forelse($zoomrequestUrls as $id => $url)
+                        <option value="{{ $id }}" @if(!empty($zoom_url_search) && in_array($id, $zoom_url_search)) selected @endif>{!! $url !!}</option>
+                    @empty
+                    @endforelse
+                </select>
+            </div>            
+			<div class="col-lg-2">
+                <h5><b> Search Status</b></h5>
+				<input class="form-control" type="text" id="search_status" placeholder="Search Status" name="search_status" value="{{ (request('search_status') ?? "" )}}">
+			</div>
+            <div class="col-lg-2">
+                <h5> <b>Search Response Status </b></h5>
+				<input class="form-control" type="text" id="response_status" placeholder="Search Response Status" name="response_status" value="{{ (request('response_status') ?? "" )}}">
 			</div>
 			<div class="col-lg-2">
-				{{-- <input class="form-control" type="text" id="search_error" placeholder="Search Error" name="search_error" value="{{ $search_error ?? '' }}"> --}}
-			</div>
-			<div class="col-lg-2">
-				{{-- <input class="form-control" type="text" id="search_type" placeholder="Search type" name="search_type" value="{{ $search_type ?? '' }}"> --}}
-			</div>
-			<div class="col-lg-2">
-				{{-- <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}"> --}}
+                <h5> <b> Search Date </b></h5>
+				<input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
 			</div>
 
-			<div class="col-lg-2">
-				{{-- <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+			<div class="col-lg-2"><br><br>
+				<button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
 				   <img src="{{ asset('images/search.png') }}" alt="Search">
 			   </button>
-			   <a href="{{route('meeting.list.error-logs')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a> --}}
+			   <a href="{{route('meeting.list.error-logs')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 			</div>
 		</form>
 	</div>
@@ -127,6 +149,9 @@
 @section('scripts')
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
+
+    $('.select2').select2();
+
     $(document).ready(function() 
 	{
 
