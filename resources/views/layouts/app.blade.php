@@ -7758,7 +7758,6 @@ if (!\Auth::guest()) {
             }
         }).fail(function (response) {
             $("#loading-image-preview").hide();
-            console.log(response);
         });
     }
 
@@ -8051,7 +8050,6 @@ if (!\Auth::guest()) {
             $("#loading-image").show();
           }
         }).done(function (response) {
-          console.log(response.data);
           $("#loading-image").hide();
           var html = "";
           var startIndex = (response.data.current_page - 1) * response.data.per_page;
@@ -8489,7 +8487,6 @@ if (!\Auth::guest()) {
             }
         }).fail(function (response) {
             $('.ajax-loader').hide();
-            console.log(response);
         });
     }
 
@@ -8533,7 +8530,6 @@ if (!\Auth::guest()) {
                 }
             }).fail(function (response) {
                 $('.ajax-loader').hide();
-                console.log(response);
             });
          });
 
