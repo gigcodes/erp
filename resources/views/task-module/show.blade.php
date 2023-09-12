@@ -699,13 +699,11 @@
                                 @foreach($data['task']['pending'] as $task)
                                     @php
                                         $taskDueDate = $task->due_date;
-                            $task->due_date='';
-                            //$task->lead_hubstaff_task_id=0;
-                            //$task->status=1;
-                                    $status_color = \App\TaskStatus::where('id',$task->status)->first();
-                                    if ($status_color == null) {
-                                        $status_color = new stdClass();
-                                    }
+                                        $task->due_date='';
+                                        $status_color = \App\TaskStatus::where('id',$task->status)->first();
+                                        if ($status_color == null) {
+                                            $status_color = new stdClass();
+                                        }
                                     @endphp
                                     <tr style="background-color: {{$status_color->task_color ?? ""}}!important;" class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
                                         <td class="p-2">
@@ -1764,113 +1762,6 @@
         function Showactionbtn(id){
             $(".action-btn-tr-"+id).toggleClass('d-none')
         }
-    </script>
-
-    <script>
-        // function Showactionbtn(id){
-        //     $(".action-btn-tr").removeClass('d-none');
-        // }
-
-        function funTaskInformationUpdatesTime(type,id) {
-            if (type == 'start_date') {
-                if (confirm('Are you sure, do you want to update?')) {
-                    siteLoader(1);
-                    let mdl = funGetTaskInformationModal();
-                    jQuery.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: "{{ route('task.update.start-date') }}",
-                        type: 'POST',
-                        data: {
-                            task_id: id,
-                            value: $('input[name="start_dates'+id+'"]').val(),
-                        }
-                    }).done(function(res) {
-                        siteLoader(0);
-                        siteSuccessAlert(res);
-                    }).fail(function(err) {
-                        siteLoader(0);
-                        siteErrorAlert(err);
-                    });
-                }
-            } else if (type == 'due_date') {
-                if (confirm('Are you sure, do you want to update?')) {
-                    siteLoader(1);
-                    let mdl = funGetTaskInformationModal();
-                    jQuery.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: "{{ route('task.update.due-date') }}",
-                        type: 'POST',
-                        data: {
-                            task_id: id,
-                            value: $('input[name="due_dates'+id+'"]').val(),
-                        }
-                    }).done(function(res) {
-                        siteLoader(0);
-                        siteSuccessAlert(res);
-                    }).fail(function(err) {
-                        siteLoader(0);
-                        siteErrorAlert(err);
-                    });
-                }
-            } else if (type == 'cost') {
-                if (confirm('Are you sure, do you want to update?')) {
-                    siteLoader(1);
-                    let mdl = funGetTaskInformationModal();
-                    jQuery.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: "{{ route('task.update.cost') }}",
-                        type: 'POST',
-                        data: {
-                            task_id: id,
-                            cost: mdl.find('input[name="cost"]').val(),
-                        }
-                    }).done(function(res) {
-                        siteLoader(0);
-                        siteSuccessAlert(res);
-                    }).fail(function(err) {
-                        siteLoader(0);
-                        siteErrorAlert(err);
-                    });
-                }
-            } else if (type == 'approximate') {
-                if (confirm('Are you sure, do you want to update?')) {
-                    siteLoader(1);
-                    let mdl = funGetTaskInformationModal();
-                    jQuery.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                        },
-                        url: "{{ route('task.update.approximate') }}",
-                        type: 'POST',
-                        data: {
-                            task_id: id,
-                            approximate: $('input[name="approximates'+id+'"]').val(),
-                            remark: mdl.find('textarea[name="remark"]').val(),
-                        }
-                    }).done(function(res) {
-                        siteLoader(0);
-                        siteSuccessAlert(res);
-                    }).fail(function(err) {
-                        siteLoader(0);
-                        siteErrorAlert(err);
-                    });
-                }
-            }
-        }
-
-        $(document).ready(function() {
-            $(".multiselect").multiselect({
-                nonSelectedText: 'Status Filter',
-                allSelectedText: 'All',
-                includeSelectAllOption: true
-            });
-        });
         $(document).on('click', '.previewDoc', function() {
             $('#previewDocSource').attr('src', '');
             var docUrl = $(this).data('docurl');
@@ -1886,79 +1777,91 @@
         $("#previewDoc").on("hidden", function() {
             $('#previewDocSource').attr('src', '');
         });
-        var taskSuggestions = <?php echo json_encode($search_suggestions, true); ?>;
-        var searchSuggestions = <?php echo json_encode($search_term_suggestions, true); ?>;
+        var taskSuggestions = @json($search_suggestions, true);
+        var searchSuggestions = @json($search_term_suggestions, true);
         var cached_suggestions = localStorage['message_suggestions'];
         var suggestions = [];
+        $(document).on('click', '.expand-row-msg', function() {
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .td-full-container-' + id;
+            var mini = '.expand-row-msg .td-mini-container-' + id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+        $(document).on('click', '.expand-row', function() {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                $(this).find('.td-mini-container').toggleClass('hidden');
+                $(this).find('.td-full-container').toggleClass('hidden');
+            }
+        });
+        $('#completion-datetime, #reminder-datetime, #sending-datetime #due-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+        $('.due-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+        $('#daily_activity_date').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        let users = @json($users);
+        let isAdmin = <?php echo $isAdmin ? 1 : 0; ?>;
+        $("#add-row").click(function() {
+            table.addRow({});
+        });
+        $(".add-task").click(function() {
+            var taskId = $(this).attr('data-id');
+            $("#add-new-remark").find('input[name="id"]').val(taskId);
+        });
+        $(".view-remark").click(function() {
+            var taskId = $(this).attr('data-id');
+            $.ajax({
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('task.gettaskremark') }}",
+                data: {
+                    id: taskId,
+                    module_type: "task"
+                },
+            }).done(response => {
+                console.log(response);
+                var html = '';
+                $.each(response, function(index, value) {
+                    html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
+                    html + "<hr>";
+                });
+                $("#view-remark-list").find('#remark-list').html(html);
+            });
+        });
         $(document).ready(function() {
+            $(".multiselect").multiselect({
+                nonSelectedText: 'Status Filter',
+                allSelectedText: 'All',
+                includeSelectAllOption: true
+            });
             $('.js-example-basic-multiple').select2();
-        });
-        $('#master_user_id').select2({
-            width: "100%"
-        });
-        $('#search_by_user').select2({
-            width: "100%"
-        });
-        // $('.multiselect').select2({
-        //     width: "100%"
-        // });
-        $('#search_by_user').change(function() {
-            $("#priority_user_id").select2({
-                tags: true,
-                width: '100%'
-            }).val($(this).val()).trigger('change');
-        });
-        $(document).ready(function() {
+            $('#master_user_id').select2({
+                width: "100%"
+            });
+            $('#search_by_user').select2({
+                width: "100%"
+            });
+
+            $('#search_by_user').change(function() {
+                $("#priority_user_id").select2({
+                    tags: true,
+                    width: '100%'
+                }).val($(this).val()).trigger('change');
+            });
+
             $('#priority_user_id').select2({
                 tags: true,
                 width: '100%'
             });
             var isLoading = false;
             var page = 1;
-            $(document).ready(function() {
-                $(window).scroll(function() {
-                    if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
-                        loadMore();
-                    }
-                });
-                function loadMore() {
-                    if (isLoading)
-                        return;
-                    isLoading = true;
-                    type = $("#tasktype").val();
-                    var $loader = $('.infinite-scroll-products-loader');
-                    page = page + 1;
-                    $.ajax({
-
-                        url: "http://localhost/erp/public/index.php/task?page=" + page,
-                        type: 'GET',
-                        data: $('.form-search-data').serialize(),
-                        beforeSend: function() {
-                            $loader.show();
-                        },
-                        success: function(data) {
-                            console.log(type);
-                            $loader.hide();
-                            if ('' === data.trim())
-                                return;
-                            if (type == 'pending') {
-                                $('.infinite-scroll-pending-inner').append(data);
-                            }
-                            if (type == 'completed') {
-                                $('.infinite-scroll-completed-inner').append(data);
-                            }
-                            if (type == 'statutory_not_completed') {
-                                $('.infinite-scroll-statutory-inner').append(data);
-                            }
-                            isLoading = false;
-                        },
-                        error: function() {
-                            $loader.hide();
-                            isLoading = false;
-                        }
-                    });
-                }
-            });
             $('#task_reminder_from').datetimepicker({
                 format: 'YYYY-MM-DD HH:mm'
             });
@@ -1986,7 +1889,7 @@
                 let task_reminder_from = taskReminderModal.find("#task_reminder_from").val();
                 let reminder_last_reply = (taskReminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
                 $.ajax({
-                    url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'updateTaskReminder'])}}",
+                    url: "{{ route('task.reminder.update') }}",
                     type: 'POST',
                     success: function() {
                         toastr['success']('Reminder updated successfully!');
@@ -2043,6 +1946,99 @@
                     }
                 });
             });
+            function funTaskInformationUpdatesTime(type,id) {
+                if (type == 'start_date') {
+                    if (confirm('Are you sure, do you want to update?')) {
+                        siteLoader(1);
+                        let mdl = funGetTaskInformationModal();
+                        jQuery.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: "{{ route('task.update.start-date') }}",
+                            type: 'POST',
+                            data: {
+                                task_id: id,
+                                value: $('input[name="start_dates'+id+'"]').val(),
+                            }
+                        }).done(function(res) {
+                            siteLoader(0);
+                            siteSuccessAlert(res);
+                        }).fail(function(err) {
+                            siteLoader(0);
+                            siteErrorAlert(err);
+                        });
+                    }
+                } else if (type == 'due_date') {
+                    if (confirm('Are you sure, do you want to update?')) {
+                        siteLoader(1);
+                        let mdl = funGetTaskInformationModal();
+                        jQuery.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: "{{ route('task.update.due-date') }}",
+                            type: 'POST',
+                            data: {
+                                task_id: id,
+                                value: $('input[name="due_dates'+id+'"]').val(),
+                            }
+                        }).done(function(res) {
+                            siteLoader(0);
+                            siteSuccessAlert(res);
+                        }).fail(function(err) {
+                            siteLoader(0);
+                            siteErrorAlert(err);
+                        });
+                    }
+                } else if (type == 'cost') {
+                    if (confirm('Are you sure, do you want to update?')) {
+                        siteLoader(1);
+                        let mdl = funGetTaskInformationModal();
+                        jQuery.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: "{{ route('task.update.cost') }}",
+                            type: 'POST',
+                            data: {
+                                task_id: id,
+                                cost: mdl.find('input[name="cost"]').val(),
+                            }
+                        }).done(function(res) {
+                            siteLoader(0);
+                            siteSuccessAlert(res);
+                        }).fail(function(err) {
+                            siteLoader(0);
+                            siteErrorAlert(err);
+                        });
+                    }
+                } else if (type == 'approximate') {
+                    if (confirm('Are you sure, do you want to update?')) {
+                        siteLoader(1);
+                        let mdl = funGetTaskInformationModal();
+                        jQuery.ajax({
+                            headers: {
+                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                            },
+                            url: "{{ route('task.update.approximate') }}",
+                            type: 'POST',
+                            data: {
+                                task_id: id,
+                                approximate: $('input[name="approximates'+id+'"]').val(),
+                                remark: mdl.find('textarea[name="remark"]').val(),
+                            }
+                        }).done(function(res) {
+                            siteLoader(0);
+                            siteSuccessAlert(res);
+                        }).fail(function(err) {
+                            siteLoader(0);
+                            siteErrorAlert(err);
+                        });
+                    }
+                }
+            }
+
             function getPriorityTaskList(id) {
                 console.log('id', id)
                 var selected_issue = [0];
@@ -2060,21 +2056,10 @@
                         selected_issue: selected_issue,
                     },
                     success: function(response) {
-                        // var html = '';
-                        // response.forEach(function (task) {
-                        //     html += '<tr>';
-                        //     html += '<td><input type="hidden" name="priority[]" value="' + task.id + '">' + task.id + '</td>';
-                        //     html += '<td>' + task.task_subject + '</td>';
-                        //     html += '<td>' + task.task_details + '</td>';
-                        //     html += '<td>' + task.created_at + '</td>';
-                        //     html += '<td>' + task.created_by + '</td>';
-                        //     html += '<td><a href="javascript:;" class="delete_priority" data-id="' + task.id + '">Remove<a></td>';
-                        //     html += '</tr>';
-                        // });
                         $(".show_task_priority").html(response.html);
-                        <?php if (auth()->user()->isAdmin()) { ?>
-                        $(".show_task_priority").sortable();
-                        <?php } ?>
+                        if (IS_ADMIN_USER) {
+                            $(".show_task_priority").sortable();
+                        }
                     },
                     error: function() {
                         alert('There was error loading priority task list data');
@@ -2090,11 +2075,11 @@
                 //$("#priority_user_id").val('0');
                 //$("#sel_user_id").val('0');
                 $(".show_task_priority").html('');
-                <?php if (auth()->user()->isAdmin()) { ?>
-                getPriorityTaskList($('#priority_user_id').val());
-                <?php } else { ?>
-                getPriorityTaskList('{{auth()->user()->id}}');
-                <?php } ?>
+                if(IS_ADMIN_USER) {
+                    getPriorityTaskList($('#priority_user_id').val());
+                } else {
+                    getPriorityTaskList('{{auth()->user()->id}}');
+                }
                 $('#priority_model').modal('show');
             })
             $('#priority_user_id').change(function() {
@@ -2104,24 +2089,20 @@
                 }
             });
             $(document).on('submit', '#priorityForm', function(e) {
-                console.log($(this).serialize());
-                //  return false;
                 e.preventDefault();
-                <?php if (auth()->user()->isAdmin()) { ?>
-                $.ajax({
-                    url: "{{route('task.set.priority')}}",
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        return false;
-                        //      toastr['success']('Priority successfully update!!', 'success');
-                        //    $('#priority_model').modal('hide');
-                    },
-                    error: function() {
-                        alert('There was error loading priority task list data');
-                    }
-                });
-                <?php } ?>
+                if (IS_ADMIN_USER) {
+                    $.ajax({
+                        url: "{{route('task.set.priority')}}",
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            return false;
+                        },
+                        error: function() {
+                            alert('There was error loading priority task list data');
+                        }
+                    });
+                }
             });
             $('#task_subject, #task_details').autocomplete({
                 source: function(request, response) {
@@ -2148,98 +2129,8 @@
             $('#multi_contacts').select2({
                 placeholder: 'Select a Contact',
             });
-        });
-        $(document).on('click', '.expand-row-msg', function() {
-            var id = $(this).data('id');
-            var full = '.expand-row-msg .td-full-container-' + id;
-            var mini = '.expand-row-msg .td-mini-container-' + id;
-            $(full).toggleClass('hidden');
-            $(mini).toggleClass('hidden');
-        });
-        $(document).on('click', '.expand-row', function() {
-            var selection = window.getSelection();
-            if (selection.toString().length === 0) {
-                // if ($(this).data('switch') == 0) {
-                //   $(this).text($(this).data('details'));
-                //   $(this).data('switch', 1);
-                // } else {
-                //   $(this).text($(this).data('subject'));
-                //   $(this).data('switch', 0);
-                // }
-                $(this).find('.td-mini-container').toggleClass('hidden');
-                $(this).find('.td-full-container').toggleClass('hidden');
-            }
-        });
-        function addNewRemark(id) {
-            var formData = $("#add-new-remark").find('#add-remark').serialize();
-            // console.log(id);
-            var remark = $('#remark-text_' + id).val();
-            $.ajax({
-                type: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: "{{ route('task.addRemark') }}",
-                data: {
-                    id: id,
-                    remark: remark,
-                    module_type: "task"
-                },
-            }).done(response => {
-                alert('Remark Added Success!')
-                // $('#add-new-remark').modal('hide');
-                // $("#add-new-remark").hide();
-                window.location.reload();
-            });
-        }
-        $('#completion-datetime, #reminder-datetime, #sending-datetime #due-datetime').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm'
-        });
-        $('.due-datetime').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm'
-        });
-        $('#daily_activity_date').datetimepicker({
-            format: 'YYYY-MM-DD'
-        });
-        let users = <?php echo json_encode($data['users']) ?>;
-        let isAdmin = <?php echo $isAdmin ? 1 : 0; ?>;
-        $("#add-row").click(function() {
-            table.addRow({});
-        });
-        $(".add-task").click(function() {
-            var taskId = $(this).attr('data-id');
-            $("#add-new-remark").find('input[name="id"]').val(taskId);
-        });
-        $(".view-remark").click(function() {
-            var taskId = $(this).attr('data-id');
-            $.ajax({
-                type: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: "{{ route('task.gettaskremark') }}",
-                data: {
-                    id: taskId,
-                    module_type: "task"
-                },
-            }).done(response => {
-                console.log(response);
-                var html = '';
-                $.each(response, function(index, value) {
-                    html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
-                    html + "<hr>";
-                });
-                $("#view-remark-list").find('#remark-list').html(html);
-                // getActivity();
-                //
-                // $('#loading_activty').hide();
-            });
-        });
-        $(document).ready(function() {
             $(document).on('change', '.is_statutory', function() {
                 if ($(".is_statutory").val() == 1) {
-                    // $('input[name="completion_date"]').val("1976-01-01");
-                    // $("#completion-datetime").hide();
                     $("#calendar-task").hide();
                     $('#appointment-container').hide();
                     if (!isAdmin)
@@ -2295,253 +2186,6 @@
                 jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
             });
             $(".table").tablesorter();
-        });
-
-
-
-        $(document).on('click', '.send-message', function() {
-            var thiss = $(this);
-            var data = new FormData();
-            var task_id = $(this).data('taskid');
-            // var message = $(this).siblings('input').val();
-            if ($(this).hasClass("onpriority")) {
-                var message = $('#getMsgPopup' + task_id).val();
-            } else {
-                var message = $('#getMsg' + task_id).val();
-            }
-            if (message != "") {
-                $("#message_confirm_text").html(message);
-                $("#confirm_task_id").val(task_id);
-                $("#confirm_message").val(message);
-                $("#confirm_status").val(1);
-                $("#confirmMessageModal").modal();
-            }
-        });
-        $(document).on('click', '.confirm-messge-button', function() {
-            var thiss = $(this);
-            var data = new FormData();
-            var task_id = $("#confirm_task_id").val();
-            var message = $("#confirm_message").val();
-            var status = $("#confirm_status").val();
-            var is_audio=$("#is_audio_"+task_id).val();
-            //    alert(message)
-            data.append("task_id", task_id);
-            data.append("message", message);
-            data.append("status", status);
-            data.append("is_audio", is_audio);
-            // var checkedValue = $('.send_message_recepients:checked').val();
-            var checkedValue = [];
-            var i = 0;
-            $('.send_message_recepients:checked').each(function() {
-                checkedValue[i++] = $(this).val();
-            });
-            data.append("send_message_recepients", checkedValue);
-            //  console.log(checkedValue);
-            if (message.length > 0) {
-                if (!$(thiss).is(':disabled')) {
-                    $.ajax({
-                        //  url: '/whatsapp/sendMessage/task',
-                        url: "{{ route('whatsapp.send','task')}}",
-                        type: 'POST',
-                        "dataType": 'json', // what to expect back from the PHP script, if anything
-                        "cache": false,
-                        "contentType": false,
-                        "processData": false,
-                        "data": data,
-                        beforeSend: function() {
-                            $(thiss).attr('disabled', true);
-                        }
-                    }).done(function(response) {
-                        $(thiss).siblings('input').val('');
-                        $('#getMsg' + task_id).val('');
-                        $('#confirmMessageModal').modal('hide');
-                        if (cached_suggestions) {
-                            suggestions = JSON.parse(cached_suggestions);
-                            if (suggestions.length == 10) {
-                                suggestions.push(message);
-                                suggestions.splice(0, 1);
-                            } else {
-                                suggestions.push(message);
-                            }
-                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                            cached_suggestions = localStorage['message_suggestions'];
-                            console.log('EXISTING');
-                            console.log(suggestions);
-                        } else {
-                            suggestions.push(message);
-                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                            cached_suggestions = localStorage['message_suggestions'];
-                            console.log('NOT');
-                            console.log(suggestions);
-                        }
-                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
-                        //   .done(function( data ) {
-                        //
-                        //   }).fail(function(response) {
-                        //     console.log(response);
-                        //     alert(response.responseJSON.message);
-                        //   });
-                        $(thiss).attr('disabled', false);
-                    }).fail(function(errObj) {
-                        $('#confirmMessageModal').modal('hide');
-                        $(thiss).attr('disabled', false);
-                        alert("Could not send message");
-                        console.log(errObj);
-                    });
-                }
-            } else {
-                alert('Please enter a message first');
-            }
-        });
-        $(document).on('click', '.send-message-lead', function() {
-            var thiss = $(this);
-            var task_id = $(this).data('taskid');
-            var message = $(this).siblings('input').val();
-            if (message.length > 0) {
-                if (!$(thiss).is(':disabled')) {
-                    $.ajax({
-                        url: '/whatsapp/sendMessage/task_lead',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: {
-                            task_id: task_id,
-                            message: message,
-                            status: 2
-                        },
-                        beforeSend: function() {
-                            $(thiss).attr('disabled', true);
-                        }
-                    }).done(function(response) {
-                        console.log(response);
-                        $(thiss).siblings('input').val('');
-                        $(thiss).attr('disabled', false);
-                    }).fail(function(errObj) {
-                        console.log(errObj);
-                        $(thiss).attr('disabled', false);
-                        toastr['error'](errObj.responseJSON.message);
-                    });
-                }
-            } else {
-                alert('Please enter a message first');
-            }
-        });
-        $(document).on('click', '.expand-row-btn', function() {
-            $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
-        });
-        $(document).on('click', '.expand-row-btn-lead', function() {
-           var id =  $(this).data('task_id');
-            $(".expand-col-lead"+id).toggleClass('dis-none');
-        });
-        $(document).on("click", ".set-remark", function(e) {
-            $('.remark_pop').val("");
-            var task_id = $(this).data('task_id');
-            $('.sub_remark').attr("data-task_id", task_id);
-        });
-        $(document).on("click", ".set-remark, .sub_remark", function(e) {
-            var thiss = $(this);
-            var task_id = $(this).data('task_id');
-            var remark = $('.remark_pop').val();
-            if (task_id != "") {
-                $.ajax({
-                    type: "POST",
-                    url: "{{route('task.create.get.remark')}}",
-                    headers: {
-                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    data: {
-                        task_id: task_id,
-                        remark: remark,
-                        type: "TASK",
-                    },
-                    beforeSend: function() {
-                        $("#loading-image").show();
-                    }
-                }).done(function(response) {
-                    if (response.code == 200) {
-                        $("#loading-image").hide();
-                        $("#preview-task-create-get-modal").modal("show");
-                        $(".task-create-get-list-view").html(response.data);
-                        $('.remark_pop').val("");
-                        toastr['success'](response.message);
-                    } else {
-                        $("#loading-image").hide();
-                        $("#preview-task-create-get-modal").modal("show");
-                        $(".task-create-get-list-view").html("");
-                        toastr['error'](response.message);
-                    }
-                }).fail(function(response) {
-                    $("#loading-image").hide();
-                    $("#preview-task-create-get-modal").modal("show");
-                    $(".task-create-get-list-view").html("");
-                    toastr['error'](response.message);
-                });
-            } else {
-                toastr['error']("Task not Found!");
-            }
-        });
-        $(document).on("click", ".copy_remark", function(e) {
-            var thiss = $(this);
-            var remark_text = thiss.data('remark_text');
-            copyToClipboard(remark_text);
-            /* Alert the copied text */
-            toastr['success']("Copied the text: " + remark_text);
-            //alert("Copied the text: " + remark_text);
-        });
-        function copyToClipboard(text) {
-            var sampleTextarea = document.createElement("textarea");
-            document.body.appendChild(sampleTextarea);
-            sampleTextarea.value = text; //save main text in it
-            sampleTextarea.select(); //select textarea contenrs
-            document.execCommand("copy");
-            document.body.removeChild(sampleTextarea);
-        }
-        $(document).on('click', '.make-private-task', function() {
-            var task_id = $(this).data('taskid');
-            var thiss = $(this);
-            $.ajax({
-                type: "POST",
-                url: "{{ url('task') }}/" + task_id + "/makePrivate",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                },
-                beforeSend: function() {
-                    $(thiss).text('Changing...');
-                }
-            }).done(function(response) {
-                if (response.task.is_private == 1) {
-                    $(thiss).html('<img src="/images/private.png" />');
-                } else {
-                    $(thiss).html('<img src="/images/not-private.png" />');
-                }
-            }).fail(function(response) {
-                $(thiss).html('<img src="/images/not-private.png" />');
-                console.log(response);
-                alert('Could not make task private');
-            });
-        });
-        $(document).on('click', ".collapsible-message", function() {
-            var selection = window.getSelection();
-            if (selection.toString().length === 0) {
-                var short_message = $(this).data('messageshort');
-                var message = $(this).data('message');
-                var status = $(this).data('expanded');
-                if (status == false) {
-                    $(this).addClass('expanded');
-                    $(this).html(message);
-                    $(this).data('expanded', true);
-                    // $(this).siblings('.thumbnail-wrapper').remove();
-                    $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
-                    $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
-                } else {
-                    $(this).removeClass('expanded');
-                    $(this).html(short_message);
-                    $(this).data('expanded', false);
-                    $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
-                    $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
-                }
-            }
-        });
-        $(document).ready(function() {
             var container = $("div#message-container");
             var suggestion_container = $("div#suggestion-container");
             // var sendBtn = $("#waMessageSend");
@@ -2801,6 +2445,249 @@
                 pollMessages(next_page, true);
             });
         });
+
+        $(document).on('click', '.send-message', function() {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('taskid');
+            // var message = $(this).siblings('input').val();
+            if ($(this).hasClass("onpriority")) {
+                var message = $('#getMsgPopup' + task_id).val();
+            } else {
+                var message = $('#getMsg' + task_id).val();
+            }
+            if (message != "") {
+                $("#message_confirm_text").html(message);
+                $("#confirm_task_id").val(task_id);
+                $("#confirm_message").val(message);
+                $("#confirm_status").val(1);
+                $("#confirmMessageModal").modal();
+            }
+        });
+        $(document).on('click', '.confirm-messge-button', function() {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $("#confirm_task_id").val();
+            var message = $("#confirm_message").val();
+            var status = $("#confirm_status").val();
+            var is_audio=$("#is_audio_"+task_id).val();
+            //    alert(message)
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", status);
+            data.append("is_audio", is_audio);
+            // var checkedValue = $('.send_message_recepients:checked').val();
+            var checkedValue = [];
+            var i = 0;
+            $('.send_message_recepients:checked').each(function() {
+                checkedValue[i++] = $(this).val();
+            });
+            data.append("send_message_recepients", checkedValue);
+            //  console.log(checkedValue);
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        //  url: '/whatsapp/sendMessage/task',
+                        url: "{{ route('whatsapp.send','task')}}",
+                        type: 'POST',
+                        "dataType": 'json', // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function() {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function(response) {
+                        $(thiss).siblings('input').val('');
+                        $('#getMsg' + task_id).val('');
+                        $('#confirmMessageModal').modal('hide');
+                        if (cached_suggestions) {
+                            suggestions = JSON.parse(cached_suggestions);
+                            if (suggestions.length == 10) {
+                                suggestions.push(message);
+                                suggestions.splice(0, 1);
+                            } else {
+                                suggestions.push(message);
+                            }
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+                            console.log('EXISTING');
+                            console.log(suggestions);
+                        } else {
+                            suggestions.push(message);
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+                            console.log('NOT');
+                            console.log(suggestions);
+                        }
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+                        $(thiss).attr('disabled', false);
+                    }).fail(function(errObj) {
+                        $('#confirmMessageModal').modal('hide');
+                        $(thiss).attr('disabled', false);
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+        $(document).on('click', '.send-message-lead', function() {
+            var thiss = $(this);
+            var task_id = $(this).data('taskid');
+            var message = $(this).siblings('input').val();
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task_lead',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            task_id: task_id,
+                            message: message,
+                            status: 2
+                        },
+                        beforeSend: function() {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function(response) {
+                        console.log(response);
+                        $(thiss).siblings('input').val('');
+                        $(thiss).attr('disabled', false);
+                    }).fail(function(errObj) {
+                        console.log(errObj);
+                        $(thiss).attr('disabled', false);
+                        toastr['error'](errObj.responseJSON.message);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+        $(document).on('click', '.expand-row-btn', function() {
+            $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+        $(document).on('click', '.expand-row-btn-lead', function() {
+           var id =  $(this).data('task_id');
+            $(".expand-col-lead"+id).toggleClass('dis-none');
+        });
+        $(document).on("click", ".set-remark", function(e) {
+            $('.remark_pop').val("");
+            var task_id = $(this).data('task_id');
+            $('.sub_remark').attr("data-task_id", task_id);
+        });
+        $(document).on("click", ".set-remark, .sub_remark", function(e) {
+            var thiss = $(this);
+            var task_id = $(this).data('task_id');
+            var remark = $('.remark_pop').val();
+            if (task_id != "") {
+                $.ajax({
+                    type: "POST",
+                    url: "{{route('task.create.get.remark')}}",
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        task_id: task_id,
+                        remark: remark,
+                        type: "TASK",
+                    },
+                    beforeSend: function() {
+                        $("#loading-image").show();
+                    }
+                }).done(function(response) {
+                    if (response.code == 200) {
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html(response.data);
+                        $('.remark_pop').val("");
+                        toastr['success'](response.message);
+                    } else {
+                        $("#loading-image").hide();
+                        $("#preview-task-create-get-modal").modal("show");
+                        $(".task-create-get-list-view").html("");
+                        toastr['error'](response.message);
+                    }
+                }).fail(function(response) {
+                    $("#loading-image").hide();
+                    $("#preview-task-create-get-modal").modal("show");
+                    $(".task-create-get-list-view").html("");
+                    toastr['error'](response.message);
+                });
+            } else {
+                toastr['error']("Task not Found!");
+            }
+        });
+        $(document).on("click", ".copy_remark", function(e) {
+            var thiss = $(this);
+            var remark_text = thiss.data('remark_text');
+            copyToClipboard(remark_text);
+            /* Alert the copied text */
+            toastr['success']("Copied the text: " + remark_text);
+            //alert("Copied the text: " + remark_text);
+        });
+        function copyToClipboard(text) {
+            var sampleTextarea = document.createElement("textarea");
+            document.body.appendChild(sampleTextarea);
+            sampleTextarea.value = text; //save main text in it
+            sampleTextarea.select(); //select textarea contenrs
+            document.execCommand("copy");
+            document.body.removeChild(sampleTextarea);
+        }
+        $(document).on('click', '.make-private-task', function() {
+            var task_id = $(this).data('taskid');
+            var thiss = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ url('task') }}/" + task_id + "/makePrivate",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                beforeSend: function() {
+                    $(thiss).text('Changing...');
+                }
+            }).done(function(response) {
+                if (response.task.is_private == 1) {
+                    $(thiss).html('<img src="/images/private.png" />');
+                } else {
+                    $(thiss).html('<img src="/images/not-private.png" />');
+                }
+            }).fail(function(response) {
+                $(thiss).html('<img src="/images/not-private.png" />');
+                console.log(response);
+                alert('Could not make task private');
+            });
+        });
+        $(document).on('click', ".collapsible-message", function() {
+            var selection = window.getSelection();
+            if (selection.toString().length === 0) {
+                var short_message = $(this).data('messageshort');
+                var message = $(this).data('message');
+                var status = $(this).data('expanded');
+                if (status == false) {
+                    $(this).addClass('expanded');
+                    $(this).html(message);
+                    $(this).data('expanded', true);
+                    // $(this).siblings('.thumbnail-wrapper').remove();
+                    $(this).closest('.talktext').find('.message-img').removeClass('thumbnail-200');
+                    $(this).closest('.talktext').find('.message-img').parent().css('width', 'auto');
+                } else {
+                    $(this).removeClass('expanded');
+                    $(this).html(short_message);
+                    $(this).data('expanded', false);
+                    $(this).closest('.talktext').find('.message-img').addClass('thumbnail-200');
+                    $(this).closest('.talktext').find('.message-img').parent().css('width', '200px');
+                }
+            }
+        });
         var selected_messages = [];
         $(document).on('click', '.select-message', function() {
             var message_id = $(this).data('id');
@@ -2974,15 +2861,10 @@
                 }
             }).done(function(response) {
                 if (response.is_flagged == 1) {
-                    // var badge = $('<span class="badge badge-secondary">Flagged</span>');
-                    //
-                    // $(thiss).parent().append(badge);
                     $(thiss).html('<img src="/images/flagged.png" />');
                 } else {
                     $(thiss).html('<img src="/images/unflagged.png" />');
-                    // $(thiss).parent().find('.badge').remove();
                 }
-                // $(thiss).remove();
             }).fail(function(response) {
                 $(thiss).html('<img src="/images/unflagged.png" />');
                 alert('Could not flag task!');
@@ -3030,17 +2912,7 @@
         });
         $('#view_tasks_button').on('click', function() {
             var selected = $(this).data('selected');
-            // if (selected == 0) {
-            //   $(this).text('View');
-            //
-            //   $('.select_task_checkbox').removeClass('hidden');
-            //
-            //   $(this).data('selected', 1);
-            // } else if (selected == 1) {
-            // $(this).text('Select for Viewing');
-            // $('.select_task_checkbox').removeClass('hidden');
             $(this).data('selected', 0);
-            console.log(JSON.stringify(selected_tasks));
             if (selected_tasks.length > 0) {
                 $.ajax({
                     type: "POST",
@@ -3059,7 +2931,6 @@
             } else {
                 alert('Please select atleast 1 task!');
             }
-            // }
         });
         $("#send_message_button").on("click", function() {
             $("#send-message-text-box").modal("show");
@@ -3124,17 +2995,11 @@
                                 window.location.reload();
                             }, 1000);
                             if (response.code == 200) {
-                                // if (response.statutory == 1) {
-                                //     $(".statutory-row-render-view").prepend(response.raw);
-                                // } else {
-                                //     $(".pending-row-render-view").prepend(response.raw);
-                                // }
                             }
 
                         }).fail(function(response) {
                             console.log(response);
                         });
-                        //$('#taskCreateForm').submit();
                     }
                 }
             } else {
@@ -3330,7 +3195,7 @@
                 return;
             }
             $.ajax({
-                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'assignMasterUser'])}}",
+                url: '{{ route("task.asign.master-user"); }}',
                 data: {
                     master_user_id: userId,
                     issue_id: id,
@@ -3471,28 +3336,6 @@
             $('#create-d-task-modal').modal('show');
 
             $(this).css('display', 'none');
-
-
-            /*$.ajax({
-                url: "{{ route('task.create.hubstaff_task') }}",
-                type: 'POST',
-                data: {
-                    id: issueId,
-                    type: type,
-                    _token: "{{csrf_token()}}"
-                },
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(data) {
-                    toastr['success']('created successfully!');
-                    $("#loading-image").hide();
-                },
-                error: function() {
-                    $("#loading-image").hide();
-                    toastr["error"](error.responseJSON.message);
-                }
-            });*/
         });
         $(document).on("keyup", ".search-category", function() {
             var input, filter, ul, li, a, i, txtValue;
@@ -3620,9 +3463,6 @@
                 toastr["error"]('Please Select Task Or DevTask', "Message")
                 return false;
             }
-            // $(this).parent().find("#selector_id").val(' ').change();
-            // $(this).parent().find("#selector_id").html(' ').change();
-            // console.log($(this).parent().find("#selector_id").html(), type);
             $.ajax({
                 url: '/task/send',
                 type: 'POST',
@@ -3802,30 +3642,27 @@
         });
 
         $(document).on('submit', '#assign_task_form', function(event) {
-        event.preventDefault();
-        $.ajax({
-            url: "{{route('task.create.hubstaff_task')}}",
-            type: 'POST',
-            data: $(this).serialize(),
-            beforeSend: function() {
-                $("#loading-image").show();
-            },
-            success: function(response) {
-                toastr['success']('created successfully!');
-                $('#create-d-task-modal').modal('hide');
-                $("#loading-image").hide();
-            },
-            error: function(error) {
-                toastr["error"](error.responseJSON.message);
-                $('#create-d-task-modal').modal('hide');
-                $("#loading-image").hide();
-            }
+            event.preventDefault();
+            $.ajax({
+                url: "{{route('task.create.hubstaff_task')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    toastr['success']('created successfully!');
+                    $('#create-d-task-modal').modal('hide');
+                    $("#loading-image").hide();
+                },
+                error: function(error) {
+                    toastr["error"](error.responseJSON.message);
+                    $('#create-d-task-modal').modal('hide');
+                    $("#loading-image").hide();
+                }
+            });
         });
 
-    });
-        jQuery(document).ready(function() {
-            applyDateTimePicker(jQuery('.cls-start-due-date'));
-        });
         function applyDateTimePicker(eles) {
             if (eles.length) {
                 eles.datetimepicker({
@@ -3835,8 +3672,8 @@
             }
         }
 
-
         $(document).ready(function () {
+            applyDateTimePicker(jQuery('.cls-start-due-date'));
             $(document).on('click', ".create-task-document", function () {
                 let task_id = $(this).data('id');
                 if(task_id != "") {
@@ -3970,8 +3807,7 @@
                     }
                 });
             });
-        });
-        $( document ).ready(function() {
+
             $(document).on('click', '.btn-trigger-rvn-modal',function () {
                 var id=$(this).attr('data-id')
                 var tid=$(this).attr('data-tid')
@@ -3988,37 +3824,36 @@
                     $("#recordingsList").html('');
                 }, 2500);
             })
-        });
-
-        $(document).on('click', '.show-hubtask-log-history', function() {
-            var id = $(this).attr('data-id');
-
-            $.ajax({
-                url: '{{ route("task.log.histories.show", '') }}/' + id,
-                dataType: "json",
-                data: {
-                    id:id,
-                },
-                success: function(response) {
-                    if (response.status) {
-                        var html = "";
-                        $.each(response.data, function(k, v) {
-                            html += `<tr>
-                                        <td> ${k + 1} </td>
-                                        <td> ${v.task ? v.task.task_subject : ''} </td>
-                                        <td> ${v.error_message ? v.error_message : ''} </td>
-                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${v.created_at} </td>
-                                    </tr>`;
-                        });
-                        $("#task-create-log-listing").find(".task-log-listing-view").html(html);
-                        $("#task-create-log-listing").modal("show");
-                    } else {
-                        toastr["error"](response.error, "Message");
+            $(document).on('click', '.show-hubtask-log-history', function() {
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    url: '{{ route("task.log.histories.show", '') }}/' + id,
+                    dataType: "json",
+                    data: {
+                        id:id,
+                    },
+                    success: function(response) {
+                        if (response.status) {
+                            var html = "";
+                            $.each(response.data, function(k, v) {
+                                html += `<tr>
+                                            <td> ${k + 1} </td>
+                                            <td> ${v.task ? v.task.task_subject : ''} </td>
+                                            <td> ${v.error_message ? v.error_message : ''} </td>
+                                            <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                            <td> ${v.created_at} </td>
+                                        </tr>`;
+                            });
+                            $("#task-create-log-listing").find(".task-log-listing-view").html(html);
+                            $("#task-create-log-listing").modal("show");
+                        } else {
+                            toastr["error"](response.error, "Message");
+                        }
                     }
-                }
+                });
             });
         });
+
 
     </script>
 @endsection

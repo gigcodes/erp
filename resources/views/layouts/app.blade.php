@@ -502,6 +502,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     } */
     </style>
     @stack("styles")
+    
+    @auth
+        <script type="text/javascript">
+            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
+            const LOGGED_USER_ID = {{ auth()->user()->id}};
+        </script>
+    @else
+        <script type="text/javascript">
+            const IS_ADMIN_USER = false;
+            const LOGGED_USER_ID = null;
+        </script>
+    @endauth
 </head>
 
 <body>
