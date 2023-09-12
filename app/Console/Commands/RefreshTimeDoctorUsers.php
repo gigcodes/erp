@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\TimeDoctor\TimeDoctorMember;
 use App\TimeDoctor\TimeDoctorAccount;
 use App\Library\TimeDoctor\Src\Timedoctor;
+use App\TimeDoctor\TimeDoctorLog;
 
 class RefreshTimeDoctorUsers extends Command
 {
@@ -107,7 +108,24 @@ class RefreshTimeDoctorUsers extends Command
                 }
             }
         } catch (\Exception $e) {
-            dd($e);
+            $responseCode = $e->getCode();
+
+            if ($e instanceof \GuzzleHttp\Exception\RequestException) {
+                // Capture the URI, request, and response
+                $uri = $e->getRequest()->getUri();
+                $requestContent = $e->getRequest()->getBody()->getContents();
+                $responseContent = $e->getResponse()->getBody()->getContents();
+
+                TimeDoctorLog::create([
+                    'url' => $uri->__toString(),
+                    'payload' => $requestContent,
+                    'response' => $responseContent,
+                    'user_id' => \Auth::user()->id,
+                    'response_code' => $responseCode,
+                ]);
+            }
+
+            return ['code' => $responseCode, 'data' => [], 'message' => $e->getMessage()];
         }
     }
 }
