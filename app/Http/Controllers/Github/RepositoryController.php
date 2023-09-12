@@ -1478,7 +1478,7 @@ class RepositoryController extends Controller
 
             if ($requestData && isset($requestData['action'])) {
                 // Find first or Create PR
-                $pullNumber = '';
+                $pullNumber = $source = $destination = $mergeable_state = '' ;
                 if (isset($requestData['pull_request'])) {
                     $pullNumber = $requestData['pull_request']['number'];
                     $prTitle = $requestData['pull_request']['title'];
@@ -1487,6 +1487,9 @@ class RepositoryController extends Controller
                     $createdBy = $requestData['pull_request']['user']['login'];
                     $body = $requestData['pull_request']['body'];
                     $activityCreatedAt = $requestData['pull_request']['created_at'];
+                    $source = $requestData['pull_request']['head']['ref'];
+                    $destination = $requestData['pull_request']['base']['ref'];
+                    $mergeable_state = $requestData['pull_request']['mergeable_state'];
                 } elseif(isset($requestData['issue'])) {
                     $pullNumber = $requestData['issue']['number'];
                     $prTitle = $requestData['issue']['title'];
@@ -1509,7 +1512,10 @@ class RepositoryController extends Controller
                     'pr_title' => $prTitle,
                     'pr_url' => $prUrl,
                     'state' => $state,
-                    'created_by' => $createdBy
+                    'created_by' => $createdBy,
+                    'source' => $source,
+                    'destination' => $destination,
+                    'mergeable_state' => $mergeable_state
                 ]);
 
                 // Create PR activity
