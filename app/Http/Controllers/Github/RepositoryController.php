@@ -1547,4 +1547,77 @@ class RepositoryController extends Controller
             return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
         }
     }
+
+    public function listAllNewPullRequests(Request $request)
+    {
+        $pullRequests = new GithubPullRequest();
+
+        $repo_names = GithubPullRequest::distinct()->pluck('repo_name');
+        $users = GithubPullRequest::distinct()->pluck('created_by');
+
+
+        if ($request->repo_names) {
+            $pullRequests = $pullRequests->WhereIn('repo_name', $request->repo_names);
+        }
+        if ($request->user) {
+            $pullRequests = $pullRequests->WhereIn('created_by', $request->user);
+        }
+        if ($request->pull_num) {
+            $pullRequests = $pullRequests->where('pull_number', 'LIKE', '%' . $request->pull_num . '%');
+        }
+        if ($request->pr_title) {
+            $pullRequests = $pullRequests->where('pr_title', 'LIKE', '%' . $request->pr_title . '%');
+        }
+        if ($request->state) {
+            $pullRequests = $pullRequests->where('state', 'LIKE', '%' . $request->state . '%');
+        }
+        if ($request->date) {
+            $pullRequests = $pullRequests->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $pullRequests = $pullRequests->latest()->paginate(\App\Setting::get('pagination', 25));
+
+        return view('github.include.new-pull-request-list', compact('pullRequests','repo_names','users'));
+    }
+
+    public function listAllNewPrActivities(request $request)
+    {
+        $prActivities = new GithubPrActivity();
+
+        $orgs = GithubOrganization::distinct()->pluck('name','id');
+        $repos = GithubRepository::distinct()->pluck('name','id');
+        $users = GithubPrActivity::distinct()->pluck('user');
+
+        if ($request->org) {
+            $prActivities = $prActivities->WhereIn('github_organization_id', $request->org);
+        }
+        if ($request->user) {
+            $prActivities = $prActivities->WhereIn('user', $request->user);
+        }
+        if ($request->repo) {
+            $prActivities = $prActivities->WhereIn('github_repository_id', $request->repo);
+        }
+        if ($request->pull_num) {
+            $prActivities = $prActivities->where('pull_number', 'LIKE', '%' . $request->pull_num . '%');
+        }
+        if ($request->event) {
+            $prActivities = $prActivities->where('event', 'LIKE', '%' . $request->event . '%');
+        }
+        if ($request->event_header) {
+            $prActivities = $prActivities->where('event_header', 'LIKE', '%' . $request->event_header . '%');
+        }
+        if ($request->label_name) {
+            $prActivities = $prActivities->where('label_name', 'LIKE', '%' . $request->label_name . '%');
+        }
+        if ($request->event_header) {
+            $prActivities = $prActivities->where('event_header', 'LIKE', '%' . $request->event_header . '%');
+        }
+        if ($request->date) {
+            $prActivities = $prActivities->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
+
+        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users'));
+    }
 }
