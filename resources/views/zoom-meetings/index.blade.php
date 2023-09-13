@@ -26,21 +26,27 @@
     <div class="clearboth"></div>
     <div class="row" style="margin:10px;">
         <!-- <h4>List Of Upcoming Meetings</h4> -->
+        <div class="col-lg-12">
+            <div class=" pull-right">
+                <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary"> View Api Logs</a>
+                <button type="button" class="btn btn-secondary" id="sync_meetings"> Sync Meetings </button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#personal-meeting-update"> Update Your Personal Meeting </button>
+            </div>
+        </div>
         <div class="col-lg-12 margin-tb">
-            <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary pull-right"> View Api Logs</a>
-            <button type="button" class="btn btn-secondary pull-right" id="sync_meetings"> Sync Meetings </button>
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                     <tr>
                         <th width="3%">ID</th>
                         <th width="10%">Meeting Id</th>
-                        <th width="10%" class="category">Meeting Topic</th>
+                        <th width="10%">Meeting Type</th>
+                        <th width="15%">Meeting Topic</th>
                         <th width="15%">Meeting Agenda</th>
                         <th width="5%">Join Meeting URL</th>
                         <th width="10%">Start Date Time</th>
                         <th width="5%">Meeting Duration</th>
-                        <th width="5%">Timezone</th>
+                        <th width="3%">Timezone</th>
                         <th width="8%">Action</th>
                     </tr>
                     </thead>
@@ -50,6 +56,7 @@
                             <tr>
                                 <td class="p-2">{{ $meetings->id }}</td>
                                 <td class="p-2">{{ $meetings->meeting_id }}</td>
+                                <td class="p-2">{{ $meetings->meeting_type }}</td>
                                 <td class="p-2">{{ $meetings->meeting_topic }}</td>
                                 <td class="p-2">{{ $meetings->meeting_agenda }}</td>
                                 <td class="p-2"><a href="{{ $meetings->join_meeting_url }}" target="_blank">Link</a></td>
@@ -80,6 +87,7 @@
             {!! $meetingData->appends(request()->except('page'))->links() !!}
         </div>
     </div>
+@include('zoom-meetings.personal-meeting-update-modal')
 @endsection
 
 <div id="participants-list-modal" class="modal fade" role="dialog">

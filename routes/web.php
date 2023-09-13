@@ -1696,6 +1696,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
+    Route::post('meeting/update-personal-meeting', [Meeting\ZoomMeetingController::class, 'updatePersonalMeeting'])->name('meetings.update.personal');
     Route::post('meeting/create', [Meeting\ZoomMeetingController::class, 'createMeeting']);
     Route::get('meeting/allmeetings', [Meeting\ZoomMeetingController::class, 'getMeetings']);
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');

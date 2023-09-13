@@ -451,6 +451,25 @@ class ZoomMeetingController extends Controller
         }
     }
 
+    public function updatePersonalMeeting(Request $request)
+    {
+        $data = $request->except('_token');
+
+        // 1 represents PMI meetings - Only one record is allowed. So I am using meeting_type column in updateORCreate
+        ZoomMeetings::updateOrCreate(
+            ['meeting_type' => 1],
+            ['meeting_id' => $data['meeting_id'], 'meeting_topic' => $data['meeting_topic'], 'join_meeting_url' => $data['join_meeting_url']]
+        );
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Personal meeting update successfully!',
+            ]
+        );
+    }
+
     public function webhook(Request $request)
     {
         $zoomData = json_decode($request->getContent(), true);
@@ -474,6 +493,8 @@ class ZoomMeetingController extends Controller
             return $this->participantJoinedWebhook($zoomData);
         } elseif ($zoomData['event'] == 'meeting.participant_left') {
             return $this->participantLeftWebhook($zoomData);
+        } elseif ($zoomData['event'] == 'recording.completed') {
+            return $this->recordingCompletedWebhook($zoomData);
         }
     }
 
@@ -524,5 +545,58 @@ class ZoomMeetingController extends Controller
         );
         
         return response()->json(['message' => 'Participant left successfully', 'code' => 200], 200);
+    }
+
+    protected function recordingCompletedWebhook($zoomData) {
+        $zoomDataPayloadObject = $zoomData['payload']['object'];
+
+        if ($zoomDataPayloadObject && isset($zoomDataPayloadObject['recording_files'])) {
+            $folderPath = public_path() . '/zoom/0/' . $zoomDataPayloadObject['id'];
+            $databsePath = '/zoom/0/' . $zoomDataPayloadObject['id'];
+            \Log::info('folderPath -->' . $folderPath);
+            foreach ($zoomDataPayloadObject['recording_files'] as $recordings) {
+                $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
+                if (! $checkfile) {
+                    if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
+                        \Log::info('shared_screen_with_speaker_view');
+                        $fileName = $zoomDataPayloadObject['id'] . '_' . time() . '.mp4';
+                        $urlOfFile = $recordings['download_url'];
+                        $filePath = $folderPath . '/' . $fileName;
+                        if (! file_exists($filePath) && ! is_dir($folderPath)) {
+                            mkdir($folderPath, 0777, true);
+                        }
+                        $ch = curl_init($urlOfFile);
+                        curl_exec($ch);
+                        if (! curl_errno($ch)) {
+                            $info = curl_getinfo($ch);
+                            $downloadLink = $info['redirect_url'];
+                        }
+                        curl_close($ch);
+
+                        if ($downloadLink) {
+                            copy($downloadLink, $filePath);     
+                        }
+
+                        $zoom_meeting_details = new ZoomMeetingDetails();
+                        $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
+                        $zoom_meeting_details->file_name = $fileName;
+                        $zoom_meeting_details->download_url_id = $recordings['id'];
+                        $zoom_meeting_details->meeting_id = $zoomDataPayloadObject['id'];
+                        $zoom_meeting_details->file_type = $recordings['file_type'];
+                        $zoom_meeting_details->download_url = $recordings['download_url'];
+                        $zoom_meeting_details->file_size = $recordings['file_size'];
+                        $zoom_meeting_details->file_extension = $recordings['file_extension'];
+                        $zoom_meeting_details->save();
+
+                        // Here we can plan recording split logic. 
+                        // 1. Once the entire recording completed, 
+                        // 2. Get the list of participants for this meeting from zoom_meeting_participants table
+                        // 3. Split the recording depends on the participants join_time & leave_time
+                    }
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Recording completed successfully', 'code' => 200], 200);
     }
 }
