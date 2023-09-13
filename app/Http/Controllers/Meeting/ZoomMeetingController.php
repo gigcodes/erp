@@ -450,4 +450,79 @@ class ZoomMeetingController extends Controller
             abort(404, 'The file you are trying to download does not exist.');
         }
     }
+
+    public function webhook(Request $request)
+    {
+        $zoomData = json_decode($request->getContent(), true);
+        if ($zoomData['event'] == 'endpoint.url_validation') {
+            $message = 'v0:'.$request->header('x-zm-request-timestamp').':'.$request->getContent();
+            $hash = hash_hmac('sha256', $message, config('services.zoom.secret_token'));
+            $signature = "v0={$hash}";
+            $verified = hash_equals($request->header('x-zm-signature'), $signature);
+            if($verified)
+            {
+                $zoomSecret = config('services.zoom.secret_token');  
+                $zoomPlainToken = $zoomData['payload']['plainToken'];
+                $hash = hash_hmac('sha256', $zoomPlainToken, $zoomSecret);
+                $reponseData['plainToken'] = $zoomPlainToken;
+                $reponseData['encryptedToken'] = $hash;
+                return response()->json($reponseData);
+            }
+        } elseif ($zoomData['event'] == 'meeting.created') {
+            return $this->createMeetingWebhook($zoomData);
+        } elseif ($zoomData['event'] == 'meeting.participant_joined') {
+            return $this->participantJoinedWebhook($zoomData);
+        } elseif ($zoomData['event'] == 'meeting.participant_left') {
+            return $this->participantLeftWebhook($zoomData);
+        }
+    }
+
+    protected function createMeetingWebhook($zoomData) {
+        ZoomMeetings::updateOrCreate(
+            ['meeting_id' => $zoomData['payload']['object']['id']],
+            [
+                'meeting_topic' => $zoomData['payload']['object']['topic'],
+                'meeting_type' => $zoomData['payload']['object']['type'],
+                'meeting_agenda' => $zoomData['payload']['object']['agenda'] ?? "",
+                'join_meeting_url' => $zoomData['payload']['object']['join_url'],
+                'start_date_time' => $zoomData['payload']['object']['start_time'],
+                'meeting_duration' => $zoomData['payload']['object']['duration'],
+                'timezone' => $zoomData['payload']['object']['timezone'],
+                'host_zoom_id' => $zoomData['payload']['object']['host_id'],
+            ]
+        );
+
+        return response()->json(['message' => 'Meeting created successfully', 'code' => 200], 200);
+    }
+
+    protected function participantJoinedWebhook($zoomData) {
+        ZoomMeetingParticipant::create([   
+                'meeting_id' => $zoomData['payload']['object']['id'], 
+                'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
+                'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
+                'name' => $zoomData['payload']['object']['participant']['user_name'],
+                'email' => $zoomData['payload']['object']['participant']['email'],
+                'join_time' => $zoomData['payload']['object']['participant']['join_time'],
+            ],
+        );
+        
+        return response()->json(['message' => 'Participant joined successfully', 'code' => 200], 200);
+    }
+
+    protected function participantLeftWebhook($zoomData) {
+        ZoomMeetingParticipant::updateOrCreate([
+                'meeting_id' => $zoomData['payload']['object']['id'], 
+                'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
+                'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
+            ],
+            [
+                'name' => $zoomData['payload']['object']['participant']['user_name'],
+                'email' => $zoomData['payload']['object']['participant']['email'],
+                'leave_time' => $zoomData['payload']['object']['participant']['leave_time'] ?? "",
+                'leave_reason' => $zoomData['payload']['object']['participant']['leave_reason'] ?? "",
+            ]
+        );
+        
+        return response()->json(['message' => 'Participant left successfully', 'code' => 200], 200);
+    }
 }
