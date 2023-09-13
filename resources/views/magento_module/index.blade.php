@@ -230,6 +230,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleReturnTypeCreateModal"> Module Return Type Error Create  </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#m2ErrorStatusCreateModal">M2 Error Status Create</button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#unitTestStatusCreateModal">Unit test Status Create</button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#columnvisibilityList">Column Visiblity</button>
                     </div>
                 </div>
             </form>
@@ -258,16 +259,19 @@
             </div>
         @endif
 
-        {{-- <div id="columnVisibilityControls">
-            <label><input type="checkbox" id="columnVisibility_14"> Dev Verified Status</label>
-            <label><input type="checkbox" id="columnVisibility_15"> Lead Verified By</label>
-            <label><input type="checkbox" id="columnVisibility_16"> Lead Verified Status</label>
-            <label><input type="checkbox" id="columnVisibility_28"> M2 Error Remark</label>
-            <label><input type="checkbox" id="columnVisibility_29"> M2 Error Assignee</label>
-            <label><input type="checkbox" id="columnVisibility_31"> Unit Test Remarks</label>
-            <label><input type="checkbox" id="columnVisibility_32"> Unit test User</label>
-            <!-- Add more checkboxes for other columns as needed -->
-        </div> --}}
+        @php
+        $dynamicColumnsToShow = json_decode($hideColumns, true);
+
+        if ($dynamicColumnsToShow !== null) {
+            $dynamicColumnsToShow = array_map('intval', $dynamicColumnsToShow);
+        } else {
+            $dynamicColumnsToShow = []; // Set to an empty array or handle as needed
+        }  
+        @endphp
+       
+       <script>
+            var dynamicColumnsToShow = @json($dynamicColumnsToShow); // Convert the PHP array to a JSON array
+        </script>
         <div class="erp_table_data">
             <table class="table table-bordered" id="erp_table">
                 <thead>
@@ -314,7 +318,6 @@
                 </tbody>
             </table>
         </div>
-        <div id="colvis"></div>
         </div>
 
     {{-- #blank-modal --}}
@@ -387,7 +390,7 @@
     {{-- moduleTestStatus --}}
     @include('magento_module.magneto-unit-test-status-list')
 
-
+    @include('magento_module.partials.column-visibility-modal')
 
 
 
@@ -479,14 +482,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                targets: 'no-sort',
-                dom: '<"colvis-buttons"B>frtip',
-                                buttons: [
-                    {
-                        extend: 'colvis',
-                        columns: [14,15,16,28,29,31,32]
-                    }
-                 ],
+                targets: 'no-sort', 
                 bSort: false,
 
                 oLanguage: {
@@ -527,13 +523,13 @@
                         
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
-                }, 
+                },
                 columnDefs: [
                         {
-                            targets: [14,15,16,28,29,31,32], // Indices of columns to hide initially
-                            visible: false, // Hide these columns by default
+                            targets: dynamicColumnsToShow,
+                            visible: false,
                         },
-                 ],
+                ],
                 columns: [{
                         data: 'id',
                         name: 'magento_modules.id',
@@ -1202,14 +1198,6 @@
             });
 
 
-        //    // JavaScript to toggle column visibility based on checkboxes
-        //     $('#columnVisibilityControls input[type="checkbox"]').on('change', function() {
-        //         var columnIdx = parseInt(this.id.split('_')[1]);
-        //         var column = oTable.column(columnIdx);
-
-        //         // Toggle the visibility of the selected column
-        //         column.visible(this.checked);
-        //     })
         });
         // END Print Table Using datatable
 
