@@ -584,7 +584,8 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module/unit-test-remark-history', [MagentoModuleController::class, 'getUnitTestRemarkHistories'])->name('magento_module.unit-test-remark-history');
     Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
     Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
-
+    Route::post('magento_module/column-visbility', [MagentoModuleController::class, 'columnVisbilityUpdate'])->name('magento_module.column.update');
+    
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
@@ -1734,7 +1735,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
+    Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder'])->name('task.reminder.update');
     Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');

@@ -331,9 +331,18 @@
             type: "POST",
             url: "{{ route('time-doctor.refresh-user-by-id') }}",
             data: formdata,
+            beforeSend: function () {
+              $("#loading-image").show();
+            },
             success: function(response) {
+              $("#loading-image").hide();
               toastr['success']('Time Doctor users refreshed', 'success');
               window.location.reload();
+            },
+            error: function (error) {
+                $("#loading-image").hide();
+                toastr["error"]("There is some error, Please check the logs.");
+                return;
             }
         })
     }

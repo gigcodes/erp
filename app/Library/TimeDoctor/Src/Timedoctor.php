@@ -80,6 +80,13 @@ class Timedoctor
         $response = $httpClient->get($url);
         $parsedResponse = json_decode($response->getBody()->getContents());
 
+        TimeDoctorLog::create([
+            'url' => $url,
+            'response' => $response->getBody()->getContents(),
+            'user_id' => \Auth::user()->id,
+            'response_code' => $response->getStatusCode(),
+        ]);
+
         return $parsedResponse;
     }
 

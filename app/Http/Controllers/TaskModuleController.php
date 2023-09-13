@@ -4745,6 +4745,7 @@ class TaskModuleController extends Controller
 
             return back()->with('success', 'File is Uploaded to Google Drive.');
         } catch (Exception $e) {
+            \Log::error($e->getMessage());
             return back()->with('error', 'Something went wrong. Please try again');
         }
     }
@@ -4769,6 +4770,7 @@ class TaskModuleController extends Controller
                 throw new Exception('Task not found');
             }
         } catch (Exception $e) {
+            \Log::error($e->getMessage());
             return response()->json([
                 'data' => view('task-module.google-drive-list', ['result' => null])->render(),
             ]);
