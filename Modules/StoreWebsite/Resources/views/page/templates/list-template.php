@@ -70,6 +70,7 @@
                 <th width="6%">Language</th>
                 <th width="3%">Active</th>
                 <th width="4%">Pushed</th>
+                <th width="8%">Status</th>
                 <th width="4%">Is Latest Version Pushed</th>
                 <th width="4%">Is Latest Version Translated</th>
                 <th width="5%">Is Pending Review Translations</th>
@@ -80,15 +81,7 @@
             </thead>
             <tbody>
                 {{props data}} 
-                  <tr
-                    {{if prop.is_flagged_translation == "1"}}
-                        style="background:#f21818"
-                    {{else prop.is_latest_version_pushed=="1"}}
-                        style="background:#18f23f"
-                    {{else prop.is_latest_version_pushed=="0" && prop.is_flagged_translation == "0"}}
-                        style="background:#ffeb3b"
-                    {{/if}}
-                  >
+                  <tr>
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}"></td>
                     <td>&nbsp;{{:prop.id}}</td>
                     <td></td>
@@ -99,6 +92,12 @@
                     <td class="Website-task" title="{{:prop.language}}">{{:prop.language}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
+                     <td>
+                     <?php echo Form::select('status_id', ['' => 'Select Status'] + \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(), null, ['class' => 'form-control select2 status-update', 'data-id' => '{:prop.id}', "data-placeholder" => "Select Status"]); ?>
+                     <button type="button" title="Activities" data-id="{{>prop.id}}" class="btn btn-activities"style="padding: 0px 1px !important;">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        </button>
+                    </td>           
                     <td>{{if prop.is_latest_version_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_latest_version_translated == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_flagged_translation == "1"}}Yes{{else}}NO{{/if}}</td>

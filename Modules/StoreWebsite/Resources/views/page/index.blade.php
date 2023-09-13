@@ -38,9 +38,8 @@
                     <button class="btn custom-button ml-2 push-by-store-website"  data-toggle="modal" data-target="#push-by-store-website-modal" style="width:133px;">Push Storewebsite</button> 
                     <button class="btn custom-button ml-2 pull-by-store-website"  data-toggle="modal" data-target="#pull-by-store-website-modal" style="width:133px;">Pull Storewebsite</button>
 					<button type="button" title="Pull logs" data-id="" class="btn ml-2 custom-button btn-pullLogs" style="width:133px;">Pull Logs</button>
-                    
-                    <button class="btn custom-button ml-2 " data-toggle="modal" data-target="#newStatusColor"> Status Color Info</button>
-                    
+                    <button type="button" class="btn ml-2 custom-button" data-toggle="modal" data-target="#todolistStatusCreateModal">Add Status</a> </button>
+                    <button type="button" class="btn ml-2 custom-button" data-toggle="modal" data-target="#statusList">List Status</a> </button>
             
                         <form class="form-inline message-search-handler" method="get">
                             <div class="ml-2">
@@ -91,48 +90,6 @@
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
-</div>
-<div id="newStatusColor" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Page Status Color Info</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            
-            
-            <div class="form-group col-md-12">
-                <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
-                    <tr>
-                        <td class="text-center"><b>Status Name</b></td>
-                        <td class="text-center"><b>Color Code</b></td>
-                        <td class="text-center"><b>Color</b></td>
-                    </tr>
-                    <tr>
-                        <td>Is Pending Review Translations</td>
-                        <td class="text-center">#f21818</td>
-                        <td class="text-center"><span style="padding: 10px;background: #f21818;width: 50px;height: 10px;display: inherit;"></span></td>
-                    </tr>
-                    <tr>
-                        <td>Is Pushed</td>
-                        <td class="text-center">#18f23f</td>
-                        <td class="text-center"><span style="padding: 10px;background: #18f23f;width: 50px;height: 10px;display: inherit;"></span></td>
-                    </tr>
-                    <tr>
-                        <td>Is Pending Pushed</td>
-                        <td class="text-center">#ffeb3b</td>
-                        <td class="text-center"><span style="padding: 10px;background: #ffeb3b;width: 50px;height: 10px;display: inherit;"></span></td>
-                    </tr>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-            
-        </div>
-
-    </div>
 </div>
 <div class="common-modal modal" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
@@ -188,6 +145,78 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="todolistStatusCreateModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form action="{{ route('store_website_page.status') }}" method="POST">
+                @csrf
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Name:</strong>
+                        <input type="text" name="status_name" class="form-control" value="{{ old('status_name') }}">
+
+                        @if ($errors->has('status_name'))
+                            <div class="alert alert-danger">{{ $errors->first('status_name') }}</div>
+                        @endif
+                    </div>
+                    <div class="form-group">
+                        <strong>Color:</strong>
+                        <input type="color" name="status_color" class="form-control" value="{{ old('status_color') }}">
+                    </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Store</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<div id="statusList" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">List Status</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('todolist-color-update') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($statuses as $status) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status['status_name'] ?></td>
+                            <td class="text-center"><?php echo $status['color']; ?></td>
+                            <td class="text-center"><input type="color" name="color_name[<?php echo $status['id'] ?>]" class="form-control" data-id="<?php echo $status['id']; ?>" id="color_name_<?php echo  $status['id']; ?>" value="<?php echo $status['color']; ?>" style="height:30px;padding:0px;"></td>
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -292,6 +321,30 @@
 		}
 		window.open(urlToOpen, '_blank');
 	}
+
+$(document).ready(function() {
+    $('.status-update').on('change', function() {
+        var selectedStatusId = $(this).val(); // Get the selected value
+        $.ajax({
+            url: `{{ route('store_website_status-update') }}`,
+            type: 'GET', // Adjust the HTTP method as needed
+            data: {
+                statusId: selectedStatusId,
+                dataId: dataId // Include data-id in the AJAX request
+            },
+            success: function(response) {
+                // Handle the AJAX response here, e.g., update the UI
+                console.log(response);
+            },
+            error: function(error) {
+                // Handle errors if the AJAX request fails
+                console.error(error);
+            }
+        });
+    });
+});
+
+
 	
 </script>
 @endsection 
