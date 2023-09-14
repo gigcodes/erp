@@ -84,8 +84,11 @@
         <div class="col-md-2">
             <label for="" class="form-label">Organization</label>
             <select name="organizationId" id="organizationId" class="form-control">
+                <option  Value="">Select organization</option>
                 @foreach ($githubOrganizations as $githubOrganization)
-                    <option value="{{ $githubOrganization->id }}" data-repos='{{ $githubOrganization->repos }}' {{ ($githubOrganization->name == 'MMMagento' ? 'selected' : '' ) }}>{{  $githubOrganization->name }}</option>
+                    <option value="{{ $githubOrganization->id }}" {{ (request('organizationId') == $githubOrganization->id) ? 'selected' : '' }} data-repos='{{ $githubOrganization->repos }}'>
+                        {{ $githubOrganization->name }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -96,6 +99,10 @@
                 
             </select>
         </div>
+        {{-- <div class="col-md-2">
+            <a href="{{ url('/github/new-pullRequests') }}" class="btn btn-image" id=""><img
+                src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+        </div> --}}
 
         <div class="col-md-1 spinner-parent-container">
             <div class="loader-section d-n spinner-border" role="status">
@@ -277,10 +284,6 @@
     }
 
     $('#organizationId').change(function (){
-        getRepositories();
-    });
-
-    function getRepositories(){
         var repos = $.parseJSON($('#organizationId option:selected').attr('data-repos'));
 
         $('#repoId').empty();
@@ -291,9 +294,11 @@
             });
 
             getPullRequests();
-        }else{
-            getPullRequests();
         }
+    });
+
+    function getRepositories(){
+            getPullRequests();
     }
 
     $('#repoId').change(function (){

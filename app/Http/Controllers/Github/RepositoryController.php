@@ -1564,12 +1564,20 @@ class RepositoryController extends Controller
         if ($request->ajax()) {
             ini_set('max_execution_time', -1);
 
-            $repositories = GithubRepository::where('id', $request->repoId)->get();
+            if($request->repoId !== null) {
+                $repositories = GithubRepository::where('id', $request->repoId)->get();
+            } else {
+                $repositories = GithubRepository::get();
+            }
             $allPullRequests = [];
 
             foreach ($repositories as $repository) {
                 $organization = $repository->organization;
-                $pullRequests = GithubPullRequest::where('github_repository_id', $repository->id)->get(); // Use get() to retrieve records
+                if($request->repoId !== null) {
+                    $pullRequests = GithubPullRequest::where('github_repository_id', $repository->id)->get();
+                } else {
+                    $pullRequests = GithubPullRequest::get();
+                }
                 foreach ($pullRequests as $key => $pullRequest) {
                     //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
                     $pullRequests[$key]['mergeable_state'] = $pullRequest->mergeable_state;
@@ -1628,7 +1636,8 @@ class RepositoryController extends Controller
             }
 
             return response()->json([
-                'tbody' => view('github.include.new-pull-request-list', compact(['pullRequests', 'projects']))->render(),                'count' => count($pullRequests),
+                'tbody' => view('github.include.new-pull-request-list', compact(['pullRequests', 'projects']))->render(),              
+                'count' => count($pullRequests),
             ], 200);
         }
 
@@ -1644,6 +1653,8 @@ class RepositoryController extends Controller
         $orgs = GithubOrganization::distinct()->pluck('name','id');
         $repos = GithubRepository::distinct()->pluck('name','id');
         $users = GithubPrActivity::distinct()->pluck('user');
+        $events = GithubPrActivity::distinct()->pluck('event');
+        $eventHeaders = GithubPrActivity::distinct()->pluck('event_header');
 
         if ($request->org) {
             $prActivities = $prActivities->WhereIn('github_organization_id', $request->org);
@@ -1658,16 +1669,13 @@ class RepositoryController extends Controller
             $prActivities = $prActivities->where('pull_number', 'LIKE', '%' . $request->pull_num . '%');
         }
         if ($request->event) {
-            $prActivities = $prActivities->where('event', 'LIKE', '%' . $request->event . '%');
+            $prActivities = $prActivities->whereIn('event', $request->event);
         }
         if ($request->event_header) {
-            $prActivities = $prActivities->where('event_header', 'LIKE', '%' . $request->event_header . '%');
+            $prActivities = $prActivities->whereIn('event_header', $request->event_header);
         }
         if ($request->label_name) {
-            $prActivities = $prActivities->where('label_name', 'LIKE', '%' . $request->label_name . '%');
-        }
-        if ($request->event_header) {
-            $prActivities = $prActivities->where('event_header', 'LIKE', '%' . $request->event_header . '%');
+            $prActivities = $prActivities->whereIn('label_name', 'LIKE', '%' . $request->label_name . '%');
         }
         if ($request->date) {
             $prActivities = $prActivities->where('created_at', 'LIKE', '%' . $request->date . '%');
@@ -1675,6 +1683,6 @@ class RepositoryController extends Controller
 
         $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
 
-        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users'));
+        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders'));
     }
 }
