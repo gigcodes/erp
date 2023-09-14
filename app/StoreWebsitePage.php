@@ -48,6 +48,7 @@ class StoreWebsitePage extends Model
         'is_flagged_translation',
         'approved_by_user_id',
         'translated_from',
+        'website_store_views_status_id'
     ];
 
     public function storeWebsite()

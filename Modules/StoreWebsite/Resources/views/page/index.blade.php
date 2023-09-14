@@ -324,17 +324,21 @@
 
 $(document).ready(function() {
     $('.status-update').on('change', function() {
-        var selectedStatusId = $(this).val(); // Get the selected value
+        var selectedStatusId = $(this).val(); 
+        var dataId = $(this).data('id'); // Get the data-id attribute value
         $.ajax({
-            url: `{{ route('store_website_status-update') }}`,
+            url: "{{route('store_website_status-update')}}",
             type: 'GET', // Adjust the HTTP method as needed
             data: {
                 statusId: selectedStatusId,
                 dataId: dataId // Include data-id in the AJAX request
             },
-            success: function(response) {
-                // Handle the AJAX response here, e.g., update the UI
-                console.log(response);
+            success: function(response) { 
+                if (response.code == 200) { 
+                    toastr["success"](response.message);
+                } else {
+                    toastr["error"](response.message);
+                }
             },
             error: function(error) {
                 // Handle errors if the AJAX request fails

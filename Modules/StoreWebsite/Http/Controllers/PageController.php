@@ -810,7 +810,13 @@ class PageController extends Controller
         return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
-    public function websiteStatusUpdate(Request $request) {
+    public function websiteStatusUpdate(Request $request) 
+    {
+       $storewebsite =  \App\StoreWebsitePage::find($request->dataId);
+       $storewebsite->website_store_views_status_id = $request->statusId;
+       $storewebsite->save();
+
+       return response()->json(['code' => 200, 'data' => $storewebsite, 'message' => 'status updated successfully']);
 
     }
 

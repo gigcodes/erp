@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddStatusIdToWebsiteStoreViewsStatusTable extends Migration
+class AddWebsiteStoreViewsStatusIdToStoreWebsitePagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddStatusIdToWebsiteStoreViewsStatusTable extends Migration
      */
     public function up()
     {
-        Schema::table('website_store_views_status', function (Blueprint $table) {
-            $table->text('website_store_views_status_status_id')->nullable();
+        Schema::table('store_website_pages', function (Blueprint $table) {
+            $table->integer('website_store_views_status_id')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class AddStatusIdToWebsiteStoreViewsStatusTable extends Migration
      */
     public function down()
     {
-        Schema::table('website_store_views_status', function (Blueprint $table) {
-            $table->text('website_store_views_status_status_id');
+        Schema::table('store_website_pages', function (Blueprint $table) {
+            $table->integer('website_store_views_status_id');
         });
     }
 }
