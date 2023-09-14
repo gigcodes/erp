@@ -13,6 +13,8 @@ use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\Models\StoreWebsiteStatus;
+use Auth;
+use App\Models\StoreWebsiteStatusHistory;
 
 class PageController extends Controller
 {
@@ -813,12 +815,31 @@ class PageController extends Controller
     public function websiteStatusUpdate(Request $request) 
     {
        $storewebsite =  \App\StoreWebsitePage::find($request->dataId);
+       $storewebsiteOldStatusId = $storewebsite->website_store_views_status_id;
        $storewebsite->website_store_views_status_id = $request->statusId;
        $storewebsite->save();
+
+       $storewebsitHistory =  new StoreWebsiteStatusHistory();
+       $storewebsitHistory->old_status_id = $storewebsiteOldStatusId;
+       $storewebsitHistory->new_status_id = $request->statusId;
+       $storewebsitHistory->user_id = Auth::user()->id;
+       $storewebsitHistory->store_website_page_id = $request->dataId;
+       $storewebsitHistory->save();
 
        return response()->json(['code' => 200, 'data' => $storewebsite, 'message' => 'status updated successfully']);
 
     }
 
+    public function statusHistoryList(Request $request)
+    {
+        $history = StoreWebsiteStatusHistory::with(['user','newstatus','oldstatus'])->where('store_website_page_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $history,
+            'message' => 'history listed successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 
 }

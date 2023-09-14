@@ -300,6 +300,7 @@ Route::group([
         Route::post('/store-website/status-create', [PageController::class, 'statusCreate'])->name('store_website_page.status');
         Route::post('/store-website/status/color-update', [PageController::class, 'StatusColorUpdate'])->name('todolist-color-update');
         Route::get('/store-website/status-update', [PageController::class, 'websiteStatusUpdate'])->name('store_website_status-update');
+        Route::get('store-website/status-history', [PageController::class,'statusHistoryList'])->name('store_website-status-history-list');
 
     });
 

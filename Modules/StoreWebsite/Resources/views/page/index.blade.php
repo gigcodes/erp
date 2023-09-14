@@ -287,6 +287,38 @@
     </div>
 </div>
 
+<div id="store-website-status-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status History</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="25%">Old Status</th>
+                                <th width="25%">New Status</th>
+                                <th width="25%">Updated BY</th>
+                                <th width="25%">Updated Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="store-website-status-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @include("storewebsite::page.templates.list-template")
 @include("storewebsite::page.templates.create-website-template")
 <script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
@@ -348,6 +380,39 @@ $(document).ready(function() {
     });
 });
 
+        $(document).on('click', '.status-history', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('store_website-status-history-list') }}`,
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.newstatus ? v.newstatus.status_name : ''} </td>
+                                        <td> ${v.oldstatus ? v.oldstatus.status_name : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#store-website-status-list").find(".store-website-status-view").html(html);
+                        $("#store-website-status-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+        });
 
 	
 </script>

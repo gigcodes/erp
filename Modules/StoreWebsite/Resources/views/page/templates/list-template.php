@@ -92,12 +92,15 @@
                     <td class="Website-task" title="{{:prop.language}}">{{:prop.language}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
-                     <td>
-                     <?php echo Form::select('status_id', ['' => 'Select Status'] + \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(), null, ['class' => 'form-control select2 status-update', 'data-id' => '{:prop.id}', "data-placeholder" => "Select Status"]); ?>
-                     <button type="button" title="Activities" data-id="{{>prop.id}}" class="btn btn-activities"style="padding: 0px 1px !important;">
+                    <td>
+                    <div style="display: flex; justify-content: space-between; align-items: center; position: relative;">
+                        <?php $status =  \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(); ?> 
+                        <?php echo Form::select('status_id', ['' => 'Select Status'] + \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(), null, ['class' => 'form-control select2 status-update', 'data-id' => "{{:prop.id}}", "data-placeholder" => "Select Status"]); ?>                  
+                        <button type="button" title="Status history" data-id="{{>prop.id}}" class="btn btn- status-history" style="padding: 0px 1px !important;">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </button>
-                    </td>           
+                    </div>
+                    </td>     
                     <td>{{if prop.is_latest_version_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_latest_version_translated == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_flagged_translation == "1"}}Yes{{else}}NO{{/if}}</td>
