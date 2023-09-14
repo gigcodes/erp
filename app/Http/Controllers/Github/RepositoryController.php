@@ -43,6 +43,7 @@ use App\Models\DeletedGithubBranchLog;
 use App\Http\Requests\DeleteBranchRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
+use App\Models\GitPullRequestErrorLog;
 
 class RepositoryController extends Controller
 {
@@ -1548,6 +1549,11 @@ class RepositoryController extends Controller
 
             return response()->json(['message' => 'GitHub Pull Request Stored Successfully'], 200);
         } catch (\Exception $e) {
+            $errorLog = new GitPullRequestErrorLog();   
+            $errorLog->github_repository_id = $requestData['repository']['id'];
+            $errorLog->pull_number = $pullNumber;
+            $errorLog->type = "pull request";
+            $errorLog->error_message = $e->getMessage();
             Log::channel('github_error')->error($e->getMessage());
 
             return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
@@ -1656,6 +1662,13 @@ class RepositoryController extends Controller
         $events = GithubPrActivity::distinct()->pluck('event');
         $eventHeaders = GithubPrActivity::distinct()->pluck('event_header');
         $labelNames = GithubPrActivity::distinct()->pluck('label_name');
+        $pullNumbers = GithubPrActivity::distinct()->pluck('pull_number');
+
+        $repositories = \App\Github\GithubRepository::All();
+        $organizations = \App\Github\GithubOrganization::All();
+        $projects = \App\Models\Project::All();
+        $branches = \App\Github\GithubBranchState::All();
+
 
         if ($request->org) {
             $prActivities = $prActivities->WhereIn('github_organization_id', $request->org);
@@ -1666,8 +1679,8 @@ class RepositoryController extends Controller
         if ($request->repo) {
             $prActivities = $prActivities->WhereIn('github_repository_id', $request->repo);
         }
-        if ($request->pull_num) {
-            $prActivities = $prActivities->where('pull_number', 'LIKE', '%' . $request->pull_num . '%');
+        if ($request->pull_number) {
+            $prActivities = $prActivities->WhereIn('pull_number', $request->pull_number);
         }
         if ($request->event) {
             $prActivities = $prActivities->whereIn('event', $request->event);
@@ -1693,6 +1706,6 @@ class RepositoryController extends Controller
 
         $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
 
-        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders','labelNames'));
+        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders','labelNames','pullNumbers','organizations','repositories','projects','branches'));
     }
 }

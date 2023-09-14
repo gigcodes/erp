@@ -85,11 +85,33 @@
                         @endforelse
                     </select>
             </div>
-
             <div class="col-lg-2">
-                <label> Search Pull Number</label>
-                    <input class="form-control" type="text" id="pull_num" placeholder="Search Pull Number" name="pull_num"
-                    value="{{ request('pull_num') ?? '' }}">
+                <label> Search Pull Numbers </label>
+                 <?php 
+                        if(request('pull_number')){ $pull_num_search = request('pull_number'); }
+                        else{ $pull_num_search = []; }
+                    ?>
+                    <select name="pull_number[]" id="pull_number" class="form-control select2" multiple>
+                        <option value="" @if($pull_num_search=='') selected @endif>-- Select a Pull Number --</option>
+                        @forelse($pullNumbers as $id=>$pullNum)
+                        <option value="{{ $pullNum}}" @if(in_array($pullNum, $pull_num_search)) selected @endif>{!! $pullNum!!}</option>
+                        @empty
+                        @endforelse
+                    </select>
+            </div>
+            <div class="col-lg-2">
+                <label> Search labelNames </label>
+                 <?php 
+                        if(request('label_name')){ $label_search = request('label_name'); }
+                        else{ $label_search = []; }
+                    ?>
+                    <select name="label_name[]" id="label_name" class="form-control select2" multiple>
+                        <option value="" @if($label_search=='') selected @endif>-- Select a labelNames --</option>
+                        @forelse($labelNames as $id=>$label)
+                        <option value="{{ $label}}" @if(in_array($label, $label_search)) selected @endif>{!! $label!!}</option>
+                        @empty
+                        @endforelse
+                    </select>
             </div>
             <div class="col-lg-2">
                 <label> Search Description</label>
@@ -135,6 +157,7 @@
                     <th>user</th>
                     <th>Activity Created At</th>
                     <th>Created At</th>
+                    <th>Action</th>
                 </tr>
             <tbody>
                 @foreach ($prActivities as $prAct)
@@ -175,6 +198,13 @@
                         <td>{{ $prAct->user }}</td>
                         <td>{{ \Carbon\Carbon::parse($prAct->activity_created_at)->format('Y-m-d H:i:s') }}</td>
                         <td>{{ $prAct->created_at?->format('Y-m-d') }}</td>
+                        <td>
+                            @if($prAct->label_name == "Ready to Merge")
+                                <button title="Build Process" data-repo ="{{ $prAct->github_repository_id}}" data-id="{{ $prAct->github_organization_id }}" type="button" class="btn open-build-process-template" style="padding:1px 0px;">
+                                    <a href="javascript:void(0);" style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
+                                </button> 
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -186,11 +216,101 @@
         style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
     50% 50% no-repeat;display:none;">
     </div>
+
+   <div id="build-process-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Build Process</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="build-process">
+                            <?php echo csrf_field(); ?>
+                            <div class="row">
+                                
+                                <div class="col-md-12">
+
+                                    <div class="form-group">
+                                        <strong>projects:</strong>
+                                        <select name="project" id="project" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Project --</option>
+                                            @forelse($projects as $project)
+                                            <option value="{{ $project->id }}">
+                                                {{ $project->name }}
+                                            </option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>Job Name :</strong>
+                                        {!! Form::text('job_name', null, ['placeholder' => 'Job Name', 'id' => 'job_name', 'class' => 'form-control', 'required' => 'required']) !!}
+                                    </div>
+                                    <div class="form-group">
+                                        <strong>Organizations:</strong>
+                                        <select name="organization" id="build_organization" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Organizations --</option>
+                                            @forelse($organizations as $organization)
+                                            <option value="{{ $organization->id }}">
+                                                {{ $organization->name }}
+                                            </option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <strong>Repository:</strong>
+                                        <select name="repository" id="build_repository" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Repository --</option>
+                                            @forelse($repositories as $repo)
+                                            <option value="{{ $repo->id }}">
+                                                {{ $repo->name }}
+                                            </option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                </div>                            
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <strong>Branch Name:</strong>
+                                        <select name="branch_name" id="build_branch_name" class="form-control select2" style="width: 100%!important">
+                                            <option value="" selected disabled>-- Select a Branch --</option>
+                                            @forelse($branches as $branch)
+                                            <option value="{{ $branch->branch_name }}">
+                                                {{ $branch->branch_name }}
+                                            </option>
+                                            @empty
+                                            @endforelse
+                                        </select>
+                                    </div>
+                                </div>                        
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <input type="hidden" name="initiate_from" value="Project Page - Build Process">
+                                        <button data-id=""class="btn btn-secondary update-build-process">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <div class="modal fade" id="magento-error-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Magento problem</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Pr Activitiy Body</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -221,5 +341,57 @@
             $("#magento-error-body-text").val($this.data("message"));
             $("#magento-error-modal").modal("show");
         });
+
+        
+        $(document).ready(function() {
+                $(document).on("click",".open-build-process-template",function(e) {
+                e.preventDefault();
+                var id=$(this).attr("data-id");
+                var repo=$(this).attr("data-repo");
+
+                $("#build_organization").val(id);
+                $("#build_organization").trigger("change");
+
+                $("#build_repository").val(repo);
+                $("#build_repository").trigger("change");
+
+                $('#build-process-modal').modal('show'); 
+            });
+        });
+
+    $(document).on('submit', 'form#build-process', function(e){
+        e.preventDefault();
+        var self = $(this);
+        let formData = new FormData(document.getElementById("build-process"));
+        var button = $(this).find('[type="submit"]');
+        $.ajax({
+            url: '{{ route("project.buildProcess") }}',
+            type: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            dataType: 'json',
+            data: formData,
+            processData: false,
+            contentType: false,
+            cache: false,
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            },
+            complete: function() {
+                $("#loading-image-preview").hide();
+            },
+            success: function(response) {
+                if(response.code=='200'){
+                    toastr["success"](response.message);
+                    $('#build-process-modal').modal('hide');
+                }else{
+                    toastr["error"](response.message);
+                }
+                $("#loading-image-preview").hide();
+            },
+            error: function(xhr, status, error) { // if error occured
+                $("#loading-image-preview").hide();
+            },
+        });
+    });
     </script>
 @endsection
