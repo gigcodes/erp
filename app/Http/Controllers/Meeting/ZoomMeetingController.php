@@ -472,6 +472,8 @@ class ZoomMeetingController extends Controller
 
     public function webhook(Request $request)
     {
+        \Log::info('zoom Webhook Logs -->' . $request->getContent());
+
         $zoomData = json_decode($request->getContent(), true);
         if ($zoomData['event'] == 'endpoint.url_validation') {
             $message = 'v0:'.$request->header('x-zm-request-timestamp').':'.$request->getContent();
