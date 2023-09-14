@@ -584,7 +584,8 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module/unit-test-remark-history', [MagentoModuleController::class, 'getUnitTestRemarkHistories'])->name('magento_module.unit-test-remark-history');
     Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
     Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
-
+    Route::post('magento_module/column-visbility', [MagentoModuleController::class, 'columnVisbilityUpdate'])->name('magento_module.column.update');
+    
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
@@ -1698,6 +1699,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');
     Route::get('meetings/show', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.show');
     Route::get('meetings/all', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.all.data');
+    Route::post('meeting/fetch-recordings', [Meeting\ZoomMeetingController::class, 'fetchRecordings'])->name('meeting.fetch.recordings');
+    Route::post('meeting/fetch-participants', [Meeting\ZoomMeetingController::class, 'fetchParticipants'])->name('meeting.fetch.participants');
+    Route::get('meeting/list/fetch-participants', [Meeting\ZoomMeetingController::class, 'listParticipants'])->name('meeting.list.participants');
+    Route::get('meeting/list/error-logs', [Meeting\ZoomMeetingController::class, 'listErrorLogs'])->name('meeting.list.error-logs');
+    Route::get('meeting/list/recordings/{id}', [Meeting\ZoomMeetingController::class, 'listRecordings'])->name('meeting.list.recordings');
+    Route::post('meeting/update-description', [Meeting\ZoomMeetingController::class, 'updateMeetingDescription'])->name('meeting.description.update');
+    Route::get('meeting/download-recordings/{id}', [Meeting\ZoomMeetingController::class, 'downloadRecords'])->name('meeting.download.file');
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {
@@ -1727,7 +1735,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
+    Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder'])->name('task.reminder.update');
     Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');

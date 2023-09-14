@@ -502,6 +502,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     } */
     </style>
     @stack("styles")
+    
+    @auth
+        <script type="text/javascript">
+            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
+            const LOGGED_USER_ID = {{ auth()->user()->id}};
+        </script>
+    @else
+        <script type="text/javascript">
+            const IS_ADMIN_USER = false;
+            const LOGGED_USER_ID = null;
+        </script>
+    @endauth
 </head>
 
 <body>
@@ -2141,7 +2153,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('vendor.cv.index') }}">Vendors CV</a>
                                     </li>
                                     <li class="nav-item dropdown">
-                                        <a class="dropdown-item" href="{{ route('vendor.meeting.list') }}">Vendor
+                                        <a class="dropdown-item" href="{{ route('meetings.all.data') }}">Zoom
                                             Meeting List</a>
                                     </li>
                                 </ul>
@@ -7758,7 +7770,6 @@ if (!\Auth::guest()) {
             }
         }).fail(function (response) {
             $("#loading-image-preview").hide();
-            console.log(response);
         });
     }
 
@@ -8051,7 +8062,6 @@ if (!\Auth::guest()) {
             $("#loading-image").show();
           }
         }).done(function (response) {
-          console.log(response.data);
           $("#loading-image").hide();
           var html = "";
           var startIndex = (response.data.current_page - 1) * response.data.per_page;
@@ -8489,7 +8499,6 @@ if (!\Auth::guest()) {
             }
         }).fail(function (response) {
             $('.ajax-loader').hide();
-            console.log(response);
         });
     }
 
@@ -8533,7 +8542,6 @@ if (!\Auth::guest()) {
                 }
             }).fail(function (response) {
                 $('.ajax-loader').hide();
-                console.log(response);
             });
          });
 

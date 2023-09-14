@@ -14,6 +14,8 @@
                 <th>Event</th>
                 <th>Label Name</th>
                 <th>Label Color</th>
+                <th>Comment Text</th>
+                <th>Activity Created At</th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +26,8 @@
                     <td>{{$activity['event']}}</td>
                     <td>{{$activity['label_name']}}</td>
                     <td>{{$activity['label_color']}}</td>
+                    <td>{{$activity['comment_text']}}</td>
+                    <td>{{$activity['activity_created_at']}}</td>
                 </tr>
             @endforeach
         </tbody>

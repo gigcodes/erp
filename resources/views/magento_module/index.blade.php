@@ -230,6 +230,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#moduleReturnTypeCreateModal"> Module Return Type Error Create  </button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#m2ErrorStatusCreateModal">M2 Error Status Create</button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#unitTestStatusCreateModal">Unit test Status Create</button>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#columnvisibilityList">Column Visiblity</button>
                     </div>
                 </div>
             </form>
@@ -257,6 +258,20 @@
                 </div>
             </div>
         @endif
+
+        @php
+        $dynamicColumnsToShow = json_decode($hideColumns, true);
+
+        if ($dynamicColumnsToShow !== null) {
+            $dynamicColumnsToShow = array_map('intval', $dynamicColumnsToShow);
+        } else {
+            $dynamicColumnsToShow = []; // Set to an empty array or handle as needed
+        }  
+        @endphp
+       
+       <script>
+            var dynamicColumnsToShow = @json($dynamicColumnsToShow); // Convert the PHP array to a JSON array
+        </script>
         <div class="erp_table_data">
             <table class="table table-bordered" id="erp_table">
                 <thead>
@@ -303,8 +318,7 @@
                 </tbody>
             </table>
         </div>
-        
-    </div>
+        </div>
 
     {{-- #blank-modal --}}
     @include('partials.plain-modal')
@@ -376,7 +390,7 @@
     {{-- moduleTestStatus --}}
     @include('magento_module.magneto-unit-test-status-list')
 
-
+    @include('magento_module.partials.column-visibility-modal')
 
 
 
@@ -384,6 +398,7 @@
 @endsection
 
 @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
     <script
@@ -393,6 +408,11 @@
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     {{-- <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap.min.js"></script> --}}
     <script src="{{env('APP_URL')}}/js/bootstrap-multiselect.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.colVis.min.js"></script>
     <script>
         $(document).ready(function() {
             $(".filter-module").multiselect({
@@ -462,7 +482,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                targets: 'no-sort',
+                targets: 'no-sort', 
                 bSort: false,
 
                 oLanguage: {
@@ -503,13 +523,13 @@
                         
                         // d.view_all = $('input[name=view_all]:checked').val(); // for Check box
                     },
-                }, 
-                columnDefs: [{
-                    targets: [],
-                    orderable: false,
-                    searchable: false,
-                    // className: 'mdl-data-table__cell--non-numeric'
-                }],
+                },
+                columnDefs: [
+                        {
+                            targets: dynamicColumnsToShow,
+                            visible: false,
+                        },
+                ],
                 columns: [{
                         data: 'id',
                         name: 'magento_modules.id',
@@ -1176,7 +1196,8 @@
                     $('#total-count-magento-modules').text(recordsTotal);
                 },
             });
-            
+
+
         });
         // END Print Table Using datatable
 
@@ -1221,7 +1242,6 @@
         
         // Store Reark
         function saveRemarks(row_id, type = 'general', selector = 'remark') {
-            console.log(row_id);
             var remark = $("#"+selector+"_" + row_id).val();
             // var send_to = $("#send_to_" + row_id).val();
 
@@ -2045,7 +2065,6 @@
                     id:id,
                 },
                 success: function(response) {
-                    console.log(response);
                     if (response.status) {
                         var html = "";
                         $.each(response.data, function(k, v) {
@@ -2280,7 +2299,6 @@
             }).fail(function (response) {
                 $("#loading-image").hide();
                 oTable.draw();
-                console.log("failed");
                 toastr['error'](response.message);
             });
         });

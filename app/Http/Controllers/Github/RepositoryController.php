@@ -36,11 +36,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\DeveoperTaskPullRequestMerge;
+use App\Github\GithubPullRequest;
 use App\Github\GithubRepositoryLabel;
 use App\Github\GithubTaskPullRequest;
 use App\Models\DeletedGithubBranchLog;
 use App\Http\Requests\DeleteBranchRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class RepositoryController extends Controller
 {
@@ -986,7 +988,7 @@ class RepositoryController extends Controller
         // Set the number of activities per page
         $perPage = 10;
 
-        $githubPrActivities = GithubPrActivity::latest();
+        $githubPrActivities = GithubPrActivity::latest('id');
         $githubPrActivities = $githubPrActivities
             ->where('github_organization_id', $organization->id)
             ->where('github_repository_id', $repo)
@@ -1171,11 +1173,20 @@ class RepositoryController extends Controller
                     foreach ($activities as $activity) {
                         if (isset($activity['id']) && $activity['event']) {
                             // Check if the event is a "labeled" event and contains label information
-                            $labelName = $labelColor = '';
+                            $labelName = $labelColor = $commentText = '' ;
                             if ($activity['event'] === 'labeled' && isset($activity['label'])) {
                                 // Add the label name to the array
                                 $labelName = $activity['label']['name'];
                                 $labelColor = '#' . $activity['label']['color'];
+                            }
+
+                            if ($activity['event'] === 'commented' && isset($activity['body'])) {
+                                $commentText = $activity['body'];
+                            }
+
+                            $activity_created_at = null;
+                            if (isset($activity['created_at'])) {
+                                $activity_created_at = $activity['created_at'];
                             }
 
                             $user = '';
@@ -1195,6 +1206,8 @@ class RepositoryController extends Controller
                                 'event' => $activity['event'],
                                 'label_name' => $labelName,
                                 'label_color' => $labelColor,
+                                'comment_text' => $commentText,
+                                'activity_created_at' => $activity_created_at
                             ]);
                         }
                     }
@@ -1452,5 +1465,86 @@ class RepositoryController extends Controller
         $label->save();
 
         return response()->json(['message' => 'Label message updated successfully!']);
+    }
+
+    public function githubPRAndActivityStore(Request $request)
+    {
+        try {
+            $requestData = $request->all();
+            $eventHeader = "";
+            if ($request->hasHeader('X-GitHub-Event')) {
+                $eventHeader = $request->header('X-GitHub-Event');
+            }
+
+            if ($requestData && isset($requestData['action'])) {
+                // Find first or Create PR
+                $pullNumber = '';
+                if (isset($requestData['pull_request'])) {
+                    $pullNumber = $requestData['pull_request']['number'];
+                    $prTitle = $requestData['pull_request']['title'];
+                    $prUrl = $requestData['pull_request']['url'];
+                    $state = $requestData['pull_request']['state'];
+                    $createdBy = $requestData['pull_request']['user']['login'];
+                    $body = $requestData['pull_request']['body'];
+                    $activityCreatedAt = $requestData['pull_request']['created_at'];
+                } elseif(isset($requestData['issue'])) {
+                    $pullNumber = $requestData['issue']['number'];
+                    $prTitle = $requestData['issue']['title'];
+                    $prUrl = $requestData['issue']['url'];
+                    $state = $requestData['issue']['state'];
+                    $createdBy = $requestData['issue']['user']['login'];
+                    $body = $requestData['issue']['body'];
+                    $activityCreatedAt = $requestData['issue']['created_at'];
+                }
+
+                if ($pullNumber == "") {
+                    return response()->json(['message' => 'GitHub Pull Request Number is missing'], 200);
+                }
+
+                $githubPullRequest = GithubPullRequest::updateOrCreate([
+                    'pull_number' => $pullNumber,
+                    'github_repository_id' => $requestData['repository']['id'],
+                ], [
+                    'repo_name' => $requestData['repository']['name'],
+                    'pr_title' => $prTitle,
+                    'pr_url' => $prUrl,
+                    'state' => $state,
+                    'created_by' => $createdBy
+                ]);
+
+                // Create PR activity
+                if ($githubPullRequest) {
+                    $githubPRActivity = new GithubPrActivity();
+
+                    $githubPRActivity->pull_number = $pullNumber;
+                    $githubPRActivity->github_repository_id = $requestData['repository']['id'];
+                    $githubPRActivity->event = $requestData['action'];
+                    $githubPRActivity->event_header = $eventHeader;
+
+                    if ($requestData['action'] === 'labeled' && isset($requestData['label'])) {
+                        // Add the label name to the array
+                        $labelName = $requestData['label']['name'];
+                        $labelColor = '#' . $requestData['label']['color'];
+                        $githubPRActivity->label_name = $labelName;
+                        $githubPRActivity->label_color = $labelColor;
+                    }
+
+                    if ($eventHeader == 'issue_comment' && $requestData['action'] == 'created' && $body == '') {
+                        $body = $requestData['comment']['body'];
+                    }
+
+                    $githubPRActivity->body = $body;
+                    $githubPRActivity->user = $createdBy;
+                    $githubPRActivity->activity_created_at = $activityCreatedAt;
+                    $githubPRActivity->save();
+                }
+            }
+
+            return response()->json(['message' => 'GitHub Pull Request Stored Successfully'], 200);
+        } catch (\Exception $e) {
+            Log::channel('github_error')->error($e->getMessage());
+
+            return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
+        }
     }
 }
