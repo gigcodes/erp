@@ -399,8 +399,8 @@ $(document).ready(function() {
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${k + 1} </td>
-                                        <td> ${v.newstatus ? v.newstatus.status_name : ''} </td>
                                         <td> ${v.oldstatus ? v.oldstatus.status_name : ''} </td>
+                                        <td> ${v.newstatus ? v.newstatus.status_name : ''} </td>
                                         <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
                                         <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
                                     </tr>`;
