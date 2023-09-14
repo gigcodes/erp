@@ -1655,6 +1655,7 @@ class RepositoryController extends Controller
         $users = GithubPrActivity::distinct()->pluck('user');
         $events = GithubPrActivity::distinct()->pluck('event');
         $eventHeaders = GithubPrActivity::distinct()->pluck('event_header');
+        $labelNames = GithubPrActivity::distinct()->pluck('label_name');
 
         if ($request->org) {
             $prActivities = $prActivities->WhereIn('github_organization_id', $request->org);
@@ -1675,7 +1676,16 @@ class RepositoryController extends Controller
             $prActivities = $prActivities->whereIn('event_header', $request->event_header);
         }
         if ($request->label_name) {
-            $prActivities = $prActivities->whereIn('label_name', 'LIKE', '%' . $request->label_name . '%');
+            $prActivities = $prActivities->whereIn('label_name', $request->label_name);
+        }
+        if ($request->description) {
+            $prActivities = $prActivities->where('description', 'LIKE', '%' . $request->description . '%');
+        }
+        if ($request->body) {
+            $prActivities = $prActivities->where('body', 'LIKE', '%' . $request->body . '%');
+        }
+        if ($request->activity_date) {
+            $prActivities = $prActivities->where('activity_created_at', 'LIKE', '%' . $request->activity_date . '%');
         }
         if ($request->date) {
             $prActivities = $prActivities->where('created_at', 'LIKE', '%' . $request->date . '%');
@@ -1683,6 +1693,6 @@ class RepositoryController extends Controller
 
         $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
 
-        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders'));
+        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders','labelNames'));
     }
 }

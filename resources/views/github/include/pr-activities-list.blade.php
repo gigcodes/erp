@@ -9,11 +9,11 @@
 
 @section('content')
     <div class="row">
-        <div class="col-lg-12 margin-tb">
+        <div class="col-lg-12">
             <h2 class="page-heading">Pr Activites({{ $prActivities->total() }})</h2>
         </div>
     </div>
-    <div class="col-md-12">
+    <div class="mt-3 col-md-12">
         <form action="{{ url('/github/new-pr-activities') }}" method="get" class="search">
             <div class="col-lg-2">
                 <label> Search Organizations </label>
@@ -30,67 +30,88 @@
                 </select>
             </div>
             <div class="col-lg-2">
-                <label> Search Pull Number</label>
-                <input class="form-control" type="text" id="pull_num" placeholder="Search Pull Number" name="pull_num"
-                value="{{ request('pull_num') ?? '' }}">
+                <label> Search Events </label>
+               <?php 
+                    if(request('event')){   $event_search = request('event'); }
+                    else{ $event_search = []; }
+                    ?>
+                    <select name="event[]" id="event" class="form-control select2" multiple>
+                        <option value="" @if($event_search=='') selected @endif>-- Select a Events --</option>
+                        @forelse($events as $id=>$event)
+                        <option value="{{ $event }}" @if(in_array($event, $event_search)) selected @endif>{!! $event !!}</option>
+                        @empty
+                        @endforelse
+                    </select>
             </div>
             <div class="col-lg-2">
-                <label> Search PR Title</label>
-                <input class="form-control" type="text" id="pr_title" placeholder="Search Test" name="pr_title"
-                    value="{{ request('pr_title') ?? '' }}">
-            </div>
-
-            <div class="col-lg-2">
-                <label> Search Event</label>
-                <input class="form-control" type="text" id="event" placeholder="Search Event" name="event"
-                    value="{{ request('event') ?? '' }}">
-            </div>
-            <div class="col-lg-2">
-                <label> Search Event header</label>
-                <input class="form-control" type="text" id="event_header" placeholder="Search Event Header" name="event_header"
-                    value="{{ request('event_header') ?? '' }}">
-            </div>
-            <div class="col-lg-2">
-                <label> Search Label Name</label>
-                <input class="form-control" type="text" id="label_name" placeholder="Search Label Name" name="label_name"
-                    value="{{ request('label_name') ?? '' }}">
+                <label> Search Event header </label>
+                 <?php 
+                    if(request('event_header')){   $event_head_search = request('event_header'); }
+                    else{ $event_head_search = []; }
+                    ?>
+                    <select name="event_header[]" id="event_header" class="form-control select2" multiple>
+                        <option value="" @if($event_head_search=='') selected @endif>-- Select a Event header --</option>
+                        @forelse($eventHeaders as $id=>$eventHead)
+                        <option value="{{ $eventHead }}" @if(in_array($eventHead, $event_head_search)) selected @endif>{!! $eventHead !!}</option>
+                        @empty
+                        @endforelse
+                    </select>
             </div>
             <div class="col-lg-2">
                 <label> Search Repository </label>
                 <?php 
-                    if(request('repo')){   $repo_search = request('repo'); }
-                    else{ $repo_search = []; }
-                ?>
-                <select name="repo[]" id="repo" class="form-control select2" multiple>
-                    <option value="" @if($repo_search=='') selected @endif>-- Select a Repository --</option>
-                    @forelse($repos as $id=>$repo)
-                    <option value="{{ $id}}" @if(in_array($id, $repo_search)) selected @endif>{!! $repo!!}</option>
-                    @empty
-                    @endforelse
-                </select>
+                        if(request('repo')){ $repo_search = request('repo'); }
+                        else{ $repo_search = []; }
+                    ?>
+                    <select name="repo[]" id="repo" class="form-control select2" multiple>
+                        <option value="" @if($repo_search=='') selected @endif>-- Select a Repository --</option>
+                        @forelse($repos as $id=>$repo)
+                        <option value="{{ $id}}" @if(in_array($id, $repo_search)) selected @endif>{!! $repo!!}</option>
+                        @empty
+                        @endforelse
+                    </select>
             </div>
             <div class="col-lg-2">
                 <label> Search User </label>
-                <?php 
-                    if(request('user')){   $user_search = request('user'); }
-                    else{ $user_search = []; }
-                ?>
-                <select name="user[]" id="user" class="form-control select2" multiple>
-                    <option value="" @if($user_search=='') selected @endif>-- Select a User --</option>
-                    @forelse($users as $id=>$user)
-                    <option value="{{ $user}}" @if(in_array($user, $user_search)) selected @endif>{!! $user!!}</option>
-                    @empty
-                    @endforelse
-                </select>
-            </div>
-            <div class="col-lg-2">
-                <label> Search Created At</label>
-                <input class="form-control" type="date" name="date" value="{{ request('date') ?? '' }}">
+                 <?php 
+                        if(request('user')){ $user_search = request('user'); }
+                        else{ $user_search = []; }
+                    ?>
+                    <select name="user[]" id="user" class="form-control select2" multiple>
+                        <option value="" @if($user_search=='') selected @endif>-- Select a User --</option>
+                        @forelse($users as $id=>$user)
+                        <option value="{{ $user}}" @if(in_array($user, $user_search)) selected @endif>{!! $user!!}</option>
+                        @empty
+                        @endforelse
+                    </select>
             </div>
 
             <div class="col-lg-2">
-                <button type="submit" class="btn btn-image search"
-                    onclick="document.getElementById('download').value = 1;">
+                <label> Search Pull Number</label>
+                    <input class="form-control" type="text" id="pull_num" placeholder="Search Pull Number" name="pull_num"
+                    value="{{ request('pull_num') ?? '' }}">
+            </div>
+            <div class="col-lg-2">
+                <label> Search Description</label>
+                <input class="form-control" type="text" id="description" placeholder="Search Description" name="description"
+                        value="{{ request('description') ?? '' }}">
+            </div>
+            <div class="col-lg-2">
+                <label> Search body</label>
+             <input class="form-control" type="text" id="body" placeholder="Search body" name="body"
+                        value="{{ request('body') ?? '' }}">
+            </div>
+            <div class="col-lg-2">
+                <label> Search Activity Date</label>
+             <input class="form-control" type="date" name="activity_date" value="{{ request('activity_date') ?? '' }}">
+            </div>
+            <div class="col-lg-2">
+                <label> Search Created At</label>
+                    <input class="form-control" type="date" name="date" value="{{ request('date') ?? '' }}">
+            </div>
+    
+            <div class="col-lg-2"><br>
+                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                     <img src="{{ asset('images/search.png') }}" alt="Search">
                 </button>
                 <a href="{{ url('/github/new-pr-activities') }}" class="btn btn-image" id=""><img
