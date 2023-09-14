@@ -12,6 +12,10 @@
             height: 450px;
             overflow-y: scroll;
         }
+
+        .gap-5 {
+            gap: 5px;
+        }
     </style>
 @endsection
 
@@ -20,7 +24,59 @@
         <div class="col-lg-12 text-center">
             <h2 class="page-heading"> Meetings</h2>
         </div>
-        <div class="container">
+            <div class="mt-3 col-md-12">
+                <form action="{{route('meetings.all.data')}}" method="get" class="search">
+                    <div class="col-md-2 pd-sm">
+                        <h5><b>Search Meeting Id </b></h5>
+                        <?php 
+                            if(request('meeting_ids')){   $meeting_search = request('meeting_ids'); }
+                            else{ $meeting_search = []; }
+                        ?>
+                        <select name="meeting_ids[]" id="meeting_ids" class="form-control select2" multiple>
+                            <option value="" @if($meeting_search=='') selected @endif>-- Select a Meeting ids --</option>
+                            @forelse($zoomMeetingIds as $swId => $zoomMeetingId)
+                            <option value="{{ $zoomMeetingId }}" @if(in_array($zoomMeetingId, $meeting_search)) selected @endif>{!! $zoomMeetingId !!}</option>
+                            @empty
+                            @endforelse
+                        </select>
+                    </div>
+                    <div class="col-md-2 pd-sm">
+                        <h5><b>Search Time Zone</b></h5>
+                        <?php 
+                        if(request('time_zone')){   $time_zone_search = request('time_zone'); }
+                        else{ $time_zone_search = []; }
+                    ?>
+                        <select name="time_zone[]" id="time_zone" class="form-control select2" multiple>
+                            @forelse($timeZones as $id => $timeZone)
+                                <option value="{{ $timeZone }}" @if(!empty($time_zone_search) && in_array($timeZone, $time_zone_search)) selected @endif>{!! $timeZone !!}</option>
+                            @empty
+                            @endforelse
+                        </select>
+                    </div>            
+                    <div class="col-lg-2">
+                        <h5><b> Search Meeting Topic</b></h5>
+                        <input class="form-control" type="text" name="meeting_topic"  id="meeting_topic" placeholder="Search Meeting Topic" value="{{ (request('meeting_topic') ?? "" )}}">
+                    </div>
+                    <div class="col-lg-2">
+                        <h5><b> Search Meeting Agenda </b></h5>
+                        <input class="form-control" type="text" id="meeting_agenda" placeholder="Search Meeting Agenda" name="meeting_agenda" value="{{ (request('meeting_agenda') ?? "" )}}">
+                    </div>
+                    <div class="col-lg-2">
+                        <h5><b> Search Meeting Duration </b></h5>
+                        <input class="form-control" type="text" id="duration" placeholder="Search Meeting Duration" name="duration" value="{{ (request('duration') ?? "" )}}">
+                    </div>
+                    <div class="col-lg-2">
+                        <h5><b> Search Start Date </b></h5>
+                        <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+                    </div>
+        
+                    <div class="col-lg-2"><br><br>
+                        <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                           <img src="{{ asset('images/search.png') }}" alt="Search">
+                       </button>
+                       <a href="{{route('meetings.all.data')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                    </div>
+                </form>
         </div>
     </div>
     <div class="clearboth"></div>
@@ -34,20 +90,22 @@
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
+            <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary pull-right">View Api Logs</a>&nbsp;
+            <button type="button" class="btn btn-secondary pull-right" id="sync_meetings" style="margin-left: 10px;">Sync Meetings</button>&nbsp;            
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
                     <tr>
-                        <th width="3%">ID</th>
-                        <th width="10%">Meeting Id</th>
-                        <th width="10%">Meeting Type</th>
-                        <th width="15%">Meeting Topic</th>
-                        <th width="15%">Meeting Agenda</th>
-                        <th width="5%">Join Meeting URL</th>
-                        <th width="10%">Start Date Time</th>
-                        <th width="5%">Meeting Duration</th>
-                        <th width="3%">Timezone</th>
-                        <th width="8%">Action</th>
+                        <th>ID</th>
+                        <th>Meeting Id</th>
+                        <th>Description</th>
+                        <th>Meeting Topic</th>
+                        <th>Meeting Agenda</th>
+                        <th>Join Meeting URL</th>
+                        <th>Start Date Time</th>
+                        <th>Meeting Duration</th>
+                        <th>Timezone</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -56,18 +114,29 @@
                             <tr>
                                 <td class="p-2">{{ $meetings->id }}</td>
                                 <td class="p-2">{{ $meetings->meeting_id }}</td>
-                                <td class="p-2">{{ $meetings->meeting_type }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" name="description" class="form-control description" placeholder="Description" value={{ ($meetings->description ?? "" )}}>
+                                        <button class="btn btn-xs btn-image update_description_meeting" data-id="{{ $meetings->id }}">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-xs btn-image load-description-meeting-history" data-id="{{ $meetings->id }}" data-type="description" title="view History">
+                                            <i class="fa fa-info-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                
                                 <td class="p-2">{{ $meetings->meeting_topic }}</td>
                                 <td class="p-2">{{ $meetings->meeting_agenda }}</td>
                                 <td class="p-2"><a href="{{ $meetings->join_meeting_url }}" target="_blank">Link</a></td>
                                 <td class="p-2">{{ Carbon\Carbon::parse($meetings->start_date_time)->format('M, d-Y H:i') }}</td>
                                 <td class="p-2">{{ $meetings->meeting_duration }} mins</td>
-                                <td class="p-2" width="20%">{{ $meetings->timezone }}</td>
-                                <td>
+                                <td class="p-2">{{ $meetings->timezone }}</td>
+                                <td class="p-2">
                                     <button type="button" title="Fetch Recordings" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-refresh fetch-zoom-meeting-recordings" data-meeting_id="{{ $meetings->meeting_id }}"></i>
 									</button>
-                                    <a href="{{ route('meeting.list.recordings', ['id' => $meetings->meeting_id]) }}" target="_blank">
+                                    <a href="{{ route('meeting.list.recordings', ['id' => $meetings->meeting_id]) }}" target="_blank" title="view Recordings Details">
                                         <i class="fa fa-video-camera" style="color: #808080;"></i>
                                     </a>   
                                     <button type="button" title="Fetch Participants" class="btn" style="padding: 0px 1px;">
@@ -77,7 +146,7 @@
                                         data-meeting_id="{{ $meetings->meeting_id }}" title="view Participants" onclick="viewParticipants()">
                                             <i class="fa fa-users" style="color: #808080;"></i>
                                     </button>
-                                    </td>
+                                </td>
                             </tr>
                         @endforeach
                     @endif
@@ -115,6 +184,37 @@
     </div>
 </div>
 
+<div id="zoom-meeting-description-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Zoom Meeting Description History</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="25%">Old description</th>
+                                <th width="25%">New description</th>
+                                <th width="25%">Updated by</th>
+                                <th width="25%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="zoom-meeting-description-listing-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section('scripts')
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
@@ -124,6 +224,8 @@
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script> --}}
 
     <script type="text/javascript">
+        $('.select2').select2();
+
         $(document).on('click', '#sync_meetings', function(e){
             $("#loading-image-preview").show();
             $.ajax({
@@ -260,5 +362,58 @@
         function changeParticipantsPage(pageNumber) {
             viewParticipants(pageNumber);
         }
+
+        $(document).on("click", ".update_description_meeting", function(){
+            var meetingId = $(this).attr('data-id');
+            var description = $(this).parents('td').find('.description').val();
+            if(description != ''){
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('meeting.store.description') }}",
+                    data: {'_token': "{{ csrf_token() }}",id:meetingId,description:description},
+                    success: function(response) {
+                    if(response.code == 200){
+                        toastr['success'](response.message, 'success');
+                    } else {
+                        toastr['error'](response.message, 'error');
+                    }              
+                    }
+                });
+            } else {
+                toastr['success'](response.message, 'success');
+            }
+        });
+
+        $(document).on('click', '.load-description-meeting-history', function() {
+            var id = $(this).attr('data-id');
+            var type = $(this).attr('data-type');
+            $.ajax({
+                url: '{{ route("meeting.description.show") }}',
+                dataType: "json",
+                data: {
+                    id:id,
+                    type:type,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.oldvalue ? v.oldvalue: ''} </td>
+                                        <td> ${v.newvalue ? v.newvalue : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#zoom-meeting-description-listing").find(".zoom-meeting-description-listing-view").html(html);
+                        $("#zoom-meeting-description-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
     </script>
 @endsection
