@@ -12,6 +12,9 @@ use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\Models\StoreWebsiteStatus;
+use Auth;
+use App\Models\StoreWebsiteStatusHistory;
 
 class PageController extends Controller
 {
@@ -31,7 +34,8 @@ class PageController extends Controller
 
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
-        $languagesList = Language::pluck('name', 'name')->toArray(); //
+        $languagesList = Language::pluck('name', 'name')->toArray(); //     
+        $statuses = StoreWebsiteStatus::all();
 
         return view('storewebsite::page.index', [
             'title' => $title,
@@ -39,6 +43,7 @@ class PageController extends Controller
             'pages' => $pages,
             'languages' => $languages,
             'languagesList' => $languagesList,
+            'statuses' => $statuses
         ]);
     }
 
@@ -55,18 +60,23 @@ class PageController extends Controller
 
         $languagesList = Language::pluck('name', 'name')->toArray(); //
 
+        $statuses = StoreWebsiteStatus::all();
+
         return view('storewebsite::page.keywords', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
             'pages' => $pages,
             'languages' => $languages,
             'languagesList' => $languagesList,
+            'statuses' => $statuses
         ]);
     }
 
     public function records(Request $request)
     {
-        $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id')->leftJoin('users as u', 'u.id', 'store_website_pages.approved_by_user_id');
+        $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id')->leftJoin('users as u', 'u.id', 'store_website_pages.approved_by_user_id')->leftJoin('website_store_views_status as s', 's.id', 'store_website_pages.website_store_views_status_id');
+
+        $statuses = StoreWebsiteStatus::all();
 
         // Check for keyword search
         if ($request->keyword != null) {
@@ -92,7 +102,7 @@ class PageController extends Controller
             $pages = $pages->where('store_website_pages.is_pushed', $request->is_pushed);
         }
 
-        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by'])->paginate();
+        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by' , 's.color as colorcode'])->paginate();
 
         $items = $pages->items();
 
@@ -104,7 +114,7 @@ class PageController extends Controller
             $recItems[] = $attributes;
         }
 
-        return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'total' => $pages->total(),
+        return response()->json(['code' => 200, 'pageUrl' => $request->page_url, 'data' => $recItems, 'statuses' => $statuses, 'total' => $pages->total(), 
             'pagination' => (string) $pages->links(),
         ]);
     }
@@ -774,4 +784,62 @@ class PageController extends Controller
             return 'failed';
         }
     }
+
+    public function statusCreate(request $request)
+    {
+        try {
+            $todoStatus = new StoreWebsiteStatus();
+            $todoStatus->status_name = $request->status_name;
+            $todoStatus->color = $request->status_color;
+            $todoStatus->save();
+
+            return redirect()->back()->with('success', 'Your Todo status has been Added!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+    }
+    
+    public function StatusColorUpdate(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoModuleVerifiedStatus = StoreWebsiteStatus::find($key);
+            $magentoModuleVerifiedStatus->color = $value;
+            $magentoModuleVerifiedStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function websiteStatusUpdate(Request $request) 
+    {
+       $storewebsite =  \App\StoreWebsitePage::find($request->dataId);
+       $storewebsiteOldStatusId = $storewebsite->website_store_views_status_id;
+       $storewebsite->website_store_views_status_id = $request->statusId;
+       $storewebsite->save();
+
+       $storewebsitHistory =  new StoreWebsiteStatusHistory();
+       $storewebsitHistory->old_status_id = $storewebsiteOldStatusId;
+       $storewebsitHistory->new_status_id = $request->statusId;
+       $storewebsitHistory->user_id = Auth::user()->id;
+       $storewebsitHistory->store_website_page_id = $request->dataId;
+       $storewebsitHistory->save();
+
+       return response()->json(['code' => 200, 'data' => $storewebsite, 'message' => 'status updated successfully']);
+
+    }
+
+    public function statusHistoryList(Request $request)
+    {
+        $history = StoreWebsiteStatusHistory::with(['user','newstatus','oldstatus'])->where('store_website_page_id', $request->id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $history,
+            'message' => 'history listed successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
 }
