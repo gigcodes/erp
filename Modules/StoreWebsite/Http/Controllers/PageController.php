@@ -15,6 +15,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use App\Models\StoreWebsiteStatus;
 use Auth;
 use App\Models\StoreWebsiteStatusHistory;
+use App\User;
 
 class PageController extends Controller
 {
@@ -36,6 +37,7 @@ class PageController extends Controller
 
         $languagesList = Language::pluck('name', 'name')->toArray(); //     
         $statuses = StoreWebsiteStatus::all();
+        $users = User::all();
 
         return view('storewebsite::page.index', [
             'title' => $title,
@@ -43,7 +45,8 @@ class PageController extends Controller
             'pages' => $pages,
             'languages' => $languages,
             'languagesList' => $languagesList,
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'users' => $users,
         ]);
     }
 
@@ -59,8 +62,8 @@ class PageController extends Controller
         $languages = Language::pluck('locale', 'code')->toArray(); //
 
         $languagesList = Language::pluck('name', 'name')->toArray(); //
-
         $statuses = StoreWebsiteStatus::all();
+        $users = User::all();
 
         return view('storewebsite::page.keywords', [
             'title' => $title,
@@ -68,7 +71,8 @@ class PageController extends Controller
             'pages' => $pages,
             'languages' => $languages,
             'languagesList' => $languagesList,
-            'statuses' => $statuses
+            'statuses' => $statuses,
+            'users' => $users,
         ]);
     }
 
@@ -87,19 +91,46 @@ class PageController extends Controller
         }
 
         if ($request->language != null) {
-            $pages = $pages->where('store_website_pages.language', $request->language);
+            $pages = $pages->whereIn('store_website_pages.language', $request->language);
         }
 
         if ($request->store_website_id != null) {
-            $pages = $pages->where('store_website_pages.store_website_id', $request->store_website_id);
+            $pages = $pages->whereIn('store_website_pages.store_website_id', $request->store_website_id);
         }
 
-        if ($request->store_website_id != null) {
-            $pages = $pages->where('store_website_pages.store_website_id', $request->store_website_id);
+        if ($request->status_id != null) {
+            $pages = $pages->whereIn('store_website_pages.website_store_views_status_id', $request->status_id);
+        }
+
+        if ($request->user_id != null) {
+            $pages = $pages->whereIn('store_website_pages.approved_by_user_id', $request->user_id);
         }
 
         if ($request->is_pushed != '') {
             $pages = $pages->where('store_website_pages.is_pushed', $request->is_pushed);
+        }
+
+        if ($request->version_pushed != '') {
+            $pages = $pages->where('store_website_pages.is_latest_version_pushed', $request->version_pushed);
+        }
+
+        if ($request->version_trans != '') {
+            $pages = $pages->where('store_website_pages.is_latest_version_translated', $request->version_trans);
+        }
+        if ($request->revision_trans != '') {
+            $pages = $pages->where('store_website_pages.is_latest_version_pushed', $request->revision_trans);
+        }
+
+        if ($request->date != '') {
+            $pages = $pages->where('store_website_pages.created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
+        if ($request->search_title != '') {
+            $pages = $pages->where('store_website_pages.title', 'LIKE', '%' . $request->search_title . '%');
+        }
+
+        if ($request->search_url != '') {
+            $pages = $pages->where('store_website_pages.url_key', 'LIKE', '%' . $request->search_url . '%');
         }
 
         $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by' , 's.color as colorcode'])->paginate();
