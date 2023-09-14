@@ -611,7 +611,10 @@ class ZoomMeetingController extends Controller
                         $recordingStartTime = Carbon::parse($recordings['recording_start']);
                         $recordingEndTime = Carbon::parse($recordings['recording_end']);
 
-                        $meetingParticipants = ZoomMeetingParticipant::where('meeting_id', $zoomDataPayloadObject['id'])->get();
+                        $meetingParticipants = ZoomMeetingParticipant::where('meeting_id', $zoomDataPayloadObject['id'])
+                            ->where('join_time', '>=', $recordingStartTime)
+                            ->where('leave_time', '<=', $recordingEndTime)
+                            ->get();
                         if ($meetingParticipants) {
                             $segments = [];
                             foreach ($meetingParticipants as $meetingParticipant) {
