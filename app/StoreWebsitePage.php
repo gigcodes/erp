@@ -6,6 +6,7 @@ namespace App;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Illuminate\Database\Eloquent\Model;
+use App\Models\StoreWebsiteStatus;
 
 class StoreWebsitePage extends Model
 {
@@ -54,5 +55,10 @@ class StoreWebsitePage extends Model
     public function storeWebsite()
     {
         return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
+    }
+
+    public function storeWebsiteStatus()
+    {
+        return $this->hasOne(\App\StoreWebsiteStatus::class, 'website_store_views_status_id');
     }
 }

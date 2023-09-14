@@ -368,6 +368,7 @@ $(document).ready(function() {
             success: function(response) { 
                 if (response.code == 200) { 
                     toastr["success"](response.message);
+                    location.reload();
                 } else {
                     toastr["error"](response.message);
                 }

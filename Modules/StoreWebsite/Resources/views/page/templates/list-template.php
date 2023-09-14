@@ -81,7 +81,7 @@
             </thead>
             <tbody>
                 {{props data}} 
-                  <tr>
+                  <tr style="background-color: {{:prop.colorcode}};">
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}"></td>
                     <td>&nbsp;{{:prop.id}}</td>
                     <td></td>
@@ -93,14 +93,19 @@
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>
-                    <div style="display: flex; justify-content: space-between; align-items: center; position: relative;">
-                        <?php $status =  \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(); ?> 
-                        <?php echo Form::select('status_id', ['' => 'Select Status'] + \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(), null, ['class' => 'form-control select2 status-update', 'data-id' => "{{:prop.id}}", "data-placeholder" => "Select Status"]); ?>                  
-                        <button type="button" title="Status history" data-id="{{>prop.id}}" class="btn btn- status-history" style="padding: 0px 1px !important;">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                    </td>     
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative;">
+                            <select class="form-control select2 status-update" data-id="{{>prop.id}}" data-placeholder="Select Status" name="status_id">
+                                <option value="">Select Status</option>
+                                <?php $status = \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(); ?> 
+                                <?php foreach ($status as $id => $name): ?>
+                                    <option value="<?php echo $id; ?>" {{if prop.website_store_views_status_id == <?php echo $id; ?>}}selected{{/if}}><?php echo $name; ?></option>                 
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" title="Status history" data-id="{{>prop.id}}" class="btn btn-status-history" style="padding: 0px 1px !important; margin-left: 10px;">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </td>
                     <td>{{if prop.is_latest_version_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_latest_version_translated == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_flagged_translation == "1"}}Yes{{else}}NO{{/if}}</td>

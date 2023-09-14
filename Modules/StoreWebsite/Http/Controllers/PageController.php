@@ -74,7 +74,7 @@ class PageController extends Controller
 
     public function records(Request $request)
     {
-        $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id')->leftJoin('users as u', 'u.id', 'store_website_pages.approved_by_user_id');
+        $pages = StoreWebsitePage::leftJoin('store_websites as sw', 'sw.id', 'store_website_pages.store_website_id')->leftJoin('users as u', 'u.id', 'store_website_pages.approved_by_user_id')->leftJoin('website_store_views_status as s', 's.id', 'store_website_pages.website_store_views_status_id');
 
         $statuses = StoreWebsiteStatus::all();
 
@@ -102,7 +102,7 @@ class PageController extends Controller
             $pages = $pages->where('store_website_pages.is_pushed', $request->is_pushed);
         }
 
-        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by'])->paginate();
+        $pages = $pages->orderBy('store_website_pages.id', 'desc')->select(['store_website_pages.*', 'sw.website as store_website_name', 'u.name as approved_by' , 's.color as colorcode'])->paginate();
 
         $items = $pages->items();
 
