@@ -506,8 +506,8 @@ class ZoomMeetingController extends Controller
                 'meeting_type' => $zoomData['payload']['object']['type'],
                 'meeting_agenda' => $zoomData['payload']['object']['agenda'] ?? "",
                 'join_meeting_url' => $zoomData['payload']['object']['join_url'],
-                'start_date_time' => $zoomData['payload']['object']['start_time'],
-                'meeting_duration' => $zoomData['payload']['object']['duration'],
+                'start_date_time' => $zoomData['payload']['object']['start_time'] ?? "",
+                'meeting_duration' => $zoomData['payload']['object']['duration'] ?? "",
                 'timezone' => $zoomData['payload']['object']['timezone'],
                 'host_zoom_id' => $zoomData['payload']['object']['host_id'],
             ]
@@ -517,13 +517,15 @@ class ZoomMeetingController extends Controller
     }
 
     protected function participantJoinedWebhook($zoomData) {
-        ZoomMeetingParticipant::create([   
+        ZoomMeetingParticipant::firstOrCreate([   
                 'meeting_id' => $zoomData['payload']['object']['id'], 
                 'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
                 'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
+                'join_time' => $zoomData['payload']['object']['participant']['join_time']
+            ],
+            [
                 'name' => $zoomData['payload']['object']['participant']['user_name'],
                 'email' => $zoomData['payload']['object']['participant']['email'],
-                'join_time' => $zoomData['payload']['object']['participant']['join_time'],
             ],
         );
         
@@ -552,6 +554,7 @@ class ZoomMeetingController extends Controller
 
         if ($zoomDataPayloadObject && isset($zoomDataPayloadObject['recording_files'])) {
             $folderPath = public_path() . '/zoom/0/' . $zoomDataPayloadObject['id'];
+            $segmentPath = $folderPath . '/segments';
             $databsePath = '/zoom/0/' . $zoomDataPayloadObject['id'];
             \Log::info('folderPath -->' . $folderPath);
             foreach ($zoomDataPayloadObject['recording_files'] as $recordings) {
@@ -564,6 +567,7 @@ class ZoomMeetingController extends Controller
                         $filePath = $folderPath . '/' . $fileName;
                         if (! file_exists($filePath) && ! is_dir($folderPath)) {
                             mkdir($folderPath, 0777, true);
+                            mkdir($segmentPath, 0777, true);
                         }
                         $ch = curl_init($urlOfFile);
                         curl_exec($ch);
@@ -592,6 +596,76 @@ class ZoomMeetingController extends Controller
                         // 1. Once the entire recording completed, 
                         // 2. Get the list of participants for this meeting from zoom_meeting_participants table
                         // 3. Split the recording depends on the participants join_time & leave_time
+                        // In your Laravel controller or a dedicated splitting script
+                        $fullRecordingPath = $filePath;
+                        $outputPath = $segmentPath; // Output folder for segments
+
+                        // Define your expected meeting start and end times for each day
+                        $expectedMeetingStartTime = '05:00:00'; // Change this to your morning start time
+                        $expectedMeetingEndTime = '23:59:59';   // Change this to your night end time (assuming it ends at midnight)
+                        // Get the current date
+                        $currentDate = Carbon::now()->format('Y-m-d');
+
+                        // Calculate the meeting start and end times for today
+                        $meetingStartTime = Carbon::parse("$currentDate $expectedMeetingStartTime");
+                        $meetingEndTime = Carbon::parse("$currentDate $expectedMeetingEndTime");
+
+                        $meetingParticipants = ZoomMeetingParticipant::where('meeting_id', $zoomDataPayloadObject['id'])->get();
+                        if ($meetingParticipants) {
+                            $segments = [];
+                            foreach ($meetingParticipants as $meetingParticipant) {
+                                // Parse join_time and leave_time
+                                $joinTime = Carbon::parse($meetingParticipant->join_time);
+                                $leaveTime = Carbon::parse($meetingParticipant->leave_time);
+
+                                \Log::info('joinTime -->' . $joinTime);
+                                \Log::info('leaveTime -->' . $leaveTime);
+
+                                // Calculate the start and end times for the participant's segment
+                                $startTimestamp = max($joinTime, $meetingStartTime)->diff($meetingStartTime)->format('%H:%I:%S');
+                                $endTimestamp = min($leaveTime, $meetingEndTime)->diff($meetingStartTime)->format('%H:%I:%S');
+
+                                \Log::info('startTimestamp -->' . $startTimestamp);
+                                \Log::info('endTimestamp -->' . $endTimestamp);
+
+                                // Create a unique segment name for each participant
+                                $segmentName = "participant_{$meetingParticipant->id}.mp4";
+
+                                // Add the segment to the array
+                                $segments[] = [
+                                    'start' => $startTimestamp,
+                                    'end' => $endTimestamp,
+                                    'output' => $segmentName, // Output filename for the segment
+                                    'participant' => $meetingParticipant, // Store the participant information for reference
+                                ];
+                            }
+
+                            if ($segments) {
+                                foreach ($segments as $segment) {
+                                    $start = $segment['start'];
+                                    $end = $segment['end'];
+                                    $segmentFileName = $segment['output']; // Adjust the filename as needed
+
+                                    // Use ffmpeg to extract the segment
+                                    $command = "ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
+        
+                                    \Log::info('FFMPEG Command -->' . $command);
+
+                                    // Execute the command and capture its output and return code
+                                    $output = [];
+                                    $returnCode = -1;
+
+                                    exec($command, $output, $returnCode);
+
+                                    // Check if the command was successful
+                                    if ($returnCode != 0) {
+                                        $errorMessage = implode(PHP_EOL, $output);
+                                        // Log the error
+                                        \Log::error("Error executing ffmpeg command: $errorMessage");
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
