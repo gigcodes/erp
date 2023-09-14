@@ -501,8 +501,13 @@ class ZoomMeetingController extends Controller
     }
 
     protected function createMeetingWebhook($zoomData) {
+        if (isset($zoomData['payload']['object']['pmi'])) {
+            $meetingId = $zoomData['payload']['object']['pmi'];
+        } else {
+            $meetingId = $zoomData['payload']['object']['id'];
+        }
         ZoomMeetings::updateOrCreate(
-            ['meeting_id' => $zoomData['payload']['object']['id']],
+            ['meeting_id' => $meetingId],
             [
                 'meeting_topic' => $zoomData['payload']['object']['topic'],
                 'meeting_type' => $zoomData['payload']['object']['type'],
@@ -535,19 +540,17 @@ class ZoomMeetingController extends Controller
     }
 
     protected function participantLeftWebhook($zoomData) {
-        ZoomMeetingParticipant::updateOrCreate([
-                'meeting_id' => $zoomData['payload']['object']['id'], 
-                'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
-                'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
-            ],
-            [
-                'name' => $zoomData['payload']['object']['participant']['user_name'],
-                'email' => $zoomData['payload']['object']['participant']['email'],
-                'leave_time' => $zoomData['payload']['object']['participant']['leave_time'] ?? "",
-                'leave_reason' => $zoomData['payload']['object']['participant']['leave_reason'] ?? "",
-            ]
-        );
-        
+        ZoomMeetingParticipant::where([
+            'meeting_id' => $zoomData['payload']['object']['id'], 
+            'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
+            'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
+        ])->update([
+            'name' => $zoomData['payload']['object']['participant']['user_name'],
+            'email' => $zoomData['payload']['object']['participant']['email'],
+            'leave_time' => $zoomData['payload']['object']['participant']['leave_time'] ?? "",
+            'leave_reason' => $zoomData['payload']['object']['participant']['leave_reason'] ?? "",
+        ]);
+
         return response()->json(['message' => 'Participant left successfully', 'code' => 200], 200);
     }
 
@@ -592,6 +595,8 @@ class ZoomMeetingController extends Controller
                         $zoom_meeting_details->download_url = $recordings['download_url'];
                         $zoom_meeting_details->file_size = $recordings['file_size'];
                         $zoom_meeting_details->file_extension = $recordings['file_extension'];
+                        $zoom_meeting_details->recording_start = $recordings['recording_start'];
+                        $zoom_meeting_details->recording_end = $recordings['recording_end'];
                         $zoom_meeting_details->save();
 
                         // Here we can plan recording split logic. 
@@ -602,15 +607,9 @@ class ZoomMeetingController extends Controller
                         $fullRecordingPath = $filePath;
                         $outputPath = $segmentPath; // Output folder for segments
 
-                        // Define your expected meeting start and end times for each day
-                        $expectedMeetingStartTime = '05:00:00'; // Change this to your morning start time
-                        $expectedMeetingEndTime = '23:59:59';   // Change this to your night end time (assuming it ends at midnight)
-                        // Get the current date
-                        $currentDate = Carbon::now()->format('Y-m-d');
-
                         // Calculate the meeting start and end times for today
-                        $meetingStartTime = Carbon::parse("$currentDate $expectedMeetingStartTime");
-                        $meetingEndTime = Carbon::parse("$currentDate $expectedMeetingEndTime");
+                        $recordingStartTime = Carbon::parse($recordings['recording_start']);
+                        $recordingEndTime = Carbon::parse($recordings['recording_end']);
 
                         $meetingParticipants = ZoomMeetingParticipant::where('meeting_id', $zoomDataPayloadObject['id'])->get();
                         if ($meetingParticipants) {
@@ -624,8 +623,8 @@ class ZoomMeetingController extends Controller
                                 \Log::info('leaveTime -->' . $leaveTime);
 
                                 // Calculate the start and end times for the participant's segment
-                                $startTimestamp = max($joinTime, $meetingStartTime)->diff($meetingStartTime)->format('%H:%I:%S');
-                                $endTimestamp = min($leaveTime, $meetingEndTime)->diff($meetingStartTime)->format('%H:%I:%S');
+                                $startTimestamp = max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S');
+                                $endTimestamp = min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S');
 
                                 \Log::info('startTimestamp -->' . $startTimestamp);
                                 \Log::info('endTimestamp -->' . $endTimestamp);
