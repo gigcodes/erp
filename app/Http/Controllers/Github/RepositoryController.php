@@ -43,6 +43,7 @@ use App\Models\DeletedGithubBranchLog;
 use App\Http\Requests\DeleteBranchRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
+use App\Models\GitPullRequestErrorLog;
 
 class RepositoryController extends Controller
 {
@@ -1478,7 +1479,7 @@ class RepositoryController extends Controller
 
             if ($requestData && isset($requestData['action'])) {
                 // Find first or Create PR
-                $pullNumber = '';
+                $pullNumber = $source = $destination = $mergeable_state = '' ;
                 if (isset($requestData['pull_request'])) {
                     $pullNumber = $requestData['pull_request']['number'];
                     $prTitle = $requestData['pull_request']['title'];
@@ -1487,6 +1488,9 @@ class RepositoryController extends Controller
                     $createdBy = $requestData['pull_request']['user']['login'];
                     $body = $requestData['pull_request']['body'];
                     $activityCreatedAt = $requestData['pull_request']['created_at'];
+                    $source = $requestData['pull_request']['head']['ref'];
+                    $destination = $requestData['pull_request']['base']['ref'];
+                    $mergeable_state = $requestData['pull_request']['mergeable_state'];
                 } elseif(isset($requestData['issue'])) {
                     $pullNumber = $requestData['issue']['number'];
                     $prTitle = $requestData['issue']['title'];
@@ -1509,7 +1513,10 @@ class RepositoryController extends Controller
                     'pr_title' => $prTitle,
                     'pr_url' => $prUrl,
                     'state' => $state,
-                    'created_by' => $createdBy
+                    'created_by' => $createdBy,
+                    'source' => $source,
+                    'destination' => $destination,
+                    'mergeable_state' => $mergeable_state
                 ]);
 
                 // Create PR activity
@@ -1542,9 +1549,163 @@ class RepositoryController extends Controller
 
             return response()->json(['message' => 'GitHub Pull Request Stored Successfully'], 200);
         } catch (\Exception $e) {
+            $errorLog = new GitPullRequestErrorLog();   
+            $errorLog->github_repository_id = $requestData['repository']['id'];
+            $errorLog->pull_number = $pullNumber;
+            $errorLog->type = "pull request";
+            $errorLog->error_message = $e->getMessage();
             Log::channel('github_error')->error($e->getMessage());
 
             return response()->json(['message' => 'An error occurred. Please check the logs.'], 500);
         }
+    }
+
+    public function listAllNewPullRequests(Request $request)
+    {
+        $projects = Project::get();
+
+        $repo_names = GithubPullRequest::distinct()->pluck('repo_name');
+        $users = GithubPullRequest::distinct()->pluck('created_by');
+
+        if ($request->ajax()) {
+            ini_set('max_execution_time', -1);
+
+            if($request->repoId !== null) {
+                $repositories = GithubRepository::where('id', $request->repoId)->get();
+            } else {
+                $repositories = GithubRepository::get();
+            }
+            $allPullRequests = [];
+
+            foreach ($repositories as $repository) {
+                $organization = $repository->organization;
+                if($request->repoId !== null) {
+                    $pullRequests = GithubPullRequest::where('github_repository_id', $repository->id)->get();
+                } else {
+                    $pullRequests = GithubPullRequest::get();
+                }
+                foreach ($pullRequests as $key => $pullRequest) {
+                    //Need to execute the detail API as we require the mergeable_state which is only return in the PR detail API.
+                    $pullRequests[$key]['mergeable_state'] = $pullRequest->mergeable_state;
+                    $pullRequests[$key]['conflict_exist'] = $pullRequest->mergeable_state == 'dirty' ? true : false;
+                    // Get Latest Activity for this PR
+                    $pullRequests[$key]['latest_activity'] = [];
+                    $latestGithubPrActivity = GithubPrActivity::latest('activity_id')
+                        ->where('github_organization_id', $organization->id)
+                        ->where('github_repository_id', $repository->id)
+                        ->where('pull_number', $pullRequest->pull_number)
+                        ->first();
+                    if ($latestGithubPrActivity) {
+                        $pullRequests[$key]['latest_activity'] = [
+                            'activity_id' => $latestGithubPrActivity->activity_id,
+                            'user' => $latestGithubPrActivity->user,
+                            'event' => $latestGithubPrActivity->event,
+                            'label_name' => $latestGithubPrActivity->label_name,
+                            'label_color' => $latestGithubPrActivity->label_color,
+                        ];
+                    }
+
+                    // check build process logs
+                    $totalBuildProcessHistoryCount = BuildProcessHistory::where('github_organization_id', $organization->id)
+                        ->where('github_repository_id', $repository->id)
+                        ->where('github_branch_state_name', $pullRequest->source)
+                        ->count();
+
+                    $totalBuildProcessSuccessHistoryCount = BuildProcessHistory::where('github_organization_id', $organization->id)
+                        ->where('github_repository_id', $repository->id)
+                        ->where('github_branch_state_name', $pullRequest->source)
+                        ->where('status', 'SUCCESS')
+                        ->count();
+
+                    $pullRequests[$key]['build_process_history_status'] = '';
+                    if ($totalBuildProcessHistoryCount > 0) {
+                        if ($totalBuildProcessHistoryCount == $totalBuildProcessSuccessHistoryCount) {
+                            $pullRequests[$key]['build_process_history_status'] = 'Success';
+                        } else {
+                            $pullRequests[$key]['build_process_history_status'] = 'Danger';
+                        }
+                    }
+                }
+
+                $pullRequests = $pullRequests->toArray();
+
+                $pullRequests = array_map(
+                    function ($pullRequest) use ($repository) {
+                        $pullRequest['repository'] = $repository;
+
+                        return $pullRequest;
+                    },
+                    $pullRequests
+                );
+
+                $allPullRequests = array_merge($allPullRequests, $pullRequests);
+            }
+
+            return response()->json([
+                'tbody' => view('github.include.new-pull-request-list', compact(['pullRequests', 'projects']))->render(),              
+                'count' => count($pullRequests),
+            ], 200);
+        }
+
+        $githubOrganizations = GithubOrganization::with('repos')->get();
+
+        return view('github.include.new_all_pull_resquest', compact('githubOrganizations','projects','repo_names','users'));
+     }
+
+    public function listAllNewPrActivities(request $request)
+    {
+        $prActivities = new GithubPrActivity();
+
+        $orgs = GithubOrganization::distinct()->pluck('name','id');
+        $repos = GithubRepository::distinct()->pluck('name','id');
+        $users = GithubPrActivity::distinct()->pluck('user');
+        $events = GithubPrActivity::distinct()->pluck('event');
+        $eventHeaders = GithubPrActivity::distinct()->pluck('event_header');
+        $labelNames = GithubPrActivity::distinct()->pluck('label_name');
+        $pullNumbers = GithubPrActivity::distinct()->pluck('pull_number');
+
+        $repositories = \App\Github\GithubRepository::All();
+        $organizations = \App\Github\GithubOrganization::All();
+        $projects = \App\Models\Project::All();
+        $branches = \App\Github\GithubBranchState::All();
+
+
+        if ($request->org) {
+            $prActivities = $prActivities->WhereIn('github_organization_id', $request->org);
+        }
+        if ($request->user) {
+            $prActivities = $prActivities->WhereIn('user', $request->user);
+        }
+        if ($request->repo) {
+            $prActivities = $prActivities->WhereIn('github_repository_id', $request->repo);
+        }
+        if ($request->pull_number) {
+            $prActivities = $prActivities->WhereIn('pull_number', $request->pull_number);
+        }
+        if ($request->event) {
+            $prActivities = $prActivities->whereIn('event', $request->event);
+        }
+        if ($request->event_header) {
+            $prActivities = $prActivities->whereIn('event_header', $request->event_header);
+        }
+        if ($request->label_name) {
+            $prActivities = $prActivities->whereIn('label_name', $request->label_name);
+        }
+        if ($request->description) {
+            $prActivities = $prActivities->where('description', 'LIKE', '%' . $request->description . '%');
+        }
+        if ($request->body) {
+            $prActivities = $prActivities->where('body', 'LIKE', '%' . $request->body . '%');
+        }
+        if ($request->activity_date) {
+            $prActivities = $prActivities->where('activity_created_at', 'LIKE', '%' . $request->activity_date . '%');
+        }
+        if ($request->date) {
+            $prActivities = $prActivities->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
+
+        return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders','labelNames','pullNumbers','organizations','repositories','projects','branches'));
     }
 }

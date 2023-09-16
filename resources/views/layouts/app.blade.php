@@ -3728,6 +3728,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
+                                                        href="{{ url('/github/new-pullRequests') }}">New Pull requests</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/new-pr-activities') }}">New PR Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
                                                         href="{{ url('/github/sync') }}">Synchronise from online</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
