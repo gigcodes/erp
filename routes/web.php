@@ -1706,6 +1706,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('meeting/list/recordings/{id}', [Meeting\ZoomMeetingController::class, 'listRecordings'])->name('meeting.list.recordings');
     Route::post('meeting/update-description', [Meeting\ZoomMeetingController::class, 'updateMeetingDescription'])->name('meeting.description.update');
     Route::get('meeting/download-recordings/{id}', [Meeting\ZoomMeetingController::class, 'downloadRecords'])->name('meeting.download.file');
+    Route::post('meeting/download-recordings/permission', [Meeting\ZoomMeetingController::class, 'addUserPermission'])->name('meeting.add.user.permission');
+    Route::get('recording-description/histories', [Meeting\ZoomMeetingController::class, 'listDescriptionHistory'])->name('recording.description.show');
+    Route::post('meeting-description', [Meeting\ZoomMeetingController::class, 'storeMeetingDescription'])->name('meeting.store.description');
+    Route::get('meeting-description/histories', [Meeting\ZoomMeetingController::class, 'meetingDescriptionHistory'])->name('meeting.description.show');
+    Route::get('/videos/recoirding-show', [Meeting\ZoomMeetingController::class,'showVideo'])->name('recording.video.show');
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {
