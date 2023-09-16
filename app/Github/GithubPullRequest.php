@@ -17,6 +17,9 @@ class GithubPullRequest extends Model
         'pr_url',
         'state',
         'created_by',
+        'source',
+        'destination',
+        'mergeable_state',
     ];
 
 }
