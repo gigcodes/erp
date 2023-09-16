@@ -297,6 +297,11 @@ Route::group([
         Route::get('/histories', [PageController::class, 'histories'])->name('store-website.page.histories');
         Route::put('/store-platform-id', [PageController::class, 'store_platform_id'])->name('store_website_page.store_platform_id');
         Route::post('/copy-to', [PageController::class, 'copyTo'])->name('store_website_page.copy.to');
+        Route::post('/store-website/status-create', [PageController::class, 'statusCreate'])->name('store_website_page.status');
+        Route::post('/store-website/status/color-update', [PageController::class, 'StatusColorUpdate'])->name('todolist-color-update');
+        Route::get('/store-website/status-update', [PageController::class, 'websiteStatusUpdate'])->name('store_website_status-update');
+        Route::get('store-website/status-history', [PageController::class,'statusHistoryList'])->name('store_website-status-history-list');
+
     });
 
     Route::group(['prefix' => 'category-seo'], function () {

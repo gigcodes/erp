@@ -34,6 +34,7 @@ use App\Models\MagentoModuleUnitTestStatus;
 use App\Models\MagentoModuleUnitTestStatusHistory;
 use App\Models\MagentoModuleUnitTestUserHistory;
 use App\Models\MagentoModuleUnitTestRemarkHistory;
+use App\Models\ColumnVisbility;
 
 class MagentoModuleController extends Controller
 {
@@ -69,6 +70,10 @@ class MagentoModuleController extends Controller
         $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
         $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
         $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
+        //get column visbilities
+        $columns = ColumnVisbility::select('columns')->where('user_id',auth()->user()->id)->first();
+        $hideColumns = $columns->columns ?? "";
+
         $moduleNames = MagentoModule::with(['lastRemark'])
             ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
             ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
@@ -168,7 +173,7 @@ class MagentoModuleController extends Controller
         $store_websites = $store_websites->pluck('website', 'id');
         $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
 
-        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors','unit_test_status'));
+        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors','unit_test_status','hideColumns'));
         // }
     }
 
@@ -189,6 +194,10 @@ class MagentoModuleController extends Controller
         $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
         $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
         $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
+        
+        //get column visbilities
+        $columns = ColumnVisbility::select('columns')->where('user_id',auth()->user()->id)->first();
+        $hideColumns = $columns->columns ?? "";
 
 
         $items = MagentoModule::with(['lastRemark'])
@@ -267,7 +276,7 @@ class MagentoModuleController extends Controller
 
         $items->groupBy('magento_modules.module');
 
-        return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('m2_error_status', $m2_error_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->addColumn('m2_error_status_array', $m2_error_status_array)->addColumn('unit_test_status', $unit_test_status)->toJson();
+        return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('m2_error_status', $m2_error_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->addColumn('m2_error_status_array', $m2_error_status_array)->addColumn('unit_test_status', $unit_test_status)->addColumn('hideColumns', $hideColumns)->toJson();
     }
 
     /**
@@ -1416,6 +1425,29 @@ class MagentoModuleController extends Controller
         return response()->json([
             'status' => true,
             'message' => " Unit test remark Added Successfully",
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {
+         $userCheck = ColumnVisbility::where('user_id',auth()->user()->id)->first();
+
+         if($userCheck)
+         {
+           $column = ColumnVisbility::find($userCheck->id);
+           $column->columns = json_encode($request->columns); 
+           $column->save();
+         } else {
+            $column = new ColumnVisbility();
+            $column->columns = json_encode($request->columns); 
+            $column->user_id =  Auth::user()->id ;
+            $column->save();
+         }
+       
+         return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
             'status_name' => 'success',
         ], 200);
     }
