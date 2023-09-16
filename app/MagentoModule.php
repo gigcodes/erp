@@ -48,6 +48,10 @@ class MagentoModule extends Model
         'return_type_error_status',
         'm2_error_status_id',
         'm2_error_assignee',
+        'm2_error_remark',
+        'unit_test_status_id',
+        'unit_test_remark',
+        'unit_test_user_id'
     ];
 
     public function module_category()
@@ -125,5 +129,48 @@ class MagentoModule extends Model
         }
 
         return $colour;
+    }
+
+    public function getColumns()
+    {
+        $columns = [
+            '0' => 'Id',
+            '1' => 'Remark',
+            '2' => 'Category',
+            '3' => 'Description',
+            '4' => 'Name',
+            '5' => 'Location',
+            '6' => 'Used At',
+            '7' => 'API',
+            '8' => 'Cron',
+            '9' => 'Version',
+            '10' => 'Type',
+            '11' => 'Payment Status',
+            '12' => 'Status',
+            '13' => 'Dev Verified By',
+            '14' => 'Dev Verified Status',
+            '15' => 'Lead Verified By',
+            '16' => 'Lead Verified Status	',
+            '17' => 'Developer Name',
+            '18' => 'Customized',
+            '19' => 'js/css',
+            '20' => '3rd Party Js',
+            '21' => 'Sql',
+            '22' => '3rd Party plugin',
+            '23' => 'Site Impact',
+            '24' => 'Review Standard',
+            '25' => 'Return Type Error',
+            '26' => 'Return Type Error Status',
+            '27' => 'M2 Error Status',
+            '28' => 'M2 Error Remark',
+            '29' => 'M2 Error Assignee',
+            '30' => 'Unit Test status',
+            '31' => 'Unit Test Remark',
+            '32' => 'Unit test User',
+            '33' => 'Dependancies',
+            '34' => 'Action',
+        ];
+
+        return $columns;
     }
 }

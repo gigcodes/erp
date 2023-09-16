@@ -18,8 +18,15 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Meetings\ZoomMeetings;
 use App\Http\Controllers\Controller;
+use App\Meetings\ZoomApiLog;
+use App\Meetings\ZoomMeetingDetails;
+use App\Meetings\ZoomMeetingParticipant;
+use App\ZoomOAuthHelper;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 use seo2websites\LaravelZoom\LaravelZoom;
+use App\Models\ZoomMeetingRecordHistory;
+use App\Models\ZoomMeetingHistory;
 
 /**
  * Class ZoomMeetingController - active record
@@ -209,16 +216,199 @@ class ZoomMeetingController extends Controller
         ]);
     }
 
-    public function allMeetings()
+    public function allMeetings(Request $request)
     {
-        $meetings = ZoomMeetings::join('vendors', 'zoom_meetings.user_id', '=', 'vendors.id')
-        ->select('zoom_meetings.*', 'vendors.name', 'vendors.phone', 'vendors.email', 'vendors.whatsapp_number')
-        ->orderBy('zoom_meetings.start_date_time', 'DESC')
-        ->get();
+        $zoomMeetings = new ZoomMeetings();
+
+        $zoomMeetingIds = ZoomMeetings::distinct()->pluck('meeting_id');
+        $timeZones = ZoomMeetings::distinct()->pluck('timezone');
+
+        if ($request->meeting_topic) {
+            $zoomMeetings = $zoomMeetings->where('meeting_topic', 'LIKE', '%' . $request->meeting_topic . '%');
+        }
+        if ($request->meeting_agenda) {
+            $zoomMeetings = $zoomMeetings->where('meeting_agenda', 'LIKE', '%' . $request->meeting_agenda . '%');
+        }
+        if ($request->meeting_ids) {
+            $zoomMeetings = $zoomMeetings->WhereIn('meeting_id', $request->meeting_ids);
+        }
+        if ($request->time_zone) {
+            $zoomMeetings = $zoomMeetings->WhereIn('timezone', $request->time_zone);
+        }
+        if ($request->duration) {
+            $zoomMeetings = $zoomMeetings->where('meeting_duration', 'LIKE', '%' . $request->duration . '%');
+        }
+        if ($request->date) {
+            $zoomMeetings = $zoomMeetings->where('start_date_time', 'LIKE', '%' . $request->date . '%');
+        }
+
+        $meetings = $zoomMeetings->orderBy('zoom_meetings.start_date_time', 'DESC')->paginate(10);
+
 
         return view('zoom-meetings.index', [
             'meetingData' => $meetings,
+            'zoomMeetingIds' => $zoomMeetingIds,
+            'timeZones' => $timeZones,
         ]);
+    }
+
+    public function fetchRecordings(Request $request)
+    {
+        $tokenResponse = ZoomOAuthHelper::getAccessToken();
+        
+        if (isset($tokenResponse['access_token'])) {
+            $accessToken = $tokenResponse['access_token'];
+            $recordingURL = 'https://api.zoom.us/v2/meetings/' . $request->meetingId . '/recordings';
+
+            try {
+                // Fetch recordings for this meeting
+                $recordingsResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ])->get($recordingURL);
+    
+                // Log the API request and response to the database
+                ZoomApiLog::create([
+                    'type' => 'recording',
+                    'request_url' => $recordingURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => $recordingsResponse->status(),
+                    'response_data' => json_encode($recordingsResponse->json()),
+                ]);
+    
+                if ($recordingsResponse->successful()) {
+                    $meetingRecording = $recordingsResponse->json();
+
+                    \Log::info('meetingRecording -->' . json_encode($meetingRecording));
+        
+                    // Code copied from app/Meetings/ZoomMeetings.php:saveRecordings()
+                    if ($meetingRecording && isset($meetingRecording['recording_files'])) {
+                        $folderPath = public_path() . '/zoom/0/' . $request->meetingId;
+                        $databsePath = '/zoom/0/' . $request->meetingId;
+                        \Log::info('folderPath -->' . $folderPath);
+                        foreach ($meetingRecording['recording_files'] as $recordings) {
+                            $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
+                            if (! $checkfile) {
+                                if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
+                                    \Log::info('shared_screen_with_speaker_view');
+                                    $fileName = $request->meetingId . '_' . time() . '.mp4';
+                                    $urlOfFile = $recordings['download_url'];
+                                    $filePath = $folderPath . '/' . $fileName;
+                                    if (! file_exists($filePath) && ! is_dir($folderPath)) {
+                                        mkdir($folderPath, 0777, true);
+                                    }
+                                    $ch = curl_init($urlOfFile);
+                                    curl_exec($ch);
+                                    if (! curl_errno($ch)) {
+                                        $info = curl_getinfo($ch);
+                                        $downloadLink = $info['redirect_url'];
+                                    }
+                                    curl_close($ch);
+        
+                                    if ($downloadLink) {
+                                        copy($downloadLink, $filePath);     
+                                    }
+        
+                                    $zoom_meeting_details = new ZoomMeetingDetails();
+                                    $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
+                                    $zoom_meeting_details->file_name = $fileName;
+                                    $zoom_meeting_details->download_url_id = $recordings['id'];
+                                    $zoom_meeting_details->meeting_id = $recordings['meeting_id'];
+                                    $zoom_meeting_details->file_type = $recordings['file_type'];
+                                    $zoom_meeting_details->download_url = $recordings['download_url'];
+                                    // $zoom_meeting_details->file_path = $recordings['file_path']; // this field for Zoom On-Premise accounts.
+                                    $zoom_meeting_details->file_size = $recordings['file_size'];
+                                    $zoom_meeting_details->file_extension = $recordings['file_extension'];
+                                    $zoom_meeting_details->save();
+                                }
+                            }
+                        }
+                    }
+
+                    return response()->json(['message' => 'Recordings fetched successfully', 'code' => 200]);
+                } else {
+                    // $errorMessage = $recordingsResponse->body();
+                    return response()->json(['message' => 'An error occurred while fetch the zoom recordings, Please check the logs', 'code' => 500], 500);
+                }
+            } catch (\Exception $e) {
+                // Log the exception to the database
+                ZoomApiLog::create([
+                    'type' => 'recording',
+                    'request_url' => $recordingURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => 500, // Set an appropriate status code for errors
+                    'response_data' => json_encode(['error' => $e->getMessage()]),
+                ]);
+
+                return response()->json(['message' => 'An error occurred while fetch the zoom recordings, Please check the logs', 'code' => 500], 500);
+            }
+        }
+    }
+
+    public function fetchParticipants(Request $request)
+    {
+        $tokenResponse = ZoomOAuthHelper::getAccessToken();
+        
+        if (isset($tokenResponse['access_token'])) {
+            $accessToken = $tokenResponse['access_token'];
+            $participantURL = 'https://api.zoom.us/v2/past_meetings/' . $request->meetingId . '/participants';
+
+            try {
+                // Fetch participants for this meeting
+                $participantsResponse = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ])->get($participantURL);
+
+    
+                // Log the API request and response to the database
+                ZoomApiLog::create([
+                    'type' => 'participant',
+                    'request_url' => $participantURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => $participantsResponse->status(),
+                    'response_data' => json_encode($participantsResponse->json()),
+                ]);
+    
+                if ($participantsResponse->successful()) {
+                    $participants = $participantsResponse->json();
+
+                    if ($participants['total_records'] > 0) {
+                        // Store participants in the participants table
+                        foreach ($participants['participants'] as $participant) {
+                            ZoomMeetingParticipant::updateOrCreate(
+                                ['meeting_id' => $request->meetingId, 'email' => $participant['user_email']],
+                                [
+                                    'name' => $participant['name'],
+                                    'join_time' => $participant['join_time'],
+                                    'leave_time' => $participant['leave_time'],
+                                    'duration' => $participant['duration']
+                                ]
+                            );
+                        }
+                    }
+
+                    return response()->json(['message' => 'Participants fetched successfully', 'code' => 200]);
+                } else {
+                    // $errorMessage = $recordingsResponse->body();
+                    return response()->json(['message' => 'An error occurred while fetch the zoom participants, Please check the logs', 'code' => 500], 500);
+                }
+            } catch (\Exception $e) {
+                // Log the exception to the database
+                ZoomApiLog::create([
+                    'type' => 'participant',
+                    'request_url' => $participantURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => 500, // Set an appropriate status code for errors
+                    'response_data' => json_encode(['error' => $e->getMessage()]),
+                ]);
+
+                return response()->json(['message' => 'An error occurred while fetch the zoom participants, Please check the logs', 'code' => 500], 500);
+            }
+        }
+        
     }
 
     public function show()
@@ -233,4 +423,170 @@ class ZoomMeetingController extends Controller
             'type' => $type,
         ]);
     }
+
+    public function listParticipants(Request $request)
+    {
+        $perPage = 5;
+
+        $participants = ZoomMeetingParticipant::where('meeting_id', $request->meetingId)
+        ->latest()
+        ->paginate($perPage);
+
+        $html = view('zoom-meetings.participations-listing-modal-html')->with('participants', $participants)->render();
+
+        return response()->json(['code' => 200, 'data' => $participants, 'html' => $html, 'message' => 'Content render']);
+    }
+
+    public function listErrorLogs(Request $request)
+    {
+        $zoomApiLogs = new ZoomApiLog();
+
+        $zoomApiLogTypes = ZoomApiLog::distinct()->pluck('type');
+        $zoomrequestUrls = ZoomApiLog::distinct()->pluck('request_url','id');
+
+        if ($request->response_status) {
+            $zoomApiLogs = $zoomApiLogs->where('response_data', 'LIKE', '%' . $request->response_status . '%');
+        }
+        if ($request->search_status) {
+            $zoomApiLogs = $zoomApiLogs->where('response_status', 'LIKE', '%' . $request->search_status . '%');
+        }
+        if ($request->zoom_type) {
+            $zoomApiLogs = $zoomApiLogs->WhereIn('type', $request->zoom_type);
+        }
+        if ($request->req_urls) {
+            $zoomApiLogs = $zoomApiLogs->WhereIn('id', $request->req_urls);
+        }
+        if ($request->date) {
+            $zoomApiLogs = $zoomApiLogs->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        
+        $zoomApiLogs = $zoomApiLogs->latest()->paginate(\App\Setting::get('pagination', 10));
+
+        return view('zoom-meetings.zoom-error-logs', compact('zoomApiLogs','zoomApiLogTypes','zoomrequestUrls'));
+    }
+
+    public function listRecordings($meetingId)
+    {
+
+        $zoomRecordings = new ZoomMeetingDetails();
+        
+        $zoomRecordings = $zoomRecordings->where('meeting_id', $meetingId)->latest()->paginate(\App\Setting::get('pagination', 10));
+        
+        return view('zoom-meetings.zoom-recodring-list', compact('zoomRecordings'));
+    }
+
+    public function updateMeetingDescription(Request $request)
+    {
+        $meetingdata = ZoomMeetingDetails::find($request->id);
+        $meetingOldDescription = $meetingdata->description;
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+
+        $zoomMeetingHistory = new ZoomMeetingRecordHistory();
+        $zoomMeetingHistory->zoom_meeting_record_id = $meetingdata->id;
+        $zoomMeetingHistory->type = "description";
+        $zoomMeetingHistory->oldvalue = $meetingOldDescription;
+        $zoomMeetingHistory->newvalue=$request->description;
+        $zoomMeetingHistory->user_id = \Auth::id();
+        $zoomMeetingHistory->save();
+
+        return response()->json(['code' => 200, 'message' => 'Meeting Added SuccessFully'], 200);
+    }
+
+    public function downloadRecords($id)
+    {
+        $fileName = ZoomMeetingDetails::find($id);
+        $file_name = basename($fileName->local_file_path);
+        $meetingId = $fileName->meeting_id;
+
+        $filePath = public_path("zoom/0/$meetingId/$file_name");
+
+        if (file_exists($filePath)) {
+            return Response::download($filePath);
+        } else {
+            abort(404, 'The file you are trying to download does not exist.');
+        }
+    }
+
+    public function addUserPermission(Request $request)
+    {
+        $zoomRecord = ZoomMeetingDetails::find($request->record_id);
+        $zoomRecord->user_record_permission = $request->user_record_permission;
+        $zoomRecord->save(); 
+
+        return response()->json(['code' => 200, 'message' => 'records View Permission Added SuccessFully'], 200);
+
+    }
+
+    public function listDescriptionHistory(Request $request)
+    {
+
+        $histories = ZoomMeetingRecordHistory::with(['user'])
+        ->where('zoom_meeting_record_id', $request->id)
+        ->Where('type', $request->type)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function storeMeetingDescription(Request $request)
+    {
+        $meetingdata = ZoomMeetings::find($request->id);
+        $meetingOldDescription = $meetingdata->description;
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+
+        $zoomMeetingHistory = new ZoomMeetingHistory();
+        $zoomMeetingHistory->zoom_meeting_id = $meetingdata->id;
+        $zoomMeetingHistory->type = "description";
+        $zoomMeetingHistory->oldvalue = $meetingOldDescription;
+        $zoomMeetingHistory->newvalue=$request->description;
+        $zoomMeetingHistory->user_id = \Auth::id();
+        $zoomMeetingHistory->save();
+
+        return response()->json(['code' => 200, 'message' => 'Meeting Added SuccessFully'], 200);
+    }
+
+
+    public function meetingDescriptionHistory(Request $request)
+    {
+
+        $histories = ZoomMeetingHistory::with(['user'])
+        ->where('zoom_meeting_id', $request->id)
+        ->Where('type', $request->type)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function showVideo(Request $request)
+    {
+        $fileName = ZoomMeetingDetails::find($request->id);
+        $file_name = basename($fileName->local_file_path);
+        $meetingId = $fileName->meeting_id;
+
+        $videoUrl = "zoom/0/$meetingId/$file_name";
+
+        $mime_type = mime_content_type($videoUrl);
+        if ($mime_type !== 'video/mp4') {
+            abort(404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'videoUrl' => asset($videoUrl),
+            'message' => 'Successfully preview the Video',
+            'status_name' => 'success',
+        ], 200);
+   }
+
+    
 }

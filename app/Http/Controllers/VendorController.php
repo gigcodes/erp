@@ -334,6 +334,15 @@ class VendorController extends Controller
         return response()->json($search);
     }
 
+    public function vendorSearchEmail()
+    {
+        $term = request()->get('q', null);
+        $search = Vendor::where('email', 'LIKE', '%' . $term . '%')
+            ->get();
+
+        return response()->json($search);
+    }
+    
     public function vendorSearchPhone()
     {
         $term = request()->get('q', null);
@@ -1500,6 +1509,13 @@ class VendorController extends Controller
     public function refreshMeetingList(Request $request)
     {
         \Artisan::call('save:zoom-meetings');
+
+        return redirect()->back();
+    }
+
+    public function syncMeetingsRecordings(Request $request)
+    {
+        \Artisan::call('zoom:meetings-sync');
 
         return redirect()->back();
     }

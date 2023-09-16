@@ -128,6 +128,8 @@ class EventController extends Controller
         $vendorName = $request->get('vendor_name');
         $vendorEmail = $request->get('vendor_email');
         $vendorPhone = $request->get('vendor_phone');
+        $recurringType = $request->get('recurring_type');
+
 
         $errors = [];
         if (empty(trim($name))) {
@@ -206,6 +208,7 @@ class EventController extends Controller
         $event->event_category_id = $eventcategoryId;
         $event->event_user_id = $eventuserId;
         $event->vendor_id = $vendorId;
+        $event->recuring_type = $recurringType;
         $event->save();
 
         // Event Availabilities
@@ -461,12 +464,19 @@ class EventController extends Controller
             $startDate = new Carbon($userPrivateEvent->start_date);
             $endDate = new Carbon($eventEndDate);
 
+            if($userPrivateEvent->recuring_type)
+            {
+                $eventTitle = $userPrivateEvent->name . ' - ' . $userPrivateEvent->recuring_type;
+            }else {
+                $eventTitle = $userPrivateEvent->name;
+            }
+            
             while ($startDate->lte($endDate)) {
                 if ($startDate->format('N') == $userPrivateEvent->numeric_day) {
                     $userPrivateEventCollection->push((object) [
                         'event_id' => $userPrivateEvent->id,
                         'subject' => $userPrivateEvent->name,
-                        'title' => $userPrivateEvent->name,
+                        'title' => $eventTitle,
                         'description' => $userPrivateEvent->description,
                         'start' => $startDate->toDateString() . ' ' . $userPrivateEvent->start_at,
                         'end' => $startDate->toDateString() . ' ' . $userPrivateEvent->end_at,

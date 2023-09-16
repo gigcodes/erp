@@ -12,6 +12,8 @@ use App\Models\MagentoFrontendChildFolder;
 use App\Models\MagentoFrontendParentFolder;
 use App\Models\MagentoFrontendDocumentation;
 use App\Models\MagentoFrontendCategoryHistory;
+use App\Jobs\MagnetoGoogledriveUpload;
+use Exception;
 
 class MagentoFrontendDocumentationController extends Controller
 {
@@ -37,10 +39,10 @@ class MagentoFrontendDocumentationController extends Controller
                 $items->where('magento_frontend_docs.admin_configuration', 'LIKE', '%' . $request->admin_configuration . '%');
             }
             if (isset($request->location)) {
-                $items->where('magento_frontend_docs.location', 'LIKE', '%' . $request->location . '%');
+                $items->whereIn('magento_frontend_docs.location', $request->location);
             }
             if (isset($request->categoryname)) {
-                $items->where('magento_frontend_docs.store_website_category_id', $request->categoryname);
+                $items->whereIn('magento_frontend_docs.store_website_category_id', $request->categoryname);
             }
 
             return datatables()->eloquent($items)->addColumn('categories', $storecategories)->toJson();
@@ -208,7 +210,8 @@ class MagentoFrontendDocumentationController extends Controller
     public function magentofrontendOptions(Request $request)
     {
         $oldData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
-        $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data]);
+        $updateMagentoModule = MagentoFrontendDocumentation::where('id', (int) $request->id)->update([$request->columnName => $request->data,'user_id' => \Auth::id()]);
+
         $newData = MagentoFrontendDocumentation::where('id', (int) $request->id)->first();
 
         if ($request->columnName == 'store_website_category_id') {
@@ -245,6 +248,7 @@ class MagentoFrontendDocumentationController extends Controller
         $oldData->frontend_configuration = $request->frontend_configuration;
         $oldData->child_folder = $request->child_folder;
         $oldData->parent_folder = $request->parent_folder;
+        $oldData->user_id =  \Auth::id();
         $oldData->save();
 
         if ($request->hasFile('child_folder_image')) {
@@ -287,7 +291,7 @@ class MagentoFrontendDocumentationController extends Controller
 
         if ($oldFrontEndConfig != $request->frontend_configuration)
         {
-            $magnetohistory->old_frontend_configuration = $oldAdminConfig;
+            $magnetohistory->old_frontend_configuration = $oldFrontEndConfig;
             $magnetohistory->frontend_type = "FrontEndConfig";
             $magnetohistory->save();
         }
@@ -360,54 +364,82 @@ class MagentoFrontendDocumentationController extends Controller
 
     public function magentofrontendparentFolderImage(Request $request)
     {
-        $parentImage = new MagentoFrontendParentFolder();
+       
+        $magentofrontenddoc = MagentoFrontendDocumentation::find($request->magento_frontend_id);
 
-        if ($request->hasFile('parent_folder_image')) {
-            $file = $request->file('parent_folder_image');
-            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
-            $destinationPath = public_path('/magentofrontend-parent-image');
-            $file->move($destinationPath, $name);
+       if ($magentofrontenddoc) {
+            $FrontendId = $request->magento_frontend_id;
+            $newData = $magentofrontenddoc->parent_google_file_drive_id ?? '';
+            $columnname = 'parentFolder';
+        
+            $magnetohistory = new MagentoFrontendHistory();
+            $magnetohistory->magento_frontend_docs_id = $FrontendId;
+            $magnetohistory->column_name = $columnname;
+            $magnetohistory->new_value = $newData;     
+            $magnetohistory->updated_by = \Auth::id();
+            $magnetohistory->save();
+        
+            if ($request->hasFile('parent_folder_image')) {
+                foreach ($request->parent_folder_image as $file) {
+                    $magentofrontenddoc->parent_file_name = $file->getClientOriginalName();
+                    $magentofrontenddoc->parent_extension = $file->extension();
+                    $magentofrontenddoc->save();
+                    MagnetoGoogledriveUpload::dispatchNow($magentofrontenddoc, $file);
+                    $magnetohistory = MagentoFrontendHistory::find($magnetohistory->id);
+                    $magnetohistory->new_value = $magentofrontenddoc->parent_google_file_drive_id;
+                    $magnetohistory->file_name = $file->getClientOriginalName();
+                    $magnetohistory->save();
+                }
+                return response()->json([
+                    'status' => true,
+                    'data' => $magnetohistory,
+                    'message' => 'magneto frontend Parent Image Added succesfully',
+                    'status_name' => 'success',
+                ], 200);
+            }
         } else {
-            $name = null;
+            return response()->json([
+                'status' => false,
+                'message' => 'magneto frontend Parent Image Added succesfully',
+                'status_name' => 'failed',
+            ], 200);        
         }
-
-        $parentImage->parent_image = $name;
-        $parentImage->type = 'image';
-        $parentImage->magento_frontend_docs_id = $request->magento_frontend_id;
-        $parentImage->user_id = \Auth::id();
-        $parentImage->save();
-
-        return response()->json([
-            'status' => true,
-            'data' => $parentImage,
-            'message' => 'magneto frontend Parent Image Added succesfully',
-            'status_name' => 'success',
-        ], 200);
     }
 
     public function magentofrontendChildImage(Request $request)
     {
-        $childImage = new MagentoFrontendChildFolder();
+        $magentofrontenddoc = MagentoFrontendDocumentation::find($request->magento_frontend_id);
+
+        $frontendId = $request->magento_frontend_id;
+        $newData = $magentofrontenddoc->google_drive_file_id;
+        $columnname = 'childFolder';
+
+        $magnetohistory = new MagentoFrontendHistory();
+        $magnetohistory->magento_frontend_docs_id = $frontendId;
+        $magnetohistory->column_name = $columnname;
+        $magnetohistory->new_value = $newData;     
+        $magnetohistory->updated_by = \Auth::id();
+        $magnetohistory->save();
+
 
         if ($request->hasFile('child_folder_image')) {
-            $file = $request->file('child_folder_image');
-            $name = uniqid() . time() . '.' . $file->getClientOriginalExtension();
-            $destinationPath = public_path('/magentofrontend-child-image');
-            $file->move($destinationPath, $name);
-        } else {
-            $name = null;
-        }
+            foreach ($request->child_folder_image as $file) {
+                $magentofrontenddoc->child_file_name = $file->getClientOriginalName();
+                $magentofrontenddoc->child_extension = $file->extension();
 
-        $childImage->child_image = $name;
-        $childImage->type = 'image';
-        $childImage->magento_frontend_docs_id = $request->magento_frontend_id;
-        $childImage->user_id = \Auth::id();
-        $childImage->save();
+                $magentofrontenddoc->save();
+                MagnetoGoogledriveUpload::dispatchNow($magentofrontenddoc, $file);
+                $magnetohistory = MagentoFrontendHistory::find($magnetohistory->id);
+                $magnetohistory->new_value =  $magentofrontenddoc->google_drive_file_id;
+                $magnetohistory->file_name = $file->getClientOriginalName();;
+                $magnetohistory->save();
+            }
+        }
 
         return response()->json([
             'status' => true,
-            'data' => $childImage,
-            'message' => 'magneto frontend Child Image Added succesfully',
+            'data' => $magentofrontenddoc,
+            'message' => 'magneto frontend Child document Added succesfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -451,6 +483,34 @@ class MagentoFrontendDocumentationController extends Controller
         $magenotoFrontend->delete();
 
         return response()->json(['message' => 'Magento frontend deleted successfully.']);
+    }
+
+    public function frontnedUploadedFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if (isset($request->id)) {
+                $result = MagentoFrontendHistory::where('column_name', $request->type)
+                        ->where('magento_frontend_docs_id', $request->id)
+                        ->whereNotNull('new_value')
+                        ->orderBy('id', 'desc')
+                        ->get();
+
+                if (isset($result) && count($result) > 0) {
+                    $result = $result->toArray();
+                }
+
+                return response()->json([
+                    'data' => view('magento-frontend-documentation.upload-file-listing', compact('result'))->render(),
+                ]);
+            } else {
+                throw new Exception('Task not found');
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'data' => view('magento-frontend-documentation.upload-file-listing', ['result' => null])->render(),
+            ]);
+        }
     }
 
     protected function saveCategoryHistory($magentoFrontEnd, $oldCategoryId, $newCategoryId)

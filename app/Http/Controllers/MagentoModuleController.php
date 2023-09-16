@@ -29,6 +29,12 @@ use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
 use App\MagentoModuleM2ErrorAssigneeHistory;
 use App\Models\MagentoModuleM2ErrorStatus;
 use App\Models\MagentoModuleM2ErrorStatusHistory;
+use App\Models\MagentoModuleM2RemarkHistory;
+use App\Models\MagentoModuleUnitTestStatus;
+use App\Models\MagentoModuleUnitTestStatusHistory;
+use App\Models\MagentoModuleUnitTestUserHistory;
+use App\Models\MagentoModuleUnitTestRemarkHistory;
+use App\Models\ColumnVisbility;
 
 class MagentoModuleController extends Controller
 {
@@ -63,6 +69,11 @@ class MagentoModuleController extends Controller
         $verified_status_array = $verified_status->pluck('name', 'id');
         $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
         $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
+        $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
+        //get column visbilities
+        $columns = ColumnVisbility::select('columns')->where('user_id',auth()->user()->id)->first();
+        $hideColumns = $columns->columns ?? "";
+
         $moduleNames = MagentoModule::with(['lastRemark'])
             ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
             ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
@@ -162,7 +173,7 @@ class MagentoModuleController extends Controller
         $store_websites = $store_websites->pluck('website', 'id');
         $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
 
-        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors'));
+        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors','unit_test_status','hideColumns'));
         // }
     }
 
@@ -181,6 +192,13 @@ class MagentoModuleController extends Controller
         $store_websites = StoreWebsite::select('website', 'id')->get();
         $verified_status = MagentoModuleVerifiedStatus::select('name', 'id', 'color')->get();
         $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
+        $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
+        $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
+        
+        //get column visbilities
+        $columns = ColumnVisbility::select('columns')->where('user_id',auth()->user()->id)->first();
+        $hideColumns = $columns->columns ?? "";
+
 
         $items = MagentoModule::with(['lastRemark'])
                 ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
@@ -252,9 +270,13 @@ class MagentoModuleController extends Controller
         if (isset($request->return_type_error_status)) {
             $items->where('magento_modules.return_type_error_status', $request->return_type_error_status);
         }
+        if (isset($request->m2_error_status_id)) {
+            $items->whereIn('magento_modules.m2_error_status_id', $request->m2_error_status_id);
+        }
+
         $items->groupBy('magento_modules.module');
 
-        return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('m2_error_status', $m2_error_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
+        return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('m2_error_status', $m2_error_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->addColumn('m2_error_status_array', $m2_error_status_array)->addColumn('unit_test_status', $unit_test_status)->addColumn('hideColumns', $hideColumns)->toJson();
     }
 
     /**
@@ -571,6 +593,16 @@ class MagentoModuleController extends Controller
         if ($request->columnName == 'm2_error_assignee') {
             $oldStatusId = $oldData->m2_error_assignee;
             $this->saveM2ErrorAssigneeHistory($oldData, $oldStatusId, $request->data);
+        }
+
+        if ($request->columnName == 'unit_test_status_id') {
+            $oldStatusId = $oldData->unit_test_status_id;
+            $this->saveUnitTeststatusHistory($oldData, $oldStatusId, $request->data);
+        }
+
+        if ($request->columnName == 'unit_test_user_id') {
+            $oldStatusId = $oldData->unit_test_user_id;
+            $this->saveUnitTestUserHistory($oldData, $oldStatusId, $request->data);
         }
 
         if ($request->columnName == 'api') {
@@ -1035,6 +1067,33 @@ class MagentoModuleController extends Controller
         }
     }
 
+    public function storeUnitTestStatus(Request $request)
+    {
+        $this->validate($request, [
+            'unit_test_status_name' => 'required|max:150|unique:magento_modules_unit_test_statuses',
+        ]);
+
+        $input = $request->except(['_token']);
+
+        $data = MagentoModuleUnitTestStatus::create($input);
+
+        if ($data) {
+            return response()->json([
+                'status' => true,
+                'data' => $data,
+                'message' => 'Stored successfully',
+                'status_name' => 'success',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'something error occurred',
+                'status_name' => 'error',
+            ], 500);
+        }
+    }
+
+
     protected function saveVerifiedStatusHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
     {
         $history = new MagentoModuleVerifiedStatusHistory();
@@ -1067,6 +1126,30 @@ class MagentoModuleController extends Controller
         $history->magento_module_id = $magentoModule->id;
         $history->old_assignee_id = $oldStatusId;
         $history->new_assignee_id = $newStatusId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
+    protected function saveUnitTeststatusHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagentoModuleUnitTestStatusHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_unit_test_status_id = $oldStatusId;
+        $history->new_unit_test_status_id = $newStatusId;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return true;
+    }
+
+    protected function saveUnitTestUserHistory($magentoModule, $oldStatusId, $newStatusId)
+    {
+        $history = new MagentoModuleUnitTestUserHistory();
+        $history->magento_module_id = $magentoModule->id;
+        $history->old_unit_test_user_id = $oldStatusId;
+        $history->new_unit_test_user_id = $newStatusId;
         $history->user_id = Auth::user()->id;
         $history->save();
 
@@ -1207,6 +1290,164 @@ class MagentoModuleController extends Controller
             'status' => true,
             'data' => $dependencyRemarks,
             'message' => 'Remark added successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function storeM2Remark(Request $request)
+    {
+        $magentoModule = MagentoModule::find($request->magento_module_id);
+        $oldM2ErrorRemark = $magentoModule->m2_error_remark;
+        $magentoModule->m2_error_remark = $request->remark;
+        $magentoModule->save();
+
+        $m2ErrorRemarkHistory =  new MagentoModuleM2RemarkHistory();
+        $m2ErrorRemarkHistory->magento_module_id = $request->magento_module_id;
+        $m2ErrorRemarkHistory->old_m2_error_remark = $oldM2ErrorRemark;
+        $m2ErrorRemarkHistory->new_m2_error_remark = $request->remark;
+        $m2ErrorRemarkHistory->user_id = Auth::user()->id;
+        $m2ErrorRemarkHistory->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => " M2 remark Added Successfully",
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getUnitTestUserHistories(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $histories = MagentoModuleUnitTestUserHistory::with(['user', 'newTestUser', 'oldTestUser'])
+                ->where('magento_module_id', $id)
+                ->latest()
+                ->get();
+    
+            return response()->json([
+                'status' => true,
+                'data' => $histories,
+                'message' => 'Successfully get histories',
+                'status_name' => 'success',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getUnitTestRemarkHistories(Request $request)
+    {
+        try {
+            $id = $request->id; 
+            $histories = MagentoModuleUnitTestRemarkHistory::with(['user'])
+                ->where('magento_module_id', $id)
+                ->latest()
+                ->get();
+    
+            return response()->json([
+                'status' => true,
+                'data' => $histories,
+                'message' => 'Successfully get histories',
+                'status_name' => 'success',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getM2RemarkHistories(Request $request)
+    {
+        try {
+            $id = $request->id; 
+            $histories = MagentoModuleM2RemarkHistory::with(['user'])
+                ->where('magento_module_id', $id)
+                ->latest()
+                ->get();
+    
+            return response()->json([
+                'status' => true,
+                'data' => $histories,
+                'message' => 'Successfully get histories',
+                'status_name' => 'success',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getUnitTestStatusHistories (Request $request)
+    {
+        try {
+            $id = $request->id;
+            $histories = MagentoModuleUnitTestStatusHistory::with(['user','newTestStatus','oldTestStatus'])
+                ->where('magento_module_id', $id)
+                ->latest()
+                ->get();
+    
+            return response()->json([
+                'status' => true,
+                'data' => $histories,
+                'message' => 'Successfully get histories',
+                'status_name' => 'success',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function storeUniTestRemark(Request $request)
+    {
+        $magentoModule = MagentoModule::find($request->magento_module_id);
+        $oldM2ErrorRemark = $magentoModule->unit_test_remark;
+        $magentoModule->unit_test_remark = $request->remark;
+        $magentoModule->save();
+
+
+        $unittestRemarkHistory =  new MagentoModuleUnitTestRemarkHistory();
+        $unittestRemarkHistory->magento_module_id = $request->magento_module_id;
+        $unittestRemarkHistory->old_unit_test_remark = $oldM2ErrorRemark;
+        $unittestRemarkHistory->new_unit_test_remark = $request->remark;
+        $unittestRemarkHistory->user_id = Auth::user()->id;
+        $unittestRemarkHistory->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => " Unit test remark Added Successfully",
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {
+         $userCheck = ColumnVisbility::where('user_id',auth()->user()->id)->first();
+
+         if($userCheck)
+         {
+           $column = ColumnVisbility::find($userCheck->id);
+           $column->columns = json_encode($request->columns); 
+           $column->save();
+         } else {
+            $column = new ColumnVisbility();
+            $column->columns = json_encode($request->columns); 
+            $column->user_id =  Auth::user()->id ;
+            $column->save();
+         }
+       
+         return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
             'status_name' => 'success',
         ], 200);
     }

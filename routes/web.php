@@ -577,7 +577,15 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module_customized_histories/{magento_module}', [MagentoModuleCustomizedHistoryController::class, 'show'])->name('magento_module_customized_histories.show');
 
     Route::get('magento_module_histories/{magento_module}', [MagentoModuleHistoryController::class, 'show'])->name('magento_module_histories.show');
-
+    Route::post('magento_modules/M2remark', [MagentoModuleController::class, 'storeM2Remark'])->name('magento_module_m2_remark.store');
+    Route::post('magento_modules/unit-test-status', [MagentoModuleController::class, 'storeUnitTestStatus'])->name('magento_modules.store-unit-test-status');
+    Route::post('magento_modules/unit-testremark', [MagentoModuleController::class, 'storeUniTestRemark'])->name('magento_module_unit_test_remark.store');
+    Route::get('magento_module/unit-test-user-history', [MagentoModuleController::class, 'getUnitTestUserHistories'])->name('magento_module.unit-test-user-history');
+    Route::get('magento_module/unit-test-remark-history', [MagentoModuleController::class, 'getUnitTestRemarkHistories'])->name('magento_module.unit-test-remark-history');
+    Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
+    Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
+    Route::post('magento_module/column-visbility', [MagentoModuleController::class, 'columnVisbilityUpdate'])->name('magento_module.column.update');
+    
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
@@ -654,6 +662,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento-frontend/child-folder', [MagentoFrontendDocumentationController::class, 'magentofrontendChildfolderstore'])->name('magento-frontend-child-folder-store');
     Route::get('magento-frontend/child-folder/history', [MagentoFrontendDocumentationController::class, 'magentofrontendgetChildFolder'])->name('magento-frontend-get-child-folder-history');
     Route::delete('/magento-frontend/child-folder/{id}', [MagentoFrontendDocumentationController::class, 'magentofrontenddelete'])->name('magento-frontend.destroy');
+    Route::get('magento-frontend/files/record', [MagentoFrontendDocumentationController::class, 'frontnedUploadedFilesList'])->name('magento-frontend.files.record');
 
     Route::get('/magento-css-variable/value-histories/{id}', [MagentoCssVariableController::class, 'valueHistories'])->name('magento-css-variable.value-histories');
     Route::get('/magento-css-variable/verify-histories/{id}', [MagentoCssVariableController::class, 'verifyHistories'])->name('magento-css-variable.verify-histories');
@@ -1690,6 +1699,18 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');
     Route::get('meetings/show', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.show');
     Route::get('meetings/all', [Meeting\ZoomMeetingController::class, 'allMeetings'])->name('meetings.all.data');
+    Route::post('meeting/fetch-recordings', [Meeting\ZoomMeetingController::class, 'fetchRecordings'])->name('meeting.fetch.recordings');
+    Route::post('meeting/fetch-participants', [Meeting\ZoomMeetingController::class, 'fetchParticipants'])->name('meeting.fetch.participants');
+    Route::get('meeting/list/fetch-participants', [Meeting\ZoomMeetingController::class, 'listParticipants'])->name('meeting.list.participants');
+    Route::get('meeting/list/error-logs', [Meeting\ZoomMeetingController::class, 'listErrorLogs'])->name('meeting.list.error-logs');
+    Route::get('meeting/list/recordings/{id}', [Meeting\ZoomMeetingController::class, 'listRecordings'])->name('meeting.list.recordings');
+    Route::post('meeting/update-description', [Meeting\ZoomMeetingController::class, 'updateMeetingDescription'])->name('meeting.description.update');
+    Route::get('meeting/download-recordings/{id}', [Meeting\ZoomMeetingController::class, 'downloadRecords'])->name('meeting.download.file');
+    Route::post('meeting/download-recordings/permission', [Meeting\ZoomMeetingController::class, 'addUserPermission'])->name('meeting.add.user.permission');
+    Route::get('recording-description/histories', [Meeting\ZoomMeetingController::class, 'listDescriptionHistory'])->name('recording.description.show');
+    Route::post('meeting-description', [Meeting\ZoomMeetingController::class, 'storeMeetingDescription'])->name('meeting.store.description');
+    Route::get('meeting-description/histories', [Meeting\ZoomMeetingController::class, 'meetingDescriptionHistory'])->name('meeting.description.show');
+    Route::get('/videos/recoirding-show', [Meeting\ZoomMeetingController::class,'showVideo'])->name('recording.video.show');
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {
@@ -1719,7 +1740,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder']);
+    Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder'])->name('task.reminder.update');
     Route::post('task/statuscolor', [TaskModuleController::class, 'statuscolor'])->name('task.statuscolor');
 
     Route::get('task/time/history', [TaskModuleController::class, 'getTimeHistory'])->name('task.time.history');
@@ -4408,6 +4429,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
+        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
+        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
         Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
         Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
         Route::get('/list-created-tasks', [Github\RepositoryController::class, 'listCreatedTasks']);
