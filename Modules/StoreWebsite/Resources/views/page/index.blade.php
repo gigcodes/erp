@@ -40,17 +40,70 @@
 					<button type="button" title="Pull logs" data-id="" class="btn ml-2 custom-button btn-pullLogs" style="width:133px;">Pull Logs</button>
                     <button type="button" class="btn ml-2 custom-button" data-toggle="modal" data-target="#todolistStatusCreateModal">Add Status</a> </button>
                     <button type="button" class="btn ml-2 custom-button" data-toggle="modal" data-target="#statusList">List Status</a> </button>
-            
-                        <form class="form-inline message-search-handler" method="get">
-                            <div class="ml-2">
-                                <div class="form-group">
-                                    <?php echo Form::select("language",$languagesList,request("language"),["class"=> "form-control","placeholder" => "Select Language"]) ?>
-                                </div>
-                            </div>     
-                            <div class="ml-2">
-                                <div class="form-group">
-                                    <?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control selectbox","placeholder" => "Select Store website"]) ?>
-                                </div>
+                </div>
+            </div>
+        </div>
+      
+            <div class="col-lg-12 margin-tb">
+                <div class="row">
+                    <br>
+                    <br>
+                        <form class="form-inline message-search-handler" method="get"> 
+                            <div class="col-lg-2">
+                                <label> Search Store Website </label>
+                               <?php 
+                                    if(request('store_website_id')){   $store_search = request('store_website_id'); }
+                                    else{ $store_search = []; }
+                                    ?>
+                                    <select name="store_website_id[]" id="store_website_id" class="form-control select2" multiple>
+                                        <option value="" @if($store_search=='') selected @endif>-- Select a Language --</option>
+                                        @forelse($storeWebsites as $id => $store)
+                                        <option value="{{ $id }}" @if(in_array($id, $store_search)) selected @endif>{!! $store !!}</option>
+                                        @empty
+                                        @endforelse
+                                    </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Search Language </label>
+                               <?php 
+                                    if(request('language')){   $lang_search = request('language'); }
+                                    else{ $lang_search = []; }
+                                    ?>
+                                    <select name="language[]" id="language" class="form-control select2" multiple>
+                                        <option value="" @if($lang_search=='') selected @endif>-- Select a Language --</option>
+                                        @forelse($languagesList as $id=>$lang)
+                                        <option value="{{ $id }}" @if(in_array($id, $lang_search)) selected @endif>{!! $lang !!}</option>
+                                        @empty
+                                        @endforelse
+                                    </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Search Status </label>
+                               <?php 
+                                    if(request('status_id')){   $status_search = request('status_id'); }
+                                    else{ $status_search = []; }
+                                    ?>
+                                    <select name="status_id[]" id="status_id" class="form-control select2" multiple>
+                                        <option value="" @if($status_search=='') selected @endif>-- Select a Status --</option>
+                                        @forelse($statuses as $id=>$stat)
+                                        <option value="{{ $stat->id }}" @if(in_array($stat->id, $status_search)) selected @endif>{!! $stat->status_name !!}</option>
+                                        @empty
+                                        @endforelse
+                                    </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label> Search Translation Approved by </label>
+                               <?php 
+                                    if(request('user_id')){   $user_search = request('user_id'); }
+                                    else{ $user_search = []; }
+                                    ?>
+                                    <select name="user_id[]" id="user_id" class="form-control select2" multiple>
+                                        <option value="" @if($user_search=='') selected @endif>-- Select a User --</option>
+                                        @forelse($users as $id=>$user)
+                                        <option value="{{ $user->id }}" @if(in_array($user->id, $user_search)) selected @endif>{!! $user->name !!}</option>
+                                        @empty
+                                        @endforelse
+                                    </select>
                             </div>
                             <div class="ml-2">
                                 <div class="form-group">
@@ -63,18 +116,57 @@
                             </div>
                             <div class="ml-2">
                                 <div class="form-group">
+                                    <select name="version_pushed" class="form-control">
+                                        <option value="">Latest Version Pushed</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                   </select>    
+                                </div>
+                            </div>
+                            <div class="ml-2">
+                                <div class="form-group">
+                                    <select name="version_trans" class="form-control">
+                                        <option value="">Version Translated</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                   </select>    
+                                </div>
+                            </div>
+                            <div class="ml-2">
+                                <div class="form-group">
+                                    <br>
+                                    <select name="revision_trans" class="form-control">
+                                        <option value="">Review Translated</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                   </select>    
+                                </div>
+                            </div>
+                            <div class="ml-2">
+                                <br>
+                                <input class="form-control" type="text" id="search_title" placeholder="Search Title" name="search_title" value="{{ (request('search_title') ?? "" ) }}">
+                            </div>
+                            <div class="ml-2">
+                                <br>
+                                <input class="form-control" type="text" id="search_url" placeholder="Search Url" name="search_url" value="{{ (request('search_url') ?? "" ) }}">
+                            </div>
+                            <div class="ml-2">
+                                <br>
+                                <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+                            </div>
+                            <div class="ml-2">
+                                <br>
+                                <div class="form-group">
                                     <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
                                 </div>
                                 <div class="form-group">
-                                    <label for="button">&nbsp;</label>
-                                    <button type="submit" style="display: inline-block;width: 10%; margin-top: -22px;" class="btn btn-sm btn-image btn-search-action">
+                                    <button type="submit" style="display: inline-block;width: 10%;" class="btn btn-sm btn-image btn-search-action">
                                         <img src="/images/search.png" style="cursor: default;">
                                     </button>
-									
+                                    <a href="{{route('store-website.page.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                                 </div>
                             </div>
                         </form>
-                    </div>
         </div>
         <div class="row">
             <div class="col-md-12">
@@ -354,32 +446,34 @@
 		window.open(urlToOpen, '_blank');
 	}
 
-$(document).ready(function() {
-    $('.status-update').on('change', function() {
-        var selectedStatusId = $(this).val(); 
-        var dataId = $(this).data('id'); // Get the data-id attribute value
-        $.ajax({
-            url: "{{route('store_website_status-update')}}",
-            type: 'GET', // Adjust the HTTP method as needed
-            data: {
-                statusId: selectedStatusId,
-                dataId: dataId // Include data-id in the AJAX request
-            },
-            success: function(response) { 
-                if (response.code == 200) { 
-                    toastr["success"](response.message);
-                    location.reload();
-                } else {
-                    toastr["error"](response.message);
-                }
-            },
-            error: function(error) {
-                // Handle errors if the AJAX request fails
-                console.error(error);
-            }
+        $(document).ready(function() {
+            $(".select2").select2();
+
+            $('.status-update').on('change', function() {
+                var selectedStatusId = $(this).val(); 
+                var dataId = $(this).data('id'); // Get the data-id attribute value
+                $.ajax({
+                    url: "{{route('store_website_status-update')}}",
+                    type: 'GET', // Adjust the HTTP method as needed
+                    data: {
+                        statusId: selectedStatusId,
+                        dataId: dataId // Include data-id in the AJAX request
+                    },
+                    success: function(response) { 
+                        if (response.code == 200) { 
+                            toastr["success"](response.message);
+                            location.reload();
+                        } else {
+                            toastr["error"](response.message);
+                        }
+                    },
+                    error: function(error) {
+                        // Handle errors if the AJAX request fails
+                        console.error(error);
+                    }
+                });
+            });
         });
-    });
-});
 
         $(document).on('click', '.status-history', function() {
             var id = $(this).attr('data-id');
