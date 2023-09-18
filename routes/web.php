@@ -4432,6 +4432,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
+        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
+        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
         Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
         Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
         Route::get('/list-created-tasks', [Github\RepositoryController::class, 'listCreatedTasks']);
@@ -4954,6 +4956,14 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
     Route::get('/{id?}/download', [GoogleFileTranslator::class, 'download'])->name('googlefiletranslator.download');
     Route::post('/store', [GoogleFileTranslator::class, 'store'])->name('googlefiletranslator.store');
     Route::post('/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
+    Route::get('/{id}/list-view', [GoogleFileTranslator::class, 'dataViewPage'])->name('googlefiletranslator.list-page.view');
+    Route::get('/download-permission', [GoogleFileTranslator::class, 'downloadPermission'])->name('googlefiletranslator.downlaod.permission');
+    Route::post('/user-view-permission', [GoogleFileTranslator::class, 'userViewPermission'])->name('googlefiletranslator.user-view.permission');
+    Route::get('/edit-value', [GoogleFileTranslator::class, 'editValue'])->name('googlefiletranslator.edit.value');
+    Route::post('/googlefiletranslator/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
+    Route::get('googlefiletranslator/{id}', [GoogleFileTranslator::class, 'tranalteHistoryShow'])->name('googlefiletranslator_histories.show');
+    Route::post('status-change', [GoogleFileTranslator::class, 'statusChange'])->name('googlefiletranslator_histories.status');
+    
 });
 
 //Translation
