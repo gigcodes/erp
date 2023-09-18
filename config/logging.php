@@ -228,6 +228,13 @@ return [
             'level' => 'error',
             'days' => 7,
         ],
+
+        'magento_problem_error' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/magento_problem_error.log'),
+            'level' => 'error',
+            'days' => 7,
+        ],
     ],
 
 ];
