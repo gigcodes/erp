@@ -12,5 +12,5 @@ class ZoomMeetingDetails extends Model
 
     protected $table = 'zoom_meeting_recordings';
 
-    protected $fillable = ['file_name', 'local_file_path', 'download_url_id', 'description', 'meeting_id', 'file_type', 'download_url', 'file_path' ,'file_size', 'file_extension'];
+    protected $fillable = ['file_name', 'local_file_path', 'download_url_id', 'description', 'meeting_id', 'file_type', 'download_url', 'file_path' ,'file_size', 'file_extension', 'recording_start', 'recording_end'];
 }

@@ -424,6 +424,8 @@ use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
 
+Route::post('/zoom/webhook', [Meeting\ZoomMeetingController::class, 'webhook']);
+
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
 Route::post('/send-web-notification', [WebNotificationController::class, 'sendWebNotification'])->name('send.web-notification');
@@ -1694,6 +1696,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
+    Route::post('meeting/update-personal-meeting', [Meeting\ZoomMeetingController::class, 'updatePersonalMeeting'])->name('meetings.update.personal');
     Route::post('meeting/create', [Meeting\ZoomMeetingController::class, 'createMeeting']);
     Route::get('meeting/allmeetings', [Meeting\ZoomMeetingController::class, 'getMeetings']);
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');
