@@ -664,13 +664,23 @@ class ZoomMeetingController extends Controller
                         $fullRecordingPath = $filePath;
                         $outputPath = $segmentPath; // Output folder for segments
 
-                        // Calculate the meeting start and end times for today
-                        $recordingStartTime = Carbon::parse($recordings['recording_start']);
-                        $recordingEndTime = Carbon::parse($recordings['recording_end']);
+                        // Create a Carbon instance from the ISO 8601 date // '2023-09-14T12:37:50Z'
+                        $carbonStartDate = Carbon::parse($zoom_meeting_details->recording_start);
+                        $carbonEndDate = Carbon::parse($zoom_meeting_details->recording_end);
+
+                        // Format the Carbon date in "Y-m-d H:i:s" format
+                        $formattedStartDate = $carbonStartDate->format('Y-m-d H:i:s'); // Output: 2023-09-14 12:37:50
+                        $formattedEndDate = $carbonEndDate->format('Y-m-d H:i:s'); // Output: 2023-09-14 12:37:50
+
+                        $recordingStartTime = Carbon::parse($formattedStartDate);
+                        $recordingEndTime = Carbon::parse($formattedEndDate);
+
+                        \Log::info('recordingStartTime -->' . $recordingStartTime);
+                        \Log::info('recordingEndTime -->' . $recordingEndTime);
 
                         $meetingParticipants = ZoomMeetingParticipant::where('meeting_id', $zoomDataPayloadObject['id'])
-                            ->where('join_time', '>=', $recordingStartTime)
-                            ->where('leave_time', '<=', $recordingEndTime)
+                            ->whereRaw('DATE_FORMAT(join_time, "%Y-%m-%d %H:%i") >= ?', $recordingStartTime->format('Y-m-d H:i'))
+                            ->whereRaw('DATE_FORMAT(leave_time, "%Y-%m-%d %H:%i") <= ?', $recordingEndTime->format('Y-m-d H:i'))
                             ->get();
                         if ($meetingParticipants) {
                             $segments = [];
@@ -679,26 +689,40 @@ class ZoomMeetingController extends Controller
                                 $joinTime = Carbon::parse($meetingParticipant->join_time);
                                 $leaveTime = Carbon::parse($meetingParticipant->leave_time);
 
+                                \Log::info('meetingParticipantID -->' . $meetingParticipant->id);
                                 \Log::info('joinTime -->' . $joinTime);
                                 \Log::info('leaveTime -->' . $leaveTime);
+                                \Log::info('max -->' . max($joinTime, $recordingStartTime));
+                                \Log::info('max Different -->' . max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S'));
+                                \Log::info('min -->' . min($leaveTime, $recordingEndTime));
+                                \Log::info('min Different -->' . min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S'));
+                                
 
                                 // Calculate the start and end times for the participant's segment
                                 $startTimestamp = max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S');
                                 $endTimestamp = min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S');
 
-                                \Log::info('startTimestamp -->' . $startTimestamp);
-                                \Log::info('endTimestamp -->' . $endTimestamp);
+                                if ($leaveTime->gte($recordingStartTime)) {
+                                    // Participant joined during or after recording started
+                                    $startTimestamp = max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S');
+                                    $endTimestamp = min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S');
 
-                                // Create a unique segment name for each participant
-                                $segmentName = "participant_{$meetingParticipant->id}.mp4";
+                                    \Log::info('startTimestamp -->' . $startTimestamp);
+                                    \Log::info('endTimestamp -->' . $endTimestamp);
 
-                                // Add the segment to the array
-                                $segments[] = [
-                                    'start' => $startTimestamp,
-                                    'end' => $endTimestamp,
-                                    'output' => $segmentName, // Output filename for the segment
-                                    'participant' => $meetingParticipant, // Store the participant information for reference
-                                ];
+                                    // Create a unique segment name for each participant
+                                    $segmentName = "participant_{$meetingParticipant->id}.mp4";
+
+                                    // Add the segment to the array
+                                    $segments[] = [
+                                        'start' => $startTimestamp,
+                                        'end' => $endTimestamp,
+                                        'output' => $segmentName, // Output filename for the segment
+                                        'participant' => $meetingParticipant, // Store the participant information for reference
+                                    ];
+                                } else {
+                                    \Log::info('meetingParticipantID Skipped-->' . $meetingParticipant->id);
+                                }
                             }
 
                             if ($segments) {
