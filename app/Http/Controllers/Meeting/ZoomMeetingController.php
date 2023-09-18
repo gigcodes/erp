@@ -635,7 +635,12 @@ class ZoomMeetingController extends Controller
                         curl_exec($ch);
                         if (! curl_errno($ch)) {
                             $info = curl_getinfo($ch);
-                            $downloadLink = $info['redirect_url'];
+                            \Log::info('CURL Details -->' . json_encode($info));
+                            if (isset($info['redirect_url']) && $info['redirect_url'] != "") {
+                                $downloadLink = $info['redirect_url'];
+                            } elseif (isset($info['url']) && $info['url'] != "") {
+                                $downloadLink = $info['url'];
+                            }
                         }
                         curl_close($ch);
 
