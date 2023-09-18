@@ -13,6 +13,7 @@ use Google\Service\Drive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\UploadGoogleDriveScreencast;
+use App\ChatMessage;
 
 class GoogleScreencastController extends Controller
 {
@@ -143,6 +144,24 @@ class GoogleScreencastController extends Controller
                 }
 
                 $googleScreencast->save();
+
+                // Initialize the $params array
+                $params = [];
+
+                $userName = Auth::user()->name;
+                $fileLink = env('GOOGLE_DRIVE_FILE_URL') . $googleScreencast->google_drive_file_id . '/view?usp=share_link';
+
+                // Create a formatted message with titles
+                $message = "Google Drive Information:\n\n"; // Add an extra line break for space
+                $message .= "Created by: {$userName}\n\n";
+                $message .= "File Creation Date: {$data['file_creation_date']}\n\n";
+                $message .= "File Link: {$fileLink}";
+
+                // Assign the formatted message to the 'message' key in the $params array
+                $params['message'] = $message;
+                $params['user_id'] = Auth::user()->id;
+                $params['developer_task_id'] = $data['task_id'];
+                ChatMessage::create($params);
 
                 UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
             });
@@ -303,7 +322,7 @@ class GoogleScreencastController extends Controller
      */
     public function getTaskDriveFiles($taskId)
     {
-        $driveFiles = GoogleScreencast::where('developer_task_id', $taskId)->orderBy('id', 'desc')->get();
+        $driveFiles = GoogleScreencast::where('developer_task_id', $taskId)->orderBy('id', 'desc')->with('user')->get();
 
         $driveFileData = '';
 
@@ -313,6 +332,7 @@ class GoogleScreencastController extends Controller
             <td><a href="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link" target="_blank"><input class="fileUrl" type="text" value="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link" /></a>
             <button class="copy-button btn btn-secondary" data-message="' . env('GOOGLE_DRIVE_FILE_URL') . $driveFile['google_drive_file_id'] . '/view?usp=share_link">Copy</button></td>
             <td>' . $driveFile['remarks'] . '</td>
+            <td>' . $driveFile->user->name . '</td>
         </tr>';
         }
         if ($driveFileData == '') {

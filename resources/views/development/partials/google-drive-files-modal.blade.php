@@ -14,6 +14,7 @@
                 <th>File Creation Date</th>
                 <th>URL</th>
                 <th>Remarks</th>
+                <th>Created By</th>
               </tr>
             </thead>
 
