@@ -843,5 +843,39 @@ class ZoomMeetingController extends Controller
         ], 200);
    }
 
+   public function listAllParticipants(Request $request)
+   {
+        $zoomParticipants = new ZoomMeetingParticipant();
+
+        $allNames = ZoomMeetingParticipant::distinct()->pluck('name');
+        $allEmails = ZoomMeetingParticipant::distinct()->pluck('email');
+
+        if ($request->search_reason) {
+            $zoomParticipants = $zoomParticipants->where('leave_reason', 'LIKE', '%' . $request->search_reason . '%');
+        }
+        if ($request->join_time) {
+            $zoomParticipants = $zoomParticipants->where('join_time', 'LIKE', '%' . $request->join_time . '%');
+        }
+        if ($request->leave_time) {
+            $zoomParticipants = $zoomParticipants->where('leave_time', 'LIKE', '%' . $request->leave_time . '%');
+        }
+        if ($request->name) {
+            $zoomParticipants = $zoomParticipants->WhereIn('name', $request->name);
+        }
+        if ($request->email) {
+            $zoomParticipants = $zoomParticipants->WhereIn('email', $request->email);
+        }
+        if ($request->duration) {
+            $zoomParticipants = $zoomParticipants->where('duration', 'LIKE', '%' . $request->duration . '%');
+        }
+        if ($request->date) {
+            $zoomParticipants = $zoomParticipants->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        
+        $zoomParticipants = $zoomParticipants->latest()->paginate(\App\Setting::get('pagination', 10));
+
+        return view('zoom-meetings.zoom-participants-listing', compact('zoomParticipants','allNames','allEmails'));
+   }
+
     
 }
