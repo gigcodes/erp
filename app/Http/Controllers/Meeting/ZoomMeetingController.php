@@ -612,14 +612,16 @@ class ZoomMeetingController extends Controller
     }
 
     protected function recordingCompletedWebhook($zoomData) {
+        \Log::info('########### recordingCompletedWebhook Started ###########');
         $zoomDataPayloadObject = $zoomData['payload']['object'];
 
         if ($zoomDataPayloadObject && isset($zoomDataPayloadObject['recording_files'])) {
             $folderPath = public_path() . '/zoom/0/' . $zoomDataPayloadObject['id'];
             $segmentPath = $folderPath . '/segments';
             $databsePath = '/zoom/0/' . $zoomDataPayloadObject['id'];
-            \Log::info('folderPath -->' . $folderPath);
+            \Log::info('folderPath Testing By Nadesh -->' . $folderPath);
             foreach ($zoomDataPayloadObject['recording_files'] as $recordings) {
+                \Log::info('########### recording_files Loop Started ###########');
                 $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
                 if (! $checkfile) {
                     if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
@@ -633,6 +635,7 @@ class ZoomMeetingController extends Controller
                         }
                         $ch = curl_init($urlOfFile);
                         curl_exec($ch);
+                        \Log::info('CURL ERROR By Nadesh -->' . curl_errno($ch));
                         if (! curl_errno($ch)) {
                             $info = curl_getinfo($ch);
                             \Log::info('CURL Details -->' . json_encode($info));
