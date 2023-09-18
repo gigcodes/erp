@@ -341,7 +341,7 @@ class MagentoRunCommand extends Command
                                     'command_name' => $magCom->command_type,
                                     'server_ip' => '',
                                     'command_type' => $magCom->command_type,
-                                    'response' => "Assets Manager ID #{$website->assets_manager_id}  not exists in DB for server_ip {$website->server_ip} OR Client id is empty for this asset {$website->assets_manager_id} for this command!",
+                                    'response' => "Assets Manager ID #{$website->assets_manager_id}  not exists in DB for server_ip {$website->server_ip} for website {$website->title} OR Client id is empty for this asset {$website->assets_manager_id} for this command!",
                                 ]
                             );
                         }
