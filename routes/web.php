@@ -380,7 +380,7 @@ use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\MonitStatusController;
-
+use App\Http\Controllers\MagentoProblemController;
 
 Auth::routes();
 
@@ -5629,6 +5629,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/git-actions', [GitHubActionController::class, 'index'])->name('git-action-lists');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/magento-problems', [MagentoProblemController::class, 'index'])->name('magento-problems-lists');
+});   
 Route::middleware('auth')->group(function () {
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
 });
