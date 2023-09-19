@@ -3342,6 +3342,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('git-action-lists')}}">Git Actions</a>
                                         </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('magento-problems-lists')}}">Magento Problems</a>
+                                        </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('redis.jobs') }}">Redis Job</a>
                                         </li>
@@ -3722,6 +3725,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
                                                         href="{{ url('/github/pullRequests') }}">Pull requests</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/new-pullRequests') }}">New Pull requests</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ url('/github/new-pr-activities') }}">New PR Activities</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('monit-status.index') }}">Monit Status</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"

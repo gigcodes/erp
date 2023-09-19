@@ -18,6 +18,9 @@ class ZoomMeetingParticipant extends Model
         'email',
         'join_time',
         'leave_time',
-        'duration'
+        'duration',
+        'zoom_user_id',
+        'leave_reason',
+        'participant_uuid'
     ];
 }

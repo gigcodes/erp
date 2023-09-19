@@ -379,6 +379,8 @@ use App\Http\Controllers\StoreSocialContentStatusController;
 use App\Http\Controllers\GoogleResponsiveDisplayAdController;
 use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\GitHubActionController;
+use App\Http\Controllers\MonitStatusController;
+use App\Http\Controllers\MagentoProblemController;
 
 Auth::routes();
 
@@ -423,6 +425,8 @@ use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingController;
 use App\Http\Controllers\AffiliateMarketing\AffiliateMarketingDataController;
 
 Auth::routes();
+
+Route::post('/zoom/webhook', [Meeting\ZoomMeetingController::class, 'webhook']);
 
 Route::get('/push-notificaiton', [WebNotificationController::class, 'index'])->name('push-notificaiton');
 Route::post('/store-token', [WebNotificationController::class, 'storeToken'])->name('store.token');
@@ -1694,6 +1698,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
+    Route::post('meeting/update-personal-meeting', [Meeting\ZoomMeetingController::class, 'updatePersonalMeeting'])->name('meetings.update.personal');
     Route::post('meeting/create', [Meeting\ZoomMeetingController::class, 'createMeeting']);
     Route::get('meeting/allmeetings', [Meeting\ZoomMeetingController::class, 'getMeetings']);
     Route::get('meetings/show-data', [Meeting\ZoomMeetingController::class, 'showData'])->name('meetings.show.data');
@@ -4429,6 +4434,8 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
+        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
+        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
         Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
         Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
         Route::get('/list-created-tasks', [Github\RepositoryController::class, 'listCreatedTasks']);
@@ -4951,6 +4958,14 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
     Route::get('/{id?}/download', [GoogleFileTranslator::class, 'download'])->name('googlefiletranslator.download');
     Route::post('/store', [GoogleFileTranslator::class, 'store'])->name('googlefiletranslator.store');
     Route::post('/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
+    Route::get('/{id}/list-view', [GoogleFileTranslator::class, 'dataViewPage'])->name('googlefiletranslator.list-page.view');
+    Route::get('/download-permission', [GoogleFileTranslator::class, 'downloadPermission'])->name('googlefiletranslator.downlaod.permission');
+    Route::post('/user-view-permission', [GoogleFileTranslator::class, 'userViewPermission'])->name('googlefiletranslator.user-view.permission');
+    Route::get('/edit-value', [GoogleFileTranslator::class, 'editValue'])->name('googlefiletranslator.edit.value');
+    Route::post('/googlefiletranslator/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
+    Route::get('googlefiletranslator/{id}', [GoogleFileTranslator::class, 'tranalteHistoryShow'])->name('googlefiletranslator_histories.show');
+    Route::post('status-change', [GoogleFileTranslator::class, 'statusChange'])->name('googlefiletranslator_histories.status');
+    
 });
 
 //Translation
@@ -5612,4 +5627,11 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/git-actions', [GitHubActionController::class, 'index'])->name('git-action-lists');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/magento-problems', [MagentoProblemController::class, 'index'])->name('magento-problems-lists');
+});   
+Route::middleware('auth')->group(function () {
+    Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
 });

@@ -47,6 +47,7 @@ use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutyCurrencyController;
 use App\Http\Controllers\SimplyDutyCalculationController;
 use App\Http\Controllers\MagentoCustomerReferenceController;
+use App\Http\Controllers\MagentoProblemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -332,4 +333,6 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
 
 Route::post('/github-action', [GitHubActionController::class, 'store']);
-Route::post('/github-pr-and-activity-store', [RepositoryController::class, 'githubPRAndActivityStore']);
+
+Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
+

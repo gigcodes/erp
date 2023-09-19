@@ -508,6 +508,264 @@ class ZoomMeetingController extends Controller
         }
     }
 
+    public function updatePersonalMeeting(Request $request)
+    {
+        $data = $request->except('_token');
+
+        // 1 represents PMI meetings - Only one record is allowed. So I am using meeting_type column in updateORCreate
+        ZoomMeetings::updateOrCreate(
+            ['meeting_type' => 1],
+            ['meeting_id' => $data['meeting_id'], 'meeting_topic' => $data['meeting_topic'], 'join_meeting_url' => $data['join_meeting_url']]
+        );
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Personal meeting update successfully!',
+            ]
+        );
+    }
+
+    public function webhook(Request $request)
+    {
+        \Log::info('zoom Webhook Logs -->' . $request->getContent());
+
+        $zoomData = json_decode($request->getContent(), true);
+        if ($zoomData['event'] == 'endpoint.url_validation') {
+            $message = 'v0:'.$request->header('x-zm-request-timestamp').':'.$request->getContent();
+            $hash = hash_hmac('sha256', $message, config('services.zoom.secret_token'));
+            $signature = "v0={$hash}";
+            $verified = hash_equals($request->header('x-zm-signature'), $signature);
+            if($verified)
+            {
+                $zoomSecret = config('services.zoom.secret_token');  
+                $zoomPlainToken = $zoomData['payload']['plainToken'];
+                $hash = hash_hmac('sha256', $zoomPlainToken, $zoomSecret);
+                $reponseData['plainToken'] = $zoomPlainToken;
+                $reponseData['encryptedToken'] = $hash;
+                return response()->json($reponseData);
+            }
+        } elseif ($zoomData['event'] == 'meeting.created') {
+            return $this->createMeetingWebhook($zoomData);
+        } elseif ($zoomData['event'] == 'meeting.participant_joined') {
+            return $this->participantJoinedWebhook($zoomData);
+        } elseif ($zoomData['event'] == 'meeting.participant_left') {
+            return $this->participantLeftWebhook($zoomData);
+        } elseif ($zoomData['event'] == 'recording.completed') {
+            return $this->recordingCompletedWebhook($zoomData);
+        }
+    }
+
+    protected function createMeetingWebhook($zoomData) {
+        if (isset($zoomData['payload']['object']['pmi'])) {
+            $meetingId = $zoomData['payload']['object']['pmi'];
+        } else {
+            $meetingId = $zoomData['payload']['object']['id'];
+        }
+        ZoomMeetings::updateOrCreate(
+            ['meeting_id' => $meetingId],
+            [
+                'meeting_topic' => $zoomData['payload']['object']['topic'],
+                'meeting_type' => $zoomData['payload']['object']['type'],
+                'meeting_agenda' => $zoomData['payload']['object']['agenda'] ?? "",
+                'join_meeting_url' => $zoomData['payload']['object']['join_url'],
+                'start_date_time' => $zoomData['payload']['object']['start_time'] ?? "",
+                'meeting_duration' => $zoomData['payload']['object']['duration'] ?? "",
+                'timezone' => $zoomData['payload']['object']['timezone'],
+                'host_zoom_id' => $zoomData['payload']['object']['host_id'],
+            ]
+        );
+
+        return response()->json(['message' => 'Meeting created successfully', 'code' => 200], 200);
+    }
+
+    protected function participantJoinedWebhook($zoomData) {
+        ZoomMeetingParticipant::firstOrCreate([   
+                'meeting_id' => $zoomData['payload']['object']['id'], 
+                'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
+                'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
+                'join_time' => $zoomData['payload']['object']['participant']['join_time']
+            ],
+            [
+                'name' => $zoomData['payload']['object']['participant']['user_name'],
+                'email' => $zoomData['payload']['object']['participant']['email'],
+            ],
+        );
+        
+        return response()->json(['message' => 'Participant joined successfully', 'code' => 200], 200);
+    }
+
+    protected function participantLeftWebhook($zoomData) {
+        ZoomMeetingParticipant::where([
+            'meeting_id' => $zoomData['payload']['object']['id'], 
+            'zoom_user_id' => $zoomData['payload']['object']['participant']['user_id'],
+            'participant_uuid' => $zoomData['payload']['object']['participant']['participant_uuid'],
+        ])->update([
+            'name' => $zoomData['payload']['object']['participant']['user_name'],
+            'email' => $zoomData['payload']['object']['participant']['email'],
+            'leave_time' => $zoomData['payload']['object']['participant']['leave_time'] ?? "",
+            'leave_reason' => $zoomData['payload']['object']['participant']['leave_reason'] ?? "",
+        ]);
+
+        return response()->json(['message' => 'Participant left successfully', 'code' => 200], 200);
+    }
+
+    protected function recordingCompletedWebhook($zoomData) {
+        \Log::info('########### recordingCompletedWebhook Started ###########');
+        $zoomDataPayloadObject = $zoomData['payload']['object'];
+
+        if ($zoomDataPayloadObject && isset($zoomDataPayloadObject['recording_files'])) {
+            $folderPath = public_path() . '/zoom/0/' . $zoomDataPayloadObject['id'];
+            $segmentPath = $folderPath . '/segments';
+            $databsePath = '/zoom/0/' . $zoomDataPayloadObject['id'];
+            \Log::info('folderPath Testing By Nadesh -->' . $folderPath);
+            foreach ($zoomDataPayloadObject['recording_files'] as $recordings) {
+                \Log::info('########### recording_files Loop Started ###########');
+                $checkfile = ZoomMeetingDetails::where('download_url_id', $recordings['id'])->first();
+                if (! $checkfile) {
+                    if ('shared_screen_with_speaker_view' == $recordings['recording_type']) {
+                        \Log::info('shared_screen_with_speaker_view');
+                        $fileName = $zoomDataPayloadObject['id'] . '_' . time() . '.mp4';
+                        $urlOfFile = $recordings['download_url'];
+                        $filePath = $folderPath . '/' . $fileName;
+                        if (! file_exists($filePath) && ! is_dir($folderPath)) {
+                            mkdir($folderPath, 0777, true);
+                            mkdir($segmentPath, 0777, true);
+                        }
+                        $ch = curl_init($urlOfFile);
+                        curl_exec($ch);
+                        \Log::info('CURL ERROR By Nadesh -->' . curl_errno($ch));
+                        if (! curl_errno($ch)) {
+                            $info = curl_getinfo($ch);
+                            \Log::info('CURL Details -->' . json_encode($info));
+                            if (isset($info['redirect_url']) && $info['redirect_url'] != "") {
+                                $downloadLink = $info['redirect_url'];
+                            } elseif (isset($info['url']) && $info['url'] != "") {
+                                $downloadLink = $info['url'];
+                            }
+                        }
+                        curl_close($ch);
+
+                        if ($downloadLink) {
+                            copy($downloadLink, $filePath);     
+                        }
+
+                        $zoom_meeting_details = new ZoomMeetingDetails();
+                        $zoom_meeting_details->local_file_path = $databsePath . '/' . $fileName;
+                        $zoom_meeting_details->file_name = $fileName;
+                        $zoom_meeting_details->download_url_id = $recordings['id'];
+                        $zoom_meeting_details->meeting_id = $zoomDataPayloadObject['id'];
+                        $zoom_meeting_details->file_type = $recordings['file_type'];
+                        $zoom_meeting_details->download_url = $recordings['download_url'];
+                        $zoom_meeting_details->file_size = $recordings['file_size'];
+                        $zoom_meeting_details->file_extension = $recordings['file_extension'];
+                        $zoom_meeting_details->recording_start = $recordings['recording_start'];
+                        $zoom_meeting_details->recording_end = $recordings['recording_end'];
+                        $zoom_meeting_details->save();
+
+                        // Here we can plan recording split logic. 
+                        // 1. Once the entire recording completed, 
+                        // 2. Get the list of participants for this meeting from zoom_meeting_participants table
+                        // 3. Split the recording depends on the participants join_time & leave_time
+                        // In your Laravel controller or a dedicated splitting script
+                        $fullRecordingPath = $filePath;
+                        $outputPath = $segmentPath; // Output folder for segments
+
+                        // Create a Carbon instance from the ISO 8601 date // '2023-09-14T12:37:50Z'
+                        $carbonStartDate = Carbon::parse($zoom_meeting_details->recording_start);
+                        $carbonEndDate = Carbon::parse($zoom_meeting_details->recording_end);
+
+                        // Format the Carbon date in "Y-m-d H:i:s" format
+                        $formattedStartDate = $carbonStartDate->format('Y-m-d H:i:s'); // Output: 2023-09-14 12:37:50
+                        $formattedEndDate = $carbonEndDate->format('Y-m-d H:i:s'); // Output: 2023-09-14 12:37:50
+
+                        $recordingStartTime = Carbon::parse($formattedStartDate);
+                        $recordingEndTime = Carbon::parse($formattedEndDate);
+
+                        \Log::info('recordingStartTime -->' . $recordingStartTime);
+                        \Log::info('recordingEndTime -->' . $recordingEndTime);
+
+                        $meetingParticipants = ZoomMeetingParticipant::where('meeting_id', $zoomDataPayloadObject['id'])
+                            ->whereRaw('DATE_FORMAT(join_time, "%Y-%m-%d %H:%i") >= ?', $recordingStartTime->format('Y-m-d H:i'))
+                            ->whereRaw('DATE_FORMAT(leave_time, "%Y-%m-%d %H:%i") <= ?', $recordingEndTime->format('Y-m-d H:i'))
+                            ->get();
+                        if ($meetingParticipants) {
+                            $segments = [];
+                            foreach ($meetingParticipants as $meetingParticipant) {
+                                // Parse join_time and leave_time
+                                $joinTime = Carbon::parse($meetingParticipant->join_time);
+                                $leaveTime = Carbon::parse($meetingParticipant->leave_time);
+
+                                \Log::info('meetingParticipantID -->' . $meetingParticipant->id);
+                                \Log::info('joinTime -->' . $joinTime);
+                                \Log::info('leaveTime -->' . $leaveTime);
+                                \Log::info('max -->' . max($joinTime, $recordingStartTime));
+                                \Log::info('max Different -->' . max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S'));
+                                \Log::info('min -->' . min($leaveTime, $recordingEndTime));
+                                \Log::info('min Different -->' . min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S'));
+                                
+
+                                // Calculate the start and end times for the participant's segment
+                                $startTimestamp = max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S');
+                                $endTimestamp = min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S');
+
+                                if ($leaveTime->gte($recordingStartTime)) {
+                                    // Participant joined during or after recording started
+                                    $startTimestamp = max($joinTime, $recordingStartTime)->diff($recordingStartTime)->format('%H:%I:%S');
+                                    $endTimestamp = min($leaveTime, $recordingEndTime)->diff($recordingStartTime)->format('%H:%I:%S');
+
+                                    \Log::info('startTimestamp -->' . $startTimestamp);
+                                    \Log::info('endTimestamp -->' . $endTimestamp);
+
+                                    // Create a unique segment name for each participant
+                                    $segmentName = "participant_{$meetingParticipant->id}.mp4";
+
+                                    // Add the segment to the array
+                                    $segments[] = [
+                                        'start' => $startTimestamp,
+                                        'end' => $endTimestamp,
+                                        'output' => $segmentName, // Output filename for the segment
+                                        'participant' => $meetingParticipant, // Store the participant information for reference
+                                    ];
+                                } else {
+                                    \Log::info('meetingParticipantID Skipped-->' . $meetingParticipant->id);
+                                }
+                            }
+
+                            if ($segments) {
+                                foreach ($segments as $segment) {
+                                    $start = $segment['start'];
+                                    $end = $segment['end'];
+                                    $segmentFileName = $segment['output']; // Adjust the filename as needed
+
+                                    // Use ffmpeg to extract the segment
+                                    $command = "ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
+        
+                                    \Log::info('FFMPEG Command -->' . $command);
+
+                                    // Execute the command and capture its output and return code
+                                    $output = [];
+                                    $returnCode = -1;
+
+                                    exec($command, $output, $returnCode);
+
+                                    // Check if the command was successful
+                                    if ($returnCode != 0) {
+                                        $errorMessage = implode(PHP_EOL, $output);
+                                        // Log the error
+                                        \Log::error("Error executing ffmpeg command: $errorMessage");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Recording completed successfully', 'code' => 200], 200);
+    }
     public function addUserPermission(Request $request)
     {
         $zoomRecord = ZoomMeetingDetails::find($request->record_id);
