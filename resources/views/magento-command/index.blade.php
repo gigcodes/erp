@@ -967,7 +967,7 @@
                     t += '<td  class="expand-row-msg" data-name="command" data-id="' + v.id + '" ><span class="show-short-command-' + v.id + '">' + commandString + '...</span>    <span style="word-break:break-all;" class="show-full-command-' + v.id + ' hidden">' + v.command_name + '</span></td>';
                     t += '<td>' + v.status + '</td>';
                     t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
-                    t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + requestString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.requestString + '</span></td>';
+                    t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + requestString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.request + '</span></td>';
                     t += '<td>' + v.job_id + '</td>';
                     //t += '<td>'+v.response_code+'</td>';
                     //t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
