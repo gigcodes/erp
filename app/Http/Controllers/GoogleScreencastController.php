@@ -145,11 +145,15 @@ class GoogleScreencastController extends Controller
 
                 $googleScreencast->save();
 
+                UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+
                 // Initialize the $params array
-                $params = [];
+                $params = []; 
+
+                $googledriveId  = GoogleScreencast::find($googleScreencast->id);
 
                 $userName = Auth::user()->name;
-                $fileLink = env('GOOGLE_DRIVE_FILE_URL') . $googleScreencast->google_drive_file_id . '/view?usp=share_link';
+                $fileLink = env('GOOGLE_DRIVE_FILE_URL') . $googledriveId->google_drive_file_id . '/view?usp=share_link';
 
                 // Create a formatted message with titles
                 $message = "Google Drive Information:\n\n"; // Add an extra line break for space
@@ -162,8 +166,6 @@ class GoogleScreencastController extends Controller
                 $params['user_id'] = Auth::user()->id;
                 $params['developer_task_id'] = $data['task_id'];
                 ChatMessage::create($params);
-
-                UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
             });
         }
 
