@@ -344,14 +344,14 @@
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12">
-                                    <label for="assets_manager_id">Assets Manager</label>
+                                    <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
                                     <div class="dropdown-sin-1">
                                         <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
                                             <option value="">--Assets Manager--</option>
                                             
                                             <?php
                             foreach($assetsmanager as $am){
-                                echo '<option value="'.$am->id.'">'.$am->name.'</option>';
+                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
                             }
                           ?>
                                         </select>
@@ -565,6 +565,17 @@
         $('.postmanUserDetailsModelBody').html(id);
     });
 
+    $(document).on("change", ".assets_manager_id", function(e) {
+        e.preventDefault();
+        var clientID = $(this).find(':selected').attr('data-client_id');
+        if (clientID != "" && clientID !== undefined) {
+            $('#am-client-id').html("").html("(Client ID: " + clientID + ")");
+        } else {
+            $('#am-client-id').html("").html("(Client ID: NO CLIENT ID)");
+        }
+        //debugger;
+    });
+
     $(document).on("change", ".folder_name", function(e) {
         e.preventDefault();
         var folder_name = $(this).find(':selected').attr('data-folder_name');
@@ -688,11 +699,13 @@
 
                     if (key == "website_ids") {
                         var Values = new Array();
+                        if (v !== null && v !== undefined) {
                         $.each(v.split(","), function(i, e) {
                             console.log(e);
                             //$(".websites_ids option[value='" + e + "']").prop("selected", true);
                             Values.push(e);
                         });
+                        }
                         $('.websites_ids').val(Values).trigger('change');
                     }
                     if (form.find('[name="' + key + '"]').length) {
@@ -712,14 +725,14 @@
                         //debugger;
 
 
-                        $.each(v.split(","), function(i, e) {
-                            console.log(e);
-                            // $("#websites_ids option[value='" + e + "']").prop("selected", true);
-                        });
+                        // $.each(v.split(","), function(i, e) {
+                        //     console.log(e);
+                        //     // $("#websites_ids option[value='" + e + "']").prop("selected", true);
+                        // });
                     }
 
                     <?php if(auth()->user()->isAdmin()){ ?>
-                        if (key == "user_permission") {
+                        if (key == "user_permission" && v !== null && v !== undefined) {
                             $('#user_permission').val(v.split(',')).trigger('change');
                         }
                     <?php } ?>
