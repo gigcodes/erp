@@ -1716,6 +1716,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('meeting-description', [Meeting\ZoomMeetingController::class, 'storeMeetingDescription'])->name('meeting.store.description');
     Route::get('meeting-description/histories', [Meeting\ZoomMeetingController::class, 'meetingDescriptionHistory'])->name('meeting.description.show');
     Route::get('/videos/recoirding-show', [Meeting\ZoomMeetingController::class,'showVideo'])->name('recording.video.show');
+    Route::get('all/participant/lists', [Meeting\ZoomMeetingController::class, 'listAllParticipants'])->name('list.all-participants');
+
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {
@@ -4434,8 +4436,6 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
-        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
-        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
         Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
         Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
         Route::get('/list-created-tasks', [Github\RepositoryController::class, 'listCreatedTasks']);
@@ -4445,6 +4445,13 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
         Route::get('/repo/status', [Github\RepositoryController::class, 'repoStatusCheck'])->name('github.repoStatusCheck');
         Route::get('/repo/pr-request', [Github\RepositoryController::class, 'getLatestPullRequests'])->name('github.pr.request');
+    });
+});
+
+Route::middleware('auth')->group(function () {
+    Route::prefix('github')->group(function () {
+        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
+        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
     });
 });
 

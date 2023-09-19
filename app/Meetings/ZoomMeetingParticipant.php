@@ -21,6 +21,7 @@ class ZoomMeetingParticipant extends Model
         'duration',
         'zoom_user_id',
         'leave_reason',
-        'participant_uuid'
+        'participant_uuid',
+        'recording_path'
     ];
 }

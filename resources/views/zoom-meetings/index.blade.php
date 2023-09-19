@@ -84,14 +84,13 @@
         <!-- <h4>List Of Upcoming Meetings</h4> -->
         <div class="col-lg-12">
             <div class=" pull-right">
+                <a href="{{ route('list.all-participants') }}" target="_blank" class="btn btn-secondary">View All Participations</a>&nbsp;
                 <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary"> View Api Logs</a>
                 <button type="button" class="btn btn-secondary" id="sync_meetings"> Sync Meetings </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#personal-meeting-update"> Update Your Personal Meeting </button>
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary pull-right">View Api Logs</a>&nbsp;
-            <button type="button" class="btn btn-secondary pull-right" id="sync_meetings" style="margin-left: 10px;">Sync Meetings</button>&nbsp;            
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>

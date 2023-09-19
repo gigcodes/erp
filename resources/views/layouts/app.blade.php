@@ -2438,6 +2438,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="{{ route('meetings.all.data') }}">Zoom
                                             Meeting List</a>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('list.all-participants') }}">All Zoom participants List</a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
