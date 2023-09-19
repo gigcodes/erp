@@ -44,6 +44,7 @@ class MagentoRunCommand extends Command
      */
     public function handle()
     {
+        $request = [];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         Log::info('Start Rum Magento Command');
         try {
@@ -73,6 +74,13 @@ class MagentoRunCommand extends Command
                         'is_sudo' => true,
                     ]));
 
+                    $request = [
+                        'command' => $magCom->command_type,
+                        'cwd' => $magCom->working_directory,
+                        'is_sudo' => true,
+                        'url' => $url
+                    ];
+
                     $headers = [];
                     $headers[] = 'Authorization: Basic ' . $key;
                     $headers[] = 'Content-Type: application/json';
@@ -91,6 +99,7 @@ class MagentoRunCommand extends Command
                                 'server_ip' => '',
                                 'command_type' => $magCom->command_type,
                                 'response' => curl_error($ch),
+                                'request' =>  json_encode($request), // Store the request as JSON
                             ]
                         );
                     }
@@ -115,6 +124,7 @@ class MagentoRunCommand extends Command
                                     'server_ip' => '',
                                     'command_type' => $magCom->command_type,
                                     'response' => $message,
+                                    'request' =>  json_encode($request), // Store the request as JSON
                                 ]
                             );
                         }
@@ -137,6 +147,13 @@ class MagentoRunCommand extends Command
                         $headers[] = 'Authorization: Basic ' . $key;
                         //$headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $request = [
+                            'command' => $magCom->command_type,
+                            'cwd' => $magCom->working_directory,
+                            'is_sudo' => true,
+                            'url' => $url
+                        ];
 
                         $result = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -172,9 +189,16 @@ class MagentoRunCommand extends Command
                             'command_type' => $magCom->command_type,
                             'response' => $message,
                             'job_id' => $job_id,
+                            'request' =>  json_encode($request), // Store the request as JSON
                         ]
                     );
                 } else {
+
+                    $request = [
+                        'command' => $magCom->command_type,
+                        'command_type' => $magCom->command_type,
+                    ];
+
                     MagentoCommandRunLog::create(
                         [
                             'command_id' => $magCom->id,
@@ -184,6 +208,7 @@ class MagentoRunCommand extends Command
                             'server_ip' => '',
                             'command_type' => $magCom->command_type,
                             'response' => 'Assets Manager & Client id not found for this command!',
+                            'request' =>  json_encode($request), // Store the request as JSON
                         ]
                     );
                 }
@@ -192,6 +217,12 @@ class MagentoRunCommand extends Command
                 $websites = StoreWebsite::whereIn('id', explode(',', $magCom->website_ids))->get();
 
                 if ($websites->isEmpty()) {
+
+                    $request = [
+                        'command' => $magCom->command_type,
+                        'command_type' => $magCom->command_type,
+                    ];
+
                     MagentoCommandRunLog::create(
                         [
                             'command_id' => $magCom->id,
@@ -201,6 +232,7 @@ class MagentoRunCommand extends Command
                             'server_ip' => '',
                             'command_type' => $magCom->command_type,
                             'response' => 'The command website is not found!',
+                            'request' =>  json_encode($request), // Store the request as JSON
                         ]
                     );
                 }
@@ -231,6 +263,13 @@ class MagentoRunCommand extends Command
                                 'is_sudo' => true,
                             ]));
 
+                            $request = [
+                                'command' => $magCom->command_type,
+                                'cwd' => $magCom->working_directory,
+                                'is_sudo' => true,
+                                'url' => $url
+                            ];
+
                             $headers = [];
                             $headers[] = 'Authorization: Basic ' . $key;
                             $headers[] = 'Content-Type: application/json';
@@ -249,6 +288,7 @@ class MagentoRunCommand extends Command
                                         'server_ip' => $website->server_ip,
                                         'command_type' => $magCom->command_type,
                                         'response' => curl_error($ch),
+                                        'request' =>  json_encode($request), // Store the request as JSON
                                     ]
                                 );
                             }
@@ -273,6 +313,7 @@ class MagentoRunCommand extends Command
                                             'server_ip' => $website->server_ip,
                                             'command_type' => $magCom->command_type,
                                             'response' => $message,
+                                            'request' =>  json_encode($request), // Store the request as JSON
                                         ]
                                     );
                                 }
@@ -320,6 +361,14 @@ class MagentoRunCommand extends Command
                             } else {
                                 $message = 'Job ID not found in response';
                             }
+
+                            $request = [
+                                'command' => $magCom->command_type,
+                                'cwd' => $magCom->working_directory,
+                                'is_sudo' => true,
+                                'url' => $url
+                            ];
+
                             MagentoCommandRunLog::create(
                                 [
                                     'command_id' => $magCom->id,
@@ -330,6 +379,7 @@ class MagentoRunCommand extends Command
                                     'command_type' => $magCom->command_type,
                                     'response' => $message,
                                     'job_id' => $job_id,
+                                    'request' =>  json_encode($request), // Store the request as JSON
                                 ]
                             );
                         } else {
@@ -342,6 +392,7 @@ class MagentoRunCommand extends Command
                                     'server_ip' => '',
                                     'command_type' => $magCom->command_type,
                                     'response' => "Assets Manager ID #{$website->assets_manager_id}  not exists in DB for server_ip {$website->server_ip} for website {$website->title} OR Client id is empty for this asset {$website->assets_manager_id} for this command!",
+                                    'request' =>  json_encode($request), 
                                 ]
                             );
                         }
@@ -356,6 +407,7 @@ class MagentoRunCommand extends Command
                                 'server_ip' => $website->server_ip ?? '',
                                 'command_type' => $magCom->command_type ?? '',
                                 'response' => 'Server IP and Command not found',
+                                'request' =>  json_encode($request), 
                             ]);
                         //dd(\DB::getQueryLog());
                     }
@@ -373,6 +425,7 @@ class MagentoRunCommand extends Command
                     'server_ip' => '',
                     'command_type' => $magCom->command_type,
                     'response' => ' Error ' . $e->getMessage(),
+                    'request' =>  json_encode($request), 
                 ]
             );
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
