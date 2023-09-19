@@ -736,6 +736,10 @@ class ZoomMeetingController extends Controller
                                     $end = $segment['end'];
                                     $segmentFileName = $segment['output']; // Adjust the filename as needed
 
+                                    // Testing purpose overwrite. 
+                                    // $fullRecordingPath = "/Users/user/Documents/erp/public/zoom/0/6928700773/".$fileName;
+                                    // $outputPath = "/Users/user/Documents/erp/public/zoom/0/6928700773/segments";
+
                                     // Use ffmpeg to extract the segment
                                     $command = "ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
         
@@ -751,7 +755,7 @@ class ZoomMeetingController extends Controller
                                     if ($returnCode != 0) {
                                         $errorMessage = implode(PHP_EOL, $output);
                                         // Log the error
-                                        \Log::error("Error executing ffmpeg command: $errorMessage");
+                                        \Log::error("Error executing ffmpeg command: $errorMessage and code $returnCode");
                                     }
                                 }
                             }
