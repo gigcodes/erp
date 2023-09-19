@@ -4434,8 +4434,6 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/linkUser', [Github\UserController::class, 'linkUser']);
         Route::post('/modifyUserAccess', [Github\UserController::class, 'modifyUserAccess']);
         Route::get('/pullRequests', [Github\RepositoryController::class, 'listAllPullRequests']);
-        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
-        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
         Route::get('/pull-request-review-comments/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestReviewComments']);
         Route::get('/pull-request-activities/{repoId}/{pullNumber}', [Github\RepositoryController::class, 'getPullRequestActivities']);
         Route::get('/list-created-tasks', [Github\RepositoryController::class, 'listCreatedTasks']);
@@ -4445,6 +4443,13 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
         Route::get('/repo/status', [Github\RepositoryController::class, 'repoStatusCheck'])->name('github.repoStatusCheck');
         Route::get('/repo/pr-request', [Github\RepositoryController::class, 'getLatestPullRequests'])->name('github.pr.request');
+    });
+});
+
+Route::middleware('auth')->group(function () {
+    Route::prefix('github')->group(function () {
+        Route::get('/new-pullRequests', [Github\RepositoryController::class, 'listAllNewPullRequests']);
+        Route::get('/new-pr-activities', [Github\RepositoryController::class, 'listAllNewPrActivities']);
     });
 });
 
