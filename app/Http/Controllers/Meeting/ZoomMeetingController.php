@@ -411,6 +411,52 @@ class ZoomMeetingController extends Controller
         
     }
 
+    public function deleteRecording($meetingId, $recordingId)
+    {
+        $tokenResponse = ZoomOAuthHelper::getAccessToken();
+        
+        if (isset($tokenResponse['access_token'])) {
+            $accessToken = $tokenResponse['access_token'];
+            $deleteRecordingsURL = "https://api.zoom.us/v2/meetings/{$meetingId}/recordings/$recordingId?action=trash";
+
+            try {
+                // Fetch participants for this meeting
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ])->delete($deleteRecordingsURL);
+
+                // Log the API request and response to the database
+                ZoomApiLog::create([
+                    'type' => 'recording',
+                    'request_url' => $deleteRecordingsURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => $response->status(),
+                    'response_data' => json_encode($response->json()),
+                ]);
+    
+                if ($response->successful()) {
+                    return response()->json(['message' => 'Recording for the meeting have been deleted successfully.', 'code' => 200]);
+                } else {
+                    // $errorMessage = $recordingsResponse->body();
+                    return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
+                }
+            } catch (\Exception $e) {
+                // Log the exception to the database
+                ZoomApiLog::create([
+                    'type' => 'recording',
+                    'request_url' => $deleteRecordingsURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => 500, // Set an appropriate status code for errors
+                    'response_data' => json_encode(['error' => $e->getMessage()]),
+                ]);
+
+                return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
+            }
+        }
+    }
+
     public function show()
     {
         $type = '';
@@ -725,6 +771,9 @@ class ZoomMeetingController extends Controller
                                         'output' => $segmentName, // Output filename for the segment
                                         'participant' => $meetingParticipant, // Store the participant information for reference
                                     ];
+
+                                    $meetingParticipant->recording_path = "{$databsePath}/segments/{$segmentName}";
+                                    $meetingParticipant->save();
                                 } else {
                                     \Log::info('meetingParticipantID Skipped-->' . $meetingParticipant->id);
                                 }
@@ -760,6 +809,11 @@ class ZoomMeetingController extends Controller
                                 }
                             }
                         }
+
+                        \Log::info('##########  deleteRecording starts ##############');
+                        $this->deleteRecording($zoomDataPayloadObject['id'], $recordings['id']);
+                        \Log::info('##########  deleteRecording ends ##############');
+
                     }
                 }
             }
@@ -767,6 +821,7 @@ class ZoomMeetingController extends Controller
 
         return response()->json(['message' => 'Recording completed successfully', 'code' => 200], 200);
     }
+
     public function addUserPermission(Request $request)
     {
         $zoomRecord = ZoomMeetingDetails::find($request->record_id);
