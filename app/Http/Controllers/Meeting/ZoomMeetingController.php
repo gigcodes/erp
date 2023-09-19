@@ -436,8 +436,10 @@ class ZoomMeetingController extends Controller
                 ]);
     
                 if ($response->successful()) {
+                    \Log::info('##########  Recording for the meeting have been deleted successfully ##############');
                     return response()->json(['message' => 'Recording for the meeting have been deleted successfully.', 'code' => 200]);
                 } else {
+                    \Log::info('##########  Error deleting the recording for the meeting, Please check the logs ##############');
                     // $errorMessage = $recordingsResponse->body();
                     return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
                 }
@@ -451,6 +453,8 @@ class ZoomMeetingController extends Controller
                     'response_status' => 500, // Set an appropriate status code for errors
                     'response_data' => json_encode(['error' => $e->getMessage()]),
                 ]);
+
+                \Log::info('##########  Error deleting the recording for the meeting, Please check the ZoomApiLog ##############');
 
                 return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
             }
