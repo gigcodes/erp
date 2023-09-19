@@ -4758,7 +4758,7 @@ class TaskModuleController extends Controller
         try {
             $result = [];
             if (isset($request->task_id)) {
-                $result = GoogleScreencast::where('belongable_type', Task::class)->where('belongable_id', $request->task_id)->orderBy('id', 'desc')->get();
+                $result = GoogleScreencast::where('belongable_type', Task::class)->where('belongable_id', $request->task_id)->orderBy('id', 'desc')->with('user')->get();
                 if (isset($result) && count($result) > 0) {
                     $result = $result->toArray();
                 }
