@@ -107,4 +107,15 @@ class DatabaseController extends Controller
 
         return response()->json(['code' => 500, 'message' => 'Database export failed, Please check the logs']);
     }
+
+    public function commandLogs(Request $request)
+    {
+        $perPage = 10;
+
+        $histories = DatabaseExportCommandLog::with(['user'])->latest()->paginate($perPage);
+
+        $html = view('database.partial.command-logs-modal-html')->with('histories', $histories)->render();
+
+        return response()->json(['code' => 200, 'data' => $histories, 'html' => $html, 'message' => 'Content render']);
+    }
 }
