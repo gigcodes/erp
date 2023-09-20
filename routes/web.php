@@ -3445,6 +3445,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
+    Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');
