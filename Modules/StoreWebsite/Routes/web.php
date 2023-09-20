@@ -56,6 +56,10 @@ Route::group([
     Route::post('user-permission/update', [StoreWebsiteController::class, 'userPermission'])->name('store-website.user.permission');
     Route::get('api-token-histories/{id}', [StoreWebsiteController::class, 'apiTokenHistory'])->name('store-website.token.histories');
     Route::get('version-numbers', [StoreWebsiteController::class, 'versionNumbers'])->name('store-website.version-numbers');
+    Route::get('csv-download/listing', [StoreWebsiteController::class, 'StorewebsiteDownloadListing'])->name('store-website.listing');
+    Route::post('mulitple/csv-download', [StoreWebsiteController::class, 'mulitipleStorewebsiteDownload'])->name('mulitiple.store-website.listing');
+    Route::post('single/csv/command/run', [StoreWebsiteController::class, 'runCsvSingleCommand'])->name('store-website.single.command.run');
+    Route::post('single/push/csv/command/run', [StoreWebsiteController::class, 'runCsvSinglePushCommand'])->name('store-website.single.push.command.run');
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 
