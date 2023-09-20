@@ -84,7 +84,9 @@
                     <th width="10%">Leave Time</th>
 			        <th width="20%">Leave Reason</th>
 					<th width="5%">Durartion</th>
+					<th width="5%">Recording Path</th>
                     <th width="5%">Created At</th>
+                    <th width="5%">Action</th>
                 </tr>
 		    	<tbody>
                     @foreach ($zoomParticipants as $key=>$data)
@@ -103,7 +105,18 @@
                                 </span>
                             </td>
 							<td>{{$data->duration}}</td>
+							<td>{{$data->recording_path}}</td>
                             <td>{{ $data->created_at?->format('Y-m-d') }}</td>
+                            <td>
+                                @php
+                                    $userRecordPermission = optional($data->recording)->user_record_permission ? json_decode($data->recording->user_record_permission) : null;
+                                @endphp
+                                @if ($userRecordPermission && in_array(Auth::user()->id, $userRecordPermission) || Auth::user()->isAdmin())
+                                <button type="button" class="btn btn-xs btn-image load-video-preview" data-id="{{ $data->id }}" title="preview">
+                                    <img src="/images/view.png" style="cursor: default;">
+                                </button>
+                                @endif
+                            </td>
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -136,6 +149,27 @@
         </div>
     </div>
 </div>
+<div id="zoom-participant-record-video-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Recording Video</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="video-container">
+                    <video width="640" height="360" controls autoplay>
+                        <source src="" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section("styles")
@@ -166,6 +200,48 @@
             }
         });
    
+    });
+
+    // Function to clear the video source and stop playback
+    function clearVideo() {
+        var videoElement = $("#zoom-participant-record-video-listing").find("video");
+        videoElement.attr("src", "");
+        videoElement[0].pause();
+    }
+
+    $(document).on('click', '.load-video-preview', function() {
+        var id = $(this).attr('data-id');
+        var modal = $("#zoom-participant-record-video-listing");
+
+        // Clear the video when the modal is closed
+        modal.on('hidden.bs.modal', function() {
+            clearVideo();
+        });
+
+        $("#loading-image").show();
+        $.ajax({
+            url: '{{ route("participant-recording.video.show") }}',
+            dataType: "json",
+            data: {
+                id: id,
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.status) {
+                    modal.modal("show");
+                    var videoElement = modal.find("video");
+                    videoElement.attr("src", response.videoUrl);
+                    videoElement[0].play(); // Start playback if needed
+                    modal.modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            },
+            error: function(response) {
+                $("#loading-image").hide();
+                toastr["error"](response.responseJSON.error, "Message");
+            }
+        });
     });
 </script> 
 @endsection
