@@ -31,6 +31,7 @@
                         <div class="col-lg-12 pd-sm">
                             <form class="form-inline message-search-handler" method="get">
                                 <div class="col-lg-3 pd-sm">
+                                    <b>Select File Name: </b>
                                     <select class="form-control globalSelect2" multiple="true" id="name" name="name[]" placeholder="Select File Name">
                                         @foreach($data as $val)
                                         <option value="{{ $val->id }}" @if(in_array($val->id, $request->input('name', []))) selected @endif>{{ $val->name }}</option>
@@ -38,26 +39,25 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-2 pd-sm">
-                                    <div class="form-group sm-1">
-                                        <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" />
-                                        <datalist id="docid-lists">
-                                            @foreach ($data as $key => $val )
-                                                <option value="{{$val->docId}}"></option>
-                                            @endforeach
-                                        </datalist>
-                                    </div>
+                                    <b>Enter Search Url: </b>
+                                    <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
+                                    <datalist id="docid-lists">
+                                        @foreach ($data as $key => $val )
+                                            <option value="{{$val->docId}}"></option>
+                                        @endforeach
+                                    </datalist>
                                 </div>
                                 <div class="col-lg-2 pd-sm">
-                                    <div class="form-group px-2 googleDocCategory-container">
-                                        <select class="w-100 js-example-basic-multiple js-states" id="googleDocCategoryFilter" multiple="multiple" name="googleDocCategory[]">
-                                            @foreach ($googleDocCategory as $key => $c)
-                                                <option value="{{$key}}">{{$c}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    <b>Select Category: </b>
+                                    <select class="form-control globalSelect2" multiple="true" id="googleDocCategoryFilter" name="googleDocCategory[]" placeholder="Select Category">
+                                        @foreach ($googleDocCategory as $key => $c)
+                                            <option value="{{ $key }}" @if(in_array($key, $request->input('googleDocCategory', []))) selected @endif>{{ $c }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
     				            @if(Auth::user()->isAdmin())
                                     <div class="col-lg-3 pd-sm">
+                                        <b>Select User: </b>
                                         <select class="form-control globalSelect2" multiple="true" id="user_gmail" name="user_gmail[]" placeholder="Select User">
                                             @foreach($users as $val)
                                             <option value="{{ $val->gmail }}" @if(in_array($val->gmail, $request->input('user_gmail', []))) selected @endif>{{ $val->name }}</option>
