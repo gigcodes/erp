@@ -28,7 +28,7 @@
                     <div id="progress" style="display: none;">
                     <img src="/images/loading_new.gif" style="cursor: pointer; width: 30px;">
                     </div>
-                    <button type="button" class="btn btn-secondary" onclick="commandLogs()">Command Logs</button>
+                    <button type="button" class="btn btn-secondary mr-2" onclick="commandLogs()">Command Logs</button>
                     <button type="button" class="btn btn-secondary" onclick="dbExport()">Export Database</button>
                 </form>
 
