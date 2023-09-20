@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DatabaseExportCommandLog;
 use Illuminate\Http\Request;
 use App\DatabaseHistoricalRecord;
 
@@ -75,16 +76,35 @@ class DatabaseController extends Controller
         //$cmd = 'mysqldump -h erpdb -u erplive -p  --no-data '.$dbName.' > '.$dumpName;
         $cmd = 'mysqldump --user=' . env('DB_USERNAME') . ' --password=' . env('DB_PASSWORD') . ' --host=' . env('DB_HOST') . ' --no-data ' . $dbName . '  > ' . $dumpName . '  2>&1';
         \Log::info('Executing:' . $cmd);
+
         $allOutput = [];
-        $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
-        chmod($dumpName, 0755);
+        exec($cmd, $allOutput, $return_var);
 
-        header('Content-Type: application/octet-stream');
-        header('Content-Transfer-Encoding: Binary');
-        header('Content-disposition: attachment; filename=erp_live_schema.sql');
-        $dumpUrl = env('APP_URL') . '/' . $dumpName;
+        if ($return_var === 0) {
+            $commandLog = new DatabaseExportCommandLog();
+            $commandLog->user_id = \Auth::user()->id;
+            $commandLog->command = $cmd;
+            $commandLog->response = 'Database exported successfully';
+            $commandLog->save();
+        } else {
+            $errorMessage = "Error exporting database. Exit status: $return_var\nOutput:\n" . implode("\n", $allOutput);
 
-        return response()->json(['code' => 200, 'data' => $dumpUrl, 'message' => 'Database exported successfully']);
+            $commandLog = new DatabaseExportCommandLog();
+            $commandLog->user_id = \Auth::user()->id;
+            $commandLog->command = $cmd;
+            $commandLog->response = $errorMessage;
+            $commandLog->save();
+        }
+
+        if ($return_var === 0) {
+            chmod($dumpName, 0755);
+            header('Content-Type: application/octet-stream');
+            header('Content-Transfer-Encoding: Binary');
+            header('Content-disposition: attachment; filename=erp_live_schema.sql');
+            $dumpUrl = env('APP_URL') . '/' . $dumpName;
+            return response()->json(['code' => 200, 'data' => $dumpUrl, 'message' => 'Database exported successfully']);
+        }
+
+        return response()->json(['code' => 500, 'message' => 'Database export failed, Please check the logs']);
     }
 }
