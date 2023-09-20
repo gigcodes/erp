@@ -29,7 +29,7 @@ class GoogleDocController extends Controller
         $data = GoogleDoc::orderBy('created_at', 'desc');
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->where('name', 'LIKE', "%$keyword%");
+                $q->whereIn('google_docs.id', $keyword);
             });
         }
         if ($keyword = request('docid')) {
@@ -39,7 +39,9 @@ class GoogleDocController extends Controller
         }
         if ($keyword = request('user_gmail')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->whereRaw("find_in_set('" . $keyword . "',google_docs.read)")->orWhereRaw("find_in_set('" . $keyword . "',google_docs.write)");
+                foreach ($keyword as $key => $value) {
+                    $q->whereRaw("find_in_set('" . $value . "',google_docs.read)")->orWhereRaw("find_in_set('" . $value . "',google_docs.write)");    
+                }                
             });
         }
 
@@ -52,7 +54,7 @@ class GoogleDocController extends Controller
         $data = $data->get();
         $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
-        return view('googledocs.index', compact('data', 'users'))
+        return view('googledocs.index', compact('data', 'users', 'request'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

@@ -12,6 +12,7 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+        .select2-selection__rendered{overflow: inherit !important;}
     </style>
 
 @endsection
@@ -24,26 +25,29 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Google Docs</h2>
-            <div class="pull-left">
+            <div class="">
                 <div class="form-group">
                     <div class="row">
-                        <form class="form-inline message-search-handler" method="get">
-                                    <div class="form-group m-1">
-                                        <input name="name" list="name-lists" type="text" class="form-control" placeholder="Search file" value="{{request()->get('name')}}" />
-                                        <datalist id="name-lists">
-                                            @foreach ($data as $key => $val )
-                                                <option value="{{$val->name}}">
-                                            @endforeach
-                                        </datalist>
-                                    </div>
+                        <div class="col-lg-12 pd-sm">
+                            <form class="form-inline message-search-handler" method="get">
+                                <div class="col-lg-3 pd-sm">
+                                    <select class="form-control globalSelect2" multiple="true" id="name" name="name[]" placeholder="Select File Name">
+                                        @foreach($data as $val)
+                                        <option value="{{ $val->id }}" @if(in_array($val->id, $request->input('name', []))) selected @endif>{{ $val->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-lg-2 pd-sm">
                                     <div class="form-group sm-1">
                                         <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" />
                                         <datalist id="docid-lists">
                                             @foreach ($data as $key => $val )
-                                                <option value="{{$val->docId}}">
+                                                <option value="{{$val->docId}}"></option>
                                             @endforeach
                                         </datalist>
                                     </div>
+                                </div>
+                                <div class="col-lg-2 pd-sm">
                                     <div class="form-group px-2 googleDocCategory-container">
                                         <select class="w-100 js-example-basic-multiple js-states" id="googleDocCategoryFilter" multiple="multiple" name="googleDocCategory[]">
                                             @foreach ($googleDocCategory as $key => $c)
@@ -51,24 +55,26 @@
                                             @endforeach
                                         </select>
                                     </div>
-				    @if(Auth::user()->isAdmin())
-                                    <div class="form-group m-1">
-                                        <select name="user_gmail" class="form-control" placeholder="Search User">
-                                        <option value="">Search User</option>
-                                            @foreach ($users as $key => $val )
-                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
+                                </div>
+    				            @if(Auth::user()->isAdmin())
+                                    <div class="col-lg-3 pd-sm">
+                                        <select class="form-control globalSelect2" multiple="true" id="user_gmail" name="user_gmail[]" placeholder="Select User">
+                                            @foreach($users as $val)
+                                            <option value="{{ $val->gmail }}" @if(in_array($val->gmail, $request->input('user_gmail', []))) selected @endif>{{ $val->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-				    @endif
+    				            @endif
+                                <div class="col-lg-1 pd-sm">
                                     <div class="form-group">
-                                        <label for="button">&nbsp;</label>
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
                                             <img src="/images/search.png" style="cursor: default;">
                                         </button>
                                         <a href="/google-docs" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                                     </div>
-                        </form>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
