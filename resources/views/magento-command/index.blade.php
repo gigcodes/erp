@@ -282,6 +282,7 @@
                                     <th style="width: 5%;overflow-wrap: anywhere;">Command Name</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Status</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Request</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Job ID</th>
                                     <th style="width: 4%;overflow-wrap: anywhere;">Date</th>
                                 </tr>
@@ -947,6 +948,9 @@
                     var responseString = '';
                     if (v.response)
                         responseString = v.response.substring(0, 10);
+                    var requestString = '';
+                    if (v.request)
+                        requestString = v.request.substring(0, 10);
                     var request_data_val = '';
                     if (v.request_data)
                         request_data_val = v.request_data.substring(0, 10);
@@ -963,6 +967,7 @@
                     t += '<td  class="expand-row-msg" data-name="command" data-id="' + v.id + '" ><span class="show-short-command-' + v.id + '">' + commandString + '...</span>    <span style="word-break:break-all;" class="show-full-command-' + v.id + ' hidden">' + v.command_name + '</span></td>';
                     t += '<td>' + v.status + '</td>';
                     t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + responseString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.response + '</span></td>';
+                    t += '<td  class="expand-row-msg" data-name="response" data-id="' + v.id + '" ><span class="show-short-response-' + v.id + '">' + requestString + '...</span>    <span style="word-break:break-all;" class="show-full-response-' + v.id + ' hidden">' + v.request + '</span></td>';
                     t += '<td>' + v.job_id + '</td>';
                     //t += '<td>'+v.response_code+'</td>';
                     //t += '<td  class="expand-row-msg" data-name="request_url" data-id="'+v.id+'" ><span class="show-short-request_url-'+v.id+'">'+request_url_val+'...</span>    <span style="word-break:break-all;" class="show-full-request_url-'+v.id+' hidden">'+v.request_url+'</span></td>';
