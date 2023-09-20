@@ -797,7 +797,7 @@ class ZoomMeetingController extends Controller
                                     // $outputPath = "/Users/user/Documents/erp/public/zoom/0/6928700773/segments";
 
                                     // Use ffmpeg to extract the segment
-                                    $command = "ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
+                                    $command = "yes | ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
         
                                     \Log::info('FFMPEG Command -->' . $command);
 
