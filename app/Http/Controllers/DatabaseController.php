@@ -74,38 +74,96 @@ class DatabaseController extends Controller
         $dumpName = str_replace(' ', '_', $dbName) . '_schema.sql';
         \Log::info('Dump name:' . $dumpName);
         //$cmd = 'mysqldump -h erpdb -u erplive -p  --no-data '.$dbName.' > '.$dumpName;
-        $cmd = 'mysqldump --user=' . env('DB_USERNAME') . ' --password=' . env('DB_PASSWORD') . ' --host=' . env('DB_HOST') . ' --no-data ' . $dbName . '  > ' . $dumpName . '  2>&1';
+        $cmd = 'mysqldump --user=' . env('DB_USERNAME') . ' --password=\'' . env('DB_PASSWORD') . '\' --host=' . env('DB_HOST') . ' --no-data ' . $dbName . '  > ' . $dumpName;
         \Log::info('Executing:' . $cmd);
 
-        $allOutput = [];
-        exec($cmd, $allOutput, $return_var);
+        // NEW Logic START
+        // Command and arguments
+        $descriptors = [
+            0 => ['pipe', 'r'], // stdin
+            1 => ['pipe', 'w'], // stdout
+            2 => ['pipe', 'w'], // stderr
+        ];
 
-        if ($return_var === 0) {
-            $commandLog = new DatabaseExportCommandLog();
-            $commandLog->user_id = \Auth::user()->id;
-            $commandLog->command = $cmd;
-            $commandLog->response = 'Database exported successfully';
-            $commandLog->save();
+        // Execute the command
+        $process = proc_open($cmd, $descriptors, $pipes);
+
+        if (is_resource($process)) {
+            // Close stdin since we don't need it
+            fclose($pipes[0]);
+
+            // Capture stdout and stderr
+            $stdout = stream_get_contents($pipes[1]);
+            $stderr = stream_get_contents($pipes[2]);
+
+            // Close all pipes
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+
+            // Get the exit status
+            $return_var = proc_close($process);
+
+            if ($return_var === 0) {
+                $commandLog = new DatabaseExportCommandLog();
+                $commandLog->user_id = \Auth::user()->id;
+                $commandLog->command = $cmd;
+                $commandLog->response = 'Database exported successfully';
+                $commandLog->save();
+
+                chmod($dumpName, 0755);
+                header('Content-Type: application/octet-stream');
+                header('Content-Transfer-Encoding: Binary');
+                header('Content-disposition: attachment; filename=erp_live_schema.sql');
+                $dumpUrl = env('APP_URL') . '/' . $dumpName;
+                return response()->json(['code' => 200, 'data' => $dumpUrl, 'message' => 'Database exported successfully']);
+            } else {
+                $errorMessage = "Error exporting database. Exit status: $return_var\nOutput:\n" . $stderr;
+
+                $commandLog = new DatabaseExportCommandLog();
+                $commandLog->user_id = \Auth::user()->id;
+                $commandLog->command = $cmd;
+                $commandLog->response = $errorMessage;
+                $commandLog->save();
+
+                return response()->json(['code' => 500, 'message' => 'Database export failed, Please check the logs']);
+            }
         } else {
-            $errorMessage = "Error exporting database. Exit status: $return_var\nOutput:\n" . implode("\n", $allOutput);
-
-            $commandLog = new DatabaseExportCommandLog();
-            $commandLog->user_id = \Auth::user()->id;
-            $commandLog->command = $cmd;
-            $commandLog->response = $errorMessage;
-            $commandLog->save();
+            // Handle the case where proc_open failed to execute the command
+            return response()->json(['code' => 500, 'message' => 'Error exporting database']);
         }
+        // NEW Logic END
 
-        if ($return_var === 0) {
-            chmod($dumpName, 0755);
-            header('Content-Type: application/octet-stream');
-            header('Content-Transfer-Encoding: Binary');
-            header('Content-disposition: attachment; filename=erp_live_schema.sql');
-            $dumpUrl = env('APP_URL') . '/' . $dumpName;
-            return response()->json(['code' => 200, 'data' => $dumpUrl, 'message' => 'Database exported successfully']);
-        }
+        // OLD Code START
+        // $allOutput = [];
+        // exec($cmd, $allOutput, $return_var);
 
-        return response()->json(['code' => 500, 'message' => 'Database export failed, Please check the logs']);
+        // if ($return_var === 0) {
+        //     $commandLog = new DatabaseExportCommandLog();
+        //     $commandLog->user_id = \Auth::user()->id;
+        //     $commandLog->command = $cmd;
+        //     $commandLog->response = 'Database exported successfully';
+        //     $commandLog->save();
+        // } else {
+        //     $errorMessage = "Error exporting database. Exit status: $return_var\nOutput:\n" . implode("\n", $allOutput);
+
+        //     $commandLog = new DatabaseExportCommandLog();
+        //     $commandLog->user_id = \Auth::user()->id;
+        //     $commandLog->command = $cmd;
+        //     $commandLog->response = $errorMessage;
+        //     $commandLog->save();
+        // }
+
+        // if ($return_var === 0) {
+        //     chmod($dumpName, 0755);
+        //     header('Content-Type: application/octet-stream');
+        //     header('Content-Transfer-Encoding: Binary');
+        //     header('Content-disposition: attachment; filename=erp_live_schema.sql');
+        //     $dumpUrl = env('APP_URL') . '/' . $dumpName;
+        //     return response()->json(['code' => 200, 'data' => $dumpUrl, 'message' => 'Database exported successfully']);
+        // }
+
+        // return response()->json(['code' => 500, 'message' => 'Database export failed, Please check the logs']);
+        // OLD Code END
     }
 
     public function commandLogs(Request $request)
