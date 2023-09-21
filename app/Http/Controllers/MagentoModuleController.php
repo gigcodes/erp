@@ -827,7 +827,9 @@ class MagentoModuleController extends Controller
 
     public function syncModules (Request $request) 
     {
+        \Log::info('########## syncModules started ##########');
         if ($request->has('store_website_id') && $request->store_website_id != '') {
+            \Log::info('selected websites:' . print_r($request->store_website_id, true));
             $return_data = [];
             $updated_by = auth()->user()->id;
             $storeWebsites = StoreWebsite::whereIn('id', $request->store_website_id)->get();
@@ -847,19 +849,16 @@ class MagentoModuleController extends Controller
 
                 if (! isset($output[0])) {
                     MagentoModuleLogs::create(['store_website_id' => $storeWebsite->id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
-
                     $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $storeWebsite->id];
-
+                    \Log::info('syncModules output is not set:' . print_r($return_data, true));
                     continue;
                 }
 
-                // Sample Output  enabled=mod1,mod2,mod3 disabled=mod1,mod2,mod3
-                $responseArray = explode(' ', $output[0]);
-
+                // Sample Output  $output[0] = enabled=mod1,mod2,mod3 
+                // Sample Output  $output[2] = disabled=mod1,mod2,mod3
                 $enabledModules = [];
                 $disabledModules = [];
 
-                // foreach ($output as $element) {
                 if (strpos($output[0], 'enabled=') === 0) {
                     // Remove "enabled=" and push the remaining values to the $enabledModules.
                     $enabledModules = explode(',', substr($output[0], 8));
@@ -868,40 +867,89 @@ class MagentoModuleController extends Controller
                 if (strpos($output[2], 'disabled=') === 0) {
                     // Remove "disabled=" and push the remaining values to the $disabledModules.
                     $disabledModules = explode(',', substr($output[2], 9));
-                    \Log::info('syncModules disabledModules:' . print_r($enabledModules, true));
+                    \Log::info('syncModules disabledModules:' . print_r($disabledModules, true));
                 }
-                // }
 
                 if ($enabledModules) {
                     foreach($enabledModules as $enabledModule) {
-                        $magento_module = MagentoModule::where('module', $enabledModule)->where('store_website_id', $storeWebsite->id)->first();
-                        if ($magento_module) {
-                            $magento_module->status = 1;
-                            $magento_module->save();
+                        $magento_module = MagentoModule::updateOrCreate(
+                            [
+                                'module' => $enabledModule,
+                                'store_website_id' => $storeWebsite->id,
+                            ],
+                            [
+                                'status' => 1, // The value you want to set for 'status'
+                            ]
+                        );
+
+                        // Check if a new record was created
+                        if ($magento_module->wasRecentlyCreated) {
+                            // Log the creation of a new record
+                            MagentoModuleLogs::create([
+                                'store_website_id' => $storeWebsite->id,
+                                'updated_by' => $updated_by,
+                                'command' => $cmd,
+                                'status' => 'Created',
+                                'response' => "Module {$enabledModule} created for this store website & enabled",
+                                'magento_module_id' => $magento_module->id
+                            ]);
                         } else {
-                            MagentoModuleLogs::create(['store_website_id' => $storeWebsite->id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => "For Enable, Module {$enabledModule} not found for this store website"]);
+                            // Log the update of an existing record
+                            MagentoModuleLogs::create([
+                                'store_website_id' => $storeWebsite->id,
+                                'updated_by' => $updated_by,
+                                'command' => $cmd,
+                                'status' => 'Updated',
+                                'response' => "Module {$enabledModule} updated for this store website & enabled",
+                                'magento_module_id' => $magento_module->id
+                            ]);
                         }
                     }
                 }
 
                 if ($disabledModules) {
                     foreach($disabledModules as $disableModule) {
-                        $magento_module = MagentoModule::where('module', $disableModule)->where('store_website_id', $storeWebsite->id)->first();
-                        if ($magento_module) {
-                            $magento_module->status = 0;
-                            $magento_module->save();
+                        $magento_module = MagentoModule::updateOrCreate(
+                            [
+                                'module' => $disableModule,
+                                'store_website_id' => $storeWebsite->id,
+                            ],
+                            [
+                                'status' => 0, // The value you want to set for 'status'
+                            ]
+                        );
+
+                        // Check if a new record was created
+                        if ($magento_module->wasRecentlyCreated) {
+                            // Log the creation of a new record
+                            MagentoModuleLogs::create([
+                                'store_website_id' => $storeWebsite->id,
+                                'updated_by' => $updated_by,
+                                'command' => $cmd,
+                                'status' => 'Created',
+                                'response' => "Module {$disableModule} created for this store website & disabled",
+                                'magento_module_id' => $magento_module->id
+                            ]);
                         } else {
-                            MagentoModuleLogs::create(['store_website_id' => $storeWebsite->id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => "For Disable, Module {$disableModule} not found for this store website"]);
+                            // Log the update of an existing record
+                            MagentoModuleLogs::create([
+                                'store_website_id' => $storeWebsite->id,
+                                'updated_by' => $updated_by,
+                                'command' => $cmd,
+                                'status' => 'Updated',
+                                'response' => "Module {$disableModule} updated for this store website & disabled",
+                                'magento_module_id' => $magento_module->id
+                            ]);
                         }
-                        
                     }
                 }
             }
 
+            \Log::info('########## syncModules end ##########');
             return redirect(route('magento_module_listing'))->with('success', 'Sync process completed, Please check the logs for more details');
-            // return response()->json(['code' => 200,  'message' => '', 'data' => $return_data]);
         }
 
+        \Log::info('########## syncModules end ##########');
         return redirect(route('magento_module_listing'))->with('error', 'Please select the store website!');
     }
 
