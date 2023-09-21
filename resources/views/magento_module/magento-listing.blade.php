@@ -114,7 +114,7 @@
         <h2 class="page-heading">Magento Modules ({{$magento_modules_count}})</h2>
 		<div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-12">
+                <div class="col-8">
                     <form action="{{ route('magento_module_listing') }}" method="get" class="search">
                         <div class="row">
                             {{-- <div class="col-md-2 pd-sm">
@@ -136,6 +136,21 @@
                         </div>
                     </form>
                 </div>
+				<div class="col-4">
+					{{Form::open(array('url'=>route('magento_module.sync-modules'), 'class'=>'form-inline'))}}
+						<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+							<select class="form-control websites globalSelect22" name="store_website_id[]" data-placeholder="Please select website" style="width:200px !important;" multiple>
+								<option value=""></option>
+								@foreach($all_store_websites as $wId => $wTitle)
+									<option value="{{ $wId }}">{{ $wTitle }}</option>
+								@endforeach
+							</select>
+						</div> 
+						<div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+							<button title="Sync Magento Modules" type="submit" style="" class="btn btn-default"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+						</div> 
+					{{ Form::close() }} 
+				</div>
             </div>
         </div>
     </div>
