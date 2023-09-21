@@ -872,84 +872,88 @@ class MagentoModuleController extends Controller
 
                 if ($enabledModules) {
                     foreach($enabledModules as $enabledModule) {
-                        $magento_module = MagentoModule::where('module', $enabledModule)
-                            ->where('store_website_id', $storeWebsite->id)
-                            ->first();
+                        if ($enabledModule) {
+                            $magento_module = MagentoModule::where('module', $enabledModule)
+                                ->where('store_website_id', $storeWebsite->id)
+                                ->first();
 
-                        if (!$magento_module) {
-                            // The record does not exist, so create it
-                            $magento_module = new MagentoModule([
-                                'module' => $enabledModule,
-                                'store_website_id' => $storeWebsite->id,
-                                'status' => 1, // The value you want to set for 'status'
-                            ]);
-                            $magento_module->save();
-                        
-                            // Log the creation of a new record
-                            MagentoModuleLogs::create([
-                                'store_website_id' => $storeWebsite->id,
-                                'updated_by' => $updated_by,
-                                'command' => $cmd,
-                                'status' => 'Created',
-                                'response' => "Module {$enabledModule} created for this store website & enabled",
-                                'magento_module_id' => $magento_module->id,
-                            ]);
-                        } elseif ($magento_module->status != 1) {
-                            // The record exists, but 'status' is not 1, so update it
-                            $magento_module->status = 1;
-                            $magento_module->save();
-                        
-                            // Log the update of an existing record
-                            MagentoModuleLogs::create([
-                                'store_website_id' => $storeWebsite->id,
-                                'updated_by' => $updated_by,
-                                'command' => $cmd,
-                                'status' => 'Updated',
-                                'response' => "Module {$enabledModule} updated for this store website & enabled",
-                                'magento_module_id' => $magento_module->id,
-                            ]);
+                            if (!$magento_module) {
+                                // The record does not exist, so create it
+                                $magento_module = new MagentoModule([
+                                    'module' => $enabledModule,
+                                    'store_website_id' => $storeWebsite->id,
+                                    'status' => 1, // The value you want to set for 'status'
+                                ]);
+                                $magento_module->save();
+                            
+                                // Log the creation of a new record
+                                MagentoModuleLogs::create([
+                                    'store_website_id' => $storeWebsite->id,
+                                    'updated_by' => $updated_by,
+                                    'command' => $cmd,
+                                    'status' => 'Created',
+                                    'response' => "Module {$enabledModule} created for this store website & enabled",
+                                    'magento_module_id' => $magento_module->id,
+                                ]);
+                            } elseif ($magento_module->status != 1) {
+                                // The record exists, but 'status' is not 1, so update it
+                                $magento_module->status = 1;
+                                $magento_module->save();
+                            
+                                // Log the update of an existing record
+                                MagentoModuleLogs::create([
+                                    'store_website_id' => $storeWebsite->id,
+                                    'updated_by' => $updated_by,
+                                    'command' => $cmd,
+                                    'status' => 'Updated',
+                                    'response' => "Module {$enabledModule} updated for this store website & enabled",
+                                    'magento_module_id' => $magento_module->id,
+                                ]);
+                            }
                         }
                     }
                 }
 
                 if ($disabledModules) {
                     foreach($disabledModules as $disableModule) {
-                        $magento_module = MagentoModule::where('module', $disableModule)
-                            ->where('store_website_id', $storeWebsite->id)
-                            ->first();
+                        if ($disableModule) {
+                            $magento_module = MagentoModule::where('module', $disableModule)
+                                ->where('store_website_id', $storeWebsite->id)
+                                ->first();
 
-                        if (!$magento_module) {
-                            // The record does not exist, so create it
-                            $magento_module = new MagentoModule([
-                                'module' => $disableModule,
-                                'store_website_id' => $storeWebsite->id,
-                                'status' => 0, // The value you want to set for 'status'
-                            ]);
-                            $magento_module->save();
-                        
-                            // Log the creation of a new record
-                            MagentoModuleLogs::create([
-                                'store_website_id' => $storeWebsite->id,
-                                'updated_by' => $updated_by,
-                                'command' => $cmd,
-                                'status' => 'Created',
-                                'response' => "Module {$disableModule} created for this store website & disabled",
-                                'magento_module_id' => $magento_module->id,
-                            ]);
-                        } elseif ($magento_module->status != 0) {
-                            // The record exists, but 'status' is not 0, so update it
-                            $magento_module->status = 0;
-                            $magento_module->save();
-                        
-                            // Log the update of an existing record
-                            MagentoModuleLogs::create([
-                                'store_website_id' => $storeWebsite->id,
-                                'updated_by' => $updated_by,
-                                'command' => $cmd,
-                                'status' => 'Updated',
-                                'response' => "Module {$disableModule} updated for this store website & disabled",
-                                'magento_module_id' => $magento_module->id,
-                            ]);
+                            if (!$magento_module) {
+                                // The record does not exist, so create it
+                                $magento_module = new MagentoModule([
+                                    'module' => $disableModule,
+                                    'store_website_id' => $storeWebsite->id,
+                                    'status' => 0, // The value you want to set for 'status'
+                                ]);
+                                $magento_module->save();
+                            
+                                // Log the creation of a new record
+                                MagentoModuleLogs::create([
+                                    'store_website_id' => $storeWebsite->id,
+                                    'updated_by' => $updated_by,
+                                    'command' => $cmd,
+                                    'status' => 'Created',
+                                    'response' => "Module {$disableModule} created for this store website & disabled",
+                                    'magento_module_id' => $magento_module->id,
+                                ]);
+                            } elseif ($magento_module->status != 0) {
+                                // The record exists, but 'status' is not 0, so update it
+                                $magento_module->status = 0;
+                                $magento_module->save();
+                            
+                                // Log the update of an existing record
+                                MagentoModuleLogs::create([
+                                    'store_website_id' => $storeWebsite->id,
+                                    'updated_by' => $updated_by,
+                                    'command' => $cmd,
+                                    'status' => 'Updated',
+                                    'response' => "Module {$disableModule} updated for this store website & disabled",
+                                    'magento_module_id' => $magento_module->id,
+                                ]);
+                            }
                         }
                     }
                 }
