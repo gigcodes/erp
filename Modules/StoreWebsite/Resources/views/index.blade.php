@@ -60,6 +60,18 @@
 	                                    <?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword", 'style'=>'width:100%']) ?>
 	                                </div>
 								</div>
+								<div class="col col-lg-3 pl-0">
+									<div class="form-group" style="display: contents;">
+										<b style=" display: block;">Country Duty :</b>
+	                                    <?php echo Form::text("country", request("country"), ["class" => "form-control", "placeholder" => "Enter Country Duty", 'style'=>'width:100%']) ?>
+	                                </div>
+								</div>
+								<div class="col col-lg-3 pl-0">
+									<div class="form-group" style="display: contents;">
+										<b style=" display: block;">Service id :</b>
+	                                    <?php echo Form::text("mailing_service_id", request("mailing_service_id"), ["class" => "form-control", "placeholder" => "Enter Service Id", 'style'=>'width:100%']) ?>
+	                                </div>
+								</div>
 								<div class="col col-lg-3 p-0">
 									<div class="form-group">
 										<button style="padding-top: 30px;" class="btn btn-sm btn-image btn-secondary btn-search-action">

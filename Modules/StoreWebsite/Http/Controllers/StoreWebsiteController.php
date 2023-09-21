@@ -404,11 +404,25 @@ class StoreWebsiteController extends Controller
         ->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'store_websites.store_code_id')
         ->select(['store_websites.*', 'svcsm.code as store_code_name', 'svcsm.id as store_code_id']);
         $keyword = request('keyword');
+        $country = request('country');
+        $mailing_service_id = request('mailing_service_id');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('website', 'LIKE', "%$keyword%")
                     ->orWhere('title', 'LIKE', "%$keyword%")
                     ->orWhere('description', 'LIKE', "%$keyword%");
+            });
+        }
+
+        if (! empty($country)) {
+            $records = $records->where(function ($q) use ($country) {
+                $q->where('website', 'LIKE', "%$country%");
+            });
+        }
+
+        if (! empty($mailing_service_id)) {
+            $records = $records->where(function ($q) use ($mailing_service_id) {
+                $q->where('mailing_service_id', $mailing_service_id);
             });
         }
 
