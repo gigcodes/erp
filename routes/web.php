@@ -1716,6 +1716,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('meeting-description', [Meeting\ZoomMeetingController::class, 'storeMeetingDescription'])->name('meeting.store.description');
     Route::get('meeting-description/histories', [Meeting\ZoomMeetingController::class, 'meetingDescriptionHistory'])->name('meeting.description.show');
     Route::get('/videos/recoirding-show', [Meeting\ZoomMeetingController::class,'showVideo'])->name('recording.video.show');
+    Route::get('all/participant/lists', [Meeting\ZoomMeetingController::class, 'listAllParticipants'])->name('list.all-participants');
+
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {
@@ -3443,6 +3445,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/process-list', [DatabaseController::class, 'processList'])->name('database.process.list');
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
+    Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');

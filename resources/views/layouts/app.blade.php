@@ -64,6 +64,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             width: 100%;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
         }
         .secondary-header {
             width: 100%;
@@ -74,6 +75,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
         #quick-sidebars ul {
             gap: 1px;
+            flex-wrap: wrap;
         }
         .primary-header .list-unstyled.components {
             margin-left: 0px;
@@ -193,17 +195,17 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
 
     #website_Off_status .status-alert-badge {
-    left: 170px;
+        left: 25px;
     }
 
     .permission-alert-badge{
-        left: 790px;
+        left: 25px;
     }
     #timer-alerts .timer-alert-badge {
-    left: 130px;
+        left: 25px;
     }
     #database-backup-monitoring .database-alert-badge{
-        left: 360px;
+        left: 25px;
     }
     .red-alert-badge {
         position: absolute;
@@ -227,6 +229,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     }
     .event-type-label {
         display: contents
+    }
+    .navbar .container-fluid:before, .navbar .container-fluid:after {
+        display: none;
+    }
+    .header-search-bar .nav-item.dropdown{
+        width: 300px;
+        margin-left: auto;
     }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -437,11 +446,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         line-height: 30px;
     }
 
-    #navbarSupportedContent {
-        display: flex !important;
+    .menu-toogle-container {
+        display: flex;
         /* New Header design CSS */
         flex-direction: column;
         gap: 5px;
+        flex-wrap: wrap;
+        width: 100%;
         /* New Header design CSS */
     }
 
@@ -450,6 +461,26 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         padding-right: 15px;
     }
 
+    .secondary-header .navbar-nav li{
+            padding-right: 10px;
+    }
+    /* .header-block{
+        flex-direction: column;
+        padding-right: 0 !important;
+    } */
+
+    #quick-sidebars .fa-2x, #quick-sidebars li img {
+        font-size: 14px;
+        background: #dddddd9c;
+        padding: 5px;
+        border-radius: 4px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+   }
+   
     @media(max-width:1350px) {
 
 
@@ -473,6 +504,20 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         margin-right: 0;
     }
 
+
+    @media(max-width:768px) {
+        /* #navbarSupportedContent{
+            display:  block;
+        } */
+         /* .primary-header, .secondary-header, #quick-sidebars ul, .secondary-header ul{
+            flex-wrap: unset !important; 
+        } */
+        .navbar .container-fluid:after, .navbar .container-fluid:before{
+            display: none !important;
+        }
+    }
+  
+
     @media(min-width:1700px) {
         #navs {
             padding-left: 40px;
@@ -489,9 +534,247 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         display: none;
     }
 
+    #quick-sidebars a{
+        position: relative;
+    }
+
     /*.navbar-brand{*/
     /*    margin-right: 20px;*/
     /*}*/
+
+      /* Responsive styles */
+    /* // X-Small devices (portrait phones, less than 576px) */
+    @media (max-width: 575.98px) { 
+        #quick-sidebars ul{
+            display: flex;
+            overflow-y: hidden;
+            overflow-x: auto;
+            gap: 5px;
+            padding-bottom: 10px;
+            position: relative;
+            border: none;
+            margin-bottom: 0;
+            flex-wrap: nowrap;
+        }
+        #quick-sidebars ul li{
+            margin-left: 0;
+            flex: 0 0 6%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #event-alerts .event-alert-badge,
+        #website_Off_status .status-alert-badge,
+        .permission-alert-badge,
+        #timer-alerts .timer-alert-badge  {
+            top: 0px;
+        }
+        .secondary-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .secondary-header .navbar-nav.ml-auto {
+            margin-left: unset !important;
+            width: 100%;
+            text-align: left !important;
+        }
+        .header-search-bar, .header-search-bar input{
+            width: 100% !important;;
+        }
+        .menu-toogle-container {
+            padding: 10px 0;
+        }
+        .header-search-bar .form-control{
+            min-width: 100% !important;
+        }
+        .header-search-bar .nav-item.dropdown{
+            width: 100%;
+        }
+        .header-search-bar .dropdown-menu.multi-level{
+            position: unset !important;
+            min-width: 100%;
+        }
+    }
+    /* // Small devices (landscape phones, 576px and up) */
+    @media (min-width: 576px) and (max-width: 767.98px) { 
+        #quick-sidebars ul{
+            display: flex;
+            overflow-y: hidden;
+            overflow-x: auto;
+            gap: 5px;
+            padding-bottom: 10px;
+            position: relative;
+            border: none;
+            margin-bottom: 0;
+            flex-wrap: nowrap;
+        }
+        #quick-sidebars ul li{
+            margin-left: 0;
+            flex: 0 0 6%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #event-alerts .event-alert-badge,
+        #website_Off_status .status-alert-badge,
+        .permission-alert-badge,
+        #timer-alerts .timer-alert-badge  {
+            top: 0px;
+        }
+        .secondary-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .secondary-header .navbar-nav.ml-auto {
+            margin-left: unset !important;
+            width: 100%;
+            text-align: left !important;
+        }
+        .header-search-bar, .header-search-bar input{
+            width: 100% !important;;
+        }
+        .menu-toogle-container {
+            padding: 10px 0;
+        }
+        .header-search-bar .form-control{
+            min-width: 100% !important;
+        }
+        .header-search-bar .nav-item.dropdown{
+            width: 100%;
+        }
+        .header-search-bar .dropdown-menu.multi-level{
+            position: unset !important;
+            min-width: 100%;
+        }
+    }
+    /* // Medium devices (tablets, 768px and up) */
+    @media (min-width: 768px) and (max-width: 991.98px) { 
+        .secondary-header .navbar-nav li {
+            padding-right: 5px;
+            width: 100%;
+        }
+        #navs.navbar-nav > li > a{
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .header-search-bar{
+            flex-shrink: 0;
+            width: 100%;
+            padding-bottom: 5px;
+        }
+        #quick-sidebars ul{
+            display: flex;
+            overflow-y: hidden;
+            overflow-x: auto;
+            gap: 5px;
+            padding-bottom: 10px;
+            position: relative;
+            border: none;
+            margin-bottom: 0;
+            flex-wrap: nowrap;
+        }
+        #quick-sidebars ul li{
+            margin-left: 0;
+            flex: 0 0 3%;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #event-alerts .event-alert-badge,
+        #website_Off_status .status-alert-badge,
+        .permission-alert-badge,
+        #timer-alerts .timer-alert-badge {
+            top: 0px;
+        }
+        .secondary-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .secondary-header .navbar-nav.ml-auto {
+            margin-left: unset !important;
+            width: 100%;
+            text-align: left !important;
+        }
+        .header-search-bar, .header-search-bar input{
+            width: 100% !important;;
+        }
+        .menu-toogle-container {
+            padding: 10px 0;
+        }
+        #navs .dropdown-menu{
+            box-shadow: none !important;
+            border: none !important;
+        }
+        #navbarSupportedContent.navbar-collapse.in{
+            overflow-y:  auto !important;
+        }
+        .header-search-bar .form-control{
+            min-width: 100% !important;
+        }
+        .header-search-bar .nav-item.dropdown{
+            width: 100%;
+        }
+        .header-search-bar .dropdown-menu.multi-level{
+            position: unset !important;
+            min-width: 100%;
+        }
+        
+    }
+    /* // Large devices (desktops, 992px and up) */
+    @media (min-width: 992px) and (max-width: 1199.98px) { 
+        .header-search-bar {
+            width: 100%;
+        }
+        #quick-sidebars ul {
+            gap: 5px;
+        }
+        .header-search-bar .nav-item.dropdown{
+            width: unset;
+        }
+    }
+    @media(min-width: 768px) and  (max-width: 1365.98px) { 
+        #quick-sidebars ul li{
+            margin-left: 0 !important;
+        }
+        .header-search-bar{
+            flex-shrink: 0;
+        }
+        .header-search-bar .form-control{
+            margin-top: 0 !important;
+        }
+ 
+        
+    }
+    /* // Extra large devices (large desktops, 1200px and up) */
+    @media (min-width: 1200px) and (max-width: 1400.98px) {
+        .secondary-header .navbar-nav li {
+        padding-right: 5px;
+        }
+        #search_li{
+            width:  180px;
+        }
+        .header-search-bar .nav-item.dropdown{
+            width: unset;
+        }
+    }
+    /* // For 2k Monitors, (more than 1401 px) */
+    @media (min-width: 1401px) and (max-width: 1599.98px) {
+    
+    }
+    @media (min-width: 1600px) and (max-width: 2559.98px) {
+    
+    }
+    @media (min-width: 2560px) {
+    }
 
     .highlight {
         background-color: yellow;
@@ -837,11 +1120,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     <div id="app">
 
-        <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
-
+        <nav class="navbar navbar-expand-lg navbar-light navbar-laravel py-1">
             <!--<div class="container container-wide">-->
 
-            <div class="container-fluid pr-0">
+                <div class="container-fluid pr-md-0 pl-md-0 pl-xl-3 flex-xl-row flex-lg-column">
                 <a class="navbar-brand pl-0" href="{{ url('/task') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
@@ -855,7 +1137,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </button>
 
 
-                <div class="collapse navbar-collapse pr-0" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse pr-md-0 pl-xl-3 pl-md-0" id="navbarSupportedContent">
+                    <div class="menu-toogle-container">
                     <div class="primary-header">
 
                         @if(Auth::check())
@@ -1021,10 +1304,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                        <i class="fa fa-barcode fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
-                                    <img src="https://p1.hiclipart.com/preview/160/386/395/cloud-symbol-cloud-computing-business-telephone-system-itc-technology-workflow-ip-pbx-vmware-png-clipart.jpg"
-                                        class="system-request quick-icon" data-toggle="modal"
-                                        style="width:25px; height:25px;background: #dddddd9c;padding: 0px;"
-                                        data-target="#system-request" title="System Request" />
+                                    <a title="System Request"  type="button" class="system-request quick-icon" data-toggle="modal"
+                                    data-target="#system-request" style="padding: 0px 1px;"><span>
+                                    <i class="fa fa-sitemap fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
                                     <a class="quick-icon todolist-request" href="#"><span><i
@@ -1155,7 +1437,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
                         <!-- Right Side Of Navbar -->
 
-                        <ul id="navs" class="navbar-nav ml-auto "
+                        <ul id="navs" class="navbar-nav ml-auto pl-0"
                             style="display:flex;text-align: center;flex-grow: 1;gap:6px">
 
                             <!-- Authentication Links -->
@@ -2155,6 +2437,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('meetings.all.data') }}">Zoom
                                             Meeting List</a>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="dropdown-item" href="{{ route('list.all-participants') }}">All Zoom participants List</a>
                                     </li>
                                 </ul>
                             </li>
@@ -4373,14 +4658,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             </li>
                         </ul>
                         @endif
-                        <div>
-                            <div class="nav-item dropdown" id="search_li" style="width:300px;">
-                                <input type="text" class="form-control nav-link w-100" placeholder="Search"
-                                    style="margin-top : 1%;min-width:120px;" onkeyup="filterFunction()" id="search">
-                                <ul class="dropdown-menu multi-level" id="search_container">
-                                </ul>
+                        <div style="width: 100%">
+                            <div class="header-search-bar">
+                                <div class="nav-item dropdown" id="search_li">                                        <input type="text" class="form-control nav-link w-100" placeholder="Search"
+                                            style="margin-top : 1%;min-width:120px;" onkeyup="filterFunction()" id="search">
+                                        <ul class="dropdown-menu multi-level" id="search_container">
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
                     </div>
                 </div>
 

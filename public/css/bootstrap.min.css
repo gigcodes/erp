@@ -4296,12 +4296,12 @@ textarea.input-group-sm > .input-group-btn > .btn {
     -webkit-box-shadow: none;
     box-shadow: none;
   }
-  .navbar-collapse.collapse {
+  /* .navbar-collapse.collapse {
     display: block !important;
     height: auto !important;
-    padding-bottom: 0;
+    padding-bottom: 0;p
     overflow: visible !important;
-  }
+  } */
   .navbar-collapse.in {
     overflow-y: visible;
   }

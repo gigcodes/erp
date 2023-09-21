@@ -1685,6 +1685,7 @@
 								<th>File Creation Date</th>
 								<th>URL</th>
 								<th>Remarks</th>
+                                <th>Created by</th>
 							</tr>
 						</thead>
 						<tbody id="taskFileUploadedData">
