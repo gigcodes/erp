@@ -2086,13 +2086,13 @@ class StoreWebsiteController extends Controller
     public function runCsvSingleCommand(Request $request)
     {
         $action = "pull";
-        $this->csvFilePullCommand($request->input('id'), $action);
+        return $this->csvFilePullCommand($request->input('id'), $action);
     }
 
     public function runCsvSinglePushCommand(Request $request)
     {
         $action = "push";
-        $this->csvFilePullCommand($request->input('id'), $action);
+        return $this->csvFilePullCommand($request->input('id'), $action);
     }
 
     public function csvFilePullCommand($id, $action)
@@ -2175,6 +2175,11 @@ class StoreWebsiteController extends Controller
         $allOutput = [];
         $allOutput[] = $command;
         $result = exec($command, $allOutput);
+        // Below static code for testing purpose. 
+        // $allOutput = [
+        //     "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
+        //     '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
+        // ];
 
         $response = json_decode($allOutput[1], true);
         \Log::info('command:' . $command);
