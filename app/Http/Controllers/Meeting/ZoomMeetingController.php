@@ -892,11 +892,28 @@ class ZoomMeetingController extends Controller
     public function showVideo(Request $request)
     {
         $fileName = ZoomMeetingDetails::find($request->id);
+
+        if (!$fileName) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not Available',
+                'status_name' => 'error',
+            ], 404);
+        }
+
         $file_name = basename($fileName->local_file_path);
         $meetingId = $fileName->meeting_id;
 
         $videoUrl = "zoom/0/$meetingId/$file_name";
 
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+        
         $mime_type = mime_content_type($videoUrl);
         if ($mime_type !== 'video/mp4') {
             abort(404);
