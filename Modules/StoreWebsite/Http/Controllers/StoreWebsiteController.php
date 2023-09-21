@@ -2176,7 +2176,7 @@ class StoreWebsiteController extends Controller
         $allOutput[] = $command;
         $result = exec($command, $allOutput);
 
-        $response = json_decode($result, true);
+        $response = json_decode($allOutput[1], true);
         \Log::info('command:' . $command);
         \Log::info('output:' . print_r($allOutput, true));
 
