@@ -2109,7 +2109,7 @@ class StoreWebsiteController extends Controller
         $websiteName = $storewebsite->title;
         $websiteDirectory = $storewebsite->working_directory;
         $storeCode = "gb-en";
-        $fileName = $storewebsite->title . "gb-en";
+        $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
         $action = $action;
 
         // $path = "/var/www/html/erp/public/uploads/google-file-translator/";
@@ -2167,7 +2167,10 @@ class StoreWebsiteController extends Controller
         }
 
         // Construct and execute the command
-        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'process_magento_csv.sh' . '"-a "' . $action . '-s "' . $serverName . '" -w "' . $websiteName . '" -d "' . $websiteDirectory . '" -S "' . $storeCode . '" -f "' . $fileName . '"';
+        $scriptsPath   =  getenv('DEPLOYMENT_SCRIPTS_PATH');
+        // $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'process_magento_csv.sh'  . '-a ' . $action . '-s ' . $serverName . ' -w ' . $websiteName . ' -d ' . $websiteDirectory . ' -S ' . $storeCode . ' -f' . $fileName . '';
+        $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
+
 
         $allOutput = [];
         $allOutput[] = $command;
