@@ -58,6 +58,8 @@ use App\Models\StoreWebsiteApiTokenHistory;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\Models\StoreWebsiteBuilderApiKeyHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\StoreWebsiteCsvFile;
+use Exception;
 
 class StoreWebsiteController extends Controller
 {
@@ -2043,4 +2045,140 @@ class StoreWebsiteController extends Controller
     //         abort(404, 'The file you are trying to download does not exist.');
     //     }
     // }
+
+    public function StorewebsiteDownloadListing(Request $request)
+    {
+        $perPage =  20;
+        
+        $storeWebsites = StoreWebsite::latest()->paginate($perPage);
+
+        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites'));
+
+    }
+
+    public function mulitipleStorewebsiteDownload(Request $request)
+    {
+        $webIds = $request->input('website_ids');
+
+        $webIdsArray = explode(',', $webIds);
+
+        if (empty($webIdsArray)) {
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'Data is missing']);
+        }
+
+        try {
+            foreach ($webIdsArray as $webId) {
+                $action = "pull";
+                $this->csvFilePullCommand($webId,$action);
+            }
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function runCsvSingleCommand(Request $request)
+    {
+        $action = "pull";
+        $this->csvFilePullCommand($request->input('id'), $action);
+    }
+
+    public function runCsvSinglePushCommand(Request $request)
+    {
+        $action = "push";
+        $this->csvFilePullCommand($request->input('id'), $action);
+    }
+
+    public function csvFilePullCommand($id, $action)
+    {
+        $storewebsite = StoreWebsite::find($id);
+
+        if (!$storewebsite) {
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'Invalid website ID']);
+        }
+
+        // Retrieve required data for the operation
+        $storeWebsiteId = $id;
+        $serverName = $storewebsite->server_ip;
+        $websiteName = $storewebsite->title;
+        $websiteDirectory = $storewebsite->working_directory;
+        $storeCode = "gb-en";
+        $fileName = $storewebsite->title . "gb-en";
+        $action = $action;
+
+        // Validate the data
+        $message = '';
+
+        if (!$storewebsite) {
+            $message = "websiteId is required";
+        }
+
+        if (!$serverName) {
+            $message = "Serve name is required";
+        }
+
+        if (!$websiteName) {
+            $message = "Website name is required";
+        }
+
+        if (!$websiteDirectory) {
+            $message = "websiteDirectory is required";
+        }
+
+        if ($message !== "") {
+            StoreWebsiteCsvFile::create([
+                'storewebsite_id' => $storeWebsiteId,
+                'status' => 'fail',
+                'message' => $message,
+                'action' => $action,
+            ]);
+
+            return response()->json(['code' => 500, 'data' => [], 'message' => $message]);
+        }
+
+        // Construct and execute the command
+        $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'process_magento_csv.sh' . '"-a "' . $action . '-s "' . $serverName . '" -w "' . $websiteName . '" -d "' . $websiteDirectory . '" -S "' . $storeCode . '" -f "' . $fileName . '"';
+
+        $allOutput = [];
+        $allOutput[] = $command;
+        $result = exec($command, $allOutput);
+
+        $response = json_decode($result, true);
+
+        if (is_array($response)) {
+            $status = $response['status'];
+            $message = $response['message'];
+            $path = $response['path'];
+
+            if ($status === 'success') {
+                StoreWebsiteCsvFile::create([
+                    'storewebsite_id' => $storeWebsiteId,
+                    'status' => $status,
+                    'message' => $message,
+                    'action' => $action,
+                    'path' => $path,
+                ]);
+
+                return response()->json(['message' => $message, 'code' => 200]);
+            } else {
+                StoreWebsiteCsvFile::create([
+                    'storewebsite_id' => $storeWebsiteId,
+                    'status' => $status,
+                    'message' => $message,
+                    'action' => $action,
+                ]);
+
+                return response()->json(['message' => $message, 'code' => 500]);
+            }
+        } else {
+            StoreWebsiteCsvFile::create([
+                'storewebsite_id' => $storeWebsiteId,
+                'status' => 'fail',
+                'message' => 'Invalid JSON response',
+                'action' => $action,
+            ]);
+
+            return response()->json(['message' => "Invalid JSON response", 'code' => 500]);
+        }
+    }
+
 }

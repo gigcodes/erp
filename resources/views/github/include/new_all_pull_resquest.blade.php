@@ -308,7 +308,7 @@
     function getPullRequests(){
         var repoId = $('#repoId').val();
 
-        $('.loader-section').removeClass('d-n');
+        $("#loading-image-preview").show();
         
         xhr = $.ajax({
             type: "GET",
@@ -325,6 +325,7 @@
             },
             dataType: "json",
             success: function (result) {
+                $("#loading-image-preview").hide();
                 $('#pull-request-table').DataTable().clear().destroy();
 
                 $('#pull_request_html_id').html(result.count);;
@@ -336,7 +337,6 @@
                     "info": false
                 });
 
-                $('.loader-section').addClass('d-n');
             }
         });
     }
