@@ -22,7 +22,7 @@
 	<br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col col-md-9">
+			<div class="col col-md-12">
 				<div class="row">
 					<button style="display: inline-block;" class="btn pl-5 btn-sm btn-image btn-add-action">
 						<img src="/images/add.png" style="cursor: default;">
@@ -48,19 +48,24 @@
 					@endif
 				</div>
 			</div>
-			<div class="col">
-				<div class="h" style="margin-bottom:10px;">
-					<form class="form-inline message-search-handler" method="post">
+			<hr style=" width: 100%;">
+			<div class="col col-md-12">
+				<div class="h pl-5 pr-5" style="margin-bottom:10px;">
+					<form class="form-inline message-search-handler" method="post" style="width: 100%; display: inline-block;">
 						<div class="row">
-							<div class="col">
-								<div class="form-group">
-									<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) ?>
+							<div class="col col-md-12">
+								<div class="col col-lg-3 pl-0">
+									<div class="form-group" style="display: contents;">
+										<b style=" display: block;">Search - Title, Website & Description :</b>
+	                                    <?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword", 'style'=>'width:100%']) ?>
+	                                </div>
 								</div>
-								<div class="form-group">
-									<label for="button">&nbsp;</label>
-									<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
-										<img src="/images/search.png" style="cursor: default;">
-									</button>
+								<div class="col col-lg-3 p-0">
+									<div class="form-group">
+										<button style="padding-top: 30px;" class="btn btn-sm btn-image btn-secondary btn-search-action">
+											<img src="/images/search.png" style="cursor: default;">
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>
