@@ -2224,7 +2224,7 @@ class StoreWebsiteController extends Controller
                     'path' => $path,
                 ]);
 
-                Log::channel('github_error')->error($response['message']);
+                    Log::channel('github_error')->error($response['message']);
 
                 return response()->json(['message' => $message, 'code' => 500]);
             }
@@ -2236,7 +2236,7 @@ class StoreWebsiteController extends Controller
                 'action' => $action,
             ]);
 
-            Log::channel('github_error')->error($response['message']);
+                Log::channel('github_error')->error($response['message']);
 
             return response()->json(['message' => "Invalid JSON response", 'code' => 500]);
         }
