@@ -117,6 +117,8 @@
                 <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
                   <span class="show-short-password-{{$asset->id}}">{{ Str::limit($asset->password, 3, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+                  <button class="copyButton btn btn-xs edit-assets pull-left" data-value="{{$asset->password}}" data-id="{{$asset->id}}"><i class="fa fa-files-o" aria-hidden="true"></i></button>
+                  <span class="copyButton-{{$asset->id}}" style="color: green;"></span>
                 </td>
                 <td>{{ $asset->asset_type }}</td>
                 <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
@@ -133,7 +135,11 @@
                   <span style="word-break:break-all;" class="show-full-usage-{{$asset->id}} hidden">{{$asset->usage}}</span>
                 </td>
                   <td><a href="{{ $asset->link }}" target="_blank">{{ $asset->link }}</a></td>
-                  <td>{{ $asset->ip }}</td>
+                  <td>
+                    {{ $asset->ip }}
+                    <button class="ipButton btn btn-xs edit-assets pull-left" data-value="{{$asset->ip}}" data-id="{{$asset->id}}"><i class="fa fa-files-o" aria-hidden="true"></i></button>
+                  <span class="ipButton-{{$asset->id}}" style="color: green;"></span>
+                    </td>
                   <td class="expand-row-msg" data-name="ip_name" data-id="{{$asset->id}}">
                     <span class="show-short-ip_name-{{$asset->id}}">{{ Str::limit($asset->ip_name, 10, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-ip-name-{{$asset->id}} hidden">{{$asset->ip_name}}</span>
@@ -356,6 +362,40 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+        $(".copyButton").click(function () {
+            var textToCopy = $(this).data("value");
+            var id = $(this).data("id");
+            $('.copyButton-'+id).text('copied.');
+            var $tempInput = $("<input>");
+            $("body").append($tempInput);
+            $tempInput.val(textToCopy).select();
+            document.execCommand("copy");
+            $tempInput.remove();
+            
+            setTimeout(function () {
+                 $('.copyButton-'+id).text('');
+             }, 1500);
+        });
+
+        $(".ipButton").click(function () {
+            var textToCopy = $(this).data("value");
+            var id = $(this).data("id");
+            $('.ipButton-'+id).text('copied.');
+            var $tempInput = $("<input>");
+            $("body").append($tempInput);
+            $tempInput.val(textToCopy).select();
+            document.execCommand("copy");
+            $tempInput.remove();
+            
+            setTimeout(function () {
+                 $('.ipButton-'+id).text('');
+             }, 1500);
+        });
+    });
+</script>
   <script type="text/javascript">
     function Showactionbtn(id){
       $(".action-btn-tr-"+id).toggleClass('d-none')
