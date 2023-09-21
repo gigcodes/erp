@@ -3270,6 +3270,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             Modules</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('magento_module_listing') }}">Magento Modules Listing</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('magento_frontend_listing') }}">Magento Frontend 
                                             Documentation</a>
                                     </li>

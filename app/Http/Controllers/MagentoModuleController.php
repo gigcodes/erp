@@ -825,6 +825,83 @@ class MagentoModuleController extends Controller
         return true;
     }
 
+    public function syncModules (Request $request) 
+    {
+        if ($request->has('store_website_id') && $request->store_website_id != '') {
+            $return_data = [];
+            $updated_by = auth()->user()->id;
+            $storeWebsites = StoreWebsite::whereIn('id', $request->store_website_id)->get();
+            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+            foreach($storeWebsites as $storeWebsite) {
+                $website = $storeWebsite->title;
+                $server = $storeWebsite->server_ip;
+                $rootDir = $storeWebsite->working_directory;
+                $action = "sync";
+ 
+                $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -a \"$action\" 2>&1";
+                $result = exec($cmd, $output, $return_var);
+                \Log::info('syncModules command:' . $cmd);
+                \Log::info('syncModules output:' . print_r($output, true));
+                \Log::info('syncModules return_var:' . $return_var);
+
+                if (! isset($output[0])) {
+                    MagentoModuleLogs::create(['store_website_id' => $storeWebsite->id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
+
+                    $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $storeWebsite->id];
+
+                    continue;
+                }
+
+                // Sample Output  enabled=mod1,mod2,mod3 disabled=mod1,mod2,mod3
+                $responseArray = explode(' ', $output[0]);
+
+                $enabledModules = [];
+                $disabledModules = [];
+
+                foreach ($responseArray as $element) {
+                    if (strpos($element, 'enabled=') === 0) {
+                        // Remove "enabled=" and push the remaining values to the $enabledModules.
+                        $enabledModules = explode(',', substr($element, 8));
+                    } elseif (strpos($element, 'disabled=') === 0) {
+                        // Remove "disabled=" and push the remaining values to the $disabledModules.
+                        $disabledModules = explode(',', substr($element, 9));
+                    }
+                }
+
+                if ($enabledModules) {
+                    foreach($enabledModules as $enabledModule) {
+                        $magento_module = MagentoModule::where('module', $enabledModule)->where('store_website_id', $storeWebsite->id)->first();
+                        if ($magento_module) {
+                            $magento_module->status = 1;
+                            $magento_module->save();
+                        } else {
+                            MagentoModuleLogs::create(['store_website_id' => $storeWebsite->id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => "For Enable, Module {$enabledModule} not found for this store website"]);
+                        }
+                    }
+                }
+
+                if ($disabledModules) {
+                    foreach($disabledModules as $disableModule) {
+                        $magento_module = MagentoModule::where('module', $disableModule)->where('store_website_id', $storeWebsite->id)->first();
+                        if ($magento_module) {
+                            $magento_module->status = 0;
+                            $magento_module->save();
+                        } else {
+                            MagentoModuleLogs::create(['store_website_id' => $storeWebsite->id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => "For Disable, Module {$disableModule} not found for this store website"]);
+                        }
+                        
+                    }
+                }
+            }
+
+            return redirect(route('magento_module_listing'))->with('success', 'Sync process completed, Please check the logs for more details');
+            // return response()->json(['code' => 200,  'message' => '', 'data' => $return_data]);
+        }
+
+        return redirect(route('magento_module_listing'))->with('error', 'Please select the store website!');
+    }
+
     public function magentoModuleUpdateStatus(Request $request)
     {
         $store_website_id = $request->store_website_id;
