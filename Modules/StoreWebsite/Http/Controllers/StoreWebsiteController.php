@@ -2174,6 +2174,8 @@ class StoreWebsiteController extends Controller
         $result = exec($command, $allOutput);
 
         $response = json_decode($result, true);
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($allOutput, true));
 
         if (is_array($response)) {
             $status = $response['status'];
@@ -2239,7 +2241,7 @@ class StoreWebsiteController extends Controller
 
             \Log::info('command:' . $command);
             \Log::info('output:' . print_r($allOutput, true));
-            
+
             return response()->json(['message' => "Invalid JSON response", 'code' => 500]);
         }
     }
