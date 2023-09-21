@@ -859,15 +859,18 @@ class MagentoModuleController extends Controller
                 $enabledModules = [];
                 $disabledModules = [];
 
-                foreach ($responseArray as $element) {
-                    if (strpos($element, 'enabled=') === 0) {
-                        // Remove "enabled=" and push the remaining values to the $enabledModules.
-                        $enabledModules = explode(',', substr($element, 8));
-                    } elseif (strpos($element, 'disabled=') === 0) {
-                        // Remove "disabled=" and push the remaining values to the $disabledModules.
-                        $disabledModules = explode(',', substr($element, 9));
-                    }
+                // foreach ($output as $element) {
+                if (strpos($output[0], 'enabled=') === 0) {
+                    // Remove "enabled=" and push the remaining values to the $enabledModules.
+                    $enabledModules = explode(',', substr($output[0], 8));
+                    \Log::info('syncModules enabledModules:' . print_r($enabledModules, true));
+                } 
+                if (strpos($output[2], 'disabled=') === 0) {
+                    // Remove "disabled=" and push the remaining values to the $disabledModules.
+                    $disabledModules = explode(',', substr($output[2], 9));
+                    \Log::info('syncModules disabledModules:' . print_r($enabledModules, true));
                 }
+                // }
 
                 if ($enabledModules) {
                     foreach($enabledModules as $enabledModule) {
