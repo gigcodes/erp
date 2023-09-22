@@ -416,7 +416,7 @@ class StoreWebsiteController extends Controller
 
         if (! empty($country)) {
             $records = $records->where(function ($q) use ($country) {
-                $q->where('website', 'LIKE', "%$country%");
+                $q->where('country_duty', 'LIKE', "%$country%");
             });
         }
 
