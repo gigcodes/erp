@@ -8,6 +8,8 @@ namespace App;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\StoreWebsiteCsvFile;
+use App\Models\WebsiteStoreProject;
 
 class StoreWebsite extends Model
 {
@@ -116,6 +118,7 @@ class StoreWebsite extends Model
         'database_name',
         'instance_number',
         'builder_io_api_key',
+        'website_store_project_id'
     ];
 
     const DB_CONNECTION = [
@@ -161,6 +164,11 @@ class StoreWebsite extends Model
     public function storeCode()
     {
         return $this->belongsTo(\App\StoreViewCodeServerMap::class, 'store_code_id', 'id');
+    }
+
+    public function websiteStoreProject()
+    {
+        return $this->belongsTo(WebsiteStoreProject::class);
     }
 
     /**
@@ -249,5 +257,10 @@ class StoreWebsite extends Model
     public function versions()
     {
         return $this->hasMany(StoreWebsiteVersion::class, 'store_website_id')->latest('id');
+    }
+
+    public function csvFiles()
+    {
+        return $this->hasMany(StoreWebsiteCsvFile::class, 'storewebsite_id');
     }
 }

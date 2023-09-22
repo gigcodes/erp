@@ -3270,6 +3270,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             Modules</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('magento_module_listing') }}">Magento Modules Listing</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('magento_frontend_listing') }}">Magento Frontend 
                                             Documentation</a>
                                     </li>
@@ -3620,6 +3623,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('reply.replyTranslateList')}}">Reply Translate List</a>
+                                        </li>
+                                        <li  class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('store-website.listing')}}">Store Website Csv Download</a>
                                         </li>
                                         <li  class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('sonarqube.list.page')}}">Sonar Cube</a>

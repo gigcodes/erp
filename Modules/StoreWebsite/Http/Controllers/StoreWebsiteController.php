@@ -58,6 +58,16 @@ use App\Models\StoreWebsiteApiTokenHistory;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\Models\StoreWebsiteBuilderApiKeyHistory;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\StoreWebsiteCsvFile;
+use Exception;
+use App\Translations;
+use App\GoogleTranslate;
+use App\Language;
+use App\Models\GoogleTranslateCsvData;
+use App\Models\WebsiteStoreProject;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class StoreWebsiteController extends Controller
 {
@@ -76,10 +86,11 @@ class StoreWebsiteController extends Controller
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+        $projects = WebsiteStoreProject::orderBy('name')->get()->toArray();
 
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers', 'projects'));
     }
 
     public function builderApiKey()
@@ -1804,6 +1815,39 @@ class StoreWebsiteController extends Controller
         return response()->json(['code' => 400, 'message' => 'Tags Not found']);
     }
 
+    /**
+     * Create project
+     */
+    public function createProject(Request $request, WebsiteStoreProject $WebsiteStoreProject)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        $insertArray = [
+            'name' => $data['name'],
+        ];
+
+        //check and create the tags
+        $WebsiteStoreProject->updateOrCreate($insertArray);
+
+        return response()->json(['code' => 200, 'message' => 'Project Added Successfully']);
+    }
+
     public function generateAdminPassword(Request $request)
     {
         $usernames = $request->username;
@@ -2057,4 +2101,324 @@ class StoreWebsiteController extends Controller
     //         abort(404, 'The file you are trying to download does not exist.');
     //     }
     // }
+
+    public function StorewebsiteDownloadListing(Request $request)
+    {
+        $perPage =  20;
+        
+        $storeWebsites = StoreWebsite::latest()->paginate($perPage);
+
+        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites'));
+
+    }
+
+    public function mulitipleStorewebsiteDownload(Request $request)
+    {
+        $webIds = $request->input('website_ids');
+
+        $webIdsArray = explode(',', $webIds);
+
+        if (empty($webIdsArray)) {
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'Data is missing']);
+        }
+
+        try {
+            foreach ($webIdsArray as $webId) {
+                $action = "pull";
+                $this->csvFilePullCommand($webId,$action);
+            }
+        } catch (Exception $e) {
+            return response()->json(['code' => 500, 'data' => [], 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function runCsvSingleCommand(Request $request)
+    {
+        $action = "pull";
+        return $this->csvFilePullCommand($request->input('id'), $action);
+    }
+
+    public function runCsvSinglePushCommand(Request $request)
+    {
+        $action = "push";
+        return $this->csvFilePullCommand($request->input('id'), $action);
+    }
+
+    public function csvFilePullCommand($id, $action)
+    {
+        $storewebsite = StoreWebsite::find($id);
+
+        if (!$storewebsite) {
+            return response()->json(['code' => 400, 'data' => [], 'message' => 'Invalid website ID']);
+        }
+
+        // Retrieve required data for the operation
+        $storeWebsiteId = $id;
+        $serverName = $storewebsite->server_ip;
+        $websiteName = $storewebsite->title;
+        $websiteDirectory = $storewebsite->working_directory;
+        $storeCode = "gb-en";
+        $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
+        $action = $action;
+
+        // $path = "/var/www/html/erp/public/uploads/google-file-translator/";
+        // $filename = "vera-arabic-batch3-1-50.csv";
+        // $languageData = Language::get();
+        // foreach ($languageData as $language)
+        // {
+        //     $result = $this->translateFile($path . $filename, $language->locale, ',');  
+        //     foreach ($result as $translationSet) {
+        //         try {
+    
+        //             $translationDataStored = new GoogleTranslateCsvData();
+        //             $translationDataStored->key = $translationSet[0];
+        //             $translationDataStored->value = $translationSet[1];
+        //             $translationDataStored->standard_value = $translationSet[2];
+        //             $translationDataStored->storewebsite_id = $storeWebsiteId;
+        //             $translationDataStored->lang_id = $language->id;
+        //             $translationDataStored->save();
+               
+        //         } catch (\Exception $e) {
+        //             return 'Upload failed: ' . $e->getMessage();
+        //     }
+        //     }        
+
+        // }
+        
+        // Validate the data
+        $message = '';
+
+        if (!$storewebsite) {
+            $message = "websiteId is required";
+        }
+
+        if (!$serverName) {
+            $message = "Serve name is required";
+        }
+
+        if (!$websiteName) {
+            $message = "Website name is required";
+        }
+
+        if (!$websiteDirectory) {
+            $message = "websiteDirectory is required";
+        }
+
+        if ($message !== "") {
+            StoreWebsiteCsvFile::create([
+                'storewebsite_id' => $storeWebsiteId,
+                'status' => 'fail',
+                'message' => $message,
+                'action' => $action,
+            ]);
+
+            return response()->json(['code' => 500, 'data' => [], 'message' => $message]);
+        }
+
+        // Construct and execute the command
+        $scriptsPath   =  getenv('DEPLOYMENT_SCRIPTS_PATH');
+        // $command = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'process_magento_csv.sh'  . '-a ' . $action . '-s ' . $serverName . ' -w ' . $websiteName . ' -d ' . $websiteDirectory . ' -S ' . $storeCode . ' -f' . $fileName . '';
+        $command = "bash $scriptsPath" . "process_magento_csv.sh -a \"$action\" -s \"$serverName\" -w \"$websiteName\" -d \"$websiteDirectory\" -S \"$storeCode\" -f \"$fileName\" 2>&1";
+
+
+        $allOutput = [];
+        $allOutput[] = $command;
+        $result = exec($command, $allOutput);
+        // Below static code for testing purpose. 
+        // $allOutput = [
+        //     "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
+        //     '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
+        // ];
+
+        $response = json_decode($allOutput[1], true);
+        \Log::info('command:' . $command);
+        \Log::info('output:' . print_r($allOutput, true));
+
+        if (is_array($response)) {
+            $status = $response['status'];
+            $message = $response['message'];
+            $path = $response['path'];
+
+            if ($status === 'success') {
+                StoreWebsiteCsvFile::create([
+                    'storewebsite_id' => $storeWebsiteId,
+                    'status' => $status,
+                    'message' => $message,
+                    'action' => $action,
+                    'path' => $path,
+                ]);
+
+                // if (file_exists($path . $fileName)) {
+                //     try {
+                //         $path = "/var/www/html/erp/public/uploads/google-file-translator/";
+                //         $result = $this->translateFile($path . $fileName, "nl", ',');
+                //         foreach ($result as $translationSet) {
+                //             try {
+        
+                //                 $translationDataStored = new GoogleTranslateCsvData();
+                //                 $translationDataStored->key = $translationSet[0];
+                //                 $translationDataStored->value = $translationSet[1];
+                //                 $translationDataStored->standard_value = $translationSet[2];
+                //                 $translationDataStored->storewebsite_id = $storeWebsiteId;
+                //                 $translationDataStored->save();
+                           
+                //             } catch (\Exception $e) {
+                //                 return 'Upload failed: ' . $e->getMessage();
+                //         }
+                //      }
+                //     } catch (\Exception $e) {
+                //         return response()->json(['message' =>$e->getMessage(), 'code' => 500]);
+                //     }
+                // } else {
+                //     throw new Exception('File not found');
+                // }
+
+                return response()->json(['message' => $message, 'code' => 200]);
+            } else {
+                StoreWebsiteCsvFile::create([
+                    'storewebsite_id' => $storeWebsiteId,
+                    'status' => $status,
+                    'message' => $message,
+                    'action' => $action,
+                    'path' => $path,
+                ]);
+
+                \Log::info('command:' . $command);
+                \Log::info('output:' . print_r($allOutput, true));
+
+                return response()->json(['message' => $message, 'code' => 500]);
+            }
+        } else {
+            StoreWebsiteCsvFile::create([
+                'storewebsite_id' => $storeWebsiteId,
+                'status' => 'fail',
+                'message' => $response['message'],
+                'action' => $action,
+            ]);
+
+            \Log::info('command:' . $command);
+            \Log::info('output:' . print_r($allOutput, true));
+
+            return response()->json(['message' => "Invalid JSON response", 'code' => 500]);
+        }
+    }
+
+
+    public function translateFile($path, $language, $delimiter = ',')
+    {
+        if (! file_exists($path) || ! is_readable($path)) {
+            return false;
+        }
+        $newCsvData = [];
+        $keywordToTranslate = [];
+        if (($handle = fopen($path, 'r')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+                // Check translation SEPARATE LINE exists or not
+                $checkTranslationTable = Translations::select('text')->where('to', $language)->where('text_original', $data[0])->first();
+                if ($checkTranslationTable) {
+                    $data[] = htmlspecialchars_decode($checkTranslationTable->text, ENT_QUOTES);
+                } else {
+                    $keywordToTranslate[] = $data[0];
+                    $data[] = $data[0];
+                }
+                $newCsvData[] = $data;
+            }
+            fclose($handle);
+        }
+
+        $translateKeyPair = [];
+        if (isset($keywordToTranslate) && count($keywordToTranslate) > 0) {
+            // Max 128 lines supports for translation per request
+            $keywordToTranslateChunk = array_chunk($keywordToTranslate, 100);
+            $translationString = [];
+            foreach ($keywordToTranslateChunk as $key => $chunk) {
+                try {
+                    $googleTranslate = new GoogleTranslate();
+                    $result = $googleTranslate->translate($language, $chunk, true);
+                } catch (\Exception $e) {
+                    \Log::channel('errorlog')->error($e);
+                    throw new Exception($e->getMessage());
+                }
+                // $translationString = [...$translationString, ...$result];
+                array_push($translationString, ...$result);
+            }
+
+            $insertData = [];
+            if (isset($translationString) && count($translationString) > 0) {
+                foreach ($translationString as $key => $value) {
+                    $translateKeyPair[$value['input']] = $value['text'];
+                    $insertData[] = [
+                        'text_original' => $value['input'],
+                        'text' => $value['text'],
+                        'from' => 'en',
+                        'to' => $language,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            if (! empty($insertData)) {
+                Translations::insert($insertData);
+            }
+        }
+
+        //Update the csv with Translated data
+        if (isset($newCsvData) && count($newCsvData) > 0) {
+            for ($i = 0; $i < count($newCsvData); $i++) {
+                $last = array_pop($newCsvData[$i]);
+                array_push($newCsvData[$i], htmlspecialchars_decode($translateKeyPair[$last] ?? $last));
+            }
+
+            $handle = fopen($path, 'r+');
+            foreach ($newCsvData as $line) {
+                fputcsv($handle, $line, $delimiter, $enclosure = '"');
+            }
+            fclose($handle);
+        }
+
+        return $newCsvData;
+    }
+
+    public function dataViewPage($id)
+    {
+        $googleTranslateDatas=  GoogleTranslateCsvData::Where('storewebsite_id',$id)->latest()->get();
+
+        return View('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
+    }
+
+    // public function createCsvFile($id)
+    // {
+    //     // Retrieve the data from the database
+    //     $googleTranslateDatas = GoogleTranslateCsvData::where('storewebsite_id', $id)->latest()->get();
+
+    //     // Define the CSV file path (e.g., storage/app/csv/)
+    //     $filePath = storage_path('app/csv/google_translate_data.csv');
+
+    //     // Create and open the CSV file for writing
+    //     $file = fopen($filePath, 'w');
+
+    //     // Add a header row to the CSV (optional)
+    //     fputcsv($file, ['Key', 'Value', 'Standard Value']);
+
+    //     // Add data rows to the CSV
+    //     foreach ($googleTranslateDatas as $data) {
+    //         fputcsv($file, [
+    //             $data->key,
+    //             $data->value,
+    //             $data->standard_value,
+    //         ]);
+    //     }
+
+    //     // Close the CSV file
+    //     fclose($file);
+
+    //     // Prepare the response to offer the file for download
+    //     $headers = [
+    //         'Content-Type' => 'text/csv',
+    //     ];
+
+    //     return response()->download($filePath, 'google_translate_data.csv', $headers);
+    // }
+
 }
