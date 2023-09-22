@@ -2135,8 +2135,7 @@ class StoreWebsiteController extends Controller
         $storeCode = "gb-en";
         
         //get filename
-        // $filename = basename($request->input('filename'));
-        $fileName = $request->input('filename');
+        $fileName = basename($request->input('filename'));
 
          // Construct and execute the command
          $scriptsPath   =  getenv('DEPLOYMENT_SCRIPTS_PATH');
@@ -2220,15 +2219,13 @@ class StoreWebsiteController extends Controller
         $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
         $action = $action;
 
-        // $languages = ['ar', 'ko']; // Replace with the language codes you want to retrieve
 
         // $languageData = Language::where('status', 1)
         //     ->whereIn('code', $languages)
         //     ->get();
 
-            // dd($languageData);
-        $languageData = Language::where('status',1)->get();
-
+        $languageData = Language::where('status',1)->where('locale', '!=', 'en')->get();
+        
         $message = '';
 
         if (!$storewebsite) {
