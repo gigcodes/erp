@@ -2187,12 +2187,12 @@ class StoreWebsiteController extends Controller
 
         // $languages = ['ar', 'ko']; // Replace with the language codes you want to retrieve
 
-        $languageData = Language::where('status', 1)
-            ->whereIn('code', $languages)
-            ->get();
+        // $languageData = Language::where('status', 1)
+        //     ->whereIn('code', $languages)
+        //     ->get();
 
             // dd($languageData);
-        // $languageData = Language::where('status',1)->get();
+        $languageData = Language::where('status',1)->get();
 
         $message = '';
 
