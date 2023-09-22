@@ -28,7 +28,6 @@
 							<th>Job Id</th>
 							<th>Status</th>
 							<th>Response</th>
-                            <th>Updated By</th>
                             <th>Updated At</th>
                         </tr>
                     </thead>
@@ -57,9 +56,6 @@
 							</td>
 							<td width="10%" class="expand-row">
 								{{$magento_module->response}}
-							</td>
-							<td width="10%" class="expand-row">
-								{{$magento_module->updated_at}}
 							</td>
 							<td width="10%" class="expand-row">
 								{{$magento_module->updated_at}}
