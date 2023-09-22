@@ -241,12 +241,13 @@
                 <th width="10%">Date</th>
              </tr>
             <tbody>
-                @foreach ($filenames as $key =>$file)
+                <?php $id = request()->route('id'); ?>
+                @foreach ($filenames as $key => $file)
                     <tr>
                         <td>{{$key+1}}</td>
                         <td><div class="show_csv_co">{{$file->filename}}</div> 
                         </td>
-                        <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-id="{{$file->id}}"> 
+                        <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-filename="{{$file->filename}}"data-id="{{$id}}"> 
                             <i class="fa fa-upload  upload_faq" aria-hidden="true"></i></button></td>
                         <td><div class="show_csv_co">{{$file->created_at}}</td>  
                     </tr>                        
@@ -272,6 +273,7 @@
     $(document).on("click", ".process-magento-push-btn", function(e) {
             e.preventDefault();
             var id = $(this).data("id");
+            var filename = $(this).data("filename");
 
             $.ajax({
                 url: '{{route('store-website.single.push.command.run')}}',
@@ -281,6 +283,7 @@
                 }, 
                 data: {
                     id: id,
+                    filename:filename,
                 },
                 beforeSend: function() {
                     $('#loading-image').show();

@@ -2098,7 +2098,10 @@ class StoreWebsiteController extends Controller
         $websiteName = $storewebsite->title;
         $websiteDirectory = $storewebsite->working_directory;
         $storeCode = "gb-en";
-        $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
+        
+        //get filename
+        // $filename = basename($request->input('filename'));
+        $fileName = $request->input('filename');
 
          // Construct and execute the command
          $scriptsPath   =  getenv('DEPLOYMENT_SCRIPTS_PATH');
