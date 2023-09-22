@@ -51,8 +51,7 @@
                             @endif
                             <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-csv-btn" title="pullCsvDownlaod" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
                                 <i class="fa fa-paper-plane " aria-hidden="true"></i></button>
-                                <button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
-                                <i class="fa fa-upload  upload_faq" aria-hidden="true"></i></button>
+                                 <a href="{{ route('store-website.push.csv', ['id' => $storeWeb->id]) }}" class="btn btn-secondary">view push csv files</a>
                             </td>
 						</tr>                        
                     @endforeach
@@ -150,38 +149,6 @@
             });
          });
 
-         $(document).on("click", ".process-magento-push-btn", function(e) {
-            e.preventDefault();
-            var id = $(this).data("id");
-
-            $.ajax({
-                url: '{{route('store-website.single.push.command.run')}}',
-                type: "post",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }, 
-                data: {
-                    id: id,
-                },
-                beforeSend: function() {
-                    $('#loading-image').show();
-                },
-            }).done(function(response) {
-                if (response.code == '200') {
-                    toastr['success']('Command Run successfully!!!', 'success');
-                } else if(response.code == '500') {
-                    toastr['error'](response.message, 'error');
-                }
-                else {
-                    toastr['error'](response.message, 'error');
-                }
-                $('#loading-image').hide();
-            }).fail(function(errObj) {
-                $('#loading-image').hide();
-                    toastr['error']("Invalid JSON response", 'error');
-
-            });
-         });
 	});
 </script> 
 @endsection
