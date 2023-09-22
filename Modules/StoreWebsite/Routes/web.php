@@ -60,6 +60,8 @@ Route::group([
     Route::post('mulitple/csv-download', [StoreWebsiteController::class, 'mulitipleStorewebsiteDownload'])->name('mulitiple.store-website.listing');
     Route::post('single/csv/command/run', [StoreWebsiteController::class, 'runCsvSingleCommand'])->name('store-website.single.command.run');
     Route::post('single/push/csv/command/run', [StoreWebsiteController::class, 'runCsvSinglePushCommand'])->name('store-website.single.push.command.run');
+    Route::get('/{id}/list-view', [StoreWebsiteController::class, 'dataViewPage'])->name('store-website.list-page.view');
+    Route::get('/push-csv/{id}', [StoreWebsiteController::class,'pushCsvFile'])->name('store-website.push.csv');
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 
