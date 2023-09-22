@@ -2182,8 +2182,13 @@ class StoreWebsiteController extends Controller
         $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
         $action = $action;
 
+        $languages = ['ar', 'ko']; // Replace with the language codes you want to retrieve
 
-        $languageData = Language::where('status',1)->get();
+        $languageData = Language::where('status', 1)
+            ->whereIn('code', $languages)
+            ->get();
+
+        // $languageData = Language::where('status',1)->get();
 
         $message = '';
 
