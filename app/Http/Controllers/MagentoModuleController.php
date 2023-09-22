@@ -718,10 +718,14 @@ class MagentoModuleController extends Controller
     {
         $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
         $storeWebsites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
-        $selecteStoreWebsites = $request->store_webs;
+        $selecteStoreWebsites = ['151', '152', '153', '154'];
 
         if (isset($request->store_webs) && $request->store_webs) {
+            $selecteStoreWebsites = $request->store_webs;
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+        } else {
+            // Default QA store websites will select
+            $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $selecteStoreWebsites)->pluck('title', 'id')->toArray();
         }
         // For Filter
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
