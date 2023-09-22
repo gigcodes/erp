@@ -751,14 +751,9 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleListLogs(Request $request)
     {
-        $magento_modules = MagentoModuleLogs::select()->join('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')
-        ->orderBy('magento_module_logs.id', 'asc');
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')
+        ->orderBy('magento_module_logs.id', 'asc')->get();
 
-        if (isset($request->module_name) && $request->module_name != '') {
-            $magento_modules = $magento_modules->where('module', 'Like', '%' . $request->module_name . '%');
-        }
-
-        $magento_modules = $magento_modules->groupBy('module')->get();
         $magento_modules_count = $magento_modules->count();
 
         return view('magento_module.magento-listing_logs', ['magento_modules' => $magento_modules, 'magento_modules_count' => $magento_modules_count]);
