@@ -64,6 +64,7 @@ use App\Translations;
 use App\GoogleTranslate;
 use App\Language;
 use App\Models\GoogleTranslateCsvData;
+use App\Models\WebsiteStoreProject;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -85,10 +86,11 @@ class StoreWebsiteController extends Controller
         $assetManager = AssetsManager::whereNotNull('ip');
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('website')->get();
         $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+        $projects = WebsiteStoreProject::orderBy('name')->get()->toArray();
 
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
-        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers'));
+        return view('storewebsite::index', compact('title', 'services', 'assetManager', 'storeWebsites', 'storeCodes', 'tags', 'storeWebsiteUsers', 'projects'));
     }
 
     public function builderApiKey()
@@ -1797,6 +1799,39 @@ class StoreWebsiteController extends Controller
         }
 
         return response()->json(['code' => 400, 'message' => 'Tags Not found']);
+    }
+
+    /**
+     * Create project
+     */
+    public function createProject(Request $request, WebsiteStoreProject $WebsiteStoreProject)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        $insertArray = [
+            'name' => $data['name'],
+        ];
+
+        //check and create the tags
+        $WebsiteStoreProject->updateOrCreate($insertArray);
+
+        return response()->json(['code' => 200, 'message' => 'Project Added Successfully']);
     }
 
     public function generateAdminPassword(Request $request)

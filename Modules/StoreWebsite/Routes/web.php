@@ -84,6 +84,8 @@ Route::group([
 
     Route::get('attach-tag-store', [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
 
+    Route::post('create-project', [StoreWebsiteController::class, 'createProject'])->name('store-website.create-project');
+
     Route::group([
         'prefix' => '{id}',
     ], function () {

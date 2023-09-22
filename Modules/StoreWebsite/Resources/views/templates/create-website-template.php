@@ -369,6 +369,19 @@
                   The Instance Number is 1 or 2, based on the instance on the server 
                </div>
             </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="website_store_project_id">Project</label>
+                  <select id="website_store_project_id" name="website_store_project_id" class="form-control">
+                     <option value="">Choose Project</option>
+                    <?php
+                       foreach ($projects as $project) {
+                           echo "<option {{if data.website_store_project_id == '" . (isset($project['id']) ? $project['id'] : '') . "'}} selected {{/if}} value='" . (isset($project['id']) ? $project['id'] : '') . "'>" . (isset($project['name']) ? ($project['name']) : '') . '</option>';
+                       }
+   ?>
+                  </select>
+               </div>
+            </div>
          </div>
          <div class="MainMagentoUser">
             {{if totaluser != 0}}
