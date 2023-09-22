@@ -434,8 +434,8 @@
 
           <div class="form-group">
             <strong>Password:</strong>
-            <input type="text" name="password" class="form-control" value="{{ old('password') }}" id="password" required>
-            <input type="hidden" name="old_password" class="form-control" value="{{ old('old_password') }}" id="old_password">
+            <input type="text" name="password" class="form-control password-assets-manager" value="{{ old('password') }}" id="password" required>
+            <input type="hidden" name="old_password" class="form-control oldpassword-assets-manager" value="{{ old('old_password') }}" id="old_password">
             @if ($errors->has('password'))
               <div class="alert alert-danger">{{$errors->first('password')}}</div>
             @endif

@@ -511,8 +511,8 @@
         $(".select-multiple").select2("val", "");
 
       $('#old_user_name').val(asset.user_name);
-      $('#password').val(asset.password);
-      $('#old_password').val(asset.password);
+      $('.password-assets-manager').val(asset.password);
+      $('.oldpassword-assets-manager').val(asset.password);
       $('#ip').val(asset.ip);
       $('#old_ip').val(asset.ip);
       $('#assigned_to').val(asset.assigned_to);

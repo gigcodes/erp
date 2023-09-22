@@ -107,7 +107,7 @@ class AssetsManagerController extends Controller
 
         $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
         $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
-        $assets = $assets->orderBy('assets_manager.due_date', 'asc')->paginate(25);
+        $assets = $assets->orderBy('assets_manager.id', 'asc')->paginate(25);
         $websites = StoreWebsite::all();
         $plateforms = AssetPlateForm::all();
         $emailAddress = EmailAddress::all();
