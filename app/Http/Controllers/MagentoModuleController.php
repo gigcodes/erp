@@ -718,10 +718,14 @@ class MagentoModuleController extends Controller
     {
         $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
         $storeWebsites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
-        $selecteStoreWebsites = $request->store_webs;
+        $selecteStoreWebsites = ['151', '152', '153', '154'];
 
         if (isset($request->store_webs) && $request->store_webs) {
+            $selecteStoreWebsites = $request->store_webs;
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+        } else {
+            // Default QA store websites will select
+            $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $selecteStoreWebsites)->pluck('title', 'id')->toArray();
         }
         // For Filter
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
@@ -1090,8 +1094,8 @@ class MagentoModuleController extends Controller
                 \Log::info('magentoModuleUpdateStatus output:' . print_r($output, true));
                 \Log::info('magentoModuleUpdateStatus return_var:' . $return_var);
 
-                // [4] => {"status":"success"}
-                if (! isset($output[4])) {
+                // [0] => {"status":"success"}
+                if (! isset($output[0])) {
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
 
                     $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
@@ -1099,7 +1103,7 @@ class MagentoModuleController extends Controller
                     continue;
                 }
 
-                $response = json_decode($output[4]);
+                $response = json_decode($output[0]);
                 if (isset($response->status) && ($response->status == 'success' || $response->status)) {
                     $message = 'Magento module status change successfully';
                     if (isset($response->message) && $response->message != '') {
