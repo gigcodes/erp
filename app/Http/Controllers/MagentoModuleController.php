@@ -315,6 +315,55 @@ class MagentoModuleController extends Controller
             $input_data['user_id'] = auth()->user()->id;
             MagentoModuleHistory::create($input_data);
 
+            // New Script
+            $moduleName = $data->module;
+            $website = $data->store_website->title;
+            $server = $data->store_website->server_ip;
+            $rootDir = $data->store_website->working_directory;
+            $websiteStoreProjectName = $data->store_website->websiteStoreProject->name ?? null;
+            $action = 'add';
+            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+            $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
+            if (empty($website) || empty($server) || empty($rootDir) || empty($websiteStoreProjectName)) {
+                MagentoModuleLogs::create(['magento_module_id' => $data->id, 'store_website_id' => $data->store_website_id, 'updated_by' => $input_data['user_id'], 'command' => $cmd, 'status' => 'Error', 'response' => "Parameter is missing in command"]);
+
+                $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $data->store_website_id, 'magento_module_id' => $data->id];
+                \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
+            }
+            // NEW Script
+
+            $result = exec($cmd, $output, $return_var);
+            \Log::info('store command:' . $cmd);
+            \Log::info('store output:' . print_r($output, true));
+            \Log::info('store return_var:' . $return_var);
+
+            if (! isset($output[0])) {
+                MagentoModuleLogs::create(['magento_module_id' => $data->id, 'store_website_id' => $data->store_website_id, 'updated_by' => $input_data['user_id'], 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
+
+                $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $data->store_website_id, 'magento_module_id' => $data->id];
+                \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
+            }
+
+            $response = json_decode($output[0]);
+            if (isset($response->status) && ($response->status == 'true' || $response->status)) {
+                $message = 'Magento module status change successfully';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
+                }
+                MagentoModuleLogs::create(['magento_module_id' => $data->id, 'store_website_id' => $data->store_website_id, 'updated_by' => $input_data['user_id'], 'command' => $cmd, 'status' => 'Success', 'response' => json_encode($output)]);
+
+                $return_data[] = ['code' => 200, 'message' => $message, 'store_website_id' => $data->store_website_id, 'magento_module_id' => $data->id];
+            } else {
+                $message = 'Something Went Wrong! Please check Logs for more details';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
+                }
+                MagentoModuleLogs::create(['magento_module_id' => $data->id, 'store_website_id' => $data->store_website_id, 'updated_by' => $input_data['user_id'], 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
+
+                $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id' => $data->store_website_id, 'magento_module_id' => $data->id];
+            }
+
             return response()->json([
                 'status' => true,
                 'data' => $data,
@@ -1006,23 +1055,46 @@ class MagentoModuleController extends Controller
             // 3 = meta-package
             if ($magento_modules->magneto_location_id == '3') {
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-                $project = $storeWebsite->title;
+                // $project = $storeWebsite->title;
                 $moduleName = $magento_modules->module;
-                $moduleStatus = 'disable';
+                // $moduleStatus = 'disable';
+                // if ($status) {
+                //     $moduleStatus = 'enable';
+                // }
+
+                // New Script
+                $website = $storeWebsite->title;
+                $server = $storeWebsite->server_ip;
+                $rootDir = $storeWebsite->working_directory;
+                $websiteStoreProjectName = $storeWebsite->websiteStoreProject->name ?? null;
+                $action = 'disable';
                 if ($status) {
-                    $moduleStatus = 'enable';
+                    $action = 'enable';
                 }
-                $cmd = "bash $scriptsPath" . "meta-package-update.sh -p \"$project\" -m \"$moduleName\" -a \"$moduleStatus\" 2>&1";
+
+                $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
+                if (empty($website) || empty($server) || empty($rootDir) || empty($websiteStoreProjectName)) {
+                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => "Parameter is missing in command"]);
+
+                    $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+                    \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
+                    continue;
+                }
+                // NEW Script
+
+                // OLD Script
+                // $cmd = "bash $scriptsPath" . "meta-package-update.sh -p \"$project\" -m \"$moduleName\" -a \"$moduleStatus\" 2>&1";
+                // OLD Script
                 $result = exec($cmd, $output, $return_var);
-                \Log::info('command:' . $cmd);
-                \Log::info('output:' . print_r($output, true));
-                \Log::info('return_var:' . $return_var);
+                \Log::info('magentoModuleUpdateStatus command:' . $cmd);
+                \Log::info('magentoModuleUpdateStatus output:' . print_r($output, true));
+                \Log::info('magentoModuleUpdateStatus return_var:' . $return_var);
 
                 if (! isset($output[0])) {
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
 
                     $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
+                    \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
                     continue;
                 }
 
