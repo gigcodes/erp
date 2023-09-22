@@ -1090,8 +1090,8 @@ class MagentoModuleController extends Controller
                 \Log::info('magentoModuleUpdateStatus output:' . print_r($output, true));
                 \Log::info('magentoModuleUpdateStatus return_var:' . $return_var);
 
-                // [13] => {"status":"success"}
-                if (! isset($output[13])) {
+                // [4] => {"status":"success"}
+                if (! isset($output[4])) {
                     MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
 
                     $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
@@ -1099,7 +1099,7 @@ class MagentoModuleController extends Controller
                     continue;
                 }
 
-                $response = json_decode($output[13]);
+                $response = json_decode($output[4]);
                 if (isset($response->status) && ($response->status == 'success' || $response->status)) {
                     $message = 'Magento module status change successfully';
                     if (isset($response->message) && $response->message != '') {
