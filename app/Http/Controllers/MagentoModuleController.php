@@ -1053,7 +1053,7 @@ class MagentoModuleController extends Controller
             $magento_module_id = $magento_modules->id;
 
             // 3 = meta-package
-            if ($magento_modules->magneto_location_id == '3') {
+            // if ($magento_modules->magneto_location_id == '3') {
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
                 // $project = $storeWebsite->title;
                 $moduleName = $magento_modules->module;
@@ -1120,108 +1120,111 @@ class MagentoModuleController extends Controller
 
                     continue;
                 }
-            } else {
-                $cwd = '';
-                $assetsmanager = new AssetsManager;
-                if ($storeWebsite) {
-                    $cwd = $storeWebsite->working_directory;
-                    $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
-                }
+            // } 
+            
+            // else part not need. 
+            // else {
+            //     $cwd = '';
+            //     $assetsmanager = new AssetsManager;
+            //     if ($storeWebsite) {
+            //         $cwd = $storeWebsite->working_directory;
+            //         $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+            //     }
 
-                if ($assetsmanager && $assetsmanager->client_id != '') {
-                    $client_id = $assetsmanager->client_id;
-                    //$url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
-                    $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
-                    $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+            //     if ($assetsmanager && $assetsmanager->client_id != '') {
+            //         $client_id = $assetsmanager->client_id;
+            //         //$url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
+            //         $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
+            //         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
-                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+            //         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($ch, CURLOPT_POST, 1);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                    $parameters = [
-                        //'command' => $cmd,
-                        'script' => base64_encode($cmd),
-                        'cwd' => $cwd,
-                        'is_sudo' => true,
-                        'timeout_sec' => 900,
-                    ];
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+            //         $ch = curl_init();
+            //         curl_setopt($ch, CURLOPT_URL, $url);
+            //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            //         curl_setopt($ch, CURLOPT_POST, 1);
+            //         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            //         $parameters = [
+            //             //'command' => $cmd,
+            //             'script' => base64_encode($cmd),
+            //             'cwd' => $cwd,
+            //             'is_sudo' => true,
+            //             'timeout_sec' => 900,
+            //         ];
+            //         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
-                    $headers = [];
-                    $headers[] = 'Authorization: Basic ' . $key;
-                    $headers[] = 'Content-Type: application/json';
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                    $result = curl_exec($ch);
+            //         $headers = [];
+            //         $headers[] = 'Authorization: Basic ' . $key;
+            //         $headers[] = 'Content-Type: application/json';
+            //         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            //         $result = curl_exec($ch);
 
-                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            //         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-                    \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result),
-                        $httpcode, App\Http\Controllers\MagentoModuleController::class, 'update');
+            //         \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result),
+            //             $httpcode, App\Http\Controllers\MagentoModuleController::class, 'update');
 
-                    \Log::info('API result: ' . $result);
-                    \Log::info('API Error Number: ' . curl_errno($ch));
-                    if (curl_errno($ch)) {
-                        \Log::info('API Error: ' . curl_error($ch));
+            //         \Log::info('API result: ' . $result);
+            //         \Log::info('API Error Number: ' . curl_errno($ch));
+            //         if (curl_errno($ch)) {
+            //             \Log::info('API Error: ' . curl_error($ch));
 
-                        MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => curl_error($ch)]);
+            //             MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => curl_error($ch)]);
 
-                        $return_data[] = ['code' => 500, 'message' => curl_error($ch), 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+            //             $return_data[] = ['code' => 500, 'message' => curl_error($ch), 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                        continue;
-                    }
+            //             continue;
+            //         }
 
-                    $response = json_decode($result);
+            //         $response = json_decode($result);
 
-                    curl_close($ch);
+            //         curl_close($ch);
 
-                    if (isset($response->errors)) {
-                        $message = '';
-                        foreach ($response->errors as $error) {
-                            $message .= ' ' . $error->code . ':' . $error->title . ':' . $error->detail;
-                        }
+            //         if (isset($response->errors)) {
+            //             $message = '';
+            //             foreach ($response->errors as $error) {
+            //                 $message .= ' ' . $error->code . ':' . $error->title . ':' . $error->detail;
+            //             }
 
-                        MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => $message]);
-                        \Log::info($message);
+            //             MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => $message]);
+            //             \Log::info($message);
 
-                        $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+            //             $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                        continue;
-                    } else {
-                        if (isset($response->data) && isset($response->data->jid)) {
-                            $job_id = $response->data->jid;
-                            $status = 'Success';
+            //             continue;
+            //         } else {
+            //             if (isset($response->data) && isset($response->data->jid)) {
+            //                 $job_id = $response->data->jid;
+            //                 $status = 'Success';
 
-                            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Success', 'response' => 'Success', 'job_id' => $job_id]);
-                            $magento_modules->status = $status;
-                            $magento_modules->save();
-                            \Log::info('Job Id:' . $job_id);
+            //                 MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Success', 'response' => 'Success', 'job_id' => $job_id]);
+            //                 $magento_modules->status = $status;
+            //                 $magento_modules->save();
+            //                 \Log::info('Job Id:' . $job_id);
 
-                            $return_data[] = ['code' => 200, 'message' => 'Magento module status change successfully', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+            //                 $return_data[] = ['code' => 200, 'message' => 'Magento module status change successfully', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                            continue;
-                        } else {
-                            MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Job Id not found in response']);
+            //                 continue;
+            //             } else {
+            //                 MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Job Id not found in response']);
 
-                            \Log::info('Job Id not found in response!');
-                            //return response()->json(['code' => 500, 'message' => 'Job Id not found in response!']);
-                            $return_data[] = ['code' => 500, 'message' => 'Job Id not found in response!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+            //                 \Log::info('Job Id not found in response!');
+            //                 //return response()->json(['code' => 500, 'message' => 'Job Id not found in response!']);
+            //                 $return_data[] = ['code' => 500, 'message' => 'Job Id not found in response!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                            continue;
-                        }
-                    }
-                } else {
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Assets Manager & Client id not found the Store Website!']);
+            //                 continue;
+            //             }
+            //         }
+            //     } else {
+            //         MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Assets Manager & Client id not found the Store Website!']);
 
-                    \Log::info('Assets Manager & Client id not found the Store Website!');
+            //         \Log::info('Assets Manager & Client id not found the Store Website!');
 
-                    $return_data[] = ['code' => 500, 'message' => 'Assets Manager & Client id not found the Store Website!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+            //         $return_data[] = ['code' => 500, 'message' => 'Assets Manager & Client id not found the Store Website!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                    continue;
-                }
-            }
+            //         continue;
+            //     }
+            // }
 
             \Log::info('End Magento module change status');
         }
