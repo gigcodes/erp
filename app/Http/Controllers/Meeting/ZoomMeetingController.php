@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Response;
 use seo2websites\LaravelZoom\LaravelZoom;
 use App\Models\ZoomMeetingRecordHistory;
 use App\Models\ZoomMeetingHistory;
+use App\Models\ZoomMeetingParticipantHistory;
 
 /**
  * Class ZoomMeetingController - active record
@@ -525,7 +526,25 @@ class ZoomMeetingController extends Controller
         return view('zoom-meetings.zoom-recodring-list', compact('zoomRecordings'));
     }
 
-    public function updateMeetingDescription(Request $request)
+    public function updateParticipantDescription(Request $request)
+    {
+        $meetingdata = ZoomMeetingParticipant::find($request->id);
+        $meetingOldDescription = $meetingdata->description;
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+
+        $zoomMeetingHistory = new ZoomMeetingParticipantHistory();
+        $zoomMeetingHistory->zoom_meeting_participant_id = $meetingdata->id;
+        $zoomMeetingHistory->type = "description";
+        $zoomMeetingHistory->oldvalue = $meetingOldDescription;
+        $zoomMeetingHistory->newvalue=$request->description;
+        $zoomMeetingHistory->user_id = \Auth::id();
+        $zoomMeetingHistory->save();
+
+        return response()->json(['code' => 200, 'message' => 'Description Updated SuccessFully'], 200);
+    }
+
+    public function updateMeetingDescription (Request $request)
     {
         $meetingdata = ZoomMeetingDetails::find($request->id);
         $meetingOldDescription = $meetingdata->description;
@@ -779,6 +798,7 @@ class ZoomMeetingController extends Controller
                                         'participant' => $meetingParticipant, // Store the participant information for reference
                                     ];
 
+                                    $meetingParticipant->zoom_recording_id = $recordings['id'];
                                     $meetingParticipant->recording_path = "{$databsePath}/segments/{$segmentName}";
                                     $meetingParticipant->save();
                                 } else {
@@ -816,12 +836,12 @@ class ZoomMeetingController extends Controller
                                 }
                             }
                         }
-
-                        \Log::info('##########  deleteRecording starts ##############');
-                        $this->deleteRecording($zoomDataPayloadObject['id'], $recordings['id']);
-                        \Log::info('##########  deleteRecording ends ##############');
-
                     }
+
+                    \Log::info('##########  deleteRecording starts ##############');
+                    \Log::info('##########  Recording Type ############## ' . $recordings['recording_type']);
+                    $this->deleteRecording($zoomDataPayloadObject['id'], $recordings['id']);
+                    \Log::info('##########  deleteRecording ends ##############');
                 }
             }
         }
@@ -846,6 +866,20 @@ class ZoomMeetingController extends Controller
         ->where('zoom_meeting_record_id', $request->id)
         ->Where('type', $request->type)->get();
 
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+
+    public function participantDescriptionHistory(Request $request)
+    {
+        $histories = ZoomMeetingParticipantHistory::with(['user'])
+        ->where('zoom_meeting_participant_id', $request->id)
+        ->Where('type', $request->type)->orderBy('created_at','desc')->paginate(10);
         return response()->json([
             'status' => true,
             'data' => $histories,
@@ -891,10 +925,74 @@ class ZoomMeetingController extends Controller
     public function showVideo(Request $request)
     {
         $fileName = ZoomMeetingDetails::find($request->id);
+
+        if (!$fileName) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not Available',
+                'status_name' => 'error',
+            ], 404);
+        }
+
         $file_name = basename($fileName->local_file_path);
         $meetingId = $fileName->meeting_id;
 
         $videoUrl = "zoom/0/$meetingId/$file_name";
+
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+        
+        $mime_type = mime_content_type($videoUrl);
+        if ($mime_type !== 'video/mp4') {
+            abort(404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'videoUrl' => asset($videoUrl),
+            'message' => 'Successfully preview the Video',
+            'status_name' => 'success',
+        ], 200);
+   }
+
+    public function showParticipantVideo(Request $request)
+    {
+        $zoomMeetingParticipant = ZoomMeetingParticipant::find($request->id);
+        // Check if the participant exists
+        if (!$zoomMeetingParticipant) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Participant not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+
+        $file_name = basename($zoomMeetingParticipant->recording_path);
+        // Check if the filename is null or empty
+        if (!$file_name) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Invalid filename',
+                'status_name' => 'error',
+            ], 400);
+        }
+
+        $meetingId = $zoomMeetingParticipant->meeting_id;
+
+        $videoUrl = "zoom/0/$meetingId/segments/$file_name";
+
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
 
         $mime_type = mime_content_type($videoUrl);
         if ($mime_type !== 'video/mp4') {

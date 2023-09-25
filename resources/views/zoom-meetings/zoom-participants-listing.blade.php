@@ -79,17 +79,20 @@
 			    <tr>
 			    	<th width="3%">ID</th>
 			    	<th width="10%">Name</th>
-			        <th width="20%">Email</th>
+			        <th width="15%">Email</th>
                     <th width="10%">Join Time</th>
                     <th width="10%">Leave Time</th>
 			        <th width="20%">Leave Reason</th>
+                    <th width="20%">Description</th>
 					<th width="5%">Durartion</th>
-                    <th width="5%">Created At</th>
+					<th width="8%">Recording Path</th>
+                    <th width="7%">Created At</th>
+                    <th width="5%">Action</th>
                 </tr>
 		    	<tbody>
                     @foreach ($zoomParticipants as $key=>$data)
                         <tr>
-                            <td>{{$key+1}}</td>
+                            <td>{{$data->id}}</td>
                             <td>{{$data->name}}</td>
                             <td>{{$data->email}}</td>
                             <td>{{$data->join_time}}</td>
@@ -101,9 +104,29 @@
                                 <span class="td-full-container hidden">
                                     {{ $data->leave_reason }}
                                 </span>
+                            </td>							
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <input type="text" name="description" class="form-control description" placeholder="Description" value="{{ ($data->description ?? "" )}}">
+                                    <button class="btn btn-xs btn-image update_description" data-id="{{ $data->id }}"><i class="fa fa-pencil"></i></button>
+                                    <button type="button" class="btn btn-xs btn-image load-description-history" data-id="{{ $data->id }}" data-type="description" title="view History" onclick="viewHistories()">
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
+                                 </div>
                             </td>
 							<td>{{$data->duration}}</td>
+							<td>{{$data->recording_path}}</td>
                             <td>{{ $data->created_at?->format('Y-m-d') }}</td>
+                            <td>
+                                @php
+                                    $userRecordPermission = optional($data->recording)->user_record_permission ? json_decode($data->recording->user_record_permission) : null;
+                                @endphp
+                                @if ($userRecordPermission && in_array(Auth::user()->id, $userRecordPermission) || Auth::user()->isAdmin())
+                                <button type="button" class="btn btn-xs btn-image load-video-preview" data-id="{{ $data->id }}" title="preview">
+                                    <img src="/images/view.png" style="cursor: default;">
+                                </button>
+                                @endif
+                            </td>
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -136,6 +159,59 @@
         </div>
     </div>
 </div>
+
+<div id="zoom-participant-description-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Zoom Participant Description History</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="25%">Old description</th>
+                                <th width="25%">New description</th>
+                                <th width="25%">Updated by</th>
+                                <th width="25%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="zoom-participant-description-listing-view">
+                        </tbody>
+                    </table>
+                    <div class="pagination-container-description"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="zoom-participant-record-video-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Recording Video</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="video-container">
+                    <video width="640" height="360" controls autoplay>
+                        <source src="" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section("styles")
@@ -166,6 +242,152 @@
             }
         });
    
+    });
+
+    $(document).on("click", ".update_description", function(){
+        var participantId = $(this).attr('data-id');
+        var description = $(this).parents('td').find('.description').val();
+        if(description != ''){
+            $.ajax({
+                type: "POST",
+                url: "{{ route('participant.description.update') }}",
+                data: {'_token': "{{ csrf_token() }}",id:participantId,description:description},
+                success: function(response) {
+                if(response.code == 200){
+                    toastr['success'](response.message, 'success');
+                } else {
+                    toastr['error'](response.message, 'error');
+                }              
+                }
+            });
+        } else {
+            toastr['success'](response.message, 'success');
+        }
+    });
+
+
+    function viewHistories(pageNumber = 1) {
+        var id = $('.load-description-history').attr('data-id');
+        var type = $('.load-description-history').attr('data-type');
+
+        $.ajax({
+            url: '{{ route("participant.description.show") }}',
+            dataType: "json",
+            data: {
+                id: id,
+                type: type,
+                page:pageNumber,
+            },
+            success: function (response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data.data, function (k, v) {
+                        html += `<tr>
+                                    <td>${k + 1}</td>
+                                    <td>${v.oldvalue ? v.oldvalue : ''}</td>
+                                    <td>${v.newvalue ? v.newvalue : ''}</td>
+                                    <td>${(v.user !== undefined) ? v.user.name : ' - '}</td>
+                                    <td> ${new Date(v.created_at).toISOString().slice(0, 19)} </td>
+                                </tr>`;
+                    });
+                    $("#zoom-participant-description-listing").find(".zoom-participant-description-listing-view").html(html);
+                    $("#zoom-participant-description-listing").modal("show");
+                    renderzoomPagination(response);
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    }
+
+
+    function renderzoomPagination(response) {
+        var paginationContainer = $(".pagination-container-description");
+        var currentPage = response.data.current_page;
+        console.log('Current Page :',currentPage);
+        var totalPages = response.data.last_page;
+        console.log('Total pages:',totalPages);
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='historiesPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+                if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                    endPage = maxVisiblePages;
+                } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                    startPage = totalPages - maxVisiblePages + 1;
+                } else {
+                    startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                    endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+                }
+
+                if (startPage > 1) {
+                    html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='historiesPage(1)'>1</a></li>";
+                    if (startPage > 2) {
+                        html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                    }
+                }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+                html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='historiesPage(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+    function historiesPage(pageNumber) {
+        viewHistories(pageNumber);
+    }
+
+    // Function to clear the video source and stop playback
+    function clearVideo() {
+        var videoElement = $("#zoom-participant-record-video-listing").find("video");
+        videoElement.attr("src", "");
+        videoElement[0].pause();
+    }
+
+    $(document).on('click', '.load-video-preview', function() {
+        var id = $(this).attr('data-id');
+        var modal = $("#zoom-participant-record-video-listing");
+
+        // Clear the video when the modal is closed
+        modal.on('hidden.bs.modal', function() {
+            clearVideo();
+        });
+
+        $("#loading-image").show();
+        $.ajax({
+            url: '{{ route("participant-recording.video.show") }}',
+            dataType: "json",
+            data: {
+                id: id,
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.status) {
+                    modal.modal("show");
+                    var videoElement = modal.find("video");
+                    videoElement.attr("src", response.videoUrl);
+                    videoElement[0].play(); // Start playback if needed
+                    modal.modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            },
+            error: function(response) {
+                $("#loading-image").hide();
+                toastr["error"](response.responseJSON.error, "Message");
+            }
+        });
     });
 </script> 
 @endsection
