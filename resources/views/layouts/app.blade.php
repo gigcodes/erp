@@ -179,7 +179,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     #database-backup-monitoring .database-alert-badge,
     #website_Off_status .status-alert-badge,
     .permission-alert-badge,
-    #timer-alerts .timer-alert-badge {
+    #timer-alerts .timer-alert-badge, .description-alert-badge {
         position: absolute;
         top: -4px;
         border-radius: 50%;
@@ -1333,6 +1333,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a class="notification-button quick-icon" href="#"><span><i
                                                 class="fa fa-bell fa-2x"></i></span></a>
+                                </li>
+                                <li>
+                                    @php
+                                        $description = \App\Meetings\ZoomMeetingParticipant::whereNull('description')->count();
+                                    @endphp
+                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="participant description">
+                                        <span><i class="fa fa-user fa-2x"></i>
+                                            @if($description > 0)
+                                                <span class="description-alert-badge"></span>
+                                            @endif                                                                                        
+                                        </span>
+                                    </a>
                                 </li>
                                 <li>
                                     <a class="instruction-button quick-icon" href="#"><span><i

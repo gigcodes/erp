@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Response;
 use seo2websites\LaravelZoom\LaravelZoom;
 use App\Models\ZoomMeetingRecordHistory;
 use App\Models\ZoomMeetingHistory;
+use App\Models\ZoomMeetingParticipantHistory;
 
 /**
  * Class ZoomMeetingController - active record
@@ -525,7 +526,25 @@ class ZoomMeetingController extends Controller
         return view('zoom-meetings.zoom-recodring-list', compact('zoomRecordings'));
     }
 
-    public function updateMeetingDescription(Request $request)
+    public function updateParticipantDescription(Request $request)
+    {
+        $meetingdata = ZoomMeetingParticipant::find($request->id);
+        $meetingOldDescription = $meetingdata->description;
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+
+        $zoomMeetingHistory = new ZoomMeetingParticipantHistory();
+        $zoomMeetingHistory->zoom_meeting_participant_id = $meetingdata->id;
+        $zoomMeetingHistory->type = "description";
+        $zoomMeetingHistory->oldvalue = $meetingOldDescription;
+        $zoomMeetingHistory->newvalue=$request->description;
+        $zoomMeetingHistory->user_id = \Auth::id();
+        $zoomMeetingHistory->save();
+
+        return response()->json(['code' => 200, 'message' => 'Description Updated SuccessFully'], 200);
+    }
+
+    public function updateMeetingDescription (Request $request)
     {
         $meetingdata = ZoomMeetingDetails::find($request->id);
         $meetingOldDescription = $meetingdata->description;
@@ -846,6 +865,20 @@ class ZoomMeetingController extends Controller
         ->where('zoom_meeting_record_id', $request->id)
         ->Where('type', $request->type)->get();
 
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+
+    public function participantDescriptionHistory(Request $request)
+    {
+        $histories = ZoomMeetingParticipantHistory::with(['user'])
+        ->where('zoom_meeting_participant_id', $request->id)
+        ->Where('type', $request->type)->orderBy('created_at','desc')->paginate(10);
         return response()->json([
             'status' => true,
             'data' => $histories,

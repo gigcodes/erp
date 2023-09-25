@@ -1718,7 +1718,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('meeting-description/histories', [Meeting\ZoomMeetingController::class, 'meetingDescriptionHistory'])->name('meeting.description.show');
     Route::get('/videos/recoirding-show', [Meeting\ZoomMeetingController::class,'showVideo'])->name('recording.video.show');
     Route::get('all/participant/lists', [Meeting\ZoomMeetingController::class, 'listAllParticipants'])->name('list.all-participants');
-
+    
+    Route::post('meeting/update-participant-description', [Meeting\ZoomMeetingController::class, 'updateParticipantDescription'])->name('participant.description.update');
+    Route::get('participant-description/histories', [Meeting\ZoomMeetingController::class, 'participantDescriptionHistory'])->name('participant.description.show');
 
     Route::prefix('task')->group(function () {
         Route::prefix('information')->group(function () {
