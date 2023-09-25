@@ -44,6 +44,7 @@ Route::group([
     Route::post('builder-api-key/update/{id}', [StoreWebsiteController::class, 'updateBuilderApiKey'])->name('store-website.updateBuilderApiKey');
     Route::get('builder-api-key-histories/{id}', [StoreWebsiteController::class, 'builderApiKeyHistory'])->name('store-website.builder-api-key-histories');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
+    Route::get('admin-password', [StoreWebsiteController::class, 'adminPassword'])->name('store-website.adminPassword');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
     Route::post('api-token/get-api-token-logs/{id}', [StoreWebsiteController::class, 'getApiTokenLogs'])->name('store-website.getApiTokenLogs');
