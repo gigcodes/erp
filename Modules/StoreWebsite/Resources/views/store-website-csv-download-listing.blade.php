@@ -14,19 +14,54 @@
 		    <h2 class="page-heading">Store Websites ({{$storeWebsites->total()}})</h2>
 		</div>
 	</div>
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="row">
+                <div class="col-lg-8 margin-tb">
+                    <form class="form-inline message-search-handler" method="get">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-lg-8 margin-tb">
+                                    <div class="form-group m-1" style="width:100%">
+                                        <input name="name" list="name-lists" type="text" class="form-control" placeholder="Search Website" value="{{request()->get('name')}}" style="width:100%" />
+                                        <datalist id="name-lists">
+                                            @foreach ($storeWebsitesDropdown as $key => $val )
+                                                <option value="{{$val->title}}">
+                                            @endforeach
+                                        </datalist>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 margin-tb">
+                                    <div class="form-group">
+                                        <button type="submit" style="    margin-top: 4px;" class="btn btn-sm btn-image btn-search-action">
+                                            <img src="/images/search.png" style="cursor: default;">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-4 margin-tb">
+                    <form action="{{ route('website.search.log.view') }}" method="get" class="search">
+                        <!-- Form fields go here -->
+                
+                        <div class="col-lg-2 pull-left">
+                            <!-- Other form elements go here -->
+                        </div>
+                
+                        <div class="col-lg-2 pull-left"> <!-- This div wraps the "Csv download" button -->
+                            <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Csv download
+                              </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="mt-3 col-md-12">
-        <form action="{{ route('website.search.log.view') }}" method="get" class="search">
-            <!-- Form fields go here -->
-    
-            <div class="col-lg-2 pull-left">
-                <!-- Other form elements go here -->
-            </div>
-    
-            <div class="col-lg-2 pull-right"> <!-- This div wraps the "Csv download" button -->
-                <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Csv download
-                  </button>
-            </div>
-        </form>
+        
     </div>
     
 	<div class="mt-3 col-md-12">

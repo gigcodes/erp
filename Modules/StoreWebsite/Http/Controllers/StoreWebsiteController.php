@@ -2090,9 +2090,16 @@ class StoreWebsiteController extends Controller
     {
         $perPage =  20;
         
-        $storeWebsites = StoreWebsite::latest()->paginate($perPage);
+        //$storeWebsites = StoreWebsite::latest()->paginate($perPage);
 
-        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites'));
+        $keyword = request('name');
+        $storeWebsites = StoreWebsite::when((!empty($keyword)) , function ($q) use ($keyword) {
+            return $q->where('title', 'LIKE', "%$keyword%");
+        })->latest()->paginate($perPage);
+
+        $storeWebsitesDropdown = StoreWebsite::latest()->groupBy('title')->get();
+
+        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites', 'storeWebsitesDropdown'));
 
     }
 
