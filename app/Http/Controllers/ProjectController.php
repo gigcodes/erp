@@ -896,7 +896,8 @@ class ProjectController extends Controller
         $selectedIdsString = $request->input('selectedIds');
         $projectIds = explode(',', $selectedIdsString);
         $responseResults = [];
-
+        $metapackage_branch = "";
+        
         if($request->metapackage_branch == 'master' &&  $request->repository == 353671452)
         {
             $metapackage_branch = "master";
