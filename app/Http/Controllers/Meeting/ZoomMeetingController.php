@@ -836,12 +836,12 @@ class ZoomMeetingController extends Controller
                                 }
                             }
                         }
-
-                        \Log::info('##########  deleteRecording starts ##############');
-                        $this->deleteRecording($zoomDataPayloadObject['id'], $recordings['id']);
-                        \Log::info('##########  deleteRecording ends ##############');
-
                     }
+
+                    \Log::info('##########  deleteRecording starts ##############');
+                    \Log::info('##########  Recording Type ############## ' . $recordings['recording_type']);
+                    $this->deleteRecording($zoomDataPayloadObject['id'], $recordings['id']);
+                    \Log::info('##########  deleteRecording ends ##############');
                 }
             }
         }
