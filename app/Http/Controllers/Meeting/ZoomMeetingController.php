@@ -428,7 +428,7 @@ class ZoomMeetingController extends Controller
 
                 // Log the API request and response to the database
                 ZoomApiLog::create([
-                    'type' => 'recording',
+                    'type' => 'Delete recording',
                     'request_url' => $deleteRecordingsURL,
                     'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
                     'request_data' => '', // Add request data here if needed
@@ -447,7 +447,7 @@ class ZoomMeetingController extends Controller
             } catch (\Exception $e) {
                 // Log the exception to the database
                 ZoomApiLog::create([
-                    'type' => 'recording',
+                    'type' => 'Delete recording',
                     'request_url' => $deleteRecordingsURL,
                     'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
                     'request_data' => '', // Add request data here if needed
