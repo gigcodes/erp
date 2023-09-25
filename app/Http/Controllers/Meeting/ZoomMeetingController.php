@@ -798,6 +798,7 @@ class ZoomMeetingController extends Controller
                                         'participant' => $meetingParticipant, // Store the participant information for reference
                                     ];
 
+                                    $meetingParticipant->zoom_recording_id = $recordings['id'];
                                     $meetingParticipant->recording_path = "{$databsePath}/segments/{$segmentName}";
                                     $meetingParticipant->save();
                                 } else {
@@ -924,10 +925,74 @@ class ZoomMeetingController extends Controller
     public function showVideo(Request $request)
     {
         $fileName = ZoomMeetingDetails::find($request->id);
+
+        if (!$fileName) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not Available',
+                'status_name' => 'error',
+            ], 404);
+        }
+
         $file_name = basename($fileName->local_file_path);
         $meetingId = $fileName->meeting_id;
 
         $videoUrl = "zoom/0/$meetingId/$file_name";
+
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+        
+        $mime_type = mime_content_type($videoUrl);
+        if ($mime_type !== 'video/mp4') {
+            abort(404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'videoUrl' => asset($videoUrl),
+            'message' => 'Successfully preview the Video',
+            'status_name' => 'success',
+        ], 200);
+   }
+
+    public function showParticipantVideo(Request $request)
+    {
+        $zoomMeetingParticipant = ZoomMeetingParticipant::find($request->id);
+        // Check if the participant exists
+        if (!$zoomMeetingParticipant) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Participant not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+
+        $file_name = basename($zoomMeetingParticipant->recording_path);
+        // Check if the filename is null or empty
+        if (!$file_name) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Invalid filename',
+                'status_name' => 'error',
+            ], 400);
+        }
+
+        $meetingId = $zoomMeetingParticipant->meeting_id;
+
+        $videoUrl = "zoom/0/$meetingId/segments/$file_name";
+
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
 
         $mime_type = mime_content_type($videoUrl);
         if ($mime_type !== 'video/mp4') {

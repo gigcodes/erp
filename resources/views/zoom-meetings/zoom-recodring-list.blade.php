@@ -70,10 +70,10 @@
                         </button>
                         @endif
                         @if(Auth::user()->isAdmin())
-                            <button type="button" class="btn btn-secondary addPermissionButton" data-toggle="modal" data-recordId="{{$meeting->id}}" title="Add user permissions" data-target="#userPermissionModal">
-                                Add Permission
+                            <button type="button" class="btn btn-xs btn-image addPermissionButton" data-toggle="modal" data-recordId="{{$meeting->id}}" title="Add user permissions" data-target="#userPermissionModal">
+                                <img src="/images/add.png">
                             </button>
-                            <a class="btn btn-secondary mx-3" href="{{ route('meeting.download.file', ['id' =>$meeting->id]) }}" title="Downlaod Video"><i class="fa fa-download"></i></a>
+                            <a class="btn btn-xs btn-image" href="{{ route('meeting.download.file', ['id' =>$meeting->id]) }}" title="Downlaod Video"><i class="fa fa-download"></i></a>
                         @endif
                     </td>
                 </tr>
@@ -268,9 +268,23 @@
             });
         });
 
+
+        function clearVideo() {
+            var videoElement = $("#zoom-record-video-listing").find("video");
+            videoElement.attr("src", "");
+            videoElement[0].pause();
+        }
+
         $(document).on('click', '.load-video-preview', function() {
             var id = $(this).attr('data-id');
-            $("#zoom-record-video-listing").modal("show");
+            var modal = $("#zoom-participant-record-video-listing");
+            // Clear the video when the modal is closed
+            modal.on('hidden.bs.modal', function() {
+                clearVideo();
+            });
+
+            $("#loading-image").show();
+
             $.ajax({
                 url: '{{ route("recording.video.show") }}',
                 dataType: "json",
@@ -279,12 +293,17 @@
                 },
                 success: function(response) {
                     if (response.status) {
+                        $("#zoom-record-video-listing").modal("show");
                         var videoElement = $("#zoom-record-video-listing").find("video");
                         videoElement.attr("src", response.videoUrl);
-                        $("#zoom-record-video-listing").modal("show");
+                        videoElement[0].play(); // Start playback if needed
                     } else {
                         toastr["error"](response.error, "Message");
                     }
+                },
+                error: function(response) {
+                    $("#loading-image").hide();
+                    toastr["error"](response.responseJSON.error, "Message");
                 }
             });
         });
