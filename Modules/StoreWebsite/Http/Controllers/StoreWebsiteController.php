@@ -65,9 +65,7 @@ use App\GoogleTranslate;
 use App\Language;
 use App\Models\GoogleTranslateCsvData;
 use App\Models\WebsiteStoreProject;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use App\Models\StoreWebsiteCsvPullHistory;
 
 class StoreWebsiteController extends Controller
 {
@@ -2219,10 +2217,10 @@ class StoreWebsiteController extends Controller
         $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
         $action = $action;
 
-
-        // $languageData = Language::where('status', 1)
-        //     ->whereIn('code', $languages)
-        //     ->get();
+        $pullHistory = new StoreWebsiteCsvPullHistory();
+        $pullHistory->user_id = Auth::user()->id;
+        $pullHistory->store_website_id = $id;
+        $pullHistory->save();
 
         $languageData = Language::where('status',1)->where('locale', '!=', 'en')->get();
         
@@ -2287,13 +2285,11 @@ class StoreWebsiteController extends Controller
                     'message' => $message,
                     'action' => $action,
                     'path' => $path,
+                    'user_id' => Auth::user()->id,
                 ]);
 
-                //testing purpose given filepath
-                // $path = "/var/www/html/erp/storage/app/magento/lang/csv/Brands-QA-gb-en.csv";
-                // $filename = "Brands-QA-gb-en.csv";
 
-                if (!file_exists($path . $fileName)) {
+                if (!file_exists($path)) {
                     try {
                         foreach ($languageData as $language)
                         {
@@ -2315,6 +2311,8 @@ class StoreWebsiteController extends Controller
                                         'message' => "csv file created",
                                         'action' => $action,
                                         'filename' => $new_file_path,
+                                        'user_id' => Auth::user()->id,
+                                        'command' => $command,
                                     ]);
                             
                                 } catch (\Exception $e) {
@@ -2338,6 +2336,8 @@ class StoreWebsiteController extends Controller
                     'message' => $message,
                     'action' => $action,
                     'path' => $path,
+                    'user_id' => Auth::user()->id,
+                    'command' => $command,
                 ]);
 
                 \Log::info('command:' . $command);
@@ -2351,6 +2351,8 @@ class StoreWebsiteController extends Controller
                 'status' => 'fail',
                 'message' => $response['message'],
                 'action' => $action,
+                'user_id' => Auth::user()->id,
+                'command' => $command,
             ]);
 
             \Log::info('command:' . $command);
@@ -2466,6 +2468,30 @@ class StoreWebsiteController extends Controller
     
         return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames]);
        
+    }
+
+    public function pullRequestHistoryShow($id)
+    {
+        $histories = StoreWebsiteCsvPullHistory::with(['storewebsite','user'])->where('store_website_id', $id)->where('user_id', Auth::user()->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function pullRequesLogShow($id)
+    {
+        $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('storewebsite_id', $id)->where('user_id', Auth::user()->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
     }
 
 }
