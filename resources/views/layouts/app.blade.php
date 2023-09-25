@@ -1338,7 +1338,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $description = \App\Meetings\ZoomMeetingParticipant::whereNull('description')->count();
                                     @endphp
-                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="participant description">
+                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="Zoom Participant Description">
                                         <span><i class="fa fa-user fa-2x"></i>
                                             @if($description > 0)
                                                 <span class="description-alert-badge"></span>
