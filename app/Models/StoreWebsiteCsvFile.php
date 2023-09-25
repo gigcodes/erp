@@ -13,7 +13,7 @@ class StoreWebsiteCsvFile extends Model
 
     protected $table = 'store_website_csv_files';
 
-    protected $fillable = ['filename', 'storewebsite_id','status','action','path','message','user_id','command'];
+    protected $fillable = ['filename', 'storewebsite_id','status','action','path','message','user_id','command','csv_file_id'];
 
     public function storewebsite()
     {

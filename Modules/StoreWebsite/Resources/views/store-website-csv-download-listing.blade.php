@@ -15,15 +15,23 @@
 		</div>
 	</div>
     <div class="mt-3 col-md-12">
-        <form action="{{ route('website.search.log.view') }}" method="get" class="search">
+        <form action="{{ route('store-website.listing') }}" method="get" class="search">
             <!-- Form fields go here -->
     
-            <div class="col-lg-2 pull-left">
-                <!-- Other form elements go here -->
+            <div class="col-md-2 pd-sm">
+                 <label class="control-label">Search websites</label>
+                {{ Form::select("store_ids[]", \App\StoreWebsite::pluck('title','id')->toArray(),request('store_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
             </div>
-    
+
+            <div class="col-lg-2">
+				<button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+				   <img src="{{ asset('images/search.png') }}" alt="Search">
+			   </button>
+			   <a href="{{route('store-website.listing')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+			</div>
+
             <div class="col-lg-2 pull-right"> <!-- This div wraps the "Csv download" button -->
-                <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Csv download
+                <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Pull Mulitiple Websites
                   </button>
             </div>
         </form>
@@ -51,11 +59,11 @@
                             @endif
                             <td><button type="button" id="ip_log" class="btn btn-xs btn-image  process-magento-csv-btn" title="pull Csv" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
                                 <i class="fa fa-paper-plane " aria-hidden="true"></i></button>
-                                <button type="button" class="btn btn-xs btn-image load-pull-history ml-2" data-id="{{$storeWeb->id}}" title="View pull Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
+                                {{-- <button type="button" class="btn btn-xs btn-image load-pull-history ml-2" data-id="{{$storeWeb->id}}" title="View pull Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button> --}}
                                 <a href="{{ route('store-website.push.csv', ['id' => $storeWeb->id]) }}" target="_blank" class="btn btn-xs btn-image">
                                     <img src="/images/view.png" style="cursor: default;">
                                 </a>
-                                <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$storeWeb->id}}" title="View pull Logs" style="cursor: default;"> <img src="/images/chat.png" alt="" style="cursor: default;"></button>
+                                <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$storeWeb->id}}" title="View pull Logs" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
                             </td>
 						</tr>                        
                     @endforeach
@@ -103,7 +111,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Pull Request Logs</h4>
+                <h4 class="modal-title">Pull Logs</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
@@ -112,7 +120,7 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="30%">command</th>
+                                <th width="30%">request</th>
                                 <th width="25%">message</th>
                                 <th width="25%">Updated by</th>
                                 <th width="25%">Created Date</th>
@@ -250,11 +258,11 @@
             var id = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ route("pull-request.log.show", '') }}/' + id,
+                url: '{{route('pull-request.log.show')}}',
                 dataType: "json",
                 data: {
                     id:id,
-
+                    action:"pull",
                 },
                 success: function(response) {
                     if (response.status) {

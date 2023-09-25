@@ -63,7 +63,7 @@ Route::group([
     Route::get('/{id}/list-view', [StoreWebsiteController::class, 'dataViewPage'])->name('store-website.list-page.view');
     Route::get('/push-csv/{id}', [StoreWebsiteController::class,'pushCsvFile'])->name('store-website.push.csv');
     Route::get('pull-request/histories/{id}', [StoreWebsiteController::class, 'pullRequestHistoryShow'])->name('pull-request.histories.show');
-    Route::get('pull-request/log/{id}', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
+    Route::get('pull-request/log/', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
 
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');

@@ -315,7 +315,9 @@
                             <div class="show_csv_co">
                                 {{$data->value}}
                             </div>
-                                @if($data->status == 1 && auth()->user()->hasRole('Admin'))
+                        </td>
+                        <td><div class="show_csv_co">{{$data->standard_value}}</div> 
+                            @if($data->status == 1 && auth()->user()->hasRole('Admin'))
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="status" id="accept" value="accept" data-id="{{$data->id}}">
                                         <label class="form-check-label" for="accept">
@@ -331,14 +333,13 @@
                                     </div>
                                 @endif
                         </td>
-                        <td><div class="show_csv_co">{{$data->standard_value}}</div> 
                         <td>{{$data->created_at}}</td>
 
                         @php
                         $userPermission = \App\Models\GoogleTranslateUserPermission::where('user_id', auth()->user()->id)->where('action', "edit")->first();
                          @endphp
                         @if($userPermission || auth()->user()->hasRole('Admin'))
-                        <td><button class="insert-code-shortcut" data-target="#edit_model"  data-user ="{{auth()->user()->id }}" data-lang ="{{$data->lang_id}}" data-value="{{$data->value}}" data-id="{{$data->id}}"><i class="fa fa-pencil"></i></button></td>
+                        <td><button class="insert-code-shortcut" data-target="#edit_model"  data-user ="{{auth()->user()->id }}" data-lang ="{{$data->lang_id}}" data-value="{{$data->standard_value}}" data-id="{{$data->id}}"><i class="fa fa-pencil"></i></button></td>
                         <td><button class="view-history" data-id="{{$data->id}}"><i class="fa fa-history"></i></button></td>
                         @endif
                     </tr>                        

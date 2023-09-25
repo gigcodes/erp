@@ -101,6 +101,10 @@
 <div class="row">
     <div class="col-md-12 p-0">
         <h2 class="page-heading">GoogleFile Translator Languages List</h2>
+
+        <div class="col-lg-2">
+            <input class="form-control" type="text" id="search_filename" placeholder="Search FileName" name="search_filename" value="{{ (request('search_filename') ?? "" )}}">
+        </div>
     </div>
 </div>
 <div class="row">
@@ -237,8 +241,8 @@
             <tr>
                 <th width="3%">ID</th>
                 <th width="30%">Filepath</th>
-                <th width="3%">Action</th>
                 <th width="10%">Date</th>
+                <th width="3%">Action</th>
              </tr>
             <tbody>
                 <?php $id = request()->route('id'); ?>
@@ -247,14 +251,56 @@
                         <td>{{$key+1}}</td>
                         <td><div class="show_csv_co">{{$file->filename}}</div> 
                         </td>
-                        <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-filename="{{$file->filename}}"data-id="{{$id}}"> 
-                            <i class="fa fa-upload  upload_faq" aria-hidden="true"></i></button></td>
                         <td><div class="show_csv_co">{{$file->created_at}}</td>  
+                        <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-filename="{{$file->filename}}" data-id="{{$id}}"  data-csvfileId="{{$file->id}}"> 
+                            <i class="fa fa-upload  upload_faq" aria-hidden="true"></i></button>
+                            <?php $fileName = basename($file->filename);
+                            ?>
+                            <a class="btn btn-image" href="{{ route('googlefiletranslator.list-page.view', ['id' => $id, 'type' => 'storewebsite-' . $fileName]) }}" target="_blank">View File</a>
+                            @if($file->download_status== 1)
+                            <a class="btn btn-image" href="{{ route('store-website.download.csv', ['id' => $id, 'type' => 'storewebsite-' . $filename]) }}" target="_blank">Download CSV</a>
+                            @else 
+                            <button class="btn btn-image" onclick="showPermissionAlert()">Download File</button>
+                            @endif
+                            <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$file->id}}" title="View push Logs" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
+                        </td>
                     </tr>                        
                 @endforeach
             </tbody>
         </thead>
     </table>
+</div>
+
+
+<div id="store-log-push-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Push Logs</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="30%">request</th>
+                                <th width="25%">message</th>
+                                <th width="25%">Updated by</th>
+                                <th width="25%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="store-log-push-listing-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -270,10 +316,15 @@
 </script>
 <script type="text/javascript">
     
+    function showPermissionAlert() {
+        alert('Permission required to download this file.');
+    }
+
     $(document).on("click", ".process-magento-push-btn", function(e) {
             e.preventDefault();
             var id = $(this).data("id");
             var filename = $(this).data("filename");
+            var csvfileId = $(this).data("csvfileid");
 
             $.ajax({
                 url: '{{route('store-website.single.push.command.run')}}',
@@ -284,6 +335,7 @@
                 data: {
                     id: id,
                     filename:filename,
+                    csvfileId:csvfileId,
                 },
                 beforeSend: function() {
                     $('#loading-image').show();
@@ -305,6 +357,37 @@
             });
          });
 
+         $(document).on('click', '.load-pull-logs', function() {
+            var id = $(this).attr('data-id');
+            var action = "push";
+
+            $.ajax({
+                url: '{{route('pull-request.log.show')}}',
+                dataType: "json",
+                data: {
+                    id:id,
+                    action:action,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.command ? v.command : ''} </td>
+                                        <td> ${v.message ? v.message : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#store-log-push-listing").find(".store-log-push-listing-view").html(html);
+                        $("#store-log-push-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
 
 
 </script>
