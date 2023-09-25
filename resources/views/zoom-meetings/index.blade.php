@@ -128,7 +128,13 @@
                                 <td class="p-2">{{ $meetings->meeting_topic }}</td>
                                 <td class="p-2">{{ $meetings->meeting_agenda }}</td>
                                 <td class="p-2"><a href="{{ $meetings->join_meeting_url }}" target="_blank">Link</a></td>
-                                <td class="p-2">{{ Carbon\Carbon::parse($meetings->start_date_time)->format('M, d-Y H:i') }}</td>
+                                <td class="p-2">
+                                    @if ($meetings->start_date_time != '0000-00-00 00:00:00')
+                                        {{ Carbon\Carbon::parse($meetings->start_date_time)->format('M, d-Y H:i') }}
+                                    @else
+                                        {{ "-" }}
+                                    @endif
+                                </td>
                                 <td class="p-2">{{ $meetings->meeting_duration }} mins</td>
                                 <td class="p-2">{{ $meetings->timezone }}</td>
                                 <td class="p-2">

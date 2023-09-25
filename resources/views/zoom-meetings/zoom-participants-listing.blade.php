@@ -79,20 +79,20 @@
 			    <tr>
 			    	<th width="3%">ID</th>
 			    	<th width="10%">Name</th>
-			        <th width="20%">Email</th>
+			        <th width="15%">Email</th>
                     <th width="10%">Join Time</th>
                     <th width="10%">Leave Time</th>
 			        <th width="20%">Leave Reason</th>
                     <th width="20%">Description</th>
 					<th width="5%">Durartion</th>
-					<th width="5%">Recording Path</th>
-                    <th width="5%">Created At</th>
+					<th width="8%">Recording Path</th>
+                    <th width="7%">Created At</th>
                     <th width="5%">Action</th>
                 </tr>
 		    	<tbody>
                     @foreach ($zoomParticipants as $key=>$data)
                         <tr>
-                            <td>{{$key+1}}</td>
+                            <td>{{$data->id}}</td>
                             <td>{{$data->name}}</td>
                             <td>{{$data->email}}</td>
                             <td>{{$data->join_time}}</td>
