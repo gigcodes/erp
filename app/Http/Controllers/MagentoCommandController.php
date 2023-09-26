@@ -41,6 +41,34 @@ class MagentoCommandController extends Controller
         }
     }
 
+    public function getMagentoCommand(Request $request)
+    {
+        
+        $magentoCommand = MagentoCommand::whereNotNull('id');
+        $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
+        if (! empty($request->website)) {
+            $magentoCommand->whereIn('website_ids', $request->website);
+        }
+        if (! empty($request->command_name)) {
+            $magentoCommand->whereIn('command_name', $request->command_name);
+        }
+        if (! empty($request->user_id)) {
+            $magentoCommand->whereIn('user_id', $request->user_id);
+        }
+        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand = $magentoCommand->paginate($limit);
+        $users = User::all();
+        $websites = StoreWebsite::all();
+        $allMagentoCommandListArray = MagentoCommand::select(
+            \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
+        $assetsmanager = AssetsManager::all();
+
+        $html = view('partials.modals.magento-commands-modal-html')->with(['magentoCommand'=> $magentoCommand, 'websites'=> $websites, 'users'=> $users, 'magentoCommandListArray'=> $magentoCommandListArray, 'assetsmanager'=> $assetsmanager, 'allMagentoCommandListArray'=> $allMagentoCommandListArray])->render();
+
+        return response()->json(['code' => 200, 'html' => $html, 'message' => 'Content render']);
+
+    }
+
     public function search(Request $request)
     {
         $magentoCommand = MagentoCommand::whereNotNull('id');
