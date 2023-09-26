@@ -264,17 +264,18 @@
                         <td><div class="show_csv_co">{{$file->filename}}</div> 
                         </td>
                         <td><div class="show_csv_co">{{$file->created_at}}</td>  
-                        <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-filename="{{$file->filename}}" data-id="{{$id}}"  data-csvfileId="{{$file->id}}"> 
+                        <td>
+                            <button type="button" id="ip_log" class="btn btn-image process-magento-push-btn" title="pushCsvDownlaod" data-filename="{{$file->filename}}" data-id="{{$id}}"  data-csvfileId="{{$file->id}}"> 
                             <i class="fa fa-upload  upload_faq" aria-hidden="true"></i></button>
+                            <button type="button" class="btn btn-image load-pull-logs" data-id="{{$file->id}}" title="View push Logs" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
                             <?php $fileName = basename($file->filename);
                             ?>
-                            <a class="btn btn-image" href="{{ route('googlefiletranslator.list-page.view', ['id' => $id, 'type' => 'storewebsite-' . $fileName]) }}" target="_blank">View File</a>
+                            <a class="btn btn-image" href="{{ route('googlefiletranslator.list-page.view', ['id' => $id, 'type' => 'storewebsite-' . $fileName]) }}" target="_blank" title="Csv data to View"> <img src="/images/view.png" style="cursor: default;"></a>
                             @if($file->download_status== 1)
-                            <a class="btn btn-image" href="{{ route('store-website.download.csv', ['id' => $id, 'type' =>  'storewebsite-' . $fileName]) }}" target="_blank">Download CSV</a>
+                            <a class="btn btn-image" href="{{ route('store-website.download.csv', ['id' => $id, 'type' =>  'storewebsite-' . $fileName]) }}" target="_blank"><i class="fa fa-download"></i></a>
                             @else 
-                            <button class="btn btn-image" onclick="showPermissionAlert()">Download CSV</button>
+                            <button type="button" class="btn btn-image" onclick="showPermissionAlert()"><i class="fa fa-download"></i></button>
                             @endif
-                            <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$file->id}}" title="View push Logs" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
                         </td>
                     </tr>                        
                 @endforeach

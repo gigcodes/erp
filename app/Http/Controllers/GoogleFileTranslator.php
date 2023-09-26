@@ -290,11 +290,13 @@ class GoogleFileTranslator extends Controller
         return $newCsvData;
     }
 
-    public function dataViewPage($id, $type)
+    public function dataViewPage($id, $type, Request $request)
     {
-        if($type == "googletranslate")
-        {
-            $googleTranslateDatas=  GoogleTranslateCsvData::Where('google_file_translate_id',$id)->latest()->get();
+
+        $query = new GoogleTranslateCsvData();
+
+        if ($type == "googletranslate") {
+            $query = $query->where('google_file_translate_id', $id)->latest();
         } else {
             $lang = explode('-', $type);
             $lang = end($lang);
@@ -302,12 +304,31 @@ class GoogleFileTranslator extends Controller
             if (preg_match('/-([a-zA-Z]{2})\.csv$/', $type, $matches)) {
                 $lang = $matches[1];
             }
-            $getLang = Language::Where('locale', $lang)->first();
-
-            $googleTranslateDatas=  GoogleTranslateCsvData::Where('storewebsite_id',$id)->where('lang_id',$getLang->id)->latest()->get();
+            $getLang = Language::where('locale', $lang)->first();
+    
+            $query = $query->where('storewebsite_id', $id)
+                ->where('lang_id', $getLang->id)
+                ->latest();
+        }
+    
+        if (!empty($request->date)) {
+            $query = $query->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        if (!empty($request->search_msg)) {
+            $query = $query->where('value', 'LIKE', '%' . $request->search_msg . '%');
+        }
+    
+        if ($request->search_keyword != "") {
+            $query = $query->where('key', 'LIKE', '%' . $request->search_keyword . '%');
         }
 
-        return View('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
+        if (!empty($request->search_stand_value)) {
+            $query = $query->where('standard_value', 'LIKE', '%' . $request->search_stand_value . '%');
+        }
+    
+        $googleTranslateDatas = $query->paginate(25); // Change 25 to the number of items per page you want to display.
+    
+        return view('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
     }
 
     public function downloadPermission(Request $request)

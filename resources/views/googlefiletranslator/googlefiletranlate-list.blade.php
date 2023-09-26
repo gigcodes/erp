@@ -100,7 +100,33 @@
 </div>
 <div class="row">
     <div class="col-md-12 p-0">
-        <h2 class="page-heading">GoogleFile Translator Languages List</h2>
+        <h2 class="page-heading">GoogleFile Translator Datas</h2>
+
+        <?php $type = request()->route('type'); 
+              $id = request()->route('id');
+        ?>
+
+        <form action="{{ route('googlefiletranslator.list-page.view', ['id' => $id , 'type' => $type]) }}" method="get" class="search">
+
+            <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_keyword" placeholder="Search keywords" name="search_keyword" value="{{ (request('search_keyword') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_msg" placeholder="Search message" name="search_msg" value="{{ (request('search_msg') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_stand_value" placeholder="Search Standard value" name="search_stand_value" value="{{ (request('search_stand_value') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                   <img src="{{ asset('images/search.png') }}" alt="Search">
+               </button>
+               <a href="{{ route('googlefiletranslator.list-page.view', ['id' => $id , 'type' => $type]) }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+            </div>
+        </form>
     </div>
 </div>
 <div class="row">
@@ -151,12 +177,6 @@
             @endforeach
         </select> --}}
     </div>
-    <div class="col-md-1 my-5">
-    {{-- <a href="#" class="filterSearch">
-            <i class="fa fa-search"></i>
-        </a> --}}
-    </div>
-
 </div>
 
 <div class="float-right my-3">
@@ -348,6 +368,7 @@
             </tbody>
         </thead>
     </table>
+    {!! $googleTranslateDatas->appends(Request::except('page'))->links() !!}
 </div>
 
 <div class="modal fade" id="edit_model" role="dialog">
