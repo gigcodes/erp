@@ -488,6 +488,17 @@ class ZoomMeetingController extends Controller
         return response()->json(['code' => 200, 'data' => $participants, 'html' => $html, 'message' => 'Content render']);
     }
 
+    public function allParticipantsList(Request $request)
+    {
+        $perPage = 10;
+
+        $participants = ZoomMeetingParticipant::latest()
+        ->whereNull('description')
+        ->paginate($perPage);
+        $html = view('zoom-meetings.participations-listing-modal-html')->with('participants', $participants)->render();
+        return response()->json(['code' => 200, 'data' => $participants, 'html' => $html, 'message' => 'Content render']);
+    }
+
     public function listErrorLogs(Request $request)
     {
         $zoomApiLogs = new ZoomApiLog();
