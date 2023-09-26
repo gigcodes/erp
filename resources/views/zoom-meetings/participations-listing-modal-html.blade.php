@@ -6,7 +6,6 @@
             <th width="12%">Email</th>
             <th width="20%">Join Time</th>
             <th width="25%">Leave Time</th>
-            <th width="20%">Duration</th>
             <th width="25%">Descrption</th>
             <th width="25%">Created Date</th>
         </tr>
@@ -19,7 +18,6 @@
             <td>{{ $participant->email}}</td>
             <td>{{ $participant->join_time}}</td>
             <td>{{ $participant->leave_time}}</td>
-            <td>{{ $participant->duration}}</td>
             <td>
                 <div class="d-flex align-items-center">
                     <input type="text" name="description" class="form-control description" placeholder="Description" value="{{ ($participant->description ?? "" )}}">

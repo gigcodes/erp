@@ -438,6 +438,14 @@ class ZoomMeetingController extends Controller
     
                 if ($response->successful()) {
                     \Log::info('##########  Recording for the meeting have been deleted successfully ##############');
+
+                    // Save recroding_deleted_at in DB table
+                    $checkfile = ZoomMeetingDetails::where('download_url_id', $recordingId)->first();
+                    if($checkfile) {
+                        $checkfile->recording_deleted_at = Carbon::now();
+                        $checkfile->save();
+                    }
+
                     return response()->json(['message' => 'Recording for the meeting have been deleted successfully.', 'code' => 200]);
                 } else {
                     \Log::info('##########  Error deleting the recording for the meeting, Please check the logs ##############');
