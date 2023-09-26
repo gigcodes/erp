@@ -2279,10 +2279,10 @@ class StoreWebsiteController extends Controller
         $allOutput[] = $command;
         $result = exec($command, $allOutput);
        // Below static code for testing purpose. 
-        // $allOutput = [
-        //     "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
-        //     '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
-        // ];
+        $allOutput = [
+            "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
+            '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
+        ];
 
         $response = json_decode($allOutput[1], true);
         \Log::info('command:' . $command);
@@ -2293,6 +2293,8 @@ class StoreWebsiteController extends Controller
             $status = $response['status'];
             $message = $response['message'];
             $path = $response['path'];
+
+            // $path = "/var/www/erp.local/storage/app/magento/lang/csv/Brands-QA-gb-en.csv";
 
             if ($status === 'success') {
                 StoreWebsiteCsvFile::create([
@@ -2311,7 +2313,6 @@ class StoreWebsiteController extends Controller
                         {
                             $new_file_path = str_replace('-en.cs', '-' . $language->locale . '.cs', $path);
                             $result = $this->translateFile($path, $language->locale, ','); 
-                            
                             StoreWebsiteCsvFile::create([
                                 'storewebsite_id' => $storeWebsiteId,
                                 'status' => "success",
@@ -2393,6 +2394,9 @@ class StoreWebsiteController extends Controller
 
     public function translateFile($path, $language, $delimiter = ',')
     {
+        //local testing purpose
+        // $path = $path = storage_path('app/magento/lang/csv/Brands-QA-gb-en.csv');
+
         if (! file_exists($path) || ! is_readable($path)) {
             return false;
         }
@@ -2485,15 +2489,28 @@ class StoreWebsiteController extends Controller
         return View('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
     }
 
-    public function pushCsvFile($id)
+    public function pushCsvFile($id, Request $request)
     {
-        $filenames =   StoreWebsiteCsvFile::where('storewebsite_id', $id)
+        $query = StoreWebsiteCsvFile::where('storewebsite_id', $id)
         ->whereNotNull('filename')
-        ->where('filename', '!=', '') // Check for non-empty values
-        // ->select('filename')
-        // ->distinct()
-        ->get();
-    
+        ->where('filename', '!=', ''); // Check for non-empty values
+
+        // Check if 'search_filename' is provided in the request
+        if ($request->has('search_filename')) {
+            $searchFilename = $request->input('search_filename');
+            $query->where(function ($query) use ($searchFilename) {
+                $query->where('filename', 'like', '%' . $searchFilename . '%');
+            });
+        }
+
+        // Check if 'date' is provided in the request
+        if ($request->has('date')) {
+            $date = $request->input('date');
+            $query->whereDate('created_at', $date);
+        }
+
+        $filenames = $query->get();
+
         return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames]);
        
     }
@@ -2538,4 +2555,12 @@ class StoreWebsiteController extends Controller
         }
     }
 
+    public function csvFileTruncate()
+    {
+        StoreWebsiteCsvFile::truncate();
+
+        GoogleTranslateCsvData::truncate();
+
+        return redirect()->route('store-website.listing')->withSuccess('data Removed succesfully!');
+    }
 }

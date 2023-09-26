@@ -30,9 +30,10 @@
 			   <a href="{{route('store-website.listing')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
 			</div>
 
-            <div class="col-lg-2 pull-right"> <!-- This div wraps the "Csv download" button -->
-                <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Pull Mulitiple Websites
-                  </button>
+            <div class="col-lg-2 pull-right" style="display: flex; align-items: center;">
+                <!-- This div wraps the "Csv download" and "Truncate Data" buttons -->
+                <button type="button" class="btn btn-secondary csv-download" onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Pull Multiple Websites</button>
+                <a href="{{ route('store-website-csv-truncate') }}" class="btn btn-primary ml-2" onclick="return confirm('{{ __('Are you sure you want to Truncate Data? Note: It will remove google translate data and csv files') }}')">Truncate Data</a>
             </div>
         </form>
     </div>

@@ -16,6 +16,9 @@ use App\Models\GoogleTranslateCsvData;
 use App\Models\GoogleFileTranslateHistory;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use App\Models\StoreWebsiteCsvFile;
+use Illuminate\Support\Facades\Storage;
+
 
 class GoogleFileTranslator extends Controller
 {
@@ -309,8 +312,13 @@ class GoogleFileTranslator extends Controller
 
     public function downloadPermission(Request $request)
     {
-        $googleTranslate = GoogleFiletranslatorFile::find($request->id);
-        $googleTranslate->download_status = 1 ;
+        $parts = explode('-', $request->type);
+        $filename = $parts[1]; // Extract the second part as the filename
+
+
+        $googleTranslate = StoreWebsiteCsvFile::Where('storewebsite_id',$request->id)->where('filename', 'like', '%' . $filename . '%')
+        ->first();
+        $googleTranslate->download_status = 1;
         $googleTranslate->save();
 
         return response()->json(['status' => 200, 'data' => $googleTranslate, 'message' => "download permision allowed"]);
@@ -401,39 +409,42 @@ class GoogleFileTranslator extends Controller
     public function downloadCsv($id, $type)
     {
         $csv = ''; // Initialize the $csv variable as an empty string
+        $getLang = null; // Initialize $getLang variable
+
+        $lang = explode('-', $type);
+        $lang = end($lang);
+    
+        
+        if (preg_match('/-([a-zA-Z]{2})\.csv$/', $type, $matches)) {
+            $lang = $matches[1];
+        }
+        $getLang = Language::where('locale', $lang)->first();
 
         if ($type == "googletranslate") {
             $googleTranslateDatas = GoogleTranslateCsvData::where('google_file_translate_id', $id)->latest()->get();
         } else {
-            $lang = explode('-', $type);
-            $lang = end($lang);
-        
-            if (preg_match('/-([a-zA-Z]{2})\.csv$/', $type, $matches)) {
-                $lang = $matches[1];
-            }
-            $getLang = Language::where('locale', $lang)->first();
-        
             $googleTranslateDatas = GoogleTranslateCsvData::where('storewebsite_id', $id)
                 ->where('lang_id', $getLang->id)
                 ->latest()
                 ->get();
         }
         
-        $fileName = 'google_translate_data.csv';
-        
-        // Add a header row with column names
-        // $csv .= "value,standard_value\n";
-        $csvContent = '"StanardValue","value"' . "\n";
+        $fileName = 'google_translate_data_' . ($getLang ? $getLang->locale : '') . '.csv';
+
+        $csvContent = '"Value","StanardValue"' . "\n";
 
         foreach ($googleTranslateDatas as $data) {
-            // Add data from each column to the corresponding column in the CSV
-            // $csv .= "{$data->value},{$data->standard_value}\n";
-            $csvContent .= $this->formatForCSV($data->standard_value) . ','
-            . $this->formatForCSV($data->value) . "\n";
+            // Ensure that values are enclosed in double quotes and separated by commas
+            $csvContent .= '"' . $this->formatForCSV($data->value) . '","' .
+            $this->formatForCSV($data->standard_value) . '"' . "\n";
         }
 
-       
-        
+         // Specify the storage disk (e.g., 'public' or 'local') and the directory path
+        $disk = 'public';
+        $directory = 'csv/';
+
+        // Store the CSV file
+        Storage::disk($disk)->put($directory . $fileName, $csvContent);
         // Set the content type and disposition for download
         $headers = [
             'Content-Type' => 'text/csv',

@@ -100,11 +100,23 @@
 </div>
 <div class="row">
     <div class="col-md-12 p-0">
+        <?php $id = request()->route('id'); ?>
         <h2 class="page-heading">GoogleFile Translator Languages List</h2>
+        <form action="{{ route('store-website.push.csv', ['id' => $id]) }}" method="get" class="search">
 
         <div class="col-lg-2">
             <input class="form-control" type="text" id="search_filename" placeholder="Search FileName" name="search_filename" value="{{ (request('search_filename') ?? "" )}}">
         </div>
+        <div class="col-lg-2">
+            <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+        </div>
+        <div class="col-lg-2">
+            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+               <img src="{{ asset('images/search.png') }}" alt="Search">
+           </button>
+           <a href="{{ route('store-website.push.csv', ['id' => $id]) }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+        </div>
+    </form>
     </div>
 </div>
 <div class="row">
@@ -258,9 +270,9 @@
                             ?>
                             <a class="btn btn-image" href="{{ route('googlefiletranslator.list-page.view', ['id' => $id, 'type' => 'storewebsite-' . $fileName]) }}" target="_blank">View File</a>
                             @if($file->download_status== 1)
-                            <a class="btn btn-image" href="{{ route('store-website.download.csv', ['id' => $id, 'type' => 'storewebsite-' . $filename]) }}" target="_blank">Download CSV</a>
+                            <a class="btn btn-image" href="{{ route('store-website.download.csv', ['id' => $id, 'type' =>  'storewebsite-' . $fileName]) }}" target="_blank">Download CSV</a>
                             @else 
-                            <button class="btn btn-image" onclick="showPermissionAlert()">Download File</button>
+                            <button class="btn btn-image" onclick="showPermissionAlert()">Download CSV</button>
                             @endif
                             <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$file->id}}" title="View push Logs" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
                         </td>

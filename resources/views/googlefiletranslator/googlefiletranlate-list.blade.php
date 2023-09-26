@@ -160,9 +160,10 @@
 </div>
 
 <div class="float-right my-3">
+    <?php $type = request()->route('type'); ?>
     @if(auth()->user()->hasRole('Lead Translator') || auth()->user()->hasRole('Admin'))
     <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
-    <a class="btn btn-secondary text-white btn_download_approved" data-id ={{$id}} onclick="return confirm('{{ __('Are you sure you want to Give a download Permission') }}')" >Approve To download</a>
+    <a class="btn btn-secondary text-white btn_download_approved" data-id ={{$id}} data-type ={{$type}} onclick="return confirm('{{ __('Are you sure you want to Give a download Permission') }}')" >Approve To download</a>
     @endif
 </div>
 
@@ -420,11 +421,13 @@
     $(document).on("click", ".btn_download_approved", function (e) {
         e.preventDefault();
         let id = $(this).data("id");
+        let type = $(this).data("type");
         $.ajax({
             type: "get",
             url: "{{route('googlefiletranslator.downlaod.permission')}}",
             data: {
-                id,
+                id:id,
+                type:type,
             },
             success: function (response) {
                 if(response.status == 200) {
