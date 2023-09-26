@@ -78,8 +78,7 @@ class AppServiceProvider extends ServiceProvider
         });
          
         view()->composer('*',function($view) {
-            $view->with('websites_filter', StoreWebsite::all());
-            $view->with('users_filter', User::all());
+        
             $view->with('assetsmanager', AssetsManager::all());
             $view->with('magentoCommandListArray', MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray());
         });

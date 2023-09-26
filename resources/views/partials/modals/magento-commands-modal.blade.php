@@ -53,57 +53,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="mt-3 col-md-12">
-                <form class="form-inline" action="" method="GET" id="magento-command-date-form">
-                    {{ csrf_field() }}
-                    <div class="col">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <select name="website[]" class="form-control select2" data-placeholder="Select Websites" id="website" multiple>
-                                    <option></option>
-                                    <option value="ERP" @if(!empty(request('website')) && in_array('ERP',request('website'))) selected @endif>ERP</option>
-                                    <?php
-                                  $ops = 'id';
-                                ?>
-                                    @foreach($websites_filter as $website)
-                                        <option @if(!empty(request('website')) && in_array($website->id ,request('website'))) selected @endif value="{{$website->id}}">{{$website->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <select name="command_name[]" class="form-control select2" id="command_name" multiple data-placeholder="Select Command Name">
-                                    <option></option>
-                                    @foreach ($magentoCommandListArray as $comName => $comType)
-                                    <option @if(!empty(request('command_name')) && in_array($comName ,request('command_name'))) selected @endif value="{{$comName}}">{{$comName}}</option>
-                                    @endforeach
-                                </select>
-                                {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <div class="input-group">
-                                <select name="user_id[]" class="form-control select2" id="user_id" multiple data-placeholder="Select User Name">
-                                    <option></option>
-                                    @foreach ($users_filter as $key => $user)
-                                    <option @if(!empty(request('user_id')) &&  in_array($user->id ,request('user_id'))) selected @endif value="{{$user->id}}">{{$user->name}}</option>
-                                    @endforeach
-                                </select>
-                                {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
-                    </div>
-                </form>
-                
-            </div>
+           
             <div class="modal-body">
                 <div class="row">
                     <div class="col-lg-12">

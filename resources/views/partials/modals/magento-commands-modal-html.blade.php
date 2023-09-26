@@ -40,8 +40,58 @@
 
 @endsection
 
-
-
+<div class="row">
+ <div class="mt-3 col-md-12">
+                <form class="form-inline" action="" method="GET" id="magento-command-date-form">
+                    {{ csrf_field() }}
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select name="website[]" class="form-control select2" data-placeholder="Select Websites" id="website" multiple>
+                                    <option></option>
+                                    <option value="ERP" @if(!empty(request('website')) && in_array('ERP',request('website'))) selected @endif>ERP</option>
+                                    <?php
+                                  $ops = 'id';
+                                ?>
+                                    @foreach($websites as $website)
+                                        <option @if(!empty(request('website')) && in_array($website->id ,request('website'))) selected @endif value="{{$website->id}}">{{$website->title}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select name="command_name[]" class="form-control select2" id="command_name" multiple data-placeholder="Select Command Name">
+                                    <option></option>
+                                    @foreach ($magentoCommandListArray as $comName => $comType)
+                                    <option @if(!empty(request('command_name')) && in_array($comName ,request('command_name'))) selected @endif value="{{$comName}}">{{$comName}}</option>
+                                    @endforeach
+                                </select>
+                                {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select name="user_id[]" class="form-control select2" id="user_id" multiple data-placeholder="Select User Name">
+                                    <option></option>
+                                    @foreach ($users as $key => $user)
+                                    <option @if(!empty(request('user_id')) &&  in_array($user->id ,request('user_id'))) selected @endif value="{{$user->id}}">{{$user->name}}</option>
+                                    @endforeach
+                                </select>
+                                {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+                    </div>
+                </form>
+            </div>    
+            </div>
 @php $isPermissionCommandRun = 0; @endphp
 
 @if(auth()->user()->isAdmin())
@@ -127,14 +177,14 @@
                             @endphp
 
                             @if($isPerCommandRunCheck == 1)
-                                <a title="Run Command" class="btn btn-image magentoCom-run-btn pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
+                                <a title="Run Command" class="btn btn-image magentoCom-run-btn_header pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
                                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
                                 </a>
                             @endif
 
-                            <a class="btn btn-image edit-magentoCom-btn" data-id="{{ $magentoCom->id }}"><img data-id="{{ $magentoCom->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
-                            <a class="btn delete-magentoCom-btn" data-id="{{ $magentoCom->id }}" href="#"><img data-id="{{ $magentoCom->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
-                            <a title="Preview Response" data-id="{{ $magentoCom->id }}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
+                            <a class="btn btn-image edit-magentoCom-btn_header" data-id="{{ $magentoCom->id }}"><img data-id="{{ $magentoCom->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                            <a class="btn delete-magentoCom-btn_header" data-id="{{ $magentoCom->id }}" href="#"><img data-id="{{ $magentoCom->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                            <a title="Preview Response" data-id="{{ $magentoCom->id }}" class="btn btn-image preview_response_header pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                     @endforeach
@@ -244,6 +294,7 @@
     </div>
 </div>
 
+
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 
@@ -336,7 +387,7 @@
         $('#folder_real_name').val(folder_name);
     });
 
-    $(document).on("click", ".delete-magentoCom-btn", function(e) {
+    $(".delete-magentoCom-btn_header").click(function(e) {
         e.preventDefault();
         if (confirm("Are you sure?")) {
             var $this = $(this);
@@ -367,7 +418,8 @@
             });
         }
     });
-    $(document).on("click", ".submit-form", function(e) {
+    
+        $(".submit-form").click(function(e) {
         e.preventDefault();
         var $this = $(this);
 
@@ -428,8 +480,10 @@
         });
     });
 
-    $(document).on("click", ".edit-magentoCom-btn", function(e) {
+    $(".edit-magentoCom-btn_header").click(function(e) {
+
         e.preventDefault();
+        console.log('d')
         $('#titleUpdate').html("Update");
         var $this = $(this);
         var id = $this.data('id');
@@ -644,7 +698,7 @@
         
     });
 
-    $(document).on("click", ".magentoCom-run-btn", function(e) {
+    $(document).on("click", ".magentoCom-run-btn_header", function(e) {
         e.preventDefault();
         var $this = $(this);
         var id = $this.data('id');
@@ -677,7 +731,7 @@
         });
     });
 
-    $(document).on("click", ".preview_response", function(e) {
+    $(document).on("click", ".preview_response_header", function(e) {
         e.preventDefault();
         var $this = $(this);
         var id = $this.data('id');
@@ -751,17 +805,19 @@
         $(mini).toggleClass('hidden');
     });
     $(document).ready(function() {
-        $('#magento-commands-modal .select2').select2({
+        $('#magento-commands-modal .select2,#addPostman_header .select2').select2({
            // placeholder: "Select a state",
 
         });
-        $("'#magento-commands-modal #command_name_search").select2({
+        $("#magento-commands-modal #command_name_search,#addPostman_header #command_name_search").select2({
             tags: true
         });
-        $("'#magento-commands-modal #command_type").select2({
+        $("#magento-commands-modal #command_type,#addPostman_header #command_type").select2({
             tags: true
         });
-        $("'#magento-commands-modal .dropdown-mul-1").select2({});
+        $("#magento-commands-modal .dropdown-mul-1,#addPostman_header .dropdown-mul-1").select2({});
+
+
     });
 
     $('#update_user_permission').submit(function(e){

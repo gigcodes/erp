@@ -9413,7 +9413,7 @@ if (!\Auth::guest()) {
             $('.ajax-loader').hide();
         });
      });
-
+    
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>
