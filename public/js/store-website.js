@@ -224,9 +224,12 @@ var page = {
       var username = block.find(".userName");
       var password = block.find(".user-password");
 
-      var $temp = $("<input>");
+      var combinedValue = 'Username : '+username.val()+ "\n" +'Password : '+password.val();
+
+
+      var $temp = $("<textarea>");
       $("body").append($temp);
-      $temp.val('Username : '+username.val()+'Password : '+password.val()).select();
+      $temp.val(combinedValue).select();
       document.execCommand("copy");
       $temp.remove();
 
@@ -864,6 +867,8 @@ var page = {
 
     var store_id = $("#store_website_id").val();
 
+    var adminpassword = $("#adminpassword").val();
+
     //use in user-lising-popup
     if (!store_id) {
       store_id = ele.parents(".subMagentoUser").find(".store_website_id").val();
@@ -891,7 +896,12 @@ var page = {
         $("#loading-image").show();
       },
     };
-    this.sendAjax(_z, "saveSite");
+
+    if(adminpassword==1){
+      this.sendAjax(_z, "saveSiteAdminPassword");
+    } else {
+      this.sendAjax(_z, "saveSite");
+    }
   },
   AddMagentoUserForm: function (ele) {
     var html =
@@ -985,6 +995,16 @@ var page = {
           element.select2({ tags: true, width: "100%" });
         }
       });
+    }
+  },
+  saveSiteAdminPassword: function (response) {
+    if (response.code == 200) {
+      page.loadFirst();
+      $(".common-modal").modal("hide");
+      window.location = window.location;
+    } else {
+      $("#loading-image").hide();
+      toastr["error"](response.error, "");
     }
   },
   saveSite: function (response) {

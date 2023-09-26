@@ -13,6 +13,7 @@
             {{if data}}
             <input type="hidden" name="id" id="store_website_id" value="{{:data.id}}"/>
             {{/if}}
+            <input type="hidden" name="adminpassword" id="adminpassword" value="1"/>
             <div class="col-md-4">
                <div class="form-group">
                   <label for="title">Title</label>
