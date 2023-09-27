@@ -97,13 +97,10 @@ class AssetsManagerController extends Controller
         if (! empty($user_ids)) {
             $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
         }
-        if (! empty($ip_ids)) {
+        if (!empty($ip_ids) && (count($ip_ids)>0) && (!in_array(null, $ip_ids))) {
             $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
         }
-        if (! empty($ip_ids)) {
-            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
-        }
-        // $assets = $assets->orderBy("due_date", "ASC");
+        $assets = $assets->orderBy("id", "ASC");
 
         $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
         $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
