@@ -96,9 +96,7 @@
         background-color: #fff;
         animation: loader-inner 2s infinite ease-in;
     }
-    .select-width .select2.select2-container.select2-container--default{
-        width: 150px !important;
-    }
+    
     .select-width{
         margin-right: 5px;
     }
@@ -146,6 +144,8 @@
             height: 0%;
         }
     }
+
+    .select2-container{width: 100% !important;}
 </style>
 @endsection
 @section('content')
@@ -190,53 +190,88 @@
 <div class="row">
     <div class="col-md-12 pl-5 pr-5">
         <div class="row">
-            <div class="cls_filter_box col-md-10">
+            <div class="cls_filter_box col-md-12">
                 <form class="form-inline" action="{{ route('coupons.index')}}" method="GET" id="coupon_code">
-                    <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <br>
-                        <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code" value="{{ request('flt_coupon') }}">
+                    <div class="col-sm-12 p-0">
+                        <div class="col-sm-2 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2">
+                                <span>Coupon code:</span>
+                                <input type="text" name="flt_coupon" class="form-control-sm form-control" placeholder="Coupon code" value="{{ request('flt_coupon') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-2 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2">
+                                <span>Search Status:</span>
+                                <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status" value="{{ request('flt_status') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-2 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2">
+                                <span>Search Rules:</span>
+                                <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules" value="{{ request('flt_rule') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-2 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2">
+                                <span>Start Date:</span>
+                                <input type="text" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date" value="{{ request('flt_start_date') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-2 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2">
+                                <span>End Date:</span>
+                                <input type="text" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date" value="{{ request('flt_end_date') }}">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <br>
-                        <input type="text" name="flt_status" class="form-control-sm form-control" placeholder="Search Status" value="{{ request('flt_status') }}">
-                    </div>
-                    <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <br>
-                        <input type="text" name="flt_rule" class="form-control-sm form-control" placeholder="Search Rules" value="{{ request('flt_rule') }}">
-                    </div>
-                    <div class="pd-sm select-width">
-                        select websites : 
-                        <br>
-                        {{ Form::select("website_ids[]", \App\CouponCodeRules::pluck('website_ids','website_ids')->toArray(), request('website_ids'), ["class" => "form-control globalSelect2", "multiple" , "data-placeholder" => "Select Website"]) }}
-                    </div>
-                    <div class="pd-sm select-width">
-                        select users:
-                        <br>
-                     
-                        {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(), request('usernames'), ["class" => "form-control globalSelect2", "multiple" , "data-placeholder" => "Select User"]) }}
-                   </div>
-                    <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <br>
-                        <input type="date" name="flt_start_date" class="form-control-sm form-control" placeholder="Start Date" value="{{ request('flt_start_date') }}">
-                    </div>
-                    <div class="form-group cls_filter_inputbox p-0 mr-2">
-                        <br>
-                        <input type="date" name="flt_end_date" class="form-control-sm form-control" placeholder="End Date" value="{{ request('flt_end_date') }}">
-                    </div>
-                    <div class="form-group p-0 mr-2">
-                        <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
-                        <a href="{{route('coupons.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                    <hr style=" width: 100%; margin: 9px 0px;">
+                    <div class="col-sm-12 p-0">
+                        <!-- <div class="col-sm-4 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2 select-width" style="width: 99%;">
+                                <span>Select websites:</span>
+                                <br>
+                                {{ Form::select("website_ids[]", \App\CouponCodeRules::pluck('website_ids','website_ids')->toArray(), request('website_ids'), ["class" => "form-control globalSelect2", "multiple" , "data-placeholder" => "Select Website"]) }}
+                            </div>
+                        </div> -->
+                        <div class="col-sm-4 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2 select-width" style="width: 99%;">
+                                <span>Select websites:</span>
+                                <br>
+                                <select class="form-control select select2 multiple" name="website_id" placeholder="Store Websites" >
+                                    <option value="">Select website</option>
+                                    @foreach($store_websites as $ws)
+                                    <option value="{{ $ws->id }}" @if(request()->get('website_id')==$ws->id) selected @endif>{{ $ws->website }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4 p-0">
+                            <div class="form-group cls_filter_inputbox p-0 mr-2 select-width" style="width: 99%;">
+                                <span>Select users:</span>
+                                <br>
+                                {{ Form::select("usernames[]", \App\User::pluck('name','id')->toArray(), request('usernames'), ["class" => "form-control globalSelect2", "multiple" , "data-placeholder" => "Select User"]) }}
+                            </div>
+                        </div>
+                        <div class="col-sm-1 p-0">
+                            <div class="form-group p-0 mr-2">
+                                <span>&nbsp;</span>
+                                <br>
+                                <button type="submit" class="btn btn-xs"><i class="fa fa-filter"></i></button>
+                                <a href="{{route('coupons.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 p-0" style="text-align: right;">  
+                            <button type="button" class="btn custom-button" onclick="showOverallReport()">
+                                Overall Report
+                            </button>
+                            <span>&nbsp;</span>
+                            <button type="button" class="btn custom-button" onclick="createCoupon()">
+                                New Coupon
+                            </button>
+                        </div>
                     </div>
                 </form>
-            </div>
-            <div class="col-md-2" style="text-align: right; margin-bottom: 10px;">
-                <button type="button" class="btn custom-button" onclick="showOverallReport()">
-                    Overall Report
-                </button>
-                <span>&nbsp;</span>
-                <button type="button" class="btn custom-button" onclick="createCoupon()">
-                    New Coupon
-                </button>
             </div>
         </div>
     </div>
@@ -270,25 +305,28 @@
                             <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                                 <div class="panel-body">
                                     <div class="row">
-                                        <div class="form-group ">
-                                            <div class="col-sm-4">
-                                                <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name" / style="width:220px !important;">
+                                        <div class="col-sm-4">
+                                            <div class="form-group ">
+                                                <label>Rule Name:</label>
+                                                <input type="text" class="form-control required" name="name" placeholder="Name" value="{{old('name')}}" id="rule_name">
                                                 @if ($errors->has('name'))
                                                 <div class="alert alert-danger">{{$errors->first('name')}}</div>
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="form-group ">
-                                            <div class="col-sm-4">
-                                                <textarea type="text" class="form-control" name="description" placeholder="Description" id="description" style="height:35px; width:220px !important;">{{old('description')}}</textarea>
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label>Description:</label>
+                                                <textarea type="text" class="form-control" name="description" placeholder="Description" id="description" style="height:35px;">{{old('description')}}</textarea>
                                                 @if ($errors->has('description'))
                                                 <div class="alert alert-danger">{{$errors->first('description')}}</div>
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="col-sm-4">
-                                                <select class="form-control select select2 required" name="active" id="is_active" placeholder="Active" style="width:220px !important;">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label>Active:</label>
+                                                <select class="form-control select select2 required" name="active" id="is_active" placeholder="Active" >
                                                     <option value="1">Yes</option>
                                                     <option value="0">No</option>
                                                 </select>
@@ -296,26 +334,29 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="form-group ">
-                                            <div class="col-sm-4">
-                                                <select class="form-control select select2" name="store_website_id" onchange="getWebsitesByStoreId(this);" placeholder="Store Websites" style="width:220px !important;">
-                                                    <option value="">Please select</option>
+                                        <div class="col-sm-12">
+                                            <div class="form-group ">
+                                                <label>Website:</label>
+                                                <select class="form-control select select2" name="store_website_id" onchange="getWebsitesByStoreId(this);" placeholder="Store Websites" >
+                                                    <option value="">Please select website</option>
                                                     @foreach($store_websites as $ws)
-                                                    <option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                    <option value="{{ $ws->id }}">{{ $ws->website }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="col-sm-4">
-                                                <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids" placeholder="Websites" style="height:35px; width:220px !important;">
-
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label>Website store:</label>
+                                                <select class="form-control select select2 required websites" name="website_ids" multiple="true" id="website_ids" placeholder="Websites" style="height:35px; ">
+                                                    
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="col-sm-4">
-                                                <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups" style="height:35px; width:220px !important" placeholder="Customer Groups">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label>Customer Group:</label>
+                                                <select class="form-control select select2 required customers" name="customer_groups" multiple="true" id="customer_groups" style="height:35px;" placeholder="Customer Groups">
                                                     <option data-title="NOT LOGGED IN" value="0" selected>NOT LOGGED IN</option>
                                                     <option data-title="General" value="1">General</option>
                                                     <option data-title="Wholesale" value="2">Wholesale</option>
@@ -325,40 +366,44 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="form-group ">
-                                            <div class="col-sm-5">
-                                                <select class="form-control select select2 required" name="coupon_type" id="coupon_type" placeholder="Coupon" style="width:250px !important;">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label>Coupon:</label>
+                                                <select class="form-control select select2 required" name="coupon_type" id="coupon_type" placeholder="Coupon">
                                                     <option value="NO_COUPON">No Coupon</option>
                                                     <option value="SPECIFIC_COUPON">Specific Coupon</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group hide_div">
-                                            <div class="col-sm-4">
+                                        <div class="col-sm-4 hide_div">
+                                            <div class="form-group">
+                                                <label>Coupon Code:</label>
                                                 <input type="text" class="form-control" name="code" placeholder="Code" id="coupon_code" / placeholder="Coupon Code">
                                                 @if ($errors->has('code'))
                                                 <div class="alert alert-danger">{{$errors->first('code')}}</div>
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="form-group  hide_div">
-                                            <div class="col-sm-4">
-                                                <input type="checkbox" class="form-control" style="height:20px;" id="disable_coupon_code" value="1" name="auto_generate" />
-                                                <div class="">If you select and save the rule you will be able to generate multiple coupon codes.</div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group  hide_div">
-                                            <div class="col-sm-4">
+                                        <div class="col-sm-4 hide_div">
+                                            <div class="form-group">
+                                                <label>Uses per Coupon:</label>
                                                 <input type="text" class="form-control" name="uses_per_coupon" placeholder="" id="use_per_coupon" / placeholder="Uses per Coupon">
                                                 @if ($errors->has('uses_per_coupon'))
                                                 <div class="alert alert-danger">{{$errors->first('uses_per_coupon')}}</div>
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="form-group ">
-                                            <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" / placeholder="Uses per Coustomer" style="width:439px !important;">
-                                                <div style="width:400px !important">Usage limit enforced for logged in customers only.</div>
+                                        <div class="col-sm-12 hide_div">
+                                            <div class="form-group d-flex">
+                                                <input type="checkbox" class="form-control" style="height:20px;width:20px;    margin-right: 10px;" id="disable_coupon_code" value="1" name="auto_generate">
+                                                <label for="start" class="col-form-label">If you select and save the rule you will be able to generate multiple coupon codes.</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="form-group">
+                                                <label>Uses per Coustomer:</label>
+                                                <input type="text" class="form-control" name="uses_per_coustomer" placeholder="" id="use_per_coustomer" placeholder="Uses per Coustomer">
+                                                <div>Usage limit enforced for logged in customers only.</div>
                                                 @if ($errors->has('uses_per_coustomer'))
                                                 <div class="alert alert-danger">{{$errors->first('uses_per_coustomer')}}</div>
                                                 @endif
@@ -368,8 +413,9 @@
                                     <div class="row">
                                         <div class="col-sm-4">
                                             <div class="form-group">
+                                                <label>Start:</label>
                                                 <div class='input-group date' id='start'>
-                                                    <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" / placeholder="Start" style="width:200px !important;">
+                                                    <input type='text' class="form-control" name="start" value="{{old('start')}}" id="start_input" placeholder="Start" >
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
@@ -381,8 +427,9 @@
                                         </div>
                                         <div class="col-sm-4">
                                             <div class="form-group ">
+                                                <label>Expiration :</label>
                                                 <div class='input-group date' id='expiration'>
-                                                    <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" / placeholder="Expiration" style="width:200px !important;">
+                                                    <input type='text' class="form-control" name="expiration" value="{{old('expiration')}}" id="to_input" placeholder="Expiration" >
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
@@ -394,18 +441,19 @@
                                         </div>
                                         <div class="col-sm-4">
                                             <div class="form-group ">
-                                                <input type="text" class="form-control" name="priority" placeholder="Priority" id="" / style="width:200px !important;">
+                                                <label>Priority:</label>
+                                                <input type="text" class="form-control" name="priority" placeholder="Priority" id="">
                                                 @if ($errors->has('priority'))
                                                 <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                                                 @endif
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group row d-flex" style="float: right;">
-                                        <label for="start" class="col-sm-8 col-form-label" style="width:220px !important;">Public In RSS Feed</label>
-
-                                        <input type="checkbox" class="form-control" style="height:20px;width:20px;" name="rss" checked />
-
+                                    <div class="col-sm-12">
+                                        <div class="form-group row d-flex" style="float: right;">
+                                            <label for="start" class="col-form-label" style="padding-right: 10px;">Public In RSS Feed</label>
+                                            <input type="checkbox" class="form-control" style="height:20px;width:20px;" name="rss" checked />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -728,7 +776,7 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $rule_list->name }}</td>
                         <td>{{ $rule_list->coupon_code }}</td>
-                        <td class="Website-task">{{ $rule_list->website_ids }}</td>
+                        <td class="Website-task">{{ $rule_list->website_name }} {{-- $rule_list->website_ids --}}</td>
                         <td>{{ $rule_list->from_date }}</td>
                         <td>{{ $rule_list->to_date }}</td>
                         <td>@if($rule_list->users)
@@ -844,7 +892,12 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script type="text/javascript">
+
+    $('.select-multiple').select2({width: '100%'});
+   $('.select2').select2();
+
     /* beautify preserve:start */
     @if($errors->any())
     $('#couponModal').modal('show');
