@@ -97,6 +97,49 @@ class TodoListController extends Controller
         }
     }
 
+    public function ajax_store(Request $request)
+    {   
+
+        if (! $request->title || $request->subject == '' || $request->status == '' || $request->todo_date == '' || $request->todo_category_id == '') {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'data' => [],
+                    'message' => 'Please enter all required details.',
+                ]
+            );
+        }
+
+        try {
+            $todolists = new TodoList();
+            $todolists->user_id = Auth::user()->id ?? '';
+            $todolists->title = $request->title;
+            $todolists->subject = $request->subject;
+            $todolists->status = $request->status ?? '';
+            $todolists->todo_date = $request->todo_date;
+            $todolists->remark = $request->remark ?? '-';
+
+            if($request->todo_category_id>0){
+                $todolists->todo_category_id = $request->todo_category_id ?? '';
+            } else{
+                $todoCategory = new TodoCategory();
+                $todoCategory->name = $request->other;
+                $todoCategory->status = 1;
+                $todoCategory->save();
+                $todolists->todo_category_id = $todoCategory->id;
+            }
+
+            $todolists->save();
+            $this->createTodolistRemarkHistory($request, $todolists->id);
+            //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
+            return redirect()->back()->with('success', 'Your Todo List has been created!');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            //return response()->json(["code" => 500, "message" => $e->getMessage()]);
+            return redirect()->back()->withErrors($e->getMessage());
+        }
+    }
+
     /**
      * Display the specified resource.
      *

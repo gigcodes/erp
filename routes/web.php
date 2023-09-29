@@ -5401,6 +5401,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
 Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::get('/', [TodoListController::class, 'index'])->name('todolist');
     Route::post('/store', [TodoListController::class, 'store'])->name('todolist.store');
+    Route::post('/ajax_store', [TodoListController::class, 'ajax_store'])->name('todolist.ajax_store');
     Route::post('/edit', [TodoListController::class, 'edit'])->name('todolist.edit');
     Route::post('/update', [TodoListController::class, 'update'])->name('todolist.update');
     Route::post('/remark/history', [TodoListController::class, 'getRemarkHistory'])->name('todolist.remark.history');
