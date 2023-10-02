@@ -1442,12 +1442,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <i class="fa fa-sitemap fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="quick-icon todolist-request" href="#"><span><i
-                                                class="fa fa-plus fa-2x"></i></span></a>
+                                    <a title="Add Todo List" class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="quick-icon todolist-get" href="#"><span><i
-                                                class="fa fa-list fa-2x"></i></span></a>
+                                    <a title="Todo List" class="quick-icon todolist-get" href="#"><span><i class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
@@ -4881,7 +4879,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
-                <form action="{{ route('todolist.store') }}" method="POST">
+                <form action="{{ route('todolist.store') }}" method="POST" onsubmit="return false;">
                     @csrf
 
                     <div class="modal-header">
@@ -4893,19 +4891,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <strong>Title:</strong>
                             <input type="text" name="title" class="form-control add_todo_title"
                                 value="{{ old('title') }}" required="">
-
-                            @if ($errors->has('title'))
-                            <div class="alert alert-danger">{{ $errors->first('title') }}</div>
-                            @endif
+                            <span class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <strong>Subject:</strong>
                             <input type="text" name="subject" class="form-control add_todo_subject"
                                 value="{{ old('subject') }}" required="">
-
-                            @if ($errors->has('subject'))
-                            <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
-                            @endif
+                            <span class="text-danger"></span>
                         </div>
                         @php
                         $todoCategories = \App\TodoCategory::get();
@@ -4913,59 +4905,56 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                          <div class="form-group">
                              <strong>Category:</strong>
                              {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
-                             <select name="todo_category_id" class="form-control">
-                             <option value="">Select Category</option>
+                             <select name="todo_category_id" class="form-control add_todo_category">
+                                <option value="">Select Category</option>
+                                <option value="-1">Add New Category</option>
                                 @foreach($todoCategories as $todoCategory)
                                     <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
                                 @endforeach
                              </select>
-                             @if ($errors->has('status'))
-                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
-                             @endif
+                             <span class="text-danger"></span>
                          </div>
+                        
+                        <div class="form-group othercat" style="display: none;">
+                            <strong>Add New Category:</strong>
+                            <input type="text" name="other" class="form-control add_todo_other" value="{{ old('other') }}">
+                            <span class="text-danger"></span>
+                        </div>
+
                         @php
                         $statuses = \App\TodoStatus::all()->toArray();
                         @endphp
                         <div class="form-group">
                             <strong>Status:</strong>
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
-                            <select name="status" class="form-control">
+                            <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
                                 <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
-                            @if ($errors->has('status'))
-                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
-                            @endif
+                            <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0px;">
                             <strong>Date:</strong>
 
                             <div class='input-group date' id='todo-date' required="">
-                                <input type="text" class="form-control global" name="todo_date" placeholder="Date"
+                                <input type="text" class="form-control global add_todo_date" name="todo_date" placeholder="Date"
                                     value="{{ old('todo_date') }}">
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
                             </div>
-
-                            @if ($errors->has('todo_date'))
-                            <div class="alert alert-danger">{{ $errors->first('todo_date') }}</div>
-                            @endif
                         </div>
+                        <span class="text-danger text-danger-date"></span>
 
-                        <div class="form-group">
+                        <div class="form-group" style="margin-top: 15px;">
                             <strong>Remark:</strong>
-                            <input type="text" name="remark" class="form-control" value="{{ old('remark') }}" required>
-
-                            @if ($errors->has('remark'))
-                            <div class="alert alert-danger">{{ $errors->first('remark') }}</div>
-                            @endif
+                            <input type="text" name="remark" class="form-control add_todo_remark" value="{{ old('remark') }}">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Store</button>
+                        <button type="submit" class="btn btn-secondary submit-todolist-button">Store</button>
                     </div>
                 </form>
             </div>
@@ -6663,6 +6652,102 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $("#confirm_status").val(1);
             $("#menu_confirmMessageModal").modal();
         }
+    });
+
+    $(document).ready(function() {
+        // Change category on create page logic
+        $('.add_todo_category').on('change', function(){
+            var category_id = $('.add_todo_category').find(':selected').val();
+            if( category_id != '' && category_id == '-1'){
+                $('.othercat').show();
+            } else{
+                $('.othercat').hide();
+            }
+        });
+    });
+
+    $(document).on("click", ".submit-todolist-button", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var formData = new FormData($this.closest("form")[0]);
+        var $form = $(this).closest("form");
+        
+        var title = $(this).parents('#todolist-request-model').find('.add_todo_title').val();
+        var subject = $(this).parents('#todolist-request-model').find('.add_todo_subject').val();
+        var category = $('.add_todo_category').find(':selected').val();
+        var status = $('.add_todo_status').find(':selected').val();
+        var date = $(this).parents('#todolist-request-model').find('.add_todo_date').val();
+        var remark = $(this).parents('#todolist-request-model').find('.add_todo_remark').val();
+        var other = $(this).parents('#todolist-request-model').find('.add_todo_other').val();
+
+        $('.text-danger').html('');
+        if(title == '') {
+            $('.add_todo_title').next().text("Please enter the title");
+            return false;
+        }
+
+        if(subject == '') {
+            $('.add_todo_subject').next().text("Please enter the subject");
+            return false;
+        }
+
+        if(category == '') {
+            $('.add_todo_category').next().text("Please select the category");
+            return false;
+        } else if(category == '-1') {
+            if(other == '') {
+                $('.add_todo_other').next().text("Please add new category");
+                return false;
+            }
+        }
+
+        //-1
+
+        if(status == '') {
+            $('.add_todo_status').next().text("Please select the status");
+            return false;
+        }
+
+        if(date == '') {
+            $('.text-danger-date').text("Please select the date");
+            return false;
+        } else {
+            $('.text-danger-date').text(" ");
+        }
+
+        $.ajax({
+            url: '{{ route('todolist.ajax_store') }}',
+            type: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formData,
+            dataType: "json",
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+        }).done(function(data) {
+            $("#loading-image-preview").hide();
+            if (data.code == 500) {
+                toastr["error"](data.message);
+            } else {
+                $('.othercat').hide();
+                $form[0].reset();
+                $("#todolist-request-model").modal("hide");
+                toastr["success"]("Your Todo List has been created!");
+
+                setTimeout(function() {
+                    location.reload();
+                }, 2500);
+                
+            }
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"](jqXHR.responseJSON.message);
+            $("#loading-image").hide();
+        });
     });
 
     $(document).on('click', '.menu-confirm-messge-button', function() {
