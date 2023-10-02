@@ -381,6 +381,7 @@ use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\MonitStatusController;
 use App\Http\Controllers\MagentoProblemController;
+use App\Http\Controllers\ScriptDocumentsController;
 
 Auth::routes();
 
@@ -3281,6 +3282,17 @@ Route::middleware('auth')->group(function () {
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
     Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
 
+    Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
+    Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
+    Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
+    Route::post('script-documents/store', [ScriptDocumentsController::class, 'store'])->name('script-documents.store');
+    Route::get('script-documents/edit/{id}', [ScriptDocumentsController::class, 'edit'])->name('script-documents.edit');
+    Route::post('script-documents/update', [ScriptDocumentsController::class, 'update'])->name('script-documents.update');
+    Route::post('script-documents/upload-file', [ScriptDocumentsController::class, 'uploadFile'])->name('script-documents.upload-file');
+    Route::get('script-documents/files/record', [ScriptDocumentsController::class, 'getScriptDocumentFilesList'])->name('script-documents.files.record');
+    Route::get('script-documents/record-script-document-ajax', [ScriptDocumentsController::class, 'recordScriptDocumentAjax'])->name('script-documents.index_ajax');
+    Route::get('script-documents/{id}/delete', [ScriptDocumentsController::class, 'destroy']);
+
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
     Route::get('bug-tracking/create', [BugTrackingController::class, 'create'])->name('bug-tracking.create');
@@ -5389,6 +5401,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
 Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::get('/', [TodoListController::class, 'index'])->name('todolist');
     Route::post('/store', [TodoListController::class, 'store'])->name('todolist.store');
+    Route::post('/ajax_store', [TodoListController::class, 'ajax_store'])->name('todolist.ajax_store');
     Route::post('/edit', [TodoListController::class, 'edit'])->name('todolist.edit');
     Route::post('/update', [TodoListController::class, 'update'])->name('todolist.update');
     Route::post('/remark/history', [TodoListController::class, 'getRemarkHistory'])->name('todolist.remark.history');

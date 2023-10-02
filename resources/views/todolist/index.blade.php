@@ -219,7 +219,7 @@
 
                         <div class="form-group">
                             <strong>Remark:</strong>
-                            <input type="text" name="remark" class="form-control" value="{{ old('remark') }}" required>
+                            <input type="text" name="remark" class="form-control" value="{{ old('remark') }}">
 
                             @if ($errors->has('remark'))
                                 <div class="alert alert-danger">{{ $errors->first('remark') }}</div>

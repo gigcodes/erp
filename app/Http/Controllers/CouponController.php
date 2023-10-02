@@ -67,7 +67,9 @@ class CouponController extends Controller
         if ($srch = request('website_ids')) {
             $q->whereIn('website_ids', $srch);
         }
-
+        if ($srch = request('website_id')) {
+            $q->where('store_website_id', $srch);
+        }
         if (request('flt_start_date') && request('flt_end_date')) {
             $startDate = request('flt_start_date');
             $endDate = request('flt_end_date');
@@ -114,6 +116,10 @@ class CouponController extends Controller
                 }
                 $rules->website_ids = $websiteNames ? implode(', ', $websiteNames) : '--';
 
+                $storeWebsites = StoreWebsite::where('id', $rules->store_website_id)->first();
+
+                $rules->website_name = $storeWebsites['website'];
+                
                 // OLD CODE - PREVENT QUERIES IN LOOP
                 // $websites = Website::whereIn('platform_id', explode(',', $rules->website_ids))
                 //     ->where('store_website_id', $rules->store_website_id)
