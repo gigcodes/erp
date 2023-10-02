@@ -1107,17 +1107,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <div class="form-row">
                                 <input type="hidden" id="command_id" name="id" value="" />
 
-                                @if(auth()->user()->isAdmin())
-                                    <div class="form-group col-md-12">
-                                        <label for="title">User Name</label>
-                                        <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
-                                            <option>--Users--</option>
-                                            @foreach ($users as $key => $user)
-                                                <option value="{{$user->id}}">{{$user->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div> 
-                                @endif
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <div class="form-group col-md-12">
+                                            <label for="title">User Name</label>
+                                            <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
+                                                <option>--Users--</option>
+                                                @foreach ($users as $key => $user)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div> 
+                                    @endif
+                                @endauth
 
                                 <div class="form-group col-md-12">
                                     <label for="title">Website</label>
