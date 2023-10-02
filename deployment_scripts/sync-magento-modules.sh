@@ -1,11 +1,24 @@
 #!/bin/bash
 
+SSHPORT="22480 2112 22"
+
+for portssh in $SSHPORT
+do
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$SERVER 'exit'
+        if [ $? -ne 255 ]
+        then
+                PORT=`echo $portssh`
+        fi
+done
+
+
 function HELP {
         echo "-w|--website: website"
         echo "-s|--server: Server ip"
         echo "-d|--rootdir: rootdir"
 	echo "-m|--modulename modulename"
         echo "-p|--path path"
+	echo "-g|--project projectname(avoirchic,brands_labels,sololuxury,sololuxury,suvandnat,veralusso)"
 	echo "-a|--action value(sync,add,enable,disable)"
 
 }
@@ -39,6 +52,10 @@ do
                 modulename="${args[$((idx+1))]}"
                 idx=$((idx+2))
                 ;;
+		-g|--project)
+                project="${args[$((idx+1))]}"
+                idx=$((idx+2))
+                ;;
                 -h|--help)
                 HELP
                 exit 1
@@ -48,19 +65,19 @@ do
                 ;;
         esac
 done
-
+MNAME="$modulename"
 SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 
 function madd()
 {
-	ssh -i $SSH_KEY root@$server "cd $rootdir; composer require $modulename"
+	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; composer require $modulename"
 
 }
 
 function sync()
 {
 #	echo "ssh -i $SSH_KEY root@$server \"cd $rootdir; bin/magento module:status\""
-        input=`ssh -i $SSH_KEY root@$server "cd $rootdir; bin/magento module:status"`
+        input=`ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; bin/magento module:status"`
 # Initialize arrays for enabled and disabled modules
 enabled_modules=()
 disabled_modules=()
@@ -106,4 +123,53 @@ echo "disabled=$DMODULES"
 }
 
 
-$action
+module_status()
+{
+	if [ "$action" == "enable" ]
+	then
+		EDF=1
+	else
+		EDF=0
+	fi
+	cd /opt/rawapps/
+	git clone git@github.com:ludxb/brands-labels.git &> /dev/null
+	cd brands-labels
+	sed -i "s/.*'$MNAME'.*/\t'$MNAME' => $EDF,/" app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php
+
+	git add app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php   &> /dev/null
+	git commit -m 'Deployment config erp'  &> /dev/null
+	git push origin stage  &> /dev/null
+	if [ $? -eq 0 ]
+	then
+		echo "{\"status\":\"success\"}"
+	else
+		echo "{\"status\":\"fail\"}"
+	fi
+
+	cd /opt/rawapps/
+	rm -rf brands-labels
+}
+
+#$action
+
+case $action in
+
+  add)
+          echo $RCOUNT
+    ;;
+
+  enable)
+          module_status
+    ;;
+
+  disable)
+          module_status
+    ;;
+  sync)
+          sync
+    ;;
+
+  *)
+          echo "Failed"
+    ;;
+esac

@@ -7,22 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use App\StoreWebsite;
 use App\User;
 
-class StoreWebsiteCsvFile extends Model
+
+class StoreWebsiteCsvPullHistory extends Model
 {
     use HasFactory;
 
-    protected $table = 'store_website_csv_files';
-
-    protected $fillable = ['filename', 'storewebsite_id','status','action','path','message','user_id','command'];
+    protected $table = 'store_website_csv_pull_histories';
 
     public function storewebsite()
     {
-        return $this->belongsTo(StoreWebsite::class, 'storewebsite_id');
+        return $this->belongsTo(StoreWebsite::class, 'store_website_id');
     }
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
 
 }

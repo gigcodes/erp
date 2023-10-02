@@ -46,7 +46,8 @@
 					&nbsp;
 
 					@if($storeWebsites->count() > 0)
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button>
+					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button> -->
+					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>
 					@endif
 				</div>
 			</div>

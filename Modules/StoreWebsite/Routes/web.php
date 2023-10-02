@@ -44,6 +44,7 @@ Route::group([
     Route::post('builder-api-key/update/{id}', [StoreWebsiteController::class, 'updateBuilderApiKey'])->name('store-website.updateBuilderApiKey');
     Route::get('builder-api-key-histories/{id}', [StoreWebsiteController::class, 'builderApiKeyHistory'])->name('store-website.builder-api-key-histories');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
+    Route::get('admin-password', [StoreWebsiteController::class, 'adminPassword'])->name('store-website.adminPassword');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
     Route::post('api-token/get-api-token-logs/{id}', [StoreWebsiteController::class, 'getApiTokenLogs'])->name('store-website.getApiTokenLogs');
@@ -60,6 +61,11 @@ Route::group([
     Route::post('mulitple/csv-download', [StoreWebsiteController::class, 'mulitipleStorewebsiteDownload'])->name('mulitiple.store-website.listing');
     Route::post('single/csv/command/run', [StoreWebsiteController::class, 'runCsvSingleCommand'])->name('store-website.single.command.run');
     Route::post('single/push/csv/command/run', [StoreWebsiteController::class, 'runCsvSinglePushCommand'])->name('store-website.single.push.command.run');
+    Route::get('/{id}/list-view', [StoreWebsiteController::class, 'dataViewPage'])->name('store-website.list-page.view');
+    Route::get('/push-csv/{id}', [StoreWebsiteController::class,'pushCsvFile'])->name('store-website.push.csv');
+    Route::get('pull-request/histories/{id}', [StoreWebsiteController::class, 'pullRequestHistoryShow'])->name('pull-request.histories.show');
+    Route::get('pull-request/log/{id}', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
+
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
 

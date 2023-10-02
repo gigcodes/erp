@@ -87,22 +87,25 @@ class GoogleFileTranslator extends Controller
             $path = public_path() . '/uploads/google-file-translator/';
             $languageData = Language::where('id', $insert->tolanguage)->first();
            
-            if ($request->file->getClientOriginalExtension() === 'csv' || $request->file->getClientOriginalExtension() === 'xlsx') {
 
-                try {
-                    $import = new GoogleTranslateCsvDataImport($insert->tolanguage, $insert->id,);
-                    \Excel::import($import, $request->file('file'));    
-    
-                } catch (\Exception $e) {
-                    return 'Upload failed: ' . $e->getMessage();
-                }
-            } else {
-                \Session::flash('error', 'Upload only Csv or Xlsx');
-            }
-    
             if (file_exists($path . $insert->name)) {
                 try {
                     $result = $this->translateFile($path . $insert->name, $languageData->locale, ',');
+                foreach ($result as $translationSet) {
+                    try {
+
+                        $translationDataStored = new GoogleTranslateCsvData();
+                        $translationDataStored->key = $translationSet[0];
+                        $translationDataStored->value = $translationSet[1];
+                        $translationDataStored->standard_value = $translationSet[2];
+                        $translationDataStored->google_file_translate_id = $insert->id;
+                        $translationDataStored->save();
+                   
+                    } catch (\Exception $e) {
+                        return 'Upload failed: ' . $e->getMessage();
+                    }
+                }
+
                 } catch (\Exception $e) {
                     return redirect()->route('googlefiletranslator.list')->with('error', $e->getMessage());
                 }
@@ -278,6 +281,8 @@ class GoogleFileTranslator extends Controller
             }
             fclose($handle);
         }
+
+        return $newCsvData;
     }
 
     public function dataViewPage($id)

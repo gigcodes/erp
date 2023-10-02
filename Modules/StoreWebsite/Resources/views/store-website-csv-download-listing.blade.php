@@ -14,19 +14,54 @@
 		    <h2 class="page-heading">Store Websites ({{$storeWebsites->total()}})</h2>
 		</div>
 	</div>
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="row">
+                <div class="col-lg-8 margin-tb">
+                    <form class="form-inline message-search-handler" method="get">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-lg-8 margin-tb">
+                                    <div class="form-group m-1" style="width:100%">
+                                        <input name="name" list="name-lists" type="text" class="form-control" placeholder="Search Website" value="{{request()->get('name')}}" style="width:100%" />
+                                        <datalist id="name-lists">
+                                            @foreach ($storeWebsitesDropdown as $key => $val )
+                                                <option value="{{$val->title}}">
+                                            @endforeach
+                                        </datalist>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 margin-tb">
+                                    <div class="form-group">
+                                        <button type="submit" style="    margin-top: 4px;" class="btn btn-sm btn-image btn-search-action">
+                                            <img src="/images/search.png" style="cursor: default;">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-4 margin-tb">
+                    <form action="{{ route('website.search.log.view') }}" method="get" class="search">
+                        <!-- Form fields go here -->
+                
+                        <div class="col-lg-2 pull-left">
+                            <!-- Other form elements go here -->
+                        </div>
+                
+                        <div class="col-lg-2 pull-left"> <!-- This div wraps the "Csv download" button -->
+                            <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Csv download
+                              </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="mt-3 col-md-12">
-        <form action="{{ route('website.search.log.view') }}" method="get" class="search">
-            <!-- Form fields go here -->
-    
-            <div class="col-lg-2 pull-left">
-                <!-- Other form elements go here -->
-            </div>
-    
-            <div class="col-lg-2 pull-right"> <!-- This div wraps the "Csv download" button -->
-                <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Csv download
-                  </button>
-            </div>
-        </form>
+        
     </div>
     
 	<div class="mt-3 col-md-12">
@@ -34,9 +69,9 @@
 		    <thead>
 			    <tr>
 			    	<th width="3%">No</th>
-			    	<th width="20%">Websites</th>
+			    	<th width="15%">Websites</th>
 			        <th width="10%">File Name</th>
-                    <th width="3%">Action</th>
+                    <th width="5%">Action</th>
 
                 </tr>
 		    	<tbody>
@@ -49,10 +84,13 @@
                             @else
                             <td> - </td>
                             @endif
-                            <td><button type="button" id="ip_log" class="btn btn-secondary process-magento-csv-btn" title="pullCsvDownlaod" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
+                            <td><button type="button" id="ip_log" class="btn btn-xs btn-image  process-magento-csv-btn" title="pull Csv" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
                                 <i class="fa fa-paper-plane " aria-hidden="true"></i></button>
-                                <button type="button" id="ip_log" class="btn btn-secondary process-magento-push-btn" title="pushCsvDownlaod" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
-                                <i class="fa fa-upload  upload_faq" aria-hidden="true"></i></button>
+                                <button type="button" class="btn btn-xs btn-image load-pull-history ml-2" data-id="{{$storeWeb->id}}" title="View pull Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
+                                <a href="{{ route('store-website.push.csv', ['id' => $storeWeb->id]) }}" target="_blank" class="btn btn-xs btn-image">
+                                    <img src="/images/view.png" style="cursor: default;">
+                                </a>
+                                <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$storeWeb->id}}" title="View pull Logs" style="cursor: default;"> <img src="/images/chat.png" alt="" style="cursor: default;"></button>
                             </td>
 						</tr>                        
                     @endforeach
@@ -64,6 +102,69 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
     50% 50% no-repeat;display:none;">
 </div>
+
+<div id="store-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pull Request History</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="30%">store website</th>
+                                <th width="25%">Updated by</th>
+                                <th width="25%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="store-listing-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="store-log-listing" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Pull Request Logs</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="5%">No</th>
+                                <th width="30%">command</th>
+                                <th width="25%">message</th>
+                                <th width="25%">Updated by</th>
+                                <th width="25%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="store-log-listing-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -150,38 +251,68 @@
             });
          });
 
-         $(document).on("click", ".process-magento-push-btn", function(e) {
-            e.preventDefault();
-            var id = $(this).data("id");
+         $(document).on('click', '.load-pull-history', function() {
+            var id = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{route('store-website.single.push.command.run')}}',
-                type: "post",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }, 
+                url: '{{ route("pull-request.histories.show", '') }}/' + id,
+                dataType: "json",
                 data: {
-                    id: id,
-                },
-                beforeSend: function() {
-                    $('#loading-image').show();
-                },
-            }).done(function(response) {
-                if (response.code == '200') {
-                    toastr['success']('Command Run successfully!!!', 'success');
-                } else if(response.code == '500') {
-                    toastr['error'](response.message, 'error');
-                }
-                else {
-                    toastr['error'](response.message, 'error');
-                }
-                $('#loading-image').hide();
-            }).fail(function(errObj) {
-                $('#loading-image').hide();
-                    toastr['error']("Invalid JSON response", 'error');
+                    id:id,
 
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.storewebsite ? v.storewebsite.title : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#store-listing").find(".store-listing-view").html(html);
+                        $("#store-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
             });
-         });
+        });
+
+        $(document).on('click', '.load-pull-logs', function() {
+            var id = $(this).attr('data-id');
+
+            $.ajax({
+                url: '{{ route("pull-request.log.show", '') }}/' + id,
+                dataType: "json",
+                data: {
+                    id:id,
+
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${v.command ? v.command : ''} </td>
+                                        <td> ${v.message ? v.message : ''} </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                    </tr>`;
+                        });
+                        $("#store-log-listing").find(".store-log-listing-view").html(html);
+                        $("#store-log-listing").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+
 	});
 </script> 
 @endsection
