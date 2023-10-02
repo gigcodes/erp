@@ -131,12 +131,9 @@ class TodoListController extends Controller
 
             $todolists->save();
             $this->createTodolistRemarkHistory($request, $todolists->id);
-            //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
-            return redirect()->back()->with('success', 'Your Todo List has been created!');
+            return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            //return response()->json(["code" => 500, "message" => $e->getMessage()]);
-            return redirect()->back()->withErrors($e->getMessage());
+            return response()->json(["code" => 500, "message" => $e->getMessage()]);
         }
     }
 
