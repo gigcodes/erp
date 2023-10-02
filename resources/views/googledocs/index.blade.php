@@ -47,21 +47,20 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-3 pd-sm">
+                                    <b>Select Tasks Type: </b>
+                                    <select class="form-control" id="task_type" name="task_type" placeholder="Select Task Type">
+                                        <option>Select Type</option>
+                                        <option value="App\Task" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\Task')) selected @endif>TASK</option>
+                                        <option value="App\Task" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\DeveloperTask')) selected @endif>DEVTASK</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
                                     <b>Select Category: </b>
                                     <select class="form-control globalSelect2" multiple="true" id="googleDocCategoryFilter" name="googleDocCategory[]" placeholder="Select Category">
                                         @foreach ($googleDocCategory as $key => $c)
                                             <option value="{{ $key }}" @if(in_array($key, $request->input('googleDocCategory', []))) selected @endif>{{ $c }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                                <div class="col-lg-2 pd-sm">
-                                    <b>Enter Search Url: </b>
-                                    <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
-                                    <datalist id="docid-lists">
-                                        @foreach ($data as $key => $val )
-                                            <option value="{{$val->docId}}"></option>
-                                        @endforeach
-                                    </datalist>
                                 </div>
     				            @if(Auth::user()->isAdmin())
                                     <div class="col-lg-3 pd-sm">
@@ -73,6 +72,15 @@
                                         </select>
                                     </div>
     				            @endif
+                                <div class="col-lg-2 pd-sm">
+                                    <b>Enter Search Url: </b>
+                                    <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
+                                    <datalist id="docid-lists">
+                                        @foreach ($data as $key => $val )
+                                            <option value="{{$val->docId}}"></option>
+                                        @endforeach
+                                    </datalist>
+                                </div>
                                 <div class="col-lg-1 pd-sm">
                                     <div class="form-group">
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">

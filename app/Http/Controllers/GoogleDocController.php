@@ -49,6 +49,11 @@ class GoogleDocController extends Controller
                 $q->whereIn('google_docs.belongable_id', $keyword);
             });
         }
+        if ($keyword = request('task_type')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('google_docs.belongable_type', $keyword);
+            });
+        }
         if (isset($request->googleDocCategory)) {
             $data = $data->whereIn('category', $request->googleDocCategory ?? []);
         }

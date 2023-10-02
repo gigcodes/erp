@@ -753,6 +753,16 @@ class MagentoModuleController extends Controller
         return view('magento_module.magento-listing', ['all_store_websites' => $all_store_websites, 'selecteStoreWebsites' => $selecteStoreWebsites, 'magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites, 'magento_modules_array' => $magento_modules_array, 'magento_modules_count' => $magento_modules_count, 'allMagentoModules' => $allMagentoModules]);
     }
 
+    public function magentoModuleListLogs(Request $request)
+    {
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')
+        ->orderBy('magento_module_logs.id', 'asc')->get();
+
+        $magento_modules_count = $magento_modules->count();
+
+        return view('magento_module.magento-listing_logs', ['magento_modules' => $magento_modules, 'magento_modules_count' => $magento_modules_count]);
+    }
+
     public function magentoModuleUpdateStatuslogs(Request $request)
     {
         $store_website_id = $request->store_website_id;
