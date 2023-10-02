@@ -38,6 +38,22 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select Tasks: </b>
+                                    <select class="form-control globalSelect2" multiple="true" id="tasks" name="tasks[]" placeholder="Select Tasks">
+                                        @foreach($tasks as $val)
+                                            <option value="{{ $val }}" @if(in_array($val, $request->input('tasks', []))) selected @endif>{{ $val }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select Category: </b>
+                                    <select class="form-control globalSelect2" multiple="true" id="googleDocCategoryFilter" name="googleDocCategory[]" placeholder="Select Category">
+                                        @foreach ($googleDocCategory as $key => $c)
+                                            <option value="{{ $key }}" @if(in_array($key, $request->input('googleDocCategory', []))) selected @endif>{{ $c }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-lg-2 pd-sm">
                                     <b>Enter Search Url: </b>
                                     <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
@@ -46,14 +62,6 @@
                                             <option value="{{$val->docId}}"></option>
                                         @endforeach
                                     </datalist>
-                                </div>
-                                <div class="col-lg-2 pd-sm">
-                                    <b>Select Category: </b>
-                                    <select class="form-control globalSelect2" multiple="true" id="googleDocCategoryFilter" name="googleDocCategory[]" placeholder="Select Category">
-                                        @foreach ($googleDocCategory as $key => $c)
-                                            <option value="{{ $key }}" @if(in_array($key, $request->input('googleDocCategory', []))) selected @endif>{{ $c }}</option>
-                                        @endforeach
-                                    </select>
                                 </div>
     				            @if(Auth::user()->isAdmin())
                                     <div class="col-lg-3 pd-sm">

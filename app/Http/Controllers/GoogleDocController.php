@@ -44,7 +44,11 @@ class GoogleDocController extends Controller
                 }                
             });
         }
-
+        if ($keyword = request('tasks')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->whereIn('google_docs.belongable_id', $keyword);
+            });
+        }
         if (isset($request->googleDocCategory)) {
             $data = $data->whereIn('category', $request->googleDocCategory ?? []);
         }
@@ -54,7 +58,14 @@ class GoogleDocController extends Controller
         $data = $data->get();
         $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
-        return view('googledocs.index', compact('data', 'users', 'request'))
+        $tasksData = \App\Task::pluck('id')->toArray();
+        $DeveloperTaskData = \App\DeveloperTask::pluck('id')->toArray();
+
+        $tasks = array_unique(array_merge($tasksData,$DeveloperTaskData));
+
+        sort($tasks);
+
+        return view('googledocs.index', compact('data', 'users', 'request', 'tasks'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
