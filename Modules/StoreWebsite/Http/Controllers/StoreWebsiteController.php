@@ -143,6 +143,15 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index-api-token', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
 
+    public function adminPassword()
+    {
+        $title = 'Admin Password | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
+
+        return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
+    }
+
     public function getApiTokenLogs(Request $request)
     {
         $logs = StoreWebsitesApiTokenLog::with(['storeWebsite', 'StoreWebsiteUsers', 'user'])->where('store_website_id', $request->store_website_id)->orderBy('id', 'desc')->get();
@@ -2090,9 +2099,16 @@ class StoreWebsiteController extends Controller
     {
         $perPage =  20;
         
-        $storeWebsites = StoreWebsite::latest()->paginate($perPage);
+        //$storeWebsites = StoreWebsite::latest()->paginate($perPage);
 
-        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites'));
+        $keyword = request('name');
+        $storeWebsites = StoreWebsite::when((!empty($keyword)) , function ($q) use ($keyword) {
+            return $q->where('title', 'LIKE', "%$keyword%");
+        })->latest()->paginate($perPage);
+
+        $storeWebsitesDropdown = StoreWebsite::latest()->groupBy('title')->get();
+
+        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites', 'storeWebsitesDropdown'));
 
     }
 
