@@ -300,6 +300,7 @@
                 <th width="3%">ID</th>
                 <th width="3%">KeyWords</th>
                 <th width="30%">Message</th>
+                <th width="30%">Standard Value</th>
                 <th width="10%">Date</th>
                 <th width="10%">Edit</th>
                 <th width="10%">History</th>
@@ -330,6 +331,7 @@
                                     </div>
                                 @endif
                         </td>
+                        <td><div class="show_csv_co">{{$data->standard_value}}</div> 
                         <td>{{$data->created_at}}</td>
 
                         @php

@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Response;
 use seo2websites\LaravelZoom\LaravelZoom;
 use App\Models\ZoomMeetingRecordHistory;
 use App\Models\ZoomMeetingHistory;
+use App\Models\ZoomMeetingParticipantHistory;
 
 /**
  * Class ZoomMeetingController - active record
@@ -411,6 +412,56 @@ class ZoomMeetingController extends Controller
         
     }
 
+    public function deleteRecording($meetingId, $recordingId)
+    {
+        $tokenResponse = ZoomOAuthHelper::getAccessToken();
+        
+        if (isset($tokenResponse['access_token'])) {
+            $accessToken = $tokenResponse['access_token'];
+            $deleteRecordingsURL = "https://api.zoom.us/v2/meetings/{$meetingId}/recordings/$recordingId?action=trash";
+
+            try {
+                // Fetch participants for this meeting
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ])->delete($deleteRecordingsURL);
+
+                // Log the API request and response to the database
+                ZoomApiLog::create([
+                    'type' => 'Delete recording',
+                    'request_url' => $deleteRecordingsURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => $response->status(),
+                    'response_data' => json_encode($response->json()),
+                ]);
+    
+                if ($response->successful()) {
+                    \Log::info('##########  Recording for the meeting have been deleted successfully ##############');
+                    return response()->json(['message' => 'Recording for the meeting have been deleted successfully.', 'code' => 200]);
+                } else {
+                    \Log::info('##########  Error deleting the recording for the meeting, Please check the logs ##############');
+                    // $errorMessage = $recordingsResponse->body();
+                    return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
+                }
+            } catch (\Exception $e) {
+                // Log the exception to the database
+                ZoomApiLog::create([
+                    'type' => 'Delete recording',
+                    'request_url' => $deleteRecordingsURL,
+                    'request_headers' => json_encode(['Authorization' => 'Bearer ' . $accessToken]),
+                    'request_data' => '', // Add request data here if needed
+                    'response_status' => 500, // Set an appropriate status code for errors
+                    'response_data' => json_encode(['error' => $e->getMessage()]),
+                ]);
+
+                \Log::info('##########  Error deleting the recording for the meeting, Please check the ZoomApiLog ##############');
+
+                return response()->json(['message' => 'Error deleting the recording for the meeting, Please check the logs', 'code' => 500], 500);
+            }
+        }
+    }
+
     public function show()
     {
         $type = '';
@@ -475,7 +526,25 @@ class ZoomMeetingController extends Controller
         return view('zoom-meetings.zoom-recodring-list', compact('zoomRecordings'));
     }
 
-    public function updateMeetingDescription(Request $request)
+    public function updateParticipantDescription(Request $request)
+    {
+        $meetingdata = ZoomMeetingParticipant::find($request->id);
+        $meetingOldDescription = $meetingdata->description;
+        $meetingdata->description = $request->description;
+        $meetingdata->save();
+
+        $zoomMeetingHistory = new ZoomMeetingParticipantHistory();
+        $zoomMeetingHistory->zoom_meeting_participant_id = $meetingdata->id;
+        $zoomMeetingHistory->type = "description";
+        $zoomMeetingHistory->oldvalue = $meetingOldDescription;
+        $zoomMeetingHistory->newvalue=$request->description;
+        $zoomMeetingHistory->user_id = \Auth::id();
+        $zoomMeetingHistory->save();
+
+        return response()->json(['code' => 200, 'message' => 'Description Updated SuccessFully'], 200);
+    }
+
+    public function updateMeetingDescription (Request $request)
     {
         $meetingdata = ZoomMeetingDetails::find($request->id);
         $meetingOldDescription = $meetingdata->description;
@@ -728,6 +797,10 @@ class ZoomMeetingController extends Controller
                                         'output' => $segmentName, // Output filename for the segment
                                         'participant' => $meetingParticipant, // Store the participant information for reference
                                     ];
+
+                                    $meetingParticipant->zoom_recording_id = $recordings['id'];
+                                    $meetingParticipant->recording_path = "{$databsePath}/segments/{$segmentName}";
+                                    $meetingParticipant->save();
                                 } else {
                                     \Log::info('meetingParticipantID Skipped-->' . $meetingParticipant->id);
                                 }
@@ -739,8 +812,12 @@ class ZoomMeetingController extends Controller
                                     $end = $segment['end'];
                                     $segmentFileName = $segment['output']; // Adjust the filename as needed
 
+                                    // Testing purpose overwrite. 
+                                    // $fullRecordingPath = "/Users/user/Documents/erp/public/zoom/0/6928700773/".$fileName;
+                                    // $outputPath = "/Users/user/Documents/erp/public/zoom/0/6928700773/segments";
+
                                     // Use ffmpeg to extract the segment
-                                    $command = "ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
+                                    $command = "yes | ffmpeg -i $fullRecordingPath -ss $start -to $end -c:v copy -c:a copy $outputPath/$segmentFileName";
         
                                     \Log::info('FFMPEG Command -->' . $command);
 
@@ -754,18 +831,24 @@ class ZoomMeetingController extends Controller
                                     if ($returnCode != 0) {
                                         $errorMessage = implode(PHP_EOL, $output);
                                         // Log the error
-                                        \Log::error("Error executing ffmpeg command: $errorMessage");
+                                        \Log::error("Error executing ffmpeg command: $errorMessage and code $returnCode");
                                     }
                                 }
                             }
                         }
                     }
+
+                    \Log::info('##########  deleteRecording starts ##############');
+                    \Log::info('##########  Recording Type ############## ' . $recordings['recording_type']);
+                    $this->deleteRecording($zoomDataPayloadObject['id'], $recordings['id']);
+                    \Log::info('##########  deleteRecording ends ##############');
                 }
             }
         }
 
         return response()->json(['message' => 'Recording completed successfully', 'code' => 200], 200);
     }
+
     public function addUserPermission(Request $request)
     {
         $zoomRecord = ZoomMeetingDetails::find($request->record_id);
@@ -783,6 +866,20 @@ class ZoomMeetingController extends Controller
         ->where('zoom_meeting_record_id', $request->id)
         ->Where('type', $request->type)->get();
 
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+
+    public function participantDescriptionHistory(Request $request)
+    {
+        $histories = ZoomMeetingParticipantHistory::with(['user'])
+        ->where('zoom_meeting_participant_id', $request->id)
+        ->Where('type', $request->type)->orderBy('created_at','desc')->paginate(10);
         return response()->json([
             'status' => true,
             'data' => $histories,
@@ -828,10 +925,74 @@ class ZoomMeetingController extends Controller
     public function showVideo(Request $request)
     {
         $fileName = ZoomMeetingDetails::find($request->id);
+
+        if (!$fileName) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not Available',
+                'status_name' => 'error',
+            ], 404);
+        }
+
         $file_name = basename($fileName->local_file_path);
         $meetingId = $fileName->meeting_id;
 
         $videoUrl = "zoom/0/$meetingId/$file_name";
+
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+        
+        $mime_type = mime_content_type($videoUrl);
+        if ($mime_type !== 'video/mp4') {
+            abort(404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'videoUrl' => asset($videoUrl),
+            'message' => 'Successfully preview the Video',
+            'status_name' => 'success',
+        ], 200);
+   }
+
+    public function showParticipantVideo(Request $request)
+    {
+        $zoomMeetingParticipant = ZoomMeetingParticipant::find($request->id);
+        // Check if the participant exists
+        if (!$zoomMeetingParticipant) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Participant not found',
+                'status_name' => 'error',
+            ], 404);
+        }
+
+        $file_name = basename($zoomMeetingParticipant->recording_path);
+        // Check if the filename is null or empty
+        if (!$file_name) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Invalid filename',
+                'status_name' => 'error',
+            ], 400);
+        }
+
+        $meetingId = $zoomMeetingParticipant->meeting_id;
+
+        $videoUrl = "zoom/0/$meetingId/segments/$file_name";
+
+        if (!file_exists($videoUrl)) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Video not found',
+                'status_name' => 'error',
+            ], 404);
+        }
 
         $mime_type = mime_content_type($videoUrl);
         if ($mime_type !== 'video/mp4') {
@@ -844,6 +1005,40 @@ class ZoomMeetingController extends Controller
             'message' => 'Successfully preview the Video',
             'status_name' => 'success',
         ], 200);
+   }
+
+   public function listAllParticipants(Request $request)
+   {
+        $zoomParticipants = new ZoomMeetingParticipant();
+
+        $allNames = ZoomMeetingParticipant::distinct()->pluck('name');
+        $allEmails = ZoomMeetingParticipant::distinct()->pluck('email');
+
+        if ($request->search_reason) {
+            $zoomParticipants = $zoomParticipants->where('leave_reason', 'LIKE', '%' . $request->search_reason . '%');
+        }
+        if ($request->join_time) {
+            $zoomParticipants = $zoomParticipants->where('join_time', 'LIKE', '%' . $request->join_time . '%');
+        }
+        if ($request->leave_time) {
+            $zoomParticipants = $zoomParticipants->where('leave_time', 'LIKE', '%' . $request->leave_time . '%');
+        }
+        if ($request->name) {
+            $zoomParticipants = $zoomParticipants->WhereIn('name', $request->name);
+        }
+        if ($request->email) {
+            $zoomParticipants = $zoomParticipants->WhereIn('email', $request->email);
+        }
+        if ($request->duration) {
+            $zoomParticipants = $zoomParticipants->where('duration', 'LIKE', '%' . $request->duration . '%');
+        }
+        if ($request->date) {
+            $zoomParticipants = $zoomParticipants->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        
+        $zoomParticipants = $zoomParticipants->latest()->paginate(\App\Setting::get('pagination', 10));
+
+        return view('zoom-meetings.zoom-participants-listing', compact('zoomParticipants','allNames','allEmails'));
    }
 
     

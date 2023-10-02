@@ -84,14 +84,13 @@
         <!-- <h4>List Of Upcoming Meetings</h4> -->
         <div class="col-lg-12">
             <div class=" pull-right">
+                <a href="{{ route('list.all-participants') }}" target="_blank" class="btn btn-secondary">View All Participations</a>&nbsp;
                 <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary"> View Api Logs</a>
-                <button type="button" class="btn btn-secondary" id="sync_meetings"> Sync Meetings </button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#personal-meeting-update"> Update Your Personal Meeting </button>
+                {{-- <button type="button" class="btn btn-secondary" id="sync_meetings"> Sync Meetings </button> --}}
+                {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#personal-meeting-update"> Update Your Personal Meeting </button> --}}
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <a href="{{ route('meeting.list.error-logs') }}" target="_blank" class="btn btn-secondary pull-right">View Api Logs</a>&nbsp;
-            <button type="button" class="btn btn-secondary pull-right" id="sync_meetings" style="margin-left: 10px;">Sync Meetings</button>&nbsp;            
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
@@ -129,19 +128,25 @@
                                 <td class="p-2">{{ $meetings->meeting_topic }}</td>
                                 <td class="p-2">{{ $meetings->meeting_agenda }}</td>
                                 <td class="p-2"><a href="{{ $meetings->join_meeting_url }}" target="_blank">Link</a></td>
-                                <td class="p-2">{{ Carbon\Carbon::parse($meetings->start_date_time)->format('M, d-Y H:i') }}</td>
+                                <td class="p-2">
+                                    @if ($meetings->start_date_time != '0000-00-00 00:00:00')
+                                        {{ Carbon\Carbon::parse($meetings->start_date_time)->format('M, d-Y H:i') }}
+                                    @else
+                                        {{ "-" }}
+                                    @endif
+                                </td>
                                 <td class="p-2">{{ $meetings->meeting_duration }} mins</td>
                                 <td class="p-2">{{ $meetings->timezone }}</td>
                                 <td class="p-2">
-                                    <button type="button" title="Fetch Recordings" class="btn" style="padding: 0px 1px;">
+                                    {{-- <button type="button" title="Fetch Recordings" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-refresh fetch-zoom-meeting-recordings" data-meeting_id="{{ $meetings->meeting_id }}"></i>
-									</button>
+									</button> --}}
                                     <a href="{{ route('meeting.list.recordings', ['id' => $meetings->meeting_id]) }}" target="_blank" title="view Recordings Details">
                                         <i class="fa fa-video-camera" style="color: #808080;"></i>
                                     </a>   
-                                    <button type="button" title="Fetch Participants" class="btn" style="padding: 0px 1px;">
+                                    {{-- <button type="button" title="Fetch Participants" class="btn" style="padding: 0px 1px;">
 										<i class="fa fas fa-refresh fetch-zoom-meeting-participants" data-meeting_id="{{ $meetings->meeting_id }}"></i>
-									</button>
+									</button> --}}
                                     <button type="button" class="btn btn-xs Participants"
                                         data-meeting_id="{{ $meetings->meeting_id }}" title="view Participants" onclick="viewParticipants()">
                                             <i class="fa fa-users" style="color: #808080;"></i>

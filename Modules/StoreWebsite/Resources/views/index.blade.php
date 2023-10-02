@@ -36,6 +36,8 @@
 					&nbsp;
 					<a target="_blank" href="/store-website/api-token" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Api Token Update</a>
 					&nbsp;
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-create-project"> Create Project </button>
+					&nbsp;
 					<button class="btn btn-secondary" data-toggle="modal" data-target="#store-create-tag"> Create Tag </button>
 					&nbsp;
 					<button class="btn btn-secondary get_store_tags"> List Tags </button>
@@ -44,7 +46,8 @@
 					&nbsp;
 
 					@if($storeWebsites->count() > 0)
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button>
+					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button> -->
+					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>
 					@endif
 				</div>
 			</div>
@@ -320,6 +323,43 @@
 							</table>
 						</div>
 							
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="store-create-project" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Project</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.create-project') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<div class="form-group">
+											<label>Project Name</label>
+											<input type="text" class="form-control" name="name" placeholder="Enter The Project Name" id="website-project-name">
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit_create_project float-right float-lg-right">Add</button>
+									</div>
+								</div>
+							</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -714,6 +754,37 @@
 			error 	: 	function(err){
 				$('#loading-image-preview').hide();
 				$('#store-create-tag').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
+
+	//Create project 
+	$(document).on("click", ".submit_create_project", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.create-project') }}";
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				$('#loading-image-preview').hide();
+				$('#website-project-name').val("");
+				$('#store-create-project').modal('hide');
+				if (resp.code == 200) {
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#website-project-name').val("");
+				$('#store-create-project').modal('hide');
 				toastr["error"](err.message);
 			}
 		})

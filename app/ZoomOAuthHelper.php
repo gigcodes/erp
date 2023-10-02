@@ -16,6 +16,10 @@ class ZoomOAuthHelper
         $clientSecret = config('services.zoom.client_secret');
         $accountId = config('services.zoom.account_id');
 
+        \Log::info('ZOOM client_id -->' . $clientId);
+        \Log::info('ZOOM clientSecret -->' . $clientSecret);
+        \Log::info('ZOOM accountId -->' . $accountId);
+
         $response = Http::withBasicAuth($clientId, $clientSecret)
                 ->asForm()
                 ->post('https://zoom.us/oauth/token', [
