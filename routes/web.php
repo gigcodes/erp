@@ -5432,6 +5432,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
     Route::post('/remove/permission', [GoogleDocController::class, 'googleDocRemovePermission'])->name('.googleDocRemovePermission');
     Route::post('/add/mulitple/permission', [GoogleDocController::class, 'addMulitpleDocPermission'])->name('.addMulitpleDocPermission');
+    Route::get('filename', [GoogleDocController::class, 'googleDocumentList'])->name('.filename');
+    Route::get('tasks', [GoogleDocController::class, 'googleTasksList'])->name('.tasks');
 });
 
 Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');

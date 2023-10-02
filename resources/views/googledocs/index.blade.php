@@ -32,19 +32,11 @@
                             <form class="form-inline message-search-handler" method="get">
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select File Name: </b>
-                                    <select class="form-control globalSelect2" multiple="true" id="name" name="name[]" placeholder="Select File Name">
-                                        @foreach($dataDropdown as $val)
-                                        <option value="{{ $val->id }}" @if(in_array($val->id, $request->input('name', []))) selected @endif>{{ $val->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <input class="form-control" type="text" id="tag-input" name="name" placeholder="Enter File Name" style="width: 100%;" value="{{request()->get('name')}}">
                                 </div>
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select Tasks: </b>
-                                    <select class="form-control globalSelect2" multiple="true" id="tasks" name="tasks[]" placeholder="Select Tasks">
-                                        @foreach($tasks as $val)
-                                            <option value="{{ $val }}" @if(in_array($val, $request->input('tasks', []))) selected @endif>{{ $val }}</option>
-                                        @endforeach
-                                    </select>
+                                    <input class="form-control" type="text" id="tag-tasks" name="tasks" placeholder="Enter Task Id" style="width: 100%;" value="{{request()->get('tasks')}}">
                                 </div>
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select Tasks Type: </b>
@@ -447,6 +439,48 @@ $(document).on('click', '.permissionview', function (e) {
             $('.google_doc_check').prop('checked', isChecked);
         });
     });
-    
+
+    $(document).ready(function($) {
+        // Now you can use $ safely within this block
+        $("#tag-input").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('google-docs.filename') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+
+        $("#tag-tasks").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('google-docs.tasks') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+    })
     </script>
 @endsection
