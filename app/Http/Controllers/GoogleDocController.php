@@ -70,7 +70,9 @@ class GoogleDocController extends Controller
 
         sort($tasks);
 
-        return view('googledocs.index', compact('data', 'users', 'request', 'tasks'))
+        $dataDropdown = GoogleDoc::orderBy('created_at', 'desc')->get();
+
+        return view('googledocs.index', compact('data', 'users', 'request', 'tasks', 'dataDropdown'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

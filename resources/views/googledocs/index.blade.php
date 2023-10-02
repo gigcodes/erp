@@ -33,7 +33,7 @@
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select File Name: </b>
                                     <select class="form-control globalSelect2" multiple="true" id="name" name="name[]" placeholder="Select File Name">
-                                        @foreach($data as $val)
+                                        @foreach($dataDropdown as $val)
                                         <option value="{{ $val->id }}" @if(in_array($val->id, $request->input('name', []))) selected @endif>{{ $val->name }}</option>
                                         @endforeach
                                     </select>
@@ -49,9 +49,9 @@
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select Tasks Type: </b>
                                     <select class="form-control" id="task_type" name="task_type" placeholder="Select Task Type">
-                                        <option>Select Type</option>
+                                        <option value="">Select Type</option>
                                         <option value="App\Task" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\Task')) selected @endif>TASK</option>
-                                        <option value="App\Task" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\DeveloperTask')) selected @endif>DEVTASK</option>
+                                        <option value="App\DeveloperTask" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\DeveloperTask')) selected @endif>DEVTASK</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-3 pd-sm">
