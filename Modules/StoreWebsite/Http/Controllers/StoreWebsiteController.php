@@ -143,6 +143,15 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index-api-token', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
 
+    public function adminPassword()
+    {
+        $title = 'Admin Password | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
+
+        return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
+    }
+
     public function getApiTokenLogs(Request $request)
     {
         $logs = StoreWebsitesApiTokenLog::with(['storeWebsite', 'StoreWebsiteUsers', 'user'])->where('store_website_id', $request->store_website_id)->orderBy('id', 'desc')->get();
@@ -413,11 +422,25 @@ class StoreWebsiteController extends Controller
         ->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'store_websites.store_code_id')
         ->select(['store_websites.*', 'svcsm.code as store_code_name', 'svcsm.id as store_code_id']);
         $keyword = request('keyword');
+        $country = request('country');
+        $mailing_service_id = request('mailing_service_id');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('website', 'LIKE', "%$keyword%")
                     ->orWhere('title', 'LIKE', "%$keyword%")
                     ->orWhere('description', 'LIKE', "%$keyword%");
+            });
+        }
+
+        if (! empty($country)) {
+            $records = $records->where(function ($q) use ($country) {
+                $q->where('country_duty', 'LIKE', "%$country%");
+            });
+        }
+
+        if (! empty($mailing_service_id)) {
+            $records = $records->where(function ($q) use ($mailing_service_id) {
+                $q->where('mailing_service_id', $mailing_service_id);
             });
         }
 
@@ -2090,9 +2113,16 @@ class StoreWebsiteController extends Controller
     {
         $perPage =  20;
         
-        $storeWebsites = StoreWebsite::latest()->paginate($perPage);
+        //$storeWebsites = StoreWebsite::latest()->paginate($perPage);
 
-        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites'));
+        $keyword = request('name');
+        $storeWebsites = StoreWebsite::when((!empty($keyword)) , function ($q) use ($keyword) {
+            return $q->where('title', 'LIKE', "%$keyword%");
+        })->latest()->paginate($perPage);
+
+        $storeWebsitesDropdown = StoreWebsite::latest()->groupBy('title')->get();
+
+        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites', 'storeWebsitesDropdown'));
 
     }
 

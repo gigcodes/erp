@@ -1052,8 +1052,143 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
     <!-- sop-search Modal-->
+    <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
+    <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Command Response History</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 3%;">ID</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Command Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Status</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Request</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Job ID</th>
+                                    <th style="width: 4%;overflow-wrap: anywhere;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tbodayCommandResponseHistory">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="addPostman_header" tabindex="-2"  class="modal fade" role="dialog" style="z-index: 5000; ">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
 
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><span id="titleUpdate">Add</span> Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="magentoForm" method="post">
+                            @csrf
 
+                            <div class="form-row">
+                                <input type="hidden" id="command_id" name="id" value="" />
+
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <div class="form-group col-md-12">
+                                            <label for="title">User Name</label>
+                                            <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
+                                                <option>--Users--</option>
+                                                @foreach ($users as $key => $user)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div> 
+                                    @endif
+                                @endauth
+
+                                <div class="form-group col-md-12">
+                                    <label for="title">Website</label>
+                                    <div class="dropdown-sin-1">
+                                        <?php $websites = \App\StoreWebsite::get(); ?>
+                                        <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
+                                            <option>--Website--</option>
+                                            <option value="ERP">ERP</option>
+                                            <?php
+                            foreach($websites as $website){
+                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                            }
+                          ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
+                                    <div class="dropdown-sin-1">
+                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
+                                            <option value="">--Assets Manager--</option>
+                                            
+                                            <?php
+                            foreach($assetsmanager as $am){
+                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
+                            }
+                          ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-12">
+                                    <label for="command_name">Command Name</label>
+                                    {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
+                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
+                                        <option value="">--Select Command Name--</option>
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
+                                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="command_type">Command</label>
+                                    {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
+                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
+                                        <option value="">--Select Command Name--</option>
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
+                                        <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="working_directory">Working Directory</label>
+                                    <input type="text" name="working_directory" value="" class="form-control" id="working_directory" placeholder="Enter the working directory" required>
+                                    
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary submit-form">Save</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -1399,6 +1534,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
+                                </li>
+                                <li>
+                                    <a title="Search Command" id="search-command" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-terminal fa-2x" aria-hidden="true"></i></span>
+                                    </a>
                                 </li>
                             </ul>                         
                         </nav>
@@ -4364,6 +4504,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('script-documents') }}">Script Documents</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -5151,6 +5294,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('partials.modals.magento-cron-error-status-modal')
+        @include('partials.modals.magento-commands-modal')
 
         @include('googledrivescreencast.partials.upload')
         <div id="sticky_note_boxes" class="sticknotes_content">
@@ -8877,6 +9021,31 @@ if (!\Auth::guest()) {
         });
     }
 
+    $(document).on('click','#search-command',function(e){
+        e.preventDefault();
+        getMagentoCommand(true);
+    });
+
+    function getMagentoCommand(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('magento.getMagentoCommand')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#magento-commands-modal-html').empty().html(response.html);
+            //if (showModal) {
+                $('#magento-commands-modal').modal('show');
+            //}
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
     $(document).on('click','#timer-alerts',function(e){
         e.preventDefault();
         getTimerAlerts(true);
@@ -9318,6 +9487,23 @@ if (!\Auth::guest()) {
         }
     }
 
+    $(document).on('submit', '#magento-command-date-form', function(event) {
+        event.preventDefault();
+        var $form = $(this).closest("form");
+        $.ajax({
+            type: "GET",
+            url: "{{route('magento.getMagentoCommand')}}",
+            data: $form.serialize(),
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#magento-commands-modal-html').empty().html(response.html);
+            
+            $('#magento-commands-modal').modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+        });
+     });
+    
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>

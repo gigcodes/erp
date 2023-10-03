@@ -537,6 +537,7 @@ Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildP
 Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
     Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
     Route::get('magento_modules/get-m2-error-status-histories/{magento_module}', [MagentoModuleController::class, 'getM2ErrorStatusHistories'])->name('magento_module.get-m2-error-status-histories');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
@@ -5256,6 +5257,7 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
 //Magento Command
 Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
+Route::get('magento/get-command', [MagentoCommandController::class, 'getMagentoCommand'])->name('magento.getMagentoCommand');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
@@ -5430,6 +5432,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
     Route::post('/remove/permission', [GoogleDocController::class, 'googleDocRemovePermission'])->name('.googleDocRemovePermission');
     Route::post('/add/mulitple/permission', [GoogleDocController::class, 'addMulitpleDocPermission'])->name('.addMulitpleDocPermission');
+    Route::get('filename', [GoogleDocController::class, 'googleDocumentList'])->name('.filename');
+    Route::get('tasks', [GoogleDocController::class, 'googleTasksList'])->name('.tasks');
 });
 
 Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');
