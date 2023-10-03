@@ -22,7 +22,11 @@
                                         <thead>
                                         <tr>
                                             <th width="5%">ID</th>
+                                            <th width="5%">No</th>
                                             <th width="5%">File Name</th>
+                                            <th width="5%">Category</th>
+                                            <th width="5%">Task</th>
+                                            <th width="5%">Created By</th>
                                             <th width="5%">Created Date</th>
                                             <th width="10%">URL</th>
                                             <th width="10%">Action</th>
