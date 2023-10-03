@@ -504,8 +504,7 @@
                             <div class="form-group">
                                 <strong>User Name:</strong>
                                 <button type="button" class="btn btn-xs show-user-history-btn" title="Show User History" ><i class="fa fa-info-circle"></i></button>
-                                {{-- <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
-
+                                
                                 <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
 
                                 <select class="form-control select2" name="user_name" id="user_name">
