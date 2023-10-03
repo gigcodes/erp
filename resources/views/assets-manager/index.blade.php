@@ -138,6 +138,7 @@
                   <i class="fa fa-clone" aria-hidden="true"></i>
                   @endif
                 </button>
+
                 </td>
                 <td>{{ $asset->asset_type }}</td>
                 <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
@@ -386,21 +387,7 @@
 
   <script>
     $(document).ready(function () {
-        $(".copyButton").click(function () {
-            var textToCopy = $(this).data("value");
-            var id = $(this).data("id");
-            $('.copyButton-'+id).text('copied.');
-            var $tempInput = $("<input>");
-            $("body").append($tempInput);
-            $tempInput.val(textToCopy).select();
-            document.execCommand("copy");
-            $tempInput.remove();
-            
-            setTimeout(function () {
-                 $('.copyButton-'+id).text('');
-             }, 1500);
-        });
-
+       
         $(".ipButton").click(function () {
             var textToCopy = $(this).data("value");
             var id = $(this).data("id");
