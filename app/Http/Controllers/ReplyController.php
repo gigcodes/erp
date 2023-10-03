@@ -478,6 +478,7 @@ class ReplyController extends Controller
         $storeWebsite = $request->get('store_website_id');
         $lang = $request->get('lang');
         $keyword = $request->get('keyword');
+        $status = $request->get('status');
 
         $replies = \App\TranslateReplies::join('replies', 'translate_replies.replies_id', 'replies.id')
         ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
@@ -499,6 +500,12 @@ class ReplyController extends Controller
 
         if ($lang) {
             $replies = $replies->where('translate_replies.translate_to', $lang);
+        }
+
+        if (! empty($status)) {
+            $replies = $replies->where(function ($q) use ($status) {
+                $q->orWhere('translate_replies.status', 'LIKE', $status);
+            });
         }
 
         $replies = $replies->get();
