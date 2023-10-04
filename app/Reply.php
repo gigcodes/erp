@@ -27,4 +27,9 @@ class Reply extends Model
     {
         return $this->belongsTo(\App\ReplyCategory::class, 'category_id');
     }
+
+    public function transalates()
+    {
+        return $this->hasMany(\App\TranslateReplies::class, 'replies_id', 'id')->select('translate_replies.status as translate_status', 'translate_replies.replies_id as replies_id', 'translate_replies.id as translate_id', 'translate_replies.translate_from', 'translate_replies.translate_to as translate_lang', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at')->orderBy('translate_replies.id', 'ASC');
+    }
 }
