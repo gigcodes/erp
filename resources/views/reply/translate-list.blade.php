@@ -144,16 +144,24 @@
                                         $status = null;
                                         $status_color = null;
 
-                                        if($reply) {
-                                            foreach ($reply->translate_text as $key => $translate){
-                                               if(isset($translate->$l)) {
-                                                   $text = $translate->$l;
-                                                   $id = $reply->translate_id[$key];
-                                                   $re_lang = $reply->translate_lang[$key];
-                                                   $status = $reply->translate_status[$key];
-                                                   $status_color = $reply->translate_status_color[$key];
-                                               }
-                                            }
+                                        if(!empty($reply->transalates->$l->translate_text)){
+                                            $text = $reply->transalates->$l->translate_text;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_id)){
+                                            $id = $reply->transalates->$l->translate_id;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_lang)){
+                                            $re_lang = $reply->transalates->$l->translate_lang;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_status)){
+                                            $status = $reply->transalates->$l->translate_status;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_status_color)){
+                                            $status_color = $reply->transalates->$l->translate_status_color;
                                         }
                                     @endphp
                                     @if($text)

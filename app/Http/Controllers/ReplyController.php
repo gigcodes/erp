@@ -514,10 +514,26 @@ class ReplyController extends Controller
         $original_text = [];
         $ids = [];
         $translate_text = [];
-        foreach ($replies as  $replie) {
+        foreach ($replies as $replie) {
             if (! in_array($replie->replies_id, $ids)) {
                 $ids[] = $replie->replies_id;
-                $translate_text[$replie->replies_id] = [
+
+                $translate_text[$replie->replies_id]['id'] = $replie->id;
+                $translate_text[$replie->replies_id]['website'] = $replie->website;
+                $translate_text[$replie->replies_id]['category_name'] = $replie->category_name;
+                $translate_text[$replie->replies_id]['translate_from'] = $replie->translate_from;
+                $translate_text[$replie->replies_id]['original_text'] = $replie->original_text;
+                
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
+                
+                $translate_text[$replie->replies_id]['created_at'] = $replie->created_at;
+                $translate_text[$replie->replies_id]['updated_at'] = $replie->updated_at;
+
+                /*$translate_text[$replie->replies_id] = [
                     'id' => $replie->id,
                     'website' => $replie->website,
                     'category_name' => $replie->category_name,
@@ -530,13 +546,20 @@ class ReplyController extends Controller
                     'translate_status_color' => [$replie->status_color],
                     'created_at' => $replie->created_at,
                     'updated_at' => $replie->updated_at,
-                ];
+                ];*/
             } else {
-                array_push($translate_text[$replie->replies_id]['translate_text'], [$replie->translate_to => $replie->translate_text]);
+
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
+                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
+
+                /*array_push($translate_text[$replie->replies_id]['translate_text'], [$replie->translate_to => $replie->translate_text]);
                 array_push($translate_text[$replie->replies_id]['translate_lang'], $replie->translate_to);
                 array_push($translate_text[$replie->replies_id]['translate_id'], $replie->id);
                 array_push($translate_text[$replie->replies_id]['translate_status'], $replie->status);
-                array_push($translate_text[$replie->replies_id]['translate_status_color'], $replie->status_color);
+                array_push($translate_text[$replie->replies_id]['translate_status_color'], $replie->status_color);*/
             }
 
             if (! in_array($replie->translate_to, $lang)) {
