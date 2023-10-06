@@ -54,8 +54,11 @@ class StoreWebsiteEnvironmentController extends Controller
             $env_store_websites->whereIn('store_website_id', $request->store_websites);
         }
         if ($request->paths) {
-            $env_paths->where('path', $request->paths);
-            $env_store_websites->where('path', $request->paths);
+            //$env_paths->where('path', $request->paths);
+            //$env_store_websites->where('path', $request->paths);
+
+            $env_paths->whereIn('path', $request->paths);
+            $env_store_websites->whereIn('path', $request->paths);
         }
 
         $env_paths = $env_paths->pluck('path', 'id');
