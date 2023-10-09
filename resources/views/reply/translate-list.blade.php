@@ -19,55 +19,63 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Quick Replies Translate List</h2>
-        <div class="pull-left">
-            <div class="row">
-                <div class="col-md-12 ml-sm-6">            
-                    <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
-                        <div class="row">
-                            <div class="col-md-4 pd-sm">
-                                {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
-                            </div>
-                            <div class="col-md-3 pd-sm">
-                                <select name="lang" id="lang" class="form-control globalSelect" data-placeholder="Sort By">
-                                    <option  Value="">Select lang</option>
-                                    @foreach ($getLangs as $r)
-                                    <option  Value="{{$r}}"  {{ (request('lang') == $r ? "selected" : "") }} >{{$r}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
-                            </div>
-                            
-                            <div class="col-md-1 pd-sm">
-                                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
-                                    <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
-                            </div>    
-                            <div class="col-md-1 pd-sm">
-                                <a href="{{ route('reply.replyTranslateList') }}" class="btn btn-image" id="">
-                                    <img src="/images/resend2.png" style="cursor: nwse-resize;">
-                                </a>
-                            </div>                            
+        
+        <div class="col-md-12 ml-sm-6">         
+            <div class="col-md-9 ml-sm-6">     
+                <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
+                    <div class="row">
+                        <div class="col-md-3 pd-sm">
+                            {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="float-right my-3 pr-5">
-            <button class="btn btn-secondary text-white my-3" data-toggle="modal" data-target="#statusColor"> Status Color</button>
+                        <div class="col-md-2 pd-sm">
+                            <select name="lang" id="lang" class="form-control globalSelect" data-placeholder="Sort By">
+                                <option  Value="">Select lang</option>
+                                @foreach ($getLangs as $r)
+                                <option  Value="{{$r}}"  {{ (request('lang') == $r ? "selected" : "") }} >{{$r}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 pd-sm">
+                            <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
+                        </div>
 
-            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
-                {{-- ToDo: Have to plan about this, Need to display permission history --}}
-                {{-- <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a> --}}
-            @endif
+                        <div class="col-md-2 pd-sm">
+                            <select name="status" class="form-control" placeholder="Search Status">
+                                <option value="">Search Status</option>
+                                <option value="approved" @if(request()->get('status')=='approved') selected @endif>Approved</option>
+                                <option value="rejected" @if(request()->get('status')=='rejected') selected @endif>Rejected</option>
+                                <option value="pending" @if(request()->get('status')=='pending') selected @endif>Pending</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2 pd-sm" style="padding-top: 10px;">
+                            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                                <img src="{{ asset('images/search.png') }}" alt="Search">
+                            </button>
+
+                            <a href="{{ route('reply.replyTranslateList') }}" class="btn btn-image" id="">
+                                <img src="/images/resend2.png" style="cursor: nwse-resize;">
+                            </a>
+                        </div>                             
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3 float-right">
+                <button class="btn btn-secondary text-white" data-toggle="modal" data-target="#statusColor"> Status Color</button>
+
                 @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
-                <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#remove_permissions_model">Remove Permission</a>
-            @endif
-            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
-                <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
-            @endif
+                    {{-- ToDo: Have to plan about this, Need to display permission history --}}
+                    {{-- <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a> --}}
+                @endif
+                    @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
+                    <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#remove_permissions_model">Remove Permission</a>
+                @endif
+                @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
+                    <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
+                @endif
+            </div>  
         </div>
+        
     </div>
 </div>
 

@@ -22,6 +22,12 @@ class ZoomMeetingParticipant extends Model
         'zoom_user_id',
         'leave_reason',
         'participant_uuid',
-        'recording_path'
+        'recording_path',
+        'zoom_recording_id'
     ];
+
+    public function recording()
+    {
+        return $this->belongsTo(ZoomMeetingDetails::class, 'zoom_recording_id', 'download_url_id');
+    }
 }

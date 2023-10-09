@@ -111,7 +111,10 @@
 </style>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Magento Modules ({{$magento_modules_count}})</h2>
+        <h2 class="page-heading">
+        	Magento Modules ({{$magento_modules_count}})
+        	<a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="">Sync Logs</a>
+        </h2>
 		<div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-8">

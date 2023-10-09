@@ -18,11 +18,13 @@ class StoreWebsiteEnvironmentTableSeeder extends Seeder
         $sampleData = self::sampleData();
         $storeWebsites = StoreWebsite::limit(2)->get(); // For testing, I am getting only 2 records.
 
-        foreach ($storeWebsites as $storeWebsite) {
-            StoreWebsiteEnvironment::firstOrCreate(
-                ['store_website_id' => $storeWebsite->id],
-                ['env_data' => $sampleData]
-            );
+        if(!empty($storeWebsites) && count($storeWebsites) > 0){
+            foreach ($storeWebsites as $storeWebsite) {
+                StoreWebsiteEnvironment::firstOrCreate(
+                    ['store_website_id' => $storeWebsite->id],
+                    ['env_data' => $sampleData]
+                );
+            }
         }
     }
 

@@ -10,8 +10,17 @@
             <div class="pull-left">
               <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET">
                 <div class="form-group ml-3">
-                  <br>
-                  <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                    <br>
+                    <?php //echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+
+                    <div class="form-group m-1">
+                        <input name="search" list="search-lists" type="text" class="form-control" placeholder="Enter keyword for search" value="{{request()->get('search')}}" />
+                        <datalist id="search-lists">
+                            @foreach ($assets as $key => $val )
+                                <option value="{{$val->name}}">
+                            @endforeach
+                        </datalist>
+                    </div>
                 </div>
                 <div class="form-group ml-3">
                   <br>
@@ -92,6 +101,8 @@
               <th width="10%">Link</th>
               <th width="10%">IP</th>
               <th width="10%">IP Name</th>
+              <th width="10%">Account Name</th>
+              <th width="10%">Account password</th>
               <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
@@ -112,11 +123,22 @@
                 <td class="expand-row-msg" data-name="user_name" data-id="{{$asset->id}}">
                   <span class="show-short-user_name-{{$asset->id}}">{{ Str::limit($asset->user_name, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-user_name-{{$asset->id}} hidden">{{$asset->user_name}}</span>
+
+                  @if($asset->user_name!='-' && !empty($asset->user_name))
+                  <button type="button"  class="btn btn-copy-username btn-sm float-right" data-id="{{$asset->user_name}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                  @endif
                 </td>
                 
                 <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
                   <span class="show-short-password-{{$asset->id}}">{{ Str::limit($asset->password, 3, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+
+                  @if($asset->password!='-' && !empty($asset->password))
+                  <button type="button"  class="btn btn-copy-password btn-sm float-right" data-id="{{$asset->password}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                  @endif
+                </button>
                 </td>
                 <td>{{ $asset->asset_type }}</td>
                 <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
@@ -138,6 +160,8 @@
                     <span class="show-short-ip_name-{{$asset->id}}">{{ Str::limit($asset->ip_name, 10, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-ip-name-{{$asset->id}} hidden">{{$asset->ip_name}}</span>
                   </td>
+                  <td>{{ $asset->account_username }}</td>
+                  <td>{{ $asset->account_password }}</td>
                   <td>{{ $asset->user?->name }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -495,6 +519,8 @@
       $('#capacity').val(asset.capacity);
       $('#link').val(asset.link);
       $('#client_id').val(asset.client_id);
+      $('#account_username').val(asset.account_username);
+      $('#account_password').val(asset.account_password);
       
       $('#ip_name_ins').val(asset.ip_name);
       
@@ -502,7 +528,7 @@
       var addserver = '';
       let folderName = JSON.parse(asset.folder_name);
       $.each(folderName,function(key,value){
-        addserver = addserver+'<br/><input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
+        addserver = addserver+'<input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
           
       });
       $(".addServerUpdate").append(addserver);
@@ -696,7 +722,7 @@
           var getServerUpdCount = $(".getServerUpdCount").val();
           getServerUpdCount = (parseInt(getServerUpdCount) + parseInt(1));
           $(".getServerUpdCount").val(getServerUpdCount);
-          var addServerUpdate = '<br/><input type="text" name="folder_name[]" id="folder_name'+getServerUpdCount+'" class="form-control"  value="" >';
+          var addServerUpdate = '<input type="text" name="folder_name[]" id="folder_name'+getServerUpdCount+'" class="form-control"  value="" >';
           $(".addServerUpdate").append(addServerUpdate);
       });
 
@@ -794,6 +820,24 @@
           });
         }
       }
+
+        $(".btn-copy-username").click(function() {
+            var username = $(this).data('id');
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(username).select();
+            document.execCommand("copy");
+            $temp.remove();
+        });
+
+        $(".btn-copy-password").click(function() {
+            var password = $(this).data('id');
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(password).select();
+            document.execCommand("copy");
+            $temp.remove();
+        });
 
   </script>
 @endsection

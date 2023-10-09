@@ -65,9 +65,7 @@ use App\GoogleTranslate;
 use App\Language;
 use App\Models\GoogleTranslateCsvData;
 use App\Models\WebsiteStoreProject;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use App\Models\StoreWebsiteCsvPullHistory;
 
 class StoreWebsiteController extends Controller
 {
@@ -143,6 +141,15 @@ class StoreWebsiteController extends Controller
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
         return view('storewebsite::index-api-token', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
+    }
+
+    public function adminPassword()
+    {
+        $title = 'Admin Password | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
+
+        return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
 
     public function getApiTokenLogs(Request $request)
@@ -415,11 +422,25 @@ class StoreWebsiteController extends Controller
         ->leftJoin('store_view_code_server_map as svcsm', 'svcsm.id', 'store_websites.store_code_id')
         ->select(['store_websites.*', 'svcsm.code as store_code_name', 'svcsm.id as store_code_id']);
         $keyword = request('keyword');
+        $country = request('country');
+        $mailing_service_id = request('mailing_service_id');
         if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->where('website', 'LIKE', "%$keyword%")
                     ->orWhere('title', 'LIKE', "%$keyword%")
                     ->orWhere('description', 'LIKE', "%$keyword%");
+            });
+        }
+
+        if (! empty($country)) {
+            $records = $records->where(function ($q) use ($country) {
+                $q->where('country_duty', 'LIKE', "%$country%");
+            });
+        }
+
+        if (! empty($mailing_service_id)) {
+            $records = $records->where(function ($q) use ($mailing_service_id) {
+                $q->where('mailing_service_id', $mailing_service_id);
             });
         }
 
@@ -2092,9 +2113,16 @@ class StoreWebsiteController extends Controller
     {
         $perPage =  20;
         
-        $storeWebsites = StoreWebsite::latest()->paginate($perPage);
+        //$storeWebsites = StoreWebsite::latest()->paginate($perPage);
 
-        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites'));
+        $keyword = request('name');
+        $storeWebsites = StoreWebsite::when((!empty($keyword)) , function ($q) use ($keyword) {
+            return $q->where('title', 'LIKE', "%$keyword%");
+        })->latest()->paginate($perPage);
+
+        $storeWebsitesDropdown = StoreWebsite::latest()->groupBy('title')->get();
+
+        return view('storewebsite::store-website-csv-download-listing', compact('storeWebsites', 'storeWebsitesDropdown'));
 
     }
 
@@ -2219,10 +2247,10 @@ class StoreWebsiteController extends Controller
         $fileName = str_replace(' ', '-', $storewebsite->title) . "-gb-en.csv";
         $action = $action;
 
-
-        // $languageData = Language::where('status', 1)
-        //     ->whereIn('code', $languages)
-        //     ->get();
+        $pullHistory = new StoreWebsiteCsvPullHistory();
+        $pullHistory->user_id = Auth::user()->id;
+        $pullHistory->store_website_id = $id;
+        $pullHistory->save();
 
         $languageData = Language::where('status',1)->where('locale', '!=', 'en')->get();
         
@@ -2287,13 +2315,11 @@ class StoreWebsiteController extends Controller
                     'message' => $message,
                     'action' => $action,
                     'path' => $path,
+                    'user_id' => Auth::user()->id,
                 ]);
 
-                //testing purpose given filepath
-                // $path = "/var/www/html/erp/storage/app/magento/lang/csv/Brands-QA-gb-en.csv";
-                // $filename = "Brands-QA-gb-en.csv";
 
-                if (!file_exists($path . $fileName)) {
+                if (!file_exists($path)) {
                     try {
                         foreach ($languageData as $language)
                         {
@@ -2315,6 +2341,8 @@ class StoreWebsiteController extends Controller
                                         'message' => "csv file created",
                                         'action' => $action,
                                         'filename' => $new_file_path,
+                                        'user_id' => Auth::user()->id,
+                                        'command' => $command,
                                     ]);
                             
                                 } catch (\Exception $e) {
@@ -2338,6 +2366,8 @@ class StoreWebsiteController extends Controller
                     'message' => $message,
                     'action' => $action,
                     'path' => $path,
+                    'user_id' => Auth::user()->id,
+                    'command' => $command,
                 ]);
 
                 \Log::info('command:' . $command);
@@ -2351,6 +2381,8 @@ class StoreWebsiteController extends Controller
                 'status' => 'fail',
                 'message' => $response['message'],
                 'action' => $action,
+                'user_id' => Auth::user()->id,
+                'command' => $command,
             ]);
 
             \Log::info('command:' . $command);
@@ -2466,6 +2498,30 @@ class StoreWebsiteController extends Controller
     
         return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames]);
        
+    }
+
+    public function pullRequestHistoryShow($id)
+    {
+        $histories = StoreWebsiteCsvPullHistory::with(['storewebsite','user'])->where('store_website_id', $id)->where('user_id', Auth::user()->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function pullRequesLogShow($id)
+    {
+        $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('storewebsite_id', $id)->where('user_id', Auth::user()->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $histories,
+            'message' => 'Successfully get history status',
+            'status_name' => 'success',
+        ], 200);
     }
 
 }
