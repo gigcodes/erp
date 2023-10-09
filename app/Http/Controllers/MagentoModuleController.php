@@ -763,6 +763,38 @@ class MagentoModuleController extends Controller
         return view('magento_module.magento-listing_logs', ['magento_modules' => $magento_modules, 'magento_modules_count' => $magento_modules_count]);
     }
 
+    public function magentoModuleListLogsAjax(Request $request)
+    {
+        $magento_modules_q = new MagentoModuleLogs();
+        $perPage = 2;
+
+        if (isset($request->module_name_sync) && $request->module_name_sync) {
+            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+        }
+        
+        $magento_modules_q = $magento_modules_q->select('module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('magento_module_logs.id', 'DESC')
+        ->paginate($perPage);
+
+        return response()->json(['code' => 200, 'data' => $magento_modules_q, 'message' => 'Listed successfully!!!']);
+    }
+
+    public function magentoModuleListLogsAjax_bk()
+    {   
+
+        $magento_modules_q = MagentoModuleLogs::select('module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('magento_module_logs.id', 'DESC');
+
+        if (isset($request->module_name_sync) && $request->module_name_sync) {
+            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+        }
+
+        $magento_modules = $magento_modules_q->get();
+
+        return response()->json([
+            'tbody' => view('magento_module.partials.sync-logs-modal-html', compact('magento_modules'))->render(),
+            'count' => $magento_modules->count(),
+        ]);
+    }
+
     public function magentoModuleUpdateStatuslogs(Request $request)
     {
         $store_website_id = $request->store_website_id;

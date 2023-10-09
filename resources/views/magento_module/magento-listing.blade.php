@@ -108,12 +108,14 @@
 	  0% { transform: rotate(0deg); }
 	  100% { transform: rotate(360deg); }
 	}
+	.ui-widget.ui-widget-content{z-index: 9999;}
 </style>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">
         	Magento Modules ({{$magento_modules_count}})
-        	<a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="">Sync Logs</a>
+        	<!-- <a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="">Sync Logs</a> -->
+        	<a style="float: right;" title="Sync Logs" type="button" id="sync-logs" class="btn btn-image" style="padding: 0px 1px;">Sync Logs</a>
         </h2>
 		<div class="pull">
             <div class="row" style="margin:10px;">
@@ -278,6 +280,9 @@
         </div>
     </div>
 </div>
+
+@include('magento_module.partials.list-sync-logs-modal')
+
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
@@ -452,6 +457,103 @@
 			
 		});
 	});
+
+	$(document).on('click','#sync-logs',function(e){
+        e.preventDefault();
+        $('#sync-logs-modal').modal('show');
+        getSyncLogs(1);
+    });
+
+    function getSyncLogs(pageNumber = 1) {
+
+    	var module_name_sync = $("#module_name_sync").val(); // selected
+
+        $.ajax({
+            type: "GET",
+            headers: {
+	            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+          	},
+            url: "{{route('magento_modules.ajax-sync-logs')}}",
+            data: {
+	            page: pageNumber,
+	            module_name_sync: module_name_sync
+          	},
+          	dataType: "json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+
+			var html = "";
+			var startIndex = (response.data.current_page - 1) * response.data.per_page;
+			$.each(response.data.data, function (index, cronData) {
+				var sNo = startIndex + index + 1; 
+				html += "<tr>";
+					html += "<td>" + sNo + "</td>";
+					html += "<td>" + cronData.module + "</td>";
+					html += "<td>" + cronData.command + "</td>";
+					html += "<td>" + cronData.job_id + "</td>";
+					html += "<td>" + cronData.status + "</td>";
+					html += "<td>" + cronData.response + "</td>";
+					html += "<td>" + cronData.updated_at + "</td>";
+				html += "</tr>";
+			});
+			$("#sync_logs_list_table_data").html(html);
+			$("#sync-logs-modal").modal("show");
+			renderMangetoErrorPaginationSync(response.data);
+
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function renderMangetoErrorPaginationSync(data) {
+        var paginationContainer = $(".pagination-container-sync");
+        var currentPage = data.current_page;
+        var totalPages = data.last_page;
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeMagnetoSyncLogs(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+            if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                startPage = totalPages - maxVisiblePages + 1;
+            } else {
+                startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+            }
+
+            if (startPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeMagnetoSyncLogs(1)'>1</a></li>";
+                if (startPage > 2) {
+                html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                }
+            }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeMagnetoSyncLogs(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+    function changeMagnetoSyncLogs(pageNumber) {
+        getSyncLogs(pageNumber);
+    }
 
 </script> 
 
