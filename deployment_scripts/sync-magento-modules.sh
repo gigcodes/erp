@@ -61,12 +61,10 @@ SSHPORT="22480 2112 22"
 
 for portssh in $SSHPORT
 do
-        echo "Checking possible ports = $portssh"
         ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit'
         if [ $? -ne 255 ]
         then
                 PORT=`echo $portssh`
-                echo "Port no=$portssh"
         fi
 done
 
