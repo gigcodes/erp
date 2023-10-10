@@ -9,6 +9,12 @@
             <div class="modal-body">
                 {!! Form::open(['route'=> ['script-documents.update' ]  ]) !!}
 
+                <div class="form-group {{ $errors->has('script_type') ? 'has-error' : '' }}">
+                    <label> Script Type </label>
+                    <input class="form-control" id="script_type_update" name="script_type" type="text" required>
+                    <span class="text-danger">{{ $errors->first('script_type') }}</span>
+                </div>
+
                 <div class="form-group {{ $errors->has('file') ? 'has-error' : '' }}">
                     <label> File </label>
                     <input class="form-control id" name="id" type="hidden">
@@ -79,6 +85,11 @@ $(document).on('click', '.btn-update-bug', function() {
 	$('.text-danger').html('');
 	if($('#file_update').val() == '') {
         $('#file_update').next().text("Please enter the file");
+        return false;
+    }
+
+    if($('#script_type_update').val() == '') {
+        $('#script_type_update').next().text("Please enter the script type");
         return false;
     }
 

@@ -6,6 +6,8 @@ foreach($data as $prop) {?>
 
 	   	<td><?php echo $prop->created_at_date;  ?></td>
 
+	   	<td><?php echo $prop->script_type;  ?></td>
+
 	   	<td><?php echo $prop->file;  ?></td>
 
 	   	<!-- <td class='break expand-row-msg' data-name="url" data-id="<?php echo $prop->id;  ?>">

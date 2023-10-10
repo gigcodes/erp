@@ -5,6 +5,7 @@
 	      	<tr>
 				<th width="4%">ID</th>
 				<th width="6%">Date</th>
+				<th width="3%">Script Type</th>
 				<th width="3%">File</th>
 				<th width="5%">Description</th>
 				<th width="8%">Usage Parameter</th>
@@ -24,6 +25,8 @@
 			      	<td>{{:prop.id}}</td>
 
 			      	<td>{{:prop.created_at_date}}</td>
+
+			      	<td>{{:prop.script_type}}</td>
 
 			      	<td>{{:prop.file}}</td>
 
