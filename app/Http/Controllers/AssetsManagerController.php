@@ -651,4 +651,33 @@ class AssetsManagerController extends Controller
             return response()->json(['status' => false, 'message' => 'Error while updating status']);
         }
     }
+
+    public function assetManamentUsers(request $request)
+    {
+        
+        $html = '';
+
+        $users = User::get();
+
+        $i = 1;
+        //dd($assetLogs);
+        if (count($users) > 0) {
+            foreach ($users as $user) {
+                $html .= '<tr>';
+                $html .= '<td>' . $user->id . '</td>';
+                $html .= '<td>' . $user->name . '</td>';
+                $html .= '<td>' . $user->email . '</td>';
+                $html .= '</tr>';
+                $i++;
+            }
+
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="3">Record not found</td>';
+            $html .= '</tr>';
+        }
+
+        return response()->json(['html' => $html, 'success' => true], 200);
+    }
 }

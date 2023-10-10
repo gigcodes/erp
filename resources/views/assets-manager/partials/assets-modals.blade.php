@@ -885,3 +885,38 @@
     </div>
   </div>
 </div>
+
+<div id="showAssetsManagementUsersModel" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Asset Manament Users</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="mt-3 col-md-12">
+        <div class="infinite-scroll">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th width="4%">ID</th>
+                <th width="9%">Name</th>
+                <th width="8%">Email Address</th>
+              </tr>
+            </thead>
+  
+            <tbody id="showAssetsManagementUsersView">
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

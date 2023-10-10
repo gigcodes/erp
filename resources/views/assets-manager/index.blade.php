@@ -198,6 +198,10 @@
                     <button type="button" title="Update status" data-id="{{$asset->id}}" onclick="updateUserActiveForAssetManager(this)" class="btn" style="padding: 0px 1px;">
                       <i class="fa fas fa-toggle-{{$asset->active == 1 ? 'on' : 'off  '}}"></i>
                     </button>
+
+                    <button type="button" class="btn show-users-access-modal" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
+                        <i class="fa fas fa-universal-access"></i>
+                    </button>
                 </td>
             </tr>
             @endforeach
@@ -839,5 +843,28 @@
             $temp.remove();
         });
 
+    $(document).ready(function() {
+        $('.show-users-access-modal').click(function(){
+            $.ajax({
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('assetsmanager.assetManamentUsers') }}",
+                 data: {},
+            }).done(response => {
+                
+                if(response.success==true){
+                    $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
+                    $('#showAssetsManagementUsersModel').modal('show');
+                }
+
+            }).fail(function(response) {
+
+                alert('Could not fetch Log');
+            });
+        });
+
+    });
   </script>
 @endsection
