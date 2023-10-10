@@ -128,6 +128,10 @@ var page = {
         $("#usage_parameter_update").val("");
         $("#comments_update").val("");
         $("#author_update").val("");
+        $("#description_update").val("");
+        $("#location_update").val("");
+        $("#last_run_update").val("");
+        $("#status_update").val("");
 
         $(".id").val(response.data.id);
         $("#file_update").val(response.data.file);
@@ -135,6 +139,10 @@ var page = {
         $("#usage_parameter_update").val(response.data.usage_parameter);
         $("#comments_update").val(response.data.comments);
         $("#author_update").val(response.data.author);
+        $("#description_update").val(response.data.description);
+        $("#location_update").val(response.data.location);
+        $("#last_run_update").val(response.data.last_run);
+        $("#status_update").val(response.data.status);
     },
     submitFormSite: function (ele) {
         var _z = {

@@ -8,14 +8,16 @@ foreach($data as $prop) {?>
 
 	   	<td><?php echo $prop->file;  ?></td>
 
-	   	<td class='break expand-row-msg' data-name="url" data-id="<?php echo $prop->id;  ?>">
+	   	<!-- <td class='break expand-row-msg' data-name="url" data-id="<?php echo $prop->id;  ?>">
 			<button class="btn btn-sm upload-script_documents-files-button" type="button" title="Uploaded Files" data-script_document_id="<?php echo $prop->id;  ?>">
 				<i class="fa fa-cloud-upload" aria-hidden="true"></i>
 			</button>
 			<button class="btn btn-sm view-script_documents-files-button" type="button" title="View Uploaded Files" data-script_document_id="<?php echo $prop->id;  ?>">
 				<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
 			</button>
-	 	</td>
+	 	</td> -->
+
+	 	<td><?php echo $prop->description; ?></td>
 
 	   	<td><?php echo $prop->usage_parameter; ?></td>
 
@@ -24,6 +26,12 @@ foreach($data as $prop) {?>
 	   	<td><?php echo $prop->comments; ?></td>
 
 	   	<td><?php echo $prop->author; ?></td>
+
+	   	<td><?php echo $prop->location; ?></td>
+
+	   	<td><?php echo $prop->last_run; ?></td>
+
+	   	<td><?php echo $prop->status; ?></td>
 
 	     <td>		
 		 	<div  class="d-flex">
