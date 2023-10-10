@@ -1766,4 +1766,32 @@ class MagentoModuleController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function magentoModuleCheckStatus(Request $request)
+    {
+        $store_website_id = $request->store_website_id;
+        $magento_module_id = $request->magento_module_id;
+
+        $data = MagentoModule::where('id', (int) $magento_module_id)->first();
+
+        $store_website = StoreWebsite::select('title', 'server_ip', 'working_directory')->where('id', $store_website_id)->first();
+
+        // New Script
+        $moduleName = $data->module;
+        $website = $store_website->title;
+        $server = $store_website->server_ip;
+        $rootDir = $store_website->working_directory;
+        $websiteStoreProjectName = null;
+        $action = 'status';
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+        $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
+        
+        $result = exec($cmd, $output, $return_var);
+        \Log::info('store command:' . $cmd);
+        \Log::info('store output:' . print_r($output, true));
+        \Log::info('store return_var:' . $return_var);
+
+        return response()->json(['code' => 200, 'data' => $result]);
+    }
 }

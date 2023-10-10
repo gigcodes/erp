@@ -547,6 +547,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/sync-modules', [MagentoModuleController::class, 'syncModules'])->name('magento_module.sync-modules');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
     Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::post('magento_modules/check-status', [MagentoModuleController::class, 'magentoModuleCheckStatus'])->name('magentoModuleCheckStatus');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');

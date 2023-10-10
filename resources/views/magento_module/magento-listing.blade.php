@@ -232,6 +232,10 @@
 										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-history" style="padding: 0px 5px !important;">
 											<i class="fa fa-eye" aria-hidden="true"></i>
 										</button>
+
+										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-check-status" style="padding: 0px 5px !important;">
+											<i class="fa fa-check-circle-o" aria-hidden="true"></i>
+										</button>
 									@endif
 								</td>
 								<?php } ?>
@@ -449,6 +453,42 @@
 					$("#loading-image").hide();
 					$(".preview-history-modal").modal("show");
 				}
+				
+			}).fail(function () {
+				console.log("error");
+				$("#loading-image").hide();
+				
+			});
+			
+		});
+
+		$(document).on("click", ".btn-check-status", function (e) {
+			e.preventDefault();
+			let page = $(this).data("id");
+			
+			var store_website_id=$(this).attr("data-store_website_id");
+			var magento_module_id=$(this).attr("data-magento_module_id");
+			let formData = new FormData();
+
+			formData.append('_token', "{{ csrf_token() }}");
+			formData.append('store_website_id', store_website_id);
+			formData.append('magento_module_id', magento_module_id);
+			
+
+			$.ajax({
+				url: "/magento_modules/check-status",
+				method: 'post',
+				data: formData,
+				processData: false,
+				contentType: false,
+				//enctype: 'multipart/form-data',
+				dataType: 'json',
+				beforeSend: function () {
+					$("#loading-image").show();
+				}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				
 				
 			}).fail(function () {
 				console.log("error");
