@@ -16,6 +16,12 @@
                     <span class="text-danger">{{ $errors->first('file') }}</span>
                 </div>
 
+                <div class="form-group {{ $errors->has('description') ? 'has-error' : '' }}">
+                    <label> Description </label>
+                    <textarea class="form-control" id="description_update" name="description"></textarea>
+                    <span class="text-danger">{{ $errors->first('description') }}</span>
+                </div>
+
                 <div class="form-group {{ $errors->has('usage_parameter') ? 'has-error' : '' }}">
                     <label> Usage Parameter </label>
                     <input class="form-control" id="usage_parameter_update" name="usage_parameter" type="text">
@@ -40,6 +46,24 @@
                     <span class="text-danger">{{ $errors->first('author') }}</span>
                 </div>
 
+                <div class="form-group {{ $errors->has('location') ? 'has-error' : '' }}">
+                    <label> Location</label>                
+                    <input class="form-control" id="location_update" name="location" type="text">
+                    <span class="text-danger">{{ $errors->first('location') }}</span>
+                </div>
+
+                <div class="form-group {{ $errors->has('last_run') ? 'has-error' : '' }}">
+                    <label> Last Run</label>                
+                    <input class="form-control" id="last_run_update" name="last_run" type="text">
+                    <span class="text-danger">{{ $errors->first('last_run') }}</span>
+                </div>
+
+                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                    <label> Status</label>                
+                    <input class="form-control" id="status_update" name="status" type="text">
+                    <span class="text-danger">{{ $errors->first('status') }}</span>
+                </div>
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-secondary btn-update-bug">Store</button>
                 </div>
@@ -55,6 +79,11 @@ $(document).on('click', '.btn-update-bug', function() {
 	$('.text-danger').html('');
 	if($('#file_update').val() == '') {
         $('#file_update').next().text("Please enter the file");
+        return false;
+    }
+
+    if($('#description_update').val() == '') {
+        $('#description_update').next().text("Please enter the description");
         return false;
     }
     
@@ -75,6 +104,21 @@ $(document).on('click', '.btn-update-bug', function() {
 
     if($('#author_update').val() == '') {
         $('#author_update').next().text("Please enter the author");
+        return false;
+    }
+
+    if($('#locatio_updaten').val() == '') {
+        $('#location_update').next().text("Please enter the location");
+        return false;
+    }
+
+    if($('#last_run_update').val() == '') {
+        $('#last_run_update').next().text("Please enter the last run");
+        return false;
+    }
+
+    if($('#status_update').val() == '') {
+        $('#status_update').next().text("Please enter the status");
         return false;
     }
 

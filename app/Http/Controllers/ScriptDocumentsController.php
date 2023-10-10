@@ -35,10 +35,14 @@ class ScriptDocumentsController extends Controller
             $records = $records->where(
                 function ($q) use ($keyword) {
                     $q->where('file', 'LIKE', "%$keyword%");
+                    $q->orWhere('description', 'LIKE', "%$keyword%");
                     $q->orWhere('category', 'LIKE', "%$keyword%");
                     $q->orWhere('usage_parameter', 'LIKE', "%$keyword%");
                     $q->orWhere('comments', 'LIKE', "%$keyword%");
                     $q->orWhere('author', 'LIKE', "%$keyword%");
+                    $q->orWhere('location', 'LIKE', "%$keyword%");
+                    $q->orWhere('last_run', 'LIKE', "%$keyword%");
+                    $q->orWhere('status', 'LIKE', "%$keyword%");
                 }
             );
         }
@@ -72,6 +76,10 @@ class ScriptDocumentsController extends Controller
                 'category' => 'required|string',
                 'comments' => 'required|string',
                 'author' => 'required|string',
+                'description' => 'required',
+                'location' => 'required',
+                'last_run' => 'required',
+                'status' => 'required',
             ]
         );
 
@@ -133,6 +141,10 @@ class ScriptDocumentsController extends Controller
                 'category' => 'required|string',
                 'comments' => 'required|string',
                 'author' => 'required|string',
+                'description' => 'required',
+                'location' => 'required',
+                'last_run' => 'required',
+                'status' => 'required',
             ]
         );
 
