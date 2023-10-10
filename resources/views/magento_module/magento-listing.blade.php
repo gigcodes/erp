@@ -282,6 +282,7 @@
 </div>
 
 @include('magento_module.partials.list-sync-logs-modal')
+@include("magento_module.partials.column-visibility-modal")
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
@@ -468,6 +469,8 @@
 
     	var module_name_sync = $("#module_name_sync").val(); // selected
 
+    	var selected_date = $("#selected_date").val(); // selected
+
         $.ajax({
             type: "GET",
             headers: {
@@ -476,7 +479,8 @@
             url: "{{route('magento_modules.ajax-sync-logs')}}",
             data: {
 	            page: pageNumber,
-	            module_name_sync: module_name_sync
+	            module_name_sync: module_name_sync,
+	            selected_date: selected_date
           	},
           	dataType: "json",
             beforeSend:function(data){
@@ -490,13 +494,58 @@
 			$.each(response.data.data, function (index, cronData) {
 				var sNo = startIndex + index + 1; 
 				html += "<tr>";
-					html += "<td>" + sNo + "</td>";
-					html += "<td>" + cronData.module + "</td>";
-					html += "<td>" + cronData.command + "</td>";
-					html += "<td>" + cronData.job_id + "</td>";
-					html += "<td>" + cronData.status + "</td>";
-					html += "<td>" + cronData.response + "</td>";
-					html += "<td>" + cronData.updated_at + "</td>";
+					@if(!empty($dynamicColumnsToShow))
+						@if (!in_array('Id', $dynamicColumnsToShow))
+							html += "<td>" + sNo + "</td>";
+						@endif
+
+						@if (!in_array('Module Name', $dynamicColumnsToShow))
+							html += "<td>" + cronData.module + "</td>";
+						@endif
+
+						@if (!in_array('Command', $dynamicColumnsToShow))
+							html += "<td>" + cronData.command + "</td>";
+						@endif
+
+						@if (!in_array('Job Id', $dynamicColumnsToShow))
+							if(cronData.job_id!=null){
+								html += "<td>" + cronData.job_id + "</td>";
+							} else {
+								html += "<td>-</td>";
+							}
+						@endif
+
+						@if (!in_array('Status', $dynamicColumnsToShow))
+							html += "<td>" + cronData.status + "</td>";
+						@endif
+
+						@if (!in_array('Response', $dynamicColumnsToShow))
+							html += "<td>" + cronData.response + "</td>";
+						@endif
+
+						@if (!in_array('Created At', $dynamicColumnsToShow))
+							html += "<td>" + $.datepicker.formatDate('yy-mm-dd', new Date(cronData.created_at)) + "</td>";
+						@endif
+
+						@if (!in_array('Updated At', $dynamicColumnsToShow))
+							html += "<td>" + $.datepicker.formatDate('yy-mm-dd', new Date(cronData.updated_at)) + "</td>";
+						@endif
+					@else
+						html += "<td>" + sNo + "</td>";
+						html += "<td>" + cronData.module + "</td>";
+						html += "<td>" + cronData.command + "</td>";
+
+						if(cronData.job_id!=null){
+							html += "<td>" + cronData.job_id + "</td>";
+						} else {
+							html += "<td>-</td>";
+						}
+						html += "<td>" + cronData.status + "</td>";
+						html += "<td>" + cronData.response + "</td>";
+						html += "<td>" + $.datepicker.formatDate('yy-mm-dd', new Date(cronData.created_at)) + "</td>";
+						html += "<td>" + $.datepicker.formatDate('yy-mm-dd', new Date(cronData.updated_at)) + "</td>";
+					@endif
+
 				html += "</tr>";
 			});
 			$("#sync_logs_list_table_data").html(html);
