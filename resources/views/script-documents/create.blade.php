@@ -9,6 +9,12 @@
             <div class="modal-body">
             {!! Form::open(['route'=> ['script-documents.store' ]  ]) !!}
 
+            <div class="form-group {{ $errors->has('script_type') ? 'has-error' : '' }}">
+                <label> Script Type </label>
+                <input class="form-control" id="script_type" name="script_type" type="text" required>
+                <span class="text-danger">{{ $errors->first('script_type') }}</span>
+            </div>
+
             <div class="form-group {{ $errors->has('file') ? 'has-error' : '' }}">
                 <label> File </label>
                 <input class="form-control" id="file" name="file" type="text" required>
@@ -80,6 +86,11 @@ $(document).on('click', '.btn-save-script-document', function() {
 		$('#file').next().text("Please enter the file");
 		return false;
 	}
+
+    if($('#script_type').val() == '') {
+        $('#script_type').next().text("Please enter the script type");
+        return false;
+    }
 
     if($('#description').val() == '') {
         $('#description').next().text("Please enter the description");

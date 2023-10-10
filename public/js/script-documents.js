@@ -123,6 +123,7 @@ var page = {
     editResult: function (response) {
         $("#scriptdocumentEditModal").modal("show");
         $(".id").val("");
+        $("#script_type_update").val("");
         $("#file_update").val("");
         $("#category_update").val("");
         $("#usage_parameter_update").val("");
@@ -134,6 +135,7 @@ var page = {
         $("#status_update").val("");
 
         $(".id").val(response.data.id);
+        $("#script_type_update").val(response.data.script_type);
         $("#file_update").val(response.data.file);
         $("#category_update").val(response.data.category);
         $("#usage_parameter_update").val(response.data.usage_parameter);
