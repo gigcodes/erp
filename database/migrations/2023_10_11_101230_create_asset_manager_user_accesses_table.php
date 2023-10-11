@@ -15,11 +15,12 @@ class CreateAssetManagerUserAccessesTable extends Migration
     {
         Schema::create('asset_manager_user_accesses', function (Blueprint $table) {
             $table->id();
-            $table->integer('assets_management_id');
-            $table->integer('user_id');
-            $table->string('username');
-            $table->string('password');
-            $table->longText('usernamehost');
+            $table->integer('assets_management_id')->default(0);
+            $table->integer('user_id')->default(0);
+            $table->integer('created_by')->default(0);
+            $table->string('username')->nullable();
+            $table->string('password')->nullable();
+            $table->longText('usernamehost')->nullable();
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });

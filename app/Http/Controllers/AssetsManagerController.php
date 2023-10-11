@@ -699,6 +699,7 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $user_access->password . '</td>';
                     $html .= '<td>' . $user_access->usernamehost . '</td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
+                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';
                     $i++;
                 }
@@ -706,49 +707,115 @@ class AssetsManagerController extends Controller
                 return response()->json(['html' => $html, 'success' => true], 200);
             } else {
                 $html .= '<tr>';
-                $html .= '<td colspan="5">Record not found</td>';
+                $html .= '<td colspan="6">Record not found</td>';
                 $html .= '</tr>';
             }
         } else {
             $html .= '<tr>';
-            $html .= '<td colspan="3">Record not found</td>';
+            $html .= '<td colspan="6">Record not found</td>';
             $html .= '</tr>';
         }
 
         return response()->json(['html' => $html, 'success' => true], 200);
     }
 
-    public function assetsUserList(Request $request)
-    {
-        
-        $dataDropdown = User::pluck('name', 'id')->toArray();
-
-        // Get the user input
-        $input = $_GET['term'];
-
-        // Filter tags based on user input
-        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
-            return stripos($tag, $input) !== false;
-        });
-
-        // Return the filtered tags as JSON
-        echo json_encode($filteredTags);
-    }
-
-    
-
     public function createUserAccess(Request $request)
     {
         try {
+
+            // Base URL
+            $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+
+            // Parameters
+            $params = array(
+                'program' => 'create-user',
+                'domain' => 'demo.mio-moda.com',
+                'user' => $request->username,
+                'pass' => $request->password,
+            );
+
+            // Append parameters to URL
+            $url .= '?' . http_build_query($params);
+
+            $token = 'webapi:W34wVZIGIzf3bjq';
+
+            // Initialize cURL session
+            $ch = curl_init($url);
+
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization: Basic ' . base64_encode($token)
+            ));
+
+            // Execute cURL session and get the response
+            $response = curl_exec($ch);
+
+            // Close cURL session
+            curl_close($ch);
+
+            // Handle the response data (e.g., JSON decoding)
+            $data = json_decode($response, true);
+
             $useraccess = AssetManagerUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
                 'user_id' => $request->user_id,
+                'created_by' => Auth::user()->id,
                 'username' => $request->username,
                 'password' => $request->password,
-                'usernamehost' => $request->username,
+                'usernamehost' => $request->username.'@demo.mio-moda.com',
             ]);
 
             return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'User Access has been created successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function deleteUserAccess(Request $request)
+    {
+        try {
+
+            $user_access = AssetManagerUserAccess::where('id', $request->id)->first();
+
+            // Base URL
+            $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+
+            // Parameters
+            $params = array(
+                'program' => 'delete-user',
+                'domain' => 'demo.mio-moda.com',
+                'user' => $user_access->username,
+            );
+
+            // Append parameters to URL
+            $url .= '?' . http_build_query($params);
+
+            $token = 'webapi:W34wVZIGIzf3bjq';
+
+            // Initialize cURL session
+            $ch = curl_init($url);
+
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization: Basic ' . base64_encode($token)
+            ));
+
+            // Execute cURL session and get the response
+            $response = curl_exec($ch);
+
+            // Close cURL session
+            curl_close($ch);
+
+            $access = AssetManagerUserAccess::find($request->id);
+            $access->delete();
+
+            return response()->json(['code' => 200, 'message' => 'User Access has been deleted successfully']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 

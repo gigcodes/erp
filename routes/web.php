@@ -2868,8 +2868,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/linkuser/list', [AssetsManagerController::class, 'linkUserList'])->name('assetsmanager.linkuser.list');
     Route::post('assets-manager/users', [AssetsManagerController::class, 'assetManamentUsers'])->name('assetsmanager.assetManamentUsers');
     Route::post('assets-manager/users_access', [AssetsManagerController::class, 'assetManamentUsersAccess'])->name('assetsmanager.assetManamentUsersAccess');
-    Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
     Route::post('assets-manager/user-access-create', [AssetsManagerController::class, 'createUserAccess']);
+    Route::post('assets-manager/user-access-delete', [AssetsManagerController::class, 'deleteUserAccess']);
 
     // Agent Routes
     Route::resource('agent', AgentController::class);

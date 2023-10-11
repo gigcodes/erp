@@ -199,7 +199,7 @@
                       <i class="fa fas fa-toggle-{{$asset->active == 1 ? 'on' : 'off  '}}"></i>
                     </button>
 
-                    <button type="button" class="btn show-users-access-modal" data-id="{{$asset->id}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
+                    <button type="button" class="btn show-users-access-modal" id="show-users-access-modal-{{$asset->id}}" data-id="{{$asset->id}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
                         <i class="fa fas fa-universal-access"></i>
                     </button>
                 </td>
@@ -869,51 +869,94 @@
 
                 alert('Could not fetch Log');
             });
-
-            /*$.ajax({
-                type: 'POST',
-                headers: {
-                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-                url: "{{ route('assetsmanager.assetManamentUsers') }}",
-                 data: {},
-            }).done(response => {
-                
-                if(response.success==true){
-                    $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
-                    $('#showAssetsManagementUsersModel #assets_management_id').val(assets_management_id);
-                    $('#showAssetsManagementUsersModel').modal('show');                    
-                }
-
-            }).fail(function(response) {
-
-                alert('Could not fetch Log');
-            });*/
         });
 
     });
 
-    /*$(document).ready(function($) {
-        // Now you can use $ safely within this block
-        $("#tag-input").autocomplete({
-            source: function(request, response) {
-                // Send an AJAX request to the server-side script
-                $.ajax({
-                    url: '{{ route('assetsmanager.users') }}',
-                    dataType: 'json',
-                    data: {
-                        term: request.term // Pass user input as 'term' parameter
-                    },
-                    success: function(data) {
-                        response(data); // The server returns filtered suggestions as JSON
-                    }
-                });
+    $(document).on("click", "#create-user-acccess-btn", function(href) {
+
+        $('.text-danger-access').html('');
+        if($('.ua_user_ids').val() == '') {
+            $('.ua_user_ids').next().text("Please select user");
+            return false;
+        }
+
+        if($('.ua_username').val() == '') {
+            $('.ua_username').next().text("Please enter user name");
+            return false;
+        }
+
+        if($('.ua_password').val() == '') {
+            $('.ua_password').next().text("Please enter password");
+            return false;
+        }
+
+        if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('.assets_management_id').val() != '') {
+        
+            $.ajax({
+                type: 'POST',
+                url: 'assets-manager/user-access-create',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    user_id : $('.ua_user_ids').val(),
+                    username : $('.ua_username').val(),
+                    password : $('.ua_password').val(),
+                    assets_management_id : $('#assets_management_id').val()
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+
+                $('#createUserAccess')[0].reset();
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['error'](response.message, 'error');
+                console.log("Sorry, something went wrong");
+            });
+        } else{
+            $('.text-danger-all').next().text("Something went wrong. Please try again.");
+            return false
+        }
+    });
+
+    function deleteUserAccess(id) {
+        $.ajax({
+            type: 'POST',
+            url: 'assets-manager/user-access-delete',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
             },
-            minLength: 1, // Minimum characters before showing suggestions
-            select: function(event, ui) {
-                // Handle the selection if needed
+            data: {
+                _token: "{{ csrf_token() }}",
+                id : id
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
             }
+
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+            
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
         });
-    })*/
+    }
   </script>
 @endsection

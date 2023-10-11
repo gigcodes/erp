@@ -904,6 +904,10 @@
                         .ui-widget.ui-widget-content {z-index: 9999;}
                     </style>
 
+                    <div id="myDiv">
+                        <img id="loading-image-modal" src="/images/pre-loader.gif" style="display:none;"/>
+                   </div>
+
                     <form action="" method="POST" id="createUserAccess">
 
                         <div class="row">
@@ -952,6 +956,7 @@
                                 <th width="9%">Password</th>
                                 <th width="8%">Domain</th>
                                 <th width="8%">Created Date</th>
+                                <th width="8%">Action</th>
                             </tr>
                         </thead>
               
@@ -967,56 +972,3 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">
-$(document).on("click", "#create-user-acccess-btn", function(href) {
-
-    $('.text-danger-access').html('');
-    if($('.ua_user_ids').val() == '') {
-        $('.ua_user_ids').next().text("Please select user");
-        return false;
-    }
-
-    if($('.ua_username').val() == '') {
-        $('.ua_username').next().text("Please enter user name");
-        return false;
-    }
-
-    if($('.ua_password').val() == '') {
-        $('.ua_password').next().text("Please enter password");
-        return false;
-    }
-
-    if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('.assets_management_id').val() != '') {
-    
-        $.ajax({
-            type: 'POST',
-            url: 'assets-manager/user-access-create',
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
-            data: {
-                _token: "{{ csrf_token() }}",
-                user_id : $('.ua_user_ids').val(),
-                username : $('.ua_username').val(),
-                password : $('.ua_password').val(),
-                assets_management_id : $('#assets_management_id').val()
-            },
-            dataType: "json"
-        }).done(function (response) {
-            $("#loading-image").hide();
-            if (response.code == 200) {
-                toastr['success'](response.message, 'success');
-            }
-
-            $('#createUserAccess')[0].reset();
-        }).fail(function (response) {
-            $("#loading-image").hide();
-            toastr['error'](response.message, 'error');
-            console.log("Sorry, something went wrong");
-        });
-    } else{
-        $('.text-danger-all').next().text("Something went wrong. Please try again.");
-        return false
-    }
-});
-</script>
