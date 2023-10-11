@@ -680,4 +680,21 @@ class AssetsManagerController extends Controller
 
         return response()->json(['html' => $html, 'success' => true], 200);
     }
+
+    public function assetsUserList(Request $request)
+    {
+        
+        $dataDropdown = User::pluck('name', 'id')->toArray();
+
+        // Get the user input
+        $input = $_GET['term'];
+
+        // Filter tags based on user input
+        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
+            return stripos($tag, $input) !== false;
+        });
+
+        // Return the filtered tags as JSON
+        echo json_encode($filteredTags);
+    }
 }

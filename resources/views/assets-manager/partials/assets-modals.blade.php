@@ -892,14 +892,43 @@
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Asset Manament Users</h5>
+        <h5 class="modal-title">Asset Manament Users Access</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="mt-3 col-md-12">
         <div class="infinite-scroll">
-          <table class="table table-bordered table-striped">
+            <style type="text/css">
+                #showAssetsManagementUsersModel .select2-container{width: 100% !important;}
+                .ui-widget.ui-widget-content {z-index: 9999;}
+            </style>
+
+            <div class="col-md-3"> 
+                <div class="form-group">
+                    <strong>Select Users:</strong>
+                    
+                    <input class="form-control" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}">
+                </div>
+            </div>
+
+            <div class="col-md-3"> 
+                <div class="form-group">
+                    <strong>User Name:</strong>
+                    
+                    <input class="form-control" type="text" id="ua_username" name="ua_username" placeholder="Enter User Name" style="width: 100%;" value="{{request()->get('ua_username')}}">
+                </div>
+            </div>
+
+            <div class="col-md-3"> 
+                <div class="form-group">
+                    <strong>Password:</strong>
+                    
+                    <input class="form-control" type="text" id="ua_password" name="ua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('ua_password')}}">
+                </div>
+            </div>
+
+          <table class="table table-bordered table-striped" style="display:none;">
             <thead>
               <tr>
                 <th width="4%">ID</th>
