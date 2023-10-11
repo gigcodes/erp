@@ -1,4 +1,5 @@
-SCRIPT_NAME=`$(basename "$0")`
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
 
 date=`date +%d-%m-%y` 
 bkproot=/mnt/backup/erp_backup
@@ -28,6 +29,13 @@ do
 done
 find $mageroot -mtime +8 -exec rm -rf {} \;  | tee -a ${SCRIPT_NAME}.log
 
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} $? ${SCRIPT_NAME}.log
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
