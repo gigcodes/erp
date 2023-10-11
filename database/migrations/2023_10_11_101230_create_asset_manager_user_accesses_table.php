@@ -21,6 +21,8 @@ class CreateAssetManagerUserAccessesTable extends Migration
             $table->string('username')->nullable();
             $table->string('password')->nullable();
             $table->longText('usernamehost')->nullable();
+            $table->longText('request_data')->nullable();
+            $table->longText('response_data')->nullable();
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });

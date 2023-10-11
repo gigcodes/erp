@@ -11,5 +11,5 @@ class AssetManagerUserAccess extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $fillable = ['assets_management_id', 'user_id', 'created_by', 'username', 'password', 'usernamehost'];
+    protected $fillable = ['assets_management_id', 'user_id', 'created_by', 'username', 'password', 'usernamehost', 'request_data', 'response_data'];
 }

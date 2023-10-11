@@ -952,10 +952,12 @@
                         <thead>
                             <tr>
                                 <th width="4%">ID</th>
+                                <th width="9%">Selected User</th>
                                 <th width="9%">User Name</th>
                                 <th width="9%">Password</th>
-                                <th width="8%">Domain</th>
                                 <th width="8%">Created Date</th>
+                                <th width="8%">Request Data</th>
+                                <th width="8%">Response Data</th>
                                 <th width="8%">Action</th>
                             </tr>
                         </thead>

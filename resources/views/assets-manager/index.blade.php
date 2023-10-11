@@ -66,6 +66,11 @@
             </div>
             <div class="pull-right">
               <br>
+                <a class="btn btn-secondary btn-sm text-white mr-4" href="{{ route('user-accesses.index') }}">User Access</a>
+            </div>
+
+            <div class="pull-right">
+              <br>
                 <button type="button" class="btn btn-secondary btn-sm text-white mr-4 assets-create-modal"><i class="fa fa-plus"></i></button>
             </div>
             <div class="pull-right">

@@ -687,18 +687,21 @@ class AssetsManagerController extends Controller
         $html = '';
 
         if(!empty($request->assets_management_id)){
-        
-            $user_accesses = AssetManagerUserAccess::where('assets_management_id', $request->assets_management_id)->get();
+
+            $user_accesses = new AssetManagerUserAccess;
+            $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->where('assets_management_id', $request->assets_management_id)->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->get();
 
             $i = 1;
             if (count($user_accesses) > 0) {
                 foreach ($user_accesses as $user_access) {
                     $html .= '<tr>';
                     $html .= '<td>' . $i . '</td>';
+                    $html .= '<td>' . $user_access->selectedUser . '</td>';
                     $html .= '<td>' . $user_access->username . '</td>';
                     $html .= '<td>' . $user_access->password . '</td>';
-                    $html .= '<td>' . $user_access->usernamehost . '</td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
+                    $html .= '<td>' . $user_access->request_data . '</td>';
+                    $html .= '<td>' . $user_access->response_data . '</td>';
                     $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';
                     $i++;
@@ -707,12 +710,12 @@ class AssetsManagerController extends Controller
                 return response()->json(['html' => $html, 'success' => true], 200);
             } else {
                 $html .= '<tr>';
-                $html .= '<td colspan="6">Record not found</td>';
+                $html .= '<td colspan="8">Record not found</td>';
                 $html .= '</tr>';
             }
         } else {
             $html .= '<tr>';
-            $html .= '<td colspan="6">Record not found</td>';
+            $html .= '<td colspan="8">Record not found</td>';
             $html .= '</tr>';
         }
 
@@ -758,12 +761,16 @@ class AssetsManagerController extends Controller
             // Handle the response data (e.g., JSON decoding)
             $data = json_decode($response, true);
 
+            $responseVar = 'User '.$request->username.'@demo.mio-moda.com created successfully';
+
             $useraccess = AssetManagerUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
                 'user_id' => $request->user_id,
                 'created_by' => Auth::user()->id,
                 'username' => $request->username,
                 'password' => $request->password,
+                'request_data' => json_encode($params),
+                'response_data' => $responseVar,
                 'usernamehost' => $request->username.'@demo.mio-moda.com',
             ]);
 

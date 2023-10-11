@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\AssetManagerUserAccess;
+
+class AssetsManagerUsersAccessController extends Controller
+{
+    public function index(Request $request)
+    {
+        $user_accesses = new AssetManagerUserAccess;
+        $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->get();
+        
+        return view('assets-manager.user-access-listing', ['user_accesses' => $user_accesses]);
+    }
+
+    public function deleteUserAccessList($id)
+    {
+        $user_access = AssetManagerUserAccess::where('id', $id)->first();
+
+        // Base URL
+        $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+
+        // Parameters
+        $params = array(
+            'program' => 'delete-user',
+            'domain' => 'demo.mio-moda.com',
+            'user' => $user_access->username,
+        );
+
+        // Append parameters to URL
+        $url .= '?' . http_build_query($params);
+
+        $token = 'webapi:W34wVZIGIzf3bjq';
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Basic ' . base64_encode($token)
+        ));
+
+        // Execute cURL session and get the response
+        $response = curl_exec($ch);
+
+        // Close cURL session
+        curl_close($ch);
+
+        $access = AssetManagerUserAccess::find($id);
+        $access->delete();
+
+        return redirect()->route('user-accesses.index')->with('success', 'Assets manager user access deleted successfully');
+    }
+}
