@@ -3,10 +3,10 @@
 source /opt/etc/mysql-creds.conf
 
 # Data to insert
-SCRIPT_NAME=`$(basename "$0")`
+SCRIPT_NAME=$1
 SCRIPT_TYPE="cron"
-OUTPUT="$dboutput"
-LAST_EXECUTION_STATUS="$status"
+OUTPUT=$3
+LAST_EXECUTION_STATUS=$2
 
 # Define the SQL query to insert data
 SQL_QUERY="INSERT INTO monitor_scripts (file, script_type, output, status, last_run) VALUES ('$SCRIPT_NAME', '$SCRIPT_TYPE', '$OUTPUT', '$LAST_EXECUTION_STATUS', now());"
