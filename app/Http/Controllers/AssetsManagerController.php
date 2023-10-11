@@ -20,6 +20,7 @@ use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
+use App\Models\AssetManagerUserAccess;
 
 class AssetsManagerController extends Controller
 {
@@ -681,6 +682,42 @@ class AssetsManagerController extends Controller
         return response()->json(['html' => $html, 'success' => true], 200);
     }
 
+    public function assetManamentUsersAccess(request $request)
+    {
+        $html = '';
+
+        if(!empty($request->assets_management_id)){
+        
+            $user_accesses = AssetManagerUserAccess::where('assets_management_id', $request->assets_management_id)->get();
+
+            $i = 1;
+            if (count($user_accesses) > 0) {
+                foreach ($user_accesses as $user_access) {
+                    $html .= '<tr>';
+                    $html .= '<td>' . $i . '</td>';
+                    $html .= '<td>' . $user_access->username . '</td>';
+                    $html .= '<td>' . $user_access->password . '</td>';
+                    $html .= '<td>' . $user_access->usernamehost . '</td>';
+                    $html .= '<td>' . $user_access->created_at . '</td>';
+                    $html .= '</tr>';
+                    $i++;
+                }
+
+                return response()->json(['html' => $html, 'success' => true], 200);
+            } else {
+                $html .= '<tr>';
+                $html .= '<td colspan="5">Record not found</td>';
+                $html .= '</tr>';
+            }
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="3">Record not found</td>';
+            $html .= '</tr>';
+        }
+
+        return response()->json(['html' => $html, 'success' => true], 200);
+    }
+
     public function assetsUserList(Request $request)
     {
         
@@ -696,5 +733,26 @@ class AssetsManagerController extends Controller
 
         // Return the filtered tags as JSON
         echo json_encode($filteredTags);
+    }
+
+    
+
+    public function createUserAccess(Request $request)
+    {
+        try {
+            $useraccess = AssetManagerUserAccess::create([
+                'assets_management_id' => $request->assets_management_id,
+                'user_id' => $request->user_id,
+                'username' => $request->username,
+                'password' => $request->password,
+                'usernamehost' => $request->username,
+            ]);
+
+            return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'User Access has been created successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }

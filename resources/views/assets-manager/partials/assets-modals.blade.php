@@ -887,65 +887,136 @@
 </div>
 
 <div id="showAssetsManagementUsersModel" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+    <div class="modal-dialog">
     
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Asset Manament Users Access</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="mt-3 col-md-12">
-        <div class="infinite-scroll">
-            <style type="text/css">
-                #showAssetsManagementUsersModel .select2-container{width: 100% !important;}
-                .ui-widget.ui-widget-content {z-index: 9999;}
-            </style>
-
-            <div class="col-md-3"> 
-                <div class="form-group">
-                    <strong>Select Users:</strong>
-                    
-                    <input class="form-control" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}">
-                </div>
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Asset Manament Users Access</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="mt-3 col-md-12">
+                <div class="infinite-scroll">
+                    <style type="text/css">
+                        #showAssetsManagementUsersModel .select2-container{width: 100% !important;}
+                        .ui-widget.ui-widget-content {z-index: 9999;}
+                    </style>
 
-            <div class="col-md-3"> 
-                <div class="form-group">
-                    <strong>User Name:</strong>
-                    
-                    <input class="form-control" type="text" id="ua_username" name="ua_username" placeholder="Enter User Name" style="width: 100%;" value="{{request()->get('ua_username')}}">
-                </div>
-            </div>
+                    <form action="" method="POST" id="createUserAccess">
 
-            <div class="col-md-3"> 
-                <div class="form-group">
-                    <strong>Password:</strong>
-                    
-                    <input class="form-control" type="text" id="ua_password" name="ua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('ua_password')}}">
-                </div>
-            </div>
+                        <div class="row">
+                            <input type="hidden" name="assets_management_id" id="assets_management_id">
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Select Users:</strong>            
+                                    {{ Form::select("ua_user_ids", \App\User::pluck('name','id')->toArray(), request('ua_user_ids'), ["class" => "form-control ua_user_ids" ,"placeholder" => "Select User"]) }}
 
-          <table class="table table-bordered table-striped" style="display:none;">
-            <thead>
-              <tr>
-                <th width="4%">ID</th>
-                <th width="9%">Name</th>
-                <th width="8%">Email Address</th>
-              </tr>
-            </thead>
-  
-            <tbody id="showAssetsManagementUsersView">
+                                    <!-- <input class="form-control ua_user_ids" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}"> -->
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>User Name:</strong>                    
+                                    <input class="form-control ua_username" type="text" id="ua_username" name="ua_username" placeholder="Enter User Name" style="width: 100%;" value="{{request()->get('ua_username')}}">
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Password:</strong>                    
+                                    <input class="form-control ua_password" type="text" id="ua_password" name="ua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('ua_password')}}">
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <button type="button" id="create-user-acccess-btn" class="btn btn-secondary" style=" margin-top: 18px;">Create</button>
+                            </div>
+
+                            <div class="col-md-12"> 
+                                <span class="text-danger text-danger-all"></span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th width="4%">ID</th>
+                                <th width="9%">User Name</th>
+                                <th width="9%">Password</th>
+                                <th width="8%">Domain</th>
+                                <th width="8%">Created Date</th>
+                            </tr>
+                        </thead>
               
-            </tbody>
-          </table>
+                        <tbody id="showAssetsManagementUsersView">
+                          
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
     </div>
-  </div>
 </div>
+<script type="text/javascript">
+$(document).on("click", "#create-user-acccess-btn", function(href) {
+
+    $('.text-danger-access').html('');
+    if($('.ua_user_ids').val() == '') {
+        $('.ua_user_ids').next().text("Please select user");
+        return false;
+    }
+
+    if($('.ua_username').val() == '') {
+        $('.ua_username').next().text("Please enter user name");
+        return false;
+    }
+
+    if($('.ua_password').val() == '') {
+        $('.ua_password').next().text("Please enter password");
+        return false;
+    }
+
+    if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('.assets_management_id').val() != '') {
+    
+        $.ajax({
+            type: 'POST',
+            url: 'assets-manager/user-access-create',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                user_id : $('.ua_user_ids').val(),
+                username : $('.ua_username').val(),
+                password : $('.ua_password').val(),
+                assets_management_id : $('#assets_management_id').val()
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            $('#createUserAccess')[0].reset();
+        }).fail(function (response) {
+            $("#loading-image").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
+        });
+    } else{
+        $('.text-danger-all').next().text("Something went wrong. Please try again.");
+        return false
+    }
+});
+</script>

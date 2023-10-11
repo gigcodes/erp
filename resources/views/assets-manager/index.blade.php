@@ -199,7 +199,7 @@
                       <i class="fa fas fa-toggle-{{$asset->active == 1 ? 'on' : 'off  '}}"></i>
                     </button>
 
-                    <button type="button" class="btn show-users-access-modal" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
+                    <button type="button" class="btn show-users-access-modal" data-id="{{$asset->id}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
                         <i class="fa fas fa-universal-access"></i>
                     </button>
                 </td>
@@ -845,7 +845,32 @@
 
     $(document).ready(function() {
         $('.show-users-access-modal').click(function(){
+
+            var assets_management_id = $(this).data('id');
+
             $.ajax({
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('assetsmanager.assetManamentUsersAccess') }}",
+                data: {
+                    assets_management_id : assets_management_id
+                },
+            }).done(response => {
+                
+                if(response.success==true){
+                    $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
+                    $('#showAssetsManagementUsersModel #assets_management_id').val(assets_management_id);
+                    $('#showAssetsManagementUsersModel').modal('show');                    
+                }
+
+            }).fail(function(response) {
+
+                alert('Could not fetch Log');
+            });
+
+            /*$.ajax({
                 type: 'POST',
                 headers: {
                   'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
@@ -856,18 +881,19 @@
                 
                 if(response.success==true){
                     $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
-                    $('#showAssetsManagementUsersModel').modal('show');
+                    $('#showAssetsManagementUsersModel #assets_management_id').val(assets_management_id);
+                    $('#showAssetsManagementUsersModel').modal('show');                    
                 }
 
             }).fail(function(response) {
 
                 alert('Could not fetch Log');
-            });
+            });*/
         });
 
     });
 
-    $(document).ready(function($) {
+    /*$(document).ready(function($) {
         // Now you can use $ safely within this block
         $("#tag-input").autocomplete({
             source: function(request, response) {
@@ -888,6 +914,6 @@
                 // Handle the selection if needed
             }
         });
-    })
+    })*/
   </script>
 @endsection
