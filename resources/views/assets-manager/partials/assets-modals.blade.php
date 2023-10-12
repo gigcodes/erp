@@ -916,8 +916,41 @@
                                 <div class="form-group">
                                     <strong>Select Users:</strong>            
                                     {{ Form::select("ua_user_ids", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('ua_user_ids'), ["class" => "form-control ua_user_ids" ,"placeholder" => "Select User"]) }}
+                                    <!-- <input class="form-control ua_user_ids" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}">
+                                    <span class="text-danger text-danger-access"></span> -->
+                                </div>
+                            </div>
 
-                                    <!-- <input class="form-control ua_user_ids" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}"> -->
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>User Role:</strong>                    
+                                    <select class="form-control ua_user_role" name="user_role" id="user_role">
+                                        <option value="user">User</option>
+                                        <option value="magento">Magento</option>
+                                        <option value="super">Super</option>
+                                    </select>
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Login Type:</strong>                    
+                                    <select class="form-control ua_login_type" name="login_type" id="login_type" onchange="showKeyType(this.value)">
+                                        <option value="password">Password</option>
+                                        <option value="key">Key</option>
+                                    </select>
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3" id="keyTypeDiv" style="display:none;"> 
+                                <div class="form-group">
+                                    <strong>Key Type:</strong>                    
+                                    <select class="form-control ua_key_type" name="key_type" id="key_type">
+                                        <option value="generate">Generate</option>
+                                        <option value="regenerate">Regenerate</option>
+                                    </select>
                                     <span class="text-danger text-danger-access"></span>
                                 </div>
                             </div>
@@ -933,7 +966,7 @@
                             <div class="col-md-3"> 
                                 <div class="form-group">
                                     <strong>Password:</strong>                    
-                                    <input class="form-control ua_password" type="text" id="ua_password" name="ua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('ua_password')}}">
+                                    <input class="form-control ua_password" type="text" id="ua_password" name="ua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('ua_password')}}" readonly>
                                     <span class="text-danger text-danger-access"></span>
                                 </div>
                             </div>
@@ -974,3 +1007,12 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    function showKeyType(login_type) {
+        if(login_type=='key'){
+            $('#keyTypeDiv').css("display", "block");
+        } else {
+            $('#keyTypeDiv').css("display", "none");
+        }        
+    }
+</script>

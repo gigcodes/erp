@@ -66,7 +66,7 @@
             </div>
             <div class="pull-right">
               <br>
-                <a class="btn btn-secondary btn-sm text-white mr-4" href="{{ route('user-accesses.index') }}">User Access</a>
+                <a class="btn btn-secondary btn-sm text-white mr-4" href="{{ route('user-accesses.index') }}" target="_blank">User Access</a>
             </div>
 
             <div class="pull-right">
@@ -851,6 +851,9 @@
     $(document).ready(function() {
         $('.show-users-access-modal').click(function(){
 
+            var generatedPassword = generateRandomPassword(12); // Change the number to set the desired password length
+            $('.ua_password').val(generatedPassword);
+
             var assets_management_id = $(this).data('id');
 
             $.ajax({
@@ -878,6 +881,19 @@
 
     });
 
+    function generateRandomPassword(length) {
+        var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}:<>?";
+
+        var password = "";
+        for (var i = 0; i < length; i++) {
+            var randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+        }
+
+        return password;
+    }
+
+
     $(document).on("click", "#create-user-acccess-btn", function(href) {
 
         $('.text-danger-access').html('');
@@ -896,7 +912,7 @@
             return false;
         }
 
-        if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('.assets_management_id').val() != '') {
+        if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('.assets_management_id').val() != '' && $('.ua_user_role').val() != '' && $('.ua_login_type').val() != '') {
         
             $.ajax({
                 type: 'POST',
@@ -909,6 +925,9 @@
                     user_id : $('.ua_user_ids').val(),
                     username : $('.ua_username').val(),
                     password : $('.ua_password').val(),
+                    user_role : $('.ua_user_role').val(),
+                    login_type : $('.ua_login_type').val(),
+                    key_type : $('.ua_key_type').val(),
                     assets_management_id : $('#assets_management_id').val()
                 },
                 dataType: "json"
@@ -963,5 +982,28 @@
             console.log("Sorry, something went wrong");
         });
     }
+
+    $(document).ready(function($) {
+        // Now you can use $ safely within this block
+        $("#tag-input").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('assetsmanager.users') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+    })
   </script>
 @endsection

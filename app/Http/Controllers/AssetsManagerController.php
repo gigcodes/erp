@@ -726,47 +726,26 @@ class AssetsManagerController extends Controller
     {
         try {
 
-            // Base URL
-            $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+            // New Script
+            $action = "add";
+            $SFTP = true;
+            $ssh = true;
+            $server = 'demo.mio-moda.com';
+                       
+            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-            // Parameters
-            $params = array(
-                'program' => 'create-user',
-                'domain' => 'demo.mio-moda.com',
-                'user' => $request->username,
-                'pass' => $request->password,
-                'shell' => '/bin/bash',
-                'noemail' => '',
-                'group' => $request->username,
-                'home' => '/home/'.$request->username,
+            if($request->login_type=='key'){
+                $cmd = "bash $scriptsPath" . "mysql-slowlogs.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$request->key_type\" -R \"$request->user_role\" 2>&1";
+            } else {
+                $cmd = "bash $scriptsPath" . "mysql-slowlogs.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$request->user_role\" 2>&1";
+            }
+            // NEW Script
 
-            );
+            $result = exec($cmd, $output, $return_var);
 
-            // Append parameters to URL
-            $url .= '?' . http_build_query($params);
-
-            $token = 'webapi:W34wVZIGIzf3bjq';
-
-            // Initialize cURL session
-            $ch = curl_init($url);
-
-            // Set cURL options
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization: Basic ' . base64_encode($token)
-            ));
-
-            // Execute cURL session and get the response
-            $response = curl_exec($ch);
-
-            // Close cURL session
-            curl_close($ch);
-
-            // Handle the response data (e.g., JSON decoding)
-            $data = json_decode($response, true);
-
-            //$responseVar = 'User '.$request->username.'@demo.mio-moda.com created successfully';
+            /*\Log::info('command:' . $cmd);
+            \Log::info('output:' . print_r($output, true));
+            \Log::info('return_var:' . $return_var);*/
 
             $useraccess = AssetManagerUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
@@ -774,9 +753,12 @@ class AssetsManagerController extends Controller
                 'created_by' => Auth::user()->id,
                 'username' => $request->username,
                 'password' => $request->password,
-                'request_data' => json_encode($params),
-                'response_data' => $response,
-                'usernamehost' => $request->username.'@demo.mio-moda.com',
+                'request_data' => $cmd,
+                'response_data' => json_encode($output),
+                'usernamehost' => $request->usernamehost,
+                'login_type' => $request->login_type,
+                'key_type' => $request->key_type,
+                'user_role' => $request->user_role,
             ]);
 
             return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'User Access has been created successfully']);
@@ -833,5 +815,22 @@ class AssetsManagerController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function assetsUserList(Request $request)
+    {
+
+        $dataDropdown = User::pluck('name', 'id')->toArray();
+
+        // Get the user input
+        $input = $_GET['term'];
+
+        // Filter tags based on user input
+        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
+            return stripos($tag, $input) !== false;
+        });
+
+        // Return the filtered tags as JSON
+        echo json_encode($filteredTags);
     }
 }
