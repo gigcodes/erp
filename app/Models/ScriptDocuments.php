@@ -16,5 +16,9 @@ class ScriptDocuments extends Model
         'usage_parameter',
         'comments',
         'author',
+        'description',
+        'location',
+        'last_run',
+        'status'
     ];
 }
