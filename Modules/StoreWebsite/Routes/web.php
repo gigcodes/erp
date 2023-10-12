@@ -83,6 +83,8 @@ Route::group([
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
 
+    Route::post('/create-admin-url', [StoreWebsiteController::class, 'createAdminUrl'])->name('store-website.create-admin-url');
+
     // Create Tags for multiple website
     Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
     Route::post('create-tag', [StoreWebsiteController::class, 'create_tags'])->name('store-website.create_tags');
