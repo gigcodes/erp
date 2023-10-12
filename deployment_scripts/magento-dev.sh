@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
 
 function HELP {
 	echo "--server: dev servername dev1/dev2"
@@ -27,7 +29,19 @@ done
 . /var/www/erp.theluxuryunlimited.com/.env
 
 ssh -i ~/.ssh/id_rsa root@$server "cd /home/$site/public_html/ ; giturl=\$(git config --get remote.origin.url|sed "s/github.com/$GITHUB_TOKEN:$GITHUB_TOKEN@github.com/g") ; git clean -fd ; git checkout stage ; git reset --hard origin/stage ; git checkout stage ; git pull \$giturl stage ; php bin/magento app:config:dump ; php bin/magento setup:upgrade ; php bin/magento setup:di:compile ; php bin/magento s:s:d -f ; php bin/magento cache:f ; chgrp -R www-data . ; chown -R $site ."
-if [ $? -ne 0 ]
+#if [ $? -ne 0 ]
+#then
+#	exit 1
+#fi
+
+if [[ $? -eq 0 ]]
 then
-	exit 1
+   STATUS="Successful"
+else
+   STATUS="Failed"
 fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+

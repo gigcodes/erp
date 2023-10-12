@@ -1,5 +1,7 @@
 #!/bin/bash
 ###  This script is used to autoselect Python scraper server which has maximum memory available and start python scraper there
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
 
 ScriptDIR=`dirname "$0"`
 day=`date +%d`
@@ -96,3 +98,14 @@ function pyscraper_restart
 pyscraper_status
 pyscraper_restart_list
 pyscraper_restart < /dev/null
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

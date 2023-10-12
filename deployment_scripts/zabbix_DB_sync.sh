@@ -1,4 +1,7 @@
 #!/bin/bash
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
+
 subject=$1
 message="DUMMY"
 host=$2
@@ -29,3 +32,14 @@ fi
 
 mysql -h $dbhost -u $dbuser -p$dbpass  -D $dbname -N -se "INSERT INTO zabbix_webhook_data (event_id,subject,message,event_start,host,severity,operational_data,created_at,updated_at) values ('$eid','$subject','$message','$etime','$host','$severity','$odata',now(),now())"
 echo "INSERT INTO zabbix_webhook_data (event_id,subject,message,event_start,host,severity,operational_data,created_at,updated_at) values ('$eid','$subject','$message','$etime','$host','$severity','$odata',now(),now())"
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

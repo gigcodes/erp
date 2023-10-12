@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
+
 function HELP {
 	echo "-f|--function: add/delete"
 	echo "-s|--server: Server Name"
@@ -66,3 +69,15 @@ else
 	hostip=`grep $server'_HOST' /var/www/erp.theluxuryunlimited.com/.env|cut -d'=' -f2`
 	ssh -i ~/.ssh/id_rsa root@$hostip "$command"
 fi
+
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

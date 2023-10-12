@@ -1,7 +1,10 @@
 #!/bin/bash
 
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
+
 function HELP {
-	echo "--command: custom commands"
+	echo "--command: custom commands" | tee -a ${SCRIPT_NAME}.log
 }
 
 args=("$@")
@@ -23,9 +26,21 @@ done
 
 cd /var/www/erp.theluxuryunlimited.com
 
-$command
+$command | tee -a ${SCRIPT_NAME}.log
 
-if [ $? -ne 0 ]
+#if [ $? -ne 0 ]
+#then
+#	exit 1
+#fi
+
+
+if [[ $? -eq 0 ]]
 then
-	exit 1
+   STATUS="Successful"
+else
+   STATUS="Failed"
 fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

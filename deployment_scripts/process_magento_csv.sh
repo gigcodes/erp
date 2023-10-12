@@ -1,4 +1,6 @@
 #!/bin/bash
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
 
 function HELP {
         echo "-w|--website: website"
@@ -102,3 +104,14 @@ case "$action" in
         exit 1
         ;;
 esac
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

@@ -1,5 +1,7 @@
 #!/bin/bash
 ###  This script is used to autoselect scraper server which has maximum memory available and start scraper there
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
 
 ScriptDIR=`dirname "$0"`
 datetime=`date +%d%b%y-%H:%M`
@@ -118,3 +120,14 @@ scraper_status
 scraper_restart_list
 scraper_restart < /dev/null
 chromium_kill
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

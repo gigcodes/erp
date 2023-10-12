@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
+
 function HELP {
 	echo "-f enable/disable"
 }
@@ -28,3 +31,15 @@ elif [ $function == "disable" ]
 then
 	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com -p2112 "sed -i 's/^slow_query_log/#slow_query_log/g' /etc/mysql/mariadb.conf.d/50-server.cnf ; sed -i 's/^long_query_time/#long_query_time/g' /etc/mysql/mariadb.conf.d/50-server.cnf ; service mariadb restart"
 fi
+
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

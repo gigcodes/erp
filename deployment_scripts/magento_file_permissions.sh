@@ -1,5 +1,6 @@
 #!/bin/bash
-
+set -eo pipefail
+SCRIPT_NAME=`basename $0`
 
 DB_USERNAME=erplive
 DB_PASSWORD="Jb(hd4ersiuttG0iL"
@@ -38,3 +39,15 @@ PORT="22"
 ssh -i $KEY -p $PORT $USER@$SERVER "find $CWDDIR/var/ -type d -maxdepth 3 -exec chown -R www-data:www-data {} \;"
 ssh -i $KEY -p $PORT $USER@$SERVER "find $CWDDIR/var/ -type d -maxdepth 3 -exec ls --time-style=long-iso -ldh {} \;" | awk -v SERVER="$SERVER" '{print SERVER "," $8 "," $3 "," $4 "," $1 "," $6 " " $7 "," $6 " " $7}' > /tmp/file_permissions.csv
 mysqlimport -h $DB_HOST -u $DB_USERNAME -p$DB_PASSWORD -f --local  --columns server,instance,owner,groupowner,permission,created_at,updated_at  --fields-terminated-by=, --lines-terminated-by="\n" erp_live /tmp/file_permissions.csv
+
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
