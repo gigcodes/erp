@@ -52,7 +52,7 @@
                 <div class="form-group ml-3">
                   Select Created Users
                   <br>
-                  {{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
+                  {{ Form::select("user_ids[]", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
                 </div>
                 <div class="form-group ml-3">
                   Select Ips

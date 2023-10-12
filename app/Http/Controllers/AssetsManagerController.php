@@ -735,6 +735,11 @@ class AssetsManagerController extends Controller
                 'domain' => 'demo.mio-moda.com',
                 'user' => $request->username,
                 'pass' => $request->password,
+                'shell' => '/bin/bash',
+                'noemail' => '',
+                'group' => $request->username,
+                'home' => '/home/'.$request->username,
+
             );
 
             // Append parameters to URL
@@ -761,7 +766,7 @@ class AssetsManagerController extends Controller
             // Handle the response data (e.g., JSON decoding)
             $data = json_decode($response, true);
 
-            $responseVar = 'User '.$request->username.'@demo.mio-moda.com created successfully';
+            //$responseVar = 'User '.$request->username.'@demo.mio-moda.com created successfully';
 
             $useraccess = AssetManagerUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
@@ -770,7 +775,7 @@ class AssetsManagerController extends Controller
                 'username' => $request->username,
                 'password' => $request->password,
                 'request_data' => json_encode($params),
-                'response_data' => $responseVar,
+                'response_data' => $response,
                 'usernamehost' => $request->username.'@demo.mio-moda.com',
             ]);
 
