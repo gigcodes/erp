@@ -390,7 +390,7 @@
                   <label for="instance_number">Admin URL</label></br>
                   <div style="display: flex">
                       <input type="text" class="form-control" id="generated-admin-url" value="{{if last_adminurl}}{{:last_adminurl.admin_url}}{{/if}}">
-                      <button type="button" data-id="" class="btn btn-sm" data-value="">
+                      <button type="button" data-id="" class="btn btn-sm btn-copy-admin-url" data-value="">
                           <i class="fa fa-clone" aria-hidden="true"></i>
                       </button>
                   </div>

@@ -22,7 +22,7 @@ class CreateStoreWebsiteAdminUrlsTable extends Migration
             $table->string('server_ip_address')->nullable();
             $table->longText('request_data')->nullable();
             $table->longText('response_data')->nullable();
-            $table->timestamp('deleted_at');
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
     }

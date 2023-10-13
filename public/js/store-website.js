@@ -236,6 +236,24 @@ var page = {
       //alert("Copied!");
     });
 
+    $(document).on("click", ".btn-copy-admin-url", function () {
+
+        var combinedValue = 'Admin URL : '+$("#generated-admin-url").val();
+
+        if(combinedValue!=''){
+
+            var $temp = $("<textarea>");
+            $("body").append($temp);
+            $temp.val(combinedValue).select();
+            document.execCommand("copy");
+            $temp.remove();
+
+            alert("Copied!");
+        } else {
+            alert("You don't have admin url!");
+        }
+    });
+
     $(document).on("click", ".generate-pem-file", function () {
       page.openGenerateFile();
     });

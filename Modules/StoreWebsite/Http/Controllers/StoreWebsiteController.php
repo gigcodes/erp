@@ -153,6 +153,15 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
 
+    public function adminUrls()
+    {
+        $title = 'Admin Urls | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::get();
+
+        return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
+    }
+
     public function getApiTokenLogs(Request $request)
     {
         $logs = StoreWebsitesApiTokenLog::with(['storeWebsite', 'StoreWebsiteUsers', 'user'])->where('store_website_id', $request->store_website_id)->orderBy('id', 'desc')->get();
@@ -2080,6 +2089,21 @@ class StoreWebsiteController extends Controller
     {
         $datas = StoreWebsiteApiTokenHistory::with(['user'])
             ->where('store_websites_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function adminUrlHistory($id)
+    {
+        $datas = StoreWebsiteAdminUrl::with(['user'])
+            ->where('store_website_id', $id)
             ->latest()
             ->get();
 

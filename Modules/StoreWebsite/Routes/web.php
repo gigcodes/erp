@@ -45,6 +45,7 @@ Route::group([
     Route::get('builder-api-key-histories/{id}', [StoreWebsiteController::class, 'builderApiKeyHistory'])->name('store-website.builder-api-key-histories');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::get('admin-password', [StoreWebsiteController::class, 'adminPassword'])->name('store-website.adminPassword');
+    Route::get('admin-urls', [StoreWebsiteController::class, 'adminUrls'])->name('store-website.adminUrls');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
     Route::post('api-token/get-api-token-logs/{id}', [StoreWebsiteController::class, 'getApiTokenLogs'])->name('store-website.getApiTokenLogs');
@@ -56,6 +57,7 @@ Route::group([
     Route::get('get-admin-password', [StoreWebsiteController::class, 'getAdminPassword']);
     Route::post('user-permission/update', [StoreWebsiteController::class, 'userPermission'])->name('store-website.user.permission');
     Route::get('api-token-histories/{id}', [StoreWebsiteController::class, 'apiTokenHistory'])->name('store-website.token.histories');
+    Route::get('admin-url-histories/{id}', [StoreWebsiteController::class, 'adminUrlHistory'])->name('store-website.url.histories');
     Route::get('version-numbers', [StoreWebsiteController::class, 'versionNumbers'])->name('store-website.version-numbers');
     Route::get('csv-download/listing', [StoreWebsiteController::class, 'StorewebsiteDownloadListing'])->name('store-website.listing');
     Route::post('mulitple/csv-download', [StoreWebsiteController::class, 'mulitipleStorewebsiteDownload'])->name('mulitiple.store-website.listing');
