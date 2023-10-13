@@ -916,8 +916,8 @@
                                 <div class="form-group">
                                     <strong>Select Users:</strong>            
                                     {{ Form::select("ua_user_ids", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('ua_user_ids'), ["class" => "form-control ua_user_ids" ,"placeholder" => "Select User"]) }}
-                                    <!-- <input class="form-control ua_user_ids" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}">
-                                    <span class="text-danger text-danger-access"></span> -->
+                                    <!-- <input class="form-control ua_user_ids" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}"> -->
+                                    <span class="text-danger text-danger-access"></span>
                                 </div>
                             </div>
 
