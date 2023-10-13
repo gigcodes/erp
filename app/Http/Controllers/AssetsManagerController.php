@@ -735,12 +735,11 @@ class AssetsManagerController extends Controller
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
             if($request->login_type=='key'){
-                $cmd = "bash $scriptsPath" . "mysql-slowlogs.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$request->key_type\" -R \"$request->user_role\" 2>&1";
+                $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$request->key_type\" -R \"$request->user_role\" 2>&1";
             } else {
-                $cmd = "bash $scriptsPath" . "mysql-slowlogs.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$request->user_role\" 2>&1";
+                $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$request->user_role\" 2>&1";
             }
             // NEW Script
-
             $result = exec($cmd, $output, $return_var);
 
             /*\Log::info('command:' . $cmd);
@@ -754,7 +753,7 @@ class AssetsManagerController extends Controller
                 'username' => $request->username,
                 'password' => $request->password,
                 'request_data' => $cmd,
-                'response_data' => json_encode($output),
+                'response_data' => json_encode($result),
                 'usernamehost' => $request->usernamehost,
                 'login_type' => $request->login_type,
                 'key_type' => $request->key_type,
@@ -775,41 +774,36 @@ class AssetsManagerController extends Controller
 
             $user_access = AssetManagerUserAccess::where('id', $request->id)->first();
 
-            // Base URL
-            $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+            if(!empty($user_access)){
 
-            // Parameters
-            $params = array(
-                'program' => 'delete-user',
-                'domain' => 'demo.mio-moda.com',
-                'user' => $user_access->username,
-            );
+                // New Script
+                $action = "delete";
+                $SFTP = true;
+                $ssh = true;
+                $server = 'demo.mio-moda.com';
+                           
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-            // Append parameters to URL
-            $url .= '?' . http_build_query($params);
+                if($user_access->login_type=='key'){
+                    $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$user_access->username\" -p \"$user_access->password\" -l \"$user_access->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$user_access->key_type\" -R \"$user_access->user_role\" 2>&1";
+                } else {
+                    $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$user_access->username\" -p \"$user_access->password\" -l \"$user_access->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$user_access->user_role\" 2>&1";
+                }
 
-            $token = 'webapi:W34wVZIGIzf3bjq';
+                // NEW Script
+                $result = exec($cmd, $output, $return_var);
 
-            // Initialize cURL session
-            $ch = curl_init($url);
+                $access = AssetManagerUserAccess::find($request->id);
+                $access->delete();
 
-            // Set cURL options
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Authorization: Basic ' . base64_encode($token)
-            ));
+                return response()->json(['code' => 200, 'message' => 'User Access has been deleted successfully']);
 
-            // Execute cURL session and get the response
-            $response = curl_exec($ch);
+            } else {
 
-            // Close cURL session
-            curl_close($ch);
+                return response()->json(['code' => 500, 'message' => 'Something went wrong. Please try again.']);
 
-            $access = AssetManagerUserAccess::find($request->id);
-            $access->delete();
-
-            return response()->json(['code' => 200, 'message' => 'User Access has been deleted successfully']);
+            }
+            
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
