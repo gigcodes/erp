@@ -1,8 +1,8 @@
-<div id="api-token-histories-list" class="modal fade" role="dialog">
+<div id="admin-urls-histories-list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Api Token Histories</h4>
+                <h4 class="modal-title">Admin URLs Histories</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">

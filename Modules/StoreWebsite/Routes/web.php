@@ -48,6 +48,9 @@ Route::group([
     Route::get('admin-urls', [StoreWebsiteController::class, 'adminUrls'])->name('store-website.adminUrls');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
+
+    Route::post('admin-urls/bulk-generate-admin-url', [StoreWebsiteController::class, 'adminUrlBulkGenerate'])->name('store-website.adminUrlBulkGenerate');
+
     Route::post('api-token/get-api-token-logs/{id}', [StoreWebsiteController::class, 'getApiTokenLogs'])->name('store-website.getApiTokenLogs');
     Route::post('api-token/test-api-token/{id}', [StoreWebsiteController::class, 'testApiToken'])->name('store-website.testApiToken');
     Route::post('generate-reindex', [StoreWebsiteController::class, 'generateReIndexfile']);

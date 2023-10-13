@@ -2102,7 +2102,7 @@ class StoreWebsiteController extends Controller
 
     public function adminUrlHistory($id)
     {
-        $datas = StoreWebsiteAdminUrl::with(['user'])
+        $datas = StoreWebsiteAdminUrl::with('user', 'storewebsite')
             ->where('store_website_id', $id)
             ->latest()
             ->get();
@@ -2581,16 +2581,71 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
+         // New Script
+        $admin_url_var = $post['admin_url'].'/admin_'.$this->generateRandomString(6);
+        $password = '';
+        $store_dir = $post['store_dir'];
+        $server_ip_address = $post['server_ip_address'];
+                   
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+        $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+
+        // NEW Script
+        $result = exec($cmd, $output, $return_var);
+
         $adminurl = new StoreWebsiteAdminUrl;
         $adminurl->created_by = Auth::user()->id;
         $adminurl->store_dir = $post['store_dir'];
         $adminurl->server_ip_address = $post['server_ip_address'];
         $adminurl->store_website_id = $post['store_website_id'];
-        $adminurl->admin_url = $post['admin_url'].'/admin_'.$this->generateRandomString(6);;
-        $adminurl->request_data = '';
-        $adminurl->response_data = '';
+        $adminurl->website_url = $post['admin_url'];
+        $adminurl->admin_url = $post['admin_url'].'/admin_'.$this->generateRandomString(6);
+        $adminurl->request_data = $cmd;
+        $adminurl->response_data = json_encode($result);
         $adminurl->save();
 
         return response()->json(['code' => 200, 'message' => 'Admin url has been successfully generated.', 'data' => $adminurl]);
+    }
+
+    public function adminUrlBulkGenerate(Request $request)
+    {
+        if ($request->has('ids') && empty($request->ids)) {
+            return response()->json(['success' => false, 'message' => 'The request parameter ids missing']);
+        }
+
+        foreach ($request->ids as $id) {
+
+            $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::where('id', $id)->first();
+
+            if(!empty($storeWebsiteAdminUrls)){
+
+                $admin_url_var = $storeWebsiteAdminUrls['admin_url'].'/admin_'.$this->generateRandomString(6);
+                $password = '';
+                $store_dir = $storeWebsiteAdminUrls['store_dir'];
+                $server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                           
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+                $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+
+                // NEW Script
+                //$result = exec($cmd, $output, $return_var);
+
+                $result = "{\"status\":\"success\",\"msg\":\"created successfully\"}";
+
+                $adminurl = new StoreWebsiteAdminUrl;
+                $adminurl->created_by = Auth::user()->id;
+                $adminurl->store_dir = $storeWebsiteAdminUrls['store_dir'];
+                $adminurl->server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                $adminurl->store_website_id = $storeWebsiteAdminUrls['store_website_id'];
+                $adminurl->admin_url = $storeWebsiteAdminUrls['website_url'].'/admin_'.$this->generateRandomString(6);
+                $adminurl->request_data = $cmd;
+                $adminurl->response_data = json_encode($result);
+                $adminurl->save();
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
     }
 }

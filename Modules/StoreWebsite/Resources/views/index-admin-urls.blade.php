@@ -20,6 +20,15 @@
 		<h2 class="page-heading">{{$title}}</h2>
 	</div>
 	<br>
+	<div class="col-lg-12 margin-tb">
+		<div class="col-lg-12 pl-5 pr-5">
+			<div style="display: flex !important; float: right !important;">
+				<div style="width: 150px;"> <!-- Add a fixed width to the wrapping div -->
+					<a href="#" class="btn btn-xs btn-secondary generate-admin-urls">Generate Admin Urls</a>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div class="col-lg-12 pl-5 pr-5">
 		<form action="/store-website/generate-api-token" method="post">
@@ -30,6 +39,7 @@
 					<table class="table table-bordered overlay admin-password-table" id="tblAdminPassword">
 						<thead>
 						<tr>
+							<th>Select</th>
 							<th>Id</th>
 							<th width="30%">Website</th>
 							<th width="30%">Admin Url</th>
@@ -120,7 +130,7 @@
                     $.each(response.data, function(k, v) {
 						html += "<tr>";
 						html += "<td>" + (k + 1) + "</td>";
-						html += "<td>" + v.created_at + "</td>";
+						html += "<td>" + v.storewebsite.title + "</td>";
 						html += "<td>" + v.admin_url + "</td>";
 						html += "<td>" + v.store_dir + "</td>";
 						html += "<td>" + v.server_ip_address + "</td>";
@@ -131,13 +141,50 @@
 						html += "<td>" + v.created_at + "</td>";
 						html += "</tr>";
                     });
-                    $("#api-token-histories-list").find(".api-token-list-view").html(html);
-                    $("#api-token-histories-list").modal("show");
+                    $("#admin-urls-histories-list").find(".api-token-list-view").html(html);
+                    $("#admin-urls-histories-list").modal("show");
                 } else {
                     toastr["error"](response.error, "Message");
                 }
             }
         });
+	});
+
+	var selectedStoreWebsiteAdminUrls = [];
+	$(document).on('click', '.selectedStoreWebsiteAdminUrls', function () {
+		var checked = $(this).prop('checked');
+		var id = $(this).val();
+		if (checked) {
+			selectedStoreWebsiteAdminUrls.push(id);
+		} else {
+			var index = selectedStoreWebsiteAdminUrls.indexOf(id);
+			selectedStoreWebsiteAdminUrls.splice(index, 1);
+		}
+	});
+
+	$(document).on("click",".generate-admin-urls",function(e){
+		e.preventDefault();
+		if(selectedStoreWebsiteAdminUrls.length < 1) {
+			toastr['error']("Select some rows first");
+			return;
+		}
+		var x = window.confirm("Are you sure, you want to generate Admin Urls ?");
+		if(!x) {
+			return;
+		}
+
+		$.ajax({
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			url: '/store-website/admin-urls/bulk-generate-admin-url',
+			type: "POST",
+			data: {ids : selectedStoreWebsiteAdminUrls}
+		}).done(function(response) {
+			toastr['success'](response.message);
+			window.location.reload();
+		}).fail(function(errObj) {
+		});
 	});
 </script>
 

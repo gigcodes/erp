@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use App\User;
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ class StoreWebsiteAdminUrl extends Model
     protected $fillable = [
         'created_by',
         'store_website_id',
+        'website_url',
         'admin_url',
         'store_dir',
         'server_ip_address',
@@ -23,5 +25,10 @@ class StoreWebsiteAdminUrl extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function storewebsite()
+    {
+        return $this->belongsTo(StoreWebsite::class, 'store_website_id')->select('title', 'id');
     }
 }

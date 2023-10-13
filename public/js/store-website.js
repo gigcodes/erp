@@ -240,7 +240,7 @@ var page = {
 
         var combinedValue = 'Admin URL : '+$("#generated-admin-url").val();
 
-        if(combinedValue!=''){
+        if($("#generated-admin-url").val()!=''){
 
             var $temp = $("<textarea>");
             $("body").append($temp);
