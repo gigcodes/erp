@@ -2630,9 +2630,7 @@ class StoreWebsiteController extends Controller
                 $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
 
                 // NEW Script
-                //$result = exec($cmd, $output, $return_var);
-
-                $result = "{\"status\":\"success\",\"msg\":\"created successfully\"}";
+                $result = exec($cmd, $output, $return_var);
 
                 $adminurl = new StoreWebsiteAdminUrl;
                 $adminurl->created_by = Auth::user()->id;
