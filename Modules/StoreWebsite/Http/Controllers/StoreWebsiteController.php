@@ -66,6 +66,7 @@ use App\Language;
 use App\Models\GoogleTranslateCsvData;
 use App\Models\WebsiteStoreProject;
 use App\Models\StoreWebsiteCsvPullHistory;
+use App\Models\StoreWebsiteAdminUrl;
 
 class StoreWebsiteController extends Controller
 {
@@ -150,6 +151,15 @@ class StoreWebsiteController extends Controller
         $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
         return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
+    }
+
+    public function adminUrls()
+    {
+        $title = 'Admin Urls | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::get();
+
+        return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
     }
 
     public function getApiTokenLogs(Request $request)
@@ -827,11 +837,14 @@ class StoreWebsiteController extends Controller
 
         $storewebsiteusers = StoreWebsiteUsers::where('store_website_id', $id)->get();
 
+        $storewebsiteadminurl = StoreWebsiteAdminUrl::where('store_website_id', $id)->where('created_by', Auth::user()->id)->orderBy('id', 'desc')->first();
+
         if ($storeWebsite) {
             return response()->json([
                 'code' => 200,
                 'data' => $storeWebsite,
                 'userdata' => $storewebsiteusers,
+                'last_adminurl' => $storewebsiteadminurl,
                 'services' => $services,
                 'totaluser' => count($storewebsiteusers), ]
             );
@@ -2087,6 +2100,21 @@ class StoreWebsiteController extends Controller
         ], 200);
     }
 
+    public function adminUrlHistory($id)
+    {
+        $datas = StoreWebsiteAdminUrl::with('user', 'storewebsite')
+            ->where('store_website_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function versionNumbers()
     {
         $storeWebsites = StoreWebsite::all();
@@ -2524,4 +2552,98 @@ class StoreWebsiteController extends Controller
         ], 200);
     }
 
+    public function generateRandomString($length) {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = str_shuffle($characters);
+        $randomString = substr($randomString, 0, $length);
+        return $randomString;
+    }
+
+    public function createAdminUrl(Request $request)
+    {
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'store_dir' => 'required',
+            'server_ip_address' => 'required',
+            'store_website_id' => 'required',
+            'admin_url' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
+        }
+
+         // New Script
+        $admin_url_var = 'admin_'.$this->generateRandomString(6);
+        $password = '';
+        $store_dir = $post['store_dir'];
+        $server_ip_address = $post['server_ip_address'];
+                   
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+        $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+
+        // NEW Script
+        $result = exec($cmd, $output, $return_var);
+
+        $adminurl = new StoreWebsiteAdminUrl;
+        $adminurl->created_by = Auth::user()->id;
+        $adminurl->store_dir = $post['store_dir'];
+        $adminurl->server_ip_address = $post['server_ip_address'];
+        $adminurl->store_website_id = $post['store_website_id'];
+        $adminurl->website_url = $post['admin_url'];
+        $adminurl->admin_url = $post['admin_url'].$admin_url_var;
+        $adminurl->request_data = $cmd;
+        $adminurl->response_data = json_encode($result);
+        $adminurl->save();
+
+        return response()->json(['code' => 200, 'message' => 'Admin url has been successfully generated.', 'data' => $adminurl]);
+    }
+
+    public function adminUrlBulkGenerate(Request $request)
+    {
+        if ($request->has('ids') && empty($request->ids)) {
+            return response()->json(['success' => false, 'message' => 'The request parameter ids missing']);
+        }
+
+        foreach ($request->ids as $id) {
+
+            $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::where('id', $id)->first();
+
+            if(!empty($storeWebsiteAdminUrls)){
+
+                $admin_url_var = 'admin_'.$this->generateRandomString(6);
+                $password = '';
+                $store_dir = $storeWebsiteAdminUrls['store_dir'];
+                $server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                           
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+                $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+
+                // NEW Script
+                $result = exec($cmd, $output, $return_var);
+
+                $adminurl = new StoreWebsiteAdminUrl;
+                $adminurl->created_by = Auth::user()->id;
+                $adminurl->store_dir = $storeWebsiteAdminUrls['store_dir'];
+                $adminurl->server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                $adminurl->store_website_id = $storeWebsiteAdminUrls['store_website_id'];
+                $adminurl->admin_url = $storeWebsiteAdminUrls['website_url'].$admin_url_var;
+                $adminurl->request_data = $cmd;
+                $adminurl->response_data = json_encode($result);
+                $adminurl->save();
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
+    }
 }

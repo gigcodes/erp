@@ -44,12 +44,13 @@ class EmailController extends Controller
         $user = Auth::user();
         $admin = $user->isAdmin();
         $usernames = [];
-        if (! $admin) {
-            $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
+        if (!$admin) {
+            $emaildetails = \App\EmailAssign::select('id', 'email_address_id')
+                ->with('emailAddress:username')
+                ->where(['user_id' => $user->id])
+                ->getModels();
             if ($emaildetails) {
-                foreach ($emaildetails as $_email) {
-                    $usernames[] = $_email->emailAddress->username;
-                }
+                $usernames = array_map(fn ($item) => $item->emailAddress->username, $emaildetails);
             }
         }
 
@@ -231,7 +232,7 @@ class EmailController extends Controller
             $email_status = $email_status->where('type', '!=', 'sent');
         }
 
-        $email_status = $email_status->get();
+        $email_status = $email_status->get(['id', 'email_status']);
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
@@ -245,7 +246,7 @@ class EmailController extends Controller
             $email_categories = $email_categories->where('type', '!=', 'sent');
         }
 
-        $email_categories = $email_categories->get();
+        $email_categories = $email_categories->get(['id', 'category_name']);
 
         if ($request->ajax()) {
             return response()->json([
@@ -272,7 +273,21 @@ class EmailController extends Controller
         $totalEmail = Email::count();
         $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail, 'modelColors' => $modelColors])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',
+            [
+                'emails' => $emails,
+                'type' => 'email',
+                'search_suggestions' => $search_suggestions,
+                'email_status' => $email_status,
+                'email_categories' => $email_categories,
+                'emailModelTypes' => $emailModelTypes,
+                'reports' => $reports,
+                'digita_platfirms' => $digita_platfirms,
+                'receiver' => $receiver,
+                'from' => $from,
+                'totalEmail' => $totalEmail,
+                'modelColors' => $modelColors
+            ])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)
