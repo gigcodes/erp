@@ -136,6 +136,8 @@
 						html += "<td>" + v.admin_url + "</td>";
 						html += "<td>" + v.store_dir + "</td>";
 						html += "<td>" + v.server_ip_address + "</td>";
+						html += "<td>" + v.request_data + "</td>";
+						html += "<td>" + v.response_data + "</td>";
 						html += "<td class='expand-row' style='word-break: break-all'>";
 						html += "<span class='td-mini-container'>" + (v.user !== undefined ? (v.user.name.length > 15 ? v.user.name.substr(0, 15) + '...' : v.user.name) : ' - ' ) + "</span>";
 						html += "<span class='td-full-container hidden'>" + (v.user !== undefined ? v.user.name : ' - ' ) + "</span>";
