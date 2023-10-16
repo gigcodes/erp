@@ -45,6 +45,8 @@
 							<th width="30%">Admin Url</th>
 							<th width="30%">Store Directory</th>	
 							<th width="30%">Server Ip</th>
+							<th width="30%">Request Data</th>
+							<th width="30%">Response Data</th>
 							<th>Action</th>											
 						</tr>
 						</thead>

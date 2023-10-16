@@ -48,6 +48,12 @@ $i = 1;
 				</button>
 			</div>
 		</td>
+		<td width="30%">
+			{{$storeWebsiteAdminUrl->request_data}}
+		</td>
+		<td width="30%">
+			{{$storeWebsiteAdminUrl->response_data}}
+		</td>
 		<td>
 			<button type="button" data-id="{{$storeWebsiteAdminUrl->store_website_id}}" class="btn admin-url-history" style="padding:1px 0px;">
         		<i class="fa fa-info-circle" aria-hidden="true"></i>
