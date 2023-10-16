@@ -5136,6 +5136,7 @@ Route::get('product-pricing', [product_price\ProductPriceController::class, 'ind
 Route::post('store-website-product-prices/approve', [product_price\ProductPriceController::class, 'approve']);
 Route::get('store-website-product-prices', [product_price\ProductPriceController::class, 'store_website_product_prices'])->name('store-website-product-prices');
 Route::get('store-website-product-prices/history', [product_price\ProductPriceController::class, 'storewebsiteproductpriceshistory']);
+Route::get('store-website-product-skus', [product_price\ProductPriceController::class, 'store_website_product_skus'])->name('store-website-product-skus');
 
 Route::get('product-update-logs', [product_price\ProductPriceController::class, 'productUpdateLogs'])->name('product.update.logs');
 
