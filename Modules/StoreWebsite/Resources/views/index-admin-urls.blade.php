@@ -43,10 +43,12 @@
 							<th>Id</th>
 							<th width="30%">Website</th>
 							<th width="30%">Admin Url</th>
-							<th width="30%">Store Directory</th>	
-							<th width="30%">Server Ip</th>
+							<!-- <th width="30%">Store Directory</th>	
+							<th width="30%">Server Ip</th> -->
 							<th width="30%">Request Data</th>
 							<th width="30%">Response Data</th>
+							<th width="30%">Created By</th>
+							<th width="30%">Created Date</th>
 							<th>Action</th>											
 						</tr>
 						</thead>
@@ -134,8 +136,8 @@
 						html += "<td>" + (k + 1) + "</td>";
 						html += "<td>" + v.storewebsite.title + "</td>";
 						html += "<td>" + v.admin_url + "</td>";
-						html += "<td>" + v.store_dir + "</td>";
-						html += "<td>" + v.server_ip_address + "</td>";
+					/*	html += "<td>" + v.store_dir + "</td>";
+						html += "<td>" + v.server_ip_address + "</td>";*/
 						html += "<td>" + v.request_data + "</td>";
 						html += "<td>" + v.response_data + "</td>";
 						html += "<td class='expand-row' style='word-break: break-all'>";

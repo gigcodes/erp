@@ -1325,6 +1325,7 @@
                     toastr['success'](response.message, 'success');
 
                     $("#generated-admin-url").val(response.data.admin_url);
+                    $("#generated-admin-href").attr("href", response.data.admin_url)
                 }
 
             }).fail(function (response) {

@@ -168,7 +168,7 @@ class StoreWebsiteController extends Controller
     {
         $title = 'Admin Urls | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::get();
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->orderBy('id', 'DESC')->get();
 
         return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
     }
@@ -2232,7 +2232,7 @@ class StoreWebsiteController extends Controller
     {
         $datas = StoreWebsiteAdminUrl::with('user', 'storewebsite')
             ->where('store_website_id', $id)
-            ->latest()
+            ->orderBy('created_at', 'DESC')
             ->get();
 
         return response()->json([

@@ -389,7 +389,10 @@
                <div class="form-group">
                   <label for="instance_number">Admin URL</label></br>
                   <div style="display: flex">
-                      <input type="text" class="form-control" id="generated-admin-url" value="{{if last_adminurl}}{{:last_adminurl.admin_url}}{{/if}}">
+                      <a id="generated-admin-href" href ="{{if last_adminurl}}{{:last_adminurl.admin_url}}{{/if}}" target="_blank" style="display:flex; gap:5px"> 
+                           <input class="fileUrl" id="generated-admin-url" type="text" value="{{if last_adminurl}}{{:last_adminurl.admin_url}}{{/if}}" />
+                        </a>
+
                       <button type="button" data-id="" class="btn btn-sm btn-copy-admin-url" data-value="">
                           <i class="fa fa-clone" aria-hidden="true"></i>
                       </button>

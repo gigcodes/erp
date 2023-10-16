@@ -32,7 +32,7 @@ $i = 1;
 				</button>
 			</div>
 		</td>
-		<td width="30%">
+		<!-- <td width="30%">
 			<div style="display: flex">
 				<input type="text" class="form-control" name="store_dir[edit:{{$storeWebsiteAdminUrl->id}}]" value="{{$storeWebsiteAdminUrl->store_dir}}">
 				<button type="button" data-id="" class="btn btn-copy-server-ip btn-sm" data-value="{{$storeWebsiteAdminUrl->store_dir}}">
@@ -47,12 +47,18 @@ $i = 1;
 					<i class="fa fa-clone" aria-hidden="true"></i>
 				</button>
 			</div>
-		</td>
+		</td> -->
 		<td width="30%">
 			{{$storeWebsiteAdminUrl->request_data}}
 		</td>
 		<td width="30%">
 			{{$storeWebsiteAdminUrl->response_data}}
+		</td>
+		<td width="30%">
+			{{$storeWebsiteAdminUrl->user->name}}
+		</td>
+		<td width="30%">
+			{{$storeWebsiteAdminUrl->created_at}}
 		</td>
 		<td>
 			<button type="button" data-id="{{$storeWebsiteAdminUrl->store_website_id}}" class="btn admin-url-history" style="padding:1px 0px;">
