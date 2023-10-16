@@ -10,7 +10,7 @@ class AssetsManagerUsersAccessController extends Controller
     public function index(Request $request)
     {
         $user_accesses = new AssetManagerUserAccess;
-        $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->get();
+        $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->orderBy('created_at', 'DESC')->get();
         
         return view('assets-manager.user-access-listing', ['user_accesses' => $user_accesses]);
     }
