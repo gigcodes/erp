@@ -30,9 +30,9 @@ do
         esac
 done
 
-ssh root@65.21.155.81 "rsync -az /home*/$repo/shared/pub/static/ root@$server:/home/$repo/shared/pub/static/"
-echo "Assigning permissions"
-ssh root@$server "chown -R www-data.www-data /home/$repo/shared/pub/static ; service varnish restart ; service php7.3-fpm restart ; redis-cli -n 0 FLUSHDB; redis-cli -n 1 FLUSHDB;"
+ssh root@65.21.155.81 "rsync -az /home*/$repo/shared/pub/static/ root@$server:/home/$repo/shared/pub/static/" | tee -a ${SCRIPT_NAME}.log
+echo "Assigning permissions" | tee -a ${SCRIPT_NAME}.log
+ssh root@$server "chown -R www-data.www-data /home/$repo/shared/pub/static ; service varnish restart ; service php7.3-fpm restart ; redis-cli -n 0 FLUSHDB; redis-cli -n 1 FLUSHDB;" | tee -a ${SCRIPT_NAME}.log
 
 if [[ $? -eq 0 ]]
 then

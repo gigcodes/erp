@@ -7,14 +7,14 @@ ScriptDIR=`dirname "$0"`
 datetime=`date +%d%b%y-%H:%M`
 
 rm /tmp/scrap_* /opt/scrap_status /tmp/chromimum_service
-echo "" > /opt/scrap_restart
+echo "" > /opt/scrap_restart | tee -a ${SCRIPT_NAME}.log
 
 ####################    Get all running Scraper details in all servers #######
 function scraper_status
 {
 	for server in 0{1..9} {10..10}
 	do
-	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep command|grep -v externalScraper|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null
+	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep command|grep -v externalScraper|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null | tee -a ${SCRIPT_NAME}.log
 	done
 }
 
@@ -29,7 +29,7 @@ function scraper_memory
 		then
 			Used_mem="100.00"
 		fi
-		echo $server $Used_mem >> /tmp/scrap_memory
+		echo $server $Used_mem >> /tmp/scrap_memory | tee -a ${SCRIPT_NAME}.log
 	done
 }
 
@@ -46,16 +46,16 @@ function scraper_restart_list
 			then
 				server=`echo $status|cut -d' ' -f1`
 				pid=`echo $status|cut -d' ' -f2`
-				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "pkill -9 -P $pid ; kill -9 $pid" < /dev/null
-				sed -i "/$scrap/d" /opt/scrap_status
-				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-restart-$datetime
+				ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "pkill -9 -P $pid ; kill -9 $pid" < /dev/null | tee -a ${SCRIPT_NAME}.log
+				sed -i "/$scrap/d" /opt/scrap_status | tee -a ${SCRIPT_NAME}.log
+				echo "$scrap" |tee -a /tmp/scrap_restart |tee -a /opt/scrap_restart |tee -a /opt/scraper/scrap-restart-$datetime | tee -a ${SCRIPT_NAME}.log
 			fi
 		else
 			scrapfile=`echo $scrap|cut -d'.' -f1`
 			logfile=`find /mnt/logs/ -mmin -720 -iname "$scrapfile-*.log"|wc -l`
 			if [ $logfile -eq 0 ]
 			then
-				echo "$scrap" |tee -a /tmp/scrap_restart|tee -a /opt/scraper/scrap-start-$datetime
+				echo "$scrap" |tee -a /tmp/scrap_restart|tee -a /opt/scraper/scrap-start-$datetime | tee -a ${SCRIPT_NAME}.log
 			fi
 		fi
 	done < $ScriptDIR/scraper-list.txt
@@ -66,7 +66,7 @@ function chromium_kill
 {
 	for server in 0{1..9} {10..10}
 	do
-	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep chromium|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$3}'" >> /tmp/chromimum_service 2>/dev/null
+	        ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep chromium|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$3}'" >> /tmp/chromimum_service 2>/dev/null | tee -a ${SCRIPT_NAME}.log
 	done
 
 	while read process
@@ -76,7 +76,7 @@ function chromium_kill
 		then
 			server=`echo $process|cut -d' ' -f1`
 			pid=`echo $process|cut -d' ' -f2`
-			ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null
+			ssh -i ~/.ssh/id_rsa root@s$server.theluxuryunlimited.com "kill -9 $pid" < /dev/null | tee -a ${SCRIPT_NAME}.log
 		fi
 	done < /tmp/chromimum_service
 }
@@ -84,8 +84,8 @@ function chromium_kill
 ########### Restart Scraper #####
 function scraper_restart
 {
-	echo "############ Below Scrappers will be Restarted ##############################"
-	cat /tmp/scrap_restart
+	echo "############ Below Scrappers will be Restarted ##############################" | tee -a ${SCRIPT_NAME}.log
+	cat /tmp/scrap_restart | tee -a ${SCRIPT_NAME}.log
 	while read scraperjs
 	do
 		scraper_memory < /dev/null
@@ -95,23 +95,23 @@ function scraper_restart
 		if [ $minmemory -gt 75 ]
 		then
 			email=`sed -ne "/$scraperjs/,$ p" /tmp/scrap_restart|cut -d' ' -f1`
-			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com
-			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com 
-			echo "No server has free memory more than 10%"
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" sahilkataria.1989@gmail.com | tee -a ${SCRIPT_NAME}.log
+			echo $email |mail -s "No Scraper server has free memory more than 25% so exiting script" yogeshmordani@icloud.com | tee -a ${SCRIPT_NAME}.log
+			echo "No server has free memory more than 10%" | tee -a ${SCRIPT_NAME}.log
 			chromium_kill
 			exit
 		fi
-		echo $server $scraper $datetime > /tmp/scrap_process
+		echo $server $scraper $datetime > /tmp/scrap_process | tee -a ${SCRIPT_NAME}.log
 		scraperfile=`ssh -i ~/.ssh/id_rsa -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "find /root/scraper_nodejs/commands/completeScraps/ -iname $scraper.js" < /dev/null`
-		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null
+		ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "nohup node $scraperfile &> /root/logs/$scraper-$datetime.log &" < /dev/null | tee -a ${SCRIPT_NAME}.log
 		if [ $? -eq 0 ]
 		then
-	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null 
+	                ssh -o ConnectTimeout=5 root@s$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraperjs|grep -v grep|awk -v var=$server '{print var, \$1 , \$2/3600 , \$4}'" >> /opt/scrap_status 2>/dev/null < /dev/null | tee -a ${SCRIPT_NAME}.log
 			date=`date +'%F-%T'`
 			day=`date +'%d'`
-			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history
+			echo "$scraper s$server $date Processing-$scraper-$day-s$server" >> /opt/scrap_history | tee -a ${SCRIPT_NAME}.log
 		fi
-		echo "Wait for 60 Seconds before starting another scrapper"
+		echo "Wait for 60 Seconds before starting another scrapper" | tee -a ${SCRIPT_NAME}.log
 		sleep 60
 	done < /tmp/scrap_restart
 }

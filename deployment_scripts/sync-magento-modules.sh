@@ -63,7 +63,7 @@ SSHPORT="22480 2112 22"
 
 for portssh in $SSHPORT
 do
-        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit'
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
         if [ $? -ne 255 ]
         then
                 PORT=`echo $portssh`
@@ -75,7 +75,7 @@ done
 
 function madd()
 {
-	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; composer require $modulename"
+	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; composer require $modulename" | tee -a ${SCRIPT_NAME}.log
 
 }
 
@@ -141,9 +141,9 @@ module_status()
 	cd brands-labels
 	sed -i "s/.*'$MNAME'.*/\t'$MNAME' => $EDF,/" app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php
 
-	git add app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php   &> /dev/null
-	git commit -m 'Deployment config erp'  &> /dev/null
-	git push origin stage  &> /dev/null
+	git add app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php   &> /dev/null | tee -a ${SCRIPT_NAME}.log
+	git commit -m 'Deployment config erp'  &> /dev/null | tee -a ${SCRIPT_NAME}.log
+	git push origin stage  &> /dev/null | tee -a ${SCRIPT_NAME}.log
 	if [ $? -eq 0 ]
 	then
 		echo "{\"status\":\"success\"}"

@@ -153,16 +153,16 @@ fi
 
 if [ "$function" = "create" ]
 then
-	Create
+	Create | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "delete" ]
 then
-	Delete
+	Delete | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "update" ]
 then
-	Update
+	Update | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "revoke" ]
 then
-	Revoke
+	Revoke | tee -a ${SCRIPT_NAME}.log
 fi
 
 

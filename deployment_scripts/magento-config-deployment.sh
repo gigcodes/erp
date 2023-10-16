@@ -65,9 +65,9 @@ done
 function set_variable {
 	if [ $type != "sensitive" ]
 	then
-		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value"
+		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value" | tee -a ${SCRIPT_NAME}.log
 	else
-		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'"
+		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'" | tee -a ${SCRIPT_NAME}.log
         	if [ $? -ne 0 ]
 		then
 	                exit 1
@@ -78,11 +78,11 @@ function set_variable {
 if [ $type != "sensitive" ]
 then
 	cd /opt/magento/$repo
-	git reset --hard origin/stage
-	git pull origin stage
-	composer install
-	php -f bin/magento -- deploy:mode:set production --skip-compilation
-	php bin/magento app:config:dump
+	git reset --hard origin/stage | tee -a ${SCRIPT_NAME}.log
+	git pull origin stage | tee -a ${SCRIPT_NAME}.log
+	composer install | tee -a ${SCRIPT_NAME}.log
+	php -f bin/magento -- deploy:mode:set production --skip-compilation | tee -a ${SCRIPT_NAME}.log
+	php bin/magento app:config:dump | tee -a ${SCRIPT_NAME}.log
 fi
 if [ -z $file ]
 then
@@ -101,17 +101,17 @@ fi
 if [ $type != "sensitive" ]
 then
 	###### Dump changes from database and push to stage branch ###
-	php bin/magento app:config:dump
-	git add app/etc/config.php
-	git commit -m 'Deployment config erp'
-	git push origin stage
+	php bin/magento app:config:dump | tee -a ${SCRIPT_NAME}.log
+	git add app/etc/config.php | tee -a ${SCRIPT_NAME}.log
+	git commit -m 'Deployment config erp' | tee -a ${SCRIPT_NAME}.log
+	git push origin stage | tee -a ${SCRIPT_NAME}.log
 
 	sleep 10
 	##### Create PR from stage to master ####
 	pull_number=`curl -XPOST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ludxb/$repo/pulls -d '{"head":"stage","base":"master","title":"config deployment from erp"}' |grep '"number"'|awk '{print $2}'|cut -d',' -f1`
 
 	##### Merge PR ####
-	curl -XPUT -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/ludxb/$repo/pulls/$pull_number/merge
+	curl -XPUT -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/ludxb/$repo/pulls/$pull_number/merge | tee -a ${SCRIPT_NAME}.log
 fi
 
 

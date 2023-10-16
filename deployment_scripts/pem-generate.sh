@@ -56,18 +56,18 @@ fi
 #################################################################################################################################################
 if [ "$server" == "Erp-Server" ]		### Check for Erp Server
 then
-	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com -p2112 "$command"
+	ssh -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com -p2112 "$command" | tee -a ${SCRIPT_NAME}.log
 
 elif [ "$server" == "s01" ] || [ "$server" == "s02" ] || [ "$server" == "s03" ] || [ "$server" == "s04" ] || [ "$server" == "s05" ] || [ "$server" == "s06" ] || [ "$server" == "s07" ] || [ "$server" == "s08" ] || [ "$server" == "s09" ] || [ "$server" == "s10" ] || [ "$server" == "s11" ] || [ "$server" == "s12" ] || [ "$server" == "s13" ] || [ "$server" == "s14" ] || [ "$server" == "s15" ]
 then
-	ssh -i ~/.ssh/id_rsa root@$server.theluxuryunlimited.com "$command"
+	ssh -i ~/.ssh/id_rsa root@$server.theluxuryunlimited.com "$command" | tee -a ${SCRIPT_NAME}.log
 
 elif [ "$server" == "Cropper-Server" ]		### Check for Cropper Server
 then
-	ssh -i ~/.ssh/id_rsa root@178.62.200.246 "$command"
+	ssh -i ~/.ssh/id_rsa root@178.62.200.246 "$command" | tee -a ${SCRIPT_NAME}.log
 else
 	hostip=`grep $server'_HOST' /var/www/erp.theluxuryunlimited.com/.env|cut -d'=' -f2`
-	ssh -i ~/.ssh/id_rsa root@$hostip "$command"
+	ssh -i ~/.ssh/id_rsa root@$hostip "$command" | tee -a ${SCRIPT_NAME}.log
 fi
 
 

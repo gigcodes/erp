@@ -41,7 +41,7 @@ fi
 if [ "$function" = "reindex" ]
 then
 	hostip=`grep $server'_HOST' /var/www/erp.theluxuryunlimited.com/.env|cut -d'=' -f2`
-	ssh -i ~/.ssh/id_rsa root@$hostip "cd /home/*/current/ ; php bin/magento index:reset ; php bin/magento index:reindex ; chown -R www-data.www-data * ; redis-cli -n 0 FLUSHDB; redis-cli -n 1 FLUSHDB; service varnish restart"
+	ssh -i ~/.ssh/id_rsa root@$hostip "cd /home/*/current/ ; php bin/magento index:reset ; php bin/magento index:reindex ; chown -R www-data.www-data * ; redis-cli -n 0 FLUSHDB; redis-cli -n 1 FLUSHDB; service varnish restart" | tee -a ${SCRIPT_NAME}.log
 	#if [ $? -eq 0 ]
 	#then
 	#	exit 0

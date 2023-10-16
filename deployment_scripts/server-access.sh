@@ -49,9 +49,9 @@ if [ "$function" = "userpass" ]
 then
 	if [ "$type" == "ssh" ]
 	then
-		ssh root@$server "echo '$user:$password' | chpasswd"
+		ssh root@$server "echo '$user:$password' | chpasswd" | tee -a ${SCRIPT_NAME}.log
 	else
-		echo "db"
+		echo "db" | tee -a ${SCRIPT_NAME}.log
 	fi
 	
 fi

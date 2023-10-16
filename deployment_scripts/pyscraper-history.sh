@@ -3,17 +3,17 @@ SCRIPT_NAME=`basename $0`
 
 while read line
 do
-	echo "$line"|grep Processing
+	echo "$line"|grep Processing | tee -a ${SCRIPT_NAME}.log
 	if [ $? -eq 0 ]
 	then
 		scraper=`echo "$line"|cut -d' ' -f1`
 		server=`echo "$line"|cut -d' ' -f2`
 		day=`echo "$line"|cut -d' ' -f3|cut -d'-' -f3`
-		ssh -o ConnectTimeout=5 root@$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraper|grep -v grep" < /dev/null
+		ssh -o ConnectTimeout=5 root@$server.theluxuryunlimited.com "ps -eo pid,etimes,args|grep $scraper|grep -v grep" < /dev/null | tee -a ${SCRIPT_NAME}.log
 		if [ $? -ne 0 ]
 		then
 			endtime=`stat -c '%y' /mnt/logs/$server/$scraper-$day.log|cut -d'.' -f1|tr ' ' '-'`
-			sed -i "s/Processing-$scraper-$day-$server/$endtime/" /opt/pyscrap_history
+			sed -i "s/Processing-$scraper-$day-$server/$endtime/" /opt/pyscrap_history | tee -a ${SCRIPT_NAME}.log
 		fi
 	fi
 done < /opt/pyscrap_history
