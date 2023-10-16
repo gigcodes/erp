@@ -2600,7 +2600,7 @@ class StoreWebsiteController extends Controller
         $adminurl->server_ip_address = $post['server_ip_address'];
         $adminurl->store_website_id = $post['store_website_id'];
         $adminurl->website_url = $post['admin_url'];
-        $adminurl->admin_url = $post['admin_url'].'/admin_'.$this->generateRandomString(6);
+        $adminurl->admin_url = $post['admin_url'].$admin_url_var;
         $adminurl->request_data = $cmd;
         $adminurl->response_data = json_encode($result);
         $adminurl->save();
@@ -2637,7 +2637,7 @@ class StoreWebsiteController extends Controller
                 $adminurl->store_dir = $storeWebsiteAdminUrls['store_dir'];
                 $adminurl->server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
                 $adminurl->store_website_id = $storeWebsiteAdminUrls['store_website_id'];
-                $adminurl->admin_url = $storeWebsiteAdminUrls['website_url'].'/admin_'.$this->generateRandomString(6);
+                $adminurl->admin_url = $storeWebsiteAdminUrls['website_url'].$admin_url_var;
                 $adminurl->request_data = $cmd;
                 $adminurl->response_data = json_encode($result);
                 $adminurl->save();
