@@ -382,6 +382,7 @@ use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\MonitStatusController;
 use App\Http\Controllers\MagentoProblemController;
 use App\Http\Controllers\ScriptDocumentsController;
+use App\Http\Controllers\AssetsManagerUsersAccessController;
 
 Auth::routes();
 
@@ -2866,6 +2867,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/send/email', [AssetsManagerController::class, 'assetsManagerSendEmail'])->name('asset.manage.send.email');
     Route::post('assets-manager/records/permission', [AssetsManagerController::class, 'assetsManagerRecordPermission'])->name('asset.manage.records.permission');
     Route::post('assets-manager/linkuser/list', [AssetsManagerController::class, 'linkUserList'])->name('assetsmanager.linkuser.list');
+    Route::post('assets-manager/users', [AssetsManagerController::class, 'assetManamentUsers'])->name('assetsmanager.assetManamentUsers');
+    Route::post('assets-manager/users_access', [AssetsManagerController::class, 'assetManamentUsersAccess'])->name('assetsmanager.assetManamentUsersAccess');
+    Route::post('assets-manager/user-access-create', [AssetsManagerController::class, 'createUserAccess']);
+    Route::post('assets-manager/user-access-delete', [AssetsManagerController::class, 'deleteUserAccess']);
+    Route::get('assets-manager/user_accesses', [AssetsManagerController::class, 'assetsManagerUserAccessList'])->name('assets_manager_user_accesses');
+    Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
@@ -3282,6 +3289,8 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
     Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
+    
+    Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
     Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
     Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
