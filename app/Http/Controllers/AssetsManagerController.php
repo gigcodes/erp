@@ -730,7 +730,8 @@ class AssetsManagerController extends Controller
             $action = "add";
             $SFTP = true;
             $ssh = true;
-            $server = 'demo.mio-moda.com';
+            //$server = 'demo.mio-moda.com';
+            $server = strval($request->server_var);
                        
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 

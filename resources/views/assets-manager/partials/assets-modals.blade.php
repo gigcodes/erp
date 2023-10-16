@@ -912,6 +912,7 @@
 
                         <div class="row">
                             <input type="hidden" name="assets_management_id" id="assets_management_id">
+                            <input type="hidden" name="assets_management_ip_address" id="assets_management_ip_address">
                             <div class="col-md-3"> 
                                 <div class="form-group">
                                     <strong>Select Users:</strong>            
@@ -925,8 +926,8 @@
                                 <div class="form-group">
                                     <strong>User Role:</strong>                    
                                     <select class="form-control ua_user_role" name="user_role" id="user_role">
-                                        <option value="user">User</option>
-                                        <option value="magento">Magento</option>
+                                        <option value="user">Readonly</option>
+                                        <option value="magento">Developer</option>
                                         <option value="super">Super</option>
                                     </select>
                                     <span class="text-danger text-danger-access"></span>

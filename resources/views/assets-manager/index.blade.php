@@ -204,7 +204,7 @@
                       <i class="fa fas fa-toggle-{{$asset->active == 1 ? 'on' : 'off  '}}"></i>
                     </button>
 
-                    <button type="button" class="btn show-users-access-modal" id="show-users-access-modal-{{$asset->id}}" data-id="{{$asset->id}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
+                    <button type="button" class="btn show-users-access-modal" id="show-users-access-modal-{{$asset->id}}" data-id="{{$asset->id}}" data-value="{{$asset->ip}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
                         <i class="fa fas fa-universal-access"></i>
                     </button>
                 </td>
@@ -856,6 +856,8 @@
 
             var assets_management_id = $(this).data('id');
 
+            var assets_management_ip = $(this).data('value');
+
             $.ajax({
                 type: 'POST',
                 headers: {
@@ -870,6 +872,7 @@
                 if(response.success==true){
                     $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
                     $('#showAssetsManagementUsersModel #assets_management_id').val(assets_management_id);
+                    $('#showAssetsManagementUsersModel #assets_management_ip_address').val(assets_management_ip);
                     $('#showAssetsManagementUsersModel').modal('show');                    
                 }
 
@@ -912,7 +915,7 @@
             return false;
         }
 
-        if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('.assets_management_id').val() != '' && $('.ua_user_role').val() != '' && $('.ua_login_type').val() != '') {
+        if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('#assets_management_id').val() != '' && $('.ua_user_role').val() != '' && $('.ua_login_type').val() != '' && $('#assets_management_ip_address').val() != '') {
         
             $.ajax({
                 type: 'POST',
@@ -928,7 +931,8 @@
                     user_role : $('.ua_user_role').val(),
                     login_type : $('.ua_login_type').val(),
                     key_type : $('.ua_key_type').val(),
-                    assets_management_id : $('#assets_management_id').val()
+                    assets_management_id : $('#assets_management_id').val(),
+                    server_var : $('#assets_management_ip_address').val(),
                 },
                 dataType: "json"
             }).done(function (response) {
