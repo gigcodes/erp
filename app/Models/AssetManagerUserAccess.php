@@ -12,4 +12,9 @@ class AssetManagerUserAccess extends Model
     use SoftDeletes;
 
     protected $fillable = ['assets_management_id', 'user_id', 'created_by', 'username', 'password', 'usernamehost', 'login_type', 'key_type', 'user_role', 'request_data', 'response_data'];
+
+    public function user()
+    {
+        return $this->hasOne(\App\User::class, 'id', 'created_by')->select('name','id');
+    }
 }

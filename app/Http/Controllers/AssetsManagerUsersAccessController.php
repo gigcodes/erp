@@ -10,7 +10,22 @@ class AssetsManagerUsersAccessController extends Controller
     public function index(Request $request)
     {
         $user_accesses = new AssetManagerUserAccess;
-        $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->orderBy('created_at', 'DESC')->get();
+        $user_accesses = $user_accesses::with(['user'])->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->orderBy('created_at', 'DESC');
+
+        $keyword = request('keyword', '');
+        $created_by = request('created_by');
+
+        if (! empty($keyword)) {
+            $user_accesses = $user_accesses->where(function ($q) use ($keyword) {
+                $q->where('asset_manager_user_accesses.username', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
+        if (! empty($created_by)) {
+            $user_accesses = $user_accesses->whereIn('asset_manager_user_accesses.created_by', $created_by);
+        }
+
+        $user_accesses = $user_accesses->orderBy("created_at", "DESC")->get();
         
         return view('assets-manager.user-access-listing', ['user_accesses' => $user_accesses]);
     }
