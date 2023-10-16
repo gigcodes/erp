@@ -157,7 +157,7 @@ class StoreWebsiteController extends Controller
     {
         $title = 'Admin Urls | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::get();
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->get();
 
         return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
     }

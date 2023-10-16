@@ -24,7 +24,7 @@ $i = 1;
 			</div>
 		</td>	
 
-		<td width="30%">
+		<!-- <td width="30%">
 			<div style="display: flex">
 				<input type="text" class="form-control" name="admin_url[edit:{{$storeWebsiteAdminUrl->id}}]" value="{{$storeWebsiteAdminUrl->admin_url}}">
 				<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="{{$storeWebsiteAdminUrl->admin_url}}">
@@ -39,7 +39,7 @@ $i = 1;
 					<i class="fa fa-clone" aria-hidden="true"></i>
 				</button>
 			</div>
-		</td>
+		</td> -->
 		<td width="30%">
 			<div style="display: flex">
 				<input type="text" class="form-control" name="server_ip_address[edit:{{$storeWebsiteAdminUrl->id}}]" value="{{$storeWebsiteAdminUrl->server_ip_address}}">
@@ -53,6 +53,12 @@ $i = 1;
 		</td>
 		<td width="30%">
 			{{$storeWebsiteAdminUrl->response_data}}
+		</td>
+		<td width="30%">
+			{{$storeWebsiteAdminUrl->response_data}}
+		</td>
+		<td width="30%">
+			{{$storeWebsiteAdminUrl->created_at}}
 		</td>
 		<td>
 			<button type="button" data-id="{{$storeWebsiteAdminUrl->store_website_id}}" class="btn admin-url-history" style="padding:1px 0px;">
