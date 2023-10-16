@@ -24,7 +24,7 @@ class StoreWebsiteAdminUrl extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->select('name', 'id');
     }
 
     public function storewebsite()

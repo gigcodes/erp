@@ -55,7 +55,7 @@ $i = 1;
 			{{$storeWebsiteAdminUrl->response_data}}
 		</td>
 		<td width="30%">
-			{{$storeWebsiteAdminUrl->response_data}}
+			{{$storeWebsiteAdminUrl->user->name}}
 		</td>
 		<td width="30%">
 			{{$storeWebsiteAdminUrl->created_at}}
