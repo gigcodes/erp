@@ -23,6 +23,10 @@ var page = {
       e.preventDefault();
       page.createRecord();
     });
+    page.config.bodyView.on("click", ".btn-add-action-password", function (e) {
+      e.preventDefault();
+      page.createRecordPassword();
+    });
     page.config.bodyView.on("click", ".load-duplicate-modal", function (e) {
       e.preventDefault();
       page.createDuplicate($(this).data("id"));
@@ -424,6 +428,14 @@ var page = {
   },
   createRecord: function (response) {
     var createWebTemplate = $.templates("#template-create-website");
+    var tplHtml = createWebTemplate.render({ data: {} });
+
+    var common = $(".common-modal");
+    common.find(".modal-dialog").html(tplHtml);
+    common.modal("show");
+  },
+  createRecordPassword: function (response) {
+    var createWebTemplate = $.templates("#template-create-website-password");
     var tplHtml = createWebTemplate.render({ data: {} });
 
     var common = $(".common-modal");
@@ -897,7 +909,7 @@ var page = {
       url:
         typeof href != "undefined"
           ? href
-          : this.config.baseUrl + "/store-website/save-user-in-magento",
+          : this.config.baseUrl + "/store-website/save-user-in-magento-admin-password",
       method: "post",
       data: {
         _token: $('meta[name="csrf-token"]').attr("content"),
