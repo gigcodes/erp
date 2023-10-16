@@ -24,7 +24,7 @@ $i = 1;
 			</div>
 		</td>	
 
-		<!-- <td width="30%">
+		<td width="30%">
 			<div style="display: flex">
 				<input type="text" class="form-control" name="admin_url[edit:{{$storeWebsiteAdminUrl->id}}]" value="{{$storeWebsiteAdminUrl->admin_url}}">
 				<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="{{$storeWebsiteAdminUrl->admin_url}}">
@@ -32,14 +32,14 @@ $i = 1;
 				</button>
 			</div>
 		</td>
-		<td width="30%">
+		<!-- <td width="30%">
 			<div style="display: flex">
 				<input type="text" class="form-control" name="store_dir[edit:{{$storeWebsiteAdminUrl->id}}]" value="{{$storeWebsiteAdminUrl->store_dir}}">
 				<button type="button" data-id="" class="btn btn-copy-server-ip btn-sm" data-value="{{$storeWebsiteAdminUrl->store_dir}}">
 					<i class="fa fa-clone" aria-hidden="true"></i>
 				</button>
 			</div>
-		</td> -->
+		</td>
 		<td width="30%">
 			<div style="display: flex">
 				<input type="text" class="form-control" name="server_ip_address[edit:{{$storeWebsiteAdminUrl->id}}]" value="{{$storeWebsiteAdminUrl->server_ip_address}}">
@@ -47,7 +47,7 @@ $i = 1;
 					<i class="fa fa-clone" aria-hidden="true"></i>
 				</button>
 			</div>
-		</td>
+		</td> -->
 		<td width="30%">
 			{{$storeWebsiteAdminUrl->request_data}}
 		</td>

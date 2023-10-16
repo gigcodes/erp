@@ -136,8 +136,8 @@
 						html += "<td>" + (k + 1) + "</td>";
 						html += "<td>" + v.storewebsite.title + "</td>";
 						html += "<td>" + v.admin_url + "</td>";
-						html += "<td>" + v.store_dir + "</td>";
-						html += "<td>" + v.server_ip_address + "</td>";
+					/*	html += "<td>" + v.store_dir + "</td>";
+						html += "<td>" + v.server_ip_address + "</td>";*/
 						html += "<td>" + v.request_data + "</td>";
 						html += "<td>" + v.response_data + "</td>";
 						html += "<td class='expand-row' style='word-break: break-all'>";
