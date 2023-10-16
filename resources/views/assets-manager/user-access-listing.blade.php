@@ -70,4 +70,13 @@
 	</div>
 </div>
 @endsection
-
+@section('scripts')
+<script type="text/javascript">
+$(".btn-copy-password").click(function() {
+            var password = $(this).data('id');
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(password).select();
+            document.execCommand("copy");
+            $temp.remove();
+        });

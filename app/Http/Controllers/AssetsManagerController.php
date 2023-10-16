@@ -698,7 +698,7 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $i . '</td>';
                     $html .= '<td>' . $user_access->selectedUser . '</td>';
                     $html .= '<td>' . $user_access->username . '</td>';
-                    $html .= '<td>' . $user_access->password . '</td>';
+                    $html .= '<td>' . $user_access->password . '<button type="button"  class="btn btn-copy-password btn-sm float-right" data-id="'.$user_access->password.'"><i class="fa fa-clone" aria-hidden="true"></i></td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
                     $html .= '<td>' . $user_access->request_data . '</td>';
                     $html .= '<td>' . $user_access->response_data . '</td>';
