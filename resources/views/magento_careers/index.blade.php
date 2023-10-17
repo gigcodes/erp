@@ -71,7 +71,7 @@
                                         {{ $career->getType() }}
                                     </td>
                                     <td class="td-description-{{ $career->getId() }}">
-                                        {{ $career->getDescription() }}
+                                        {{ Str::limit($career->getDescription(), 255) }}
                                     </td>
                                     <td class="text-center">
                                     <span class="td-mini-container">
