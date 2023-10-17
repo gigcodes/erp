@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import subprocess
+import base64
 
 app = Flask(__name__)
 
@@ -7,9 +8,13 @@ app = Flask(__name__)
 def execute_command():
     data = request.get_json()
     command = data.get('command')
+    commandbase64 = base64.b64encode(command.encode())
+    base64_string = commandbase64.decode()
+    print(commandbase64)
+    print(base64_string)
     server = data.get('server')
     magdir = data.get('dir')
-    bashscript = "/root/commands.sh -c \"" + command + "\" -s \"" + server + "\" -d \"" + magdir + "\""
+    bashscript = "/root/commands.sh -c \"" + base64_string + "\" -s \"" + server + "\" -d \"" + magdir + "\""
     print(bashscript)
     
     try:
