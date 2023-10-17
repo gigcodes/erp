@@ -80,7 +80,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->whereIn('magento_settings.created_by', $request->user_name);
         }
 
-        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(1);
+        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
