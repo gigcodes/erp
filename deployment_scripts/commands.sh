@@ -36,7 +36,7 @@ do
 done
 
 
-if [ -z "$server" ] || [ -z "$variable2" ]; then
+if [ -z "$server" ] || [ -z "$rootdir" ]; then
     # Both variables are null or missing, so execute your help function
     echo "Please check for missing variables"
     HELP
@@ -49,7 +49,7 @@ SSHPORT="22480 2112 22"
 
 for portssh in $SSHPORT
 do
-        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit'
+        ssh -p $portssh  -i $SSH_KEY -q root@$server 'exit'
         if [ $? -ne 255 ]
         then
                 PORT=`echo $portssh`
@@ -58,7 +58,11 @@ done
 
 if [ -z "$rootdir" ]
 then
-	ssh -p $PORT -i $SSH_KEY root@$server "$command"
+#	echo "ssh -p $PORT -i $SSH_KEY root@$server \"$command\""
+	ssh -p $PORT -i $SSH_KEY root@$server "base64 -d <<< $command | sh"
+
 else
-	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; $command"
+#	echo "ssh -p $PORT -i $SSH_KEY root@$server \"cd $rootdir; $command\""
+	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; base64 -d <<< $command | sh"
+
 fi
