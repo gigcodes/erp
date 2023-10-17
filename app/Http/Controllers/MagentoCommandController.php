@@ -133,12 +133,12 @@ class MagentoCommandController extends Controller
 
             if(!empty($request->command_name) && !empty($request->websites_ids)){
 
-                $path = 'bss_geoip/general/country';
+                //$path = 'bss_geoip/general/country';
 
-                $value = 'QA';
+                //$value = 'QA';
 
                 $requestData['command'] = 'bin/magento config:set '.$request->command_name;
-                $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+                //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
 
                 $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
 
@@ -185,7 +185,7 @@ class MagentoCommandController extends Controller
 
                     \Log::info("Test response".print_r($response, true));
                     
-                    MysqlCommandRunLog::create([
+                    MagentoCommandRunLog::create([
                             'command_id' => $mCom->id,
                             'user_id' => \Auth::user()->id ?? '',
                             'website_ids' => 'ERP', //$request->websites_ids
