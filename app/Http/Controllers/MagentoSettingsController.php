@@ -80,7 +80,7 @@ class MagentoSettingsController extends Controller
             $magentoSettings->whereIn('magento_settings.created_by', $request->user_name);
         }
 
-        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
+        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(1);
         $storeWebsites = StoreWebsite::get();
         $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
@@ -378,6 +378,46 @@ class MagentoSettingsController extends Controller
         }
 
         $entity = MagentoSetting::find($entity_id);
+
+
+        $requestData['commandVar'] = 'bin/magento '.$path.' '.$value;
+
+        $storeWebsiteData = StoreWebsite::where('id', $m->store_website_id)->first();
+
+        if(!empty($storeWebsiteData)){
+            $requestData['serverVar'] = $storeWebsiteData->server_ip;
+            $requestData['dirVar'] = $storeWebsiteData->working_directory;
+        }
+
+        if(!empty($requestData['commandVar']) && !empty($requestData['serverVar']) && !empty($requestData['dirVar'])){
+
+            $requestJson = json_encode($requestData);
+
+            // Initialize cURL session
+            $ch = curl_init();
+
+            // Set cURL options for a POST request
+            curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+
+            // Execute cURL session and store the response in a variable
+            $response = curl_exec($ch);
+
+            // Check for cURL errors
+            if(curl_errno($ch)) {
+                echo 'Curl error: ' . curl_error($ch);
+            }
+
+            // Close cURL session
+            curl_close($ch);
+
+            // Process the response
+            print_r($response);
+            exit;
+
+        }
 
         // // #DEVTASK-23677-api implement for admin settings
         // \Log::info("Setting Scope : ".$scope);
