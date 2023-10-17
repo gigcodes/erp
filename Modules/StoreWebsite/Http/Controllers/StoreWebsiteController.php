@@ -66,6 +66,7 @@ use App\Language;
 use App\Models\GoogleTranslateCsvData;
 use App\Models\WebsiteStoreProject;
 use App\Models\StoreWebsiteCsvPullHistory;
+use App\Models\StoreWebsiteAdminUrl;
 
 class StoreWebsiteController extends Controller
 {
@@ -143,13 +144,33 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index-api-token', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
 
-    public function adminPassword()
+    public function adminPassword(Request $request)
     {
+
+        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0);
+
+        if ($keyword = request('storewebsiteid')) {
+            $storeWebsiteUsers = $storeWebsiteUsers->where(function ($q) use ($keyword) {
+                $q->whereIn('store_website_id', $keyword);
+            });
+        }
+
+        $storeWebsiteUsers = $storeWebsiteUsers->get();
+
         $title = 'Admin Password | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
-        $storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
+        //$storeWebsiteUsers = StoreWebsiteUsers::where('is_deleted', 0)->get();
 
-        return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
+        return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers', 'request'));
+    }
+
+    public function adminUrls()
+    {
+        $title = 'Admin Urls | Store Website';
+        $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->orderBy('id', 'DESC')->get();
+
+        return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
     }
 
     public function getApiTokenLogs(Request $request)
@@ -786,6 +807,123 @@ class StoreWebsiteController extends Controller
         }
     }
 
+    public function saveUserInMagentoAdminPassword(Request $request)
+    {
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'username' => 'required',
+            'firstName' => 'required',
+            'lastName' => 'required',
+            'userEmail' => 'required',
+            'password' => 'required',
+            'websitemode' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
+        }
+
+        $storeWebsites = StoreWebsite::where('id', '=', $post['store_id'])->orWhere('parent_id', '=', $post['store_id'])->get();
+        $count = 0;
+        foreach ($storeWebsites as $key => $storeWebsite) {
+            $this->savelogwebsiteuser('#2', $storeWebsite->id, $post['username'], $post['userEmail'], $post['firstName'], $post['lastName'], $post['password'], $post['websitemode'], 'For this Website ' . $storeWebsite->id . ' ,A user has been updated.');
+
+            $checkUserNameExist = '';
+            if (! empty($post['store_website_userid'])) {
+                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->where('id', '<>', $post['store_website_userid'])->first();
+                if (empty($checkUserExist)) {
+                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->where('id', '<>', $post['store_website_userid'])->first();
+                }
+            } else {
+                $checkUserExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('email', $post['userEmail'])->first();
+                if (empty($checkUserExist)) {
+                    $checkUserNameExist = StoreWebsiteUsers::where('store_website_id', $storeWebsite->id)->where('is_deleted', 0)->where('username', $post['username'])->first();
+                }
+            }
+
+            if (! empty($checkUserExist)) {
+                return response()->json(['code' => 500, 'error' => 'User Email already exist!']);
+            }
+            if (! empty($checkUserNameExist)) {
+                return response()->json(['code' => 500, 'error' => 'Username already exist!']);
+            }
+
+            $uppercase = preg_match('/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9_@.\/#&+-]+)$/', $post['password']);
+            if (! $uppercase || strlen($post['password']) < 7) {
+                return response()->json(['code' => 500, 'error' => 'Your password must be at least 7 characters.Your password must include both numeric and alphabetic characters.']);
+            }
+
+            if (! empty($post['store_website_userid'])) {
+                $getUser = StoreWebsiteUsers::where('id', $post['store_website_userid'])->first();
+                $getUser->first_name = $post['firstName'];
+                $getUser->last_name = $post['lastName'];
+                $getUser->email = $post['userEmail'];
+                $getUser->password = $post['password'];
+                $getUser->website_mode = $post['websitemode'];
+                $getUser->save();
+
+                StoreWebsiteUserHistory::create([
+                    'store_website_id' => $getUser->store_website_id,
+                    'store_website_user_id' => $getUser->id,
+                    'model' => \App\StoreWebsiteUsers::class,
+                    'attribute' => 'username_password',
+                    'old_value' => 'updated',
+                    'new_value' => 'updated',
+                    'user_id' => Auth::id(),
+                ]);
+
+                if ($getUser->is_deleted == 0) {
+                    $magentoHelper = new MagentoHelperv2();
+                    $magentoHelper->updateMagentouser($storeWebsite, $post);
+                }
+            } else {
+                $params['username'] = $post['username'];
+                $params['first_name'] = $post['firstName'];
+                $params['last_name'] = $post['lastName'];
+                $params['email'] = $post['userEmail'];
+                $params['password'] = $post['password'];
+                $params['store_website_id'] = $storeWebsite->id;
+                $params['website_mode'] = $post['websitemode'];
+
+                $StoreWebsiteUsersid = StoreWebsiteUsers::create($params);
+
+                if ($post['userEmail'] && $post['password']) {
+                    $message = 'Email: ' . $post['userEmail'] . ', Password is: ' . $post['password'];
+                    $params['user_id'] = Auth::id();
+                    $params['message'] = $message;
+                    ChatMessage::create($params);
+                }
+
+                $magentoHelper = new MagentoHelperv2();
+                $magentoHelper->addMagentouser($storeWebsite, $post);
+
+                StoreWebsiteUserHistory::create([
+                    'store_website_id' => $StoreWebsiteUsersid->store_website_id,
+                    'store_website_user_id' => $StoreWebsiteUsersid->id,
+                    'model' => \App\StoreWebsiteUsers::class,
+                    'attribute' => 'username_password',
+                    'old_value' => 'new_added',
+                    'new_value' => 'new_added',
+                    'user_id' => Auth::id(),
+                ]);
+            }
+            $count++;
+        }
+        if ($count == $key + 1) {
+            return response()->json(['code' => 200, 'messages' => 'User details saved Successfully']);
+        } else {
+            return response()->json(['code' => 500, 'messages' => 'Something went wrong']);
+        }
+    }
+
     public function deleteUserInMagento(Request $request)
     {
         $post = $request->all();
@@ -827,11 +965,14 @@ class StoreWebsiteController extends Controller
 
         $storewebsiteusers = StoreWebsiteUsers::where('store_website_id', $id)->get();
 
+        $storewebsiteadminurl = StoreWebsiteAdminUrl::where('store_website_id', $id)->where('created_by', Auth::user()->id)->orderBy('id', 'desc')->first();
+
         if ($storeWebsite) {
             return response()->json([
                 'code' => 200,
                 'data' => $storeWebsite,
                 'userdata' => $storewebsiteusers,
+                'last_adminurl' => $storewebsiteadminurl,
                 'services' => $services,
                 'totaluser' => count($storewebsiteusers), ]
             );
@@ -2087,6 +2228,21 @@ class StoreWebsiteController extends Controller
         ], 200);
     }
 
+    public function adminUrlHistory($id)
+    {
+        $datas = StoreWebsiteAdminUrl::with('user', 'storewebsite')
+            ->where('store_website_id', $id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function versionNumbers()
     {
         $storeWebsites = StoreWebsite::all();
@@ -2524,4 +2680,113 @@ class StoreWebsiteController extends Controller
         ], 200);
     }
 
+    public function deleteAdminPasswords(Request $request)
+    {   
+
+        StoreWebsiteUsers::whereIn('id', $request->ids)->update(['is_deleted' => 1]);
+
+        return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
+            'status_name' => 'success',
+        ], 200);
+    }
+  
+    public function generateRandomString($length) {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = str_shuffle($characters);
+        $randomString = substr($randomString, 0, $length);
+        return $randomString;
+    }
+
+    public function createAdminUrl(Request $request)
+    {
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'store_dir' => 'required',
+            'server_ip_address' => 'required',
+            'store_website_id' => 'required',
+            'admin_url' => 'required',
+            'title' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
+        }
+
+        // New Script
+        $title = $post['title'];
+        $admin_url_var = $title.'-admin_'.$this->generateRandomString(6);
+        $password = '';
+        $store_dir = $post['store_dir'];
+        $server_ip_address = $post['server_ip_address'];
+
+                   
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+        $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+
+        // NEW Script
+        $result = exec($cmd, $output, $return_var);
+
+        $adminurl = new StoreWebsiteAdminUrl;
+        $adminurl->created_by = Auth::user()->id;
+        $adminurl->store_dir = $post['store_dir'];
+        $adminurl->server_ip_address = $post['server_ip_address'];
+        $adminurl->store_website_id = $post['store_website_id'];
+        $adminurl->website_url = $post['admin_url'];
+        $adminurl->admin_url = $post['admin_url'].$admin_url_var;
+        $adminurl->request_data = $cmd;
+        $adminurl->response_data = json_encode($result);
+        $adminurl->save();
+
+        return response()->json(['code' => 200, 'message' => 'Admin url has been successfully generated.', 'data' => $adminurl]);
+    }
+
+    public function adminUrlBulkGenerate(Request $request)
+    {
+        if ($request->has('ids') && empty($request->ids)) {
+            return response()->json(['success' => false, 'message' => 'The request parameter ids missing']);
+        }
+
+        foreach ($request->ids as $id) {
+
+            $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::where('id', $id)->first();
+
+            if(!empty($storeWebsiteAdminUrls)){
+
+                $admin_url_var = $storeWebsiteAdminUrls['title'].'-admin_'.$this->generateRandomString(6);
+                $password = '';
+                $store_dir = $storeWebsiteAdminUrls['store_dir'];
+                $server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                           
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+                $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+
+                // NEW Script
+                $result = exec($cmd, $output, $return_var);
+
+                $adminurl = new StoreWebsiteAdminUrl;
+                $adminurl->created_by = Auth::user()->id;
+                $adminurl->store_dir = $storeWebsiteAdminUrls['store_dir'];
+                $adminurl->server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                $adminurl->store_website_id = $storeWebsiteAdminUrls['store_website_id'];
+                $adminurl->admin_url = $storeWebsiteAdminUrls['website_url'].$admin_url_var;
+                $adminurl->request_data = $cmd;
+                $adminurl->response_data = json_encode($result);
+                $adminurl->save();
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
+    }
 }

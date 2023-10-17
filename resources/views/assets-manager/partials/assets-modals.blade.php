@@ -885,3 +885,135 @@
     </div>
   </div>
 </div>
+
+<div id="showAssetsManagementUsersModel" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Asset Manament Users Access</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="mt-3 col-md-12">
+                <div class="infinite-scroll">
+                    <style type="text/css">
+                        #showAssetsManagementUsersModel .select2-container{width: 100% !important;}
+                        .ui-widget.ui-widget-content {z-index: 9999;}
+                    </style>
+
+                    <div id="myDiv">
+                        <img id="loading-image-modal" src="/images/pre-loader.gif" style="display:none;"/>
+                   </div>
+
+                    <form action="" method="POST" id="createUserAccess">
+
+                        <div class="row">
+                            <input type="hidden" name="assets_management_id" id="assets_management_id">
+                            <input type="hidden" name="assets_management_ip_address" id="assets_management_ip_address">
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Select Users:</strong>            
+                                    {{ Form::select("ua_user_ids", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('ua_user_ids'), ["class" => "form-control ua_user_ids" ,"placeholder" => "Select User"]) }}
+                                    <!-- <input class="form-control ua_user_ids" type="text" id="tag-input" name="ua_user_ids" placeholder="Select User" style="width: 100%;" value="{{request()->get('ua_user_ids')}}"> -->
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>User Role:</strong>                    
+                                    <select class="form-control ua_user_role" name="user_role" id="user_role">
+                                        <option value="user">Readonly</option>
+                                        <option value="magento">Developer</option>
+                                        <option value="super">Super</option>
+                                    </select>
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Login Type:</strong>                    
+                                    <select class="form-control ua_login_type" name="login_type" id="login_type" onchange="showKeyType(this.value)">
+                                        <option value="password">Password</option>
+                                        <option value="key">Key</option>
+                                    </select>
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3" id="keyTypeDiv" style="display:none;"> 
+                                <div class="form-group">
+                                    <strong>Key Type:</strong>                    
+                                    <select class="form-control ua_key_type" name="key_type" id="key_type">
+                                        <option value="generate">Generate</option>
+                                        <option value="regenerate">Regenerate</option>
+                                    </select>
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>User Name:</strong>                    
+                                    <input class="form-control ua_username" type="text" id="ua_username" name="ua_username" placeholder="Enter User Name" style="width: 100%;" value="{{request()->get('ua_username')}}">
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Password:</strong>                    
+                                    <input class="form-control ua_password" type="text" id="ua_password" name="ua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('ua_password')}}" readonly>
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <button type="button" id="create-user-acccess-btn" class="btn btn-secondary" style=" margin-top: 18px;">Create</button>
+                            </div>
+
+                            <div class="col-md-12"> 
+                                <span class="text-danger text-danger-all"></span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th width="4%">ID</th>
+                                <th width="9%">Selected User</th>
+                                <th width="9%">User Name</th>
+                                <th width="9%">Password</th>
+                                <th width="8%">Created Date</th>
+                                <th width="8%">Request Data</th>
+                                <th width="8%">Response Data</th>
+                                <th width="8%">Action</th>
+                            </tr>
+                        </thead>
+              
+                        <tbody id="showAssetsManagementUsersView">
+                          
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function showKeyType(login_type) {
+        if(login_type=='key'){
+            $('#keyTypeDiv').css("display", "block");
+        } else {
+            $('#keyTypeDiv').css("display", "none");
+        }        
+    }
+</script>

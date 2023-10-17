@@ -8,6 +8,8 @@
 	.preview-category input.form-control {
 		width: auto;
 	}
+
+	.h .lable-class {justify-content: left;}
 </style>
 
 <div class="row" id="common-page-layout">
@@ -34,56 +36,67 @@
 					</button>
 				</div>
 			</div>
-			<div class="col">
+			<hr style="width:100%">
+			<div class="col  col-md-12">
 				<div class="h" style="margin-bottom:10px;">
-					<div class="row">
+					<div class="row" style="display: inline-block; width: 100%;">
 						<form class="form-inline message-search-handler" method="get">
 							<div class="col">
-								<div class="form-group">
-									<label for="keyword">Update Websites:</label>
-									<select class="form-control" id="updateStoreWebsite">
-										<option value="">-- Select a website to update--</option>
-										@foreach($storeWebsites as $key => $storeWebsite)
-											<option value="{{ $key }}">{{ $storeWebsite }}</option>
-										@endforeach
-									</select>
+								<div class="col col-md-2">
+									<div class="form-group">
+										<label class="lable-class" for="keyword">Update Websites:</label>
+										<select class="form-control" id="updateStoreWebsite">
+											<option value="">-- Select a website to update--</option>
+											@foreach($storeWebsites as $key => $storeWebsite)
+												<option value="{{ $key }}">{{ $storeWebsite }}</option>
+											@endforeach
+										</select>
+									</div>
 								</div>
-								<div class="form-group">
-									<label for="keyword">Websites:</label>
-									<?php
-									echo Form::select(
-										"website_store",
-										["" => "-- Select Website --"] + $storeWebsites,
-										request('website_store'),
-										[
-											"class" => "form-control select2-vendor",
-											"id" => "srch_website_store",
-											"onchange" => "loadWebsiteStoresDropdown()"
-										]
-									); ?>
+								<div class="col col-md-4">
+									<div class="form-group" style="width: 100%;">
+										<label class="lable-class" for="keyword">Websites:</label>
+										<?php
+										echo Form::select(
+											"website_store[]",
+											[] + $storeWebsites,
+											request('website_store'),
+											[
+												"class" => "form-control select2-vendor globalSelect2",
+												"id" => "srch_website_store",
+												"multiple" => true,
+												"onchange" => "loadWebsiteStoresDropdown()"
+											]
+										); ?>
+									</div>
 								</div>
-								<div class="form-group">
-									<label for="keyword">Website Stores:</label>
-									<?php
-									echo Form::select(
-										"website_store_id",
-										["" => "Please select website first"],
-										request('website_store_id'),
-										[
-											"class" => "form-control select2-vendor",
-											"id" => "srch_website_store_id",
-										]
-									); ?>
+								<div class="col col-md-4">
+									<div class="form-group" style="width: 100%;">
+										<label class="lable-class" for="keyword">Website Stores:</label>
+										<?php
+										echo Form::select(
+											"website_store_id[]",
+											[],
+											request('website_store_id'),
+											[
+												"class" => "form-control select2-vendor globalSelect2",
+												"multiple" => true,
+												"id" => "srch_website_store_id",
+											]
+										); ?>
+									</div>
 								</div>
-								<div class="form-group">
-									<label for="keyword">Keyword:</label>
-									<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) ?>
-								</div>
-								<div class="form-group">
-									<label for="button">&nbsp;</label>
-									<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-										<img src="/images/search.png" style="cursor: default;">
-									</button>
+								<div class="col col-md-2">
+									<div class="form-group">
+										<label class="lable-class" for="keyword">Keyword:</label>
+										<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) ?>
+									</div>
+									<div class="form-group">
+										<label for="button">&nbsp;</label>
+										<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+											<img src="/images/search.png" style="cursor: default;">
+										</button>
+									</div>
 								</div>
 							</div>
 						</form>
