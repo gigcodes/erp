@@ -23,6 +23,10 @@ var page = {
       e.preventDefault();
       page.createRecord();
     });
+    page.config.bodyView.on("click", ".btn-add-action-password", function (e) {
+      e.preventDefault();
+      page.createRecordPassword();
+    });
     page.config.bodyView.on("click", ".load-duplicate-modal", function (e) {
       e.preventDefault();
       page.createDuplicate($(this).data("id"));
@@ -236,6 +240,24 @@ var page = {
       //alert("Copied!");
     });
 
+    $(document).on("click", ".btn-copy-admin-url", function () {
+
+        var combinedValue = 'Admin URL : '+$("#generated-admin-url").val();
+
+        if($("#generated-admin-url").val()!=''){
+
+            var $temp = $("<textarea>");
+            $("body").append($temp);
+            $temp.val(combinedValue).select();
+            document.execCommand("copy");
+            $temp.remove();
+
+            alert("Copied!");
+        } else {
+            alert("You don't have admin url!");
+        }
+    });
+
     $(document).on("click", ".generate-pem-file", function () {
       page.openGenerateFile();
     });
@@ -406,6 +428,14 @@ var page = {
   },
   createRecord: function (response) {
     var createWebTemplate = $.templates("#template-create-website");
+    var tplHtml = createWebTemplate.render({ data: {} });
+
+    var common = $(".common-modal");
+    common.find(".modal-dialog").html(tplHtml);
+    common.modal("show");
+  },
+  createRecordPassword: function (response) {
+    var createWebTemplate = $.templates("#template-create-website-password");
     var tplHtml = createWebTemplate.render({ data: {} });
 
     var common = $(".common-modal");
@@ -879,7 +909,7 @@ var page = {
       url:
         typeof href != "undefined"
           ? href
-          : this.config.baseUrl + "/store-website/save-user-in-magento",
+          : this.config.baseUrl + "/store-website/save-user-in-magento-admin-password",
       method: "post",
       data: {
         _token: $('meta[name="csrf-token"]').attr("content"),
