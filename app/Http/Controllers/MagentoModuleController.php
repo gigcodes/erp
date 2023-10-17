@@ -35,6 +35,7 @@ use App\Models\MagentoModuleUnitTestStatusHistory;
 use App\Models\MagentoModuleUnitTestUserHistory;
 use App\Models\MagentoModuleUnitTestRemarkHistory;
 use App\Models\ColumnVisbility;
+use App\Models\DataTableColumn;
 
 class MagentoModuleController extends Controller
 {
@@ -750,7 +751,14 @@ class MagentoModuleController extends Controller
         });
         $magento_modules_array = $result;
 
-        return view('magento_module.magento-listing', ['all_store_websites' => $all_store_websites, 'selecteStoreWebsites' => $selecteStoreWebsites, 'magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites, 'magento_modules_array' => $magento_modules_array, 'magento_modules_count' => $magento_modules_count, 'allMagentoModules' => $allMagentoModules]);
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
+        $dynamicColumnsToShow = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShow = json_decode($hideColumns, true);
+        }
+
+        return view('magento_module.magento-listing', ['all_store_websites' => $all_store_websites, 'selecteStoreWebsites' => $selecteStoreWebsites, 'magento_modules' => $magento_modules, 'storeWebsites' => $storeWebsites, 'magento_modules_array' => $magento_modules_array, 'magento_modules_count' => $magento_modules_count, 'allMagentoModules' => $allMagentoModules, 'dynamicColumnsToShow' => $dynamicColumnsToShow]);
     }
 
     public function magentoModuleListLogs(Request $request)
@@ -761,6 +769,42 @@ class MagentoModuleController extends Controller
         $magento_modules_count = $magento_modules->count();
 
         return view('magento_module.magento-listing_logs', ['magento_modules' => $magento_modules, 'magento_modules_count' => $magento_modules_count]);
+    }
+
+    public function magentoModuleListLogsAjax(Request $request)
+    {
+        $magento_modules_q = new MagentoModuleLogs();
+        $perPage = 2;
+
+        if (isset($request->module_name_sync) && $request->module_name_sync) {
+            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+        }
+        
+        if (isset($request->selected_date) && $request->selected_date) {
+            $magento_modules_q = $magento_modules_q->whereDate('magento_module_logs.created_at', "=", $request->selected_date);
+        }
+
+        $magento_modules_q = $magento_modules_q->select('module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('magento_module_logs.id', 'DESC')
+        ->paginate($perPage);
+
+        return response()->json(['code' => 200, 'data' => $magento_modules_q, 'message' => 'Listed successfully!!!']);
+    }
+
+    public function magentoModuleListLogsAjax_bk()
+    {   
+
+        $magento_modules_q = MagentoModuleLogs::select('module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('magento_module_logs.id', 'DESC');
+
+        if (isset($request->module_name_sync) && $request->module_name_sync) {
+            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+        }
+
+        $magento_modules = $magento_modules_q->get();
+
+        return response()->json([
+            'tbody' => view('magento_module.partials.sync-logs-modal-html', compact('magento_modules'))->render(),
+            'count' => $magento_modules->count(),
+        ]);
     }
 
     public function magentoModuleUpdateStatuslogs(Request $request)
@@ -1576,5 +1620,58 @@ class MagentoModuleController extends Controller
         $history->save();
 
         return true;
+    }
+
+    public function syncLogsColumnVisbilityUpdate(Request $request)
+    {
+         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','magento-modules-sync_logs')->first();
+
+         if($userCheck)
+         {
+           $column = DataTableColumn::find($userCheck->id);
+           $column->section_name = 'magento-modules-sync_logs';
+           $column->column_name = json_encode($request->columns); 
+           $column->save();
+         } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'magento-modules-sync_logs';
+            $column->column_name = json_encode($request->columns); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+         }
+
+         return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function magentoModuleCheckStatus(Request $request)
+    {
+        $store_website_id = $request->store_website_id;
+        $magento_module_id = $request->magento_module_id;
+
+        $data = MagentoModule::where('id', (int) $magento_module_id)->first();
+
+        $store_website = StoreWebsite::select('title', 'server_ip', 'working_directory')->where('id', $store_website_id)->first();
+
+        // New Script
+        $moduleName = $data->module;
+        $website = $store_website->title;
+        $server = $store_website->server_ip;
+        $rootDir = $store_website->working_directory;
+        $websiteStoreProjectName = null;
+        $action = 'status';
+        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+        $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
+        
+        $result = exec($cmd, $output, $return_var);
+        \Log::info('store command:' . $cmd);
+        \Log::info('store output:' . print_r($output, true));
+        \Log::info('store return_var:' . $return_var);
+
+        return response()->json(['code' => 200, 'data' => $result]);
     }
 }
