@@ -379,17 +379,24 @@ class MagentoSettingsController extends Controller
 
         $entity = MagentoSetting::find($entity_id);
 
+        $path = 'bss_geoip/general/country';
 
-        $requestData['commandVar'] = 'bin/magento '.$path.' '.$value;
+        $value = 'QA';
+
+        $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+
+        //bin/magento config:set bss_geoip/general/country QA
+
+        //bss_geoip/general/country QA
 
         $storeWebsiteData = StoreWebsite::where('id', $m->store_website_id)->first();
 
         if(!empty($storeWebsiteData)){
-            $requestData['serverVar'] = $storeWebsiteData->server_ip;
-            $requestData['dirVar'] = $storeWebsiteData->working_directory;
+            $requestData['server'] = $storeWebsiteData->server_ip;
+            $requestData['dir'] = $storeWebsiteData->working_directory;
         }
 
-        if(!empty($requestData['commandVar']) && !empty($requestData['serverVar']) && !empty($requestData['dirVar'])){
+        if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir'])){
 
             $requestJson = json_encode($requestData);
 
@@ -417,6 +424,7 @@ class MagentoSettingsController extends Controller
             // Close cURL session
             curl_close($ch);
 
+            \Log::info("Test response".print_r($response, true));
             // Process the response
             print_r($response);
             exit;
