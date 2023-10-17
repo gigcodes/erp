@@ -379,15 +379,11 @@ class MagentoSettingsController extends Controller
 
         $entity = MagentoSetting::find($entity_id);
 
-        $path = 'bss_geoip/general/country';
+        //$path = 'bss_geoip/general/country';
 
-        $value = 'QA';
+        //$value = 'QA';
 
         $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
-
-        //bin/magento config:set bss_geoip/general/country QA
-
-        //bss_geoip/general/country QA
 
         $storeWebsiteData = StoreWebsite::where('id', $m->store_website_id)->first();
 
@@ -423,11 +419,16 @@ class MagentoSettingsController extends Controller
 
             // Close cURL session
             curl_close($ch);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-            \Log::info("Test response".print_r($response, true));
-            // Process the response
-            print_r($response);
-            exit;
+            $responseData = json_decode($response);
+
+            $status = 'Error';
+            if($responseData->success==1){
+                $status = 'Success';
+            }
+
+            MagentoSettingPushLog::create(['store_website_id' => $m->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $request->id, 'command_output' =>$response, 'status' => $status,'command_server'=>'http://s10.theluxuryunlimited.com:5000/execute','job_id'=>$httpcode ]);
 
         }
 
