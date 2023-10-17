@@ -17,6 +17,7 @@
                <div class="form-group">
                   <label for="title">Title</label>
                   <input type="text" id='swTitle' name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
+                  <span class="text-danger text-danger-url"></span>
                </div>
             </div>
             <div class="col-md-4">
