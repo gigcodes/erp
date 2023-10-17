@@ -2724,7 +2724,7 @@ class StoreWebsiteController extends Controller
 
         // New Script
         $title = $post['title'];
-        $admin_url_var = $title.'-admin_'.$this->generateRandomString(6);
+        $admin_url_var = $title.'_admin_'.$this->generateRandomString(6);
         $password = '';
         $store_dir = $post['store_dir'];
         $server_ip_address = $post['server_ip_address'];
@@ -2763,7 +2763,7 @@ class StoreWebsiteController extends Controller
 
             if(!empty($storeWebsiteAdminUrls)){
 
-                $admin_url_var = $storeWebsiteAdminUrls['title'].'-admin_'.$this->generateRandomString(6);
+                $admin_url_var = $storeWebsiteAdminUrls['title'].'_admin_'.$this->generateRandomString(6);
                 $password = '';
                 $store_dir = $storeWebsiteAdminUrls['store_dir'];
                 $server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
