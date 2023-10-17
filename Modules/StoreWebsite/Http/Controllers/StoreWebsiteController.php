@@ -2597,9 +2597,6 @@ class StoreWebsiteController extends Controller
         // NEW Script
         $result = exec($cmd, $output, $return_var);
 
-        $cmd = '';
-        $result = '';
-
         $adminurl = new StoreWebsiteAdminUrl;
         $adminurl->created_by = Auth::user()->id;
         $adminurl->store_dir = $post['store_dir'];
