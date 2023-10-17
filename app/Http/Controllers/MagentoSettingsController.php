@@ -401,6 +401,10 @@ class MagentoSettingsController extends Controller
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($requestJson)
+            ));
 
             // Execute cURL session and store the response in a variable
             $response = curl_exec($ch);
