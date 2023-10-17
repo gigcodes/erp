@@ -188,7 +188,7 @@ class MagentoCommandController extends Controller
                     MagentoCommandRunLog::create([
                             'command_id' => $mCom->id,
                             'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => 'ERP', //$request->websites_ids
+                            'website_ids' => $request->websites_ids,
                             'server_ip' => $storeWebsiteData->server_ip,
                             'request' => json_encode($requestData),
                             'response' => $response,
