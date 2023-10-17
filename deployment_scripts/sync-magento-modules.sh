@@ -1,17 +1,5 @@
 #!/bin/bash
 
-SSHPORT="22480 2112 22"
-
-for portssh in $SSHPORT
-do
-        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$SERVER 'exit'
-        if [ $? -ne 255 ]
-        then
-                PORT=`echo $portssh`
-        fi
-done
-
-
 function HELP {
         echo "-w|--website: website"
         echo "-s|--server: Server ip"
@@ -67,6 +55,21 @@ do
 done
 MNAME="$modulename"
 SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
+
+
+SSHPORT="22480 2112 22"
+
+for portssh in $SSHPORT
+do
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit'
+        if [ $? -ne 255 ]
+        then
+                PORT=`echo $portssh`
+        fi
+done
+
+
+
 
 function madd()
 {

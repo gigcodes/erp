@@ -5,12 +5,16 @@
 	      	<tr>
 				<th width="4%">ID</th>
 				<th width="6%">Date</th>
+				<th width="3%">Script Type</th>
 				<th width="3%">File</th>
 				<th width="5%">Description</th>
 				<th width="8%">Usage Parameter</th>
 				<th width="4%">Category</th>
 				<th width="5%">Comments</th>
 				<th width="10%">Author</th>
+				<th width="10%">Location</th>
+				<th width="10%">Last Run</th>
+				<th width="10%">Status</th>
 				<th width="3%">Action</th>
 			</tr>
 	    </thead>
@@ -22,16 +26,20 @@
 
 			      	<td>{{:prop.created_at_date}}</td>
 
+			      	<td>{{:prop.script_type}}</td>
+
 			      	<td>{{:prop.file}}</td>
 
-			      	<td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
+			      	<!-- <td class='break expand-row-msg' data-name="url" data-id="{{:prop.id}}">
 						<button class="btn btn-sm upload-script_documents-files-button" type="button" title="Uploaded Files" data-script_document_id="{{:prop.id}}">
 							<i class="fa fa-cloud-upload" aria-hidden="true"></i>
 						</button>
 						<button class="btn btn-sm view-script_documents-files-button" type="button" title="View Uploaded Files" data-script_document_id="{{:prop.id}}">
 							<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
 						</button>
-                 	</td>
+                 	</td> -->
+
+                 	<td>{{:prop.description}}</td>
 
 			      	<td>{{:prop.usage_parameter}}</td>
 
@@ -40,6 +48,12 @@
 			      	<td>{{:prop.comments}}</td>
 
 			      	<td>{{:prop.author}}</td>
+
+			      	<td>{{:prop.location}}</td>
+
+			      	<td>{{:prop.last_run}}</td>
+
+			      	<td>{{:prop.status}}</td>
 
 			        <td>		
 					 	<div  class="d-flex">
