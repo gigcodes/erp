@@ -137,7 +137,7 @@ class MagentoCommandController extends Controller
 
                 //$value = 'QA';
 
-                $requestData['command'] = 'bin/magento config:set '.$request->command_name;
+                $requestData['command'] = 'bin/magento '.$request->command_name;
                 //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
 
                 $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
