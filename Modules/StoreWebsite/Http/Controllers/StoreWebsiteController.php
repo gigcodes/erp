@@ -2567,6 +2567,7 @@ class StoreWebsiteController extends Controller
             'server_ip_address' => 'required',
             'store_website_id' => 'required',
             'admin_url' => 'required',
+            'title' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -2581,11 +2582,13 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-         // New Script
-        $admin_url_var = 'admin_'.$this->generateRandomString(6);
+        // New Script
+        $title = $post['title'];
+        $admin_url_var = $title.'-admin_'.$this->generateRandomString(6);
         $password = '';
         $store_dir = $post['store_dir'];
         $server_ip_address = $post['server_ip_address'];
+
                    
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
@@ -2593,6 +2596,9 @@ class StoreWebsiteController extends Controller
 
         // NEW Script
         $result = exec($cmd, $output, $return_var);
+
+        $cmd = '';
+        $result = '';
 
         $adminurl = new StoreWebsiteAdminUrl;
         $adminurl->created_by = Auth::user()->id;
@@ -2620,7 +2626,7 @@ class StoreWebsiteController extends Controller
 
             if(!empty($storeWebsiteAdminUrls)){
 
-                $admin_url_var = 'admin_'.$this->generateRandomString(6);
+                $admin_url_var = $storeWebsiteAdminUrls['title'].'-admin_'.$this->generateRandomString(6);
                 $password = '';
                 $store_dir = $storeWebsiteAdminUrls['store_dir'];
                 $server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];

@@ -1285,6 +1285,12 @@
     function createAdminUrl() {
     	        
         $('.text-danger-url').html('');
+        if($('.formcreatewebsite #swTitle').val() == '') {
+        	$('.formcreatewebsite #swTitle').focus();
+            $('.formcreatewebsite #swTitle').next().text("Please enter Title");
+            return false;
+        }
+
         if($('.formcreatewebsite #website').val() == '') {
         	$('.formcreatewebsite #website').focus();
             $('.formcreatewebsite #website').next().text("Please enter website");
@@ -1303,7 +1309,7 @@
             return false;
         }
 
-        if($('.formcreatewebsite #website').val() != '' && $('.formcreatewebsite #working_directory').val() != '' && $('.formcreatewebsite #server_ip').val() != '' && $('formcreatewebsite #store_website_id').val() != '') {
+        if($('.formcreatewebsite #swTitle').val() != '' && $('.formcreatewebsite #website').val() != '' && $('.formcreatewebsite #working_directory').val() != '' && $('.formcreatewebsite #server_ip').val() != '' && $('formcreatewebsite #store_website_id').val() != '') {
 
             $.ajax({
                 type: 'POST',
@@ -1316,7 +1322,8 @@
                     store_dir : $('.formcreatewebsite #working_directory').val(),
                     server_ip_address : $('.formcreatewebsite #server_ip').val(),
                     store_website_id : $('.formcreatewebsite #store_website_id').val(),
-                    admin_url : $('.formcreatewebsite #website').val()
+                    admin_url : $('.formcreatewebsite #website').val(),
+                    title : $('.formcreatewebsite #swTitle').val()
                 },
                 dataType: "json"
             }).done(function (response) {
