@@ -383,53 +383,63 @@ class MagentoSettingsController extends Controller
 
         //$value = 'QA';
 
-        $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
-
-        $storeWebsiteData = StoreWebsite::where('id', $m->store_website_id)->first();
-
-        if(!empty($storeWebsiteData)){
-            $requestData['server'] = $storeWebsiteData->server_ip;
-            $requestData['dir'] = $storeWebsiteData->working_directory;
+        $selectedCheckboxes = [$request->id];
+        if(!empty($request->selectedCheckboxes)){
+            $selectedCheckboxes = explode(",", $request->selectedCheckboxes);
         }
 
-        if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir'])){
+        foreach ($selectedCheckboxes as $key => $value) {
+            
+            $magentoSettings = MagentoSetting::where('id', $value)->first();
+        
+            $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
 
-            $requestJson = json_encode($requestData);
+            $storeWebsiteData = StoreWebsite::where('id', $magentoSettings->store_website_id)->first();
 
-            // Initialize cURL session
-            $ch = curl_init();
-
-            // Set cURL options for a POST request
-            curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($requestJson)
-            ));
-
-            // Execute cURL session and store the response in a variable
-            $response = curl_exec($ch);
-
-            // Check for cURL errors
-            if(curl_errno($ch)) {
-                echo 'Curl error: ' . curl_error($ch);
+            if(!empty($storeWebsiteData)){
+                $requestData['server'] = $storeWebsiteData->server_ip;
+                $requestData['dir'] = $storeWebsiteData->working_directory;
             }
 
-            // Close cURL session
-            curl_close($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir'])){
 
-            $responseData = json_decode($response);
+                $requestJson = json_encode($requestData);
 
-            $status = 'Error';
-            if($responseData->success==1){
-                $status = 'Success';
+                // Initialize cURL session
+                $ch = curl_init();
+
+                // Set cURL options for a POST request
+                curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($requestJson)
+                ));
+
+                // Execute cURL session and store the response in a variable
+                $response = curl_exec($ch);
+
+                // Check for cURL errors
+                if(curl_errno($ch)) {
+                    echo 'Curl error: ' . curl_error($ch);
+                }
+
+                // Close cURL session
+                curl_close($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                $responseData = json_decode($response);
+
+                $status = 'Error';
+                if($responseData->success==1){
+                    $status = 'Success';
+                }
+
+                MagentoSettingPushLog::create(['store_website_id' => $magentoSettings->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $value, 'command_output' =>$response, 'status' => $status,'command_server'=>'http://s10.theluxuryunlimited.com:5000/execute','job_id'=>$httpcode ]);
+
             }
-
-            MagentoSettingPushLog::create(['store_website_id' => $m->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $request->id, 'command_output' =>$response, 'status' => $status,'command_server'=>'http://s10.theluxuryunlimited.com:5000/execute','job_id'=>$httpcode ]);
-
         }
 
         // // #DEVTASK-23677-api implement for admin settings
