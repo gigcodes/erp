@@ -11,14 +11,19 @@ use App\ChatbotCategory;
 use App\ChatbotQuestion;
 use App\Models\TmpReplay;
 use App\SuggestedProduct;
+use Illuminate\Container\Container;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use App\ChatbotQuestionReply;
 use Illuminate\Http\Response;
 use App\ChatbotQuestionExample;
 use App\Models\GoogleResponseId;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller;
 use App\Models\GoogleDialogAccount;
 use App\Models\DialogflowEntityType;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Library\Google\DialogFlow\DialogFlowService;
 
@@ -116,15 +121,29 @@ class MessageController extends Controller
         AND email_id IS NULL
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
-        $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
-            $q->where('chat_messages.message', '!=', '');
-        })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
+        $currentPage = Paginator::resolveCurrentPage();
+        $select = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
             'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
             'tmp.id as tmp_replies_id', 'tmp.suggested_replay', 'tmp.is_approved', 'tmp.is_reject', 'c.is_auto_simulator as customer_auto_simulator',
-            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'])
+            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'];
+        $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+            $q->where('chat_messages.message', '!=', '');
+        })->select($select)
             ->orderByRaw('cr.id DESC, chat_messages.id DESC')
-            ->paginate(20);
-        // dd($pendingApprovalMsg);
+            ->offset(($currentPage - 1) * 20)->limit(20);
+
+        $total = Cache::remember('chatbot-messages-page-size', 60*60, fn () => $pendingApprovalMsg->toBase()->getCountForPagination());
+
+        $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
+            'items' => $pendingApprovalMsg->select([...$select, DB::raw('CASE WHEN `e`.`id` IS NOT NULL THEN 1 ELSE 0 END AS is_email')])->get(),
+            'total' => $total,
+            'perPage' => 20,
+            'currentPage' => $currentPage,
+            'options' => [
+                'path' => Paginator::resolveCurrentPath(),
+                'pageName' => 'page'
+            ]
+        ]);
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
@@ -133,7 +152,7 @@ class MessageController extends Controller
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
-        $page = $pendingApprovalMsg->currentPage();
+        $page = $currentPage;
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         if ($request->ajax()) {
@@ -183,7 +202,7 @@ class MessageController extends Controller
         AND developer_task_id IS NULL
         AND email_id IS NULL
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
-
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
@@ -195,6 +214,8 @@ class MessageController extends Controller
         // dd($pendingApprovalMsg);
 
         $allCategory = ChatbotCategory::all();
+
+        $pendingApprovalMsg->links();
         $allCategoryList = [];
         if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
