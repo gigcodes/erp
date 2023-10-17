@@ -131,6 +131,75 @@ class MagentoCommandController extends Controller
             $mCom->user_permission = implode(',', array_filter($userPermissions));
             $mCom->save();
 
+            if(!empty($request->command_name) && !empty($request->websites_ids)){
+
+                //$path = 'bss_geoip/general/country';
+
+                //$value = 'QA';
+
+                $requestData['command'] = 'bin/magento config:set '.$request->command_name;
+                //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+
+                $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
+
+                if(!empty($storeWebsiteData)){
+                    $requestData['server'] = $storeWebsiteData->server_ip;
+                    $requestData['dir'] = $storeWebsiteData->working_directory;
+                }
+
+                if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir']) && !empty($request->command_name) && !empty($request->command_type)){
+
+                    $requestJson = json_encode($requestData);
+
+                    // Initialize cURL session
+                    $ch = curl_init();
+
+                    // Set cURL options for a POST request
+                    curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                        'Content-Type: application/json',
+                        'Content-Length: ' . strlen($requestJson)
+                    ));
+
+                    // Execute cURL session and store the response in a variable
+                    $response = curl_exec($ch);
+
+                    // Check for cURL errors
+                    if(curl_errno($ch)) {
+                        echo 'Curl error: ' . curl_error($ch);
+                    }
+
+                    // Close cURL session
+                    curl_close($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                    $responseData = json_decode($response);
+
+                    $status = 'Error';
+                    if($responseData->success==1){
+                        $status = 'Success';
+                    }
+
+                    \Log::info("Test response".print_r($response, true));
+                    
+                    MagentoCommandRunLog::create([
+                            'command_id' => $mCom->id,
+                            'user_id' => \Auth::user()->id ?? '',
+                            'website_ids' => 'ERP', //$request->websites_ids
+                            'server_ip' => $storeWebsiteData->server_ip,
+                            'request' => json_encode($requestData),
+                            'response' => $response,
+                            'command_name' => $request->command_name,
+                            'command_type' => $request->command_type,
+                            'job_id' => $httpcode,
+                        ]
+                    );
+                }
+            }
+
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
