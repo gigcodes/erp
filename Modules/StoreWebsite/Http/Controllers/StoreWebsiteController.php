@@ -157,7 +157,7 @@ class StoreWebsiteController extends Controller
     {
         $title = 'Admin Urls | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->orderBy('id', 'DESC')->get();
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
         return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
     }
@@ -2104,6 +2104,7 @@ class StoreWebsiteController extends Controller
     {
         $datas = StoreWebsiteAdminUrl::with('user', 'storewebsite')
             ->where('store_website_id', $id)
+            ->where('status', 0)
             ->orderBy('created_at', 'DESC')
             ->get();
 
@@ -2592,10 +2593,17 @@ class StoreWebsiteController extends Controller
                    
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-        $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+        //$cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
 
         // NEW Script
-        $result = exec($cmd, $output, $return_var);
+        //$result = exec($cmd, $output, $return_var);
+
+        $cmd = '';
+
+        $result = '';
+
+
+        StoreWebsiteAdminUrl::where('store_website_id', $post['store_website_id'])->update(['status' => 0]);
 
         $adminurl = new StoreWebsiteAdminUrl;
         $adminurl->created_by = Auth::user()->id;
@@ -2603,7 +2611,13 @@ class StoreWebsiteController extends Controller
         $adminurl->server_ip_address = $post['server_ip_address'];
         $adminurl->store_website_id = $post['store_website_id'];
         $adminurl->website_url = $post['admin_url'];
-        $adminurl->admin_url = $post['admin_url'].$admin_url_var;
+
+        if(substr($post['admin_url'] , -1)=='/'){
+            $adminurl->admin_url = $post['admin_url'].$admin_url_var;
+        } else {
+            $adminurl->admin_url = $post['admin_url'].'/'.$admin_url_var;
+        }
+        
         $adminurl->request_data = $cmd;
         $adminurl->response_data = json_encode($result);
         $adminurl->save();
@@ -2613,11 +2627,22 @@ class StoreWebsiteController extends Controller
 
     public function adminUrlBulkGenerate(Request $request)
     {
-        if ($request->has('ids') && empty($request->ids)) {
-            return response()->json(['success' => false, 'message' => 'The request parameter ids missing']);
+
+        echo "<pre>";
+        print_r($request);
+        exit;
+        if ($request->has('storewebsiteids') && empty($request->storewebsiteids)) {
+
+            session()->flash('msg', 'The request parameter ids missing');
+
+            return redirect()->back();
+
+            //return response()->json(['success' => false, 'message' => '']);
         }
 
-        foreach ($request->ids as $id) {
+        foreach ($request->storewebsiteids as $id) {
+
+            StoreWebsiteAdminUrl::where('store_website_id', $id)->update(['status' => 0]);
 
             $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::where('id', $id)->first();
 
@@ -2647,6 +2672,10 @@ class StoreWebsiteController extends Controller
             }
         }
 
-        return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
+        session()->flash('msg', 'Bulk Admin url generate completed, You can check logs individually.');
+
+        return redirect()->back();
+
+        //return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
     }
 }
