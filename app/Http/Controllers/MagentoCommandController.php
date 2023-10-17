@@ -137,7 +137,7 @@ class MagentoCommandController extends Controller
 
                 //$value = 'QA';
 
-                $requestData['command'] = 'bin/magento config:set '.$request->command_name;
+                $requestData['command'] = 'bin/magento '.$request->command_name;
                 //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
 
                 $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
@@ -188,7 +188,7 @@ class MagentoCommandController extends Controller
                     MagentoCommandRunLog::create([
                             'command_id' => $mCom->id,
                             'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => 'ERP', //$request->websites_ids
+                            'website_ids' => $request->websites_ids,
                             'server_ip' => $storeWebsiteData->server_ip,
                             'request' => json_encode($requestData),
                             'response' => $response,
