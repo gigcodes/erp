@@ -21,6 +21,7 @@ class MagentoModuleCareers extends Model
     const STORE_WEBSITE_ID = 'store_website_id';
     const CREATED_AT = 'created_at';
     const CAREERS_STOREWEBSITES = 'careers_storewebsites';
+    const TITLE = 'title';
 
     protected $table = 'magento_module_careers';
 
@@ -47,6 +48,25 @@ class MagentoModuleCareers extends Model
     public function setLocation(string $location): self
     {
         $this->setAttribute(self::LOCATION, $location);
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->getAttribute(self::TITLE);
+    }
+
+    /**
+     * @param string $title
+     * @return $this
+     */
+    public function setTitle(string $title): self
+    {
+        $this->setAttribute(self::TITLE, $title);
 
         return $this;
     }
@@ -198,6 +218,7 @@ class MagentoModuleCareers extends Model
     {
         return [
             self::ID => $this->getId(),
+            self::TITLE => $this->getTitle(),
             self::TYPE => $this->getType(),
             self::DESCRIPTION => $this->getDescription(),
             self::LOCATION => $this->getLocation(),
@@ -217,7 +238,7 @@ class MagentoModuleCareers extends Model
             self::DESCRIPTION => $this->getDescription(),
             self::LOCATION => $this->getLocation(),
             self::CREATED_AT => $this->getCreatedAt(),
-            'title' => array_map(fn ($career) => $career->title, $this->getStoreWebsites())
+            self::TITLE => $this->getTitle()
         ];
     }
 }
