@@ -49,8 +49,10 @@
 					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button> -->
 					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>&nbsp;
 
-					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>
+					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>&nbsp;
 					@endif
+
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#magento-media-sync"> Magento Media Sync </button>
 				</div>
 			</div>
 			<hr style=" width: 100%;">
@@ -387,6 +389,43 @@
 </div>
 
 <div class="modal fade" id="store-create-tag" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.create_tags') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+										<div class="form-group">
+											<label>Tag Name</label>
+											<input type="text" class="form-control" name="tag" placeholder="Enter The Tag">
+										</div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit_create_tag float-right float-lg-right">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="magento-media-sync" role="dialog">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
