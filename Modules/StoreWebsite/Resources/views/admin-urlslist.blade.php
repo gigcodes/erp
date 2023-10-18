@@ -3,12 +3,12 @@ $i = 1;
 @endphp
 @forelse($storeWebsiteAdminUrls as $storeWebsiteAdminUrl)
 	<tr>
-        <td class="text-center">
+        <!-- <td class="text-center">
             <span class="td-mini-container">
                 <input type="checkbox" class="selectedStoreWebsiteAdminUrls" name="selectedStoreWebsiteAdminUrls"
                     value="{{ $storeWebsiteAdminUrl->id }}">
             </span>
-        </td>
+        </td> -->
 		<td >
 			{{$i}}
 		</td>	
