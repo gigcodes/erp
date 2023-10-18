@@ -46,6 +46,7 @@
                             <tr>
                                 <th>Id</th>
                                 <th width="15%">Title</th>
+                                <th width="15%">Store Websites</th>
                                 <th width="20%">Location</th>
                                 <th width="20%">Type</th>
                                 <th width="45%">Description</th>
@@ -60,6 +61,9 @@
                                 <tr>
                                     <td class="td-id-{{ $career->getId() }}">
                                         {{ $career->getId() }}
+                                    </td>
+                                    <td class="td-title-{{ $career->getId() }}">
+                                        {{ $career->getTitle() }}
                                     </td>
                                     <td class="td-store-websites-{{ $career->getId() }}">
                                         @php echo implode(', ', array_map(fn ($item) => $item->title, (array)$career->getStoreWebsites())) @endphp
@@ -115,6 +119,11 @@
                                         <div class="table-responsive mt-3">
                                             <input hidden type="text" class="form-control" name="id"
                                                    placeholder="Enter id" id="career-id">
+                                            <div class="form-group">
+                                                <label>Title</label>
+                                                <input type="text" class="form-control" name="title"
+                                                       placeholder="Enter title" id="career-title">
+                                            </div>
                                             <div class="form-group">
                                                 <label>Store websites</label>
                                                 <select id="multi_store_websites" class="form-control input-sm career-store-websites"
@@ -192,8 +201,8 @@
                         toastr["success"](resp.message);
                         let career = resp.career;
                         let careerId = career.id;
-                        console.log('.td-description-' + careerId);
                         $('.td-description-' + careerId).text(career.description);
+                        $('.td-title-' + careerId).text(career.title);
                         $('.td-type-' + careerId).text(career.type);
                         $('.td-location-' + careerId).text(career.location);
                         $('.td-created-at-' + careerId).text(career.created_at);
@@ -230,6 +239,7 @@
             let data = JSON.parse($(this).attr('data-json'));
 
             $('#career-description').val(data.description);
+            $('#career-title').val(data.title);
             $('#career-type').val(data.type);
             $('#career-location').val(data.location);
             if (data.is_active) {
@@ -246,6 +256,7 @@
 
         var restoreForm = function() {
             $('#career-id').val('');
+            $('#career-title').val('');
             $('#career-description').val('');
             $('#career-type').val('');
             $('#career-location').val('');
