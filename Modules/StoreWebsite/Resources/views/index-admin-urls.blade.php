@@ -21,9 +21,59 @@
 	</div>
 	<br>
 
-	<div class="col col-md-12">
+	@if ($message = Session::get('success'))
+		<div class="col-lg-12  pl-5 pr-5">
+	        <div class="alert alert-success">
+	            <p>{{ $message }}</p>
+	        </div>
+        </div>
+    @endif
+
+    @if ($errors->any())
+	    <div class="col-lg-12  pl-5 pr-5">
+	        <div class="alert alert-danger">
+	            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+	            <ul>
+	                @foreach ($errors->all() as $error)
+	                    <li>{{ $error }}</li>
+	                @endforeach
+	            </ul>
+	        </div>
+        </div>
+    @endif
+	<div class="col col-md-5">
 		<div class="h pl-5 pr-5" style="margin-bottom:10px;">
-			<form action="{{ url('/store-website/admin-urls/bulk-generate-admin-url') }}" class="form-inline message-search-handler" method="post" style="width: 100%; display: inline-block;">
+			<form class="form-inline message-search-handler" method="GET" style="width: 100%; display: inline-block;">
+				<div class="row">
+					<div class="col col-md-12">
+						<div class="col col-lg-9 pl-0">
+							<div class="form-group" style="display: contents;">
+								<b>Search Websites :</b></br>
+								<select name="searchstorewebsiteids[]" id="searchstorewebsiteids" class="form-control globalSelect2" placeholder="Select a website" multiple="true">
+									@foreach($storeWebsites as $key => $storeWebsite)
+										<option value="{{ $storeWebsite->id }}" @if(in_array($storeWebsite->id, $request->input('searchstorewebsiteids', []))) selected @endif>{{ $storeWebsite->title }}</option>
+									@endforeach
+								</select>
+                            </div>
+						</div>
+						<div class="col col-lg-3 p-0">
+							<div class="form-group">
+								<button style="padding-top: 30px;" class="btn btn-sm btn-image btn-secondary " type="submit">
+									<img src="/images/search.png" style="cursor: default;">
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="col col-md-6">
+		<div class="h pl-5 pr-5" style="margin-bottom:10px;">
+			<form action="{{ route('store-website.adminUrlBulkGenerate') }}" class="" method="post" style="width: 100%; display: inline-block;">
+							<?php echo csrf_field(); ?>
+
 				<div class="row">
 					<div class="col col-md-12">
 						<div class="col col-lg-10 pl-0">
@@ -48,6 +98,7 @@
 			</form>
 		</div>
 	</div>
+	
 	<!-- <div class="col-lg-12 margin-tb">
 		<div class="col-lg-12 pl-5 pr-5">
 			<div style="display: flex !important; float: right !important;">

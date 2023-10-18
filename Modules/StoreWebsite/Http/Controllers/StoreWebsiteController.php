@@ -153,13 +153,23 @@ class StoreWebsiteController extends Controller
         return view('storewebsite::index-admin-password', compact('title', 'storeWebsites', 'storeWebsiteUsers'));
     }
 
-    public function adminUrls()
+    public function adminUrls(Request $request)
     {
         $title = 'Admin Urls | Store Website';
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
+        //$storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
-        return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls'));
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC');
+
+        if ($keyword = request('searchstorewebsiteids')) {
+            $storeWebsiteAdminUrls = $storeWebsiteAdminUrls->where(function ($q) use ($keyword) {
+                $q->whereIn('store_website_admin_urls.store_website_id', $keyword);
+            });
+        }
+
+        $storeWebsiteAdminUrls = $storeWebsiteAdminUrls->get();
+
+        return view('storewebsite::index-admin-urls', compact('title', 'storeWebsites', 'storeWebsiteAdminUrls', 'request'));
     }
 
     public function getApiTokenLogs(Request $request)
@@ -2593,15 +2603,12 @@ class StoreWebsiteController extends Controller
                    
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-        //$cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
+        $cmd = "bash $scriptsPath" . "update-magento-admin-url.sh -d \"$store_dir\" -s \"$server_ip_address\" -u \"$admin_url_var\" -p \"$password\" 2>&1";
 
         // NEW Script
-        //$result = exec($cmd, $output, $return_var);
+        $result = exec($cmd, $output, $return_var);
 
-        $cmd = '';
-
-        $result = '';
-
+        //$result = '';
 
         StoreWebsiteAdminUrl::where('store_website_id', $post['store_website_id'])->update(['status' => 0]);
 
@@ -2628,30 +2635,25 @@ class StoreWebsiteController extends Controller
     public function adminUrlBulkGenerate(Request $request)
     {
 
-        echo "<pre>";
-        print_r($request);
-        exit;
         if ($request->has('storewebsiteids') && empty($request->storewebsiteids)) {
 
-            session()->flash('msg', 'The request parameter ids missing');
-
-            return redirect()->back();
-
-            //return response()->json(['success' => false, 'message' => '']);
+            return back()->with('error', "The request parameter ids missing");
         }
 
+        $available = 0;
+        $notavailable = 0;
         foreach ($request->storewebsiteids as $id) {
 
-            StoreWebsiteAdminUrl::where('store_website_id', $id)->update(['status' => 0]);
+            $storeWebsite = StoreWebsite::where('id', $id)->first();
 
-            $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::where('id', $id)->first();
+            if(!empty($storeWebsite['working_directory']) && !empty($storeWebsite['server_ip']) && !empty($storeWebsite['website']) && !empty($storeWebsite['title'])){
 
-            if(!empty($storeWebsiteAdminUrls)){
+                StoreWebsiteAdminUrl::where('store_website_id', $id)->update(['status' => 0]);
 
-                $admin_url_var = $storeWebsiteAdminUrls['title'].'_admin_'.$this->generateRandomString(6);
+                $admin_url_var = $storeWebsite['title'].'_admin_'.$this->generateRandomString(6);
                 $password = '';
-                $store_dir = $storeWebsiteAdminUrls['store_dir'];
-                $server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
+                $store_dir = $storeWebsite['working_directory'];
+                $server_ip_address = $storeWebsite['server_ip'];
                            
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
@@ -2660,21 +2662,40 @@ class StoreWebsiteController extends Controller
                 // NEW Script
                 $result = exec($cmd, $output, $return_var);
 
+                //$result = '';
+
                 $adminurl = new StoreWebsiteAdminUrl;
                 $adminurl->created_by = Auth::user()->id;
-                $adminurl->store_dir = $storeWebsiteAdminUrls['store_dir'];
-                $adminurl->server_ip_address = $storeWebsiteAdminUrls['server_ip_address'];
-                $adminurl->store_website_id = $storeWebsiteAdminUrls['store_website_id'];
-                $adminurl->admin_url = $storeWebsiteAdminUrls['website_url'].$admin_url_var;
+                $adminurl->store_dir = $storeWebsite['working_directory'];
+                $adminurl->server_ip_address = $storeWebsite['server_ip'];
+                $adminurl->store_website_id = $storeWebsite['id'];
+                //$adminurl->admin_url = $storeWebsite['website_url'].$admin_url_var;
+
+                $adminurl->website_url = $storeWebsite['website'];
+
+                if(substr($storeWebsite['website'] , -1)=='/'){
+                    $adminurl->admin_url = $storeWebsite['website'].$admin_url_var;
+                } else {
+                    $adminurl->admin_url = $storeWebsite['website'].'/'.$admin_url_var;
+                }
+
                 $adminurl->request_data = $cmd;
                 $adminurl->response_data = json_encode($result);
                 $adminurl->save();
+
+                $available = 1;
+            } else {
+                $notavailable = 1;
             }
         }
 
-        session()->flash('msg', 'Bulk Admin url generate completed, You can check logs individually.');
-
-        return redirect()->back();
+        if($notavailable==1 && $available==0){
+            return back()->with('error', "Store website not have directory or ip address or website url or title.");
+        } else if($notavailable==0 && $available==1){
+            return back()->with('success', "Bulk Admin url generate completed, You can check logs individually.");
+        } else if($notavailable==1 && $available==1){
+            return back()->with('success', "Bulk Admin url generate completed, You can check logs individually. and Some Store website not have directory or ip address or website url or title. so that Store Website Admin url not generated.");
+        }
 
         //return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
     }
