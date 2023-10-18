@@ -155,6 +155,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                   <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
                     <thead>
                         <tr>
+                            <th><input type="checkbox" name="select_all_settings" class="select_all_settings"></th>
                             <th style="display:block;">ID</th>
                             <th>Website</th>
                             <th>Store</th>
@@ -175,6 +176,7 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                     <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
                         @foreach ($magentoSettings as $magentoSetting) 
                             <tr style="background-color: {{$magentoSetting->statusColor}}!important;">
+                                <td><input type="checkbox" name="settings_check" class="settings_check" value="{{ $magentoSetting->id }}" data-file="{{ $magentoSetting->id }}" data-id="{{ $magentoSetting->id }}"></td>
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
@@ -840,6 +842,8 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
     $(document).on('submit', '[name="edit-magento-setting-form"]', function (e) {
         e.preventDefault();
 
+        var selectedCheckboxes = [];
+
         if ($('#edit-setting-popup input[name="name"]').val() == '') {
             toastr['error']('please add the name.');
             return false;
@@ -862,6 +866,22 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
 
         formData.append('_token', "{{ csrf_token() }}");
         formData.append('id', $('#edit-setting-popup').attr('data-id'));
+
+        if ($('.select_all_settings').prop('checked')) {
+            $('.settings_check').each(function() {
+                var checkboxValue = $(this).val();
+                selectedCheckboxes.push(checkboxValue);
+            });
+        } else {
+            $('input[name="settings_check"]:checked').each(function() {
+                var checkboxValue = $(this).val();
+                selectedCheckboxes.push(checkboxValue);
+            });
+        }
+
+        formData.append('selectedCheckboxes', selectedCheckboxes);
+
+        $("#loading-image").show();
 
         $.ajax({
             url: $(this).attr('action'),
@@ -1103,6 +1123,11 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
     var isLoading = false;
     var page = 1;
     $(document).ready(function () {
+
+        $('.select_all_settings').on('change', function() {
+            var isChecked = $(this).prop('checked');
+            $('.settings_check').prop('checked', isChecked);
+        });
 
         $(window).scroll(function () {
             if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
