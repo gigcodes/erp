@@ -178,7 +178,12 @@ div#settingsPushLogsModal .modal-dialog { width: auto; max-width: 60%; }
                                 <td>{{ $magentoSetting->id }}</td>
 
                                 @if($magentoSetting->scope === 'default')
-                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo $magentoSetting->website->title ?? $magentoSetting->fromStoreId->title; ?>')" >{{  substr($magentoSetting->website->title ?? $magentoSetting->fromStoreId->title, 0,10)  }} @if(strlen($magentoSetting->website->title ?? $magentoSetting->fromStoreId->title) > 10) ... @endif</td>
+                                        <td data-toggle="modal" data-target="#viewMore" onclick="opnModal('<?php echo !empty($magentoSetting->website->title) ?? $magentoSetting->fromStoreId->title; ?>')" >
+                                            @if(!empty($magentoSetting->website->title))
+                                                {{  substr($magentoSetting->fromStoreId->title, 0,10)  }} 
+                                                @if(strlen($magentoSetting->website->title ?? $magentoSetting->fromStoreId->title) > 10) ... @endif
+                                            @endif  
+                                        </td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
                                         <td data-toggle="modal" data-target="#viewMore" onclick="opnModal(' ')" >-</td>
 

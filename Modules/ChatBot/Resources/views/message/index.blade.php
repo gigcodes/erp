@@ -421,6 +421,9 @@
                     if (removePage > 1) {
                         $("#page-view-result").find(".pagination").first().remove();
                     }
+                    if (isMessagesPage() === true) {
+                        $("#page-view-result").empty();
+                    }
                     $("#page-view-result").append(response.tpl);
                     callQuickCategory();
                     callCategoryComment();
@@ -446,10 +449,22 @@
         });
 
         $(window).scroll(function () {
+            if (isMessagesPage() === true) {
+                return;
+            }
             if ($(window).scrollTop() > ($(document).height() - $(window).height() - 10)) {
                 $("#page-view-result").find(".pagination").find(".active").next().find("a").click();
             }
         });
+
+        var isMessagesPage = function()
+        {
+            if (window.location.pathname === '/chatbot/messages') {
+                return true;
+            }
+
+            return false;
+        }
 
         $(document).on("click", ".delete-images", function () {
 

@@ -114,7 +114,7 @@ class ProductPriceController extends Controller
             });
         }
 
-        // $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
+        $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
 
         $products = $products->skip($skip * Setting::get('pagination'))->limit('25')->get();
         //$products = $products->limit(100)->get();
@@ -258,6 +258,10 @@ class ProductPriceController extends Controller
             $products = $products->where('websites.code', strtolower($filter_data['country_code']));
         }
 
+        if (isset($filter_data['name'])) {
+            $products = $products->where('products.sku', $filter_data['name']);
+        }
+
         $products = $products->whereNull('products.deleted_at');
 
         /*
@@ -295,7 +299,7 @@ class ProductPriceController extends Controller
                 $product = Product::find($p->pid);
                 $dutyPrice = $product->getDuty($p->product_country_code);
                 $category_segment = $p->category_segment != null ? $p->category_segment : $p->brand_segment;
-                $price = $product->getPrice($p->store_websites_id, $p->product_country_code, null, true, $dutyPrice, null, null, null, isset($product->suppliers_info) ? $product->suppliers_info[0]->price : 0, $category_segment);
+                $price = $product->getPrice($p->store_websites_id, $p->product_country_code, null, true, $dutyPrice, null, null, null, isset($product->suppliers_info[0]) ? $product->suppliers_info[0]->price : 0, $category_segment);
                 $ivaPercentage = \App\Product::IVA_PERCENTAGE;
                 $productPrice = number_format($price['original_price'], 2, '.', '');
                 $product_list[] = [
@@ -1092,5 +1096,14 @@ class ProductPriceController extends Controller
         }
 
         return view('logging.product_update_logs', compact('productLogs'));
+    }
+
+    public function store_website_product_skus(Request $request)
+    {
+        
+        if(!empty($request['term'])){
+            $dataDropdown = Product::where('sku', 'LIKE', "%".$request['term']."%")->pluck('sku', 'id')->toArray();
+            echo json_encode($dataDropdown);
+        }
     }
 }

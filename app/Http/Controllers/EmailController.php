@@ -90,13 +90,6 @@ class EmailController extends Controller
             });
         }
 
-        if (empty($category)) {
-            $query = $query->whereHas('category', function ($q) {
-                $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
-            })
-            ->orWhere('email_category_id', '<=', 0);
-        }
-
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
             $receiver = $email;
@@ -114,10 +107,6 @@ class EmailController extends Controller
             $query = $query->where('is_draft', 1)->where('emails.status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('emails.status', 'pre-send');
-        } elseif (! empty($request->type)) {
-            $query = $query->where(function ($query) use ($type) {
-                $query->where('type', $type)->where('emails.status', '<>', 'bin')->where('is_draft', '<>', 1)->where('emails.status', '<>', 'pre-send');
-            });
         } else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
@@ -137,7 +126,7 @@ class EmailController extends Controller
                 $query->where('from', 'like', '%' . $term . '%')
                     ->orWhere('to', 'like', '%' . $term . '%')
                     ->orWhere('subject', 'like', '%' . $term . '%')
-                    ->orWhere('message', 'like', '%' . $term . '%');
+                    ->orWhere('chat_messages.message', 'like', '%' . $term . '%');
             });
         }
 
@@ -145,19 +134,19 @@ class EmailController extends Controller
             if ($sender) {
                 $sender = explode(',', $request->sender);
                 $query = $query->where(function ($query) use ($sender) {
-                    $query->whereIn('from', $sender);
+                    $query->whereIn('emails.from', $sender);
                 });
             }
             if ($receiver) {
                 $receiver = explode(',', $request->receiver);
                 $query = $query->where(function ($query) use ($receiver) {
-                    $query->whereIn('to', $receiver);
+                    $query->whereIn('emails.to', $receiver);
                 });
             }
             if ($status) {
                 $status = explode(',', $request->status);
                 $query = $query->where(function ($query) use ($status) {
-                    $query->whereIn('emails..status', $status);
+                    $query->whereIn('emails.status', $status);
                 });
             }
             if ($category) {

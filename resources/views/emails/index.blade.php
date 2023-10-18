@@ -166,7 +166,7 @@
           </select>
         </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
-        <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
+        <input type='hidden' class="form-control" id="seen" name="seen" value="" />
         <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
     </div>

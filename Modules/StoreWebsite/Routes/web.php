@@ -83,6 +83,8 @@ Route::group([
     Route::post('/generate-file-store', [StoreWebsiteController::class, 'generateStorefile'])->name('store-website.generate-file-store');
 
     Route::post('/save-user-in-magento', [StoreWebsiteController::class, 'saveUserInMagento'])->name('store-website.save-user-in-magento');
+    Route::post('/save-user-in-magento-admin-password', [StoreWebsiteController::class, 'saveUserInMagentoAdminPassword'])->name('store-website.save-user-in-magento-admin-password');
+    Route::post('delete-admin-passwords', [StoreWebsiteController::class, 'deleteAdminPasswords'])->name('delete-admin-passwords');
     Route::post('/delete-user-in-magento', [StoreWebsiteController::class, 'deleteUserInMagento'])->name('store-website.delete-user-in-magento');
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
@@ -209,6 +211,7 @@ Route::group([
         Route::post('reconsile-brand', [BrandController::class, 'reconsileBrands'])->name('store-website.brand.reconsile-brands');
         Route::post('reconsile-brand-history-log', [BrandController::class, 'reconsileBrandsHistoryLog'])->name('reconsile-brands-history-log');
         Route::post('push-brand-history-log', [BrandController::class, 'pushBrandsLog'])->name('push-brands-history-log');
+        Route::post('column-visbility', [BrandController::class, 'columnVisbilityUpdate'])->name('store-website.brand.column.update');
     });
 
     Route::group(['prefix' => 'price-override'], function () {
