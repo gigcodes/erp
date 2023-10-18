@@ -141,6 +141,8 @@
 								<img src="/images/search.png" style="cursor: default;">
 							</button>
 							<a href="{{route('store-website.brand.list')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+
+							<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#datatablecolumnvisibilityList">Column Visiblity</button>
 						</div>
 					</div>
 				</form>
@@ -158,47 +160,135 @@
 			<div class="row table-horizontal-scroll">
 				<table class="table table-bordered">
 				<thead>
-				      <tr>
-				      	<th width="3%">Id</th>
-				        <th width="10%">Brand</th>
-				        <th width="5%">Min Price</th>
-				        <th width="5%">Max Price</th>
-				        <?php foreach($storeWebsite as $k => $title) { ?>
-							<?php 
-							$title= str_replace(' & ','&',$title);
-							$title= str_replace(' - ','-',$title);
-							$title= str_replace('&',' & ',$title);
-							$title= str_replace('-',' - ',$title);
-							$words = explode(' ', $title);
-							$is_short_title=0;
-							if (count($words) >= 2) {
-								$title='';
-								foreach($words as $word){
-									$title.=strtoupper(substr($word, 0, 1));
-								}
-								$is_short_title=1;
-							}
-							
-							?>
-				        	<th data-id="{{$k}}" width="4%">
-								<?php echo $title; ?>
-								<br>
-				        		<a class="brand-history btn p-0"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-				        		<a class="missing-brand-history text-dark" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
-				        	</th>
-				        <?php } ?>	
-				      </tr>
+			      	<tr>
+				      	@if(!empty($dynamicColumnsToShow))
+					      	@if (!in_array('Id', $dynamicColumnsToShow))
+					      		<th width="3%">Id</th>
+				      		@endif
+
+				      		@if (!in_array('Brand', $dynamicColumnsToShow))
+					        <th width="10%">Brand</th>
+					        @endif
+
+					        @if (!in_array('Min Price', $dynamicColumnsToShow))
+					        	<th width="5%">Min Price</th>
+				        	@endif
+
+				        	@if (!in_array('Max Price', $dynamicColumnsToShow))
+					        	<th width="5%">Max Price</th>
+				        	@endif
+
+					        <?php 
+					        foreach($storeWebsite as $k => $title) {
+
+					        	if(!in_array($k, $dynamicColumnsToShow)){
+
+									$title= str_replace(' & ','&',$title);
+									$title= str_replace(' - ','-',$title);
+									$title= str_replace('&',' & ',$title);
+									$title= str_replace('-',' - ',$title);
+									$words = explode(' ', $title);
+									$is_short_title=0;
+									if (count($words) >= 2) {
+										$title='';
+										foreach($words as $word){
+											$title.=strtoupper(substr($word, 0, 1));
+										}
+										$is_short_title=1;
+									} ?>
+
+						        	<th data-id="{{$k}}" width="4%">
+										<?php echo $title; ?>
+										<br>
+						        		<a class="brand-history btn p-0"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+						        		<a class="missing-brand-history text-dark" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
+						        	</th>
+					        <?php 
+					        	}
+					    	} ?>	
+				    	@else 
+					      	<th width="3%">Id</th>
+				      		
+					        <th width="10%">Brand</th>
+					        
+					        <th width="5%">Min Price</th>
+				        	
+					        <th width="5%">Max Price</th>
+				        	
+					        <?php 
+					        foreach($storeWebsite as $k => $title) { 
+
+								$title= str_replace(' & ','&',$title);
+								$title= str_replace(' - ','-',$title);
+								$title= str_replace('&',' & ',$title);
+								$title= str_replace('-',' - ',$title);
+								$words = explode(' ', $title);
+								$is_short_title=0;
+								if (count($words) >= 2) {
+									$title='';
+									foreach($words as $word){
+										$title.=strtoupper(substr($word, 0, 1));
+									}
+									$is_short_title=1;
+								} ?>
+					        	<th data-id="{{$k}}" width="4%">
+									<?php echo $title; ?>
+									<br>
+					        		<a class="brand-history btn p-0"  data-id="{{$k}}" href="javascript:;" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+					        		<a class="missing-brand-history text-dark" data-id="{{$k}}" href="javascript:;" ><i class="fa fa-close" aria-hidden="true"></i></a>
+					        	</th>
+					        <?php 
+					    	} ?>
+				    	@endif
+			      	</tr>
 				    </thead>
 				    <thead>
 				      <tr>
-				      	<th colspan="4"></th>
-				        <?php foreach($storeWebsite as $k => $title) { ?>
-						<th data-id="{{$k}}" width="4%">
-							<?php if(isset($apppliedResultCount[$k])){ ?> 
-							{{count($apppliedResultCount[$k])}}
-							<?php } ?>
-						</th>
-				        <?php } ?>	
+
+				      	@php
+			      	 	$colspan = 4;
+			      	 	if(!empty($dynamicColumnsToShow)){
+				      	 	if(in_array('Id', $dynamicColumnsToShow)){
+					      		$colspan =  ($colspan-1);
+				      	 	}
+					      	
+					      	if(in_array('Brand', $dynamicColumnsToShow)){
+					      		$colspan =  ($colspan-1);
+				      	 	}
+
+				      	 	if(in_array('Min Price', $dynamicColumnsToShow)){
+					      		$colspan =  ($colspan-1);
+				      	 	}
+
+				      	 	if(in_array('Max Price', $dynamicColumnsToShow)){
+					      		$colspan =  ($colspan-1);
+				      	 	}
+			      	 	}
+			      	 	@endphp
+
+				      	<th colspan="{{$colspan}}"></th>
+				        <?php 
+				        if(!empty($dynamicColumnsToShow)){
+					        foreach($storeWebsite as $k => $title) { 
+					        	if(!in_array($k, $dynamicColumnsToShow)){ ?>
+									<th data-id="{{$k}}" width="4%">
+										<?php if(isset($apppliedResultCount[$k])){ ?> 
+										{{count($apppliedResultCount[$k])}}
+										<?php } ?>
+									</th>
+					        <?php 
+					        	}
+					    	} 
+				    	} else {
+				    		foreach($storeWebsite as $k => $title) { ?>
+								<th data-id="{{$k}}" width="4%">
+									<?php if(isset($apppliedResultCount[$k])){ ?> 
+									{{count($apppliedResultCount[$k])}}
+									<?php } ?>
+								</th>
+					        <?php 
+					    	}
+				    	} ?>	
 				      </tr>
 				    </thead>
 				    <tbody id="brand_data">
@@ -265,7 +355,7 @@
 	</div>
 </div>
 
-
+@include("storewebsite::brand.partials.column-visibility-modal")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>

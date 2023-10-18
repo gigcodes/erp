@@ -20,6 +20,7 @@ class StoreWebsiteAdminUrl extends Model
         'server_ip_address',
         'request_data',
         'response_data',
+        'status',
     ];
 
     public function user()

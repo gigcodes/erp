@@ -60,7 +60,17 @@
                 <label for="question">Parent Intent</label>
                 <div class="row align-items-end" id="intentparent_1">
                     <div class="col-md-9">
-                        <?php echo Form::select("parent", ['' => 'Select parent Intent'] + $parentIntents, ["class" => "form-control", "placeholder" => "Select Parent intent"]); ?>
+                        <?php
+                            $parentIntents = !isset($parentIntents) ? [] : $parentIntents;
+                            echo Form::select(
+                                "parent",
+                                ['' => 'Select parent Intent'] + $parentIntents,
+                                [
+                                    "class" => "form-control",
+                                    "placeholder" => "Select Parent intent"
+                                ]
+                            );
+                        ?>
                     </div>
                 </div>
             </div>
@@ -162,7 +172,7 @@
         <p>You can use variables in the reply they will be formatted when sent Eg:- #{website}, #{order_id}:</p>
         <p>Variables List:-
             <select>
-                @foreach($variables as $variable)
+                @foreach($variables ?? [] as $variable)
                     <option value="{!! $variable !!}">{!! $variable !!}</option>
                 @endforeach
             </select>

@@ -538,7 +538,11 @@ Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildP
 Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
+    Route::post('magento_modules/listing-careers/create_or_edit', [\App\Http\Controllers\MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
     Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
+    Route::get('magento_modules/ajax-listing-logs', [MagentoModuleController::class, 'magentoModuleListLogsAjax'])->name('magento_modules.ajax-sync-logs');
+
     Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
     Route::get('magento_modules/get-m2-error-status-histories/{magento_module}', [MagentoModuleController::class, 'getM2ErrorStatusHistories'])->name('magento_module.get-m2-error-status-histories');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
@@ -546,6 +550,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/sync-modules', [MagentoModuleController::class, 'syncModules'])->name('magento_module.sync-modules');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
     Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::post('magento_modules/check-status', [MagentoModuleController::class, 'magentoModuleCheckStatus'])->name('magentoModuleCheckStatus');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
@@ -593,6 +598,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
     Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
     Route::post('magento_module/column-visbility', [MagentoModuleController::class, 'columnVisbilityUpdate'])->name('magento_module.column.update');
+    Route::post('sync-logs-column-visbility', [MagentoModuleController::class, 'syncLogsColumnVisbilityUpdate'])->name('magento_module.sync.logs.column.update');
     
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
@@ -5422,6 +5428,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
     Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
     Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-update');
+    Route::delete('/{id}/destroy', [TodoListController::class, 'destroy'])->name('todolist.destroy');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
