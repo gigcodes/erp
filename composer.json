@@ -9,6 +9,7 @@
   "type": "project",
   "require": {
     "php": "^7.3|^8.0",
+    "ext-bcmath": "*",
     "ext-curl": "*",
     "ext-json": "*",
     "barryvdh/laravel-ide-helper": "^2.8",
@@ -19,6 +20,7 @@
     "commerceguys/guzzle-oauth2-plugin": "*",
     "doctrine/dbal": "^2.13",
     "dompdf/dompdf": "1.0.2",
+    "elasticsearch/elasticsearch": "^8.10",
     "facebook/graph-sdk": "~5.0",
     "facebook/php-business-sdk": "^12.0.0",
     "fruitcake/laravel-cors": "^2.0",
@@ -78,6 +80,7 @@
     "spatie/laravel-permission": "^3.16",
     "stichoza/google-translate-php": "^4.1",
     "studio/laravel-totem": "*",
+    "symfony/css-selector": "^4.0",
     "tanmuhittin/laravel-google-translate": "^2.0",
     "techsemicolon/hubstaff": "^0.0.1",
     "thujohn/twitter": "^2.3",
@@ -89,9 +92,7 @@
     "webreinvent/laravel-nestable": "^0.0.3",
     "willdurand/email-reply-parser": "^2.9",
     "yajra/laravel-datatables-oracle": "^9.11",
-    "zircote/swagger-php": "2.*",
-    "symfony/css-selector": "^4.0",
-    "ext-bcmath": "*"
+    "zircote/swagger-php": "2.*"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.5",
@@ -175,7 +176,8 @@
     "sort-packages": true,
     "optimize-autoloader": true,
     "allow-plugins": {
-      "kylekatarnls/update-helper": true
+      "kylekatarnls/update-helper": true,
+      "php-http/discovery": true
     },
     "github-oauth": {},
     "platform": {
