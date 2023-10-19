@@ -67,6 +67,7 @@ use App\Models\GoogleTranslateCsvData;
 use App\Models\WebsiteStoreProject;
 use App\Models\StoreWebsiteCsvPullHistory;
 use App\Models\StoreWebsiteAdminUrl;
+use App\Models\MagentoMediaSync;
 
 class StoreWebsiteController extends Controller
 {
@@ -2840,21 +2841,12 @@ class StoreWebsiteController extends Controller
         //return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
     }
 
-    public function getWebsiteByStore(Request $request)
-    {
-        $store_id = $request->store_id;
-        $websites = Website::where('store_website_id', $store_id)->get();
-        $returnHTML = view('coupon.wepsiteDrpDwn')->with('websites', $websites)->render();
-
-        return response()->json(['type' => 'success', 'data' => $returnHTML, 'message' => ''], 200);
-    }
-
     public function magentoMediaSync(Request $request)
     {
-        return $data = $request->all();
-
-        $validator = Validator::make($data, [
-            'name' => 'required',
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'source_store_website_id' => 'required',
+            'dest_store_website_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -2869,13 +2861,53 @@ class StoreWebsiteController extends Controller
             return response()->json(['code' => 400, 'message' => $outputString]);
         }
 
-        $insertArray = [
-            'name' => $data['name'],
-        ];
+        $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->source_store_website_id)->first();
+        $destStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->dest_store_website_id)->first();
 
-        //check and create the tags
-        $WebsiteStoreProject->updateOrCreate($insertArray);
+        if(!empty($sourceStoreWebsites) && !empty($destStoreWebsites)){
 
-        return response()->json(['code' => 200, 'message' => 'Project Added Successfully']);
+            if(!empty($sourceStoreWebsites->server_ip) && !empty($sourceStoreWebsites->working_directory) && !empty($destStoreWebsites->server_ip) && !empty($destStoreWebsites->working_directory)){
+
+                // New Script
+                $source_server_ip = $sourceStoreWebsites->server_ip;
+                $source_server_dir = $sourceStoreWebsites->working_directory;
+                $dest_server_ip = $destStoreWebsites->server_ip;
+                $dest_server_dir = $destStoreWebsites->working_directory;
+
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+                $cmd = "bash $scriptsPath" . "sync-magento-static-files.sh -source_server_ip \"$source_server_ip\" -source_server_dir \"$source_server_dir\" -dest_server_ip \"$dest_server_ip\" -dest_server_dir \"$dest_server_dir\" 2>&1";
+
+                $result = exec($cmd, $output, $return_var);
+                \Log::info('store command:' . $cmd);
+                \Log::info('store output:' . print_r($output, true));
+                \Log::info('store return_var:' . $return_var);
+
+                $useraccess = MagentoMediaSync::create([
+                    'created_by' => Auth::user()->id,
+                    'source_store_website_id' => $request->source_store_website_id,
+                    'dest_store_website_id' => $request->dest_store_website_id,
+                    'source_server_ip' => $source_server_ip,
+                    'source_server_dir' => $source_server_dir,
+                    'dest_server_ip' => $dest_server_ip,
+                    'dest_server_dir' => $dest_server_dir,
+                    'request_data' => $cmd,
+                    'response_data' => json_encode($result),
+                ]);
+
+                return response()->json(['code' => 200, 'message' => 'Magento media sync Successfully.']);
+
+            } else {
+    
+                return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+            }
+                
+        } else {
+            return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+        }
+
+        
+
+        
     }
 }
