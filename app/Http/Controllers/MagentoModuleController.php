@@ -717,17 +717,25 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList(Request $request)
     {
+        \Log::info('########## at start of magentoModulelist ##########');
         $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
+        \Log::info('########## at start of magentoModulelist 1 ##########');
         $storeWebsites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
+        \Log::info('########## at start of magentoModulelist 2 ##########');
         $selecteStoreWebsites = ['151', '152', '153', '154'];
 
         if (isset($request->store_webs) && $request->store_webs) {
             $selecteStoreWebsites = $request->store_webs;
+            \Log::info('########## at start of magentoModulelist 4 ##########');
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+            \Log::info('########## at start of magentoModulelist3##########');
         } else {
+            \Log::info('########## at start of magentoModulelist 5 ##########');
             // Default QA store websites will select
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $selecteStoreWebsites)->pluck('title', 'id')->toArray();
+            \Log::info('########## at start of magentoModulelist 6 ##########');
         }
+        \Log::info('########## at start of magentoModulelist 7 ##########');
         // For Filter
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
@@ -740,7 +748,7 @@ class MagentoModuleController extends Controller
         if (isset($request->module_name) && $request->module_name != '') {
             $magento_modules = $magento_modules->where('module', 'Like', '%' . $request->module_name . '%');
         }
-
+        \Log::info('########## at start of magentoModulelist 8 ##########');
         $magento_modules_array = $magento_modules->get()->toArray();
         $magento_modules = $magento_modules->groupBy('module')->get();
         $magento_modules_count = $magento_modules->count();
@@ -750,7 +758,7 @@ class MagentoModuleController extends Controller
             $result[$value['store_website_id']][] = $value;
         });
         $magento_modules_array = $result;
-
+        \Log::info('########## at start of magentoModulelist 9 ##########');
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
         $dynamicColumnsToShow = [];
         if(!empty($datatableModel->column_name)){
