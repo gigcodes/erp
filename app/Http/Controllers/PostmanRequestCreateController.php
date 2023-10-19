@@ -143,10 +143,10 @@ class PostmanRequestCreateController extends Controller
 
             $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'postman-listing')->first();
 
-            $dynamicColumnsToShow = [];
+            $dynamicColumnsToShowPostman = [];
             if(!empty($datatableModel->column_name)){
                 $hideColumns = $datatableModel->column_name ?? "";
-                $dynamicColumnsToShow = json_decode($hideColumns, true);
+                $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
             }
 
             return view('postman.index', compact(
@@ -158,7 +158,7 @@ class PostmanRequestCreateController extends Controller
                 'listRequestNames',
                 'counter',
                 'status',
-                'dynamicColumnsToShow',
+                'dynamicColumnsToShowPostman',
             ));
         } catch (\Exception $e) {
             $msg = $e->getMessage();

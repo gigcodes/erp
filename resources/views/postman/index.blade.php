@@ -174,7 +174,7 @@
   <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
   <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
-<button type="button" class="btn custom-button" data-toggle="modal" data-target="#datatablecolumnvisibilityList">Column Visiblity</button>
+<button type="button" class="btn custom-button" data-toggle="modal" data-target="#postmandatatablecolumnvisibilityList">Column Visiblity</button>
 
   <div class="col-12">
     <h3>Assign Permission to User</h3>
