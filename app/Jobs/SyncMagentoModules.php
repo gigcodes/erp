@@ -64,7 +64,7 @@ class SyncMagentoModules implements ShouldQueue
                 $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $this->storeWebsite->id];
                 \Log::info('syncModules output is not set:' . print_r($return_data, true));
             }
-
+             \Log::info('Database name.'.\DB::connection()->getDatabaseName());
             // Sample Output  $output[0] = enabled=mod1,mod2,mod3 
             // Sample Output  $output[2] = disabled=mod1,mod2,mod3
             $enabledModules = [];
