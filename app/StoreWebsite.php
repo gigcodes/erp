@@ -54,6 +54,8 @@ class StoreWebsite extends Model
 
     use Mediable;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'title',
         'remote_software',
