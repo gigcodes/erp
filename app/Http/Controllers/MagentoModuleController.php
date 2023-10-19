@@ -750,13 +750,17 @@ class MagentoModuleController extends Controller
         }
         \Log::info('########## at start of magentoModulelist 8 ##########');
         $magento_modules_array = $magento_modules->get()->toArray();
+         \Log::info('########## at start of magentoModulelist 8.1 ##########');
         $magento_modules = $magento_modules->groupBy('module')->get();
+         \Log::info('########## at start of magentoModulelist 8.2 ##########');
         $magento_modules_count = $magento_modules->count();
+         \Log::info('########## at start of magentoModulelist 8.3 ##########');
 
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
         });
+         \Log::info('########## at start of magentoModulelist 8.4 ##########');
         $magento_modules_array = $result;
         \Log::info('########## at start of magentoModulelist 9 ##########');
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
