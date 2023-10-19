@@ -938,6 +938,8 @@ class MagentoModuleController extends Controller
         \Log::info('Database name.'.\DB::connection()->getDatabaseName());
         \Log::info('########## syncModules started ##########');
 
+        \Log::info('########## Database Host in env : '.env('DB_HOST'));
+
         \Log::info('########## Database Name in env : '.env('DB_DATABASE'));
 
         \Log::info('########## Database User in env: '.env('DB_USERNAME'));
