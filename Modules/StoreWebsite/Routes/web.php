@@ -103,6 +103,8 @@ Route::group([
 
     Route::post('magento-media-sync', [StoreWebsiteController::class, 'magentoMediaSync'])->name('store-website.magento-media-sync');
 
+    Route::get('magento-media-sync-logs', [StoreWebsiteController::class, 'magentoMediaSyncLogs'])->name('store-website.magentoMediaSyncLogs');
+
     Route::group([
         'prefix' => '{id}',
     ], function () {

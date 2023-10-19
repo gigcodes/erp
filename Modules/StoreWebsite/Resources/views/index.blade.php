@@ -52,7 +52,9 @@
 					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>&nbsp;
 					@endif
 
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#magento-media-sync"> Magento Media Sync </button>
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#magento-media-sync"> Magento Media Sync </button>&nbsp;
+
+					<a target="_blank" href="/store-website/magento-media-sync-logs" class="btn btn-secondary"> Magento Media Sync Logs</a>&nbsp;
 				</div>
 			</div>
 			<hr style=" width: 100%;">

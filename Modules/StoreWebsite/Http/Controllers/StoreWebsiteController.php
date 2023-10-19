@@ -2868,32 +2868,7 @@ class StoreWebsiteController extends Controller
 
             if(!empty($sourceStoreWebsites->server_ip) && !empty($sourceStoreWebsites->working_directory) && !empty($destStoreWebsites->server_ip) && !empty($destStoreWebsites->working_directory)){
 
-                // New Script
-                $source_server_ip = $sourceStoreWebsites->server_ip;
-                $source_server_dir = $sourceStoreWebsites->working_directory;
-                $dest_server_ip = $destStoreWebsites->server_ip;
-                $dest_server_dir = $destStoreWebsites->working_directory;
-
-                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-
-                $cmd = "bash $scriptsPath" . "sync-magento-static-files.sh -source_server_ip \"$source_server_ip\" -source_server_dir \"$source_server_dir\" -dest_server_ip \"$dest_server_ip\" -dest_server_dir \"$dest_server_dir\" 2>&1";
-
-                $result = exec($cmd, $output, $return_var);
-                \Log::info('store command:' . $cmd);
-                \Log::info('store output:' . print_r($output, true));
-                \Log::info('store return_var:' . $return_var);
-
-                $useraccess = MagentoMediaSync::create([
-                    'created_by' => Auth::user()->id,
-                    'source_store_website_id' => $request->source_store_website_id,
-                    'dest_store_website_id' => $request->dest_store_website_id,
-                    'source_server_ip' => $source_server_ip,
-                    'source_server_dir' => $source_server_dir,
-                    'dest_server_ip' => $dest_server_ip,
-                    'dest_server_dir' => $dest_server_dir,
-                    'request_data' => $cmd,
-                    'response_data' => json_encode($result),
-                ]);
+                \App\Jobs\MagentoMediaSyncJob::dispatch($sourceStoreWebsites, $destStoreWebsites, $request->source_store_website_id, $request->dest_store_website_id, Auth::user()->id)->onQueue('magento_media_sync');
 
                 return response()->json(['code' => 200, 'message' => 'Magento media sync Successfully.']);
 
@@ -2904,10 +2879,17 @@ class StoreWebsiteController extends Controller
                 
         } else {
             return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
-        }
+        } 
+    }
 
-        
+    public function magentoMediaSyncLogs(Request $request)
+    {
+        $title = 'Magento Media Sync | Store Website';
 
-        
+        $MagentoMediaSyncLogs = MagentoMediaSync::with(['user','sourcestorewebsite','deststorewebsite'])->orderBy('id', 'DESC');
+
+        $MagentoMediaSyncLogs = $MagentoMediaSyncLogs->get();
+
+        return view('storewebsite::index-magento-media-sync-logs', compact('title', 'MagentoMediaSyncLogs', 'request'));
     }
 }
