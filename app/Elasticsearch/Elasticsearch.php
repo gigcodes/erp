@@ -13,9 +13,10 @@ class Elasticsearch
 
     public function __construct()
     {
+        $hosts = explode(',', env('ELASTICSEARCH_HOST'));
         $this->connection = ClientBuilder::create()
             ->setHosts(
-                env('elasticsearch_host') ?? [$_ENV['ELASTICSEARCH_HOST'] ?? 'elasticsearch:9200']
+                $hosts ?? [$_ENV['ELASTICSEARCH_HOST'] ?? 'elasticsearch:9200']
             )
             ->build();
     }

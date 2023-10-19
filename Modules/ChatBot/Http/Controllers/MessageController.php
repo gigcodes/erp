@@ -230,7 +230,7 @@ class MessageController extends Controller
                 'body' => $item->getAttributes(),
             ]);
         }
-        return response()->json(['message' => 'success', 'code' => 200]);
+        return response()->json(['message' => 'Reindex successful, reload page.', 'code' => 200]);
     }
 
     public function todayMessagesCheck(Request $request)

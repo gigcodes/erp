@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Elasticsearch\Elasticsearch;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -507,5 +508,72 @@ class ChatMessage extends Model
     public function getSenderUsername()
     {
         return $this->hasOne(\App\Account::class, 'id', 'account_id');
+    }
+
+    public function getDocumentById(int $id) {
+        $record = Elasticsearch::search(
+            [
+                'index' => 'messages',
+                'body' => [
+                    'query' => [
+                        'match' => ['id' => $id]
+                    ]
+                ]
+            ]);
+
+        $record = $record['hits']['hits'];
+
+        if (!$record) {
+            return null;
+        }
+
+        $model = new self();
+        $model->setRawAttributes($record[0]['_source']);
+        $model->setAttribute('_id', $record[0]['_id']);
+
+        return $model;
+    }
+
+    public function updateDocumentById(string $_id, $model) {
+        $params = [
+            'index' => 'messages',
+            'id' => $_id,
+            'body' => [
+                'doc' => $model->getAttributes()
+            ]
+        ];
+        Elasticsearch::update($params);
+
+        return true;
+    }
+
+    public function save(array $options = [])
+    {
+        $elastic = $this->getDocumentById($this->getAttribute('id'));
+
+        $model = parent::save($options);
+
+        if ($elastic !== null) {
+            $this->updateDocumentById($elastic->getAttribute('_id'), $this);
+        } else {
+            Elasticsearch::index([
+                'index' => 'messages',
+                'body' => $this->getAttributes(),
+            ]);
+        }
+
+        return $model;
+    }
+
+    public function delete()
+    {
+        $model = $this->getDocumentById($this->getAttribute('id'));
+        if ($model) {
+            Elasticsearch::delete([
+                'index' => 'messages',
+                'id' => $model->getAttribute('_id'),
+            ]);
+        }
+        return parent::delete();
     }
 }
