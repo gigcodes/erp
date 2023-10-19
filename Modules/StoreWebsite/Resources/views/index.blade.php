@@ -392,7 +392,7 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title"><b>Website Tag</b></h5>
+				<h5 class="modal-title"><b>Magento Media Sync</b></h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -413,7 +413,7 @@
 								</div>
 								<div class="col-md-12">
 									<div class="form-group">
-										<button type="submit" class="btn btn-secondary submit_create_tag float-right float-lg-right">Update</button>
+										<button type="submit" class="btn btn-secondary submit_magento_media_sync float-right float-lg-right">Update</button>
 									</div>
 								</div>
 							</div>
@@ -442,10 +442,24 @@
 							<div class="row">
 								<div class="col-md-12">
 									<div class="table-responsive mt-3">
-										<div class="form-group">
-											<label>Tag Name</label>
-											<input type="text" class="form-control" name="tag" placeholder="Enter The Tag">
-										</div>
+
+										<div class="form-group ">
+                                            <label>Website:</label>
+                                            <select class="form-control select select2" name="command_store_website_id" onchange="getWebsitesByStoreId(this);" placeholder="Store Websites" >
+                                                <option value="">Please select website</option>
+                                                @foreach($storeWebsites as $ws)
+                                                	<option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Website store:</label>
+                                            <select class="form-control select select2 required command_websites" name="command_website_ids" id="command_website_ids" placeholder="Websites">
+                                                
+                                            </select>
+                                        </div>
+
 									</div>
 								</div>
 								<div class="col-md-12">
@@ -1384,6 +1398,63 @@
             return false
         }
     }
+
+    function getWebsitesByStoreId(ele) {
+        let store_id = $(ele).val();
+
+        $.ajax({
+            url: "{{ route('store-website.get-website-by-store') }}",
+            type: "POST",
+            data: {
+            	_token: "{{ csrf_token() }}",
+                store_id: store_id,
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            },
+            success: function(response) {
+                $("#loading-image-preview").hide();
+                if (response.type == "success") {
+                    $('.command_websites').html("");
+                    $('.command_websites').append(response.data);
+                }
+            },
+            error: function(xhr, status, error) {
+                $("#loading-image-preview").hide();
+                var err = eval("(" + xhr.responseText + ")");
+                toastr['error'](err, 'error');
+            }
+        });
+    }
+
+    $(document).on("click", ".submit_magento_media_sync", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.magento-media-sync') }}";
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				$('#loading-image-preview').hide();
+				
+				$('#magento-media-sync').modal('hide');
+				if (resp.code == 200) {
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#magento-media-sync').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
 </script>
 
 @endsection

@@ -101,6 +101,10 @@ Route::group([
 
     Route::post('create-project', [StoreWebsiteController::class, 'createProject'])->name('store-website.create-project');
 
+    Route::post('/get-website-by-store', [StoreWebsiteController::class, 'getWebsiteByStore'])->name('store-website.get-website-by-store');
+
+    Route::post('magento-media-sync', [StoreWebsiteController::class, 'magentoMediaSync'])->name('store-website.magento-media-sync');
+
     Route::group([
         'prefix' => '{id}',
     ], function () {

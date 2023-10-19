@@ -2839,4 +2839,43 @@ class StoreWebsiteController extends Controller
 
         //return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
     }
+
+    public function getWebsiteByStore(Request $request)
+    {
+        $store_id = $request->store_id;
+        $websites = Website::where('store_website_id', $store_id)->get();
+        $returnHTML = view('coupon.wepsiteDrpDwn')->with('websites', $websites)->render();
+
+        return response()->json(['type' => 'success', 'data' => $returnHTML, 'message' => ''], 200);
+    }
+
+    public function magentoMediaSync(Request $request)
+    {
+        return $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        $insertArray = [
+            'name' => $data['name'],
+        ];
+
+        //check and create the tags
+        $WebsiteStoreProject->updateOrCreate($insertArray);
+
+        return response()->json(['code' => 200, 'message' => 'Project Added Successfully']);
+    }
 }
