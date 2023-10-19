@@ -7,7 +7,8 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form action="{{ route('postman.column.update') }}" method="POST">
-                <?php echo csrf_field(); ?>
+                <?php //echo csrf_field(); ?>
+                @csrf
                 <div class="form-group col-md-12">
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
                         <tr>
