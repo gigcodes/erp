@@ -934,12 +934,21 @@ class MagentoModuleController extends Controller
 
     public function syncModules (Request $request) 
     {
+
+        \Log::info('Database name.'.\DB::connection()->getDatabaseName());
         \Log::info('########## syncModules started ##########');
+
+        \Log::info('########## Database Name in env : '.env('DB_DATABASE'));
+
+        \Log::info('########## Database User in env: '.env('DB_USERNAME'));
+
+        \Log::info('########## Database Password in env: '.env('DB_PASSWORD'));
         if ($request->has('store_website_id') && $request->store_website_id != '') {
             \Log::info('selected websites:' . print_r($request->store_website_id, true));
             $return_data = [];
             $updated_by = auth()->user()->id;
             $storeWebsites = StoreWebsite::whereIn('id', $request->store_website_id)->get();
+            \Log::info('Database name after StoreWebsite.'.\DB::connection()->getDatabaseName());
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
             foreach($storeWebsites as $storeWebsite) {
