@@ -1376,22 +1376,18 @@ class PostmanRequestCreateController extends Controller
 
         if($userCheck)
         {
-        $column = DataTableColumn::find($userCheck->id);
-        $column->section_name = 'postman-listing';
-        $column->column_name = json_encode($request->columns); 
-        $column->save();
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'postman-listing';
+            $column->column_name = json_encode($request->column_postman); 
+            $column->save();
         } else {
-        $column = new DataTableColumn();
-        $column->section_name = 'postman-listing';
-        $column->column_name = json_encode($request->columns); 
-        $column->user_id =  auth()->user()->id;
-        $column->save();
+            $column = new DataTableColumn();
+            $column->section_name = 'postman-listing';
+            $column->column_name = json_encode($request->column_postman); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
         }
 
-        return response()->json([
-        'status' => true,
-        'message' => " column visiblity Added Successfully",
-        'status_name' => 'success',
-        ], 200);
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 }
