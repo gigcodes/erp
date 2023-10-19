@@ -209,6 +209,8 @@
                         </div>
                     </form>
 
+                    <a class="btn btn-xs btn-secondary messages-reindex" href="{{ route('chatbot.messages.reindex') }}">Reindex</a>
+
 
                     <form method="post" class="pt-3 d-flex align-items-center chatbot-send-field">
                         <?php echo csrf_field(); ?>
@@ -393,6 +395,27 @@
                 $("#loading-image").hide();
                 if (response.code == 200) {
                     $this.remove();
+                    toastr['success'](response.message, 'success');
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                console.log("Sorry, something went wrong");
+            });
+        });
+
+        $(document).on("click", ".messages-reindex", function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('chatbot.messages.reindex') }}",
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
                     toastr['success'](response.message, 'success');
                 }
             }).fail(function (response) {
