@@ -211,6 +211,7 @@ Route::group([
         Route::post('reconsile-brand', [BrandController::class, 'reconsileBrands'])->name('store-website.brand.reconsile-brands');
         Route::post('reconsile-brand-history-log', [BrandController::class, 'reconsileBrandsHistoryLog'])->name('reconsile-brands-history-log');
         Route::post('push-brand-history-log', [BrandController::class, 'pushBrandsLog'])->name('push-brands-history-log');
+        Route::post('column-visbility', [BrandController::class, 'columnVisbilityUpdate'])->name('store-website.brand.column.update');
     });
 
     Route::group(['prefix' => 'price-override'], function () {

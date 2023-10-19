@@ -36,6 +36,9 @@
                 <a class="btn btn-image" onclick="changetodolist({{ $todolist->id }})" ><img src="{{asset('/images/edit.png')}}" style="cursor: nwse-resize; width: 14px !important;"></a>
                 <a onclick="getRemarkHistoryData({{ $todolist->id }})" class="btn" title="Remark history"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                 {{-- <button onclick="sendtoWhatsapp({{ $todolist->id }})" class="btn btn-secondary btn-sm">Send to Whatsapp</button>< --}}
+                {!! Form::open(['method' => 'DELETE','route' => ['todolist.destroy', $todolist->id],'style'=>'display:inline']) !!}
+                <button type="submit" class="btn btn-image" onclick="return confirm('{{ __('Are you sure you want to delete?') }}')"><img src="{{asset('/images/delete.png')}}" /></button>
+                {!! Form::close() !!}
               </td>
             </tr>
 
