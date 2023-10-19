@@ -3295,6 +3295,8 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
     Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
+
+    Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
     
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 

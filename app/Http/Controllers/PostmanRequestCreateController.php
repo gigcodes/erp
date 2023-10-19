@@ -24,6 +24,7 @@ use App\PostmanRequestJsonHistory;
 use App\Models\PostmanStatusHistory;
 use Illuminate\Support\Facades\Http;
 use App\Models\PostmanApiIssueFixDoneHistory;
+use App\Models\DataTableColumn;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -140,6 +141,14 @@ class PostmanRequestCreateController extends Controller
             $addAdimnAccessID = isAdmin() ? loginId() : '';
             $listRequestNames = PostmanRequestCreate::dropdownRequestNames();
 
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'postman-listing')->first();
+
+            $dynamicColumnsToShow = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShow = json_decode($hideColumns, true);
+            }
+
             return view('postman.index', compact(
                 'postmans',
                 'folders',
@@ -149,6 +158,7 @@ class PostmanRequestCreateController extends Controller
                 'listRequestNames',
                 'counter',
                 'status',
+                'dynamicColumnsToShow',
             ));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -1355,6 +1365,31 @@ class PostmanRequestCreateController extends Controller
             'status' => true,
             'data' => $datas,
             'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function postmanColumnVisbilityUpdate(Request $request)
+    {
+         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','postman-listing')->first();
+         
+         if($userCheck)
+         {
+           $column = DataTableColumn::find($userCheck->id);
+           $column->section_name = 'postman-listing';
+           $column->column_name = json_encode($request->columns); 
+           $column->save();
+         } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'postman-listing';
+            $column->column_name = json_encode($request->columns); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+         }
+       
+         return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
             'status_name' => 'success',
         ], 200);
     }

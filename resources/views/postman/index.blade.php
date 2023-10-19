@@ -174,7 +174,7 @@
   <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
   <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
-
+<button type="button" class="btn custom-button" data-toggle="modal" data-target="#datatablecolumnvisibilityList">Column Visiblity</button>
 
   <div class="col-12">
     <h3>Assign Permission to User</h3>
@@ -1074,7 +1074,7 @@
 {{-- /var/www/html/erp/resources/views/postman/postman-status-history.blade.php --}}
 @include('postman.postman-status-history')
 @include('postman.postman-api-issue-fix-done-history')
-
+@include("postman.column-visibility-modal")
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
