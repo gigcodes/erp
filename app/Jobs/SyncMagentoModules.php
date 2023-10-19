@@ -54,8 +54,9 @@ class SyncMagentoModules implements ShouldQueue
             $action = "sync";
 
             $cmd = "bash $this->scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -a \"$action\" 2>&1";
+            \Log::info('syncModules command Before Command Run:' . $cmd);
             $result = exec($cmd, $output, $return_var);
-            \Log::info('syncModules command:' . $cmd);
+            \Log::info('syncModules command After command Run:' . $cmd);
             \Log::info('syncModules output:' . print_r($output, true));
             \Log::info('syncModules return_var:' . $return_var);
 
