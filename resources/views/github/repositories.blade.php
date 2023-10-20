@@ -182,6 +182,18 @@
             fetchLabelsAndMessages(repo_id);
         });
 
+        $(document).on('click', '.generate-token-labels-button', function () {
+            var repo_id = $(this).data('repo_id');
+            generateTokenGithub(repo_id);
+        });
+
+        // Function to fetch labels and messages and populate the modal
+        function generateTokenGithub(repo_id) {
+            $("#loading-image-preview").show();
+            
+            
+        }
+
         // AJAX request to update label message
         $(document).on('change', '.message-input', function () {
             var labelId = $(this).data('label-id');
