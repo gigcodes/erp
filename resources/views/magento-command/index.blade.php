@@ -646,10 +646,10 @@
             toastr['error']('Please Select Command', 'error');
             return '';
         }
-        /*if($("#working_directory").val()==''){
+        if($("#working_directory").val()==''){
             toastr['error']('Please Enter Command Working Directory', 'error');
             return '';
-        }*/
+        }
 
         if ($('#titleUpdate').text() == 'Add')
             $("#command_id").val("");

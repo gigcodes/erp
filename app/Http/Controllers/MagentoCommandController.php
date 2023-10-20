@@ -131,20 +131,22 @@ class MagentoCommandController extends Controller
             $mCom->user_permission = implode(',', array_filter($userPermissions));
             $mCom->save();
 
-            if(!empty($request->command_name) && !empty($request->websites_ids)){
+            if(!empty($request->command_name) && !empty($request->websites_ids) && !empty($request->working_directory)){
 
                 //$path = 'bss_geoip/general/country';
 
                 //$value = 'QA';
 
-                $requestData['command'] = 'bin/magento '.$request->command_name;
+                //$requestData['command'] = 'bin/magento '.$request->command_name;
                 //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+
+                $requestData['command'] = $request->command_name;
 
                 $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
 
                 if(!empty($storeWebsiteData)){
                     $requestData['server'] = $storeWebsiteData->server_ip;
-                    $requestData['dir'] = $storeWebsiteData->working_directory;
+                    $requestData['dir'] = $request->working_directory;
                 }
 
                 if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir']) && !empty($request->command_name) && !empty($request->command_type)){
@@ -188,7 +190,7 @@ class MagentoCommandController extends Controller
                     MagentoCommandRunLog::create([
                             'command_id' => $mCom->id,
                             'user_id' => \Auth::user()->id ?? '',
-                            'website_ids' => $request->websites_ids,
+                            'website_ids' => $request->websites_ids[0],
                             'server_ip' => $storeWebsiteData->server_ip,
                             'request' => json_encode($requestData),
                             'response' => $response,
