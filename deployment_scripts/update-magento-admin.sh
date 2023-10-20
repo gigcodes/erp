@@ -6,8 +6,7 @@ function HELP {
 	echo "-u|--url: Admin URL"
 	echo "-p|--password: Password"
 }
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
-SSHPORT="22480 2112 22"
+
 args=("$@")
 idx=0
 while [[ $idx -lt $# ]]
@@ -43,22 +42,11 @@ do
 	esac
 done
 
-for portssh in $SSHPORT
-do
-        ssh -p $portssh  -i $SSH_KEY root@$server 'exit'
-        if [ $? -ne 255 ]
-        then
-                PORT=`echo $portssh`
-        fi
-done
-
-
 #if [ "$function" = "userpass" ]
 #then
 #	if [ "$type" == "ssh" ]
- #	then
- echo "Port $PORT"
-ssh -p $PORT -i $SSH_KEY root@$server "cd $ROOT_DIR && php bin/magento setup:config:set --backend-frontname=$adminurl -n"
+#	then
+ssh root@$server "php bin/magento setup:config:set --backend-frontname=$adminurl"
 if [ $? -eq 1 ]
 then
 	echo "{\"status\":\"fail\",\"msg\":\"Unable to connect\"}"
