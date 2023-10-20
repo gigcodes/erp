@@ -75,6 +75,17 @@ QUERY
 	fi
 }
 
+function list {
+        check_list=`mysql -h $host -u $user -p"$password" -se "select host,user from mysql.user'"`
+        if [ -z "$check_user" ]
+        then
+                echo " User not exist"
+        else
+		echo "$check_list"
+        fi
+}
+
+
 function HELP {
 	echo " -u|--user: Mysql User to connect"
 	echo " -p|--password: Mysql user Password"
@@ -160,4 +171,7 @@ then
 elif [ "$function" = "revoke" ]
 then
 	Revoke
+elif [ "$function" = "list" ]
+	list
 fi
+

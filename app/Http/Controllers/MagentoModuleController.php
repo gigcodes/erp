@@ -717,17 +717,25 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList(Request $request)
     {
+        \Log::info('########## at start of magentoModulelist ##########');
         $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
+        \Log::info('########## at start of magentoModulelist 1 ##########');
         $storeWebsites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
+        \Log::info('########## at start of magentoModulelist 2 ##########');
         $selecteStoreWebsites = ['151', '152', '153', '154'];
 
         if (isset($request->store_webs) && $request->store_webs) {
             $selecteStoreWebsites = $request->store_webs;
+            \Log::info('########## at start of magentoModulelist 4 ##########');
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
+            \Log::info('########## at start of magentoModulelist3##########');
         } else {
+            \Log::info('########## at start of magentoModulelist 5 ##########');
             // Default QA store websites will select
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $selecteStoreWebsites)->pluck('title', 'id')->toArray();
+            \Log::info('########## at start of magentoModulelist 6 ##########');
         }
+        \Log::info('########## at start of magentoModulelist 7 ##########');
         // For Filter
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
@@ -740,17 +748,21 @@ class MagentoModuleController extends Controller
         if (isset($request->module_name) && $request->module_name != '') {
             $magento_modules = $magento_modules->where('module', 'Like', '%' . $request->module_name . '%');
         }
-
+        \Log::info('########## at start of magentoModulelist 8 ##########');
         $magento_modules_array = $magento_modules->get()->toArray();
+         \Log::info('########## at start of magentoModulelist 8.1 ##########');
         $magento_modules = $magento_modules->groupBy('module')->get();
+         \Log::info('########## at start of magentoModulelist 8.2 ##########');
         $magento_modules_count = $magento_modules->count();
+         \Log::info('########## at start of magentoModulelist 8.3 ##########');
 
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
         });
+         \Log::info('########## at start of magentoModulelist 8.4 ##########');
         $magento_modules_array = $result;
-
+        \Log::info('########## at start of magentoModulelist 9 ##########');
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
         $dynamicColumnsToShow = [];
         if(!empty($datatableModel->column_name)){
@@ -934,12 +946,23 @@ class MagentoModuleController extends Controller
 
     public function syncModules (Request $request) 
     {
+
+        \Log::info('Database name.'.\DB::connection()->getDatabaseName());
         \Log::info('########## syncModules started ##########');
+
+        \Log::info('########## Database Host in env : '.env('DB_HOST'));
+
+        \Log::info('########## Database Name in env : '.env('DB_DATABASE'));
+
+        \Log::info('########## Database User in env: '.env('DB_USERNAME'));
+
+        \Log::info('########## Database Password in env: '.env('DB_PASSWORD'));
         if ($request->has('store_website_id') && $request->store_website_id != '') {
             \Log::info('selected websites:' . print_r($request->store_website_id, true));
             $return_data = [];
             $updated_by = auth()->user()->id;
             $storeWebsites = StoreWebsite::whereIn('id', $request->store_website_id)->get();
+            \Log::info('Database name after StoreWebsite.'.\DB::connection()->getDatabaseName());
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
             foreach($storeWebsites as $storeWebsite) {

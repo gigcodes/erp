@@ -82,7 +82,7 @@ push_action() {
     if [ $? -eq 0 ]
     then
     	STATUS="success"
-    	scp -q -i $SSH_KEY "$local_storage/$LOCAL_CSV_FILE" "root@$server:$rootdir/$REMOTE_CSV_FILE"
+    	scp -q -i $SSH_KEY "$local_storage/$LOCAL_CSV_FILE" "root@$server:$rootdir/$REMOTE_CSV_FILE" &> /dev/null
     else
             STATUS="fail"
     fi
@@ -102,3 +102,4 @@ case "$action" in
         exit 1
         ;;
 esac
+

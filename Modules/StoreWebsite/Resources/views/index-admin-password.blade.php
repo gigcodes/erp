@@ -206,7 +206,9 @@
         });      
 	});
 
-
+    $(document).on("click", ".btn-magento-user-request", function () {
+      $("#request-response-"+$(this).attr("data-id")).toggle();
+    });
 </script>
 
 @endsection

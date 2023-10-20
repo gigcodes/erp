@@ -171,7 +171,7 @@ class StoreWebsiteController extends Controller
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         //$storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC');
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user','storewebsite'])->where('status', 1)->orderBy('id', 'DESC');
 
         if ($keyword = request('searchstorewebsiteids')) {
             $storeWebsiteAdminUrls = $storeWebsiteAdminUrls->where(function ($q) use ($keyword) {
@@ -893,7 +893,7 @@ class StoreWebsiteController extends Controller
 
                 if ($getUser->is_deleted == 0) {
                     $magentoHelper = new MagentoHelperv2();
-                    $magentoHelper->updateMagentouser($storeWebsite, $post);
+                    $magentoHelper->updateMagentouser($storeWebsite, $post, $getUser->id);
                 }
             } else {
                 $params['username'] = $post['username'];
@@ -914,7 +914,7 @@ class StoreWebsiteController extends Controller
                 }
 
                 $magentoHelper = new MagentoHelperv2();
-                $magentoHelper->addMagentouser($storeWebsite, $post);
+                $magentoHelper->addMagentouser($storeWebsite, $post,$StoreWebsiteUsersid->id);
 
                 StoreWebsiteUserHistory::create([
                     'store_website_id' => $StoreWebsiteUsersid->store_website_id,

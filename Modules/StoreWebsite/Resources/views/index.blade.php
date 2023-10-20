@@ -1404,6 +1404,7 @@
         }
     }
 
+
     $(document).on("click", ".submit_magento_media_sync", function(e) {
 		e.preventDefault();
 		var url 		=  "{{ route('store-website.magento-media-sync') }}";
@@ -1436,6 +1437,11 @@
 		})
 
 	});
+
+    $(document).on("click", ".btn-magento-user-request", function () {
+      $("#request-response-"+$(this).attr("data-id")).toggle();
+    });
+
 </script>
 
 @endsection

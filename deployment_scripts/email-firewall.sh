@@ -31,6 +31,7 @@ echo "Checking for new emails.........."
 echo "Email: $email"
 echo "IP Address : $ip"
 
+
 email_whitelisted=`mysql -u $DB_USERNAME -h $DB_HOST -p$DB_PASSWORD erp_live -N -se "select email from users where is_whitelisted='1' and email='$email' "`
 
 ##### Check if sending mail account exist in our database whitelist ####
@@ -88,3 +89,5 @@ echo $(generate_post_data)
 curl --request POST --url https://api.brevo.com/v3/smtp/email --header 'accept: application/json' --header 'api-key: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' --header 'content-type: application/json' --data "$(generate_post_data)"
 
 fi
+
+
