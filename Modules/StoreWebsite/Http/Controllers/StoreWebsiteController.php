@@ -170,7 +170,7 @@ class StoreWebsiteController extends Controller
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         //$storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC');
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user','storewebsite'])->where('status', 1)->orderBy('id', 'DESC');
 
         if ($keyword = request('searchstorewebsiteids')) {
             $storeWebsiteAdminUrls = $storeWebsiteAdminUrls->where(function ($q) use ($keyword) {
