@@ -149,6 +149,8 @@ class MagentoCommandController extends Controller
                     $requestData['dir'] = $request->working_directory;
                 }
 
+                \Log::info("magento command request data".print_r($requestData, true));
+
                 if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir']) && !empty($request->command_name) && !empty($request->command_type)){
 
                     $requestJson = json_encode($requestData);
