@@ -2,6 +2,7 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use App\Console\Commands\ReindexMessages;
 use App\Elasticsearch\Elasticsearch;
 use App\Task;
 use App\Vendor;
@@ -38,6 +39,13 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
+        $elastic = new Elasticsearch();
+        $sizeof = $elastic->count('messages');
+
+        if ($sizeof < 100000) {
+            return $this->indexDB($request);
+        }
+
         $time = microtime(true);
         $search = request('search');
         $status = request('status');
@@ -111,7 +119,7 @@ class MessageController extends Controller
 
         $currentPage = Paginator::resolveCurrentPage();
 
-        $total = Elasticsearch::count(['index' => 'messages'])['count'];
+        $total = $sizeof;
 
         $body = [];
 
@@ -188,6 +196,16 @@ class MessageController extends Controller
 
     public function reindex(Request $request)
     {
+        $paramFix = $request->get('fix');
+
+        if ($paramFix == 1) {
+            Artisan::call('reindex:messages', ['param' => 'fix']);
+        }
+
+        if (ReindexMessages::isRunning()) {
+            return response()->json(['message' => 'Reindex already started in background.', 'code' => 500], 500);
+        }
+
         Artisan::call('reindex:messages');
         return response()->json(['message' => 'Reindex successful, reload page.', 'code' => 200]);
     }
@@ -843,5 +861,141 @@ class MessageController extends Controller
         }
 
         return response()->json(['code' => 400, 'data' => null, 'message' => 'Question not found']);
+    }
+
+    public function indexDB(Request $request)
+    {
+        $search = request('search');
+        $status = request('status');
+        $unreplied_msg = request('unreplied_msg'); //Purpose : get unreplied message value - DEVATSK=4350
+
+        $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
+            ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
+            ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
+            ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id')
+            ->leftJoin('store_websites as sw', 'sw.id', 'c.store_website_id')
+            ->leftJoin('bug_trackers  as bt', 'bt.id', 'chat_messages.bug_id')
+            ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
+            ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
+            ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
+            ->leftJoin('tmp_replies as tmp', 'tmp.chat_message_id', 'chat_messages.id')
+            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
+
+        if (! empty($search)) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
+                $q->where('cr.question', 'like', '%' . $search . '%')->orWhere('cr.answer', 'Like', '%' . $search . '%');
+            });
+        }
+
+        //START - Purpose : get unreplied messages - DEVATSK=4350
+        if (! empty($unreplied_msg)) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where('cm1.message', null);
+        }
+        //END - DEVATSK=4350
+
+        if (isset($status) && $status !== null) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
+                $q->where('chat_messages.approved', $status);
+            });
+        }
+
+        if (request('unread_message') == 'true') {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+                $q->where('cr.is_read', 0);
+            });
+        }
+
+        if (request('message_type') != null) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+                if (request('message_type') == 'email') {
+                    $q->where('chat_messages.is_email', '>', 0);
+                }
+                if (request('message_type') == 'task') {
+                    $q->orWhere('chat_messages.task_id', '>', 0);
+                }
+                if (request('message_type') == 'dev_task') {
+                    $q->orWhere('chat_messages.developer_task_id', '>', 0);
+                }
+                if (request('message_type') == 'ticket') {
+                    $q->orWhere('chat_messages.ticket_id', '>', 0);
+                }
+            });
+        }
+        if (request('search_type') != null and count(request('search_type')) > 0) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+                if (in_array('customer', request('search_type'))) {
+                    $q->where('chat_messages.customer_id', '>', 0);
+                }
+                if (in_array('vendor', request('search_type'))) {
+                    $q->orWhere('chat_messages.vendor_id', '>', 0);
+                }
+                if (in_array('supplier', request('search_type'))) {
+                    $q->orWhere('chat_messages.supplier_id', '>', 0);
+                }
+                if (in_array('dev_task', request('search_type'))) {
+                    $q->orWhere('chat_messages.developer_task_id', '>', 0);
+                }
+                if (in_array('task', request('search_type'))) {
+                    $q->orWhere('chat_messages.task_id', '>', 0);
+                }
+            });
+        }
+
+        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages LEFT JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where ((customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0 or email_id > 0) OR (customer_id IS NULL
+        AND vendor_id IS NULL
+        AND supplier_id IS NULL
+        AND bug_id IS NULL
+        AND task_id IS NULL
+        AND developer_task_id IS NULL
+        AND email_id IS NULL
+        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
+
+        $currentPage = Paginator::resolveCurrentPage();
+        $select = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
+            'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
+            'tmp.id as tmp_replies_id', 'tmp.suggested_replay', 'tmp.is_approved', 'tmp.is_reject', 'c.is_auto_simulator as customer_auto_simulator',
+            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'];
+        $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
+            $q->where('chat_messages.message', '!=', '');
+        })->select($select)
+            ->orderByRaw('cr.id DESC, chat_messages.id DESC')
+            ->offset(($currentPage - 1) * 20)->limit(20);
+
+        $total = Cache::remember('chatbot-messages-page-size', 60*60, fn () => $pendingApprovalMsg->toBase()->getCountForPagination());
+
+        $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
+            'items' => $pendingApprovalMsg->select([...$select, DB::raw('CASE WHEN `e`.`id` IS NOT NULL THEN 1 ELSE 0 END AS is_email')])->get(),
+            'total' => $total,
+            'perPage' => 20,
+            'currentPage' => $currentPage,
+            'options' => [
+                'path' => Paginator::resolveCurrentPath(),
+                'pageName' => 'page'
+            ]
+        ]);
+
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (! $allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
+            }
+        }
+        $page = $currentPage;
+        $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
+
+        if ($request->ajax()) {
+            $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
+
+            return response()->json(['code' => 200, 'tpl' => $tml, 'page' => $page]);
+        }
+
+        $allEntityType = DialogflowEntityType::all()->pluck('name', 'id')->toArray();
+        $variables = DialogFlowService::VARIABLES;
+        $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id', '>', 0)
+            ->pluck('value', 'id')->toArray();
+
+        //dd($pendingApprovalMsg);
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents'));
     }
 }

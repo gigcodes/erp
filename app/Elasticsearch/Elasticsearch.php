@@ -104,4 +104,18 @@ class Elasticsearch
         }
         return $result;
     }
+
+    public function count(int|string $index): int
+    {
+        try {
+            $count = $this->connection->count(['index' => $index]);
+            if (!$count) {
+                return 0;
+            }
+
+            return (int)$count['count'];
+        } catch (Exception|Throwable $e) {
+            return 0;
+        }
+    }
 }

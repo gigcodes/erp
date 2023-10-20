@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Elasticsearch\Elasticsearch;
 use Exception;
 use Throwable;
+use Illuminate\Support\Facades\Cache;
 use App\ChatMessage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -13,13 +14,14 @@ class ReindexMessages extends Command
 {
     const LIMIT = 50000;
     const MESSAGES_INDEX = 'messages';
+    const REINDEX_IS_RUNNING = 'reindex-messages-is-running';
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'reindex:messages';
+    protected $signature = 'reindex:messages {param?}';
 
     /**
      * The console command description.
@@ -48,7 +50,15 @@ class ReindexMessages extends Command
         set_time_limit(0);
 
         try {
+            if ($this->argument('param') === 'fix') {
+                self::setRunning(false);
+            }
+
+            if (self::isRunning()) {
+                return 0;
+            }
             $this->removeAll();
+            self::setRunning(true);
             for ($page = 1;$page<=500;$page++) {
                 $messages = $this->getMessagesFromDB($page);
                 if (!$messages) {
@@ -59,8 +69,9 @@ class ReindexMessages extends Command
                 $page++;
                 sleep(5);
             }
+            self::setRunning(false);
         } catch (\Exception $e) {
-
+            self::setRunning(false);
         }
 
         return 0;
@@ -122,5 +133,15 @@ class ReindexMessages extends Command
                     'match_all' => (object)[]
                 ]
             ]]);
+    }
+
+    public static function isRunning(): bool
+    {
+        return (bool)Cache::get(self::REINDEX_IS_RUNNING);
+    }
+
+    public static function setRunning(bool $is_running): bool
+    {
+        return (bool)Cache::set(self::REINDEX_IS_RUNNING, $is_running);
     }
 }

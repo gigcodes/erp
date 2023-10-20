@@ -420,7 +420,7 @@
                 }
             }).fail(function (response) {
                 $("#loading-image").hide();
-                console.log("Sorry, something went wrong");
+                toastr['error'](response.responseJSON.message, 'error');
             });
         });
 
