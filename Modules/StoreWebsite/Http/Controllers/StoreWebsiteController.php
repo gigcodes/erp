@@ -67,6 +67,7 @@ use App\Models\GoogleTranslateCsvData;
 use App\Models\WebsiteStoreProject;
 use App\Models\StoreWebsiteCsvPullHistory;
 use App\Models\StoreWebsiteAdminUrl;
+use App\Models\MagentoMediaSync;
 
 class StoreWebsiteController extends Controller
 {
@@ -170,7 +171,7 @@ class StoreWebsiteController extends Controller
         $storeWebsites = StoreWebsite::whereNull('deleted_at')->orderBy('id')->get();
         //$storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC')->get();
 
-        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user'])->where('status', 1)->orderBy('id', 'DESC');
+        $storeWebsiteAdminUrls = StoreWebsiteAdminUrl::with(['user','storewebsite'])->where('status', 1)->orderBy('id', 'DESC');
 
         if ($keyword = request('searchstorewebsiteids')) {
             $storeWebsiteAdminUrls = $storeWebsiteAdminUrls->where(function ($q) use ($keyword) {
@@ -892,7 +893,7 @@ class StoreWebsiteController extends Controller
 
                 if ($getUser->is_deleted == 0) {
                     $magentoHelper = new MagentoHelperv2();
-                    $magentoHelper->updateMagentouser($storeWebsite, $post);
+                    $magentoHelper->updateMagentouser($storeWebsite, $post, $getUser->id);
                 }
             } else {
                 $params['username'] = $post['username'];
@@ -913,7 +914,7 @@ class StoreWebsiteController extends Controller
                 }
 
                 $magentoHelper = new MagentoHelperv2();
-                $magentoHelper->addMagentouser($storeWebsite, $post);
+                $magentoHelper->addMagentouser($storeWebsite, $post,$StoreWebsiteUsersid->id);
 
                 StoreWebsiteUserHistory::create([
                     'store_website_id' => $StoreWebsiteUsersid->store_website_id,
@@ -2838,5 +2839,57 @@ class StoreWebsiteController extends Controller
         }
 
         //return response()->json(['success' => true, 'message' => 'Bulk Admin url generate completed, You can check logs individually.']);
+    }
+
+    public function magentoMediaSync(Request $request)
+    {
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'source_store_website_id' => 'required',
+            'dest_store_website_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->source_store_website_id)->first();
+        $destStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->dest_store_website_id)->first();
+
+        if(!empty($sourceStoreWebsites) && !empty($destStoreWebsites)){
+
+            if(!empty($sourceStoreWebsites->server_ip) && !empty($sourceStoreWebsites->working_directory) && !empty($destStoreWebsites->server_ip) && !empty($destStoreWebsites->working_directory)){
+
+                \App\Jobs\MagentoMediaSyncJob::dispatch($sourceStoreWebsites, $destStoreWebsites, $request->source_store_website_id, $request->dest_store_website_id, Auth::user()->id)->onQueue('magento_media_sync');
+
+                return response()->json(['code' => 200, 'message' => 'Magento media sync Successfully.']);
+
+            } else {
+    
+                return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+            }
+                
+        } else {
+            return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+        } 
+    }
+
+    public function magentoMediaSyncLogs(Request $request)
+    {
+        $title = 'Magento Media Sync | Store Website';
+
+        $MagentoMediaSyncLogs = MagentoMediaSync::with(['user','sourcestorewebsite','deststorewebsite'])->orderBy('id', 'DESC');
+
+        $MagentoMediaSyncLogs = $MagentoMediaSyncLogs->get();
+
+        return view('storewebsite::index-magento-media-sync-logs', compact('title', 'MagentoMediaSyncLogs', 'request'));
     }
 }
