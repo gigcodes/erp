@@ -31,3 +31,4 @@ if [ $? -eq 0 ]; then
 else
   print_json "error" "Rsync failed"
 fi
+

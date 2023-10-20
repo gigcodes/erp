@@ -1,4 +1,5 @@
 #!/bin/bash
+SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 
 function HELP {
         echo "-r|--repo: Repo Name"
@@ -63,6 +64,7 @@ done
 function set_variable {
 	if [ $type != "sensitive" ]
 	then
+		echo "Shared = php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value"
 		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value"
 	else
 		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'"
@@ -75,12 +77,12 @@ function set_variable {
 
 if [ $type != "sensitive" ]
 then
-	cd /opt/magento/$repo
+	cd /opt/magento/brands-labels/
 	git reset --hard origin/stage
 	git pull origin stage
-	composer install
-	php -f bin/magento -- deploy:mode:set production --skip-compilation
-	php bin/magento app:config:dump
+	export COMPOSER_ALLOW_SUPERUSER=1; php8.1 /opt/composer install --ignore-platform-reqs 
+	php8.1 -f bin/magento -- deploy:mode:set production --skip-compilation
+	php8.1 bin/magento app:config:dump
 fi
 if [ -z $file ]
 then
@@ -99,8 +101,38 @@ fi
 if [ $type != "sensitive" ]
 then
 	###### Dump changes from database and push to stage branch ###
-	php bin/magento app:config:dump
-	git add app/etc/config.php
+	php8.1 bin/magento app:config:dump
+	if [ "$repo" == "avoirchic" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/avoirchic/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/avoirchic/.deploy/config.php
+	fi
+
+	if [ "$repo" == "brands-labels" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/brands_labels/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/brands_labels/.deploy/config.php
+	fi
+
+	if [ "$repo" == "sololuxury" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/sololuxury/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/sololuxury/.deploy/config.php
+	fi
+
+	if [ "$repo" == "suvandnat" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/suvandnat/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/suvandnat/.deploy/config.php
+	fi
+
+	if [ "$repo" == "veralusso" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/veralusso/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/veralusso/.deploy/config.php
+	fi
+
+#	git add app/etc/config.php
 	git commit -m 'Deployment config erp'
 	git push origin stage
 
