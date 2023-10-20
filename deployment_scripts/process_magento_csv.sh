@@ -79,12 +79,12 @@ pull_action() {
 
 push_action() {
     # Step 1: Transfer the local CSV file to the remote server
-#    echo "ssh -i $SSH_KEY \"root@$server\" \"[ -d '$rootdir/app/i18n' ] || mkdir -p '$rootdir/app/i18n'\""
+#   echo "ssh -i $SSH_KEY \"root@$server\" \"[ -d '$rootdir/app/i18n' ] || mkdir -p '$rootdir/app/i18n'\""
     ssh -i $SSH_KEY "root@$server" "[ -d '$rootdir/app/i18n' ] || mkdir -p '$rootdir/app/i18n'" | tee -a ${SCRIPT_NAME}.log
     if [ $? -eq 0 ]
     then
     	STATUS="success"
-    	scp -q -i $SSH_KEY "$local_storage/$LOCAL_CSV_FILE" "root@$server:$rootdir/$REMOTE_CSV_FILE" | tee -a ${SCRIPT_NAME}.log
+    	scp -q -i $SSH_KEY "$local_storage/$LOCAL_CSV_FILE" "root@$server:$rootdir/$REMOTE_CSV_FILE" &> /dev/null tee -a ${SCRIPT_NAME}.log
     else
             STATUS="fail"
     fi

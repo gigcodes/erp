@@ -1,10 +1,12 @@
 #!/bin/bash
 set -o pipefail
+
 SCRIPT_NAME=`basename $0`
+SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 
 function HELP {
-        echo "-r|--repo: Repo Name"
-        echo "-s|--scope: Scope"
+  echo "-r|--repo: Repo Name"
+  echo "-s|--scope: Scope"
 	echo "-c|--code: Scope Code"
 	echo "-p|--path: Path variable"
 	echo "-v|--value: Value"
@@ -65,6 +67,7 @@ done
 function set_variable {
 	if [ $type != "sensitive" ]
 	then
+		echo "Shared = php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value" | tee -a ${SCRIPT_NAME}.log
 		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value" | tee -a ${SCRIPT_NAME}.log
 	else
 		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'" | tee -a ${SCRIPT_NAME}.log
@@ -77,12 +80,12 @@ function set_variable {
 
 if [ $type != "sensitive" ]
 then
-	cd /opt/magento/$repo
-	git reset --hard origin/stage | tee -a ${SCRIPT_NAME}.log
-	git pull origin stage | tee -a ${SCRIPT_NAME}.log
-	composer install | tee -a ${SCRIPT_NAME}.log
-	php -f bin/magento -- deploy:mode:set production --skip-compilation | tee -a ${SCRIPT_NAME}.log
-	php bin/magento app:config:dump | tee -a ${SCRIPT_NAME}.log
+	cd /opt/magento/brands-labels/
+	git reset --hard origin/stage  | tee -a ${SCRIPT_NAME}.log
+	git pull origin stage  | tee -a ${SCRIPT_NAME}.log
+	export COMPOSER_ALLOW_SUPERUSER=1; php8.1 /opt/composer install --ignore-platform-reqs   | tee -a ${SCRIPT_NAME}.log
+	php8.1 -f bin/magento -- deploy:mode:set production --skip-compilation  | tee -a ${SCRIPT_NAME}.log
+	php8.1 bin/magento app:config:dump  | tee -a ${SCRIPT_NAME}.log
 fi
 if [ -z $file ]
 then
@@ -101,10 +104,39 @@ fi
 if [ $type != "sensitive" ]
 then
 	###### Dump changes from database and push to stage branch ###
-	php bin/magento app:config:dump | tee -a ${SCRIPT_NAME}.log
-	git add app/etc/config.php | tee -a ${SCRIPT_NAME}.log
-	git commit -m 'Deployment config erp' | tee -a ${SCRIPT_NAME}.log
-	git push origin stage | tee -a ${SCRIPT_NAME}.log
+	php8.1 bin/magento app:config:dump  | tee -a ${SCRIPT_NAME}.log
+	if [ "$repo" == "avoirchic" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/avoirchic/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/avoirchic/.deploy/config.php
+	fi
+
+	if [ "$repo" == "brands-labels" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/brands_labels/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/brands_labels/.deploy/config.php
+	fi
+
+	if [ "$repo" == "sololuxury" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/sololuxury/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/sololuxury/.deploy/config.php
+	fi
+
+	if [ "$repo" == "suvandnat" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/suvandnat/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/suvandnat/.deploy/config.php
+	fi
+
+	if [ "$repo" == "veralusso" ]
+	then
+		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/veralusso/.deploy/
+		git add app/design/frontend/LuxuryUnlimited/veralusso/.deploy/config.php
+	fi
+
+	git commit -m 'Deployment config erp'  | tee -a ${SCRIPT_NAME}.log
+	git push origin stage  | tee -a ${SCRIPT_NAME}.log
 
 	sleep 10
 	##### Create PR from stage to master ####

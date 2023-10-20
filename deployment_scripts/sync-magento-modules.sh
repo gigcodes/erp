@@ -2,6 +2,11 @@
 set -o pipefail
 SCRIPT_NAME=`basename $0`
 
+
+
+
+
+
 function HELP {
         echo "-w|--website: website"
         echo "-s|--server: Server ip"
@@ -155,6 +160,18 @@ module_status()
 	rm -rf brands-labels
 }
 
+getstatus()
+{
+	input=`ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; bin/magento module:status $MNAME" | awk '{print $NF}'`
+	if [ $? -eq 0 ]
+	then
+		echo "{\"status\":\"$input\"}"
+	else
+		echo "{\"status\":\"failed with error $input\"}"
+	fi
+
+}
+
 #$action
 
 case $action in
@@ -172,6 +189,9 @@ case $action in
     ;;
   sync)
           sync
+    ;;
+  status)
+          getstatus
     ;;
 
   *)

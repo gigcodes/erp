@@ -34,6 +34,7 @@ echo "Checking for new emails.........." | tee -a ${SCRIPT_NAME}.log
 echo "Email: $email" | tee -a ${SCRIPT_NAME}.log
 echo "IP Address : $ip" | tee -a ${SCRIPT_NAME}.log
 
+
 email_whitelisted=`mysql -u $DB_USERNAME -h $DB_HOST -p$DB_PASSWORD erp_live -N -se "select email from users where is_whitelisted='1' and email='$email' "`
 
 ##### Check if sending mail account exist in our database whitelist ####
@@ -100,5 +101,4 @@ else
 fi
 
 #Call monitor_bash_scripts
-
 sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

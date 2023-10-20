@@ -3,6 +3,9 @@ set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 SSHPORT="22480 2112 22"
+MY_CREDS=/opt/etc/mysql-creds.conf
+source $MY_CREDS
+
 function Add {
 		
 	ssh -p $PORT -i ~/.ssh/id_rsa root@$SERVER "ufw insert 1 allow proto tcp from $IP to any port '80,443' comment '$comment'" | tee -a ${SCRIPT_NAME}.log
@@ -30,7 +33,6 @@ function HELP {
 	echo "-n|--number: Number in list of ips which need to delete for web access"
 	echo "-i|--ip: Ip address to add in whitelist for erp access"
 	echo "-c|--comment: Comment to show ip belongs to which user/system for whitelist for erp access"
- 	echo "-s|--server: server FQDN or ip address"
 }
 
 args=("$@")
@@ -58,6 +60,10 @@ do
                 SERVER="${args[$((idx+1))]}"
                 idx=$((idx+2))
                 ;;
+		-e|--email)
+                EMAIL="${args[$((idx+1))]}"
+                idx=$((idx+2))
+                ;;
                 -h|--help)
 	        HELP
 	        exit 1
@@ -68,10 +74,17 @@ do
 	esac
 done
 
-if [ -z "$SERVER" ]
+
+if [ -z $SERVER ]
 then
 	SERVER=`echo $HOSTNAME`
- fi
+fi
+
+if [ -z $EMAIL ]
+then
+        EMAIL="security@thluxuryunlimited.com"
+fi
+
 
 for portssh in $SSHPORT
 do
@@ -91,6 +104,11 @@ then
 elif [ "$function" = "list" ]
 then
 	List
+fi
+
+if [ ! -z $EMAIL ]
+then
+        mysql -u $DB_USERNAME -h $DB_HOST -p$DB_PASSWORD erp_live -e "insert into ip_logs(server_name,email,ip,is_user,status,message,created_at,updated_at) values('$SERVER','$EMAIL','$IP','1','0','Rule Adde by ERP',now(),now())"
 fi
 
 if [[ $? -eq 0 ]]

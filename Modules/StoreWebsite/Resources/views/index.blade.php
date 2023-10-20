@@ -47,7 +47,9 @@
 
 					@if($storeWebsites->count() > 0)
 					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button> -->
-					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>
+					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>&nbsp;
+
+					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>
 					@endif
 				</div>
 			</div>
@@ -1279,6 +1281,70 @@
         
         j++;
     });
+
+    function createAdminUrl() {
+    	        
+        $('.text-danger-url').html('');
+        if($('.formcreatewebsite #swTitle').val() == '') {
+        	$('.formcreatewebsite #swTitle').focus();
+            $('.formcreatewebsite #swTitle').next().text("Please enter Title");
+            return false;
+        }
+
+        if($('.formcreatewebsite #website').val() == '') {
+        	$('.formcreatewebsite #website').focus();
+            $('.formcreatewebsite #website').next().text("Please enter website");
+            return false;
+        }
+
+        if($('.formcreatewebsite #server_ip').val() == '') {
+        	$('.formcreatewebsite #server_ip').focus();
+            $('.formcreatewebsite #server_ip').next().text("Please enter server ip");
+            return false;
+        }
+
+        if($('.formcreatewebsite #working_directory').val() == '') {
+        	$('.formcreatewebsite #working_directory').focus();
+            $('.formcreatewebsite #working_directory').next().text("Please enter working directory");
+            return false;
+        }
+
+        if($('.formcreatewebsite #swTitle').val() != '' && $('.formcreatewebsite #website').val() != '' && $('.formcreatewebsite #working_directory').val() != '' && $('.formcreatewebsite #server_ip').val() != '' && $('formcreatewebsite #store_website_id').val() != '') {
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('store-website.create-admin-url') }}',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    store_dir : $('.formcreatewebsite #working_directory').val(),
+                    server_ip_address : $('.formcreatewebsite #server_ip').val(),
+                    store_website_id : $('.formcreatewebsite #store_website_id').val(),
+                    admin_url : $('.formcreatewebsite #website').val(),
+                    title : $('.formcreatewebsite #swTitle').val()
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+
+                    $("#generated-admin-url").val(response.data.admin_url);
+                    $("#generated-admin-href").attr("href", response.data.admin_url)
+                }
+
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['error'](response.message, 'error');
+                console.log("Sorry, something went wrong");
+            });
+        } else{
+            $('.text-danger-all').next().text("Something went wrong. Please try again.");
+            return false
+        }
+    }
 </script>
 
 @endsection

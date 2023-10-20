@@ -3,13 +3,17 @@ set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 function HELP {
-	echo "-f|--function: userpass"
+	echo "-f|--function: add/delete/disable"
 	echo "-s|--server: Server IP"
 	echo "-t|--type: User Type ssh/db"
 	echo "-u|--user: Username"
 	echo "-p|--password: Password"
+	echo "-l|--ltype: login type"
+	echo "-r|--keygen: generate / regenerate new key"
+	echo "-R|--role user role"
 }
 
+SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 args=("$@")
 idx=0
 while [[ $idx -lt $# ]]
@@ -35,6 +39,18 @@ do
 	        password="${args[$((idx+1))]}"
 	        idx=$((idx+2))
 	        ;;
+	        -l|--ltype)
+	        ltype="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -r|--keygen)
+	        keygen="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
+	        -R|--role)
+	        role="${args[$((idx+1))]}"
+	        idx=$((idx+2))
+	        ;;
                 -h|--help)
 	        HELP
 	        exit 1
@@ -45,16 +61,67 @@ do
 	esac
 done
 
-if [ "$function" = "userpass" ]
-then
-	if [ "$type" == "ssh" ]
+
+status=success
+
+function createuser()
+{
+	ssh -i $SSH_KEY root@$server "adduser $user"
+	if [ "$?" -eq 1 ]
 	then
 		ssh root@$server "echo '$user:$password' | chpasswd" | tee -a ${SCRIPT_NAME}.log
 	else
 		echo "db" | tee -a ${SCRIPT_NAME}.log
+    status=fail
 	fi
+}	
 	
-fi
+function listuser()
+{
+
+  ssh -i $SSH_KEY root@$server "awk -F':' '{ print $1}' /etc/passwd"
+	if [ "$?" -eq 1 ]
+	then
+		status=fail
+	fi
+}
+
+function deleteuser()
+{
+  ssh -i $SSH_KEY root@$server "deluser $user "
+	if [ "$?" -eq 1 ]
+	then
+		status=fail
+	fi
+}
+
+case $function in
+
+  createuser)
+	  createuser
+    ;;
+
+  listuser)
+          listuser
+    ;;
+
+  deleteuser)
+          deleteuser
+    ;;
+  sync)
+          sync
+    ;;
+  status)
+          getstatus
+    ;;
+
+  *)
+          echo "Failed"
+    ;;
+esac
+
+
+echo "{\"status\":\"$status\"}"
 
 if [[ $? -eq 0 ]]
 then
@@ -66,3 +133,4 @@ fi
 #Call monitor_bash_scripts
 
 sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+
