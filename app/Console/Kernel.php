@@ -739,6 +739,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('channeldata-auto-sync')->dailyAt('23:58');
         //Creating mailboxes from emails table
         //  $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
+
+        $schedule->command('reindex:messages')->dailyAt('00:00');
     }
 
     /**`
