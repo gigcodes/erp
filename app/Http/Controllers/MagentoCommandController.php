@@ -140,7 +140,7 @@ class MagentoCommandController extends Controller
                 //$requestData['command'] = 'bin/magento '.$request->command_name;
                 //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
 
-                $requestData['command'] = $request->command_name;
+                $requestData['command'] = $request->command_type;
 
                 $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
 
