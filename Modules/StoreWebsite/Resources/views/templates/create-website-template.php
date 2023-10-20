@@ -474,10 +474,24 @@
                         {{/if}}
                         <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{>prop.store_website_id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
                           <i class="fa fa-history aria-hidden="true""></i>
-                        </a>
+                        </a>      
+                        <button type="button" data-id="{{>prop.id}}" class="btn btn btn-sm btn-magento-user-request" style="border:1px solid"><i class="fa fa-retweet" aria-hidden="true"></i></button>          
                      </div>
                   </div>
                </div>
+
+               <div class="table-responsive" id="request-response-{{>prop.id}}" style="display:none;">
+               <table class="table">
+                 <tr>
+                   <th>Request :</th>
+                   <td>{{>prop.request_data}}</td>
+                 </tr>
+                 <tr>                   
+                   <th>Response :</th>
+                   <td>{{>prop.response_data}}</td>
+                 </tr>
+               </table>
+            </div>
             </div>
             {{/props}}
             {{else}}
