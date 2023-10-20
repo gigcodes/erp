@@ -116,6 +116,7 @@ padding: 3px 2px;
         <th width="5%">From</th>
         <th width="15%">Shortcuts</th>
         <th width="auto">Action</th>
+        <th width="auto">Is elastic</th>
 
     </tr>
     </thead>
@@ -451,6 +452,9 @@ padding: 3px 2px;
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span> -->
         </div>
+        </td>
+        <td>
+            <?=$isElastic ? 'Yes' : 'No' ?>
         </td>
     </tr>
     <?php }?>

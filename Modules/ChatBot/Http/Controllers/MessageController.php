@@ -41,9 +41,11 @@ class MessageController extends Controller
     {
         $elastic = new Elasticsearch();
         $sizeof = $elastic->count('messages');
+        $isElastic = true;
 
         if ($sizeof < 100000) {
-            return $this->indexDB($request);
+            $isElastic = false;
+            return $this->indexDB($request, $isElastic);
         }
 
         $time = microtime(true);
@@ -180,7 +182,7 @@ class MessageController extends Controller
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         if ($request->ajax()) {
-            $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
+            $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'isElastic'));
 
             return response()->json(['code' => 200, 'tpl' => $tml, 'page' => $page]);
         }
@@ -191,7 +193,7 @@ class MessageController extends Controller
             ->pluck('value', 'id')->toArray();
 
         //dd($pendingApprovalMsg);
-        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents'));
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents', 'isElastic'));
     }
 
     public function reindex(Request $request)
@@ -863,7 +865,7 @@ class MessageController extends Controller
         return response()->json(['code' => 400, 'data' => null, 'message' => 'Question not found']);
     }
 
-    public function indexDB(Request $request)
+    public function indexDB(Request $request, $isElastic)
     {
         $search = request('search');
         $status = request('status');
@@ -985,7 +987,7 @@ class MessageController extends Controller
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         if ($request->ajax()) {
-            $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories'));
+            $tml = (string) view('chatbot::message.partial.list', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'isElastic'));
 
             return response()->json(['code' => 200, 'tpl' => $tml, 'page' => $page]);
         }
@@ -996,6 +998,6 @@ class MessageController extends Controller
             ->pluck('value', 'id')->toArray();
 
         //dd($pendingApprovalMsg);
-        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents'));
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents', 'isElastic'));
     }
 }
