@@ -1,6 +1,6 @@
 #!/bin/bash
 ###  This script is used to autoselect Python scraper server which has maximum memory available and start python scraper there
-set -eo pipefail
+set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 ScriptDIR=`dirname "$0"`

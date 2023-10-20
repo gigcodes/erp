@@ -1,4 +1,4 @@
-set -eo pipefail
+set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 date=`date +%d-%m-%y` 

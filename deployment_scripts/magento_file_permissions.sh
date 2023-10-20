@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 DB_USERNAME=erplive

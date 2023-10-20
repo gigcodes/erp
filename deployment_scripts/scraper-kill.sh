@@ -1,4 +1,4 @@
-set -eo pipefail
+set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 server=$1

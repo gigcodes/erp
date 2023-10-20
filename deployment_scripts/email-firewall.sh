@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 ##### Create a file with mysql credentials and place file path in MY_CREDS variable. 

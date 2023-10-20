@@ -1,4 +1,4 @@
-set -eo pipefail
+set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 ########## Script will take 2 Command line argument first as Server id , 2nd as scrapper command
