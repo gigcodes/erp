@@ -1,9 +1,12 @@
 #!/bin/bash
+set -o pipefail
+
+SCRIPT_NAME=`basename $0`
 SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 
 function HELP {
-        echo "-r|--repo: Repo Name"
-        echo "-s|--scope: Scope"
+  echo "-r|--repo: Repo Name"
+  echo "-s|--scope: Scope"
 	echo "-c|--code: Scope Code"
 	echo "-p|--path: Path variable"
 	echo "-v|--value: Value"
@@ -64,10 +67,10 @@ done
 function set_variable {
 	if [ $type != "sensitive" ]
 	then
-		echo "Shared = php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value"
-		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value"
+		echo "Shared = php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value" | tee -a ${SCRIPT_NAME}.log
+		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value" | tee -a ${SCRIPT_NAME}.log
 	else
-		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'"
+		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'" | tee -a ${SCRIPT_NAME}.log
         	if [ $? -ne 0 ]
 		then
 	                exit 1
@@ -78,11 +81,11 @@ function set_variable {
 if [ $type != "sensitive" ]
 then
 	cd /opt/magento/brands-labels/
-	git reset --hard origin/stage
-	git pull origin stage
-	export COMPOSER_ALLOW_SUPERUSER=1; php8.1 /opt/composer install --ignore-platform-reqs 
-	php8.1 -f bin/magento -- deploy:mode:set production --skip-compilation
-	php8.1 bin/magento app:config:dump
+	git reset --hard origin/stage  | tee -a ${SCRIPT_NAME}.log
+	git pull origin stage  | tee -a ${SCRIPT_NAME}.log
+	export COMPOSER_ALLOW_SUPERUSER=1; php8.1 /opt/composer install --ignore-platform-reqs   | tee -a ${SCRIPT_NAME}.log
+	php8.1 -f bin/magento -- deploy:mode:set production --skip-compilation  | tee -a ${SCRIPT_NAME}.log
+	php8.1 bin/magento app:config:dump  | tee -a ${SCRIPT_NAME}.log
 fi
 if [ -z $file ]
 then
@@ -101,7 +104,7 @@ fi
 if [ $type != "sensitive" ]
 then
 	###### Dump changes from database and push to stage branch ###
-	php8.1 bin/magento app:config:dump
+	php8.1 bin/magento app:config:dump  | tee -a ${SCRIPT_NAME}.log
 	if [ "$repo" == "avoirchic" ]
 	then
 		cp app/etc/config.php app/design/frontend/LuxuryUnlimited/avoirchic/.deploy/
@@ -132,14 +135,25 @@ then
 		git add app/design/frontend/LuxuryUnlimited/veralusso/.deploy/config.php
 	fi
 
-#	git add app/etc/config.php
-	git commit -m 'Deployment config erp'
-	git push origin stage
+	git commit -m 'Deployment config erp'  | tee -a ${SCRIPT_NAME}.log
+	git push origin stage  | tee -a ${SCRIPT_NAME}.log
 
 	sleep 10
 	##### Create PR from stage to master ####
 	pull_number=`curl -XPOST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/ludxb/$repo/pulls -d '{"head":"stage","base":"master","title":"config deployment from erp"}' |grep '"number"'|awk '{print $2}'|cut -d',' -f1`
 
 	##### Merge PR ####
-	curl -XPUT -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/ludxb/$repo/pulls/$pull_number/merge
+	curl -XPUT -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/ludxb/$repo/pulls/$pull_number/merge | tee -a ${SCRIPT_NAME}.log
 fi
+
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
