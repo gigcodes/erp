@@ -20,3 +20,4 @@ if [ $? -eq 0 ]; then
 else
   echo "Error: Failed to insert data."
 fi
+rm -rf $OUTPUTFILE
