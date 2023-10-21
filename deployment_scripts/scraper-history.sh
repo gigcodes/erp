@@ -1,6 +1,6 @@
 while read line
 
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 do

@@ -1,4 +1,4 @@
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 for server in 0{1..9} {10..10}

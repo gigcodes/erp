@@ -1,4 +1,4 @@
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 while read line

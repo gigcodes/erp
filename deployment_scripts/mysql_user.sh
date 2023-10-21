@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 function Create {

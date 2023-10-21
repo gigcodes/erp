@@ -1,8 +1,7 @@
 #!/bin/bash
-set -o pipefail
 
+. /opt/etc/mysql-creds.conf
 SCRIPT_NAME=`basename $0`
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 
 function HELP {
   echo "-r|--repo: Repo Name"
@@ -64,13 +63,22 @@ done
 ### Load environment variables
 . /var/www/erp.theluxuryunlimited.com/.env
 
+for portssh in $possible_ssh_port
+do
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
+        if [ $? -ne 255 ]
+        then
+                PORT=`echo $portssh`
+        fi
+done
+
 function set_variable {
 	if [ $type != "sensitive" ]
 	then
 		echo "Shared = php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path $value" | tee -a ${SCRIPT_NAME}.log
 		php bin/magento --lock-env config:set --scope=$scope --scope-code=$code $path "$value" | tee -a ${SCRIPT_NAME}.log
 	else
-		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'" | tee -a ${SCRIPT_NAME}.log
+		ssh -p PORT -i $SSH_KEY root@$server "cd /home/*/current/ ; php bin/magento config:sensitive:set --scope=$scope --scope-code=$code $path '$value'" | tee -a ${SCRIPT_NAME}.log
         	if [ $? -ne 0 ]
 		then
 	                exit 1

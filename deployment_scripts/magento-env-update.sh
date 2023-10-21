@@ -1,5 +1,5 @@
 #!/bin/bash
-
+. /opt/etc/mysql-creds.conf
 function HELP {
         echo "-w|--website: website"
         echo "-s|--server: Server ip"
@@ -44,16 +44,15 @@ do
         esac
 done
 
+for portssh in $possible_ssh_port
+do
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
+        if [ $? -ne 255 ]
+        then
+                PORT=`echo $portssh`
+        fi
+done
 
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
-
-ssh -i $SSH_KEY -q root@$server exit
-if [ $? -eq 255 ]
-then
-	PORT=22480
-else
-	PORT=22
-fi
 scp -i $SSH_KEY -P $PORT root@$server:$rootdir/app/etc/env.php . &> /dev/null
 
 if [ $? -eq 1 ]
