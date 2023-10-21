@@ -1,9 +1,5 @@
 #!/bin/bash
-dbuser="emailsync"
-dbpass="emailsync"
-dbname="erp_live"
-dbhost="81.0.247.216"
-
+. /opt/etc/mysql-creds.conf
 
 #mysql -h $dbhost -u $dbuser -p$dbpass -D $dbname -N -se "select username, password from email_addresses"
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 SSHPORT="22480 2112 22"

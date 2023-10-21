@@ -1,5 +1,7 @@
 #!/bin/bash
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
+
+. /opt/etc/mysql-creds.conf
+
 while read line
 do 
 	SSH_PORT=`echo $line | awk '{print $4}'`
@@ -27,7 +29,7 @@ do
 		if [ ! -z "$ERROR" ]
 		then
 
-			mysql -h 81.0.247.216 -u erplive -p'Jb(hd4ersiuttG0iL' -e "insert into erp_live.website_logs (sql_query,module,website_id,error,type,file_path,created_at,updated_at,time) values('Stack Trace','NA','$WEB_ID',$(quoteSQL "$PASSWORD"),'$TYPE','$path',now(),now(),'0.0000');"
+			mysql -h $DB_HOST -u $DB_USERNAME -p$DB_PASSWORD -e "insert into $DB_NAME.website_logs (sql_query,module,website_id,error,type,file_path,created_at,updated_at,time) values('Stack Trace','NA','$WEB_ID',$(quoteSQL "$PASSWORD"),'$TYPE','$path',now(),now(),'0.0000');"
 		fi
 
 	done

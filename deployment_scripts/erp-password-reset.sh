@@ -1,16 +1,9 @@
 #!/bin/bash
-
+. /opt/etc/mysql-creds.conf
 if [ $# -eq 0 ]; then
   echo "Usage: $0 [username] [password]"
   exit 1
 fi
-
-DB_HOST_READ=81.0.247.216
-DB_PORT=3306
-DB_DATABASE=erp_live
-DB_USERNAME=erplive
-DB_PASSWORD="C*jlP2E0nbj6"
-DB_NAME=erp_live
 
 USERNAME=$1
 PASSWORD=$2
@@ -26,7 +19,7 @@ then
 fi
 
 
-USERSTATUS=`mysql -h $DB_HOST_READ -u $DB_USERNAME -p$DB_PASSWORD -D $DB_NAME -N -se "select id from users u2 where email = '$USERNAME'"`
+USERSTATUS=`mysql -h $DB_HOST -u $DB_USERNAME -p$DB_PASSWORD -D $DB_NAME -N -se "select id from users u2 where email = '$USERNAME'"`
 if [ ! -z $USERSTATUS ]
 then
 	echo "User available in ERP. resetting password now"
