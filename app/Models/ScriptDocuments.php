@@ -19,6 +19,7 @@ class ScriptDocuments extends Model
         'description',
         'location',
         'last_run',
-        'status'
+        'status',
+        'history_status'
     ];
 }
