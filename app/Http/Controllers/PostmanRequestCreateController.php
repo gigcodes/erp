@@ -1152,7 +1152,8 @@ class PostmanRequestCreateController extends Controller
                     $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                     $curl = curl_init();
                     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    $url = $request->urls;
+                    //$url = $request->urls;
+                    $url = $postmanUrl->request_url;
                     LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
                     curl_close($curl);
 
