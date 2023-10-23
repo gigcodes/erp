@@ -1411,4 +1411,17 @@ class PostmanRequestCreateController extends Controller
 
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = PostmanStatus::find($key);
+            $bugstatus->postman_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
 }
