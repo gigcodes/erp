@@ -29,7 +29,7 @@ class ScriptDocumentsController extends Controller
 
     public function records(Request $request)
     {   
-        $records = ScriptDocuments::orderBy('id', 'ASC');
+        $records = ScriptDocuments::where('history_status',0)->orderBy('id', 'DESC');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -105,6 +105,9 @@ class ScriptDocumentsController extends Controller
 
         $script_document['user_id'] = \Auth::user()->id;
         $records->fill($script_document);
+
+        $script_document_data['history_status'] = 1;
+        $insert = ScriptDocuments::where('file', $request->file)->update($script_document_data);
 
         $records->save();
 
