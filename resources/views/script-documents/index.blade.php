@@ -60,6 +60,7 @@
     @include("script-documents.create")
     @include("script-documents.edit")
     @include('script-documents.history')
+    @include('script-documents.comment')
 	
 	<div id="uploadeScriptDocumentsScreencastModal" class="modal fade" role="dialog">
 		<div class="modal-dialog">
@@ -353,46 +354,94 @@
 		});
 
 		$(document).on('click','.script-document-history',function(){
-	        store_website_id = $(this).data('id');
+	        id = $(this).data('id');
 			$.ajax({
 	            method: "GET",
-	            url: `{{ route('store-website.url.histories', [""]) }}/` + store_website_id,
+	            url: `{{ route('script-documents.histories', [""]) }}/` + id,
 	            dataType: "json",
 	            success: function(response) {
-	                if (response.status) {
-	                    var html = "";
-	                    $.each(response.data, function(k, v) {
-							html += "<tr>";
-							html += "<td>" + (k + 1) + "</td>";
-							html += "<td>" + v.storewebsite.title + "</td>";
-							html += "<td>";
-							html += '<a href ="'+ v.admin_url +'" target="_blank" style="display:flex; gap:5px">';
-							html += '<input type="text" class="form-control" name="admin_url[edit:'+ v.id +']" value="'+ v.admin_url +'">';
-							html += '</a>';
-							html += '<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="'+ v.admin_url +'">';
-							html += '<i class="fa fa-clone" aria-hidden="true"></i>';
-							html += '</button>';
-							html += "</td>";
-							html += "<td>" + v.request_data + "</td>";
-							html += "<td>" + v.response_data + "</td>";
-							html += "<td class='expand-row' style='word-break: break-all'>";
-							html += "<span class='td-mini-container'>" + (v.user !== undefined ? (v.user.name.length > 15 ? v.user.name.substr(0, 15) + '...' : v.user.name) : ' - ' ) + "</span>";
-							html += "<span class='td-full-container hidden'>" + (v.user !== undefined ? v.user.name : ' - ' ) + "</span>";
-							html += "</td>";
-							html += "<td>" + v.created_at + "</td>";
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+						html += "<tr>";
+						html += "<td>" + v.id + "</td>";
+						html += "<td>" + v.created_at_date + "</td>";
 
-							if(v.status==1){
-								html += "<td>Active</td>";
-							} else {
-								html += "<td>In Active</td>";
-							}
-							html += "</tr>";
-	                    });
-	                    $("#admin-urls-histories-list").find(".api-token-list-view").html(html);
-	                    $("#admin-urls-histories-list").modal("show");
-	                } else {
-	                    toastr["error"](response.error, "Message");
-	                }
+						if(v.script_type!=null){
+							html += "<td>" + v.script_type + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+						
+						html += "<td>" + v.file + "</td>";
+
+						if(v.description!=null){
+							html += "<td>" + v.description + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.usage_parameter!=null){
+							html += "<td>" + v.usage_parameter + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.category!=null){
+							html += "<td>" + v.category + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.comments!=null){
+							html += '<td><button type="button" data-id="'+ v.id +'" class="btn script-document-comment-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.author!=null){
+							html += "<td>" + v.author + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.location!=null){
+							html += "<td>" + v.location + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.last_run!=null){
+							html += "<td>" + v.last_run + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.status!=null){
+							html += "<td>" + v.status + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						html += "</tr>";
+                    });
+
+                    $("#script-document-histories-list").find(".script-document-list-view").html(html);
+                    $("#script-document-histories-list").modal("show");	                
+	            }
+	        });
+		});
+
+		$(document).on('click','.script-document-comment-view',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('script-documents.comment', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+	               
+                    $("#script-document-comment-list").find(".script-document-comment-view").html(response.data.comments);
+                    $("#script-document-comment-list").modal("show");
+	         
 	            }
 	        });
 		});

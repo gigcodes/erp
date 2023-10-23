@@ -45,7 +45,11 @@
 
 			      	<td>{{:prop.category}}</td>
 
-			      	<td>{{:prop.comments}}</td>
+			      	<td>
+				      	<button type="button" data-id="{{>prop.id}}" class="btn script-document-comment-view" style="padding:1px 0px;">
+		        			<i class="fa fa-eye" aria-hidden="true"></i>
+		        		</button>
+	        		</td>
 
 			      	<td>{{:prop.author}}</td>
 
@@ -64,6 +68,10 @@
 							<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
 								<i class="fa fa-trash" aria-hidden="true"></i>
 							</button>
+
+							<button type="button" data-id="{{>prop.id}}" class="btn script-document-history" style="padding:1px 0px;">
+			        			<i class="fa fa-info-circle" aria-hidden="true"></i>
+			        		</button>
 					 	</div>
 			        </td>
 		      </tr>

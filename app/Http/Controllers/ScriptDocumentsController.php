@@ -239,7 +239,7 @@ class ScriptDocumentsController extends Controller
         $page = $_REQUEST['page'];
         $page = $page * 10;
 
-        $records = ScriptDocuments::orderBy('id', 'ASC')->offset($page)->limit(10);
+        $records = ScriptDocuments::where('history_status',0)->orderBy('id', 'DESC')->offset($page)->limit(10);
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -271,5 +271,42 @@ class ScriptDocumentsController extends Controller
                 'total' => count($records),
             ]
         );
+    }
+
+    public function ScriptDocumentHistory($id)
+    {   
+        $scriptDocument = ScriptDocuments::findorFail($id);
+
+        $records = [];
+        if(!empty($scriptDocument)){
+
+            $records = ScriptDocuments::where('history_status',1)->where('file',$scriptDocument->file)->orderBy('id', 'DESC')->get();
+
+            $records = $records->map(
+                function ($script_document) {
+                    $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+                    return $script_document;
+                }
+            );
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $records,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function ScriptDocumentComment($id)
+    {   
+        $scriptDocument = ScriptDocuments::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $scriptDocument,
+            'message' => 'Comment get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
