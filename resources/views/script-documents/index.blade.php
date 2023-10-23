@@ -59,6 +59,7 @@
 	@include("script-documents.templates.list-template")
     @include("script-documents.create")
     @include("script-documents.edit")
+    @include('script-documents.history')
 	
 	<div id="uploadeScriptDocumentsScreencastModal" class="modal fade" role="dialog">
 		<div class="modal-dialog">
@@ -349,6 +350,51 @@
 					}
 				});
 			});
+		});
+
+		$(document).on('click','.script-document-history',function(){
+	        store_website_id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('store-website.url.histories', [""]) }}/` + store_website_id,
+	            dataType: "json",
+	            success: function(response) {
+	                if (response.status) {
+	                    var html = "";
+	                    $.each(response.data, function(k, v) {
+							html += "<tr>";
+							html += "<td>" + (k + 1) + "</td>";
+							html += "<td>" + v.storewebsite.title + "</td>";
+							html += "<td>";
+							html += '<a href ="'+ v.admin_url +'" target="_blank" style="display:flex; gap:5px">';
+							html += '<input type="text" class="form-control" name="admin_url[edit:'+ v.id +']" value="'+ v.admin_url +'">';
+							html += '</a>';
+							html += '<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="'+ v.admin_url +'">';
+							html += '<i class="fa fa-clone" aria-hidden="true"></i>';
+							html += '</button>';
+							html += "</td>";
+							html += "<td>" + v.request_data + "</td>";
+							html += "<td>" + v.response_data + "</td>";
+							html += "<td class='expand-row' style='word-break: break-all'>";
+							html += "<span class='td-mini-container'>" + (v.user !== undefined ? (v.user.name.length > 15 ? v.user.name.substr(0, 15) + '...' : v.user.name) : ' - ' ) + "</span>";
+							html += "<span class='td-full-container hidden'>" + (v.user !== undefined ? v.user.name : ' - ' ) + "</span>";
+							html += "</td>";
+							html += "<td>" + v.created_at + "</td>";
+
+							if(v.status==1){
+								html += "<td>Active</td>";
+							} else {
+								html += "<td>In Active</td>";
+							}
+							html += "</tr>";
+	                    });
+	                    $("#admin-urls-histories-list").find(".api-token-list-view").html(html);
+	                    $("#admin-urls-histories-list").modal("show");
+	                } else {
+	                    toastr["error"](response.error, "Message");
+	                }
+	            }
+	        });
 		});
 	</script>
 @endsection

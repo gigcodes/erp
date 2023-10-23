@@ -44,6 +44,10 @@ foreach($data as $prop) {?>
 				<button type="button" title="Delete" data-id="<?php echo $prop->id;  ?>" class="btn btn-delete-template">
 					<i class="fa fa-trash" aria-hidden="true"></i>
 				</button>
+
+				<button type="button" data-id="5" class="btn script-document-history" style="padding:1px 0px;">
+        			<i class="fa fa-info-circle" aria-hidden="true"></i>
+        		</button>
 		 	</div>
 	     </td>
 	</tr>
