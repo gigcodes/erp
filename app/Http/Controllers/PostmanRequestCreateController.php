@@ -763,6 +763,23 @@ class PostmanRequestCreateController extends Controller
         }
     }
 
+    public function postmanEditHistoryLog(Request $request)
+    {
+        try {
+            $postHis = PostmanEditHistory::select('postman_edit_histories.*', 'u.name AS userName')
+                ->leftJoin('users AS u', 'u.id', 'postman_edit_histories.user_id')
+                ->where('postman_request_id', '=', $request->id)->orderby('id', 'DESC')->get();
+
+            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Get Remark History Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Get Remark History Error', $msg, 'postman_request_creates');
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
     public function postmanErrorHistoryLog(Request $request)
     {
         try {
@@ -1160,7 +1177,10 @@ class PostmanRequestCreateController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman Send request Send postman request API Error => ' . json_decode($e));
-            $this->PostmanErrorLog($request->urls ?? '', 'Postman Send postman request API Error', $msg . ' #ids ' . $request->urls ?? '', 'postman_request_creates');
+            //$this->PostmanErrorLog($request->urls ?? '', 'Postman Send postman request API Error', $msg . ' #ids ' . $request->urls ?? '', 'postman_request_creates');
+
+            $urls = implode(",", $request->urls);
+            $this->PostmanErrorLog($urls ? $urls : '', 'Postman Send postman request API Error', $msg . ' #ids ' . $urls ? $urls : '', 'postman_request_creates');
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
