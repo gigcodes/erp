@@ -866,7 +866,7 @@
                   <th>Response</th>
                   <th>Response code</th>
                   <th>Request</th>
-                  <th>Parmiters</th>
+                  <th>Parameters</th>
                   <th>Date</th>
                 </tr>
               </thead>
