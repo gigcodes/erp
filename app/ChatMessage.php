@@ -39,6 +39,7 @@ class ChatMessage extends Model
     const ERROR_STATUS_SUCCESS = 0;
 
     const ERROR_STATUS_ERROR = 1;
+    const ELASTIC_INDEX = 'messages';
 
     use Mediable;
     /**
@@ -510,33 +511,45 @@ class ChatMessage extends Model
         return $this->hasOne(\App\Account::class, 'id', 'account_id');
     }
 
-    public function getDocumentById(int $id) {
-        $record = Elasticsearch::search(
-            [
-                'index' => 'messages',
-                'body' => [
-                    'query' => [
-                        'match' => ['id' => $id]
+    public function getDocumentById($id) {
+        try {
+            if ($id === null) {
+                return null;
+            }
+            $record = Elasticsearch::search(
+                [
+                    'index' => self::ELASTIC_INDEX,
+                    'body' => [
+                        'query' => [
+                            'match' => ['id' => $id]
+                        ]
                     ]
-                ]
-            ]);
+                ]);
 
-        $record = $record['hits']['hits'];
+            if ($record === null) {
+                return null;
+            }
 
-        if (!$record) {
+            $record = $record['hits']['hits'];
+
+            if (!$record) {
+                return null;
+            }
+
+            $model = new self();
+            $model->setRawAttributes($record[0]['_source']);
+            $model->setAttribute('_id', $record[0]['_id']);
+
+            return $model;
+        }
+        catch (\Exception $e) {
             return null;
         }
-
-        $model = new self();
-        $model->setRawAttributes($record[0]['_source']);
-        $model->setAttribute('_id', $record[0]['_id']);
-
-        return $model;
     }
 
-    public function updateDocumentById(string $_id, $model) {
+    public function updateDocumentById($_id, $model) {
         $params = [
-            'index' => 'messages',
+            'index' => self::ELASTIC_INDEX,
             'id' => $_id,
             'body' => [
                 'doc' => $model->getAttributes()
@@ -549,17 +562,22 @@ class ChatMessage extends Model
 
     public function save(array $options = [])
     {
-        $elastic = $this->getDocumentById($this->getAttribute('id'));
-
         $model = parent::save($options);
 
-        if ($elastic !== null) {
-            $this->updateDocumentById($elastic->getAttribute('_id'), $this);
-        } else {
-            Elasticsearch::index([
-                'index' => 'messages',
-                'body' => $this->getAttributes(),
-            ]);
+        try {
+            $elastic = $this->getDocumentById($this->getAttribute('id'));
+
+            if ($elastic !== null) {
+                $this->updateDocumentById($elastic->getAttribute('_id'), $this);
+            } else {
+                Elasticsearch::index([
+                    'index' => self::ELASTIC_INDEX,
+                    'body' => $this->getAttributes(),
+                ]);
+            }
+        }
+        catch (\Exception $e) {
+            return $model;
         }
 
         return $model;
@@ -567,13 +585,17 @@ class ChatMessage extends Model
 
     public function delete()
     {
-        $model = $this->getDocumentById($this->getAttribute('id'));
-        if ($model) {
-            Elasticsearch::delete([
-                'index' => 'messages',
-                'id' => $model->getAttribute('_id'),
-            ]);
+        $delete = parent::delete();
+        try {
+            $model = $this->getDocumentById($this->getAttribute('id'));
+            if ($model) {
+                Elasticsearch::delete([
+                    'index' => self::ELASTIC_INDEX,
+                    'id' => $model->getAttribute('_id'),
+                ]);
+            }
+        } catch (\Exception $e) {
         }
-        return parent::delete();
+        return $delete;
     }
 }
