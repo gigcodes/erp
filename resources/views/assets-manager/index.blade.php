@@ -10,8 +10,17 @@
             <div class="pull-left">
               <form class="form-inline" action="{{ route('assets-manager.index') }}" method="GET">
                 <div class="form-group ml-3">
-                  <br>
-                  <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                    <br>
+                    <?php //echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+
+                    <div class="form-group m-1">
+                        <input name="search" list="search-lists" type="text" class="form-control" placeholder="Enter keyword for search" value="{{request()->get('search')}}" />
+                        <datalist id="search-lists">
+                            @foreach ($assets as $key => $val )
+                                <option value="{{$val->name}}">
+                            @endforeach
+                        </datalist>
+                    </div>
                 </div>
                 <div class="form-group ml-3">
                   <br>
@@ -43,7 +52,7 @@
                 <div class="form-group ml-3">
                   Select Created Users
                   <br>
-                  {{ Form::select("user_ids[]", \App\User::pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
+                  {{ Form::select("user_ids[]", \App\User::orderBy('name')->pluck('name','id')->toArray(), request('user_ids'), ["class" => "form-control select2", "multiple"]) }}
                 </div>
                 <div class="form-group ml-3">
                   Select Ips
@@ -55,6 +64,11 @@
                 <a href="{{route('assets-manager.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
               </form>
             </div>
+            <div class="pull-right">
+              <br>
+                <a class="btn btn-secondary btn-sm text-white mr-4" href="{{ route('user-accesses.index') }}" target="_blank">User Access</a>
+            </div>
+
             <div class="pull-right">
               <br>
                 <button type="button" class="btn btn-secondary btn-sm text-white mr-4 assets-create-modal"><i class="fa fa-plus"></i></button>
@@ -92,6 +106,8 @@
               <th width="10%">Link</th>
               <th width="10%">IP</th>
               <th width="10%">IP Name</th>
+              <th width="10%">Account Name</th>
+              <th width="10%">Account password</th>
               <th width="5%">Created By</th>
               <th width="5%">Action</th>
             </tr>
@@ -112,11 +128,22 @@
                 <td class="expand-row-msg" data-name="user_name" data-id="{{$asset->id}}">
                   <span class="show-short-user_name-{{$asset->id}}">{{ Str::limit($asset->user_name, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-user_name-{{$asset->id}} hidden">{{$asset->user_name}}</span>
+
+                  @if($asset->user_name!='-' && !empty($asset->user_name))
+                  <button type="button"  class="btn btn-copy-username btn-sm float-right" data-id="{{$asset->user_name}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                  @endif
                 </td>
                 
                 <td class="expand-row-msg" data-name="password" data-id="{{$asset->id}}">
                   <span class="show-short-password-{{$asset->id}}">{{ Str::limit($asset->password, 3, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$asset->id}} hidden">{{$asset->password}}</span>
+
+                  @if($asset->password!='-' && !empty($asset->password))
+                  <button type="button"  class="btn btn-copy-password btn-sm float-right" data-id="{{$asset->password}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                  @endif
+                </button>
                 </td>
                 <td>{{ $asset->asset_type }}</td>
                 <td>@if(isset($asset->category)) {{ $asset->category->cat_name }} @endif</td>
@@ -138,6 +165,8 @@
                     <span class="show-short-ip_name-{{$asset->id}}">{{ Str::limit($asset->ip_name, 10, '..')}}</span>
                     <span style="word-break:break-all;" class="show-full-ip-name-{{$asset->id}} hidden">{{$asset->ip_name}}</span>
                   </td>
+                  <td>{{ $asset->account_username }}</td>
+                  <td>{{ $asset->account_password }}</td>
                   <td>{{ $asset->user?->name }}</td>
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -173,6 +202,10 @@
                     @endif
                     <button type="button" title="Update status" data-id="{{$asset->id}}" onclick="updateUserActiveForAssetManager(this)" class="btn" style="padding: 0px 1px;">
                       <i class="fa fas fa-toggle-{{$asset->active == 1 ? 'on' : 'off  '}}"></i>
+                    </button>
+
+                    <button type="button" class="btn show-users-access-modal" id="show-users-access-modal-{{$asset->id}}" data-id="{{$asset->id}}" data-value="{{$asset->ip}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
+                        <i class="fa fas fa-universal-access"></i>
                     </button>
                 </td>
             </tr>
@@ -495,6 +528,8 @@
       $('#capacity').val(asset.capacity);
       $('#link').val(asset.link);
       $('#client_id').val(asset.client_id);
+      $('#account_username').val(asset.account_username);
+      $('#account_password').val(asset.account_password);
       
       $('#ip_name_ins').val(asset.ip_name);
       
@@ -502,7 +537,7 @@
       var addserver = '';
       let folderName = JSON.parse(asset.folder_name);
       $.each(folderName,function(key,value){
-        addserver = addserver+'<br/><input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
+        addserver = addserver+'<input type="text" name="folder_name[]" id="folder_name'+key+'" class="form-control"  value="'+value+'" >';
           
       });
       $(".addServerUpdate").append(addserver);
@@ -696,7 +731,7 @@
           var getServerUpdCount = $(".getServerUpdCount").val();
           getServerUpdCount = (parseInt(getServerUpdCount) + parseInt(1));
           $(".getServerUpdCount").val(getServerUpdCount);
-          var addServerUpdate = '<br/><input type="text" name="folder_name[]" id="folder_name'+getServerUpdCount+'" class="form-control"  value="" >';
+          var addServerUpdate = '<input type="text" name="folder_name[]" id="folder_name'+getServerUpdCount+'" class="form-control"  value="" >';
           $(".addServerUpdate").append(addServerUpdate);
       });
 
@@ -795,5 +830,184 @@
         }
       }
 
+        $(".btn-copy-username").click(function() {
+            var username = $(this).data('id');
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(username).select();
+            document.execCommand("copy");
+            $temp.remove();
+        });
+
+        $(".btn-copy-password").click(function() {
+            var password = $(this).data('id');
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val(password).select();
+            document.execCommand("copy");
+            $temp.remove();
+        });
+
+    $(document).ready(function() {
+        $('.show-users-access-modal').click(function(){
+
+            var generatedPassword = generateRandomPassword(12); // Change the number to set the desired password length
+            $('.ua_password').val(generatedPassword);
+
+            var assets_management_id = $(this).data('id');
+
+            var assets_management_ip = $(this).data('value');
+
+            $.ajax({
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('assetsmanager.assetManamentUsersAccess') }}",
+                data: {
+                    assets_management_id : assets_management_id
+                },
+            }).done(response => {
+                
+                if(response.success==true){
+                    $('#showAssetsManagementUsersModel').find('#showAssetsManagementUsersView').html(response.html);
+                    $('#showAssetsManagementUsersModel #assets_management_id').val(assets_management_id);
+                    $('#showAssetsManagementUsersModel #assets_management_ip_address').val(assets_management_ip);
+                    $('#showAssetsManagementUsersModel').modal('show');                    
+                }
+
+            }).fail(function(response) {
+
+                alert('Could not fetch Log');
+            });
+        });
+
+    });
+
+    function generateRandomPassword(length) {
+        var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        var password = "";
+        for (var i = 0; i < length; i++) {
+            var randomIndex = Math.floor(Math.random() * charset.length);
+            password += charset[randomIndex];
+        }
+
+        return password;
+    }
+
+
+    $(document).on("click", "#create-user-acccess-btn", function(href) {
+
+        $('.text-danger-access').html('');
+        if($('.ua_user_ids').val() == '') {
+            $('.ua_user_ids').next().text("Please select user");
+            return false;
+        }
+
+        if($('.ua_username').val() == '') {
+            $('.ua_username').next().text("Please enter user name");
+            return false;
+        }
+
+        if($('.ua_password').val() == '') {
+            $('.ua_password').next().text("Please enter password");
+            return false;
+        }
+
+        if($('.ua_user_ids').val() != '' && $('.ua_username').val() != '' && $('.ua_password').val() != '' && $('#assets_management_id').val() != '' && $('.ua_user_role').val() != '' && $('.ua_login_type').val() != '' && $('#assets_management_ip_address').val() != '') {
+        
+            $.ajax({
+                type: 'POST',
+                url: 'assets-manager/user-access-create',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    user_id : $('.ua_user_ids').val(),
+                    username : $('.ua_username').val(),
+                    password : $('.ua_password').val(),
+                    user_role : $('.ua_user_role').val(),
+                    login_type : $('.ua_login_type').val(),
+                    key_type : $('.ua_key_type').val(),
+                    assets_management_id : $('#assets_management_id').val(),
+                    server_var : $('#assets_management_ip_address').val(),
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+
+                $('#createUserAccess')[0].reset();
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['error'](response.message, 'error');
+                console.log("Sorry, something went wrong");
+            });
+        } else{
+            $('.text-danger-all').next().text("Something went wrong. Please try again.");
+            return false
+        }
+    });
+
+    function deleteUserAccess(id) {
+        $.ajax({
+            type: 'POST',
+            url: 'assets-manager/user-access-delete',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                id : id
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+            
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
+        });
+    }
+
+    $(document).ready(function($) {
+        // Now you can use $ safely within this block
+        $("#tag-input").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('assetsmanager.users') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+    })
   </script>
 @endsection

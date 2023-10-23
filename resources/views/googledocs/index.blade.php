@@ -12,6 +12,7 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+        .select2-selection__rendered{overflow: inherit !important;}
     </style>
 
 @endsection
@@ -24,56 +25,76 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Google Docs</h2>
-            <div class="pull-left">
+            <div class="">
                 <div class="form-group">
                     <div class="row">
-                        <form class="form-inline message-search-handler" method="get">
-                                    <div class="form-group m-1">
-                                        <input name="name" list="name-lists" type="text" class="form-control" placeholder="Search file" value="{{request()->get('name')}}" />
-                                        <datalist id="name-lists">
-                                            @foreach ($data as $key => $val )
-                                                <option value="{{$val->name}}">
-                                            @endforeach
-                                        </datalist>
-                                    </div>
-                                    <div class="form-group sm-1">
-                                        <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" />
-                                        <datalist id="docid-lists">
-                                            @foreach ($data as $key => $val )
-                                                <option value="{{$val->docId}}">
-                                            @endforeach
-                                        </datalist>
-                                    </div>
-                                    <div class="form-group px-2 googleDocCategory-container">
-                                        <select class="w-100 js-example-basic-multiple js-states" id="googleDocCategoryFilter" multiple="multiple" name="googleDocCategory[]">
-                                            @foreach ($googleDocCategory as $key => $c)
-                                                <option value="{{$key}}">{{$c}}</option>
+                        <div class="col-lg-12 pd-sm">
+                            <form class="form-inline message-search-handler" method="get">
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select File Name: </b>
+                                    {{ Form::select("name[]", \App\GoogleDoc::pluck('name','id')->toArray(), request('name'), ["class" => "form-control globalSelect2", "multiple"]) }}
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select Tasks: </b>
+                                    <input class="form-control" type="text" id="tag-tasks" name="tasks" placeholder="Enter Task Id" style="width: 100%;" value="{{request()->get('tasks')}}">
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select Tasks Type: </b>
+                                    <select class="form-control" id="task_type" name="task_type" placeholder="Select Task Type">
+                                        <option value="">Select Type</option>
+                                        <option value="App\Task" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\Task')) selected @endif>TASK</option>
+                                        <option value="App\DeveloperTask" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\DeveloperTask')) selected @endif>DEVTASK</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select Category: </b>
+                                    <select class="form-control globalSelect2" multiple="true" id="googleDocCategoryFilter" name="googleDocCategory[]" placeholder="Select Category">
+                                        @foreach ($googleDocCategory as $key => $c)
+                                            <option value="{{ $key }}" @if(in_array($key, $request->input('googleDocCategory', []))) selected @endif>{{ $c }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+    				            @if(Auth::user()->isAdmin())
+                                    <div class="col-lg-3 pd-sm">
+                                        <b>Select User: </b>
+                                        <select class="form-control globalSelect2" multiple="true" id="user_gmail" name="user_gmail[]" placeholder="Select User">
+                                            @foreach($users as $val)
+                                            <option value="{{ $val->gmail }}" @if(in_array($val->gmail, $request->input('user_gmail', []))) selected @endif>{{ $val->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-				    @if(Auth::user()->isAdmin())
-                                    <div class="form-group m-1">
-                                        <select name="user_gmail" class="form-control" placeholder="Search User">
-                                        <option value="">Search User</option>
-                                            @foreach ($users as $key => $val )
-                                                <option value="{{$val->gmail}}" @if(request()->get('user_gmail')==$val->gmail) selected @endif>{{$val->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-				    @endif
+    				            @endif
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Enter Search Url: </b>
+                                    <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
+                                    <datalist id="docid-lists">
+                                        @foreach ($data as $key => $val )
+                                            <option value="{{$val->docId}}"></option>
+                                        @endforeach
+                                    </datalist>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Enter keyword for search: </b>
+                                    <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                                </div>
+                                <div class="col-lg-1 pd-sm">
                                     <div class="form-group">
-                                        <label for="button">&nbsp;</label>
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
                                             <img src="/images/search.png" style="cursor: default;">
                                         </button>
                                         <a href="/google-docs" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                                     </div>
-                        </form>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary open-google-documents">
+                    Open Documents
+                </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updatemultipleGoogleDocPermissionModal">
                     Add Permission
                   </button>   
@@ -425,6 +446,48 @@ $(document).on('click', '.permissionview', function (e) {
             $('.google_doc_check').prop('checked', isChecked);
         });
     });
-    
+
+    $(document).ready(function($) {
+        // Now you can use $ safely within this block
+        /*$("#tag-input").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('google-docs.filename') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });*/
+
+        $("#tag-tasks").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('google-docs.tasks') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+    })
     </script>
 @endsection

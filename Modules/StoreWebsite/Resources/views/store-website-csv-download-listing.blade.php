@@ -34,8 +34,12 @@
                 <!-- This div wraps the "Csv download" and "Truncate Data" buttons -->
                 <button type="button" class="btn btn-secondary csv-download" onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Pull Multiple Websites</button>
                 <a href="{{ route('store-website-csv-truncate') }}" class="btn btn-secondary ml-2" onclick="return confirm('{{ __('Are you sure you want to Truncate Data? Note: It will remove google translate data and csv files') }}')">Truncate Data</a>
+
             </div>
-        </form>
+        </div>
+    </div>
+    <div class="mt-3 col-md-12">
+        
     </div>
     
 	<div class="mt-3 col-md-12">

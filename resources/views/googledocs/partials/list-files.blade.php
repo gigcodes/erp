@@ -47,27 +47,27 @@
     <td>{{ $file->created_at }}</td>
     <td>
         @if($file->type === 'spreadsheet')
-        <a href ="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" />
+        <a class="google_document_{{ $file->id }}" href ="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" />
         <button class="copy-button btn btn-secondary float-right"
             data-message="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}"><i class="fa fa-copy"></i><</button>
         @endif
         @if($file->type === 'doc')
-        <a href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
+        <a class="google_document_{{ $file->id }}" href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
     
         <button class="copy-button btn btn-secondary float-right" data-message="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}"><i class="fa fa-copy"></i></button>
         @endif
         @if($file->type === 'ppt')
-        <a href ="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" />
+        <a class="google_document_{{ $file->id }}" href ="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary float-right"
             data-message="{{env('GOOGLE_SLIDES_FILE_URL').$file->docId.'/edit'}}" style="display:flex; gap:5px"><i class="fa fa-copy"></i></button>
         @endif
         @if($file->type === 'xps')
-        <a href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
+        <a class="google_document_{{ $file->id }}" href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"><input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary float-right"
             data-message="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}"><i class="fa fa-copy"></i></button>
         @endif
         @if($file->type === 'txt')
-        <a href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"> <input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
+        <a class="google_document_{{ $file->id }}" href ="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" target="_blank" style="display:flex; gap:5px"> <input class="fileUrl" type="text" value="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}" />
         <button class="copy-button btn btn-secondary float-right"
             data-message="{{env('GOOGLE_DOC_FILE_URL').$file->docId.'/edit'}}"><i class="fa fa-copy"></i></button>
         @endif
@@ -127,5 +127,22 @@ $(document).on('click', '.expand-row', function () {
     }
 });
 
+$(document).on('click', '.open-google-documents', function () {
+    var selectedCheckboxes = [];
+    
+    $('input[name="google_doc_check"]:checked').each(function() {
+        var checkboxValue = $(this).val();
+
+        var href = $('.google_document_'+checkboxValue).attr('href');
+        window.open(href, '_blank');      
+
+        selectedCheckboxes.push(checkboxValue);
+    });
+
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one checkbox.');
+        return;
+    }
+});
 </script>
 

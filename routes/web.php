@@ -381,6 +381,8 @@ use App\Http\Controllers\UsersAutoCommentHistoriesController;
 use App\Http\Controllers\GitHubActionController;
 use App\Http\Controllers\MonitStatusController;
 use App\Http\Controllers\MagentoProblemController;
+use App\Http\Controllers\ScriptDocumentsController;
+use App\Http\Controllers\AssetsManagerUsersAccessController;
 
 Auth::routes();
 
@@ -536,6 +538,11 @@ Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildP
 Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
+    Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
+    Route::post('magento_modules/listing-careers/create_or_edit', [\App\Http\Controllers\MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
+    Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
+    Route::get('magento_modules/ajax-listing-logs', [MagentoModuleController::class, 'magentoModuleListLogsAjax'])->name('magento_modules.ajax-sync-logs');
+
     Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
     Route::get('magento_modules/get-m2-error-status-histories/{magento_module}', [MagentoModuleController::class, 'getM2ErrorStatusHistories'])->name('magento_module.get-m2-error-status-histories');
     Route::get('magento_modules/get-verified-status-histories/{magento_module}/{type}', [MagentoModuleController::class, 'getVerifiedStatusHistories'])->name('magento_module.get-verified-status-histories');
@@ -543,6 +550,7 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/sync-modules', [MagentoModuleController::class, 'syncModules'])->name('magento_module.sync-modules');
     Route::post('magento_modules/update-status/logs', [MagentoModuleController::class, 'magentoModuleUpdateStatuslogs'])->name('magentoModuleUpdateStatuslogs');
     Route::get('magento_modules/remark/{magento_module}/{type?}', [MagentoModuleController::class, 'getRemarks'])->name('magento_module_remark.get_remarks');
+    Route::post('magento_modules/check-status', [MagentoModuleController::class, 'magentoModuleCheckStatus'])->name('magentoModuleCheckStatus');
     Route::post('magento_modules/remark', [MagentoModuleController::class, 'storeRemark'])->name('magento_module_remark.store');
     Route::post('/updateOptions', [MagentoModuleController::class, 'updateMagentoModuleOptions'])->name('magento_module.update.option');
     Route::get('/verifiedby', [MagentoModuleController::class, 'verifiedByUser'])->name('magento_module.verified.User');
@@ -590,6 +598,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module/unit-test-status-history', [MagentoModuleController::class, 'getUnitTestStatusHistories'])->name('magento_module.unit-status-history');
     Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
     Route::post('magento_module/column-visbility', [MagentoModuleController::class, 'columnVisbilityUpdate'])->name('magento_module.column.update');
+    Route::post('sync-logs-column-visbility', [MagentoModuleController::class, 'syncLogsColumnVisbilityUpdate'])->name('magento_module.sync.logs.column.update');
     
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
@@ -1708,6 +1717,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('meeting/fetch-recordings', [Meeting\ZoomMeetingController::class, 'fetchRecordings'])->name('meeting.fetch.recordings');
     Route::post('meeting/fetch-participants', [Meeting\ZoomMeetingController::class, 'fetchParticipants'])->name('meeting.fetch.participants');
     Route::get('meeting/list/fetch-participants', [Meeting\ZoomMeetingController::class, 'listParticipants'])->name('meeting.list.participants');
+    Route::get('meeting/list/participants', [Meeting\ZoomMeetingController::class, 'allParticipantsList'])->name('list.all.participants');
     Route::get('meeting/list/error-logs', [Meeting\ZoomMeetingController::class, 'listErrorLogs'])->name('meeting.list.error-logs');
     Route::get('meeting/list/recordings/{id}', [Meeting\ZoomMeetingController::class, 'listRecordings'])->name('meeting.list.recordings');
     Route::post('meeting/update-description', [Meeting\ZoomMeetingController::class, 'updateMeetingDescription'])->name('meeting.description.update');
@@ -2864,6 +2874,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/send/email', [AssetsManagerController::class, 'assetsManagerSendEmail'])->name('asset.manage.send.email');
     Route::post('assets-manager/records/permission', [AssetsManagerController::class, 'assetsManagerRecordPermission'])->name('asset.manage.records.permission');
     Route::post('assets-manager/linkuser/list', [AssetsManagerController::class, 'linkUserList'])->name('assetsmanager.linkuser.list');
+    Route::post('assets-manager/users', [AssetsManagerController::class, 'assetManamentUsers'])->name('assetsmanager.assetManamentUsers');
+    Route::post('assets-manager/users_access', [AssetsManagerController::class, 'assetManamentUsersAccess'])->name('assetsmanager.assetManamentUsersAccess');
+    Route::post('assets-manager/user-access-create', [AssetsManagerController::class, 'createUserAccess']);
+    Route::post('assets-manager/user-access-delete', [AssetsManagerController::class, 'deleteUserAccess']);
+    Route::get('assets-manager/user_accesses', [AssetsManagerController::class, 'assetsManagerUserAccessList'])->name('assets_manager_user_accesses');
+    Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
@@ -3280,6 +3296,23 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/update-api-issue-fix-done', [PostmanRequestCreateController::class, 'updateApiIssueFixDone'])->name('update-api-issue-fix-done');
     Route::get('postman/status/histories/{id}', [PostmanRequestCreateController::class, 'postmanStatusHistories'])->name('postman.status.histories');
     Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
+
+    Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
+    
+    Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
+
+    Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
+    Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
+    Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
+    Route::post('script-documents/store', [ScriptDocumentsController::class, 'store'])->name('script-documents.store');
+    Route::get('script-documents/edit/{id}', [ScriptDocumentsController::class, 'edit'])->name('script-documents.edit');
+    Route::post('script-documents/update', [ScriptDocumentsController::class, 'update'])->name('script-documents.update');
+    Route::post('script-documents/upload-file', [ScriptDocumentsController::class, 'uploadFile'])->name('script-documents.upload-file');
+    Route::get('script-documents/files/record', [ScriptDocumentsController::class, 'getScriptDocumentFilesList'])->name('script-documents.files.record');
+    Route::get('script-documents/record-script-document-ajax', [ScriptDocumentsController::class, 'recordScriptDocumentAjax'])->name('script-documents.index_ajax');
+    Route::get('script-documents/{id}/delete', [ScriptDocumentsController::class, 'destroy']);
+    Route::get('script-documents-histories/{id}', [ScriptDocumentsController::class, 'ScriptDocumentHistory'])->name('script-documents.histories');
+    Route::get('script-documents-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentComment'])->name('script-documents.comment');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
@@ -5124,6 +5157,7 @@ Route::get('product-pricing', [product_price\ProductPriceController::class, 'ind
 Route::post('store-website-product-prices/approve', [product_price\ProductPriceController::class, 'approve']);
 Route::get('store-website-product-prices', [product_price\ProductPriceController::class, 'store_website_product_prices'])->name('store-website-product-prices');
 Route::get('store-website-product-prices/history', [product_price\ProductPriceController::class, 'storewebsiteproductpriceshistory']);
+Route::get('store-website-product-skus', [product_price\ProductPriceController::class, 'store_website_product_skus'])->name('store-website-product-skus');
 
 Route::get('product-update-logs', [product_price\ProductPriceController::class, 'productUpdateLogs'])->name('product.update.logs');
 
@@ -5245,6 +5279,7 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
 //Magento Command
 Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
+Route::get('magento/get-command', [MagentoCommandController::class, 'getMagentoCommand'])->name('magento.getMagentoCommand');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
@@ -5390,6 +5425,7 @@ Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
 Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::get('/', [TodoListController::class, 'index'])->name('todolist');
     Route::post('/store', [TodoListController::class, 'store'])->name('todolist.store');
+    Route::post('/ajax_store', [TodoListController::class, 'ajax_store'])->name('todolist.ajax_store');
     Route::post('/edit', [TodoListController::class, 'edit'])->name('todolist.edit');
     Route::post('/update', [TodoListController::class, 'update'])->name('todolist.update');
     Route::post('/remark/history', [TodoListController::class, 'getRemarkHistory'])->name('todolist.remark.history');
@@ -5398,6 +5434,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
     Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
     Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-update');
+    Route::delete('/{id}/destroy', [TodoListController::class, 'destroy'])->name('todolist.destroy');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
@@ -5418,6 +5455,8 @@ Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(fun
     Route::post('assign/user-permission', [GoogleDocController::class, 'assignUserPermission'])->name('.assign-user-permission');
     Route::post('/remove/permission', [GoogleDocController::class, 'googleDocRemovePermission'])->name('.googleDocRemovePermission');
     Route::post('/add/mulitple/permission', [GoogleDocController::class, 'addMulitpleDocPermission'])->name('.addMulitpleDocPermission');
+    Route::get('filename', [GoogleDocController::class, 'googleDocumentList'])->name('.filename');
+    Route::get('tasks', [GoogleDocController::class, 'googleTasksList'])->name('.tasks');
 });
 
 Route::get('/get/dropdown/list', [GoogleScreencastController::class, 'getDropdownDatas'])->name('getDropdownDatas');

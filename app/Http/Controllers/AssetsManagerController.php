@@ -20,6 +20,7 @@ use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
+use App\Models\AssetManagerUserAccess;
 
 class AssetsManagerController extends Controller
 {
@@ -97,13 +98,10 @@ class AssetsManagerController extends Controller
         if (! empty($user_ids)) {
             $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
         }
-        if (! empty($ip_ids)) {
+        if (!empty($ip_ids) && (count($ip_ids)>0) && (!in_array(null, $ip_ids))) {
             $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
         }
-        if (! empty($ip_ids)) {
-            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
-        }
-        // $assets = $assets->orderBy("due_date", "ASC");
+        $assets = $assets->orderBy("id", "ASC");
 
         $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
         $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
@@ -653,5 +651,181 @@ class AssetsManagerController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => 'Error while updating status']);
         }
+    }
+
+    public function assetManamentUsers(request $request)
+    {
+        
+        $html = '';
+
+        $users = User::get();
+
+        $i = 1;
+        //dd($assetLogs);
+        if (count($users) > 0) {
+            foreach ($users as $user) {
+                $html .= '<tr>';
+                $html .= '<td>' . $user->id . '</td>';
+                $html .= '<td>' . $user->name . '</td>';
+                $html .= '<td>' . $user->email . '</td>';
+                $html .= '</tr>';
+                $i++;
+            }
+
+            return response()->json(['html' => $html, 'success' => true], 200);
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="3">Record not found</td>';
+            $html .= '</tr>';
+        }
+
+        return response()->json(['html' => $html, 'success' => true], 200);
+    }
+
+    public function assetManamentUsersAccess(request $request)
+    {
+        $html = '';
+
+        if(!empty($request->assets_management_id)){
+
+            $user_accesses = new AssetManagerUserAccess;
+            $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->where('assets_management_id', $request->assets_management_id)->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->get();
+
+            $i = 1;
+            if (count($user_accesses) > 0) {
+                foreach ($user_accesses as $user_access) {
+                    $html .= '<tr>';
+                    $html .= '<td>' . $i . '</td>';
+                    $html .= '<td>' . $user_access->selectedUser . '</td>';
+                    $html .= '<td>' . $user_access->username . '</td>';
+                    $html .= '<td>' . $user_access->password . '</td>';
+                    $html .= '<td>' . $user_access->created_at . '</td>';
+                    $html .= '<td>' . $user_access->request_data . '</td>';
+                    $html .= '<td>' . $user_access->response_data . '</td>';
+                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
+                    $html .= '</tr>';
+                    $i++;
+                }
+
+                return response()->json(['html' => $html, 'success' => true], 200);
+            } else {
+                $html .= '<tr>';
+                $html .= '<td colspan="8">Record not found</td>';
+                $html .= '</tr>';
+            }
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="8">Record not found</td>';
+            $html .= '</tr>';
+        }
+
+        return response()->json(['html' => $html, 'success' => true], 200);
+    }
+
+    public function createUserAccess(Request $request)
+    {
+        try {
+
+            // New Script
+            $action = "add";
+            $SFTP = true;
+            $ssh = true;
+            //$server = 'demo.mio-moda.com';
+            $server = strval($request->server_var);
+                       
+            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+            if($request->login_type=='key'){
+                $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$request->key_type\" -R \"$request->user_role\" 2>&1";
+            } else {
+                $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$request->user_role\" 2>&1";
+            }
+            // NEW Script
+            $result = exec($cmd, $output, $return_var);
+
+            /*\Log::info('command:' . $cmd);
+            \Log::info('output:' . print_r($output, true));
+            \Log::info('return_var:' . $return_var);*/
+
+            $useraccess = AssetManagerUserAccess::create([
+                'assets_management_id' => $request->assets_management_id,
+                'user_id' => $request->user_id,
+                'created_by' => Auth::user()->id,
+                'username' => $request->username,
+                'password' => $request->password,
+                'request_data' => $cmd,
+                'response_data' => json_encode($result),
+                'usernamehost' => $request->usernamehost,
+                'login_type' => $request->login_type,
+                'key_type' => $request->key_type,
+                'user_role' => $request->user_role,
+            ]);
+
+            return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'User Access has been created successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function deleteUserAccess(Request $request)
+    {
+        try {
+
+            $user_access = AssetManagerUserAccess::where('id', $request->id)->first();
+
+            if(!empty($user_access)){
+
+                // New Script
+                $action = "delete";
+                $SFTP = true;
+                $ssh = true;
+                $server = 'demo.mio-moda.com';
+                           
+                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+                if($user_access->login_type=='key'){
+                    $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$user_access->username\" -p \"$user_access->password\" -l \"$user_access->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$user_access->key_type\" -R \"$user_access->user_role\" 2>&1";
+                } else {
+                    $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$user_access->username\" -p \"$user_access->password\" -l \"$user_access->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$user_access->user_role\" 2>&1";
+                }
+
+                // NEW Script
+                $result = exec($cmd, $output, $return_var);
+
+                $access = AssetManagerUserAccess::find($request->id);
+                $access->delete();
+
+                return response()->json(['code' => 200, 'message' => 'User Access has been deleted successfully']);
+
+            } else {
+
+                return response()->json(['code' => 500, 'message' => 'Something went wrong. Please try again.']);
+
+            }
+            
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function assetsUserList(Request $request)
+    {
+
+        $dataDropdown = User::pluck('name', 'id')->toArray();
+
+        // Get the user input
+        $input = $_GET['term'];
+
+        // Filter tags based on user input
+        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
+            return stripos($tag, $input) !== false;
+        });
+
+        // Return the filtered tags as JSON
+        echo json_encode($filteredTags);
     }
 }

@@ -24,6 +24,7 @@ use App\PostmanRequestJsonHistory;
 use App\Models\PostmanStatusHistory;
 use Illuminate\Support\Facades\Http;
 use App\Models\PostmanApiIssueFixDoneHistory;
+use App\Models\DataTableColumn;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -140,6 +141,14 @@ class PostmanRequestCreateController extends Controller
             $addAdimnAccessID = isAdmin() ? loginId() : '';
             $listRequestNames = PostmanRequestCreate::dropdownRequestNames();
 
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'postman-listing')->first();
+
+            $dynamicColumnsToShowPostman = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+            }
+
             return view('postman.index', compact(
                 'postmans',
                 'folders',
@@ -149,6 +158,7 @@ class PostmanRequestCreateController extends Controller
                 'listRequestNames',
                 'counter',
                 'status',
+                'dynamicColumnsToShowPostman',
             ));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -753,6 +763,23 @@ class PostmanRequestCreateController extends Controller
         }
     }
 
+    public function postmanEditHistoryLog(Request $request)
+    {
+        try {
+            $postHis = PostmanEditHistory::select('postman_edit_histories.*', 'u.name AS userName')
+                ->leftJoin('users AS u', 'u.id', 'postman_edit_histories.user_id')
+                ->where('postman_request_id', '=', $request->id)->orderby('id', 'DESC')->get();
+
+            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman Get Remark History Error => ' . json_decode($e) . ' #id #' . $request->id ?? '');
+            $this->PostmanErrorLog($request->id ?? '', 'Postman Get Remark History Error', $msg, 'postman_request_creates');
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
     public function postmanErrorHistoryLog(Request $request)
     {
         try {
@@ -1150,7 +1177,10 @@ class PostmanRequestCreateController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman Send request Send postman request API Error => ' . json_decode($e));
-            $this->PostmanErrorLog($request->urls ?? '', 'Postman Send postman request API Error', $msg . ' #ids ' . $request->urls ?? '', 'postman_request_creates');
+            //$this->PostmanErrorLog($request->urls ?? '', 'Postman Send postman request API Error', $msg . ' #ids ' . $request->urls ?? '', 'postman_request_creates');
+
+            $urls = implode(",", $request->urls);
+            $this->PostmanErrorLog($urls ? $urls : '', 'Postman Send postman request API Error', $msg . ' #ids ' . $urls ? $urls : '', 'postman_request_creates');
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
@@ -1357,5 +1387,27 @@ class PostmanRequestCreateController extends Controller
             'message' => 'History get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+
+    public function postmanColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','postman-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'postman-listing';
+            $column->column_name = json_encode($request->column_postman); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'postman-listing';
+            $column->column_name = json_encode($request->column_postman); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 }

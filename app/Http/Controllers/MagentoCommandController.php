@@ -41,6 +41,34 @@ class MagentoCommandController extends Controller
         }
     }
 
+    public function getMagentoCommand(Request $request)
+    {
+        
+        $magentoCommand = MagentoCommand::whereNotNull('id');
+        $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
+        if (! empty($request->website)) {
+            $magentoCommand->whereIn('website_ids', $request->website);
+        }
+        if (! empty($request->command_name)) {
+            $magentoCommand->whereIn('command_name', $request->command_name);
+        }
+        if (! empty($request->user_id)) {
+            $magentoCommand->whereIn('user_id', $request->user_id);
+        }
+        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand = $magentoCommand->paginate($limit);
+        $users = User::all();
+        $websites = StoreWebsite::all();
+        $allMagentoCommandListArray = MagentoCommand::select(
+            \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
+        $assetsmanager = AssetsManager::all();
+
+        $html = view('partials.modals.magento-commands-modal-html')->with(['magentoCommand'=> $magentoCommand, 'websites'=> $websites, 'users'=> $users, 'magentoCommandListArray'=> $magentoCommandListArray, 'assetsmanager'=> $assetsmanager, 'allMagentoCommandListArray'=> $allMagentoCommandListArray])->render();
+
+        return response()->json(['code' => 200, 'html' => $html, 'message' => 'Content render']);
+
+    }
+
     public function search(Request $request)
     {
         $magentoCommand = MagentoCommand::whereNotNull('id');
@@ -102,6 +130,79 @@ class MagentoCommandController extends Controller
             $mCom->assets_manager_id = $request->assets_manager_id;
             $mCom->user_permission = implode(',', array_filter($userPermissions));
             $mCom->save();
+
+            if(!empty($request->command_name) && !empty($request->websites_ids) && !empty($request->working_directory)){
+
+                //$path = 'bss_geoip/general/country';
+
+                //$value = 'QA';
+
+                //$requestData['command'] = 'bin/magento '.$request->command_name;
+                //$requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+
+                $requestData['command'] = $request->command_type;
+
+                $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
+
+                if(!empty($storeWebsiteData)){
+                    $requestData['server'] = $storeWebsiteData->server_ip;
+                    $requestData['dir'] = $request->working_directory;
+                }
+
+                \Log::info("magento command request data".print_r($requestData, true));
+
+                if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir']) && !empty($request->command_name) && !empty($request->command_type)){
+
+                    $requestJson = json_encode($requestData);
+
+                    // Initialize cURL session
+                    $ch = curl_init();
+
+                    // Set cURL options for a POST request
+                    curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                        'Content-Type: application/json',
+                        'Content-Length: ' . strlen($requestJson)
+                    ));
+
+                    // Execute cURL session and store the response in a variable
+                    $response = curl_exec($ch);
+
+                    // Check for cURL errors
+                    if(curl_errno($ch)) {
+                        echo 'Curl error: ' . curl_error($ch);
+                    }
+
+                    // Close cURL session
+                    curl_close($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                    $responseData = json_decode($response);
+
+                    $status = 'Error';
+                    if($responseData->success==1){
+                        $status = 'Success';
+                    }
+
+                    \Log::info("Test response".print_r($response, true));
+                    
+                    MagentoCommandRunLog::create([
+                            'command_id' => $mCom->id,
+                            'user_id' => \Auth::user()->id ?? '',
+                            'website_ids' => $request->websites_ids[0],
+                            'server_ip' => $storeWebsiteData->server_ip,
+                            'request' => json_encode($requestData),
+                            'response' => $response,
+                            'command_name' => $request->command_name,
+                            'command_type' => $request->command_type,
+                            'job_id' => $httpcode,
+                        ]
+                    );
+                }
+            }
 
             return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {

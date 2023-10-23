@@ -29,6 +29,16 @@ class GoogleDocController extends Controller
         $data = GoogleDoc::orderBy('created_at', 'desc');
         if ($keyword = request('name')) {
             $data = $data->where(function ($q) use ($keyword) {
+                $q->whereIn('google_docs.id', $keyword);
+            });
+        }
+        /*if ($keyword = request('name')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('google_docs.name', 'LIKE', $keyword);
+            });
+        }*/
+        if ($keyword = request('search')) {
+            $data = $data->where(function ($q) use ($keyword) {
                 $q->where('name', 'LIKE', "%$keyword%");
             });
         }
@@ -39,10 +49,27 @@ class GoogleDocController extends Controller
         }
         if ($keyword = request('user_gmail')) {
             $data = $data->where(function ($q) use ($keyword) {
-                $q->whereRaw("find_in_set('" . $keyword . "',google_docs.read)")->orWhereRaw("find_in_set('" . $keyword . "',google_docs.write)");
+                foreach ($keyword as $key => $value) {
+                    $q->whereRaw("find_in_set('" . $value . "',google_docs.read)")->orWhereRaw("find_in_set('" . $value . "',google_docs.write)");    
+                }                
             });
         }
+        /*if ($keyword = request('tasks')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->whereIn('google_docs.belongable_id', $keyword);
+            });
+        }*/
 
+        if ($keyword = request('tasks')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('google_docs.belongable_id', 'LIKE', "%$keyword%");
+            });
+        }
+        if ($keyword = request('task_type')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('google_docs.belongable_type', $keyword);
+            });
+        }
         if (isset($request->googleDocCategory)) {
             $data = $data->whereIn('category', $request->googleDocCategory ?? []);
         }
@@ -52,7 +79,7 @@ class GoogleDocController extends Controller
         $data = $data->get();
         $users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
-        return view('googledocs.index', compact('data', 'users'))
+        return view('googledocs.index', compact('data', 'users', 'request'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
@@ -719,5 +746,48 @@ class GoogleDocController extends Controller
         }
 
         return back()->with('success', 'Permission successfully updated.');
+    }
+
+    public function googleDocumentList(Request $request)
+    {
+        
+        $dataDropdown = GoogleDoc::pluck('name', 'id')->toArray();
+
+        // Get the user input
+        $input = $_GET['term'];
+
+        // Filter tags based on user input
+        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
+            return stripos($tag, $input) !== false;
+        });
+
+        // Return the filtered tags as JSON
+        echo json_encode($filteredTags);
+    }
+
+    public function googleTasksList(Request $request)
+    {
+            
+        $tasksData = \App\Task::pluck('id')->toArray();
+        $DeveloperTaskData = \App\DeveloperTask::pluck('id')->toArray();
+
+        $tasks = array_unique(array_merge($tasksData,$DeveloperTaskData));
+
+        sort($tasks);
+
+        if(!empty($tasks)){
+            $tasks = explode (", ", implode(", ", $tasks));
+        }
+
+        // Get the user input
+        $input = $_GET['term'];
+
+        // Filter tags based on user input
+        $filteredTags = array_filter($tasks, function($tag) use ($input) {
+            return stripos($tag, $input) !== false;
+        });
+
+        // Return the filtered tags as JSON
+        echo json_encode($filteredTags);
     }
 }

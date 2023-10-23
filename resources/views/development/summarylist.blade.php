@@ -149,7 +149,11 @@
         .status-selection .multiselect {
             width: 100%;
         }
+        .select2-selection__rendered{overflow: inherit !important;}
 
+        ul.select2-selection__rendered{
+            display: block!important;
+        }
     </style>
 @endsection
 

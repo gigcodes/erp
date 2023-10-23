@@ -18,7 +18,10 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use App\Observers\CallBusyMessageObserver;
-
+use App\User;
+use App\StoreWebsite;
+use App\MagentoCommand;
+use App\AssetsManager;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -72,6 +75,12 @@ class AppServiceProvider extends ServiceProvider
             } else {
                 $view->with('googleDocCategory', []);
             }
+        });
+         
+        view()->composer('*',function($view) {
+        
+            $view->with('assetsmanager', AssetsManager::all());
+            $view->with('magentoCommandListArray', MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray());
         });
     }
 

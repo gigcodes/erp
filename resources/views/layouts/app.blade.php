@@ -54,7 +54,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
+    @if(Auth::user())
+        @if(Auth::user()->user_timeout!=0)
+            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('login') }}">
+        @else
+            <meta http-equiv="refresh" content = "28800; url={{ route('login') }}">
+        @endif
+    @endif
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         /* New Header design CSS */
         #quick-sidebars {
@@ -1052,8 +1059,143 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
     <!-- sop-search Modal-->
+    <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
+    <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Command Response History</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 3%;">ID</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Command Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Status</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Request</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Job ID</th>
+                                    <th style="width: 4%;overflow-wrap: anywhere;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tbodayCommandResponseHistory">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="addPostman_header" tabindex="-2"  class="modal fade" role="dialog" style="z-index: 5000; ">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
 
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><span id="titleUpdate">Add</span> Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="magentoForm" method="post">
+                            @csrf
 
+                            <div class="form-row">
+                                <input type="hidden" id="command_id" name="id" value="" />
+
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <div class="form-group col-md-12">
+                                            <label for="title">User Name</label>
+                                            <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
+                                                <option>--Users--</option>
+                                                @foreach ($users as $key => $user)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div> 
+                                    @endif
+                                @endauth
+
+                                <div class="form-group col-md-12">
+                                    <label for="title">Website</label>
+                                    <div class="dropdown-sin-1">
+                                        <?php $websites = \App\StoreWebsite::get(); ?>
+                                        <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
+                                            <option>--Website--</option>
+                                            <option value="ERP">ERP</option>
+                                            <?php
+                            foreach($websites as $website){
+                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                            }
+                          ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
+                                    <div class="dropdown-sin-1">
+                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
+                                            <option value="">--Assets Manager--</option>
+                                            
+                                            <?php
+                            foreach($assetsmanager as $am){
+                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
+                            }
+                          ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-12">
+                                    <label for="command_name">Command Name</label>
+                                    {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
+                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
+                                        <option value="">--Select Command Name--</option>
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
+                                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="command_type">Command</label>
+                                    {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
+                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
+                                        <option value="">--Select Command Name--</option>
+                                        @foreach ($magentoCommandListArray as $comName => $comType)
+                                        <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="working_directory">Working Directory</label>
+                                    <input type="text" name="working_directory" value="" class="form-control" id="working_directory" placeholder="Enter the working directory" required>
+                                    
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary submit-form">Save</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="modal fade" id="instructionAlertModal" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -1309,12 +1451,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <i class="fa fa-sitemap fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="quick-icon todolist-request" href="#"><span><i
-                                                class="fa fa-plus fa-2x"></i></span></a>
+                                    <a title="Add Todo List" class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="quick-icon todolist-get" href="#"><span><i
-                                                class="fa fa-list fa-2x"></i></span></a>
+                                    <a title="Todo List" class="quick-icon todolist-get" href="#"><span><i class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
@@ -1338,13 +1478,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $description = \App\Meetings\ZoomMeetingParticipant::whereNull('description')->count();
                                     @endphp
-                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="Zoom View All Participants">
+                                    <button type="button" class="btn btn-xs ParticipantsList" title="view Participants" onclick="viewParticipantsIcon()">
                                         <span><i class="fa fa-users fa-2x"></i>
                                             @if($description > 0)
                                                 <span class="description-alert-badge"></span>
                                             @endif                                                                                        
                                         </span>
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
                                     <a class="instruction-button quick-icon" href="#"><span><i
@@ -1401,6 +1541,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
+                                </li>
+                                <li>
+                                    <a title="Search Command" id="search-command" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-terminal fa-2x" aria-hidden="true"></i></span>
+                                    </a>
                                 </li>
                             </ul>                         
                         </nav>
@@ -4366,6 +4511,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('telescope/dashboard') }}">View Telescope Dashboard</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ url('script-documents') }}">Script Documents</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -4740,7 +4891,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
         <div id="todolist-request-model" class="modal fade" role="dialog">
             <div class="modal-content modal-dialog modal-md">
-                <form action="{{ route('todolist.store') }}" method="POST">
+                <form action="{{ route('todolist.store') }}" method="POST" onsubmit="return false;">
                     @csrf
 
                     <div class="modal-header">
@@ -4752,19 +4903,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <strong>Title:</strong>
                             <input type="text" name="title" class="form-control add_todo_title"
                                 value="{{ old('title') }}" required="">
-
-                            @if ($errors->has('title'))
-                            <div class="alert alert-danger">{{ $errors->first('title') }}</div>
-                            @endif
+                            <span class="text-danger"></span>
                         </div>
                         <div class="form-group">
                             <strong>Subject:</strong>
                             <input type="text" name="subject" class="form-control add_todo_subject"
                                 value="{{ old('subject') }}" required="">
-
-                            @if ($errors->has('subject'))
-                            <div class="alert alert-danger">{{ $errors->first('subject') }}</div>
-                            @endif
+                            <span class="text-danger"></span>
                         </div>
                         @php
                         $todoCategories = \App\TodoCategory::get();
@@ -4772,59 +4917,56 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                          <div class="form-group">
                              <strong>Category:</strong>
                              {{-- <input type="text" name="" class="form-control" value="{{ old('') }}" required> --}}
-                             <select name="todo_category_id" class="form-control">
-                             <option value="">Select Category</option>
+                             <select name="todo_category_id" class="form-control add_todo_category">
+                                <option value="">Select Category</option>
+                                <option value="-1">Add New Category</option>
                                 @foreach($todoCategories as $todoCategory)
                                     <option value="{{$todoCategory->id}}" @if($todoCategory->id == old('todo_category_id')) selected @endif>{{$todoCategory->name}}</option>
                                 @endforeach
                              </select>
-                             @if ($errors->has('status'))
-                                 <div class="alert alert-danger">{{ $errors->first('status') }}</div>
-                             @endif
+                             <span class="text-danger"></span>
                          </div>
+                        
+                        <div class="form-group othercat" style="display: none;">
+                            <strong>Add New Category:</strong>
+                            <input type="text" name="other" class="form-control add_todo_other" value="{{ old('other') }}">
+                            <span class="text-danger"></span>
+                        </div>
+
                         @php
                         $statuses = \App\TodoStatus::all()->toArray();
                         @endphp
                         <div class="form-group">
                             <strong>Status:</strong>
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
-                            <select name="status" class="form-control">
+                            <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
                                 <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
-                            @if ($errors->has('status'))
-                                <div class="alert alert-danger">{{ $errors->first('status') }}</div>
-                            @endif
+                            <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0px;">
                             <strong>Date:</strong>
 
                             <div class='input-group date' id='todo-date' required="">
-                                <input type="text" class="form-control global" name="todo_date" placeholder="Date"
+                                <input type="text" class="form-control global add_todo_date" name="todo_date" placeholder="Date"
                                     value="{{ old('todo_date') }}">
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
                             </div>
-
-                            @if ($errors->has('todo_date'))
-                            <div class="alert alert-danger">{{ $errors->first('todo_date') }}</div>
-                            @endif
                         </div>
+                        <span class="text-danger text-danger-date"></span>
 
-                        <div class="form-group">
+                        <div class="form-group" style="margin-top: 15px;">
                             <strong>Remark:</strong>
-                            <input type="text" name="remark" class="form-control" value="{{ old('remark') }}" required>
-
-                            @if ($errors->has('remark'))
-                            <div class="alert alert-danger">{{ $errors->first('remark') }}</div>
-                            @endif
+                            <input type="text" name="remark" class="form-control add_todo_remark" value="{{ old('remark') }}">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Store</button>
+                        <button type="submit" class="btn btn-secondary submit-todolist-button">Store</button>
                     </div>
                 </form>
             </div>
@@ -5162,6 +5304,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('partials.modals.magento-cron-error-status-modal')
+        @include('partials.modals.magento-commands-modal')
 
         @include('googledrivescreencast.partials.upload')
         <div id="sticky_note_boxes" class="sticknotes_content">
@@ -5175,6 +5318,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.list-documetation-shortcut-modal')
         @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
+        @include('partials.modals.view-all-participants')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -6523,6 +6667,102 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     });
 
+    $(document).ready(function() {
+        // Change category on create page logic
+        $('.add_todo_category').on('change', function(){
+            var category_id = $('.add_todo_category').find(':selected').val();
+            if( category_id != '' && category_id == '-1'){
+                $('.othercat').show();
+            } else{
+                $('.othercat').hide();
+            }
+        });
+    });
+
+    $(document).on("click", ".submit-todolist-button", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var formData = new FormData($this.closest("form")[0]);
+        var $form = $(this).closest("form");
+        
+        var title = $(this).parents('#todolist-request-model').find('.add_todo_title').val();
+        var subject = $(this).parents('#todolist-request-model').find('.add_todo_subject').val();
+        var category = $('.add_todo_category').find(':selected').val();
+        var status = $('.add_todo_status').find(':selected').val();
+        var date = $(this).parents('#todolist-request-model').find('.add_todo_date').val();
+        var remark = $(this).parents('#todolist-request-model').find('.add_todo_remark').val();
+        var other = $(this).parents('#todolist-request-model').find('.add_todo_other').val();
+
+        $('.text-danger').html('');
+        if(title == '') {
+            $('.add_todo_title').next().text("Please enter the title");
+            return false;
+        }
+
+        if(subject == '') {
+            $('.add_todo_subject').next().text("Please enter the subject");
+            return false;
+        }
+
+        if(category == '') {
+            $('.add_todo_category').next().text("Please select the category");
+            return false;
+        } else if(category == '-1') {
+            if(other == '') {
+                $('.add_todo_other').next().text("Please add new category");
+                return false;
+            }
+        }
+
+        //-1
+
+        if(status == '') {
+            $('.add_todo_status').next().text("Please select the status");
+            return false;
+        }
+
+        if(date == '') {
+            $('.text-danger-date').text("Please select the date");
+            return false;
+        } else {
+            $('.text-danger-date').text(" ");
+        }
+
+        $.ajax({
+            url: '{{ route('todolist.ajax_store') }}',
+            type: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formData,
+            dataType: "json",
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+        }).done(function(data) {
+            $("#loading-image-preview").hide();
+            if (data.code == 500) {
+                toastr["error"](data.message);
+            } else {
+                $('.othercat').hide();
+                $form[0].reset();
+                $("#todolist-request-model").modal("hide");
+                toastr["success"]("Your Todo List has been created!");
+
+                setTimeout(function() {
+                    location.reload();
+                }, 2500);
+                
+            }
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"](jqXHR.responseJSON.message);
+            $("#loading-image").hide();
+        });
+    });
+
     $(document).on('click', '.menu-confirm-messge-button', function() {
         var thiss = $(this);
         var data = new FormData();
@@ -7302,6 +7542,80 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     $('.notification-button').on('click', function() {
         $("#quick-user-event-notification-modal").modal("show");
     });
+
+    $('.ParticipantsList').on('click', function() {
+        $("#participants-list-modal").modal("show");
+    });
+    
+    function viewParticipantsIcon(pageNumber = 1) {
+        var button = document.querySelector('.btn.btn-xs.ParticipantsList'); 
+
+            $.ajax({
+                url: "{{route('list.all.participants')}}",
+                type: 'GET',
+                dataType: "json",
+                data: {
+                    page:pageNumber,
+                },
+                beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+            }).done(function(response) {
+                $('#participants-list-modal-html').empty().html(response.html);
+                $('#participants-list-modal').modal('show');
+                renderdomainPagination(response.data);
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {
+                $('.loading-image-preview').show();
+                console.log(response);
+            });
+    }
+
+    function renderdomainPagination(response) {
+        var paginationContainer = $(".pagination-container-participation");
+        var currentPage = response.current_page;
+        var totalPages = response.last_page;
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+            if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                startPage = totalPages - maxVisiblePages + 1;
+            } else {
+                startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+            }
+
+            if (startPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(1)'>1</a></li>";
+                if (startPage > 2) {
+                html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                }
+            }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+    function changeParticipantsPage(pageNumber) {
+        viewParticipantsIcon(pageNumber);
+    }
+
 
     $('select[name="repeat"]').on('change', function() {
         $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');
@@ -8792,6 +9106,31 @@ if (!\Auth::guest()) {
         });
     }
 
+    $(document).on('click','#search-command',function(e){
+        e.preventDefault();
+        getMagentoCommand(true);
+    });
+
+    function getMagentoCommand(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('magento.getMagentoCommand')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#magento-commands-modal-html').empty().html(response.html);
+            //if (showModal) {
+                $('#magento-commands-modal').modal('show');
+            //}
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
     $(document).on('click','#timer-alerts',function(e){
         e.preventDefault();
         getTimerAlerts(true);
@@ -9233,6 +9572,23 @@ if (!\Auth::guest()) {
         }
     }
 
+    $(document).on('submit', '#magento-command-date-form', function(event) {
+        event.preventDefault();
+        var $form = $(this).closest("form");
+        $.ajax({
+            type: "GET",
+            url: "{{route('magento.getMagentoCommand')}}",
+            data: $form.serialize(),
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#magento-commands-modal-html').empty().html(response.html);
+            
+            $('#magento-commands-modal').modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+        });
+     });
+    
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>

@@ -22,7 +22,7 @@
 	<br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
-			<div class="col col-md-9">
+			<div class="col col-md-12">
 				<div class="row">
 					<button style="display: inline-block;" class="btn pl-5 btn-sm btn-image btn-add-action">
 						<img src="/images/add.png" style="cursor: default;">
@@ -46,23 +46,47 @@
 					&nbsp;
 
 					@if($storeWebsites->count() > 0)
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button>
+					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button> -->
+					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>&nbsp;
+
+					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>&nbsp;
 					@endif
+
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#magento-media-sync"> Magento Media Sync </button>&nbsp;
+
+					<a target="_blank" href="/store-website/magento-media-sync-logs" class="btn btn-secondary"> Magento Media Sync Logs</a>&nbsp;
 				</div>
 			</div>
-			<div class="col">
-				<div class="h" style="margin-bottom:10px;">
-					<form class="form-inline message-search-handler" method="post">
+			<hr style=" width: 100%;">
+			<div class="col col-md-12">
+				<div class="h pl-5 pr-5" style="margin-bottom:10px;">
+					<form class="form-inline message-search-handler" method="post" style="width: 100%; display: inline-block;">
 						<div class="row">
-							<div class="col">
-								<div class="form-group">
-									<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword"]) ?>
+							<div class="col col-md-12">
+								<div class="col col-lg-3 pl-0">
+									<div class="form-group" style="display: contents;">
+										<b style=" display: block;">Search - Title, Website & Description :</b>
+	                                    <?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter keyword", 'style'=>'width:100%']) ?>
+	                                </div>
 								</div>
-								<div class="form-group">
-									<label for="button">&nbsp;</label>
-									<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-secondary btn-search-action">
-										<img src="/images/search.png" style="cursor: default;">
-									</button>
+								<div class="col col-lg-3 pl-0">
+									<div class="form-group" style="display: contents;">
+										<b style=" display: block;">Country Duty :</b>
+	                                    <?php echo Form::text("country", request("country"), ["class" => "form-control", "placeholder" => "Enter Country Duty", 'style'=>'width:100%']) ?>
+	                                </div>
+								</div>
+								<div class="col col-lg-3 pl-0">
+									<div class="form-group" style="display: contents;">
+										<b style=" display: block;">Service id :</b>
+	                                    <?php echo Form::text("mailing_service_id", request("mailing_service_id"), ["class" => "form-control", "placeholder" => "Enter Service Id", 'style'=>'width:100%']) ?>
+	                                </div>
+								</div>
+								<div class="col col-lg-3 p-0">
+									<div class="form-group">
+										<button style="padding-top: 30px;" class="btn btn-sm btn-image btn-secondary btn-search-action">
+											<img src="/images/search.png" style="cursor: default;">
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -392,6 +416,60 @@
 								<div class="col-md-12">
 									<div class="form-group">
 										<button type="submit" class="btn btn-secondary submit_create_tag float-right float-lg-right">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="magento-media-sync" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Magento Media Sync</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.magento-media-sync') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+
+										<div class="form-group ">
+                                            <label>Source Website:</label>
+                                            <select class="form-control select select2" name="source_store_website_id" placeholder="Store Websites" >
+                                                <option value="">Please select source website</option>
+                                                @foreach($storeWebsites as $ws)
+                                                	<option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group ">
+                                            <label>Dest Website:</label>
+                                            <select class="form-control select select2" name="dest_store_website_id" placeholder="Store Websites" >
+                                                <option value="">Please select dest website</option>
+                                                @foreach($storeWebsites as $ws)
+                                                	<option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit_magento_media_sync float-right float-lg-right">Run</button>
 									</div>
 								</div>
 							</div>
@@ -1261,6 +1339,109 @@
         
         j++;
     });
+
+    function createAdminUrl() {
+    	        
+        $('.text-danger-url').html('');
+        if($('.formcreatewebsite #swTitle').val() == '') {
+        	$('.formcreatewebsite #swTitle').focus();
+            $('.formcreatewebsite #swTitle').next().text("Please enter Title");
+            return false;
+        }
+
+        if($('.formcreatewebsite #website').val() == '') {
+        	$('.formcreatewebsite #website').focus();
+            $('.formcreatewebsite #website').next().text("Please enter website");
+            return false;
+        }
+
+        if($('.formcreatewebsite #server_ip').val() == '') {
+        	$('.formcreatewebsite #server_ip').focus();
+            $('.formcreatewebsite #server_ip').next().text("Please enter server ip");
+            return false;
+        }
+
+        if($('.formcreatewebsite #working_directory').val() == '') {
+        	$('.formcreatewebsite #working_directory').focus();
+            $('.formcreatewebsite #working_directory').next().text("Please enter working directory");
+            return false;
+        }
+
+        if($('.formcreatewebsite #swTitle').val() != '' && $('.formcreatewebsite #website').val() != '' && $('.formcreatewebsite #working_directory').val() != '' && $('.formcreatewebsite #server_ip').val() != '' && $('formcreatewebsite #store_website_id').val() != '') {
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('store-website.create-admin-url') }}',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    store_dir : $('.formcreatewebsite #working_directory').val(),
+                    server_ip_address : $('.formcreatewebsite #server_ip').val(),
+                    store_website_id : $('.formcreatewebsite #store_website_id').val(),
+                    admin_url : $('.formcreatewebsite #website').val(),
+                    title : $('.formcreatewebsite #swTitle').val()
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+
+                    $("#generated-admin-url").val(response.data.admin_url);
+                    $("#generated-admin-href").attr("href", response.data.admin_url)
+                }
+
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['error'](response.message, 'error');
+                console.log("Sorry, something went wrong");
+            });
+        } else{
+            $('.text-danger-all').next().text("Something went wrong. Please try again.");
+            return false
+        }
+    }
+
+
+    $(document).on("click", ".submit_magento_media_sync", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.magento-media-sync') }}";
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				$('#loading-image-preview').hide();
+				
+				$('#magento-media-sync').modal('hide');
+				if (resp.code == 200) {
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+
+				setTimeout(function() {
+                    location.reload();
+                }, 1000);
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#magento-media-sync').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
+
+    $(document).on("click", ".btn-magento-user-request", function () {
+      $("#request-response-"+$(this).attr("data-id")).toggle();
+    });
+
 </script>
 
 @endsection
