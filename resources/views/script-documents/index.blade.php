@@ -363,7 +363,7 @@
                     var html = "";
                     $.each(response.data, function(k, v) {
 						html += "<tr>";
-						html += "<td>" + v.id + "</td>";
+						/*html += "<td>" + v.id + "</td>";
 						html += "<td>" + v.created_at_date + "</td>";
 
 						if(v.script_type!=null){
@@ -408,7 +408,7 @@
 							html += "<td>" + v.location + "</td>";
 						} else {
 							html += "<td></td>";
-						}
+						}*/
 
 						if(v.last_run!=null){
 							html += "<td>" + v.last_run + "</td>";

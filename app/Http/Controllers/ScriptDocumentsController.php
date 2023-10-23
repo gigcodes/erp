@@ -29,7 +29,7 @@ class ScriptDocumentsController extends Controller
 
     public function records(Request $request)
     {   
-        $records = ScriptDocuments::where('history_status',0)->orderBy('id', 'DESC');
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -47,8 +47,8 @@ class ScriptDocumentsController extends Controller
             );
         }
 
+        $records = $records->take(10)->groupBy('file')->get();
         $records_count = $records->count();
-        $records = $records->take(10)->get();
 
         $records = $records->map(
             function ($script_document) {
@@ -105,10 +105,6 @@ class ScriptDocumentsController extends Controller
 
         $script_document['user_id'] = \Auth::user()->id;
         $records->fill($script_document);
-
-        $script_document_data['history_status'] = 1;
-        $insert = ScriptDocuments::where('file', $request->file)->update($script_document_data);
-
         $records->save();
 
         return redirect()->back()->with('success', 'You have successfully inserted a Script Document!');
@@ -239,7 +235,7 @@ class ScriptDocumentsController extends Controller
         $page = $_REQUEST['page'];
         $page = $page * 10;
 
-        $records = ScriptDocuments::where('history_status',0)->orderBy('id', 'DESC')->offset($page)->limit(10);
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(10);
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -280,7 +276,7 @@ class ScriptDocumentsController extends Controller
         $records = [];
         if(!empty($scriptDocument)){
 
-            $records = ScriptDocuments::where('history_status',1)->where('file',$scriptDocument->file)->orderBy('id', 'DESC')->get();
+            $records = ScriptDocuments::where('file',$scriptDocument->file)->where('id', '!=', $id)->orderBy('id', 'DESC')->take(10)->get();
 
             $records = $records->map(
                 function ($script_document) {

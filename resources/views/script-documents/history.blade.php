@@ -10,7 +10,7 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th width="4%">ID</th>
+                                <!-- <th width="4%">ID</th>
                                 <th width="6%">Date</th>
                                 <th width="3%">Script Type</th>
                                 <th width="3%">File</th>
@@ -19,7 +19,7 @@
                                 <th width="4%">Category</th>
                                 <th width="5%">Comments</th>
                                 <th width="10%">Author</th>
-                                <th width="10%">Location</th>
+                                <th width="10%">Location</th> -->
                                 <th width="10%">Last Run</th>
                                 <th width="10%">Status</th>
                             </tr>
