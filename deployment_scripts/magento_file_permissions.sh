@@ -1,10 +1,7 @@
 #!/bin/bash
-set -o pipefail
-SCRIPT_NAME=`basename $0`
 
-DB_USERNAME=erplive
-DB_PASSWORD="Jb(hd4ersiuttG0iL"
-DB_HOST=81.0.247.216
+SCRIPT_NAME=`basename $0`
+. /opt/etc/mysql-creds.conf
 
 for i in "$@"
 do
@@ -30,14 +27,13 @@ done
 
 
 #SERVER="212.90.120.84"
-KEY="~/.ssh/id_rsa_all"
 USER="root"
 #CWDDIR="/home/prod-1-1/current/var/"
 PORT="22"
 
 
-ssh -i $KEY -p $PORT $USER@$SERVER "find $CWDDIR/var/ -type d -maxdepth 3 -exec chown -R www-data:www-data {} \;" | tee -a ${SCRIPT_NAME}.log
-ssh -i $KEY -p $PORT $USER@$SERVER "find $CWDDIR/var/ -type d -maxdepth 3 -exec ls --time-style=long-iso -ldh {} \;" | awk -v SERVER="$SERVER" '{print SERVER "," $8 "," $3 "," $4 "," $1 "," $6 " " $7 "," $6 " " $7}' > /tmp/file_permissions.csv | tee -a ${SCRIPT_NAME}.log
+ssh -i $SSH_KEY -p $PORT $USER@$SERVER "find $CWDDIR/var/ -type d -maxdepth 3 -exec chown -R www-data:www-data {} \;" | tee -a ${SCRIPT_NAME}.log
+ssh -i $SSH_KEY -p $PORT $USER@$SERVER "find $CWDDIR/var/ -type d -maxdepth 3 -exec ls --time-style=long-iso -ldh {} \;" | awk -v SERVER="$SERVER" '{print SERVER "," $8 "," $3 "," $4 "," $1 "," $6 " " $7 "," $6 " " $7}' > /tmp/file_permissions.csv | tee -a ${SCRIPT_NAME}.log
 mysqlimport -h $DB_HOST -u $DB_USERNAME -p$DB_PASSWORD -f --local  --columns server,instance,owner,groupowner,permission,created_at,updated_at  --fields-terminated-by=, --lines-terminated-by="\n" erp_live /tmp/file_permissions.csv | tee -a ${SCRIPT_NAME}.log
 
 
@@ -50,4 +46,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

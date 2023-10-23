@@ -1,12 +1,7 @@
 #!/bin/bash
-set -o pipefail
+. /opt/etc/mysql-creds.conf
+
 SCRIPT_NAME=`basename $0`
-
-
-
-
-
-
 function HELP {
         echo "-w|--website: website"
         echo "-s|--server: Server ip"
@@ -60,15 +55,12 @@ do
                 ;;
         esac
 done
+
 MNAME="$modulename"
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
-
-
-SSHPORT="22480 2112 22"
 
 for portssh in $SSHPORT
 do
-        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
+        ssh -p $portssh  -i $SSH_KEY -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
         if [ $? -ne 255 ]
         then
                 PORT=`echo $portssh`
@@ -86,7 +78,6 @@ function madd()
 
 function sync()
 {
-#	echo "ssh -i $SSH_KEY root@$server \"cd $rootdir; bin/magento module:status\""
         input=`ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; bin/magento module:status"`
 # Initialize arrays for enabled and disabled modules
 enabled_modules=()
@@ -208,4 +199,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

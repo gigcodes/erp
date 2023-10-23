@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -o pipefail
 SCRIPT_NAME=`basename $0`
 
 function HELP {
@@ -26,13 +25,7 @@ done
 
 cd /var/www/erp.theluxuryunlimited.com
 
-$command | tee -a ${SCRIPT_NAME}.log
-
-#if [ $? -ne 0 ]
-#then
-#	exit 1
-#fi
-
+$command | tee -a ${SCRIPT_NAME}.log &>>${SCRIPT_NAME}.log
 
 if [[ $? -eq 0 ]]
 then
@@ -43,4 +36,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

@@ -1,6 +1,6 @@
 #!/bin/bash
 ###  This script is used to autoselect scraper server which has maximum memory available and start scraper there
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 ScriptDIR=`dirname "$0"`
@@ -135,4 +135,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
