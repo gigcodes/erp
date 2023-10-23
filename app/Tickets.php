@@ -5,6 +5,8 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
+use App\Models\TicketsImages;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -84,5 +86,10 @@ class Tickets extends Model
     public function user()
     {
         return $this->hasOne(\App\User::class, 'id', 'assigned_to');
+    }
+
+    public function getImages()
+    {
+        return TicketsImages::where('ticket_id', $this->getAttribute('id'))->get();
     }
 }
