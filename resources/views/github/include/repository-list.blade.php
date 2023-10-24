@@ -22,8 +22,11 @@
             <button class="btn btn-default show-labels-button" data-repo_id="{{$repository['id']}}" title="Show Labels">
                 <span class="fa fa-list"></span>
             </button>
-            <button class="btn btn-default generate-token-labels-button" data-repo_id="{{$repository['id']}}" title="Show Labels">
-                <span class="fa fa-list"></span>
+            <button class="btn btn-default generate-token-labels-button" data-repo_id="{{$repository['id']}}" title="Add Token">
+                <span class="fa fa-key"></span>
+            </button>
+            <button class="btn btn-default token-list-button" data-id="{{$repository['id']}}" title="Token List">
+                <span class="fa fa-info-circle"></span>
             </button>
         </td>
     </tr>
