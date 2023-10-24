@@ -14,49 +14,27 @@
 		    <h2 class="page-heading">Store Websites ({{$storeWebsites->total()}})</h2>
 		</div>
 	</div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="row">
-                <div class="col-lg-8 margin-tb">
-                    <form class="form-inline message-search-handler" method="get">
-                        <div class="col">
-                            <div class="row">
-                                <div class="col-lg-8 margin-tb">
-                                    <div class="form-group m-1" style="width:100%">
-                                        <input name="name" list="name-lists" type="text" class="form-control" placeholder="Search Website" value="{{request()->get('name')}}" style="width:100%" />
-                                        <datalist id="name-lists">
-                                            @foreach ($storeWebsitesDropdown as $key => $val )
-                                                <option value="{{$val->title}}">
-                                            @endforeach
-                                        </datalist>
-                                    </div>
-                                </div>
+    <div class="mt-3 col-md-12">
+        <form action="{{ route('store-website.listing') }}" method="get" class="search">
+            <!-- Form fields go here -->
+    
+            <div class="col-md-2 pd-sm">
+                 <label class="control-label">Search websites</label>
+                {{ Form::select("store_ids[]", \App\StoreWebsite::pluck('title','id')->toArray(),request('store_ids'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
+            </div>
 
-                                <div class="col-lg-4 margin-tb">
-                                    <div class="form-group">
-                                        <button type="submit" style="    margin-top: 4px;" class="btn btn-sm btn-image btn-search-action">
-                                            <img src="/images/search.png" style="cursor: default;">
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-lg-4 margin-tb">
-                    <form action="{{ route('website.search.log.view') }}" method="get" class="search">
-                        <!-- Form fields go here -->
-                
-                        <div class="col-lg-2 pull-left">
-                            <!-- Other form elements go here -->
-                        </div>
-                
-                        <div class="col-lg-2 pull-left"> <!-- This div wraps the "Csv download" button -->
-                            <button type="button" class="btn btn-secondary csv-download"  onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Csv download
-                              </button>
-                        </div>
-                    </form>
-                </div>
+            <div class="col-lg-2">
+				<button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+				   <img src="{{ asset('images/search.png') }}" alt="Search">
+			   </button>
+			   <a href="{{route('store-website.listing')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+			</div>
+
+            <div class="col-lg-2 pull-right" style="display: flex; align-items: center;">
+                <!-- This div wraps the "Csv download" and "Truncate Data" buttons -->
+                <button type="button" class="btn btn-secondary csv-download" onclick="return confirm('{{ __('Are you sure you want to Download') }}')">Pull Multiple Websites</button>
+                <a href="{{ route('store-website-csv-truncate') }}" class="btn btn-secondary ml-2" onclick="return confirm('{{ __('Are you sure you want to Truncate Data? Note: It will remove google translate data and csv files') }}')">Truncate Data</a>
+
             </div>
         </div>
     </div>
@@ -86,11 +64,11 @@
                             @endif
                             <td><button type="button" id="ip_log" class="btn btn-xs btn-image  process-magento-csv-btn" title="pull Csv" data-id="{{$storeWeb->id}}" onclick="return confirm('{{ __('Are you Want to execute') }}')"> 
                                 <i class="fa fa-paper-plane " aria-hidden="true"></i></button>
-                                <button type="button" class="btn btn-xs btn-image load-pull-history ml-2" data-id="{{$storeWeb->id}}" title="View pull Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
+                                {{-- <button type="button" class="btn btn-xs btn-image load-pull-history ml-2" data-id="{{$storeWeb->id}}" title="View pull Histories" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button> --}}
                                 <a href="{{ route('store-website.push.csv', ['id' => $storeWeb->id]) }}" target="_blank" class="btn btn-xs btn-image">
                                     <img src="/images/view.png" style="cursor: default;">
                                 </a>
-                                <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$storeWeb->id}}" title="View pull Logs" style="cursor: default;"> <img src="/images/chat.png" alt="" style="cursor: default;"></button>
+                                <button type="button" class="btn btn-xs btn-image load-pull-logs ml-2" data-id="{{$storeWeb->id}}" title="View pull Logs" style="cursor: default;"> <i class="fa fa-info-circle"> </i></button>
                             </td>
 						</tr>                        
                     @endforeach
@@ -138,7 +116,7 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Pull Request Logs</h4>
+                <h4 class="modal-title">Pull Logs</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
@@ -147,7 +125,7 @@
                         <thead>
                             <tr>
                                 <th width="5%">No</th>
-                                <th width="30%">command</th>
+                                <th width="30%">request</th>
                                 <th width="25%">message</th>
                                 <th width="25%">Updated by</th>
                                 <th width="25%">Created Date</th>
@@ -285,11 +263,11 @@
             var id = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ route("pull-request.log.show", '') }}/' + id,
+                url: '{{route('pull-request.log.show')}}',
                 dataType: "json",
                 data: {
                     id:id,
-
+                    action:"pull",
                 },
                 success: function(response) {
                     if (response.status) {
