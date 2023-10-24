@@ -223,6 +223,9 @@
                 @if (!in_array('Duty', $dynamicColumnsToShowPostman))
                     <th>Duty</th>
                 @endif
+                @if (!in_array('Action', $dynamicColumnsToShowPostman))
+                    <th>Action</th>
+                @endif
             @else            
                 <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
                 <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
@@ -244,6 +247,7 @@
                 <th>Price</th>
                 <th>Shipping</th>
                 <th>Duty</th>
+                <th>Action</th>
             @endif
          </tr>
         </thead>
@@ -474,8 +478,14 @@
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               @endif
 
+              @if (!in_array('Action', $dynamicColumnsToShowPostman))
+              <td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$items->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
+                @endif
             </tr>
-            @if (!in_array('Action', $dynamicColumnsToShowPostman))
+            
+            <tr class="action-btn-tr-{{$items->id}} d-none">
             <td>Action</td>
             <td colspan="16">
                 <div class="align-items-center">
@@ -579,7 +589,8 @@
                     </a>
                 </div>
             </td>
-            @endif
+        </tr>
+          
             @else
             <tr style="background-color: {{$order->status?->color}}"; class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td class="text-center"><span class="td-mini-container">
@@ -730,7 +741,11 @@
               <td>{{$orderProductPrice * $productQty}}</td>
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
+              <td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$items->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
             </tr>
+            <tr class="action-btn-tr-{{$items->id}} d-none">
             <td>Action</td>
             <td colspan="16">
                 <div class="align-items-center">
@@ -834,6 +849,7 @@
                     </a>
                 </div>
             </td>
+            </tr>
             @endif
             @endforeach
           @endforeach
@@ -1384,6 +1400,10 @@
 
   </script>
   <script type="text/javascript">
+
+    function Showactionbtn(id){
+      $(".action-btn-tr-"+id).toggleClass('d-none');
+    }
 
     $(document).on('click','.magento-order-status',function(event){
       event.preventDefault();
