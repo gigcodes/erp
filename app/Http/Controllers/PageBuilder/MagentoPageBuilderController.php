@@ -12,6 +12,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class MagentoPageBuilderController extends Controller
 {
@@ -32,15 +33,15 @@ class MagentoPageBuilderController extends Controller
     public function createOrEdit(Request $request)
     {
         $data = $request->all();
-        $action = 'create';
 
         try {
             if (!empty($data['page_id'])) {
                 $pageBuilder = PageBuilder::find($data['page_id']);
-                $action = 'edit';
+                $data['update_time'] = Carbon::now()->toDateTimeString();
             }
             else {
                 $pageBuilder = new PageBuilder();
+                $data['creation_time'] = Carbon::now()->toDateTimeString();
             }
 
             $columns = $pageBuilder->getColumns();

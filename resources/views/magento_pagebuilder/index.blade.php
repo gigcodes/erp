@@ -12,19 +12,6 @@
                     <div>
                         <a href="#" class="btn btn-xs btn-secondary create-new-cms-page">Create</a>
                     </div>
-                    &nbsp;&nbsp;
-                    <input type="text" class="description-search" name="description" placeholder="Description">
-                    <div class="form-check">
-                        <input class="form-check-input is-active-search" type="checkbox" id="is-active-search" name="is_active" checked>
-                        <label class="form-check-label" for="is-active-search">
-                            Is active
-                        </label>
-                    </div>
-                    &nbsp;
-                    <button style="display: inline-block; width: 10%"
-                            class="btn btn-sm btn-image btn-secondary btn-search">
-                        <img src="/images/search.png" style="cursor: default;">
-                    </button>
                 </div>
             </div>
         </div>
@@ -39,9 +26,10 @@
                             <thead>
                             <tr>
                                 <th>Id</th>
-                                <th width="15%">Title</th>
-                                <th width="20%">Created</th>
-                                <th width="20%">Updated</th>
+                                <th>Title</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                                <th>Is active</th>
                                 <th>Edit</th>
                             </tr>
                             </thead>
@@ -61,6 +49,9 @@
                                     <td class="td-update-time-{{ $page->id }}">
                                         {{ $page->update_time }}
                                     </td>
+                                    <td class="td-is-active-{{ $page->id }}">
+                                        <?=$page->is_active ? 'Yes' : 'No' ?>
+                                    </td>
                                     <td>
                                         <a href="#" class="btn btn-xs btn-secondary btn-edit-cms-page td-edit-{{ $page->id }}" data-id="{{ $page->id }}">Edit</a>
                                     </td>
@@ -79,7 +70,6 @@
         #iframe {
             z-index: 99999;
             display: none;
-            transition: 0.2s;
             position: fixed;
             width: 100%;
             height: 100%;
@@ -93,7 +83,7 @@
             background: rgba(0,0,0,0.825);
         }
         #iframe > iframe {
-            width: 80%;
+            width: 90%;
             height: 80%;
             overflow-y: scroll;
             margin: auto;
@@ -110,9 +100,10 @@
             height: 40px;
             border: none;
             outline: none;
+            background: rgba(200,200,200, 1);
         }
         .close-iframe-btn span {
-            font-size: 32px;
+            font-size: 29px;
         }
     </style>
     <div class="modal-iframe">
