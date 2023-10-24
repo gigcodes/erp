@@ -336,4 +336,7 @@ Route::post('/github-action', [GitHubActionController::class, 'store']);
 
 Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
 Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');
+Route::post('magento_modules/pagebuilder/edit', [\App\Http\Controllers\PageBuilder\MagentoPageBuilderController::class, 'createOrEdit'])->name('magento_module_pagebuilder_edit');
+Route::get('magento_modules/pagebuilder/page_id/{pageId}', [\App\Http\Controllers\PageBuilder\MagentoPageBuilderController::class, 'pageById'])->name('magento_module_pagebuilder_detail_page');
+
 
