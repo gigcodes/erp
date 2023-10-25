@@ -545,7 +545,7 @@
                                     <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                                     <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
 
-                                    <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="{{$postman->request_name}}" data-title="@if ($postman) {{$postman->request_name }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page'  }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
 
                                     <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($postman) {{ $postman->id }} @endif" data-category="{{ $postman->id }}"><i class="fa fa-info-circle"></i></button>
                                 </div>
@@ -667,7 +667,7 @@
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
 
-                      <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="{{$postman->request_name}}" data-title="@if ($postman) {{$postman->request_name }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                      <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page' }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </td>
@@ -1303,14 +1303,14 @@
 <div id="create-quick-task" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="<?php echo route('task.create.multiple.task.shortcut'); ?>" method="post">
+            <form action="<?php echo route('task.create.multiple.task.shortcutpostman'); ?>" method="post">
                 @csrf
                 <div class="modal-header">
                     <h4 class="modal-title">Create Task</h4>
                 </div>
                 <div class="modal-body">
 
-                    <input class="form-control" value="49" type="hidden" name="category_id" />
+                    <input class="form-control" value="53" type="hidden" name="category_id" />
                     <input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
                     <input class="form-control" type="hidden" name="site_id" id="site_id" />
                     <div class="form-group">
@@ -1360,12 +1360,12 @@
                             <input type="checkbox" name="need_review_task" value="1" />
                         </div>
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="">Websites</label>
                         <div class="form-group website-list row">
                            
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -1454,6 +1454,34 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="preview-task-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered" style="table-layout: fixed">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">Sl no</th>
+                                <th style=" width: 30%">Files</th>
+                                <th style="word-break: break-all; width: 40%">Send to</th>
+                                <th style="width: 10%">User</th>
+                                <th style="width: 10%">Created at</th>
+                                <th style="width: 15%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="task-image-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="postmanShowFullTextModel" class="modal fade" role="dialog">
@@ -2254,9 +2282,7 @@
             return;
         }
         //debugger;
-        //let val = $("#change_website1").select2("val");
-
-        let val = [29];
+        /*let val = $("#change_website1").select2("val");
         $.ajax({
             url: '/task/get/websitelist',
             type: 'POST',
@@ -2278,7 +2304,7 @@
         }).fail(function(jqXHR, ajaxOptions, thrownError) {
             toastr["error"]("Oops,something went wrong");
             $("#loading-image").hide();
-        });
+        });*/
 
         $("#create-quick-task").modal("show");
 
@@ -2308,8 +2334,10 @@
             data: form.serialize(),
             beforeSend: function() {
                 $(this).text('Loading...');
+                $("#loading-image").show();
             },
             success: function(response) {
+                $("#loading-image").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -2401,8 +2429,177 @@
                 $("#loading-image").hide();
             }
         });
+    
 
+    });
 
+    $(document).on('click', '.send-message', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $(this).data('taskid');
+        var message = $(this).closest('tr').find('.quick-message-field').val();
+        var mesArr = $(this).closest('tr').find('.quick-message-field');
+        $.each(mesArr, function(index, value) {
+            if ($(value).val()) {
+                message = $(value).val();
+            }
+        });
+
+        data.append("task_id", task_id);
+        data.append("message", message);
+        data.append("status", 1);
+
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    url: '/whatsapp/sendMessage/task',
+                    type: 'POST',
+                    "dataType": 'json', // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function() {
+                        $(thiss).attr('disabled', true);
+                        $("#loading-image").show();
+                    }
+                }).done(function(response) {
+                    $("#loading-image").hide();
+                    thiss.closest('tr').find('.quick-message-field').val('');
+
+                    toastr["success"]("Message successfully send!", "Message")
+                    // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                    //   .done(function( data ) {
+                    //
+                    //   }).fail(function(response) {
+                    //     console.log(response);
+                    //     alert(response.responseJSON.message);
+                    //   });
+
+                    $(thiss).attr('disabled', false);
+                }).fail(function(errObj) {
+                    $(thiss).attr('disabled', false);
+
+                    alert("Could not send message");
+                    console.log(errObj);
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
+    $(document).on("click", ".delete-dev-task-btn", function() {
+        var x = window.confirm("Are you sure you want to delete this ?");
+        if (!x) {
+            return;
+        }
+        var $this = $(this);
+        var taskId = $this.data("id");
+        var tasktype = $this.data("task-type");
+        if (taskId > 0) {
+            $.ajax({
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                type: 'get',
+                url: "/site-development/deletedevtask",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    id: taskId,
+                    tasktype: tasktype
+                },
+                dataType: "json"
+            }).done(function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $this.closest("tr").remove();
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                alert('Could not update!!');
+            });
+        }
+
+    });
+
+    $(document).on('click', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        console.log(name);
+        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
+    $(document).on('click', '.preview-img', function(e) {
+        e.preventDefault();
+        id = $(this).data('id');
+        if (!id) {
+            alert("No data found");
+            return;
+        }
+        $.ajax({
+            url: "/task/preview-img-task/" + id,
+            type: 'GET',
+            success: function(response) {
+                $("#preview-task-image").modal("show");
+                $(".task-image-list-view").html(response);
+                initialize_select2()
+            },
+            error: function() {}
+        });
+    });
+
+    $(document).on("click", ".send-to-sop-page", function() {
+        var id = $(this).data("id");
+        var task_id = $(this).data("media-id");
+
+        $.ajax({
+            url: '/task/send-sop',
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType: "json",
+            data: {
+                id: id,
+                task_id: task_id
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.success) {
+                    toastr["success"](response.message);
+                } else {
+                    toastr["error"](response.message);
+                }
+
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+
+        });
+    });
+
+    $(document).on('click', '.previewDoc', function() {
+        $('#previewDocSource').attr('src', '');
+        var docUrl = $(this).data('docurl');
+        var type = $(this).data('type');
+        var type = jQuery.trim(type);
+        if (type == "image") {
+            $('#previewDocSource').attr('src', docUrl);
+        } else {
+            $('#previewDocSource').attr('src', "https://docs.google.com/gview?url=" + docUrl +
+                "&embedded=true");
+        }
+        $('#previewDoc').modal('show');
     });
 </script>
 @endsection
