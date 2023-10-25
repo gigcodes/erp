@@ -174,8 +174,8 @@
   <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
   <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
-<button type="button" class="btn custom-button" data-toggle="modal" data-target="#postmandatatablecolumnvisibilityList">Column Visiblity</button>
-
+<button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#postmandatatablecolumnvisibilityList">Column Visiblity</button>
+<button class="btn custom-button" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
   <div class="col-12">
     <h3>Assign Permission to User</h3>
     <form class="form-inline" id="update_user_permission" action="/postman/user/permission" method="POST">
@@ -358,12 +358,18 @@
         <tbody>
           @foreach ($postmans as $key => $postman)
           @php
+            $status_color = \App\Models\PostmanStatus::where('id',$postman->status_id)->first();
+            if ($status_color == null) {
+                $status_color = new stdClass();
+            }
+        @endphp
+          @php
           $userAccessArr = explode(",",$postman->user_permission);
           array_push($userAccessArr, $addAdimnAccessID)
           @endphp
           @if (in_array($userID, $userAccessArr))
             @if(!empty($dynamicColumnsToShowPostman))
-                <tr>
+                <tr style="background-color: {{$status_color->postman_color ?? ""}}!important;">
                     @if (!in_array('ID', $dynamicColumnsToShowPostman))
                         <td>{{$postman->id}}</td>
                     @endif
@@ -544,7 +550,7 @@
                     </tr>
                 @endif
             @else
-            <tr>
+            <tr style="background-color: {{$status_color->postman_color ?? ""}}!important;">
             <td>{{$postman->id}}</td>
             <td class="expand-row-msg" data-name="name" data-id="{{$postman->id}}">
               <span class="show-short-name-{{$postman->id}}">{{ Str::limit($postman->name, 5, '..')}}</span>
@@ -1366,6 +1372,7 @@
 @include('postman.postman-status-history')
 @include('postman.postman-api-issue-fix-done-history')
 @include("postman.column-visibility-modal")
+@include("postman.partials.modal-status-color")
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')

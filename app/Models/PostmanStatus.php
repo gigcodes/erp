@@ -13,5 +13,6 @@ class PostmanStatus extends Model
 
     public $fillable = [
         'status_name',
+        'postman_color',
     ];
 }
