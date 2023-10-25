@@ -161,7 +161,7 @@
 
             @if(!empty($dynamicColumnsToShowPostman))
                 @if (!in_array('ID', $dynamicColumnsToShowPostman))
-                    <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+                    <th style="width: 8%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
                 @endif
 
                 @if (!in_array('Date', $dynamicColumnsToShowPostman))
@@ -227,7 +227,7 @@
                     <th>Action</th>
                 @endif
             @else            
-                <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+                <th style="width: 8%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
                 <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
                 <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
                 <th >Site Name</th>
@@ -293,9 +293,9 @@
                                 <strong class="text-danger mr-1">!!!</strong>
                                 @endif
                                 <span class="td-mini-container">
-                                    <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id :
+                                    <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,15) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id :
                                     '' ?>">
-                                    <?php                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
+                                    <?php                            echo (strlen($order->order_id) > 15) ? substr($order->order_id, 0,15).".." : $order->order_id;
                                     ?>
                                     </span>
                                 </span>
@@ -603,9 +603,9 @@
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
                   <span class="td-mini-container">
-                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id :
+                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,15) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id :
                   '' ?>">
-                        <?php                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
+                        <?php                            echo (strlen($order->order_id) > 15) ? substr($order->order_id, 0,15).".." : $order->order_id;
                         ?>
                      </span>
                   </span>
