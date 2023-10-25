@@ -1593,6 +1593,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('order/{id}/edit-invoice', [OrderController::class, 'editInvoice'])->name('order.edit.invoice');
     Route::post('order/edit-invoice', [OrderController::class, 'submitEdit'])->name('order.submitEdit.invoice');
+    Route::post('orders-column-visbility', [OrderController::class, 'ordersColumnVisbilityUpdate'])->name('orders.column.update');
     //TODO::invoice wthout order
     Route::get('invoice/without-order', [OrderController::class, 'createInvoiceWithoutOrderNumber'])->name('invoice.without.order');
     Route::get('order/order-search', [OrderController::class, 'searchOrderForInvoice'])->name('order.search.invoice');

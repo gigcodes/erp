@@ -84,6 +84,7 @@ use App\Library\DHL\CreateShipmentRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class OrderController extends Controller
 {
@@ -379,8 +380,16 @@ class OrderController extends Controller
 
         $store_site = $request->store_website_id;
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'orders-listing')->first();
+
+        $dynamicColumnsToShowPostman = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+        }
+
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
+        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList', 'dynamicColumnsToShowPostman'));
     }
 
     public function orderPreviewSentMails(Request $request)
@@ -5522,5 +5531,26 @@ class OrderController extends Controller
         $orderstatus->save();
 
         return response()->json(['code' => 200, 'orderstatus' => $orderstatus,'message' => 'Color Code has been Updated Succeesfully!']);
+    }
+
+    public function ordersColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','orders-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'orders-listing';
+            $column->column_name = json_encode($request->column_orders); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'orders-listing';
+            $column->column_name = json_encode($request->column_orders); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 }
