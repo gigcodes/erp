@@ -13,7 +13,6 @@
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
     line-height: 1.42857143;
-    color: #333;
     background-color: #fff;
   }
 .ajax-loader{
@@ -154,14 +153,14 @@
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
 	<div class=" mt-2">
-      <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
+      <table class="table table-bordered order-table table-condensed table-striped" style="border: 1px solid #5A6268 !important;">
         <thead>
         <tr>
             <th>Select</th>
 
             @if(!empty($dynamicColumnsToShowPostman))
                 @if (!in_array('ID', $dynamicColumnsToShowPostman))
-                    <th style="width: 8%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+                    <th style="width: 7%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
                 @endif
 
                 @if (!in_array('Date', $dynamicColumnsToShowPostman))
@@ -181,7 +180,7 @@
                 @endif
 
                 @if (!in_array('Eta', $dynamicColumnsToShowPostman))
-                    <th title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
+                    <th style="width: 5%;" title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
                 @endif
 
                 @if (!in_array('Brands', $dynamicColumnsToShowPostman))
@@ -189,7 +188,7 @@
                 @endif
 
                 @if (!in_array('Order Status', $dynamicColumnsToShowPostman))
-                    <th title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
+                    <th style="width: 10%;" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
                 @endif
 
                 @if (!in_array('Order Product Status', $dynamicColumnsToShowPostman))
@@ -227,14 +226,14 @@
                     <th>Action</th>
                 @endif
             @else            
-                <th style="width: 8%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+                <th style="width: 7%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
                 <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
                 <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
                 <th >Site Name</th>
                 <th>Products</th>
-                <th title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
+                <th style="width: 7%;"title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
                 <th>Brands</th>
-                <th title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
+                <th style="width: 10%;" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
                 <th title="Order Product Status">Order Product Status</th>
                 <th title="Product Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Product Status</a></th>
                 <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
@@ -639,6 +638,7 @@
               </td>
 
               <td class="expand-row table-hover-cell">
+                sdfsdfsd
                 @php $count = 0; @endphp
                 <div class="d-flex">
                   <div class="">
@@ -856,7 +856,7 @@
         </tbody>
       </table>
 
-	{!! $orders_array->appends(Request::except('page'))->links() !!}
+	{{ $orders_array->appends(request()->except('page'))->links() }}
 	</div>
     </div>
     </div>
@@ -2115,20 +2115,20 @@
       });
 
 
-	  $('ul.pagination').hide();
-		$('.infinite-scroll').jscroll({
-			autoTrigger: true,
-			// debug: true,
-			loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-			padding: 0,
-			nextSelector: '.pagination li.active + li a',
-			contentSelector: 'div.infinite-scroll',
-			callback: function () {
-				$('ul.pagination').first().remove();
-				$('ul.pagination').hide();
-			}
-		});
-    });
+	//   $('ul.pagination').hide();
+	// 	$('.infinite-scroll').jscroll({
+	// 		autoTrigger: true,
+	// 		// debug: true,
+	// 		loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+	// 		padding: 0,
+	// 		nextSelector: '.pagination li.active + li a',
+	// 		contentSelector: 'div.infinite-scroll',
+	// 		callback: function () {
+	// 			$('ul.pagination').first().remove();
+	// 			$('ul.pagination').hide();
+	// 		}
+	// 	});
+    // });
 
     $(document).on('click', '.change_message_status', function(e) {
       e.preventDefault();
