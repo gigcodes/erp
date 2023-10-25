@@ -1624,6 +1624,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/update-delivery-date', [OrderController::class, 'updateDelDate'])->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', [OrderController::class, 'viewEstDelDateHistory'])->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', [OrderController::class, 'addNewReply'])->name('order.addNewReply');
+    Route::post('order/orderChangeStatusHistory', [OrderController::class, 'orderChangeStatusHistory'])->name('order.orderChangeStatusHistory');
     Route::post('order/get-customer-address', [OrderController::class, 'getCustomerAddress'])->name('order.customer.address');
     Route::post('order/get-error-logs', [OrderController::class, 'getOrderErrorLog'])->name('order.customer.address');
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');

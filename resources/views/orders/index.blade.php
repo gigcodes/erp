@@ -586,6 +586,9 @@
                     <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
                 </div>
             </td>
         </tr>
@@ -847,6 +850,9 @@
                     <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
                 </div>
             </td>
             </tr>
@@ -1385,6 +1391,7 @@
 @include('partials.modals.return-exchange-modal')
 @include('partials.modals.estimated-delivery-date-histories')
 @include('orders.partials.column-visibility-modal')
+@include('orders.order-status-change-history')
 @section('scripts')
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -2878,5 +2885,41 @@
         function changeOrderStatusPage(pageNumber) {
           listStatusColor(pageNumber);
         }
+
+        $(document).on('click','.order-status-change-history',function(){
+            var order_id = $(this).data('id');
+            var product_item_id = $(this).data("order_product_item_id");
+            $.ajax({
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: "POST",
+                url: `{{ route('order.orderChangeStatusHistory') }}`,
+                dataType: "json",
+                data: {
+                    order_id: order_id,
+                    product_item_id:product_item_id
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += "<tr>";
+                            html += "<td>" + (k + 1) + "</td>";
+                            html += "<td>" + v.order.order_id + "</td>";
+                            html += "<td>" + v.request + "</td>";
+                            html += "<td>" + v.response + "</td>";
+                            html += "<td>" + v.user.name + "</td>";
+                            html += "<td>" + v.created_at + "</td>";
+                            html += "</tr>";
+                        });
+                        $("#order-status-change-histories-list").find(".order-status-change-list-view").html(html);
+                        $("#order-status-change-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
   </script>
 @endsection
