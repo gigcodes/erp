@@ -400,7 +400,7 @@
                   @if (!in_array('Order Status', $dynamicColumnsToShowPostman))
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -691,7 +691,7 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -1233,6 +1233,7 @@
       </div>
       <form action="" id="product-update-status-message-tpl-frm" method="POST">
           @csrf
+          <input type="hidden" name="order_id" id="order-status-id-tpl" value="">
           <input type="hidden" name="order_id" id="order-product-id-status-tpl" value="">
           <input type="hidden" name="order_status_id" id="order-product-status-id-status-tpl" value="">
           <input type="hidden" name="order_product_item_id" id="order_product_item_id" value="">
@@ -2010,6 +2011,9 @@
           var id = $(this).data("id");
           var product_item_id = $(this).data("order_product_item_id");
           var status = $(this).val();
+
+          var order_status = $(".order-status-select-"+id).val();
+
           $("#product-preview").hide();
           $.ajax({
             headers: {
@@ -2021,7 +2025,8 @@
               id : id,
               order_id: id,
               order_product_item_id: product_item_id,
-              order_status_id : status
+              order_status_id : status,
+              order_status : order_status,
             },
             beforeSend: function() {
               $("loading-image").show();
@@ -2029,7 +2034,8 @@
           }).done( function(response) {
             $("loading-image").hide();
             if(response.code == 200) {
-
+                
+              $("#order-status-id-tpl").val(order_status);
               $("#order-product-id-status-tpl").val(id);
               $("#product-preview").html(response.preview);
               $("#order_product_item_id").val(product_item_id);
@@ -2076,6 +2082,7 @@
               from_mail:$("#email_from_mail_product").val(),
               to_mail:$("#email_to_mail_product").val(),
               order_via: selected_array,
+              order_status_id : $("#order-status-id-tpl").val(),
             }
             }).done( function(response) {
               $("#product-update-status-message-tpl").modal("hide");
@@ -2115,7 +2122,7 @@
       });
 
 
-	//   $('ul.pagination').hide();
+	  // $('ul.pagination').hide();
 	// 	$('.infinite-scroll').jscroll({
 	// 		autoTrigger: true,
 	// 		// debug: true,
@@ -2128,7 +2135,7 @@
 	// 			$('ul.pagination').hide();
 	// 		}
 	// 	});
-    // });
+    });
 
     $(document).on('click', '.change_message_status', function(e) {
       e.preventDefault();
