@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Auth;
 use App\User;
 use App\Setting;
@@ -25,6 +26,8 @@ use App\Models\PostmanStatusHistory;
 use Illuminate\Support\Facades\Http;
 use App\Models\PostmanApiIssueFixDoneHistory;
 use App\Models\DataTableColumn;
+use App\DeveloperTask;
+use App\Task;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -149,6 +152,8 @@ class PostmanRequestCreateController extends Controller
                 $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
             }
 
+            $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
             return view('postman.index', compact(
                 'postmans',
                 'folders',
@@ -159,6 +164,7 @@ class PostmanRequestCreateController extends Controller
                 'counter',
                 'status',
                 'dynamicColumnsToShowPostman',
+                'allUsers',
             ));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -1423,5 +1429,22 @@ class PostmanRequestCreateController extends Controller
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function taskCount($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
 }

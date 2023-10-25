@@ -1844,6 +1844,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/addGroupParticipant', [TaskModuleController::class, 'addGroupParticipant'])->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', [TaskModuleController::class, 'createTaskFromSortcut'])->name('task.create.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcut', [TaskModuleController::class, 'createMultipleTaskFromSortcut'])->name('task.create.multiple.task.shortcut');
+    Route::post('task/create-multiple-task-from-shortcutpostman', [TaskModuleController::class, 'createMultipleTaskFromSortcutPostman'])->name('task.create.multiple.task.shortcutpostman');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
@@ -1851,6 +1852,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
     Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
     Route::get('task/module/history/{id}', [TaskModuleController::class, 'taskModuleListLogHistory'])->name('task.log.histories.show');
+    Route::get('task/deletedevtask', [TaskModuleController::class, 'deletedevtask'])->name('task.delete.task');
+    Route::get('task/preview-img-task/{id}', [TaskModuleController::class, 'previewTaskImage'])->name('task.preview-img');
+    Route::post('task/send-sop', [TaskModuleController::class, 'SendTaskSOP'])->name('task.sendSop');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -3300,6 +3304,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
     Route::post('postman/statuscolor', [PostmanRequestCreateController::class, 'statuscolor'])->name('postman.statuscolor');
+    Route::get('postman/countdevtask/{id}', [PostmanRequestCreateController::class, 'taskCount']);
     
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
