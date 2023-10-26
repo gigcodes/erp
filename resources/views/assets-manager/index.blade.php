@@ -530,6 +530,9 @@
       $('#client_id').val(asset.client_id);
       $('#account_username').val(asset.account_username);
       $('#account_password').val(asset.account_password);
+      $('#monit_api_url').val(asset.monit_api_url);
+      $('#monit_api_username').val(asset.monit_api_username);
+      $('#monit_api_password').val(asset.monit_api_password);
       
       $('#ip_name_ins').val(asset.ip_name);
       

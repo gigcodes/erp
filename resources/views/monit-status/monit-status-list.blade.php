@@ -50,6 +50,7 @@
 			        <th width="10%">Status</th>
 			        <th width="10%">Uptime</th>
 			        <th width="10%">Date</th>
+			        <th width="10%">Action</th>
                 </tr>
 		    	<tbody>
                     @foreach ($monitStatus as $data)
@@ -67,6 +68,14 @@
 							<td>{{$data->status}}</td>
 							<td>{{$data->uptime}}</td>
 							<td>{{$data->created_at}}</td>
+							<td>
+								<a title="Run Command" class="btn btn-image monitunit-run-btn pd-5 btn-ht" data-id="{{ $data->xmlid }}" href="javascript:;" data-command="monit -I restart {{ $data->service_name }}" data-server="{{ $data->ip }}">
+                                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                </a>
+                                <button type="button" data-id="{{ $data->xmlid }}" class="btn btn-image pd-5 btn-ht monit-api-history" >
+					        		<i class="fa fa-info-circle" aria-hidden="true"></i>
+					        	</button>
+							</td>
 						</tr>                        
                     @endforeach
 		    	</tbody>
@@ -77,6 +86,8 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
     50% 50% no-repeat;display:none;">
 </div>
+
+@include('monit-status.monit-api-history')
 
 @endsection
 
@@ -92,6 +103,73 @@
 				$(this).find('.td-full-container').toggleClass('hidden');
 			}
    	 	});
+	});
+
+	$(document).on("click", ".monitunit-run-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+        var command = $this.data('command');
+        var server = $this.data('server');
+
+        $.ajax({
+            url: "/monit-status/command/run"
+            , type: "post"
+            , headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+            , data: {
+                id: id,
+                command: command,
+                server_ip: server
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code == '200') {
+                toastr['success']('Command Run successfully!!!', 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image').hide();
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            if (errObj ?.responseJSON ?.message) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+                return;
+            }
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on('click','.monit-api-history',function(){
+        monit_api_id = $(this).data('id');
+		$.ajax({
+            method: "GET",
+            url: `{{ route('monit-status.api.histories', [""]) }}/` + monit_api_id,
+            dataType: "json",
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+						html += "<tr>";
+						html += "<td>" + (k + 1) + "</td>";
+						html += "<td>" + v.id + "</td>";
+						html += "<td>" + v.request_data + "</td>";
+						html += "<td>" + v.response_data + "</td>";
+						html += "<td>" + v.user.name + "</td>";
+						html += "<td>" + v.created_at + "</td>";
+
+						html += "</tr>";
+                    });
+                    $("#monit-api-histories-list").find(".monit-api-histories-list-data").html(html);
+                    $("#monit-api-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
 	});
 </script> 
 @endsection
