@@ -43,7 +43,7 @@ class MonitorServerController extends Controller
             $monitorJenkinsBuilds = $monitorServers->Where('status', $status);
         }
 
-        $monitorServers = $monitorServers->orderby('id', 'desc')->paginate(25);
+        $monitorServers = $monitorServers->paginate(25);
 
         return view('monitor-server.index', compact('monitorServers'));
     }
