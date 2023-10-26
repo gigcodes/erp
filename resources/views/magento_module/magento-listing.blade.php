@@ -114,12 +114,12 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">
         	Magento Modules ({{$magento_modules_count}})
-        	<!-- <a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="">Sync Logs</a> -->
-        	<a style="float: right;" title="Sync Logs" type="button" id="sync-logs" class="btn btn-image" style="padding: 0px 1px;">Sync Logs</a>
+        	<a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="">Sync Logs</a>
+        	<!-- <a style="float: right;" title="Sync Logs" type="button" id="sync-logs" class="btn btn-image" style="padding: 0px 1px;">Sync Logs</a> -->
         </h2>
 		<div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-8">
+                <div class="col-6">
                     <form action="{{ route('magento_module_listing') }}" method="get" class="search">
                         <div class="row">
                             {{-- <div class="col-md-2 pd-sm">
@@ -156,6 +156,9 @@
 						</div> 
 					{{ Form::close() }} 
 				</div>
+				<div class="col-2">
+					<button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#mmdatatablecolumnvisibilityList">Column Visiblity</button>
+				</div>
             </div>
         </div>
     </div>
@@ -176,7 +179,7 @@
                         <th width="20%">Name</th>
                         <th width="20%">Description</th>
 				        <?php foreach($storeWebsites as $storeWebsiteId => $storeWebsiteTitle) { ?>
-							<th title="{{$storeWebsiteTitle}}" class="expand-row" width="30%">
+							<th title="{{$storeWebsiteTitle}}" class="expand-row" style="width: 10% !important;">
 							<span class="td-mini-container">
 								{{ strlen($storeWebsiteTitle) > 5 ? trim(substr($storeWebsiteTitle, 0, 5)).'...' :  $storeWebsiteTitle }}
 							</span>
@@ -236,6 +239,11 @@
 										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-check-status" style="padding: 0px 5px !important;">
 											<i class="fa fa-check-circle-o" aria-hidden="true"></i>
 										</button>
+									@else 
+										<label class="mml_switch">
+											<input type="checkbox" {{ $status ? 'checked' : '' }} class="magento_module_toggle_switch" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" id="mm_status_{{$store_Website_id}}_{{$magento_module_id}}" name="mm_status_[{{$store_Website_id}}][{{$magento_module_id}}]" value="{{$status}}">
+											<span class="slider round" style="background-color: gray;"></span>
+										</label>
 									@endif
 								</td>
 								<?php } ?>
@@ -287,7 +295,7 @@
 
 @include('magento_module.partials.list-sync-logs-modal')
 @include("magento_module.partials.column-visibility-modal")
-
+@include("magento_module.column-visibility-modal")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
