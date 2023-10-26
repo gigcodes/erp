@@ -104,7 +104,7 @@ class MonitStatusController extends Controller
                             /*$monitStatusArray[$iii]['dir'] = "/home/prod-1-1/current/";
                             $iii++;*/
 
-                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id, 'ip' => $ip]);
+                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id.'-'.strtolower($service_name), 'ip' => $ip]);
                         }
                     }
                     
