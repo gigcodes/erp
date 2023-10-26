@@ -536,7 +536,7 @@ Route::middleware('auth')->group(function () {
 Route::post('auto-build-process', [ProjectController::class, 'pullRequestsBuildProcess'])->name('project.pullRequests.buildProcess');
 
 Route::middleware('auth')->group(function () {
-    Route::get('magento_modules/listing-cms-page', [\App\Http\Controllers\PageBuilder\MagentoPageBuilderController::class, 'index'])->name('magento_module_pagebuilder_listing');
+    Route::get('magento_modules/listing-cms-page/{storeId?}', [\App\Http\Controllers\PageBuilder\MagentoPageBuilderController::class, 'index'])->name('magento_module_pagebuilder_listing');
 
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');

@@ -3,7 +3,7 @@
 @section('content')
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">CMS Pages <span class="count-text"></span></h2>
+            <h2 class="page-heading">CMS Pages "{{ $store->title }}"<span class="count-text"></span></h2>
         </div>
         <br>
         <div class="col-lg-12 margin-tb" id="page-view-result">
@@ -118,7 +118,7 @@
     <script>
         $(document).on("click", ".create-new-cms-page", function (e) {
             e.preventDefault();
-            $("#iframe > iframe").attr("src", '{{ $admin_path }}/cms/page/new/');
+            $("#iframe > iframe").attr("src", '{{ $store->magento_url }}/cms/page/new/');
             $('#iframe').show();
         });
 
@@ -138,7 +138,7 @@
 
             let pageId = $(this).attr('data-id');
 
-            $("#iframe > iframe").attr("src", '{{ $admin_path }}/cms/page/edit/page_id/' + pageId + '/');
+            $("#iframe > iframe").attr("src", '{{ $store->magento_url }}/cms/page/edit/page_id/' + pageId + '/');
         });
     </script>
 @endsection
