@@ -52,6 +52,7 @@ class CreateMonitorServers extends Migration
             $table->string('last_error', 255)->nullable();
             $table->text('last_error_output')->nullable();
             $table->text('last_output')->nullable();
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');

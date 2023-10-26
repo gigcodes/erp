@@ -23,6 +23,7 @@ class CreateMonitorLog extends Migration
             $table->timestamp('datetime')->default(now());
             $table->charset = 'utf8';
             $table->collation = 'utf8_general_ci';
+            $table->timestamps();
         });
 
         DB::statement('ALTER TABLE `monitor_log` ENGINE = MyISAM');

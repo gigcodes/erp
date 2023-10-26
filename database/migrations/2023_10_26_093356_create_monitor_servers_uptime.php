@@ -22,6 +22,7 @@ class CreateMonitorServersUptime extends Migration
             $table->unsignedTinyInteger('status');
             $table->float('latency', 9, 7)->nullable();
             $table->index('server_id');
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');
