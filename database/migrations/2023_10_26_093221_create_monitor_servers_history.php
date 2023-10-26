@@ -25,6 +25,7 @@ class CreateMonitorServersHistory extends Migration
             $table->unsignedInteger('checks_total');
             $table->unsignedInteger('checks_failed');
             $table->unique(['server_id', 'date']);
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');

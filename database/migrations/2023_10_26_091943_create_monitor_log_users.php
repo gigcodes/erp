@@ -19,6 +19,7 @@ class CreateMonitorLogUsers extends Migration
             $table->unsignedInteger('log_id');
             $table->unsignedInteger('user_id');
             $table->primary(['log_id', 'user_id']);
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');

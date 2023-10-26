@@ -20,6 +20,7 @@ class CreateMonitorUsersPreferences extends Migration
             $table->string('key', 255);
             $table->string('value', 255);
             $table->primary(['user_id', 'key']);
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');
