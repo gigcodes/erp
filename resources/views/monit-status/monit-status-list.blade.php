@@ -11,7 +11,7 @@
 @section('content')
 	<div class="row">
 		<div class="col-lg-12 margin-tb">
-		    <h2 class="page-heading">Monit Status ({{$monitStatus->total()}})</h2>
+		    <h2 class="page-heading">Monit Status ({{count($monitStatus)}})</h2>
 		</div>
 	</div>
 	<div class="mt-3 col-md-12">
@@ -53,9 +53,9 @@
 			        <th width="10%">Action</th>
                 </tr>
 		    	<tbody>
-                    @foreach ($monitStatus as $data)
+                    @foreach ($monitStatus as $k => $data)
                         <tr>
-                            <td>{{$data->id}}</td>
+                            <td>{{$k+1}}</td>
                             <td>{{$data->service_name}}</td>
 							<td class="expand-row" style="word-break: break-all">
 								<span class="td-mini-container">
@@ -81,7 +81,6 @@
 		    	</tbody>
 		    </thead>
 		</table>
-		{!! $monitStatus->appends(Request::except('page'))->links() !!}
 	</div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
     50% 50% no-repeat;display:none;">

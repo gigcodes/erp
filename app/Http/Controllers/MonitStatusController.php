@@ -14,6 +14,8 @@ class MonitStatusController extends Controller
     {
         $assetsmanager = AssetsManager::where('monit_api_url', '!=', '')->get();
 
+        //MonitStatus::truncate();
+
         $iii = 0;
         $monitStatusArray = [];
         if(!empty($assetsmanager)){
@@ -48,6 +50,8 @@ class MonitStatusController extends Controller
 
                         $json = json_encode($xml);
                         $xmlArray = json_decode($json,TRUE);
+
+                        MonitStatus::where('xmlid', $xmlArray['server']['id'])->delete();
 
                         foreach ($xmlArray['service'] as $key => $valueXaml) {
 
@@ -133,7 +137,8 @@ class MonitStatusController extends Controller
             $monitStatus = $monitStatus->where('uptime', 'LIKE', '%' . $request->search_uptime . '%');
         }
 
-        $monitStatus = $monitStatus->latest()->paginate(\App\Setting::get('pagination', 25));
+        //$monitStatus = $monitStatus->latest()->paginate(\App\Setting::get('pagination', 25));
+        $monitStatus = $monitStatus->latest()->get();
 
         return view('monit-status.monit-status-list', compact('monitStatus'));
     }
