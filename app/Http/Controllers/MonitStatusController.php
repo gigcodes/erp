@@ -44,7 +44,11 @@ class MonitStatusController extends Controller
                 if (curl_errno($ch)) {
                 } else {
                     // Parse and process the XML data
-                    $xml = simplexml_load_string($response);
+                    //$xml = simplexml_load_string($response);
+
+                    //$xmlString = '<element attribute="This has a &quot;quote&quot;">';
+                    $xmlString = str_replace('&quot;', '&amp;quot;', $response);
+                    $xml = simplexml_load_string($xmlString);
 
                     if(!empty($xml)){
 
