@@ -16,4 +16,9 @@ class ScriptsExecutionHistory extends Model
         'run_output',
         'run_status',
     ];
+
+    public function scriptDocument()
+    {
+        return $this->belongsTo(\App\Models\ScriptDocuments::class, 'script_document_id');
+    }
 }

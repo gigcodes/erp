@@ -30,7 +30,7 @@
 
                 <div class="form-group {{ $errors->has('usage_parameter') ? 'has-error' : '' }}">
                     <label> Usage Parameter </label>
-                    <input class="form-control" id="usage_parameter_update" name="usage_parameter" type="text">
+                    <textarea class="form-control" id="usage_parameter_update" name="usage_parameter"></textarea>
                     <span class="text-danger">{{ $errors->first('usage_parameter') }}</span>
                 </div>
 

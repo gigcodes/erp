@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScriptDocuments;
 use App\Models\ScriptDocumentFiles;
+use App\Models\ScriptsExecutionHistory;
 use App\User;
 use Exception;
 use App\TestCase;
@@ -53,6 +54,11 @@ class ScriptDocumentsController extends Controller
         $records = $records->map(
             function ($script_document) {
                 $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+
+                $script_document->last_output_text = '';
+                if(!empty($script_document->last_output)){
+                    $script_document->last_output_text = base64_decode($script_document->last_output);
+                }
                 return $script_document;
             }
         );
@@ -79,8 +85,7 @@ class ScriptDocumentsController extends Controller
                 'description' => 'required',
                 'location' => 'required',
                 'last_run' => 'required',
-                'status' => 'required',
-                'last_output' => 'required',
+                'status' => 'required'
             ]
         );
 
@@ -272,20 +277,7 @@ class ScriptDocumentsController extends Controller
 
     public function ScriptDocumentHistory($id)
     {   
-        $scriptDocument = ScriptDocuments::findorFail($id);
-
-        $records = [];
-        if(!empty($scriptDocument)){
-
-            $records = ScriptDocuments::where('file',$scriptDocument->file)->where('id', '!=', $id)->orderBy('id', 'DESC')->take(10)->get();
-
-            $records = $records->map(
-                function ($script_document) {
-                    $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
-                    return $script_document;
-                }
-            );
-        }
+        $records = ScriptsExecutionHistory::with('scriptDocument')->where('script_document_id', $id)->orderBy('id', 'DESC')->get();
 
         return response()->json([
             'status' => true,

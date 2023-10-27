@@ -29,7 +29,7 @@
 
             <div class="form-group {{ $errors->has('usage_parameter') ? 'has-error' : '' }}">
                 <label> Usage Parameter </label>
-                <input class="form-control" id="usage_parameter" name="usage_parameter" type="text" required>
+                <textarea class="form-control" id="usage_parameter" name="usage_parameter" required></textarea>
                 <span class="text-danger">{{ $errors->first('usage_parameter') }}</span>
             </div>
 
@@ -61,12 +61,6 @@
                 <label> Last Run</label>                
                 <input class="form-control" id="last_run" name="last_run" type="text" required>
                 <span class="text-danger">{{ $errors->first('last_run') }}</span>
-            </div>
-
-            <div class="form-group {{ $errors->has('last_output') ? 'has-error' : '' }}">
-                <label> Last Output</label>                
-                <input class="form-control" id="last_output" name="last_output" type="text" required>
-                <span class="text-danger">{{ $errors->first('last_output') }}</span>
             </div>
 
             <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
@@ -130,11 +124,6 @@ $(document).on('click', '.btn-save-script-document', function() {
 
     if($('#last_run').val() == '') {
         $('#last_run').next().text("Please enter the last run");
-        return false;
-    }
-
-    if($('#last_output').val() == '') {
-        $('#last_output').next().text("Please enter the last output");
         return false;
     }
 
