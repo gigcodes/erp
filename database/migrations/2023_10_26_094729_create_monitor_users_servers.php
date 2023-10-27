@@ -19,6 +19,7 @@ class CreateMonitorUsersServers extends Migration
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('server_id');
             $table->primary(['user_id', 'server_id']);
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');

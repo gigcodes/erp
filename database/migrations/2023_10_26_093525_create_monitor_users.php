@@ -30,6 +30,7 @@ class CreateMonitorUsers extends Migration
             $table->string('telegram_id', 255);
             $table->string('jabber', 255);
             $table->string('email', 255);
+            $table->timestamps();
         });
 
         $charset = config('database.connections.mysql.charset');

@@ -21,6 +21,7 @@ class CreateMonitorConfig extends Migration
             $table->string('value', 255);
             $table->charset = 'utf8';
             $table->collation = 'utf8_general_ci';
+            $table->timestamps();
         });
     }
 
