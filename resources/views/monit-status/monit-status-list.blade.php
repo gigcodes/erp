@@ -45,6 +45,8 @@
 		    <thead>
 			    <tr>
 			    	<th width="3%">ID</th>
+			    	<th width="8%">Server Name</th>
+			    	<th width="8%">Server Ip</th>
 			    	<th width="8%">Service Name</th>
 			        <th width="30%">Memory</th>
 			        <th width="10%">Status</th>
@@ -56,6 +58,8 @@
                     @foreach ($monitStatus as $k => $data)
                         <tr>
                             <td>{{$k+1}}</td>
+                            <td>{{$data->assetsManager->ip_name}}</td>
+                            <td>{{$data->assetsManager->ip}}</td>
                             <td>{{$data->service_name}}</td>
 							<td class="expand-row" style="word-break: break-all">
 								<span class="td-mini-container">
