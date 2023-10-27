@@ -193,104 +193,58 @@
 				    <tbody id="environment_data">
 						<?php 
 						if($magento_modules) {
-							foreach($magento_modules as $mmkey => $magento_module) {
-						?>
-						<tr class="trrow">
-							<td width="10%" class="expand-row">
-								<span class="td-mini-container">
-									{{ strlen($magento_module->module) > 15 ? substr($magento_module->module, 0, 15).'...' :  $magento_module->module }}
-								</span>
-								<span class="td-full-container hidden">
-									{{$magento_module->module}}
-								</span>
-							</td>
-								<td width="25%" class="expand-row">
-									<span class="td-mini-container">
-										{{ strlen( $magento_module->module_description) > 25 ? substr( $magento_module->module_description, 0, 25).'...' :  $magento_module->module_description }}
-									</span>
-									<span class="td-full-container hidden">
-										{{ $magento_module->module_description}}
-									</span>
-								</td>
-								<?php 
-								foreach($storeWebsites as $store_Website_id => $store_website_title) { 
-								$search_array=[];
-								if(isset($magento_modules_array[$store_Website_id])){
-									$search_array=$magento_modules_array[$store_Website_id];
-								}
-								
-								$key = array_search($magento_module->module, array_column($search_array, 'module'));
+							foreach($magento_modules as $mmkey => $magento_module) { ?>
+								<tr class="trrow">
+									<td width="10%" class="expand-row">
+										<span class="td-mini-container">
+											{{ strlen($magento_module->module) > 15 ? substr($magento_module->module, 0, 15).'...' :  $magento_module->module }}
+										</span>
+										<span class="td-full-container hidden">
+											{{$magento_module->module}}
+										</span>
+									</td>
 
-								if($key !== false){
-								} else{
-									
-									$mm_create = [];
-									$mm_create['store_website_id'] = $store_Website_id;
-									$mm_create['module_category_id'] = $magento_module['module_category_id'];
-									$mm_create['module'] = $magento_module['module'];
-									$mm_create['module_description'] = $magento_module['module_description'];
-									$mm_create['current_version'] = $magento_module['current_version'];
-									$mm_create['module_type'] = $magento_module['module_type'];
-									$mm_create['status'] = 0;
-									$mm_create['payment_status'] = $magento_module['payment_status'];
-									$mm_create['developer_name'] = $magento_module['developer_name'];
-									$mm_create['dev_verified_by'] = $magento_module['dev_verified_by'];
-									$mm_create['dev_verified_status_id'] = $magento_module['dev_verified_status_id'];
-									$mm_create['lead_verified_by'] = $magento_module['lead_verified_by'];
-									$mm_create['lead_verified_status_id'] = $magento_module['lead_verified_status_id'];
-									$mm_create['created_at'] = $magento_module['created_at'];
-									$mm_create['updated_at'] = $magento_module['updated_at'];
-									$mm_create['last_message'] = $magento_module['last_message'];
-									$mm_create['dev_last_remark'] = $magento_module['dev_last_remark'];
-									$mm_create['lead_last_remark'] = $magento_module['lead_last_remark'];
-									$mm_create['cron_time'] = $magento_module['cron_time'];
-									$mm_create['task_status'] = $magento_module['task_status'];
-									$mm_create['is_sql'] = $magento_module['is_sql'];
-									$mm_create['is_third_party_plugin'] = $magento_module['is_third_party_plugin'];
-									$mm_create['is_third_party_js'] = $magento_module['is_third_party_js'];
-									$mm_create['is_js_css'] = $magento_module['is_js_css'];
-									$mm_create['api'] = $magento_module['api'];
-									$mm_create['cron_job'] = $magento_module['cron_job'];
-									$mm_create['site_impact'] = $magento_module['site_impact'];
-									$mm_create['dependency'] = $magento_module['dependency'];
-									$mm_create['composer'] = $magento_module['composer'];
-									$mm_create['magneto_location_id'] = $magento_module['magneto_location_id'];
-									$mm_create['module_review_standard'] = $magento_module['module_review_standard'];
-									$mm_create['used_at'] = $magento_module['used_at'];
-									$mm_create['return_type_error'] = $magento_module['return_type_error'];
-									$mm_create['return_type_error_status'] = $magento_module['return_type_error_status'];
-									$mm_create['magento_dependency'] = $magento_module['magento_dependency'];
-									$mm_create['m2_error_status_id'] = $magento_module['m2_error_status_id'];
-									$mm_create['m2_error_assignee'] = $magento_module['m2_error_assignee'];
-									$mm_create['m2_error_remark'] = $magento_module['m2_error_remark'];
-									$mm_create['unit_test_status_id'] = $magento_module['unit_test_status_id'];
-									$mm_create['unit_test_remark'] = $magento_module['unit_test_remark'];
-									$mm_create['unit_test_user_id'] = $magento_module['unit_test_user_id'];
-									\App\MagentoModule::create($mm_create);
-								}
-									
-								?>
-								<td>
-									@if($key !== false)
-										<?php 
-											$status=$magento_modules_array[$store_Website_id][$key]['status'];
-											$magento_module_id=$magento_modules_array[$store_Website_id][$key]['id'];
-										?>
-										<label class="mml_switch">
-											<input type="checkbox" {{ $status ? 'checked' : '' }} class="magento_module_toggle_switch" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" id="mm_status_{{$store_Website_id}}_{{$magento_module_id}}" name="mm_status_[{{$store_Website_id}}][{{$magento_module_id}}]" value="{{$status}}">
-											<span class="slider round"></span>
-										</label><br>
-										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-history" style="padding: 0px 5px !important;">
-											<i class="fa fa-eye" aria-hidden="true"></i>
-										</button>
+									<td width="25%" class="expand-row">
+										<span class="td-mini-container">
+											{{ strlen( $magento_module->module_description) > 25 ? substr( $magento_module->module_description, 0, 25).'...' :  $magento_module->module_description }}
+										</span>
+										<span class="td-full-container hidden">
+											{{ $magento_module->module_description}}
+										</span>
+									</td>
 
-										<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-check-status" style="padding: 0px 5px !important;">
-											<i class="fa fa-check-circle-o" aria-hidden="true"></i>
-										</button>
-									@endif
-								</td>
-								<?php } ?>
-							<?php } ?>
+									<?php 
+									foreach($storeWebsites as $store_Website_id => $store_website_title) { 
+										$search_array=[];
+										if(isset($magento_modules_array[$store_Website_id])){
+											$search_array=$magento_modules_array[$store_Website_id];
+										}
+									
+										$key = array_search($magento_module->module, array_column($search_array, 'module')); ?>
+
+										<td>
+											@if($key !== false)
+												<?php 
+													$status=$magento_modules_array[$store_Website_id][$key]['status'];
+													$magento_module_id=$magento_modules_array[$store_Website_id][$key]['id'];
+												?>
+												<label class="mml_switch">
+													<input type="checkbox" {{ $status ? 'checked' : '' }} class="magento_module_toggle_switch" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" id="mm_status_{{$store_Website_id}}_{{$magento_module_id}}" name="mm_status_[{{$store_Website_id}}][{{$magento_module_id}}]" value="{{$status}}">
+													<span class="slider round"></span>
+												</label><br>
+												<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-history" style="padding: 0px 5px !important;">
+													<i class="fa fa-eye" aria-hidden="true"></i>
+												</button>
+
+												<button type="button" title="History" data-store_Website_id="{{$store_Website_id}}" data-magento_module_id="{{$magento_module_id}}" class="btn btn-check-status" style="padding: 0px 5px !important;">
+													<i class="fa fa-check-circle-o" aria-hidden="true"></i>
+												</button>
+											@endif
+										</td>
+									<?php 
+									} ?>
+							<?php 
+							} ?>
 						</tr>
 						<?php } ?>
 				    </tbody>
