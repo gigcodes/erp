@@ -14,6 +14,7 @@
 				<th width="10%">Author</th>
 				<th width="10%">Location</th>
 				<th width="10%">Last Run</th>
+				<th width="10%">Last Output</th>
 				<th width="10%">Status</th>
 				<th width="3%">Action</th>
 			</tr>
@@ -56,6 +57,8 @@
 			      	<td>{{:prop.location}}</td>
 
 			      	<td>{{:prop.last_run}}</td>
+
+			      	<td>{{:prop.last_output_text}}</td>
 
 			      	<td>{{:prop.status}}</td>
 

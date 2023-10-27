@@ -363,61 +363,33 @@
                     var html = "";
                     $.each(response.data, function(k, v) {
 						html += "<tr>";
-						/*html += "<td>" + v.id + "</td>";
-						html += "<td>" + v.created_at_date + "</td>";
-
-						if(v.script_type!=null){
-							html += "<td>" + v.script_type + "</td>";
-						} else {
-							html += "<td></td>";
-						}
-						
-						html += "<td>" + v.file + "</td>";
-
+					
 						if(v.description!=null){
 							html += "<td>" + v.description + "</td>";
 						} else {
 							html += "<td></td>";
 						}
 
-						if(v.usage_parameter!=null){
-							html += "<td>" + v.usage_parameter + "</td>";
+						if(v.run_time!=null){
+							html += "<td>" + v.run_time + "</td>";
 						} else {
 							html += "<td></td>";
 						}
 
-						if(v.category!=null){
-							html += "<td>" + v.category + "</td>";
+						if(v.last_output_text!=null){
+							html += "<td>" + v.last_output_text + "</td>";
 						} else {
 							html += "<td></td>";
 						}
 
-						if(v.comments!=null){
-							html += '<td><button type="button" data-id="'+ v.id +'" class="btn script-document-comment-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+						if(v.run_status!=null){
+							html += "<td>" + v.run_status + "</td>";
 						} else {
 							html += "<td></td>";
 						}
 
-						if(v.author!=null){
-							html += "<td>" + v.author + "</td>";
-						} else {
-							html += "<td></td>";
-						}
-
-						if(v.location!=null){
-							html += "<td>" + v.location + "</td>";
-						} else {
-							html += "<td></td>";
-						}*/
-
-						if(v.last_run!=null){
-							html += "<td>" + v.last_run + "</td>";
-						} else {
-							html += "<td></td>";
-						}
-
-						if(v.status!=null){
-							html += "<td>" + v.status + "</td>";
+						if(v.created_at!=null){
+							html += "<td>" + v.created_at + "</td>";
 						} else {
 							html += "<td></td>";
 						}
