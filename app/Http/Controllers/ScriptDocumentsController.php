@@ -306,7 +306,7 @@ class ScriptDocumentsController extends Controller
         return response()->json([
             'status' => true,
             'data' => $scriptDocument,
-            'message' => 'Comment get successfully',
+            'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }

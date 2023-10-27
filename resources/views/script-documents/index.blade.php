@@ -61,6 +61,7 @@
     @include("script-documents.edit")
     @include('script-documents.history')
     @include('script-documents.comment')
+    @include('script-documents.last-output')
 	
 	<div id="uploadeScriptDocumentsScreencastModal" class="modal fade" role="dialog">
 		<div class="modal-dialog">
@@ -416,6 +417,30 @@
 	         
 	            }
 	        });
+		});
+
+		$(document).on('click','.script-document-last_output-view',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('script-documents.comment', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+	               
+                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.data.last_output);
+                    $("#script-document-last-output-list").modal("show");
+	         
+	            }
+	        });
+		});
+
+		$(document).on('click', '.expand-row-msg', function () {
+			var name = $(this).data('name');
+			var id = $(this).data('id');
+			var full = '.expand-row-msg .show-short-'+name+'-'+id;
+			var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+			$(full).toggleClass('hidden');
+			$(mini).toggleClass('hidden');
 		});
 	</script>
 @endsection
