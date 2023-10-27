@@ -886,7 +886,10 @@ class MagentoModuleController extends Controller
         $cmd = 'bin/magento cache:flush';
         \Log::info('Start cache:flush');
 
-        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+        $website = StoreWebsite::where('id', $store_website_id)->first();
+
+        //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+        $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
         $ch = curl_init();
@@ -896,9 +899,10 @@ class MagentoModuleController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $parameters = [
             'command' => $cmd,
-            'cwd' => $cwd,
+            'dir' => $cwd,
             'is_sudo' => true,
             'timeout_sec' => 300,
+            'server' => $website->server_ip,
         ];
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 

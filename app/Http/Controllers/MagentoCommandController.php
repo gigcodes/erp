@@ -278,6 +278,7 @@ class MagentoCommandController extends Controller
                         \Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
                         $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
+                        //$url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
                         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
                         $ch = curl_init();
@@ -400,7 +401,8 @@ class MagentoCommandController extends Controller
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         \Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
+                        //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
+                        $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
                         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
@@ -409,11 +411,18 @@ class MagentoCommandController extends Controller
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                        /*curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                             //'client_id' => $client_id,
                             'script' => base64_encode($cmd),
                             // 'cwd' => '/var/www/erp.theluxuryunlimited.com/deployment_scripts',
                             'is_sudo' => true,
+                        ]));*/
+
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                            'command' => $cmd,
+                            'dir' => $website->working_directory,
+                            'is_sudo' => true,
+                            'server' => $website->server_ip,
                         ]));
 
                         $headers = [];
