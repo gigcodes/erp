@@ -113,7 +113,7 @@ class MonitStatusController extends Controller
                             /*$monitStatusArray[$iii]['dir'] = "/home/prod-1-1/current/";
                             $iii++;*/
 
-                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id.'-'.strtolower($service_name), 'ip' => $ip, 'monit_api_id' => $id]);
+                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id.'-'.strtolower($service_name), 'ip' => $ip, 'monit_api_id' => $id, 'asset_management_id' => $value->id]);
                         }
                     }
                     
@@ -125,7 +125,7 @@ class MonitStatusController extends Controller
             }
         }
 
-        $monitStatus =  new MonitStatus();
+        $monitStatus =  MonitStatus::with('assetsManager');
         if ($request->service_name) {
             $monitStatus = $monitStatus->where('service_name', 'LIKE', '%' . $request->service_name . '%');
         }
