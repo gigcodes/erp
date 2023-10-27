@@ -83,9 +83,14 @@ class MonitStatusController extends Controller
                             
                             //$monitStatusArray[$iii]['uptime'] = '';
                             $uptime = '';
-                            if(!empty($xmlArray['server']['uptime'])){
+                            /*if(!empty($xmlArray['server']['uptime'])){
                                 //$monitStatusArray[$iii]['uptime'] = $xmlArray['server']['uptime'];
                                 $uptime = $xmlArray['server']['uptime'];
+                            }*/
+
+                            if(!empty($valueXaml['uptime'])){
+                                //$monitStatusArray[$iii]['uptime'] = $valueXaml['uptime'];
+                                $uptime = $valueXaml['uptime'];
                             }
 
                             //$monitStatusArray[$iii]['status'] = $valueXaml['status'];
