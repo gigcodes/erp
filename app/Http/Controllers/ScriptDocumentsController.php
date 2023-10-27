@@ -48,7 +48,7 @@ class ScriptDocumentsController extends Controller
             );
         }
 
-        $records = $records->take(25)->groupBy('file')->get();
+        $records = $records->take(100)->groupBy('file')->get();
         $records_count = $records->count();
 
         $records = $records->map(
