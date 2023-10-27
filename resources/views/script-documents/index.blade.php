@@ -376,8 +376,8 @@
 							html += "<td></td>";
 						}
 
-						if(v.run_output!=null){
-							html += "<td>" + v.run_output + "</td>";
+						if(v.last_output_text!=null){
+							html += "<td>" + v.last_output_text + "</td>";
 						} else {
 							html += "<td></td>";
 						}

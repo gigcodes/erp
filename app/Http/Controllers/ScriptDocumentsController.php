@@ -279,6 +279,18 @@ class ScriptDocumentsController extends Controller
     {   
         $records = ScriptsExecutionHistory::with('scriptDocument')->where('script_document_id', $id)->orderBy('id', 'DESC')->get();
 
+        $records = $records->map(
+            function ($script_document) {
+                $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+
+                $script_document->last_output_text = '';
+                if(!empty($script_document->run_output)){
+                    $script_document->last_output_text = base64_decode($script_document->run_output);
+                }
+                return $script_document;
+            }
+        );
+
         return response()->json([
             'status' => true,
             'data' => $records,
