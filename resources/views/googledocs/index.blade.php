@@ -32,7 +32,7 @@
                             <form class="form-inline message-search-handler" method="get">
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select File Name: </b>
-                                    <input class="form-control" type="text" id="tag-input" name="name" placeholder="Enter File Name" style="width: 100%;" value="{{request()->get('name')}}">
+                                    {{ Form::select("name[]", \App\GoogleDoc::pluck('name','id')->toArray(), request('name'), ["class" => "form-control globalSelect2", "multiple"]) }}
                                 </div>
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select Tasks: </b>
@@ -64,7 +64,7 @@
                                         </select>
                                     </div>
     				            @endif
-                                <div class="col-lg-2 pd-sm">
+                                <div class="col-lg-3 pd-sm">
                                     <b>Enter Search Url: </b>
                                     <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
                                     <datalist id="docid-lists">
@@ -72,6 +72,10 @@
                                             <option value="{{$val->docId}}"></option>
                                         @endforeach
                                     </datalist>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Enter keyword for search: </b>
+                                    <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
                                 </div>
                                 <div class="col-lg-1 pd-sm">
                                     <div class="form-group">
@@ -88,6 +92,9 @@
             </div>
 	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary open-google-documents">
+                    Open Documents
+                </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updatemultipleGoogleDocPermissionModal">
                     Add Permission
                   </button>   
@@ -442,7 +449,7 @@ $(document).on('click', '.permissionview', function (e) {
 
     $(document).ready(function($) {
         // Now you can use $ safely within this block
-        $("#tag-input").autocomplete({
+        /*$("#tag-input").autocomplete({
             source: function(request, response) {
                 // Send an AJAX request to the server-side script
                 $.ajax({
@@ -460,7 +467,7 @@ $(document).on('click', '.permissionview', function (e) {
             select: function(event, ui) {
                 // Handle the selection if needed
             }
-        });
+        });*/
 
         $("#tag-tasks").autocomplete({
             source: function(request, response) {

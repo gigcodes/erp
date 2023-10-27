@@ -2789,7 +2789,7 @@ button.show-task-history {
 }
 
 @media (min-width: 992px) {
-  #addPostman .modal-lg, #assetsEditModal .modal-dialog, #assetsCreateModal .modal-dialog {
+  #addPostman .modal-lg, #assetsEditModal .modal-dialog, #assetsCreateModal .modal-dialog, #SearchGoogleDocModal .modal-dialog {
     width: 1180px !important;
     max-width: 1500px !important;
   }

@@ -335,4 +335,5 @@ Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystem
 Route::post('/github-action', [GitHubActionController::class, 'store']);
 
 Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
+Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');
 

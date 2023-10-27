@@ -169,7 +169,25 @@ class WebsiteStoreController extends Controller
     public function dropdown()
     {
         if ($s = request('srch_website_store')) {
-            $websiteStores = WebsiteStore::whereRaw('website_id IN (SELECT id FROM websites WHERE store_website_id = ? )', [$s])
+
+            $websites = Website::whereIn('store_website_id', $s)->pluck('id');
+
+            if(!empty($websites)){
+                $websiteStores = WebsiteStore::whereIn('website_id', $websites)->orderBy('name', 'ASC')->pluck('name', 'id')->toArray();
+
+                if ($websiteStores) {
+                    $options = ['<option value="" >-- Select Website --</option>'];
+                    foreach ($websiteStores as $key => $value) {
+                        $options[] = '<option value="' . $key . '" ' . ($key == request('selected') ? 'selected' : '') . ' >' . $value . '</option>';
+                    }
+                } else {
+                    $options = ['<option value="" >No records found.</option>'];
+                }
+            } else {
+                $options = ['<option value="" >No records found.</option>'];
+            }
+            
+            /*$websiteStores = WebsiteStore::whereRaw('website_id IN (SELECT id FROM websites WHERE store_website_id = ? )', [$s])
                 ->orderBy('name', 'ASC')
                 ->pluck('name', 'id')
                 ->toArray();
@@ -180,7 +198,7 @@ class WebsiteStoreController extends Controller
                 }
             } else {
                 $options = ['<option value="" >No records found.</option>'];
-            }
+            }*/
         } else {
             $options = ['<option value="" >Please select website first</option>'];
         }

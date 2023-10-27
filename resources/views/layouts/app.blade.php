@@ -54,7 +54,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
+    @if(Auth::user())
+        @if(Auth::user()->user_timeout!=0)
+            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('login') }}">
+        @else
+            <meta http-equiv="refresh" content = "28800; url={{ route('login') }}">
+        @endif
+    @endif
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         /* New Header design CSS */
         #quick-sidebars {
@@ -1471,13 +1478,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $description = \App\Meetings\ZoomMeetingParticipant::whereNull('description')->count();
                                     @endphp
-                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="Zoom View All Participants">
+                                    <button type="button" class="btn btn-xs ParticipantsList" title="view Participants" onclick="viewParticipantsIcon()">
                                         <span><i class="fa fa-users fa-2x"></i>
                                             @if($description > 0)
                                                 <span class="description-alert-badge"></span>
                                             @endif                                                                                        
                                         </span>
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
                                     <a class="instruction-button quick-icon" href="#"><span><i
@@ -4507,6 +4514,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('script-documents') }}">Script Documents</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -5308,6 +5318,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.list-documetation-shortcut-modal')
         @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
+        @include('partials.modals.view-all-participants')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7531,6 +7542,80 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     $('.notification-button').on('click', function() {
         $("#quick-user-event-notification-modal").modal("show");
     });
+
+    $('.ParticipantsList').on('click', function() {
+        $("#participants-list-modal").modal("show");
+    });
+    
+    function viewParticipantsIcon(pageNumber = 1) {
+        var button = document.querySelector('.btn.btn-xs.ParticipantsList'); 
+
+            $.ajax({
+                url: "{{route('list.all.participants')}}",
+                type: 'GET',
+                dataType: "json",
+                data: {
+                    page:pageNumber,
+                },
+                beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+            }).done(function(response) {
+                $('#participants-list-modal-html').empty().html(response.html);
+                $('#participants-list-modal').modal('show');
+                renderdomainPagination(response.data);
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {
+                $('.loading-image-preview').show();
+                console.log(response);
+            });
+    }
+
+    function renderdomainPagination(response) {
+        var paginationContainer = $(".pagination-container-participation");
+        var currentPage = response.current_page;
+        var totalPages = response.last_page;
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+            if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                startPage = totalPages - maxVisiblePages + 1;
+            } else {
+                startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+            }
+
+            if (startPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(1)'>1</a></li>";
+                if (startPage > 2) {
+                html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                }
+            }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+    function changeParticipantsPage(pageNumber) {
+        viewParticipantsIcon(pageNumber);
+    }
+
 
     $('select[name="repeat"]').on('change', function() {
         $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');

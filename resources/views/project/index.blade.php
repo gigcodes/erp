@@ -232,7 +232,13 @@
                                             <option value="" selected disabled>-- Select a Branch --</option>
                                         </select>
                                     </div>
-                                </div>                        
+                                </div>    
+                                <div class="col-md-12"> 
+                                <div class="form-group">
+                                    <strong>Meta Package Branch :</strong>
+                                    {!! Form::text('metapackage_branch', 'master', ['placeholder' => 'metapackage_branch', 'id' => 'metapackage_branch', 'class' => 'form-control']) !!}
+                                </div>
+                                </div>                   
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <input type="hidden" name="initiate_from" value="Project Page - Build Process">
@@ -597,6 +603,12 @@
         }
 
         $("#build_bulk_repository").on('change', function(e) {
+            var selectedRepositoryId = $('#build_bulk_repository').val();
+            if (selectedRepositoryId == 353671452) {
+                $('#metapackage_branch').closest('.form-group').show();
+            } else {
+                $('#metapackage_branch').closest('.form-group').hide();
+            }
             branchDropdown();
         });
 
