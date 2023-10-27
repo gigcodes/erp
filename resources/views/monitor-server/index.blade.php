@@ -58,6 +58,7 @@
                             <th width="10%">Last Offline</th>
                             <th width="10%">SSL Expiry</th>
                             <th width="10%">Last Downtime</th>
+                            <th width="10%">SSL Certificate Expired Time</th>
                             <th width="5%">Action</th>
                         </tr>
                         @foreach ($monitorServers as $key => $monitorServer)
@@ -82,6 +83,7 @@
                                 <td>{{ $monitorServer->last_offline }}</td>
                                 <td>{{ $monitorServer->ssl_cert_expired_time }}</td>
                                 <td>{{ $monitorServer->last_offline_duration }}</td>
+                                <td>{{ $monitorServer->ssl_cert_expired_time }}</td>
                                 <td class="Website-task"title="">
                                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$monitorServer->server_id}}')"><i class="fa fa-arrow-down"></i></button>
                                 </td>

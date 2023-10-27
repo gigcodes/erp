@@ -49,18 +49,28 @@ class MagentoSettingsController extends Controller
                         $q->where('id', $website);
                     });
                 } else {
+
                     if ($request->scope == 'default') {
                         $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
                         $magentoSettings->whereIn('scope_id', $website_ids ?? []);
+
                     } elseif ($request->scope == 'websites') {
-                        $website_ids = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
-                        $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                        $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('store_website_id', $website_ids ?? []);
+
+                        // $website_ids = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        // $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        // $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
+
                     } elseif ($request->scope == 'stores') {
-                        $website_ids = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('store_website_id', $website_ids ?? []);
+                        
+                        /*$website_ids = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
                         $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
                         $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
-                        $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
+                        $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);*/
                     }
                 }
                 //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
@@ -378,6 +388,76 @@ class MagentoSettingsController extends Controller
         }
 
         $entity = MagentoSetting::find($entity_id);
+
+        //$path = 'bss_geoip/general/country';
+
+        //$value = 'QA';
+
+        $selectedCheckboxes = [$request->id];
+        if(!empty($request->selectedCheckboxes)){
+            $selectedCheckboxes = explode(",", $request->selectedCheckboxes);
+        }
+
+        //\App\Jobs\PushMagentoSettings::dispatch($magentoSetting, $website_ids)->onQueue('pushmagentosettings');
+
+        //\App\Jobs\AdminSettingCommandJob::dispatch($selectedCheckboxes, $path, $value)->onQueue('admin_setting_command');
+
+        \Log::info("Admin setting command");
+        foreach ($selectedCheckboxes as $key => $values) {
+            
+            $magentoSettings = MagentoSetting::where('id', $values)->first();
+        
+            $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+            \Log::info("REquest command ".$requestData['command']);
+            $storeWebsiteData = StoreWebsite::where('id', $magentoSettings->store_website_id)->first();
+
+            if(!empty($storeWebsiteData)){
+                $requestData['server'] = $storeWebsiteData->server_ip;
+                $requestData['dir'] = $storeWebsiteData->working_directory;
+            }
+
+            if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir'])){
+
+                $requestJson = json_encode($requestData);
+
+                // Initialize cURL session
+                $ch = curl_init();
+
+                // Set cURL options for a POST request
+                curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($requestJson)
+                ));
+
+                // Execute cURL session and store the response in a variable
+                $response = curl_exec($ch);
+
+                // Check for cURL errors
+                if(curl_errno($ch)) {
+                    echo 'Curl error: ' . curl_error($ch);
+                }
+
+                // Close cURL session
+                curl_close($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                $responseData = json_decode($response);
+                \Log::info("responseData".print_r($responseData,true));
+                $status = 'Error';
+                if(isset($responseData->success)){
+                    if($responseData->success==1){
+                        $status = 'Success';
+                    }
+                }
+
+                MagentoSettingPushLog::create(['store_website_id' => $magentoSettings->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $values, 'command_output' =>$response, 'status' => $status,'command_server'=>'http://s10.theluxuryunlimited.com:5000/execute','job_id'=>$httpcode ]);
+
+            }
+        }
 
         // // #DEVTASK-23677-api implement for admin settings
         // \Log::info("Setting Scope : ".$scope);

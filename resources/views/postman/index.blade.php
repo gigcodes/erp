@@ -174,8 +174,8 @@
   <a href="/postman/workspace" class="btn custom-button float-right mr-3">Add Workspace</a>
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
   <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
-
-
+<button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#postmandatatablecolumnvisibilityList">Column Visiblity</button>
+<button class="btn custom-button" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
   <div class="col-12">
     <h3>Assign Permission to User</h3>
     <form class="form-inline" id="update_user_permission" action="/postman/user/permission" method="POST">
@@ -220,41 +220,341 @@
 <div class="row m-0">
   <div class="col-12" style="border: 1px solid;border-color: #dddddd;">
     <div class="table-responsive mt-2" style="overflow-x: auto !important;">
+
+        @if ($message = Session::get('success'))
+            <div class="col-lg-12">
+                <div class="alert alert-success">
+                    <p>{{ $message }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="col-lg-12">
+                <div class="alert alert-danger">
+                    <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+        
       <table class="table table-bordered text-nowrap">
         <thead>
           <tr>
-            <th style="width: 3%;">ID</th>
-            <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
-            <th style="width: 25%;overflow-wrap: anywhere;">PostMan Status</th>
-            <th style="width: 15%;overflow-wrap: anywhere;">API Issue Fix Done</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
-            <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
-            <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Type</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">URL</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Request Parameter</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Params</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Headers</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Request type</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Request Response</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Response Code</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Grumphp Errors</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Magento API Standards</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Swagger DocBlock</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Used for</th>
-            <th style="width: 5%;overflow-wrap: anywhere;">Used in</th>
-            <th style="width: 22%;overflow-wrap: anywhere;">Action</th>
+            @if(!empty($dynamicColumnsToShowPostman))
+                @if (!in_array('ID', $dynamicColumnsToShowPostman))
+                    <th style="width: 3%;">ID</th>
+                @endif
+
+                @if (!in_array('Folder Name', $dynamicColumnsToShowPostman))
+                    <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
+                @endif
+
+                @if (!in_array('PostMan Status', $dynamicColumnsToShowPostman))
+                    <th style="width: 25%;overflow-wrap: anywhere;">PostMan Status</th>
+                @endif
+
+                @if (!in_array('API Issue Fix Done', $dynamicColumnsToShowPostman))
+                    <th style="width: 15%;overflow-wrap: anywhere;">API Issue Fix Done</th>
+                @endif
+
+                @if (!in_array('Controller Name', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
+                @endif
+
+                @if (!in_array('Method Name', $dynamicColumnsToShowPostman))
+                    <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
+                @endif
+
+                @if (!in_array('Request Name', $dynamicColumnsToShowPostman))
+                    <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
+                @endif
+
+                @if (!in_array('Type', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Type</th>
+                @endif
+
+                @if (!in_array('URL', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">URL</th>
+                @endif
+
+                @if (!in_array('Request Parameter', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Request Parameter</th>
+                @endif
+
+                @if (!in_array('Params', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Params</th>
+                @endif
+
+                @if (!in_array('Headers', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Headers</th>
+                @endif
+
+                @if (!in_array('Request type', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Request type</th>
+                @endif
+
+                @if (!in_array('Request Response', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Request Response</th>
+                @endif
+
+                @if (!in_array('Response Code', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Response Code</th>
+                @endif
+
+                @if (!in_array('Grumphp Errors', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Grumphp Errors</th>
+                @endif
+
+                @if (!in_array('Magento API Standards', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Magento API Standards</th>
+                @endif
+
+                @if (!in_array('Swagger DocBlock', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Swagger DocBlock</th>
+                @endif
+
+                @if (!in_array('Used for', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Used for</th>
+                @endif
+
+                @if (!in_array('Used in', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;overflow-wrap: anywhere;">Used in</th>
+                @endif
+
+                @if (!in_array('Action', $dynamicColumnsToShowPostman))
+                    <th style="width: 22%;overflow-wrap: anywhere;">Action</th>
+                @endif
+            @else 
+                <th style="width: 3%;">ID</th>
+                <th style="width: 4%;overflow-wrap: anywhere;">Folder Name</th>
+                <th style="width: 25%;overflow-wrap: anywhere;">PostMan Status</th>
+                <th style="width: 15%;overflow-wrap: anywhere;">API Issue Fix Done</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Controller Name</th>
+                <th style="width: 4%;overflow-wrap: anywhere;">Method Name</th>
+                <th style="width: 4%;overflow-wrap: anywhere;">Request Name</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Type</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">URL</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Request Parameter</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Params</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Headers</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Request type</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Request Response</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Response Code</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Grumphp Errors</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Magento API Standards</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Swagger DocBlock</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Used for</th>
+                <th style="width: 5%;overflow-wrap: anywhere;">Used in</th>
+                <th style="width: 22%;overflow-wrap: anywhere;">Action</th>
+            @endif
           </tr>
         </thead>
 
         <tbody>
           @foreach ($postmans as $key => $postman)
           @php
+            $status_color = \App\Models\PostmanStatus::where('id',$postman->status_id)->first();
+            if ($status_color == null) {
+                $status_color = new stdClass();
+            }
+        @endphp
+          @php
           $userAccessArr = explode(",",$postman->user_permission);
           array_push($userAccessArr, $addAdimnAccessID)
           @endphp
           @if (in_array($userID, $userAccessArr))
-          <tr>
+            @if(!empty($dynamicColumnsToShowPostman))
+                <tr style="background-color: {{$status_color->postman_color ?? ""}}!important;">
+                    @if (!in_array('ID', $dynamicColumnsToShowPostman))
+                        <td>{{$postman->id}}</td>
+                    @endif
+
+                    @if (!in_array('Folder Name', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="name" data-id="{{$postman->id}}">
+                            <span class="show-short-name-{{$postman->id}}">{{ Str::limit($postman->name, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-name-{{$postman->id}} hidden">{{$postman->name}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('PostMan Status', $dynamicColumnsToShowPostman))
+                        <td style="width: 25%;">
+                            <div class="d-flex align-items-center">
+                                <select name="status" class="status-dropdown" data-id="{{$postman->id}}">
+                                    <option value="">Select Status</option>
+                                    @foreach ($status as $stat)
+                                        <option value="{{$stat->id}}" {{$postman->status_id == $stat->id ? 'selected' : ''}}>{{$stat->status_name}}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image status-history-show p-0 ml-2"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
+                            </div>
+                        </td>
+                    @endif
+
+                    @if (!in_array('API Issue Fix Done', $dynamicColumnsToShowPostman))
+                        <td style="width: 15%;">
+                            <div class="d-flex align-items-center">
+                                <select name="api_issue_fix_done" class="api-issue-fix-done-dropdown" data-id="{{$postman->id}}">
+                                    <option value="">Select</option>
+                                    <option value="0" {{$postman->api_issue_fix_done === 0 ? 'selected' : ''}}>No</option>
+                                    <option value="1" {{$postman->api_issue_fix_done === 1 ? 'selected' : ''}}>Yes</option>
+                                    <option value="2" {{$postman->api_issue_fix_done === 2 ? 'selected' : ''}}>Lead Verified</option>
+                                </select>
+                                <button type="button" data-id="{{ $postman->id  }}" class="btn btn-image api-issue-fix-done-history-show p-0 ml-2"  title="Api Issue Fix Done Histories" ><i class="fa fa-info-circle"></i></button>
+                            </div>
+                        </td>
+                    @endif
+                
+                    @if (!in_array('Controller Name', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="controller_name" data-id="{{$postman->id}}">
+                            <span class="show-short-controller_name-{{$postman->id}}">{{ Str::limit($postman->controller_name, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-controller_name-{{$postman->id}} hidden">{{$postman->controller_name}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Method Name', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="method_name" data-id="{{$postman->id}}">
+                            <span class="show-short-method_name-{{$postman->id}}">{{ Str::limit($postman->method_name, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-method_name-{{$postman->id}} hidden">{{$postman->method_name}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Request Name', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="request_name" data-id="{{$postman->id}}">
+                            <span class="show-short-request_name-{{$postman->id}}">{{ Str::limit($postman->request_name, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-request_name-{{$postman->id}} hidden">{{$postman->request_name}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Type', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="request_type" data-id="{{$postman->id}}">
+                            <span class="show-short-request_type-{{$postman->id}}">{{ Str::limit($postman->request_type, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-request_type-{{$postman->id}} hidden">{{$postman->request_type}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('URL', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="url" data-id="{{$postman->id}}">
+                            <span class="show-short-url-{{$postman->id}}">{{ Str::limit($postman->request_url, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-url-{{$postman->id}} hidden">{{$postman->request_url}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Request Parameter', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="paramiters" data-id="{{$postman->id}}">
+                            <span class="show-short-paramiters-{{$postman->id}}">{{ Str::limit($postman->body_json, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">{{$postman->body_json}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Params', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="params" data-id="{{$postman->id}}">
+                            <span class="show-short-params-{{$postman->id}}">{{ Str::limit($postman->params, 5, '...')}}</span>
+                            <span style="word-break:break-all;" class="show-full-params-{{$postman->id}} hidden">{{$postman->params}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Headers', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="headers" data-id="{{$postman->id}}">
+                            <span class="show-short-headers-{{$postman->id}}">{{ Str::limit($postman->request_headers, 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-headers-{{$postman->id}} hidden">{{$postman->request_headers}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Request type', $dynamicColumnsToShowPostman))
+                        <td>{{$postman->request_type}}</td>
+                    @endif
+
+                    @if (!in_array('Request Response', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="response" data-id="{{$postman->id}}">
+                            <span class="show-short-response-{{$postman->id}}">{{ Str::limit($postman->response, 12, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-response-{{$postman->id}} hidden">{{$postman->response}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Response Code', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="response_code" data-id="{{$postman->id}}">
+                            <span class="show-short-response_code-{{$postman->id}}">{{ Str::limit($postman->response_code  , 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-response_code-{{$postman->id}} hidden">{{$postman->response_code}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Grumphp Errors', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="grumphp_errors" data-id="{{$postman->id}}">
+                            <span class="show-short-grumphp_errors-{{$postman->id}}">{{ Str::limit($postman->grumphp_errors  , 8, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-grumphp_errors-{{$postman->id}} hidden">{{$postman->grumphp_errors}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Magento API Standards', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="magento_api_standards" data-id="{{$postman->id}}">
+                            <span class="show-short-magento_api_standards-{{$postman->id}}">{{ Str::limit($postman->magento_api_standards  , 15, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-magento_api_standards-{{$postman->id}} hidden">{{$postman->magento_api_standards}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Swagger DocBlock', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="swagger_doc_block" data-id="{{$postman->id}}">
+                            <span class="show-short-swagger_doc_block-{{$postman->id}}">{{ Str::limit($postman->swagger_doc_block  , 15, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-swagger_doc_block-{{$postman->id}} hidden">{{$postman->swagger_doc_block}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Used for', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="used_for" data-id="{{$postman->id}}">
+                            <span class="show-short-used_for-{{$postman->id}}">{{ Str::limit($postman->used_for  , 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-used_for-{{$postman->id}} hidden">{{$postman->used_for}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Used in', $dynamicColumnsToShowPostman))
+                        <td class="expand-row-msg" data-name="user_in" data-id="{{$postman->id}}">
+                            <span class="show-short-user_in-{{$postman->id}}">{{ Str::limit($postman->user_in  , 5, '..')}}</span>
+                            <span style="word-break:break-all;" class="show-full-user_in-{{$postman->id}} hidden">{{$postman->user_in}}</span>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Action', $dynamicColumnsToShowPostman))
+                        <td>
+                            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$postman->id}}')"><i class="fa fa-arrow-down"></i></button>
+                        </td>
+                    @endif
+                </tr>
+
+                @if (!in_array('Action', $dynamicColumnsToShowPostman))
+                    <tr class="action-btn-tr-{{$postman->id}} d-none">
+                        <td class="font-weight-bold">Action</td>
+                        <td colspan="11" class="cls-actions">
+                            <div>
+                                <div class="row cls_action_box" style="margin:0px;">
+                                    <a title="Send Request" class="btn btn-image abtn-pd postman-list-url-btn postman-send-request-btn1 pd-5 btn-ht" data-id="{{ $postman->id }}" data-toggle="modal" data-target="#postmanmulUrlDetailsModel" href="javascript:;">
+                                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="btn btn-image edit-postman-btn abtn-pd" data-id="{{ $postman->id }}"><img data-id="{{ $postman->id }}" src="/images/edit.png" style="cursor: nwse-resize; width: 16px;"></a>
+                                    @if (Auth::user()->isAdmin())
+                                    <a class="btn delete-postman-btn abtn-pd padding-top-action" data-id="{{ $postman->id }}" href="#"><img data-id="{{ $postman->id }}" src="/images/delete.png" style="cursor: nwse-resize; width: 16px;"></a>
+                                    <a title="Edit History" class="btn abtn-pd preview_edit_history padding-top-action" data-id="{{ $postman->id }}" href="javascript:;"><i class="fa fa-tachometer" aria-hidden="true"></i></a>
+                                    @endif
+                                    <a class="btn postman-history-btn abtn-pd padding-top-action" data-id="{{ $postman->id }}" href="#"><i class="fa fa-history" aria-hidden="true"></i></a>
+                                    <a title="Preview Response" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_response pd-5 btn-ht" href="javascript:;"><i class="fa fa-product-hunt" aria-hidden="true"></i></a>
+                                    <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                    <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
+                                    <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+
+                                    <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page - '.$postman->id  }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
+
+                                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($postman) {{ $postman->id }} @endif" data-category="{{ $postman->id }}"><i class="fa fa-info-circle"></i></button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @endif
+            @else
+            <tr style="background-color: {{$status_color->postman_color ?? ""}}!important;">
             <td>{{$postman->id}}</td>
             <td class="expand-row-msg" data-name="name" data-id="{{$postman->id}}">
               <span class="show-short-name-{{$postman->id}}">{{ Str::limit($postman->name, 5, '..')}}</span>
@@ -366,10 +666,13 @@
                       <a title="Preview Requested" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_requested pd-5 btn-ht" href="javascript:;"><i class="fa fa-eye" aria-hidden="true"></i></a>
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+
+                      <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page - '.$postman->id }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </td>
-        </tr>
+            </tr>
+            @endif        
           @endif
 
           @endforeach
@@ -575,7 +878,7 @@
                   <th>Response</th>
                   <th>Response code</th>
                   <th>Request</th>
-                  <th>Parmiters</th>
+                  <th>Parameters</th>
                   <th>Date</th>
                 </tr>
               </thead>
@@ -997,6 +1300,108 @@
   </div>
 </div>
 
+<div id="create-quick-task" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="<?php echo route('task.create.multiple.task.shortcutpostman'); ?>" method="post">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Task</h4>
+                </div>
+                <div class="modal-body">
+
+                    <input class="form-control" value="53" type="hidden" name="category_id" />
+                    <input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
+                    <input class="form-control" type="hidden" name="site_id" id="site_id" />
+                    <div class="form-group">
+                        <label for="">Subject</label>
+                        <input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" style="width:100%;" name="task_type" tabindex="-1" aria-hidden="true">
+                            <option value="0">Other Task</option>
+                            <option value="4">Developer Task</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="repository_id">Repository:</label>
+                        <br>
+                        <select style="width:100%" class="form-control  " id="repository_id" name="repository_id">
+                            <option value="">-- select repository --</option>
+                            @foreach (\App\Github\GithubRepository::all() as $repository)
+                            <option value="{{ $repository->id }}">{{ $repository->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Details</label>
+                        <input class="form-control text-task-development" type="text" name="task_detail" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Cost</label>
+                        <input class="form-control" type="text" name="cost" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Assign to</label>
+                        <select name="task_asssigned_to" class="form-control assign-to select2">
+                            @foreach ($allUsers as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Create Review Task?</label>
+                        <div class="form-group">
+                            <input type="checkbox" name="need_review_task" value="1" />
+                        </div>
+                    </div>
+                    <!-- <div class="form-group">
+                        <label for="">Websites</label>
+                        <div class="form-group website-list row">
+                           
+                        </div>
+                    </div> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-default create-task">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="dev_task_statistics" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dev Task statistics</h2>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body" id="dev_task_statistics_content">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Task type</th>
+                                <th>Task Id</th>
+                                <th>Assigned to</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="addPostmanJsonModel" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
@@ -1051,6 +1456,34 @@
   </div>
 </div>
 
+<div id="preview-task-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered" style="table-layout: fixed">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">Sl no</th>
+                                <th style=" width: 30%">Files</th>
+                                <th style="word-break: break-all; width: 40%">Send to</th>
+                                <th style="width: 10%">User</th>
+                                <th style="width: 10%">Created at</th>
+                                <th style="width: 15%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="task-image-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="postmanShowFullTextModel" class="modal fade" role="dialog">
   <div class="modal-dialog modal-lg">
     <!-- Modal content-->
@@ -1074,7 +1507,8 @@
 {{-- /var/www/html/erp/resources/views/postman/postman-status-history.blade.php --}}
 @include('postman.postman-status-history')
 @include('postman.postman-api-issue-fix-done-history')
-
+@include("postman.column-visibility-modal")
+@include("postman.partials.modal-status-color")
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -1835,6 +2269,337 @@
               }
           }
       });
+    });
+
+    $(document).on('click', '.create-quick-task', function() {
+        var $this = $(this);
+        site = $(this).data("id");
+        title = $(this).data("title");
+        cat_title = $(this).data("category_title");
+        development = $(this).data("development");
+        if (!title || title == '') {
+            toastr["error"]("Please add title first");
+            return;
+        }
+        //debugger;
+        /*let val = $("#change_website1").select2("val");
+        $.ajax({
+            url: '/task/get/websitelist',
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                id: val,
+                cat_title:cat_title
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        }).done(function(response) {
+            $("#loading-image").hide();
+            //$this.siblings('input').val("");
+            $('.website-list').html(response.data);
+            //toastr["success"]("Remarks fetched successfully");
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+        });*/
+
+        $("#create-quick-task").modal("show");
+
+        var selValue = $(".save-item-select").val();
+        if (selValue != "") {
+            $("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
+                'selected')
+            $('.assign-to.select2').select2({
+                width: "100%"
+            });
+        }
+
+        $("#hidden-task-subject").val(title);
+        $(".text-task-development").val(development);
+        $('#site_id').val(site);
+    });
+
+    $(document).on("click", ".create-task", function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: form.serialize(),
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    form[0].reset();
+                    toastr['success'](response.message);
+                    $("#create-quick-task").modal("hide");
+                } else {
+                    toastr['error'](response.message);
+                }
+            }
+        }).fail(function(response) {
+            toastr['error'](response.responseJSON.message);
+        });
+    });
+
+    $(document).on("click", ".count-dev-customer-tasks", function() {
+
+        var $this = $(this);
+        // var user_id = $(this).closest("tr").find(".ucfuid").val();
+        var site_id = $(this).data("id");
+        var category_id = $(this).data("category");
+        $("#site-development-category-id").val(category_id);
+        $.ajax({
+            type: 'get',
+            url: 'postman/countdevtask/' + site_id,
+            dataType: "json",
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(data) {
+                $("#dev_task_statistics").modal("show");
+                var table = `<div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th width="4%">Tsk Typ</th>
+                            <th width="4%">Tsk Id</th>
+                            <th width="7%">Asg to</th>
+                            <th width="12%">Desc</th>
+                            <th width="12%">Sts</th>
+                            <th width="33%">Communicate</th>
+                            <th width="10%">Action</th>
+                        </tr>`;
+                for (var i = 0; i < data.taskStatistics.length; i++) {
+                    var str = data.taskStatistics[i].subject;
+                    var res = str.substr(0, 100);
+                    var status = data.taskStatistics[i].status;
+                    if (typeof status == 'undefined' || typeof status == '' || typeof status ==
+                        '0') {
+                        status = 'In progress'
+                    };
+                    table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' +
+                        data.taskStatistics[i].id +
+                        '</td><td class="expand-row-msg" data-name="asgTo" data-id="' + data
+                        .taskStatistics[i].id + '"><span class="show-short-asgTo-' + data
+                        .taskStatistics[i].id + '">' + data.taskStatistics[i].assigned_to_name
+                        .replace(/(.{6})..+/, "$1..") +
+                        '</span><span style="word-break:break-all;" class="show-full-asgTo-' + data
+                        .taskStatistics[i].id + ' hidden">' + data.taskStatistics[i]
+                        .assigned_to_name +
+                        '</span></td><td class="expand-row-msg" data-name="res" data-id="' + data
+                        .taskStatistics[i].id + '"><span class="show-short-res-' + data
+                        .taskStatistics[i].id + '">' + res.replace(/(.{7})..+/, "$1..") +
+                        '</span><span style="word-break:break-all;" class="show-full-res-' + data
+                        .taskStatistics[i].id + ' hidden">' + res + '</span></td><td>' + status +
+                        '</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="' +
+                        data.taskStatistics[i].id +
+                        '"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' +
+                        data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i]
+                        .id +
+                        '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+                    table = table + '<a href="javascript:void(0);" data-task-type="' + data
+                        .taskStatistics[i].task_type + '" data-id="' + data.taskStatistics[i].id +
+                        '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+                    table = table +
+                        '<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' +
+                        data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i]
+                        .id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
+                    table = table + '</tr>';
+                }
+                table = table + '</table></div>';
+                $("#loading-image").hide();
+                $(".modal").css("overflow-x", "hidden");
+                $(".modal").css("overflow-y", "auto");
+                $("#dev_task_statistics_content").html(table);
+            },
+            error: function(error) {
+                console.log(error);
+                $("#loading-image").hide();
+            }
+        });
+    
+
+    });
+
+    $(document).on('click', '.send-message', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var task_id = $(this).data('taskid');
+        var message = $(this).closest('tr').find('.quick-message-field').val();
+        var mesArr = $(this).closest('tr').find('.quick-message-field');
+        $.each(mesArr, function(index, value) {
+            if ($(value).val()) {
+                message = $(value).val();
+            }
+        });
+
+        data.append("task_id", task_id);
+        data.append("message", message);
+        data.append("status", 1);
+
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    url: '/whatsapp/sendMessage/task',
+                    type: 'POST',
+                    "dataType": 'json', // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function() {
+                        $(thiss).attr('disabled', true);
+                        $("#loading-image").show();
+                    }
+                }).done(function(response) {
+                    $("#loading-image").hide();
+                    thiss.closest('tr').find('.quick-message-field').val('');
+
+                    toastr["success"]("Message successfully send!", "Message")
+                    // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                    //   .done(function( data ) {
+                    //
+                    //   }).fail(function(response) {
+                    //     console.log(response);
+                    //     alert(response.responseJSON.message);
+                    //   });
+
+                    $(thiss).attr('disabled', false);
+                }).fail(function(errObj) {
+                    $(thiss).attr('disabled', false);
+
+                    alert("Could not send message");
+                    console.log(errObj);
+                });
+            }
+        } else {
+            alert('Please enter a message first');
+        }
+    });
+
+    $(document).on("click", ".delete-dev-task-btn", function() {
+        var x = window.confirm("Are you sure you want to delete this ?");
+        if (!x) {
+            return;
+        }
+        var $this = $(this);
+        var taskId = $this.data("id");
+        var tasktype = $this.data("task-type");
+        if (taskId > 0) {
+            $.ajax({
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                type: 'get',
+                url: "/site-development/deletedevtask",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    id: taskId,
+                    tasktype: tasktype
+                },
+                dataType: "json"
+            }).done(function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $this.closest("tr").remove();
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                alert('Could not update!!');
+            });
+        }
+
+    });
+
+    $(document).on('click', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        console.log(name);
+        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
+    $(document).on('click', '.preview-img', function(e) {
+        e.preventDefault();
+        id = $(this).data('id');
+        if (!id) {
+            alert("No data found");
+            return;
+        }
+        $.ajax({
+            url: "/task/preview-img-task/" + id,
+            type: 'GET',
+            success: function(response) {
+                $("#preview-task-image").modal("show");
+                $(".task-image-list-view").html(response);
+                initialize_select2()
+            },
+            error: function() {}
+        });
+    });
+
+    $(document).on("click", ".send-to-sop-page", function() {
+        var id = $(this).data("id");
+        var task_id = $(this).data("media-id");
+
+        $.ajax({
+            url: '/task/send-sop',
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType: "json",
+            data: {
+                id: id,
+                task_id: task_id
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.success) {
+                    toastr["success"](response.message);
+                } else {
+                    toastr["error"](response.message);
+                }
+
+            },
+            error: function(error) {
+                toastr["error"];
+            }
+
+        });
+    });
+
+    $(document).on('click', '.previewDoc', function() {
+        $('#previewDocSource').attr('src', '');
+        var docUrl = $(this).data('docurl');
+        var type = $(this).data('type');
+        var type = jQuery.trim(type);
+        if (type == "image") {
+            $('#previewDocSource').attr('src', docUrl);
+        } else {
+            $('#previewDocSource').attr('src', "https://docs.google.com/gview?url=" + docUrl +
+                "&embedded=true");
+        }
+        $('#previewDoc').modal('show');
     });
 </script>
 @endsection
