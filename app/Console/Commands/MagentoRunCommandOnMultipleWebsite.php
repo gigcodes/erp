@@ -69,12 +69,14 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                     if ($assetsmanager && $assetsmanager->client_id != '') {
                         Log::info('client_id: ' . $assetsmanager->client_id);
                         $client_id = $assetsmanager->client_id;
-                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+                        //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+                        $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
                         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $requestParams = [
                             'command' => $magCom->command_type,
-                            'cwd' => $magCom->working_directory,
+                            'dir' => $magCom->working_directory,
                             'is_sudo' => true,
+                            'server' => $magCom->server_ip,
                         ];
 
                         $ch = curl_init();
@@ -212,12 +214,14 @@ class MagentoRunCommandOnMultipleWebsite extends Command
                             if ($assetsmanager && $assetsmanager->client_id != '') {
                                 Log::info('client_id: ' . $assetsmanager->client_id);
                                 $client_id = $assetsmanager->client_id;
-                                $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+                                //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+                                $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
                                 $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                                 $requestParams = [
                                     'command' => $magCom->command_type,
-                                    'cwd' => $website->working_directory,
+                                    'dir' => $website->working_directory,
                                     'is_sudo' => true,
+                                    'server' => $website->server_ip,
                                 ];
 
                                 $ch = curl_init();
