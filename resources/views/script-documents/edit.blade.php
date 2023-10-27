@@ -48,7 +48,7 @@
 
                 <div class="form-group {{ $errors->has('author') ? 'has-error' : '' }}">
                     <label> Author</label>                
-                    <input class="form-control" id="author_update" name="author" type="text">
+                    <input class="form-control" id="author_update" name="author" type="text" readonly>
                     <span class="text-danger">{{ $errors->first('author') }}</span>
                 </div>
 

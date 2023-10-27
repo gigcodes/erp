@@ -47,7 +47,7 @@
 
             <div class="form-group {{ $errors->has('author') ? 'has-error' : '' }}">
                 <label> Author</label>                
-                <input class="form-control" id="author" name="author" type="text" required>
+                <input class="form-control" id="author" name="author" type="text" required value="{{\Auth::user()->name}}">
                 <span class="text-danger">{{ $errors->first('author') }}</span>
             </div>
 
@@ -61,6 +61,12 @@
                 <label> Last Run</label>                
                 <input class="form-control" id="last_run" name="last_run" type="text" required>
                 <span class="text-danger">{{ $errors->first('last_run') }}</span>
+            </div>
+
+            <div class="form-group {{ $errors->has('last_output') ? 'has-error' : '' }}">
+                <label> Last Output</label>                
+                <input class="form-control" id="last_output" name="last_output" type="text" required>
+                <span class="text-danger">{{ $errors->first('last_output') }}</span>
             </div>
 
             <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
@@ -124,6 +130,11 @@ $(document).on('click', '.btn-save-script-document', function() {
 
     if($('#last_run').val() == '') {
         $('#last_run').next().text("Please enter the last run");
+        return false;
+    }
+
+    if($('#last_output').val() == '') {
+        $('#last_output').next().text("Please enter the last output");
         return false;
     }
 

@@ -80,6 +80,7 @@ class ScriptDocumentsController extends Controller
                 'location' => 'required',
                 'last_run' => 'required',
                 'status' => 'required',
+                'last_output' => 'required',
             ]
         );
 
