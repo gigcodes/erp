@@ -4439,6 +4439,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
         Route::post('/repos/sync-repo-labels', [Github\RepositoryController::class, 'syncRepoLabels'])->name('github.sync-repo-labels');
         Route::get('/repos/list-repo-labels', [Github\RepositoryController::class, 'listRepoLabels'])->name('github.list-repo-labels');
+        Route::post('/repos/get-repo-data', [Github\RepositoryController::class, 'getRepositoryDara'])->name('github.repo-data');
         Route::post('/repos/update-repo-label-message', [Github\RepositoryController::class, 'updateRepoLabelMessage'])->name('github.update-repo-label-message');
         Route::get('/repos/get-github-jobs', [Github\RepositoryController::class, 'getGithubJobs'])->name('github.get-jobs');
         Route::get('/repos/get-github-actions-jobs', [Github\RepositoryController::class, 'getGithubActionsAndJobs'])->name('github.get-actions-jobs');

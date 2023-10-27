@@ -1739,6 +1739,8 @@ class RepositoryController extends Controller
             $request, [
                 'github_repositories_id' => 'required',
                 'github_type' => 'required',
+                'token_key' => 'required',
+                'expiry_date' => 'required',
             ]
         );
 
@@ -1755,20 +1757,25 @@ class RepositoryController extends Controller
             );
         }
 
-        $GithubToken = new GithubToken();
-        $GithubToken->created_by = auth()->user()->id;
-        $GithubToken->github_repositories_id = $data['github_repositories_id'];
-        $GithubToken->github_type = $data['github_type'];
-        $GithubToken->token_key = $this->generateRandomString(41);;
-        $GithubToken->save();
 
+        $GithubToken = GithubToken::where('github_repositories_id', $data['github_repositories_id'])->first();
+        if (! $GithubToken) {
+            $GithubToken = new GithubToken();
+            $GithubToken->github_repositories_id = $data['github_repositories_id'];
+        }
+        $GithubToken->created_by = auth()->user()->id;
+        $GithubToken->github_type = $data['github_type'];
+        $GithubToken->token_key = $data['token_key'];
+        $GithubToken->expiry_date = $data['expiry_date'];
+        $GithubToken->save();
+        
         if ($GithubToken) {
             
             return response()->json(
                 [
                     'code' => 200,
                     'data' => [],
-                    'message' => 'Token created successfully!',
+                    'message' => 'Token updated successfully!',
                 ]
             );
         }
@@ -1794,6 +1801,18 @@ class RepositoryController extends Controller
             'status' => true,
             'data' => $datas,
             'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getRepositoryDara(Request $request)
+    {
+        $GithubToken = GithubToken::where('github_repositories_id', $request->repo_id)->first();
+        
+        return response()->json([
+            'status' => true,
+            'data' => $GithubToken,
+            'message' => 'repository get successfully',
             'status_name' => 'success',
         ], 200);
     }
