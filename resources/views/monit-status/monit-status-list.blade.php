@@ -69,7 +69,11 @@
 									{{ $data->memory }}
 								</span>
 							</td>
-							<td>{{$data->status}}</td>
+							@if($data->status==0)
+								<td><span style=" background-color: #5cb85c;  border-color: #4cae4c; color: white; padding: 5px;  border-radius: 0;  width: 100%;">{{'Success'}}</span></td>
+							@else 
+								<td><span style=" background-color: #c9302c;  border-color: #ac2925; color: white; padding: 5px;  border-radius: 0;  width: 100%;">{{'Failed'}}</span></td>
+							@endif
 							<td>{{$data->uptime}}</td>
 							<td>{{$data->created_at}}</td>
 							<td>
