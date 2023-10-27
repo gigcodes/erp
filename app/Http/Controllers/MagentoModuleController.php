@@ -889,7 +889,7 @@ class MagentoModuleController extends Controller
         $website = StoreWebsite::where('id', $store_website_id)->first();
 
         //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
-        $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
+        $url = getenv('MAGENTO_COMMAND_API_URL');
         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
         $ch = curl_init();

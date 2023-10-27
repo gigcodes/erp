@@ -61,7 +61,7 @@ class MagentoRunCommand extends Command
                     Log::info('client_id: ' . $assetsmanager->client_id);
                     $client_id = $assetsmanager->client_id;
                     //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
-                    $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
+                    $url = getenv('MAGENTO_COMMAND_API_URL');
                     $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                     $ch = curl_init();
@@ -253,7 +253,7 @@ class MagentoRunCommand extends Command
 
                             $client_id = $assetsmanager->client_id;
                             //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
-                            $url = getenv('MAGENTO_COMMAND_API_URL') . $client_id . '/commands';
+                            $url = getenv('MAGENTO_COMMAND_API_URL');
                             $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
                             $ch = curl_init();
