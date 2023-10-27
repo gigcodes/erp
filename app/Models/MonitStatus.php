@@ -11,6 +11,6 @@ class MonitStatus extends Model
 
     protected $table = 'monit_status';
 
-    protected $fillable = ['service_name', 'status', 'uptime', 'memory', 'url', 'username', 'password', 'xmlid', 'ip'];
+    protected $fillable = ['service_name', 'status', 'uptime', 'memory', 'url', 'username', 'password', 'xmlid', 'ip', 'monit_api_id'];
 
 }

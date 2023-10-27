@@ -23,7 +23,7 @@ class MonitStatusController extends Controller
             foreach ($assetsmanager as $key => $value) {
             
                 // URL of the XML data source
-                $url = $value->monit_api_url;
+                $url = $value->monit_api_url.'_status?format=xml';
                 
                 // Your username and password for authentication
                 $username = $value->monit_api_username;
@@ -55,7 +55,7 @@ class MonitStatusController extends Controller
                         $json = json_encode($xml);
                         $xmlArray = json_decode($json,TRUE);
 
-                        MonitStatus::where('xmlid', $xmlArray['server']['id'])->delete();
+                        MonitStatus::where('monit_api_id', $xmlArray['server']['id'])->delete();
 
                         foreach ($xmlArray['service'] as $key => $valueXaml) {
 
@@ -108,7 +108,7 @@ class MonitStatusController extends Controller
                             /*$monitStatusArray[$iii]['dir'] = "/home/prod-1-1/current/";
                             $iii++;*/
 
-                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id.'-'.strtolower($service_name), 'ip' => $ip]);
+                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id.'-'.strtolower($service_name), 'ip' => $ip, 'monit_api_id' => $id]);
                         }
                     }
                     
