@@ -48,7 +48,7 @@ class ScriptDocumentsController extends Controller
             );
         }
 
-        $records = $records->take(10)->groupBy('file')->get();
+        $records = $records->take(100)->groupBy('file')->get();
         $records_count = $records->count();
 
         $records = $records->map(
@@ -306,7 +306,7 @@ class ScriptDocumentsController extends Controller
         return response()->json([
             'status' => true,
             'data' => $scriptDocument,
-            'message' => 'Comment get successfully',
+            'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }
