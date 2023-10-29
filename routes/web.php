@@ -1593,6 +1593,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('order/{id}/edit-invoice', [OrderController::class, 'editInvoice'])->name('order.edit.invoice');
     Route::post('order/edit-invoice', [OrderController::class, 'submitEdit'])->name('order.submitEdit.invoice');
+    Route::post('orders-column-visbility', [OrderController::class, 'ordersColumnVisbilityUpdate'])->name('orders.column.update');
     //TODO::invoice wthout order
     Route::get('invoice/without-order', [OrderController::class, 'createInvoiceWithoutOrderNumber'])->name('invoice.without.order');
     Route::get('order/order-search', [OrderController::class, 'searchOrderForInvoice'])->name('order.search.invoice');
@@ -1717,6 +1718,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('meeting/fetch-recordings', [Meeting\ZoomMeetingController::class, 'fetchRecordings'])->name('meeting.fetch.recordings');
     Route::post('meeting/fetch-participants', [Meeting\ZoomMeetingController::class, 'fetchParticipants'])->name('meeting.fetch.participants');
     Route::get('meeting/list/fetch-participants', [Meeting\ZoomMeetingController::class, 'listParticipants'])->name('meeting.list.participants');
+    Route::get('meeting/list/participants', [Meeting\ZoomMeetingController::class, 'allParticipantsList'])->name('list.all.participants');
     Route::get('meeting/list/error-logs', [Meeting\ZoomMeetingController::class, 'listErrorLogs'])->name('meeting.list.error-logs');
     Route::get('meeting/list/recordings/{id}', [Meeting\ZoomMeetingController::class, 'listRecordings'])->name('meeting.list.recordings');
     Route::post('meeting/update-description', [Meeting\ZoomMeetingController::class, 'updateMeetingDescription'])->name('meeting.description.update');
@@ -1842,6 +1844,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/addGroupParticipant', [TaskModuleController::class, 'addGroupParticipant'])->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', [TaskModuleController::class, 'createTaskFromSortcut'])->name('task.create.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcut', [TaskModuleController::class, 'createMultipleTaskFromSortcut'])->name('task.create.multiple.task.shortcut');
+    Route::post('task/create-multiple-task-from-shortcutpostman', [TaskModuleController::class, 'createMultipleTaskFromSortcutPostman'])->name('task.create.multiple.task.shortcutpostman');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
@@ -1849,6 +1852,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/upload-file', [TaskModuleController::class, 'uploadFile'])->name('task.upload-file');
     Route::get('task/files/record', [TaskModuleController::class, 'getUploadedFilesList'])->name('task.files.record');
     Route::get('task/module/history/{id}', [TaskModuleController::class, 'taskModuleListLogHistory'])->name('task.log.histories.show');
+    Route::get('task/deletedevtask', [TaskModuleController::class, 'deletedevtask'])->name('task.delete.task');
+    Route::get('task/preview-img-task/{id}', [TaskModuleController::class, 'previewTaskImage'])->name('task.preview-img');
+    Route::post('task/send-sop', [TaskModuleController::class, 'SendTaskSOP'])->name('task.sendSop');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -3297,6 +3303,8 @@ Route::middleware('auth')->group(function () {
     Route::get('postman/api-issue-fix-done/histories/{id}', [PostmanRequestCreateController::class, 'postmanApiIssueFixDoneHistories'])->name('postman.api-issue-fix-done.histories');
 
     Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
+    Route::post('postman/statuscolor', [PostmanRequestCreateController::class, 'statuscolor'])->name('postman.statuscolor');
+    Route::get('postman/countdevtask/{id}', [PostmanRequestCreateController::class, 'taskCount']);
     
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
@@ -3310,6 +3318,8 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/files/record', [ScriptDocumentsController::class, 'getScriptDocumentFilesList'])->name('script-documents.files.record');
     Route::get('script-documents/record-script-document-ajax', [ScriptDocumentsController::class, 'recordScriptDocumentAjax'])->name('script-documents.index_ajax');
     Route::get('script-documents/{id}/delete', [ScriptDocumentsController::class, 'destroy']);
+    Route::get('script-documents-histories/{id}', [ScriptDocumentsController::class, 'ScriptDocumentHistory'])->name('script-documents.histories');
+    Route::get('script-documents-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentComment'])->name('script-documents.comment');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
@@ -5003,14 +5013,15 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
     Route::get('/{id?}/download', [GoogleFileTranslator::class, 'download'])->name('googlefiletranslator.download');
     Route::post('/store', [GoogleFileTranslator::class, 'store'])->name('googlefiletranslator.store');
     Route::post('/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
-    Route::get('/{id}/list-view', [GoogleFileTranslator::class, 'dataViewPage'])->name('googlefiletranslator.list-page.view');
+    Route::get('/{id}/{type}/list-view', [GoogleFileTranslator::class, 'dataViewPage'])->name('googlefiletranslator.list-page.view');
     Route::get('/download-permission', [GoogleFileTranslator::class, 'downloadPermission'])->name('googlefiletranslator.downlaod.permission');
     Route::post('/user-view-permission', [GoogleFileTranslator::class, 'userViewPermission'])->name('googlefiletranslator.user-view.permission');
     Route::get('/edit-value', [GoogleFileTranslator::class, 'editValue'])->name('googlefiletranslator.edit.value');
     Route::post('/googlefiletranslator/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
     Route::get('googlefiletranslator/{id}', [GoogleFileTranslator::class, 'tranalteHistoryShow'])->name('googlefiletranslator_histories.show');
     Route::post('status-change', [GoogleFileTranslator::class, 'statusChange'])->name('googlefiletranslator_histories.status');
-    
+    Route::get('/download-csv/{id}/{type}', [GoogleFileTranslator::class, 'downloadCsv'])->name('store-website.download.csv');
+
 });
 
 //Translation
@@ -5432,7 +5443,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/status/update', [TodoListController::class, 'statusUpdate'])->name('todolist.status.update');
     Route::post('/category/store', [TodoListController::class, 'storeTodoCategory'])->name('todolist.category.store');
     Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
-    Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-update');
+    Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-updates');
     Route::delete('/{id}/destroy', [TodoListController::class, 'destroy'])->name('todolist.destroy');
 });
 
@@ -5685,4 +5696,6 @@ Route::middleware('auth')->group(function () {
 });   
 Route::middleware('auth')->group(function () {
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
+    Route::post('monit-status/command/run', [MonitStatusController::class, 'runCommand'])->name('monit-status.command.run');
+    Route::get('monit-api-histories/{id}', [MonitStatusController::class, 'monitApiHistory'])->name('monit-status.api.histories');
 });

@@ -438,6 +438,14 @@ class ZoomMeetingController extends Controller
     
                 if ($response->successful()) {
                     \Log::info('##########  Recording for the meeting have been deleted successfully ##############');
+
+                    // Save recroding_deleted_at in DB table
+                    $checkfile = ZoomMeetingDetails::where('download_url_id', $recordingId)->first();
+                    if($checkfile) {
+                        $checkfile->recording_deleted_at = Carbon::now();
+                        $checkfile->save();
+                    }
+
                     return response()->json(['message' => 'Recording for the meeting have been deleted successfully.', 'code' => 200]);
                 } else {
                     \Log::info('##########  Error deleting the recording for the meeting, Please check the logs ##############');
@@ -485,6 +493,17 @@ class ZoomMeetingController extends Controller
 
         $html = view('zoom-meetings.participations-listing-modal-html')->with('participants', $participants)->render();
 
+        return response()->json(['code' => 200, 'data' => $participants, 'html' => $html, 'message' => 'Content render']);
+    }
+
+    public function allParticipantsList(Request $request)
+    {
+        $perPage = 10;
+
+        $participants = ZoomMeetingParticipant::latest()
+        ->whereNull('description')
+        ->paginate($perPage);
+        $html = view('zoom-meetings.participations-listing-modal-html')->with('participants', $participants)->render();
         return response()->json(['code' => 200, 'data' => $participants, 'html' => $html, 'message' => 'Content render']);
     }
 

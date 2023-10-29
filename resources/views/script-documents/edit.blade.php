@@ -30,7 +30,7 @@
 
                 <div class="form-group {{ $errors->has('usage_parameter') ? 'has-error' : '' }}">
                     <label> Usage Parameter </label>
-                    <input class="form-control" id="usage_parameter_update" name="usage_parameter" type="text">
+                    <textarea class="form-control" id="usage_parameter_update" name="usage_parameter"></textarea>
                     <span class="text-danger">{{ $errors->first('usage_parameter') }}</span>
                 </div>
 
@@ -48,7 +48,7 @@
 
                 <div class="form-group {{ $errors->has('author') ? 'has-error' : '' }}">
                     <label> Author</label>                
-                    <input class="form-control" id="author_update" name="author" type="text">
+                    <input class="form-control" id="author_update" name="author" type="text" readonly>
                     <span class="text-danger">{{ $errors->first('author') }}</span>
                 </div>
 

@@ -359,6 +359,39 @@
                                 @endif
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api URL:</strong>
+                                <input type="text" name="monit_api_url" class="form-control" value="{{ old('monit_api_url') }}">
+
+                                @if ($errors->has('monit_api_url'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_url')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Username:</strong>
+                                <input type="text" name="monit_api_username" class="form-control" value="{{ old('monit_api_username') }}">
+
+                                @if ($errors->has('monit_api_username'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_username')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Password:</strong>
+                                <input type="text" name="monit_api_password" class="form-control" value="{{ old('monit_api_password') }}">
+
+                                @if ($errors->has('monit_api_password'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -835,6 +868,39 @@
 
                                 @if ($errors->has('account_password'))
                                     <div class="alert alert-danger">{{$errors->first('account_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api URL:</strong>
+                                <input type="text" name="monit_api_url" id="monit_api_url" class="form-control" value="{{ old('monit_api_url') }}" >
+
+                                @if ($errors->has('monit_api_url'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_url')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Username:</strong>
+                                <input type="text" name="monit_api_username" id="monit_api_username" class="form-control" value="{{ old('monit_api_username') }}">
+
+                                @if ($errors->has('monit_api_username'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_username')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Password:</strong>
+                                <input type="text" name="monit_api_password" id="monit_api_password" class="form-control" value="{{ old('monit_api_password') }}">
+
+                                @if ($errors->has('monit_api_password'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_password')}}</div>
                                 @endif
                             </div>
                         </div>

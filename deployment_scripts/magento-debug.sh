@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 function HELP {
@@ -27,17 +27,24 @@ do
 done
 ### Load environment variables
 . /var/www/erp.theluxuryunlimited.com/.env
+. /opt/etc/mysql-creds.conf
+
+
+for portssh in $possible_ssh_port
+do
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
+        if [ $? -ne 255 ]
+        then
+                PORT=`echo $portssh`
+        fi
+done
 
 if [ $debug = "true" ]
 then
-	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=true ; bin/magento dev:query-log:enable ; bin/magento cache:flush" | tee -a ${SCRIPT_NAME}.log
+	ssh -i $SSH_KEY -p $PORT root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=true ; bin/magento dev:query-log:enable ; bin/magento cache:flush" | tee -a ${SCRIPT_NAME}.log
 else
-	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=false ; bin/magento dev:query-log:disable ; bin/magento cache:flush ; rm -f var/debug/db.log" | tee -a ${SCRIPT_NAME}.log
+	ssh -i $SSH_KEY -p $PORT root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=false ; bin/magento dev:query-log:disable ; bin/magento cache:flush ; rm -f var/debug/db.log" | tee -a ${SCRIPT_NAME}.log
 fi
-#if [ $? -ne 0 ]
-#then
-#	exit 1
-#fi
 
 if [[ $? -eq 0 ]]
 then
@@ -48,4 +55,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
