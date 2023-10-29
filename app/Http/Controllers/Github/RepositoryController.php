@@ -44,6 +44,7 @@ use App\Http\Requests\DeleteBranchRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use App\Models\GitPullRequestErrorLog;
+use App\Models\GithubToken;
 
 class RepositoryController extends Controller
 {
@@ -1718,5 +1719,82 @@ class RepositoryController extends Controller
         $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
 
         return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders','labelNames','pullNumbers','organizations','repositories','projects','branches'));
+    }
+
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+
+        return $randomString;
+    }
+
+    public function githubAddToken(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'github_repositories_id' => 'required',
+                'github_type' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        $repository = GithubRepository::where('id', $data['github_repositories_id'])->first();
+        if (! $repository) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Repository not found',
+                ]
+            );
+        }
+
+        $GithubToken = new GithubToken();
+        $GithubToken->created_by = auth()->user()->id;
+        $GithubToken->github_repositories_id = $data['github_repositories_id'];
+        $GithubToken->github_type = $data['github_type'];
+        $GithubToken->token_key = $this->generateRandomString(41);;
+        $GithubToken->save();
+
+        if ($GithubToken) {
+            
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Token created successfully!',
+                ]
+            );
+        }
+
+        return response()->json(
+            [
+                'code' => 500,
+                'data' => [],
+                'message' => 'Error when creating a token',
+            ]
+        );
+    }
+
+    public function githubTokenHistory($id)
+    {
+        $datas = GithubToken::with('user', 'githubrepository')
+            ->where('github_repositories_id', $id)
+            ->orderBy('created_at', 'DESC')
+            ->take(10)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
