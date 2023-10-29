@@ -717,52 +717,116 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList(Request $request)
     {
-        \Log::info('########## at start of magentoModulelist ##########');
+        
         $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
-        \Log::info('########## at start of magentoModulelist 1 ##########');
+        
         $storeWebsites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
-        \Log::info('########## at start of magentoModulelist 2 ##########');
+        
         $selecteStoreWebsites = ['151', '152', '153', '154'];
 
         if (isset($request->store_webs) && $request->store_webs) {
             $selecteStoreWebsites = $request->store_webs;
-            \Log::info('########## at start of magentoModulelist 4 ##########');
+            
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
-            \Log::info('########## at start of magentoModulelist3##########');
+            
         } else {
-            \Log::info('########## at start of magentoModulelist 5 ##########');
+            
             // Default QA store websites will select
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $selecteStoreWebsites)->pluck('title', 'id')->toArray();
-            \Log::info('########## at start of magentoModulelist 6 ##########');
+            
         }
-        \Log::info('########## at start of magentoModulelist 7 ##########');
+
+        if(!empty($request->store_webs)){
+            $magento_modules_check = MagentoModule::groupBy('module')->get();
+
+            if(!empty($magento_modules_check)){
+                
+                foreach ($magento_modules_check as $key => $value) {
+
+                    foreach ($request->store_webs as $keyStoreWebsite => $valueStoreWebsite) {
+
+                        $mmInCheckStoreWebsite = MagentoModule::where('module', $value->module)->where('store_website_id', $valueStoreWebsite)->select('id')->first();
+
+                        if(empty($mmInCheckStoreWebsite)){
+
+                            $mm_create = [];
+                            $mm_create['store_website_id'] = $valueStoreWebsite;
+                            $mm_create['module_category_id'] = $value['module_category_id'];
+                            $mm_create['module'] = $value['module'];
+                            $mm_create['module_description'] = $value['module_description'];
+                            $mm_create['current_version'] = $value['current_version'];
+                            $mm_create['module_type'] = $value['module_type'];
+                            $mm_create['status'] = 0;
+                            $mm_create['payment_status'] = $value['payment_status'];
+                            $mm_create['developer_name'] = $value['developer_name'];
+                            $mm_create['dev_verified_by'] = $value['dev_verified_by'];
+                            $mm_create['dev_verified_status_id'] = $value['dev_verified_status_id'];
+                            $mm_create['lead_verified_by'] = $value['lead_verified_by'];
+                            $mm_create['lead_verified_status_id'] = $value['lead_verified_status_id'];
+                            $mm_create['created_at'] = $value['created_at'];
+                            $mm_create['updated_at'] = $value['updated_at'];
+                            $mm_create['last_message'] = $value['last_message'];
+                            $mm_create['dev_last_remark'] = $value['dev_last_remark'];
+                            $mm_create['lead_last_remark'] = $value['lead_last_remark'];
+                            $mm_create['cron_time'] = $value['cron_time'];
+                            $mm_create['task_status'] = $value['task_status'];
+                            $mm_create['is_sql'] = $value['is_sql'];
+                            $mm_create['is_third_party_plugin'] = $value['is_third_party_plugin'];
+                            $mm_create['is_third_party_js'] = $value['is_third_party_js'];
+                            $mm_create['is_js_css'] = $value['is_js_css'];
+                            $mm_create['api'] = $value['api'];
+                            $mm_create['cron_job'] = $value['cron_job'];
+                            $mm_create['site_impact'] = $value['site_impact'];
+                            $mm_create['dependency'] = $value['dependency'];
+                            $mm_create['composer'] = $value['composer'];
+                            $mm_create['magneto_location_id'] = $value['magneto_location_id'];
+                            $mm_create['module_review_standard'] = $value['module_review_standard'];
+                            $mm_create['used_at'] = $value['used_at'];
+                            $mm_create['return_type_error'] = $value['return_type_error'];
+                            $mm_create['return_type_error_status'] = $value['return_type_error_status'];
+                            $mm_create['magento_dependency'] = $value['magento_dependency'];
+                            $mm_create['m2_error_status_id'] = $value['m2_error_status_id'];
+                            $mm_create['m2_error_assignee'] = $value['m2_error_assignee'];
+                            $mm_create['m2_error_remark'] = $value['m2_error_remark'];
+                            $mm_create['unit_test_status_id'] = $value['unit_test_status_id'];
+                            $mm_create['unit_test_remark'] = $value['unit_test_remark'];
+                            $mm_create['unit_test_user_id'] = $value['unit_test_user_id'];
+                            MagentoModule::create($mm_create);
+                        }
+
+                    }
+                    
+                }
+            }
+            
+        }
+        
         // For Filter
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
         $magento_modules = MagentoModule::orderBy('module', 'asc');
 
-        if (isset($request->store_webs) && $request->store_webs) {
+       /* if (isset($request->store_webs) && $request->store_webs) {
             $magento_modules = $magento_modules->whereIn('store_website_id', $request->store_webs);
-        }
+        }*/
 
         if (isset($request->module_name) && $request->module_name != '') {
             $magento_modules = $magento_modules->where('module', 'Like', '%' . $request->module_name . '%');
         }
-        \Log::info('########## at start of magentoModulelist 8 ##########');
+        
         $magento_modules_array = $magento_modules->get()->toArray();
-         \Log::info('########## at start of magentoModulelist 8.1 ##########');
+        
         $magento_modules = $magento_modules->groupBy('module')->get();
-         \Log::info('########## at start of magentoModulelist 8.2 ##########');
+        
         $magento_modules_count = $magento_modules->count();
-         \Log::info('########## at start of magentoModulelist 8.3 ##########');
 
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
         });
-         \Log::info('########## at start of magentoModulelist 8.4 ##########');
+        
         $magento_modules_array = $result;
-        \Log::info('########## at start of magentoModulelist 9 ##########');
+        
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
         $dynamicColumnsToShow = [];
         if(!empty($datatableModel->column_name)){
@@ -774,13 +838,25 @@ class MagentoModuleController extends Controller
     }
 
     public function magentoModuleListLogs(Request $request)
-    {
-        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')
-        ->orderBy('magento_module_logs.id', 'asc')->get();
+    {   
+        $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
-        $magento_modules_count = $magento_modules->count();
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id');
 
-        return view('magento_module.magento-listing_logs', ['magento_modules' => $magento_modules, 'magento_modules_count' => $magento_modules_count]);
+        if (isset($request->module_name_sync) && $request->module_name_sync) {
+            $magento_modules = $magento_modules->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+        }
+        
+        if (isset($request->selected_date) && $request->selected_date) {
+            $magento_modules = $magento_modules->whereDate('magento_module_logs.created_at', "=", $request->selected_date);
+        }
+
+        $magento_modules = $magento_modules->orderBy('magento_module_logs.id', 'asc')->paginate(10);
+
+        $magento_modules_count = MagentoModuleLogs::count();
+
+        return view('magento_module.magento-listing_logs', ['magento_modules' => $magento_modules, 'magento_modules_count' => $magento_modules_count, 'allMagentoModules' => $allMagentoModules])
+            ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function magentoModuleListLogsAjax(Request $request)
