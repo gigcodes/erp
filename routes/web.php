@@ -4445,7 +4445,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::resource('/organizations', Github\OrganizationController::class);
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
         Route::post('/addtoken', [Github\RepositoryController::class, 'githubAddToken'])->name('github.addtoken');
-        Route::post('/addtokenhistory', [Github\RepositoryController::class, 'addGithubTokenHistory'])->name('github.addtokenhistory');
+        //Route::post('/addtokenhistory', [Github\RepositoryController::class, 'addGithubTokenHistory'])->name('github.addtokenhistory');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
         Route::post('/repos/sync-repo-labels', [Github\RepositoryController::class, 'syncRepoLabels'])->name('github.sync-repo-labels');
