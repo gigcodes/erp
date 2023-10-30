@@ -179,12 +179,17 @@ class ProductController extends Controller
                     $timeleft = $ordercurrent - $orderDays;
                     $daysPanding = round((($timeleft / 24) / 60) / 60);
                     if ($order->order_return_request == 1) {
-                        $result_input = ['has_return_request' => true];
+                        $result_input = ['has_return_request' => true, 'duration' => $daysPanding];
                     }
                 }
 
                 if ($returnExchange || (isset($daysPanding) && isset($productRef) && isset($categoriesRef) && $productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
-                    $result_input = ['has_return_request' => true];
+
+                    if(!empty($daysPanding)){
+                        $result_input = ['has_return_request' => true, 'duration' => $daysPanding];
+                    } else {
+                        $result_input = ['has_return_request' => true];
+                    }
                 }
 
                 $message = $this->generate_erp_response('order.return-check.success', 0, $default = 'Success', request('lang_code'));
@@ -199,6 +204,30 @@ class ProductController extends Controller
         $message = $this->generate_erp_response('order.return-check.failed.website_missing', 0, $default = 'website is missing.', request('lang_code'));
 
         return response()->json(['code' => 500, 'message' => $message, 'data' => []]);
+    }
+
+    public function checkCategoryIsEligibility(Request $request)
+    {
+        if ($request->category) {
+           
+            $eligible_for_return = 'No';
+            $duration = 0;
+            $categories = Category::select('days_refund')->where('id', '=', $request->category)->first();
+            if ($categories) {
+                if($categories->days_refund!=null){
+                    $categoriesRef = $categories->days_refund;
+
+                    $eligible_for_return = 'Yes';
+                    $duration = $categoriesRef;
+                }
+            }
+
+            $result_input = ['duration' => $duration, 'eligible_for_return' => $eligible_for_return];
+           
+            return response()->json(['code' => 200, 'data' => $result_input]);
+        }
+    
+        return response()->json(['code' => 500, 'message' => 'Category not found', 'data' => []]);
     }
 
     public function wishList(Request $request)
