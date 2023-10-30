@@ -4,17 +4,18 @@
 	    <thead>
 	      	<tr>
 				<th width="4%">ID</th>
-				<th width="6%">Date</th>
-				<th width="3%">Script Type</th>
-				<th width="3%">File</th>
-				<th width="5%">Description</th>
-				<th width="8%">Usage Parameter</th>
-				<th width="4%">Category</th>
+				<th width="8%">Date</th>
+				<th width="8%">Script Type</th>
+				<th width="8%">File</th>
+				<th width="10%">Description</th>
+				<th width="10%">Usage Parameter</th>
+				<th width="8%">Category</th>
 				<th width="5%">Comments</th>
-				<th width="10%">Author</th>
-				<th width="10%">Location</th>
-				<th width="10%">Last Run</th>
-				<th width="10%">Status</th>
+				<th width="8%">Author</th>
+				<th width="8%">Location</th>
+				<th width="8%">Last Run</th>
+				<th width="10%">Last Output</th>
+				<th width="5%">Status</th>
 				<th width="3%">Action</th>
 			</tr>
 	    </thead>
@@ -38,20 +39,30 @@
 							<img src="/images/google-drive.png" style="cursor: nwse-resize; width: 12px;">
 						</button>
                  	</td> -->
-
+                 	
                  	<td>{{:prop.description}}</td>
 
 			      	<td>{{:prop.usage_parameter}}</td>
 
 			      	<td>{{:prop.category}}</td>
 
-			      	<td>{{:prop.comments}}</td>
+			      	<td>
+				      	<button type="button" data-id="{{>prop.id}}" class="btn script-document-comment-view" style="padding:1px 0px;">
+		        			<i class="fa fa-eye" aria-hidden="true"></i>
+		        		</button>
+	        		</td>
 
 			      	<td>{{:prop.author}}</td>
 
 			      	<td>{{:prop.location}}</td>
 
 			      	<td>{{:prop.last_run}}</td>
+
+			      	<td>
+				      	<button type="button" data-id="{{>prop.id}}" class="btn script-document-last_output-view" style="padding:1px 0px;">
+		        			<i class="fa fa-eye" aria-hidden="true"></i>
+		        		</button>
+	        		</td>
 
 			      	<td>{{:prop.status}}</td>
 
@@ -64,6 +75,10 @@
 							<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
 								<i class="fa fa-trash" aria-hidden="true"></i>
 							</button>
+
+							<button type="button" data-id="{{>prop.id}}" class="btn script-document-history" style="padding:1px 0px;">
+			        			<i class="fa fa-info-circle" aria-hidden="true"></i>
+			        		</button>
 					 	</div>
 			        </td>
 		      </tr>

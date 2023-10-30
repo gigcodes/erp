@@ -96,13 +96,13 @@
                             <th class="chat-msg" width="5%">ID</th>
                             <th class="chat-msg" width="10%">Store website</th>
                             <th class="chat-msg" width="10%">Category</th>
-							<th class="chat-msg" width="7%">Translate From</th>
+                            <th class="chat-msg" width="7%">Translate From</th>
                             <th class="chat-msg" width="10%">Original Reply</th>
                             @foreach ($lang as $r)
                                 <th class="chat-msg" width="9%">{{$r}}</th>
                             @endforeach
                             <th class="chat-msg" width="9%">Created On</th>
-							<th class="chat-msg" width="9%">Updated On</th>
+                            <th class="chat-msg" width="9%">Updated On</th>
                         </tr>
                         @foreach (json_decode($replies) as $key => $reply)
                             <tr>
@@ -126,7 +126,7 @@
                                     </div>
                                 </td>
                                 <td class="expand-row" id="reply_model">{{ $reply->translate_from }}</td>
-								<td style="cursor:pointer;" id="reply_text" class="expand-row change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->original_text }}">
+                                <td style="cursor:pointer;" id="reply_text" class="expand-row change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->original_text }}">
                                     <div class="expand-row table-hover-cell" style="word-break: break-all;">
                                         <div class="td-mini-container">
                                             {!! strlen($reply->original_text) > 20 ? substr($reply->original_text, 0, 20).'...' : $reply->original_text !!}
@@ -144,16 +144,24 @@
                                         $status = null;
                                         $status_color = null;
 
-                                        if($reply) {
-                                            foreach ($reply->translate_text as $key => $translate){
-                                               if(isset($translate->$l)) {
-                                                   $text = $translate->$l;
-                                                   $id = $reply->translate_id[$key];
-                                                   $re_lang = $reply->translate_lang[$key];
-                                                   $status = $reply->translate_status[$key];
-                                                   $status_color = $reply->translate_status_color[$key];
-                                               }
-                                            }
+                                        if(!empty($reply->transalates->$l->translate_text)){
+                                            $text = $reply->transalates->$l->translate_text;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_id)){
+                                            $id = $reply->transalates->$l->translate_id;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_lang)){
+                                            $re_lang = $reply->transalates->$l->translate_lang;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_status)){
+                                            $status = $reply->transalates->$l->translate_status;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_status_color)){
+                                            $status_color = $reply->transalates->$l->translate_status_color;
                                         }
                                     @endphp
                                     @if($text)
@@ -214,9 +222,9 @@
                                         </div>
                                     </div>
                                 </td>
-								<td>
+                                <td>
                                     <?php if($reply->updated_at!='' && $reply->updated_at!=null) {
-								    ?>
+                                    ?>
                                     <div class="expand-row table-hover-cell" style="word-break: break-all;">
                                         <div class="td-mini-container">
                                             {!! strlen($reply->updated_at) > 10 ? substr($reply->updated_at, 0, 10).'...' : $reply->updated_at !!}
@@ -226,7 +234,7 @@
                                         </div>
                                     </div>
                                 <?php
-								} else { echo '-'; } ?>
+                                } else { echo '-'; } ?>
                                 </td>
                             </tr>
                         @endforeach
@@ -830,10 +838,10 @@ function updateTranslateReply(ele) {
     let btn = jQuery(ele);
     let reply_id = btn.data('reply_id');
     let is_flagged = btn.data('is_flagged');
-	
-	//alert(jQuery(ele).is(':checked'));
-	
-	//alert(is_flagged)
+    
+    //alert(jQuery(ele).is(':checked'));
+    
+    //alert(is_flagged)
 
     if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure? Do you want unflagged this ?' : 'Are you sure want flagged this ?')) {
         jQuery.ajax({

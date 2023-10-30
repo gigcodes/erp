@@ -40,7 +40,7 @@ class MagentoCareersController extends Controller
         try {
             $validator = Validator::make($data, [
                 'description' => 'required|max:10000',
-                'store_websites' => 'required',
+                'title' => 'max:255',
                 'type' => 'max:255',
                 'location' => 'max:255',
                 'is_active' => 'max:255',
@@ -58,6 +58,7 @@ class MagentoCareersController extends Controller
                 $career = new Career();
             }
             $career->setDescription($data[Career::DESCRIPTION] ?? '');
+            $career->setTitle($data[Career::TITLE] ?? '');
             $career->setType($data[Career::TYPE] ?? '');
             $career->setLocation($data[Career::LOCATION] ?? '');
             $career->setIsActive(isset($data[Career::IS_ACTIVE]) ? (bool)$data[Career::IS_ACTIVE] : false);
@@ -76,6 +77,7 @@ class MagentoCareersController extends Controller
                     Career::LOCATION => $career->getLocation(),
                     Career::IS_ACTIVE => $career->getIsActive(),
                     Career::CREATED_AT => $career->getCreatedAt(),
+                    Career::TITLE => $career->getTitle(),
                     Career::STORE_WEBSITE_ID => array_map(fn ($item) => $item->title, $career->getStoreWebsites())
                 ],
                 'career_json' => (string)json_encode($career)
@@ -110,6 +112,17 @@ class MagentoCareersController extends Controller
             $career->whereHas('storeWebsites', fn ($query) => $query->where('website_id', (int)$data['website_id']));
         }
 
+        if (isset($data['title'])) {
+            $career->where('title', 'like', "%{$data['title']}%");
+        }
+
+        if (isset($data['order_by']) && $data['order_by'] == 1) {
+            $career->orderBy('created_at', 'asc');
+        } else {
+            $career->orderBy('created_at', 'desc');
+        }
+
+        /** @var Career $career */
         $career = $career->get();
 
         return response()->json([

@@ -79,14 +79,13 @@
 			    <tr>
 			    	<th width="3%">ID</th>
 			    	<th width="10%">Name</th>
-			        <th width="15%">Email</th>
+			        <th width="10%">Email</th>
                     <th width="10%">Join Time</th>
                     <th width="10%">Leave Time</th>
-			        <th width="20%">Leave Reason</th>
+			        <th width="10%">Leave Reason</th>
                     <th width="20%">Description</th>
-					<th width="5%">Durartion</th>
-					<th width="8%">Recording Path</th>
-                    <th width="7%">Created At</th>
+					<th width="10%">Recording Path</th>
+                    <th width="10%">Created At</th>
                     <th width="5%">Action</th>
                 </tr>
 		    	<tbody>
@@ -99,7 +98,7 @@
                             <td>{{$data->leave_time}}</td>
                             <td class="expand-row" style="word-break: break-all">
                                 <span class="td-mini-container">
-                                   {{ strlen($data->leave_reason) > 30 ? substr($data->leave_reason, 0, 60).'...' :  $data->leave_reason }}
+                                   {{ strlen($data->leave_reason) > 15 ? substr($data->leave_reason, 0, 15).'...' :  $data->leave_reason }}
                                 </span>
                                 <span class="td-full-container hidden">
                                     {{ $data->leave_reason }}
@@ -114,9 +113,15 @@
                                     </button>
                                  </div>
                             </td>
-							<td>{{$data->duration}}</td>
-							<td>{{$data->recording_path}}</td>
-                            <td>{{ $data->created_at?->format('Y-m-d') }}</td>
+                            <td class="expand-row" style="word-break: break-all">
+                                <span class="td-mini-container">
+                                   {{ strlen($data->recording_path) > 15 ? substr($data->recording_path, 0, 15).'...' :  $data->recording_path }}
+                                </span>
+                                <span class="td-full-container hidden">
+                                    {{$data->recording_path}}
+                                </span>
+                            </td>
+                            <td>{{ $data->created_at?->format('Y-m-d H:i:s') }}</td>
                             <td>
                                 @php
                                     $userRecordPermission = optional($data->recording)->user_record_permission ? json_decode($data->recording->user_record_permission) : null;
