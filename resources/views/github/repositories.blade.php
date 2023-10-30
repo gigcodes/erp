@@ -217,11 +217,12 @@
                     $.each(response.data, function(k, v) {
                         html += "<tr>";
                         html += "<td>" + (k + 1) + "</td>";
-                        html += "<td>" + v.githubrepository.id + "</td>";
-                        html += "<td>" + v.githubrepository.name + "</td>";
+                        /*html += "<td>" + v.githubrepository.id + "</td>";
+                        html += "<td>" + v.githubrepository.name + "</td>";*/
                         html += "<td>" + v.github_type + "</td>";
                         html += "<td>" + v.token_key + "</td>";
                         html += "<td>" + v.user.name + "</td>";
+                        html += "<td>" + v.details + "</td>";
                         html += "<td>" + v.created_at + "</td>";
                         html += "</tr>";
                     });

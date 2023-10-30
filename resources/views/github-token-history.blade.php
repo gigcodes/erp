@@ -11,11 +11,12 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Serial Number</th>
-                                <th>Name</th>
+                                <!-- <th>Serial Number</th>
+                                <th>Name</th> -->
                                 <th>Github Type</th>
                                 <th>Token or RSA Key</th>
                                 <th>Created BY</th>
+                                <th>Details</th>
                                 <th>Created Date</th>
                             </tr>
                         </thead>
