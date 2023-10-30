@@ -54,7 +54,7 @@ class MagentoCommandController extends Controller
             $websites = StoreWebsite::all();
             $users = User::all();
 
-            return view('magento-command.index', compact('magentoCommand', 'websites', 'users', 'magentoCommandListArray', 'assetsmanager', 'allMagentoCommandListArray'));
+            return view('magento-command.index_command', compact('magentoCommand', 'websites', 'users', 'magentoCommandListArray', 'assetsmanager', 'allMagentoCommandListArray'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
