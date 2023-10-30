@@ -408,7 +408,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     user '=>['
     authenticated '=>auth()->check(),'
     id '=>auth()->check() ? auth()->user()->id : null,'
-    name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
+    name '=>auth()->check() ? auth()->user()-> name : null,]], JSON_INVALID_UTF8_IGNORE)!!}';
     </script>
 
 
