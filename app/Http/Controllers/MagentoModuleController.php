@@ -802,7 +802,7 @@ class MagentoModuleController extends Controller
         }
         
         // For Filter
-        $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
+        $allMagentoModules = MagentoModule::orderBy('module', 'asc')->pluck('module', 'module')->toArray();
 
         $magento_modules = MagentoModule::orderBy('module', 'asc');
 
