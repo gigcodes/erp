@@ -41,6 +41,27 @@ class MagentoCommandController extends Controller
         }
     }
 
+    public function index_command()
+    {
+        try {
+            $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+            $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
+            $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
+            $allMagentoCommandListArray = MagentoCommand::select(
+                \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
+
+            $assetsmanager = AssetsManager::all();
+            $websites = StoreWebsite::all();
+            $users = User::all();
+
+            return view('magento-command.index', compact('magentoCommand', 'websites', 'users', 'magentoCommandListArray', 'assetsmanager', 'allMagentoCommandListArray'));
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return redirect()->back()->withErrors($msg);
+        }
+    }
+
     public function getMagentoCommand(Request $request)
     {
         
