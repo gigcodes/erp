@@ -60,6 +60,8 @@ class SyncMagentoModules implements ShouldQueue
             \Log::info('syncModules output:' . print_r($output, true));
             \Log::info('syncModules return_var:' . $return_var);
 
+            $response = json_decode($output[0]);
+
             if (! isset($output[0])) {
                 MagentoModuleLogs::create(['store_website_id' => $this->storeWebsite->id, 'updated_by' => $this->updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
                 $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $this->storeWebsite->id];
@@ -104,7 +106,7 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Created',
-                                'response' => "Module {$enabledModule} created for this store website & enabled",
+                                'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
                         } elseif ($magento_module->status != 1) {
@@ -118,7 +120,7 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Updated',
-                                'response' => "Module {$enabledModule} updated for this store website & enabled",
+                                'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
                         }
@@ -148,7 +150,7 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Created',
-                                'response' => "Module {$disableModule} created for this store website & disabled",
+                                'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
                         } elseif ($magento_module->status != 0) {
@@ -162,7 +164,7 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Updated',
-                                'response' => "Module {$disableModule} updated for this store website & disabled",
+                                'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
                         }

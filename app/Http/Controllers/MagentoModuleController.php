@@ -841,7 +841,7 @@ class MagentoModuleController extends Controller
     {   
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
-        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id');
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('created_at', 'DESC');
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
             $magento_modules = $magento_modules->where('module', 'LIKE', "%" . $request->module_name_sync . "%");

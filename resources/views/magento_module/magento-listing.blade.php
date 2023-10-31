@@ -114,7 +114,7 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">
         	Magento Modules ({{$magento_modules_count}})
-        	<a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="">Sync Logs</a>
+        	<a style="float: right;" href="{{ route('magento_module_listing_logs') }}" class="btn btn-image" id="" target="_blank">Sync Logs</a>
         	<!-- <a style="float: right;" title="Sync Logs" type="button" id="sync-logs" class="btn btn-image" style="padding: 0px 1px;">Sync Logs</a> -->
         </h2>
 		<div class="pull">
