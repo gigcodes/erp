@@ -12,6 +12,7 @@ use App\MysqlCommandRunLog;
 use Illuminate\Http\Request;
 use App\MagentoCommandRunLog;
 use App\MagentoMulitipleCommand;
+use App\Models\MagentoCronList;
 
 class MagentoCommandController extends Controller
 {
@@ -45,20 +46,52 @@ class MagentoCommandController extends Controller
     {
         try {
             $limit = Setting::get('pagination') ?? config('site.pagination.limit');
-            $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
+            $magentoCommand = MagentoCronList::paginate($limit)->appends(request()->except(['page']));
             $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
             $allMagentoCommandListArray = MagentoCommand::select(
                 \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
 
             $assetsmanager = AssetsManager::all();
             $websites = StoreWebsite::all();
-            $users = User::all();
 
-            return view('magento-command.index_command', compact('magentoCommand', 'websites', 'users', 'magentoCommandListArray', 'assetsmanager', 'allMagentoCommandListArray'));
+            return view('magento-command.index_command', compact('magentoCommand', 'websites', 'magentoCommandListArray', 'assetsmanager', 'allMagentoCommandListArray'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
             return redirect()->back()->withErrors($msg);
+        }
+    }
+
+    public function storecommand(Request $request)
+    {
+        try {
+            
+            if (isset($request->id) && $request->id > 0) {
+                $mCom = MagentoCronList::where('id', $request->id)->first();
+            } else {
+                $mCom = new MagentoCronList();
+            }
+
+            if(!empty($request->cron_name) && !empty($request->websites_ids) && !empty($request->Frequency)){
+
+                $storeWebsiteData = StoreWebsite::where('id', $request->websites_ids)->first();
+
+                if(!empty($storeWebsiteData)){
+                    $mCom->server_ip = $storeWebsiteData->server_ip;
+                }
+
+                $mCom->website_ids = isset($request->websites_ids) ? implode(',', $request->websites_ids) : $mCom->websites_ids;
+                $mCom->cron_name = $request->cron_name;
+                $mCom->Frequency = $request->Frequency;
+                $mCom->save();
+
+            }
+
+            return response()->json(['code' => 200, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
 
@@ -656,6 +689,28 @@ class MagentoCommandController extends Controller
         }
     }
 
+    public function editcommand(Request $request)
+    {
+        try {
+            $magentoCom = MagentoCronList::find($request->id);
+            $websites = StoreWebsite::all();
+            $ops = '';
+            foreach ($websites as $website) {
+                $selected = '';
+                if ($magentoCom->website_ids == $website->id) {
+                    $selected = 'selected';
+                }
+                $ops .= '<option value="' . $website->id . '" ' . $selected . '>' . $website->name . '</option>';
+            }
+
+            return response()->json(['code' => 200, 'data' => $magentoCom, 'ops' => $ops, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
     public function commandHistoryLog(Request $request)
     {
         try {
@@ -738,6 +793,19 @@ class MagentoCommandController extends Controller
     {
         try {
             $postman = MagentoCommand::where('id', '=', $request->id)->delete();
+
+            return response()->json(['code' => 200, 'data' => $postman, 'message' => 'Deleted successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function deletecommand(Request $request)
+    {
+        try {
+            $postman = MagentoCronList::where('id', '=', $request->id)->delete();
 
             return response()->json(['code' => 200, 'data' => $postman, 'message' => 'Deleted successfully!!!']);
         } catch (\Exception $e) {

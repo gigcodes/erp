@@ -13,6 +13,11 @@ class MagentoCronList extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'cron_name', 'server', 'server_ip', 'project_name', 'last_execution_time', 'last_message', 'cron_status', 'Frequency',
+        'cron_name', 'server', 'server_ip', 'website_ids', 'last_execution_time', 'last_message', 'cron_status', 'Frequency',
     ];
+
+    public function website()
+    {
+        return $this->belongsTo(\App\StoreWebsite::class, 'website_ids');
+    }
 }

@@ -14,7 +14,7 @@ class RenameProjectNameInMagentoCronListsTable extends Migration
     public function up()
     {
         Schema::table('magento_cron_lists', function (Blueprint $table) {
-            $table->renameColumn('project_name', 'websites');
+            $table->renameColumn('project_name', 'website_ids');
         });
     }
 
@@ -26,7 +26,7 @@ class RenameProjectNameInMagentoCronListsTable extends Migration
     public function down()
     {
         Schema::table('magento_cron_lists', function (Blueprint $table) {
-            $table->renameColumn('websites', 'project_name');
+            $table->renameColumn('website_ids', 'project_name');
         });
     }
 }
