@@ -63,22 +63,6 @@
         <div class="col">
             <div class="form-group">
                 <div class="input-group">
-                    <select name="website[]" class="form-control select2" data-placeholder="Select Websites" id="website" multiple>
-                        <option></option>
-                        <option value="ERP" @if(!empty(request('website')) && in_array('ERP',request('website'))) selected @endif>ERP</option>
-                        <?php
-                      $ops = 'id';
-                    ?>
-                        @foreach($websites as $website)
-                            <option @if(!empty(request('website')) && in_array($website->id ,request('website'))) selected @endif value="{{$website->id}}">{{$website->title}}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="form-group">
-                <div class="input-group">
                     <select name="command_name[]" class="form-control select2" id="command_name" multiple data-placeholder="Select Command Name">
                         <option></option>
                         @foreach ($magentoCommandListArray as $comName => $comType)
@@ -106,9 +90,10 @@
                 <thead>
                     <tr>
                         <th style="width: 3%;">ID</th>
-                        <th style="width: 22%;overflow-wrap: anywhere;">Websites</th>
-                        <th style="width: 22%;overflow-wrap: anywhere;">Server Ip</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Command name</th>
+                        <th style="width: 22%;overflow-wrap: anywhere;">Last Execution Time</th>
+                        <th style="width: 22%;overflow-wrap: anywhere;">Last Message</th>
+                        <th style="width: 22%;overflow-wrap: anywhere;">Status</th>
                         <th style="width: 10%;overflow-wrap: anywhere;">Action</th>
                     </tr>
                 </thead>
@@ -116,15 +101,13 @@
                     @foreach ($magentoCommand as $key => $magentoCom)
                     <tr>
                         <td>{{$magentoCom->id}}</td>
-                        <td class="expand-row-msg" data-name="websites" data-id="{{$magentoCom->id}}">
-                            <span class="show-short-websites-{{$magentoCom->id}}">@if($magentoCom->website){{ str_limit($magentoCom->website->title, 20, '..')}}@endif</span>
-                            <span style="word-break:break-all;" class="show-full-websites-{{$magentoCom->id}} hidden">@if($magentoCom->website){{$magentoCom->website->title}}@endif</span>
-                        </td>
-                        <td>{{$magentoCom->server_ip}}</td>
                         <td class="expand-row-msg" data-name="cron_name" data-id="{{$magentoCom->id}}">
                             <span class="show-short-cron_name-{{$magentoCom->id}}">{{ Str::limit($magentoCom->cron_name, 20, '..')}}</span>
                             <span style="word-break:break-all;" class="show-full-cron_name-{{$magentoCom->id}} hidden">{{$magentoCom->cron_name}}</span>
                         </td>
+                        <td>@if($magentoCom->last_execution_time!='0000-00-00 00:00:00') {{$magentoCom->last_execution_time}} @endif</td>
+                        <td>{{$magentoCom->last_message}}</td>
+                        <td>@if($magentoCom->last_execution_time!='0000-00-00 00:00:00') @if($magentoCom->cron_status==0) {{'Success'}} @else {{'Failure'}} @endif @endif </td>
                         <td>
                             <a title="Run Command" class="btn btn-image magentoCom-run-btn pd-5 btn-ht" data-id="{{ $magentoCom->id }}" href="javascript:;">
                                 <i class="fa fa-paper-plane" aria-hidden="true"></i>
@@ -149,42 +132,6 @@
     </div>
 </div>
 @endsection
-<div id="commandHistory" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content ">
-            <div id="add-mail-content">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3 class="modal-title">Command History</h3>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                <tr>
-                                    <th style="width: 3%;">ID</th>
-                                    <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
-                                    <th style="width: 5%;overflow-wrap: anywhere;">Websites</th>
-                                    <th style="width: 4%;overflow-wrap: anywhere;">Command name</th>
-                                    <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
-                                    <th style="width: 22%;overflow-wrap: anywhere;">Action</th>
-                                </tr>
-                                </tr>
-                            </thead>
-                            <tbody class="tbodaycommandHistory">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <div id="commandResponseHistoryModel" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
@@ -222,6 +169,57 @@
     </div>
 </div>
 
+<div id="executeCommand" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><span id="titleUpdate">Add</span> Command</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="magentoForm" method="post">
+                            @csrf
+
+                            <div class="form-row">
+                                <input type="hidden" id="command_id" name="id" value="" />
+
+                                <div class="form-group col-md-12">
+                                    <label for="cron_name">Cron Name</label>
+                                    <input type="text" name="cron_name" value="" class="form-control" id="cron_name" placeholder="Enter cron name">
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label for="title">Website</label>
+                                    <div class="dropdown-sin-1">
+                                        <?php $websites = \App\StoreWebsite::get(); ?>
+                                        <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required multiple>
+                                            <option>--Website--</option>
+                                            <?php
+                                            foreach($websites as $website){
+                                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
+                                            } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary submit-execute-form">Save</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="addPostman" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -243,25 +241,12 @@
                                 <input type="hidden" id="command_id" name="id" value="" />
 
                                 <div class="form-group col-md-12">
-                                    <label for="title">Website</label>
-                                    <div class="dropdown-sin-1">
-                                        <?php $websites = \App\StoreWebsite::get(); ?>
-                                        <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
-                                            <option>--Website--</option>
-                                            <?php
-                                            foreach($websites as $website){
-                                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
-                                            } ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-12">
                                     <label for="cron_name">Cron Name</label>
                                     <input type="text" name="cron_name" value="" class="form-control" id="cron_name" placeholder="Enter cron name">
                                 </div>
                                 <div class="form-group col-md-12">
-                                    <label for="Frequency">Frequency</label>
-                                    <input type="text" name="Frequency" value="" class="form-control" id="Frequency" placeholder="Enter the Frequency" required>
+                                    <label for="frequency">Frequency</label>
+                                    <input type="text" name="frequency" value="" class="form-control" id="frequency" placeholder="Enter the frequency" required>
                                 </div>
                             </div>
                         </form>
@@ -377,15 +362,11 @@
         e.preventDefault();
         var $this = $(this);
         
-        if($("#websites_ids").val()=='--Website--'){
-            toastr['error']('Please Select Website', 'error');
-            return '';
-        }
         if($("#cron_name").val()==''){
             toastr['error']('Please Enter Cron Name', 'error');
             return '';
         }
-        if($("#Frequency").val()==''){
+        if($("#frequency").val()==''){
             toastr['error']('Please Enter Frequency', 'error');
             return '';
         }
@@ -525,15 +506,15 @@
             toastr['error'](errObj.message, 'error');
         });
     });
-    
-    
 
     $(document).on("click", ".magentoCom-run-btn", function(e) {
         e.preventDefault();
+
         var $this = $(this);
         var id = $this.data('id');
+
         $.ajax({
-            url: "/magento/command/runmagentocommand"
+            url: "/magento/command/editcommand"
             , type: "post"
             , headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -545,18 +526,71 @@
                 $('#loading-image').show();
             },
         }).done(function(response) {
-            if (response.code == '200') {
-                toastr['success']('Command Run successfully!!!', 'success');
+            if (response.code = '200') {
+                form = $('#magentoForm');
+                $.each(response.data, function(key, v) {
+
+                    if (form.find('[name="' + key + '"]').length) {
+                        form.find('[name="' + key + '"]').val(v);
+                        if (key == 'command_name') {
+                            $('#command_name_search').val(v).trigger('change');
+                        }
+                        if (key == 'command_type') {
+                            $('#command_type').val(v).trigger('change');
+                        }
+                        if (key == 'assets_manager_id') {
+                            $('#assets_manager_id').val(v).trigger('change');
+                        }
+                    } 
+
+                });
+                $('#executeCommand').modal('show');
+
             } else {
                 toastr['error'](response.message, 'error');
             }
             $('#loading-image').hide();
         }).fail(function(errObj) {
             $('#loading-image').hide();
-            if (errObj ?.responseJSON ?.message) {
-                toastr['error'](errObj.responseJSON.message, 'error');
-                return;
+            $("#executeCommand").hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click", ".submit-execute-form", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        
+        if($("#cron_name").val()==''){
+            toastr['error']('Please Enter Cron Name', 'error');
+            return '';
+        }
+        if($("#frequency").val()==''){
+            toastr['error']('Please Enter Frequency', 'error');
+            return '';
+        }
+
+        if ($('#titleUpdate').text() == 'Add')
+            $("#command_id").val("");
+        $.ajax({
+            url: "/magento/command/addcommand"
+            , type: "post"
+            , data: $('#magentoForm').serialize(),
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                $('#addCommand').modal('hide');
+                toastr['success']('Command added successfully!!!', 'success');
+                location.reload();
+            } else {
+                toastr['error'](response.message, 'error');
             }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            //$("#addMail").hide();
             toastr['error'](errObj.message, 'error');
         });
     });
