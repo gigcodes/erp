@@ -91,6 +91,7 @@
                     <tr>
                         <th style="width: 3%;">ID</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Command name</th>
+                        <th style="width: 22%;overflow-wrap: anywhere;">Frequency</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Last Execution Time</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Last Message</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Status</th>
@@ -105,6 +106,7 @@
                             <span class="show-short-cron_name-{{$magentoCom->id}}">{{ Str::limit($magentoCom->cron_name, 20, '..')}}</span>
                             <span style="word-break:break-all;" class="show-full-cron_name-{{$magentoCom->id}} hidden">{{$magentoCom->cron_name}}</span>
                         </td>
+                        <td>{{$magentoCom->frequency}}</td>
                         <td>@if($magentoCom->last_execution_time!='0000-00-00 00:00:00') {{$magentoCom->last_execution_time}} @endif</td>
                         <td>{{$magentoCom->last_message}}</td>
                         <td>@if($magentoCom->last_execution_time!='0000-00-00 00:00:00') @if($magentoCom->cron_status==0) {{'Success'}} @else {{'Failure'}} @endif @endif </td>
@@ -177,13 +179,13 @@
 
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title"><span id="titleUpdate">Add</span> Command</h5>
+                        <h5 class="modal-title"><span>Execute Command</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="magentoForm" method="post">
+                        <form id="magentoExecutionForm" method="post">
                             @csrf
 
                             <div class="form-row">
@@ -191,14 +193,19 @@
 
                                 <div class="form-group col-md-12">
                                     <label for="cron_name">Cron Name</label>
-                                    <input type="text" name="cron_name" value="" class="form-control" id="cron_name" placeholder="Enter cron name">
+                                    <input name="cron_name" type="text" value="" class="form-control" readonly>
                                 </div>
+
+                                <div class="form-group col-md-12">
+                                    <label for="frequency">Frequency</label>
+                                    <input name="frequency" type="text" value="" class="form-control" readonly>
+                                </div>
+
                                 <div class="form-group col-md-12">
                                     <label for="title">Website</label>
                                     <div class="dropdown-sin-1">
                                         <?php $websites = \App\StoreWebsite::get(); ?>
                                         <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required multiple>
-                                            <option>--Website--</option>
                                             <?php
                                             foreach($websites as $website){
                                                 echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
@@ -418,41 +425,9 @@
                 form = $('#magentoForm');
                 $.each(response.data, function(key, v) {
 
-                    if (key == "website_ids") {
-                        var Values = new Array();
-                        if (v !== null && v !== undefined) {
-                            $.each(v.split(","), function(i, e) {
-                                console.log(e);
-                                //$(".websites_ids option[value='" + e + "']").prop("selected", true);
-                                Values.push(e);
-                            });
-                        }
-                        $('.websites_ids').val(Values).trigger('change');
-                    }
-
                     if (form.find('[name="' + key + '"]').length) {
                         form.find('[name="' + key + '"]').val(v);
-                        if (key == 'command_name') {
-                            $('#command_name_search').val(v).trigger('change');
-                        }
-                        if (key == 'command_type') {
-                            $('#command_type').val(v).trigger('change');
-                        }
-                        if (key == 'assets_manager_id') {
-                            $('#assets_manager_id').val(v).trigger('change');
-                        }
-
-                    } else if (form.find('[name="' + key + '[]"]').length) {
-                        //form.find('[name="'+key+'[]"]').val(response.ops);
-                        //debugger;
-
-
-                        // $.each(v.split(","), function(i, e) {
-                        //     console.log(e);
-                        //     // $("#websites_ids option[value='" + e + "']").prop("selected", true);
-                        // });
-                    }
-
+                    } 
                 });
                 $('#addPostman').modal('show');
                 toastr['success']('Command Listed successfully!!!', 'success');
@@ -527,20 +502,11 @@
             },
         }).done(function(response) {
             if (response.code = '200') {
-                form = $('#magentoForm');
+                form = $('#magentoExecutionForm');
                 $.each(response.data, function(key, v) {
 
                     if (form.find('[name="' + key + '"]').length) {
                         form.find('[name="' + key + '"]').val(v);
-                        if (key == 'command_name') {
-                            $('#command_name_search').val(v).trigger('change');
-                        }
-                        if (key == 'command_type') {
-                            $('#command_type').val(v).trigger('change');
-                        }
-                        if (key == 'assets_manager_id') {
-                            $('#assets_manager_id').val(v).trigger('change');
-                        }
                     } 
 
                 });
@@ -560,22 +526,16 @@
     $(document).on("click", ".submit-execute-form", function(e) {
         e.preventDefault();
         var $this = $(this);
-        
-        if($("#cron_name").val()==''){
-            toastr['error']('Please Enter Cron Name', 'error');
-            return '';
-        }
-        if($("#frequency").val()==''){
-            toastr['error']('Please Enter Frequency', 'error');
+
+        if($("#websites_ids").val()==''){
+            toastr['error']('Please Select Website', 'error');
             return '';
         }
 
-        if ($('#titleUpdate').text() == 'Add')
-            $("#command_id").val("");
         $.ajax({
-            url: "/magento/command/addcommand"
+            url: "/magento/command/runmagentocommand"
             , type: "post"
-            , data: $('#magentoForm').serialize(),
+            , data: $('#magentoExecutionForm').serialize(),
             beforeSend: function() {
                 $('#loading-image').show();
             },
