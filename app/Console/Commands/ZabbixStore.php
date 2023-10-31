@@ -104,7 +104,12 @@ class ZabbixStore extends Command
 
         $results = json_decode($result);
 
-        if (isset($results[0]) && isset($results[0]->result)) {
+        if (!isset($results[0])){
+            \Log::channel('general')->info("Response error: " . Carbon::now(). " " . json_encode($results));
+            return 0;
+        }
+
+        if (isset($results[0]->result)) {
             return $results[0]->result;
         } else {
             \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
