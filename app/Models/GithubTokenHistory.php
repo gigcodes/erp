@@ -5,19 +5,16 @@ use App\User;
 use App\Github\GithubRepository;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class GithubToken extends Model
+class GithubTokenHistory extends Model
 {
     use HasFactory;
 
-    use SoftDeletes;
-
-    protected $fillable = ['created_by', 'github_repositories_id', 'github_type', 'token_key', 'expiry_date'];
+    protected $fillable = ['run_by', 'github_repositories_id', 'github_type', 'token_key', 'details'];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'created_by')->select('name', 'id');
+        return $this->belongsTo(User::class, 'run_by')->select('name', 'id');
     }
 
     public function githubrepository()

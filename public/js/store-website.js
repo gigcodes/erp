@@ -1029,6 +1029,7 @@ var page = {
   },
   saveSiteAdminPassword: function (response) {
     if (response.code == 200) {
+        toastr["success"]("User details saved Successfully!", "Success");
       page.loadFirst();
       $(".common-modal").modal("hide");
       window.location = window.location;
@@ -1039,6 +1040,7 @@ var page = {
   },
   saveSite: function (response) {
     if (response.code == 200) {
+        toastr["success"]("User details saved Successfully!", "Success");
       page.loadFirst();
       $(".common-modal").modal("hide");
     } else {
