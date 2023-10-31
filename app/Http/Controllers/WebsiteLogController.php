@@ -304,7 +304,7 @@ class WebsiteLogController extends Controller
     public function websiteLogStoreView()
     {
         try {
-            $dataArr = WebsiteLog::latest()->paginate(25);
+            $dataArr = WebsiteLog::latest()->groupBy('website_id')->paginate(25);
 
             return view('website-logs.website-log-view', compact('dataArr'));
         } catch (\Exception $e) {

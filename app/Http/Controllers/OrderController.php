@@ -85,6 +85,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
+use App\Models\OrderStatusMagentoRequestResponseLog;
 
 class OrderController extends Controller
 {
@@ -2978,7 +2979,7 @@ class OrderController extends Controller
                         $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
-                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '');
+                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '', '');
                             $this->createEmailSendJourneyLog($id, 'Magento Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $request->from_mail, $request->to_mail, 'Magento replay', $request->message, '', '', $storeWebsiteOrder->website_id);
                             /**
                              *check if response has error
@@ -4323,7 +4324,7 @@ class OrderController extends Controller
                                     $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                                     if ($magento_status) {
                                         $magentoHelper = new MagentoHelperv2;
-                                        $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '');
+                                        $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '', '');
                                     }
                                 }
                             }
@@ -4823,6 +4824,7 @@ class OrderController extends Controller
         $id = $request->get('id');
         $order_product_item_id = $request->order_product_item_id;
         $status = $request->get('status');
+        $order_status_id = $request->get('order_status_id');
         $message = $request->get('message');
         $sendmessage = $request->get('sendmessage');
         $order_via = $request->order_via;
@@ -4830,7 +4832,21 @@ class OrderController extends Controller
             $order = \App\Order::where('id', $id)->first();
             $order_product = \App\OrderProduct::where('id', $order_product_item_id)->first();
             $statuss = OrderStatus::where('id', $status)->first();
+            $order_statuss = OrderStatus::where('id', $order_status_id)->first();
+
+            $order_statuss_name = 'Status not assigned';
+            if(!empty($order_statuss)){
+                $order_statuss_name = $order_statuss->status;
+            }
             if ($order) {
+
+                // $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order->id)->first();
+                // $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+                // $store_order_status = Store_order_status::where('order_status_id', $status)->where('store_website_id', $storeWebsiteOrder->website_id)->first();
+                // $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+                // $magentoHelper = new MagentoHelperv2;
+                // return $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product, $order_statuss_name);
+
                 $order_product->delivery_status = $request->status;
                 if ($request->status == '10') {
                     $order_product->delivery_date = date('Y-m-d H:s:i');
@@ -4957,7 +4973,7 @@ class OrderController extends Controller
                         $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
-                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product);
+                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product, $order_statuss_name);
                             $this->createEmailSendJourneyLog($id, 'Magento Order Product Item update status with ' . $statuss->status, Order::class, 'outgoing', '0', $request->from_mail, $request->to_mail, 'Magento replay', $request->message, '', '', $storeWebsiteOrder->website_id);
                             /**
                              *check if response has error
@@ -5552,5 +5568,24 @@ class OrderController extends Controller
         }
 
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function orderChangeStatusHistory(Request $request)
+    {   
+        $order_id = $request->order_id;
+        $order_product_id = $request->product_item_id;
+
+        $datas = OrderStatusMagentoRequestResponseLog::with('user', 'order')
+            ->where('order_id', $order_id)
+            ->where('order_product_id', $order_product_id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

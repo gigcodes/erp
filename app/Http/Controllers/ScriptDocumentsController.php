@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScriptDocuments;
 use App\Models\ScriptDocumentFiles;
+use App\Models\ScriptsExecutionHistory;
 use App\User;
 use Exception;
 use App\TestCase;
@@ -20,9 +21,14 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
 
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
+        $records = $records->groupBy('file')->get();
+        $records_count = $records->count();
+
         return view(
             'script-documents.index', [
                 'title' => $title,
+                'records_count' => $records_count,
             ]
         );
     }
@@ -47,12 +53,17 @@ class ScriptDocumentsController extends Controller
             );
         }
 
-        $records = $records->take(10)->groupBy('file')->get();
+        $records = $records->take(25)->groupBy('file')->get();
         $records_count = $records->count();
 
         $records = $records->map(
             function ($script_document) {
                 $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+
+                $script_document->last_output_text = '';
+                if(!empty($script_document->last_output)){
+                    $script_document->last_output_text = base64_decode($script_document->last_output);
+                }
                 return $script_document;
             }
         );
@@ -79,7 +90,7 @@ class ScriptDocumentsController extends Controller
                 'description' => 'required',
                 'location' => 'required',
                 'last_run' => 'required',
-                'status' => 'required',
+                'status' => 'required'
             ]
         );
 
@@ -233,9 +244,9 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
         $page = $_REQUEST['page'];
-        $page = $page * 10;
+        $page = $page * 25;
 
-        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(10);
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(25)->groupBy('file');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -258,6 +269,8 @@ class ScriptDocumentsController extends Controller
             }
         );
 
+        $records;
+
         // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
 
         return view(
@@ -271,20 +284,19 @@ class ScriptDocumentsController extends Controller
 
     public function ScriptDocumentHistory($id)
     {   
-        $scriptDocument = ScriptDocuments::findorFail($id);
+        $records = ScriptsExecutionHistory::with('scriptDocument')->where('script_document_id', $id)->orderBy('id', 'DESC')->get();
 
-        $records = [];
-        if(!empty($scriptDocument)){
+        $records = $records->map(
+            function ($script_document) {
+                $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
 
-            $records = ScriptDocuments::where('file',$scriptDocument->file)->where('id', '!=', $id)->orderBy('id', 'DESC')->take(10)->get();
-
-            $records = $records->map(
-                function ($script_document) {
-                    $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
-                    return $script_document;
+                $script_document->last_output_text = '';
+                if(!empty($script_document->run_output)){
+                    $script_document->last_output_text = base64_decode($script_document->run_output);
                 }
-            );
-        }
+                return $script_document;
+            }
+        );
 
         return response()->json([
             'status' => true,
@@ -301,7 +313,7 @@ class ScriptDocumentsController extends Controller
         return response()->json([
             'status' => true,
             'data' => $scriptDocument,
-            'message' => 'Comment get successfully',
+            'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
     }

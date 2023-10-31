@@ -45,6 +45,8 @@
 		    <thead>
 			    <tr>
 			    	<th width="3%">ID</th>
+			    	<th width="8%">Server Name</th>
+			    	<th width="8%">Server Ip</th>
 			    	<th width="8%">Service Name</th>
 			        <th width="30%">Memory</th>
 			        <th width="10%">Status</th>
@@ -56,6 +58,8 @@
                     @foreach ($monitStatus as $k => $data)
                         <tr>
                             <td>{{$k+1}}</td>
+                            <td>@if(!empty($data->assetsManager->ip_name)) {{$data->assetsManager->ip_name}} @endif</td>
+                            <td>@if(!empty($data->assetsManager->ip)) {{$data->assetsManager->ip}} @endif</td>
                             <td>{{$data->service_name}}</td>
 							<td class="expand-row" style="word-break: break-all">
 								<span class="td-mini-container">
@@ -65,7 +69,11 @@
 									{{ $data->memory }}
 								</span>
 							</td>
-							<td>{{$data->status}}</td>
+							@if($data->status==0)
+								<td><span style=" background-color: #5cb85c;  border-color: #4cae4c; color: white; padding: 5px;  border-radius: 0;  width: 100%;">{{'Success'}}</span></td>
+							@else 
+								<td><span style=" background-color: #c9302c;  border-color: #ac2925; color: white; padding: 5px;  border-radius: 0;  width: 100%;">{{'Failed'}}</span></td>
+							@endif
 							<td>{{$data->uptime}}</td>
 							<td>{{$data->created_at}}</td>
 							<td>

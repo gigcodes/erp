@@ -1624,6 +1624,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/update-delivery-date', [OrderController::class, 'updateDelDate'])->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', [OrderController::class, 'viewEstDelDateHistory'])->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', [OrderController::class, 'addNewReply'])->name('order.addNewReply');
+    Route::post('order/orderChangeStatusHistory', [OrderController::class, 'orderChangeStatusHistory'])->name('order.orderChangeStatusHistory');
     Route::post('order/get-customer-address', [OrderController::class, 'getCustomerAddress'])->name('order.customer.address');
     Route::post('order/get-error-logs', [OrderController::class, 'getOrderErrorLog'])->name('order.customer.address');
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
@@ -4445,10 +4446,12 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::resource('/organizations', Github\OrganizationController::class);
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
         Route::post('/addtoken', [Github\RepositoryController::class, 'githubAddToken'])->name('github.addtoken');
+        //Route::post('/addtokenhistory', [Github\RepositoryController::class, 'addGithubTokenHistory'])->name('github.addtokenhistory');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
         Route::post('/repos/sync-repo-labels', [Github\RepositoryController::class, 'syncRepoLabels'])->name('github.sync-repo-labels');
         Route::get('/repos/list-repo-labels', [Github\RepositoryController::class, 'listRepoLabels'])->name('github.list-repo-labels');
+        Route::post('/repos/get-repo-data', [Github\RepositoryController::class, 'getRepositoryDara'])->name('github.repo-data');
         Route::post('/repos/update-repo-label-message', [Github\RepositoryController::class, 'updateRepoLabelMessage'])->name('github.update-repo-label-message');
         Route::get('/repos/get-github-jobs', [Github\RepositoryController::class, 'getGithubJobs'])->name('github.get-jobs');
         Route::get('/repos/get-github-actions-jobs', [Github\RepositoryController::class, 'getGithubActionsAndJobs'])->name('github.get-actions-jobs');
