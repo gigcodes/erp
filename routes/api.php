@@ -295,6 +295,7 @@ Route::post('product/templates/update/webhook', [ProductTemplatesController::cla
 //check for order cancellation
 Route::post('order/check-cancellation', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCancellation']);
 Route::post('order/check-return', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkReturn']);
+Route::post('order/check-category-is-eligibility', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCategoryIsEligibility']);
 Route::post('wishlist/create', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishList']);
 Route::post('wishlist/remove', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishListRemove']);
 Route::post('github/addtokenhistory', [Github\RepositoryController::class, 'addGithubTokenHistory'])->name('github.addtokenhistory');
