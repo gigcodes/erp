@@ -21,9 +21,14 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
 
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
+        $records = $records->groupBy('file')->get();
+        $records_count = $records->count();
+
         return view(
             'script-documents.index', [
                 'title' => $title,
+                'records_count' => $records_count,
             ]
         );
     }
@@ -48,7 +53,7 @@ class ScriptDocumentsController extends Controller
             );
         }
 
-        $records = $records->take(100)->groupBy('file')->get();
+        $records = $records->take(25)->groupBy('file')->get();
         $records_count = $records->count();
 
         $records = $records->map(
@@ -239,9 +244,9 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
         $page = $_REQUEST['page'];
-        $page = $page * 10;
+        $page = $page * 25;
 
-        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(10);
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(25)->groupBy('file');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -263,6 +268,8 @@ class ScriptDocumentsController extends Controller
                 return $script_document;
             }
         );
+
+        $records;
 
         // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
 

@@ -6,7 +6,7 @@
 @section('content')
 	<div class="row" id="common-page-layout">
 		<div class="col-lg-12 margin-tb">
-			<h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+			<h2 class="page-heading">{{$title}} <span>{{$records_count}}</span></h2>
 		</div>
 		<br>
 		<div class="col-lg-12 margin-tb">
