@@ -109,6 +109,9 @@ class SyncMagentoModules implements ShouldQueue
                                 'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
+
+                            \Log::info('syncModules output logs 1:' . print_r($response, true));
+
                         } elseif ($magento_module->status != 1) {
                             // The record exists, but 'status' is not 1, so update it
                             $magento_module->status = 1;
@@ -123,6 +126,8 @@ class SyncMagentoModules implements ShouldQueue
                                 'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
+
+                            \Log::info('syncModules output logs 2:' . print_r($response, true));
                         }
                     }
                 }
@@ -153,6 +158,8 @@ class SyncMagentoModules implements ShouldQueue
                                 'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
+
+                            \Log::info('syncModules output logs 3:' . print_r($response, true));
                         } elseif ($magento_module->status != 0) {
                             // The record exists, but 'status' is not 0, so update it
                             $magento_module->status = 0;
@@ -167,6 +174,8 @@ class SyncMagentoModules implements ShouldQueue
                                 'response' => $response,
                                 'magento_module_id' => $magento_module->id,
                             ]);
+
+                            \Log::info('syncModules output logs 4:' . print_r($response, true));
                         }
                     }
                 }
