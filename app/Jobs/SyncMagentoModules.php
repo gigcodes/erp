@@ -106,11 +106,11 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Created',
-                                'response' => $response,
+                                'response' => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
-                            \Log::info('syncModules output logs 1:' . print_r($response, true));
+                            \Log::info('syncModules output logs 1:' . print_r(json_encode($output), true));
 
                         } elseif ($magento_module->status != 1) {
                             // The record exists, but 'status' is not 1, so update it
@@ -123,11 +123,11 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Updated',
-                                'response' => $response,
+                                'response' => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
-                            \Log::info('syncModules output logs 2:' . print_r($response, true));
+                            \Log::info('syncModules output logs 2:' . print_r(json_encode($output), true));
                         }
                     }
                 }
@@ -155,11 +155,11 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Created',
-                                'response' => $response,
+                                'response' => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
-                            \Log::info('syncModules output logs 3:' . print_r($response, true));
+                            \Log::info('syncModules output logs 3:' . print_r(json_encode($output), true));
                         } elseif ($magento_module->status != 0) {
                             // The record exists, but 'status' is not 0, so update it
                             $magento_module->status = 0;
@@ -171,11 +171,11 @@ class SyncMagentoModules implements ShouldQueue
                                 'updated_by' => $this->updated_by,
                                 'command' => $cmd,
                                 'status' => 'Updated',
-                                'response' => $response,
+                                'response' => json_encode($output),
                                 'magento_module_id' => $magento_module->id,
                             ]);
 
-                            \Log::info('syncModules output logs 4:' . print_r($response, true));
+                            \Log::info('syncModules output logs 4:' . print_r(json_encode($output), true));
                         }
                     }
                 }
