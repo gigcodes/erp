@@ -24,7 +24,7 @@ class MagentoCommandController extends Controller
     {
         try {
             $limit = Setting::get('pagination') ?? config('site.pagination.limit');
-            $magentoCommand = MagentoCommand::paginate($limit)->appends(request()->except(['page']));
+            $magentoCommand = MagentoCommand::orderby('created_at', 'DESC')->paginate($limit)->appends(request()->except(['page']));
             $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
             $allMagentoCommandListArray = MagentoCommand::select(
                 \DB::raw("CONCAT(COALESCE(`command_name`,''),' (',COALESCE(`command_type`,''),')') AS command"), 'id', 'command_type')->whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command', 'id')->toArray();
