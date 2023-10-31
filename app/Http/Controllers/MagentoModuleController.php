@@ -1777,4 +1777,16 @@ class MagentoModuleController extends Controller
 
         return response()->json(['code' => 200, 'data' => $result]);
     }
+
+    public function magentoModuleListLogsDetails($id)
+    {   
+        $MagentoModuleLogs = MagentoModuleLogs::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $MagentoModuleLogs,
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }
