@@ -7453,7 +7453,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
         var stickyNotesPage = "{{ request()->fullUrl() }}";
 
-        var x = `<div class='sticky_notes_container' style=" padding: 10px;">
+        
+
+        $('.sticky-notes').on('click', function() {
+            StickyBox();
+        });
+
+        var marginVar = 0;
+        function StickyBox () {
+
+            marginVar += 20;
+
+            var x = `<div class='sticky_notes_container pageNotesModal' style=" padding: 10px; margin: `+marginVar+`px;">
             <div class="icon-check">
             <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
@@ -7472,11 +7483,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </div>
                 </div>`;
 
-        $('.sticky-notes').on('click', function() {
-            StickyBox();
-        });
-
-        function StickyBox () {
             $(".sticknotes_content").draggable();
             $('#sticky_note_boxes').append(x);
                 $(".sticky_notes_container").draggable();
