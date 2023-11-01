@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Magento Command')
+@section('title', 'Magento Crons')
 
 @section('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -48,7 +48,7 @@
 
 <div class="row">
     <div class="col-12">
-        <h2 class="page-heading">Magento Commands</h2>
+        <h2 class="page-heading">Magento Crons</h2>
     </div>
 
     <div class="col-12 mb-3">
