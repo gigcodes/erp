@@ -51,7 +51,11 @@ class Helpers
 
     public static function getUserArray($users)
     {
-        return $users->pluck('name', 'id')->toArray();
+        $usersCollection = collect($users);
+
+        return $usersCollection->pluck('name', 'id');
+
+        //return $users->pluck('name', 'id')->toArray();
     }
 
     public static function getUserNameById($id)
