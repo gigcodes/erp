@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MagentoProblem;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MagentoProblemController extends Controller
 {
     public function index(Request $request)
     {
 
-        $magentoProblems = new MagentoProblem();
+        //$magentoProblems = new MagentoProblem();
+
+        $magentoProblems = MagentoProblem::select('error_body', 'created_at', 'updated_at', 'source', 'test', 'severity', 'type', 'status', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
 
         if ($request->search_source) {
             $magentoProblems = $magentoProblems->where('source', 'LIKE', '%' . $request->search_source . '%');
@@ -38,6 +42,8 @@ class MagentoProblemController extends Controller
         if ($request->type) {
             $magentoProblems = $magentoProblems->where('type',  'LIKE', '%' . $request->type . '%');
         }
+
+        $magentoProblems = $magentoProblems->groupBy('error_body');
 
         $magentoProblems = $magentoProblems->latest()->paginate(\App\Setting::get('pagination', 10));
 
