@@ -74,4 +74,18 @@ class MagentoProblemController extends Controller
         }
     }
 
+    public function magentoProblemStatusCreate(Request $request)
+    {
+        try {
+            $status = new PostmanStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 }

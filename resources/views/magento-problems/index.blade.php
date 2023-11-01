@@ -60,6 +60,8 @@
                 </button>
                 <a href="{{ route('magento-problems-lists') }}" class="btn btn-image" id=""><img
                         src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+
+                <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
             </div>
         </form>
     </div>
@@ -138,6 +140,34 @@
     </div>
 @endsection
 
+<div id="status-create" class="modal fade in" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add Stauts</h4>
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <form  method="POST" id="status-create-form">
+        @csrf
+        @method('POST')
+          <div class="modal-body">
+            <div class="form-group">
+              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
 @section('scripts')
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script>
@@ -147,5 +177,27 @@
             $("#magento-error-body-text").val($this.data("message"));
             $("#magento-error-modal").modal("show");
         });
+
+        $(document).on("click", ".status-save-btn", function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+              url: "{{route('postman.status.create')}}",
+              type: "post",
+              data: $('#status-create-form').serialize()
+            }).done(function(response) {
+              if (response.code = '200') {
+                $('#loading-image').hide();
+                $('#addPostman').modal('hide');
+                toastr['success']('Status  Created successfully!!!', 'success');
+                location.reload();
+              } else {
+                toastr['error'](response.message, 'error');
+              }
+            }).fail(function(errObj) {
+              $('#loading-image').hide();
+              toastr['error'](errObj.message, 'error');
+            });
+          });
     </script>
 @endsection
