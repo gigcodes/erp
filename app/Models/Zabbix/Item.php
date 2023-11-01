@@ -52,16 +52,21 @@ class Item implements JsonSerializable
     {
         return array_map(function ($item) {
             $model = new self();
-            $model->setName($item['name'] ?? '');
-            $model->setType($item['type'] ?? '');
-            $model->setId((int)$item['itemid'] ?? null);
-            $model->setValueType((int)$item['value_type'] ?? 0);
-            $model->setKey((string)$item['key_'] ?? '');
-            $model->setDelay((string)$item['delay'] ?? '');
-            $model->setInterfaceid((int)$item['interfaceid'] ?? 0);
-            $model->setHostId((int)$item['hostid'] ?? 0);
+            $model->setData($item);
             return $model;
         }, $this->zabbix->getAllItems());
+    }
+
+    /**
+     * @return Item[]
+     */
+    public function getItemsByHostId(int $hostId)
+    {
+        return array_map(function ($item) {
+            $model = new self();
+            $model->setData($item);
+            return $model;
+        }, $this->zabbix->getAllItemsByHostId($hostId));
     }
 
     /**
@@ -259,11 +264,11 @@ class Item implements JsonSerializable
         $this->setName($data['name'] ?? '');
         $this->setType($data['type'] ?? '');
         $this->setId((int)$data['itemid'] ?? null);
-        $this->setDelay($data['delay'] ?? '');
-        $this->setValueType((int)$data['value_type'] ?? null);
+        $this->setValueType((int)$data['value_type'] ?? 0);
         $this->setKey((string)$data['key_'] ?? '');
-        $this->setHostId((int)$data['hostid'] ?? 0);
+        $this->setDelay((string)$data['delay'] ?? '');
         $this->setInterfaceid((int)$data['interfaceid'] ?? 0);
+        $this->setHostId((int)$data['hostid'] ?? 0);
 
         return $this;
     }

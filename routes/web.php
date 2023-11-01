@@ -489,7 +489,11 @@ Route::prefix('blog')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/zabbix/users', [\App\Http\Controllers\Zabbix\UserController::class, 'index'])->name('zabbix.user.index');
     Route::post('/zabbix/user/save', [\App\Http\Controllers\Zabbix\UserController::class, 'save'])->name('zabbix.user.save');
-    Route::get('/zabbix/items', [\App\Http\Controllers\Zabbix\ItemController::class, 'index'])->name('zabbix.item.index');
+    Route::get('/zabbix/items/{hostId?}', [\App\Http\Controllers\Zabbix\ItemController::class, 'index'])->name('zabbix.item.index');
+    Route::get('/zabbix/user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
+    Route::get('/zabbix/triggers', [\App\Http\Controllers\Zabbix\TriggerController::class, 'index'])->name('zabbix.trigger.index');
+    Route::post('/zabbix/triggers/save', [\App\Http\Controllers\Zabbix\TriggerController::class, 'save'])->name('zabbix.trigger.save');
+    Route::post('/zabbix/user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
     Route::post('/zabbix/item/save', [\App\Http\Controllers\Zabbix\ItemController::class, 'save'])->name('zabbix.item.save');
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);

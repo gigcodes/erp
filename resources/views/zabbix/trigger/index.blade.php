@@ -3,14 +3,14 @@
 @section('content')
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Zabbix Users <span class="count-text"></span></h2>
+            <h2 class="page-heading">Zabbix Triggers <span class="count-text"></span></h2>
         </div>
         <br>
         <div class="col-lg-12 margin-tb" id="page-view-result">
             <div class="col-lg-12 pl-5 pr-5">
                 <div style="display: flex !important; float: right !important;">
                     <div>
-                        <a href="#" class="btn btn-xs btn-secondary create-new-user">Create</a>
+                        <a href="#" class="btn btn-xs btn-secondary create-new-trigger">Create</a>
                     </div>
                 </div>
             </div>
@@ -21,8 +21,8 @@
                 <?php echo csrf_field(); ?>
 
                 <div class="col-md-12">
-                    <div class="table-responsive mt-3">
-                        @include('zabbix.user.list')
+                    <div class="table-responsive mt-3" id="fresh-page">
+                        @include('zabbix.trigger.list')
                     </div>
                 </div>
 
@@ -30,11 +30,11 @@
         </div>
     </div>
 
-    <div class="modal fade" id="user-create-new" role="dialog">
+    <div class="modal fade" id="trigger-create-new" role="dialog">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><b>Save User</b></h5>
+                    <h5 class="modal-title"><b>Save trigger</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -48,52 +48,38 @@
                                     <div class="col-md-12">
                                         <div class="table-responsive mt-3">
                                             <input hidden type="text" class="form-control" name="id"
-                                                   placeholder="Enter id" id="user-id">
+                                                   placeholder="Enter id" id="trigger-id">
                                             <div class="form-group">
                                                 <label>Name</label>
                                                 <input type="text" class="form-control" name="name"
-                                                       placeholder="Enter name" id="user-name">
+                                                       placeholder="Enter name" id="trigger-name">
                                             </div>
                                             <div class="form-group">
-                                                <label>Surname</label>
-                                                <input type="text" class="form-control" name="surname"
-                                                       placeholder="Enter surname" id="user-surname">
+                                                <label>Event name</label>
+                                                <input type="text" class="form-control" name="event_name"
+                                                       placeholder="Enter event name" id="trigger-event-name">
                                             </div>
                                             <div class="form-group">
-                                                <label>Username</label>
-                                                <input type="text" class="form-control" name="username"
-                                                       placeholder="Enter username" id="user-username">
+                                                <label>Expression</label>
+                                                <input type="text" class="form-control" name="expression"
+                                                       placeholder="Enter expression" id="trigger-expression">
                                             </div>
                                             <div class="form-group">
-                                                <label>Roles</label>
-                                                <select id="user-role-id" class="form-control input-sm career-store-websites"
-                                                name="role_id" required>
-                                                    @foreach ($roles as $role)
-                                                        <option value="{{ $role['roleid'] }}">{{ $role['name'] }}</option>
+                                                <label>Templates</label>
+                                                <select id="trigger-template-id" class="form-control input-sm career-store-websites"
+                                                name="template_id" required>
+                                                    <option value="0">Select template</option>
+                                                    @foreach ($templates as $template)
+                                                        <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
                                                     @endforeach
                                                 </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Url</label>
-                                                <input type="text" class="form-control" name="url"
-                                                       placeholder="Enter url" id="user-url">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Password</label>
-                                                <input type="text" class="form-control" name="password"
-                                                       placeholder="Enter password" id="user-password">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <button type="submit"
-                                                    class="btn btn-danger submit_delete_user float-left float-lg-left"
-                                                    data-id="">
-                                                Delete
-                                            </button>
-                                            <button type="submit"
-                                                    class="btn btn-secondary submit_create_user float-right float-lg-right">
+                                                    class="btn btn-secondary submit_create_trigger float-right float-lg-right">
                                                 Save
                                             </button>
                                         </div>
@@ -107,15 +93,15 @@
         </div>
     </div>
     <script>
-        $(document).on("click", ".create-new-user", function (e) {
+        $(document).on("click", ".create-new-trigger", function (e) {
             e.preventDefault();
-            $('#user-create-new').modal('show');
+            $('#trigger-create-new').modal('show');
             restoreForm();
         });
-        $("#user-role-id").select2();
-        $(document).on("click", ".submit_delete_user", function (e) {
+        $("#trigger-template-id").select2({ width: 'resolve' });
+        $(document).on("click", ".submit_delete_trigger", function (e) {
             e.preventDefault();
-            var url = "{{ route('zabbix.user.delete') }}";
+            var url = "{{ route('zabbix.trigger.index') }}";
             var formData = $(this).closest('form').serialize();
 
             $('#loading-image-preview').show();
@@ -136,15 +122,15 @@
                 error: function (err) {
                     $('#loading-image-preview').hide();
                     $('#website-project-name').val("");
-                    $('#user-create-new').modal('hide');
+                    $('#trigger-create-new').modal('hide');
                     toastr["error"](err.responseJSON.message);
                 }
             })
         });
 
-        $(document).on("click", ".submit_create_user", function (e) {
+        $(document).on("click", ".submit_create_trigger", function (e) {
             e.preventDefault();
-            var url = "{{ route('zabbix.user.save') }}";
+            var url = "{{ route('zabbix.trigger.save') }}";
             var formData = $(this).closest('form').serialize();
 
             $('#loading-image-preview').show();
@@ -158,22 +144,6 @@
                     $('#store-create-project').modal('hide');
                     if (resp.code == 200) {
                         toastr["success"](resp.message);
-                        let user = resp.user;
-                        let userId = user.id;
-                        console.log('.td-description-' + userId);
-                        $('.td-description-' + userId).text(user.description);
-                        $('.td-type-' + userId).text(user.type);
-                        $('.td-location-' + userId).text(user.location);
-                        $('.td-created-at-' + userId).text(user.created_at);
-                        $('.td-store-websites-' + userId).text(user.store_website_id);
-                        $('.td-edit-' + userId).attr('data-json', resp.user_json);
-                        if (!user.is_active) {
-                            $('.td-is-active-' + userId).removeAttr('checked');
-                        } else {
-                            $('.td-is-active-' + userId).attr('checked', user.is_active);
-                        }
-
-
                     } else {
                         toastr["error"](resp.message);
                     }
@@ -181,42 +151,65 @@
                 error: function (err) {
                     $('#loading-image-preview').hide();
                     $('#website-project-name').val("");
-                    $('#user-create-new').modal('hide');
+                    $('#trigger-create-new').modal('hide');
                     toastr["error"](err.responseJSON.message);
                 }
             })
         });
 
-        $('a.btn-edit-user').click(function(e) {
+        $('a.btn-edit-trigger').click(function(e) {
             e.preventDefault();
-            $('#user-create-new').modal('show');
+            $('#trigger-create-new').modal('show');
 
             restoreForm();
 
-            $('#user-id').val($(this).attr('data-id'));
+            $('#trigger-id').val($(this).attr('data-id'));
 
             let data = JSON.parse($(this).attr('data-json'));
 
-            $('#user-name').val(data.name);
-            $('#user-surname').val(data.surname);
-            $('#user-username').val(data.username);
-            $('#user-url').val(data.url);
-            $('#user-role-id').val(data.role_id);
-            $('#user-id').val(data.id);
-            $('.submit_delete_user').attr('data-id', data.id);
-            $("#user-role-id option[value='" + data.role_id + "']").prop("selected", true);
-            $("#user-role-id").select2();
+            $('#trigger-name').val(data.name);
+            $('#trigger-event-name').val(data.event_name);
+            $('#trigger-expression').val(data.expression);
+            $('#trigger-id').val(data.id);
+            $("#trigger-template-id option[value='" + data.template_id + "']").prop("selected", true);
+            $('.submit_delete_trigger').attr('data-id', data.id);
+            $("#trigger-template-id").select2({ width: '100%' });
         });
 
         var restoreForm = function() {
-            $('.submit_delete_user').val('');
-            $('#user-id').val('');
-            $('#user-name').val('');
-            $('#user-surname').val('');
-            $('#user-username').val('');
-            $('#user-role-id').val('');
-            $('#user-url').val('');
-            $('#user-password').val('');
+            $('#trigger-id').val('');
+            $('#trigger-name').val('');
+            $('#trigger-event-name').val('');
+            $('#trigger-expression').val('');
         }
+
+        // $('.page-link').click(function (e) {
+        //     e.preventDefault();
+
+        //     var href = $(e).attr('href');
+
+        //     $.ajax({
+        //         url: href,
+        //         method: 'GET',
+        //         success: function (resp) {
+        //             console.log(resp);
+        //             $('#loading-image-preview').hide();
+        //             $('#website-project-name').val("");
+        //             $('#store-create-project').modal('hide');
+        //             if (resp.code == 200) {
+        //                 $('#fresh-page').empty();
+        //                 $('#fresh-page').html(resp.tpl);
+        //             } else {
+        //                 toastr["error"](resp.message);
+        //             }
+        //         },
+        //         error: function (err) {
+        //             $('#loading-image-preview').hide();
+        //             $('#website-project-name').val("");
+        //             $('#trigger-create-new').modal('hide');
+        //             toastr["error"](err.responseJSON.message);
+        //         }
+        //     })
+        // })
     </script>
 @endsection

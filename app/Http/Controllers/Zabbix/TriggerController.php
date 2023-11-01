@@ -8,22 +8,37 @@ use App\Zabbix\ZabbixException;
 use Exception;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use App\Models\Zabbix\Item;
+use App\Models\Zabbix\Trigger;
 
-class ItemController extends Controller
+class TriggerController extends Controller
 {
-    /**
-     * @param Request $request
-     * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
-     */
-    public function index(Request $request, ?int $hostId)
+    public function index(Request $request)
     {
-        $item = new Item();
+        $page = $request->get('page', 1);
+        $trigger = new Trigger();
 
-        $items = $item->getItemsByHostId($hostId);
+        $triggers = array_reverse($trigger->getAll());
+        $count = sizeof($triggers);
+        $triggers = array_slice($triggers, $page * 50, 50);
+        $templates = $trigger->getAllTemplates();
 
-        return view('zabbix.item.index', [
-            'items' => $items
+        if ($request->ajax()) {
+            $view = (string)view('zabbix.trigger.list', [
+                'triggers' => $triggers,
+                'page' => $page,
+            ]);
+
+            return response()->json([
+                'tpl' => $view,
+                'code' => 200
+            ]);
+        }
+
+        return view('zabbix.trigger.index', [
+            'triggers' => $triggers,
+            'count' => $count,
+            'page' => $page,
+            'templates' => $templates
         ]);
     }
 
@@ -36,17 +51,18 @@ class ItemController extends Controller
         $data = $request->all();
 
         try {
-            $item = new Item();
+            $item = new Trigger();
             $itemId = (int)$data['id'] ?? null;
             if (!empty($data['id'])) {
                 $item = $item->getById($itemId);
             }
 
-            $item->setKey($data['key'] ?? '');
+            $item->setEventName($data['event_name'] ?? '');
             $item->setName($data['name'] ?? '');
-            $item->setType($data['type'] ?? '');
-            $item->setValueType((int)$data['value_type'] ?? 1);
-            $item->setDelay($data['delay'] ?? 1);
+            $item->setExpression($data['expression'] ?? '');
+            if (!empty($data['template_id']) && $data['template_id'] !== 0) {
+                $item->setTemplateId((int)$data['template_id'] ?? 0);
+            }
 
             $item->save();
         }

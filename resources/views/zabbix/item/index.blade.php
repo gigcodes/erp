@@ -208,21 +208,21 @@
             let data = JSON.parse($(this).attr('data-json'));
 
             $('#item-name').val(data.name);
-            $('#item-surname').val(data.surname);
-            $('#item-itemname').val(data.itemname);
-            $('#item-url').val(data.url);
-            $('#item-role-id').val(data.role_id);
-            $('#item-id').val(data.id);
+            $('#item-key').val(data.key);
+            $('#item-host-id').val(data.host_id);
+            $('#item-type').val(data.type);
+            $('#item-value-type').val(data.value_type);
+            $('#item-delay').val(data.delay);
         });
 
         var restoreForm = function() {
             $('#item-id').val('');
             $('#item-name').val('');
-            $('#item-surname').val('');
-            $('#item-itemname').val('');
-            $('#item-role-id').val('');
-            $('#item-url').val('');
-            $('#item-password').val('');
+            $('#item-key').val('');
+            $('#item-host-id').val('');
+            $('#item-type').val('');
+            $('#item-value-type').val('');
+            $('#item-delay').val('');
         }
     </script>
 @endsection

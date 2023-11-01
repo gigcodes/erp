@@ -7,14 +7,8 @@ use GuzzleHttp\Client;
 
 class Zabbix
 {
-    /**
-     *
-     */
     const ZABBIX_ID = 1;
 
-    /**
-     *
-     */
     public function __construct()
     {
         $this->curl = new Client([
@@ -164,6 +158,30 @@ class Zabbix
         return $body['result'];
     }
 
+    public function deleteUser($id)
+    {
+        if ($id == 1) {
+            throw new ZabbixException('Cannot remove Admin user.');
+        }
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'user.delete',
+                'params' => [$id],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
     /**
      * @param array $params
      * @return mixed
@@ -176,6 +194,48 @@ class Zabbix
             'json' => [
                 'jsonrpc' => '2.0',
                 'method' => 'user.update',
+                'params' => $params,
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function saveTrigger(array $params = [])
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'trigger.create',
+                'params' => $params,
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function updateTrigger(array $params = [])
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'trigger.update',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
                 'id' => self::ZABBIX_ID
@@ -213,5 +273,113 @@ class Zabbix
         $body = json_decode((string)$request->getBody(), true);
 
         return $body['result'];
+    }
+
+    /**
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getAllItemsByHostId(int $hostId)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'item.get',
+                'params' => [
+                    'limit' => 1000,
+                    'hostids' => $hostId
+                ],
+
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        return $body['result'];
+    }
+
+    public function getAllUserRoles()
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'role.get',
+                'params' => [
+                ],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        return $body['result'];
+    }
+
+    public function getAllTriggers($page = 1)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'trigger.get',
+                'params' => [
+                ],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        return $body['result'];
+    }
+
+    public function getAllTemplates(): array
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'template.get',
+                'params' => [
+                    'limit' => 20000
+                ],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function getTriggerById($id)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'trigger.get',
+                'params' => [
+                    'triggerids' => $id
+                ],
+
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return !empty($body['result']) ? $body['result'][0] : null;
     }
 }
