@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use App\MagentoCommandRunLog;
 use App\MagentoMulitipleCommand;
 use App\Models\MagentoCronList;
+use App\Models\MagentoMultipleCron;
+use App\Models\MagentoCronRunLog;
 
 class MagentoCommandController extends Controller
 {
@@ -47,8 +49,10 @@ class MagentoCommandController extends Controller
         try {
             $limit = Setting::get('pagination') ?? config('site.pagination.limit');
             $magentoCommand = MagentoCronList::orderBy('created_at', 'DESC')->paginate($limit)->appends(request()->except(['page']));
+
+            $allMagentoCommandListArray = MagentoCronList::get()->pluck('cron_name', 'id')->toArray();
             
-            return view('magento-command.index_command', compact('magentoCommand'));
+            return view('magento-command.index_command', compact('magentoCommand', 'allMagentoCommandListArray'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
@@ -130,6 +134,20 @@ class MagentoCommandController extends Controller
         $assetsmanager = AssetsManager::all();
 
         return view('magento-command.index', compact('magentoCommandListArray', 'magentoCommand', 'websites', 'users', 'assetsmanager', 'allMagentoCommandListArray'));
+    }
+
+    public function searchcron(Request $request)
+    {
+        $magentoCommand = MagentoCronList::whereNotNull('id');
+        if (! empty($request->command_name)) {
+            $magentoCommand->whereIn('id', $request->command_name);
+        }
+        $limit = Setting::get('pagination') ?? config('site.pagination.limit');
+        $magentoCommand = $magentoCommand->paginate($limit);
+
+        $allMagentoCommandListArray = MagentoCronList::get()->pluck('cron_name', 'id')->toArray();
+
+        return view('magento-command.index_command', compact('magentoCommand', 'allMagentoCommandListArray'));
     }
 
     /**
@@ -284,6 +302,29 @@ class MagentoCommandController extends Controller
 
         try {
             $comd = \Artisan::call('command:MagentoRunCommandOnMultipleWebsite', ['id' => $command_id, 'websites_ids' => $websites_ids]);
+
+            return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully! Please check the command\'s preview response for more information']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function runMagentoCommand(Request $request)
+    {
+        $command_id = $request->id;
+        $websites_ids = $request->websites_ids;
+
+        MagentoMultipleCron::create([
+            'website_ids' => json_encode($websites_ids),
+            'command_id' => $command_id,
+            'user_id' => \Auth::user()->id,
+
+        ]);
+
+        try {
+            $comd = \Artisan::call('command:MagentoRunCronOnMultipleWebsite', ['id' => $command_id, 'websites_ids' => $websites_ids]);
 
             return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully! Please check the command\'s preview response for more information']);
         } catch (\Exception $e) {
@@ -735,6 +776,77 @@ class MagentoCommandController extends Controller
                         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'commandHistoryLog');
                         if (curl_errno($ch)) {
                         }
+                        $response = json_decode($result);
+                        \Log::info('API Response: ' . $result);
+                        if (isset($response->data) && isset($response->data->result)) {
+                            $logs->status = $response->data->status;
+                            $result = $response->data->result;
+                            $message = '';
+                            if (isset($result->stdout) && $result->stdout != '') {
+                                $message .= 'Output: ' . $result->stdout;
+                            }
+                            if (isset($result->stderr) && $result->stderr != '') {
+                                $message .= 'Error: ' . $result->stderr;
+                            }
+                            if (isset($result->summary) && $result->summary != '') {
+                                $message .= 'summary: ' . $result->summary;
+                            }
+                            if ($message != '') {
+                                $logs->response = $message;
+                            }
+                        }
+
+                        curl_close($ch);
+                    }
+                }
+            }
+
+            return response()->json(['code' => 200, 'data' => $postHis, 'message' => 'Listed successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function cronHistoryLog(Request $request)
+    {
+        try {
+            $postHis = MagentoCronRunLog::select('magento_cron_run_logs.*', 'u.name AS userName')
+            ->leftJoin('users AS u', 'u.id', 'magento_cron_run_logs.user_id')
+            ->where('command_id', '=', $request->id)->orderby('id', 'DESC')->get();
+
+            foreach ($postHis as $logs) {
+                $logs->status = '';
+                if ($logs->website_ids != '' && $logs->job_id != '') {
+                    $magCom = MagentoCronList::find($logs->command_id);
+                    $storeWebsite = StoreWebsite::where('id', $logs->website_ids)->first();
+                    $assetsmanager = new AssetsManager();
+                    if ($storeWebsite) {
+                        $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+                    }
+
+                    if ($assetsmanager && $assetsmanager->client_id != '') {
+                        $client_id = $assetsmanager->client_id;
+                        $job_id = $logs->job_id;
+                        $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands/' . $job_id;
+                        $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 0);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                        $headers = [];
+                        $headers[] = 'Authorization: Basic ' . $key;
+                        //$headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                        $result = curl_exec($ch);
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'cronHistoryLog');
+                       
                         $response = json_decode($result);
                         \Log::info('API Response: ' . $result);
                         if (isset($response->data) && isset($response->data->result)) {

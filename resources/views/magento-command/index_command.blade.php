@@ -39,6 +39,7 @@
 .select2-search__field:placeholder-shown {
     width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
 }
+.select2-container{width: 100%;}
 </style>
 
 @endsection
@@ -59,26 +60,26 @@
     </div>
 </div>
 <div class=" row ">
-    <form class="form-inline" action="/magento/command/search" method="GET">
-        <div class="col">
-            <div class="form-group">
-                <div class="input-group">
+    <form class="form-inline" action="/magento/magento_command/searchcron" method="GET" style=" width: 100%;">
+        <div class="col-8">
+            <div class="form-group" style=" width: 100%;">
+                <div class="input-group" style=" width: 100%;">
                     <select name="command_name[]" class="form-control select2" id="command_name" multiple data-placeholder="Select Command Name">
                         <option></option>
-                        @foreach ($magentoCommandListArray as $comName => $comType)
-                        <option @if(!empty(request('command_name')) && in_array($comName ,request('command_name'))) selected @endif value="{{$comName}}">{{$comName}}</option>
+                        @foreach ($allMagentoCommandListArray as $comName => $comType)
+                        <option @if(!empty(request('command_name')) && in_array($comName ,request('command_name'))) selected @endif value="{{$comName}}">{{$comType}}</option>
                         @endforeach
                     </select>
                     {{-- <input type="text" placeholder="Request Name" class="form-control" name="request_name" value="{{request('request_name')}}"> --}}
                 </div>
             </div>
         </div>
-        <div class="col">
+        <div class="col-4">
             <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
-            <a href="/magento/command" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+            <a href="/magento/magento_command" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+            <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
         </div>
-    </form>
-    <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#addPostman">Add Command</button>
+    </form>    
 </div>
 
 @php $isPermissionCommandRun = 0; @endphp
@@ -142,7 +143,7 @@
             <div id="add-mail-content">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 class="modal-title">Command Response History</h3>
+                        <h3 class="modal-title">Cron Response History</h3>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -153,7 +154,7 @@
                                 <tr>
                                     <th style="width: 3%;">ID</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
-                                    <th style="width: 5%;overflow-wrap: anywhere;">Command Name</th>
+                                    <th style="width: 5%;overflow-wrap: anywhere;">Cron Name</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Status</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Response</th>
                                     <th style="width: 5%;overflow-wrap: anywhere;">Request</th>
@@ -560,7 +561,7 @@
         var $this = $(this);
         var id = $this.data('id');
         $.ajax({
-            url: "/magento/command/history/"
+            url: "/magento/cron/history/"
             , type: "post"
             , headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
