@@ -489,6 +489,8 @@ Route::prefix('blog')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/zabbix/users', [\App\Http\Controllers\Zabbix\UserController::class, 'index'])->name('zabbix.user.index');
     Route::post('/zabbix/user/save', [\App\Http\Controllers\Zabbix\UserController::class, 'save'])->name('zabbix.user.save');
+    Route::get('/zabbix/items', [\App\Http\Controllers\Zabbix\ItemController::class, 'index'])->name('zabbix.item.index');
+    Route::post('/zabbix/item/save', [\App\Http\Controllers\Zabbix\ItemController::class, 'save'])->name('zabbix.item.save');
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
     Route::get('discount-sale-price/type', [DiscountSalePriceController::class, 'type']);

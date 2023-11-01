@@ -114,6 +114,30 @@ class Zabbix
     }
 
     /**
+     * @param $id
+     * @return mixed|null
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getItemByIds($id)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'user.get',
+                'params' => [
+                    'userids' => $id
+                ],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        return !empty($body['result']) ? $body['result'][0] : null;
+    }
+
+    /**
      * @param array $params
      * @return mixed
      * @throws ZabbixException
@@ -163,6 +187,30 @@ class Zabbix
         if (!empty($body['error'])) {
             throw new ZabbixException($body['error']['data']);
         }
+
+        return $body['result'];
+    }
+
+    /**
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getAllItems()
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'item.get',
+                'params' => [
+                    'limit' => 50,
+                ],
+
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
 
         return $body['result'];
     }
