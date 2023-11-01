@@ -66,6 +66,15 @@
 	<div class="col-md-12 p-0">
 		<h2 class="page-heading">Host Item List</h2>
 	</div>
+  <div class="col-lg-12 margin-tb" id="page-view-result">
+      <div class="col-lg-12 pl-5 pr-5">
+          <div style="display: flex !important; float: right !important;">
+              <div>
+                  <a href="{{ route('zabbix.user.index') }}" class="btn btn-xs btn-secondary create-new-user">Manage users</a>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>
 
 <div class="table-responsive mt-3" style="margin-top:20px;">
