@@ -5294,16 +5294,23 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
 //Magento Command
 Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
+Route::get('magento/magento_command', [MagentoCommandController::class, 'index_command'])->name('magento.magento_command');
 Route::get('magento/get-command', [MagentoCommandController::class, 'getMagentoCommand'])->name('magento.getMagentoCommand');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
+Route::get('magento/magento_command/searchcron', [MagentoCommandController::class, 'searchcron'])->name('magento.command.searchcron');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
+Route::post('magento/command/addcommand', [MagentoCommandController::class, 'storecommand'])->name('magento.command.addcommand');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
+Route::post('magento/command/runmagentocommand', [MagentoCommandController::class, 'runMagentoCommand'])->name('magento.command.runmagentocommand');
 Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
 Route::post('magento/command/run-mysql-command', [MagentoCommandController::class, 'runMySqlQuery'])->name('magento.command.runMySqlQuery');
 Route::get('magento/command/run-mysql-command-logs', [MagentoCommandController::class, 'mySqlQueryLogs'])->name('magento.command.mySqlQueryLogs');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
+Route::post('magento/command/editcommand', [MagentoCommandController::class, 'editcommand'])->name('magento.command.editcommand');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
+Route::post('magento/cron/history', [MagentoCommandController::class, 'cronHistoryLog'])->name('magento.cron.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
+Route::delete('magento/command/deletecommand', [MagentoCommandController::class, 'deletecommand'])->name('magento.command.deletecommand');
 Route::get('/magento/command/run-mulitiple-command-logs', [MagentoCommandController::class, 'getMulitipleCommands'])->name('magento.mulitiple.command.lists');
 Route::prefix('message-queue-history')->middleware('auth')->group(function () {
     Route::get('/', [MessageQueueHistoryController::class, 'index'])->name('message-queue-history.index');
