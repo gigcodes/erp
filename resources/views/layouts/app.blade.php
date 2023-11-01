@@ -7453,24 +7453,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
         var stickyNotesPage = "{{ request()->fullUrl() }}";
 
-        
-
-        $('.sticky-notes').on('click', function() {
-            StickyBox();
-        });
-
-        var marginVar = 0;
-        function StickyBox () {
-
-            marginVar += 20;
-
-            var x = `<div class='sticky_notes_container pageNotesModal' style=" padding: 10px; margin: `+marginVar+`px;">
+        var x = `<div class='sticky_notes_container pageNotesModal' style=" padding: 10px; margin: 20px;">
             <div class="icon-check">
             <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
                    Sticky Note
-                   <div class="mb-4">
+                   <div class="text_box-text mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
                         Title
                       </label>
@@ -7483,39 +7472,59 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </div>
                 </div>`;
 
+        $('.sticky-notes').on('click', function() {
+            StickyBox();
+        });
+
+        
+        var marginVar = 20;
+       
+        function StickyBox () {
+
+             marginVar += 20;
+
             $(".sticknotes_content").draggable();
             $('#sticky_note_boxes').append(x);
+
+              var lastStickyNote = $("#sticky_note_boxes .sticky_notes_container:last");
+
+              lastStickyNote.css("margin", marginVar+"px"); 
+
+
                 $(".sticky_notes_container").draggable();
                 $('.close-icon').each(function(){
                     $('.close-icon').click(function() {
                         $(this).closest('.sticky_notes_container').remove();
                     });
                 });
-                $('.check-icon').on('click', function() {
-                    var textareaValue = $(this).parent().siblings('.text_box-textarea').find('textarea').val();
-                     var page = $(this).parent().siblings('.text_box-textarea').find('textarea').data('page');
+                
+            }
 
-                     var title = $('#custom-text').val();
+            $(document).on("click", ".check-icon", function (event) {
+                event.preventDefault();
+                var textareaValue = $(this).parent().siblings('.text_box-textarea').find('textarea').val();
+                var page = $(this).parent().siblings('.text_box-textarea').find('textarea').data('page');
 
-                    $.ajax({
-                        url: '{{ route('stickyNotesCreate') }}',
-                        method: 'POST',
-                        data: {
-                            value: textareaValue,
-                            page: page,
-                            title: title,
-                            _token: "{{ csrf_token() }}",
-                        },
-                        success: function(response) {
-                        toastr['success'](response.message, 'success');
-                        },
-                        error: function(xhr, status, error) {
-                            console.log('Save Error:', error);
-                        }
-                    });
-                    $(this).closest('.sticky_notes_container').remove();
+                var title = $(this).parent().siblings('.text_box-text').find('input').val();
+
+                $.ajax({
+                    url: '{{ route('stickyNotesCreate') }}',
+                    method: 'POST',
+                    data: {
+                        value: textareaValue,
+                        page: page,
+                        title: title,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                    toastr['success'](response.message, 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Save Error:', error);
+                    }
+                });
+                $(this).closest('.sticky_notes_container').remove();
             });
-        }
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
