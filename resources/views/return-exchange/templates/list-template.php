@@ -14,11 +14,15 @@
 		        <th style="width:5%;">Status</th>
 				<!-- <th>Change Status</th> -->
 		        <th style="width:5%;">Pickup Address</th>
-		        <th style="width:6%;">Refund details</th>
+		        <!-- <th style="width:6%;">Refund details</th> -->
+		        <th style="width:6%;">DOR</th>
+		        <th style="width:6%;">DOI</th>
+		        <th style="width:6%;">DOD</th>
+		        <th style="width:6%;">Credited</th>
 		        <th style="width:14%;">Est Refund / Ex. date</th>
 		        <th style="width:5%;">Remarks</th>
 		        <th style="width:5%;">Created At</th>
-		        <th style="width:19%;">Action</th>
+		        <th style="width:3%;">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -65,7 +69,19 @@
 						<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>
 					   <span class="show-full-pickupAdd-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.pickup_address}}</span></span>
 					</td>
-			        <td class="expand-row" data-id="{{>prop.id}}">
+					<td class="expand-row" data-id="{{>prop.id}}">
+						{{:prop.date_of_request_formated}}
+					</td>
+					<td class="expand-row" data-id="{{>prop.id}}">
+						{{:prop.date_of_issue_formated}}
+					</td>
+					<td class="expand-row" data-id="{{>prop.id}}">
+						{{:prop.dispatch_date_formated}}
+					</td>
+					<td class="expand-row" data-id="{{>prop.id}}">
+						{{if prop.credited}} Yes {{else}} No {{/if}}
+					</td>
+			        <!-- <td class="expand-row" data-id="{{>prop.id}}">
 					<div class="td-mini-container-{{>prop.id}}">
 						<p>DOR : {{:prop.date_of_request_formated}}</p>
 					</div>
@@ -75,7 +91,7 @@
 						<p>DOD: {{:prop.dispatch_date_formated}}</p>
 						<p>Credited: {{if prop.credited}} Yes {{else}} No {{/if}}</p>
 					</div>
-					</td>
+					</td> -->
 					<td style="padding:1px;">
 					<div class="form-group" style="margin-bottom:0px;">
 					<div class="pt-2" style="display:flex;">
@@ -95,29 +111,35 @@
 					   <span class="show-full-remarks-{{:prop.id}} hidden">{{:prop.remarks}}</span>
 					</td>
               		<td>{{:prop.created_at_formated}}</td>
-			        <td class="action" align="center">
-						<div class="cls_action_btn">
-						<button type="button" class="btn re-generate-coupon no_pd" data-id="{{>prop.id}}" title="re-generate coupon"><i class="fa fa-gift"></i></button>
-			        	<button type="button" class="btn btn-delete-template no_pd" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
-			        	<button type="button" class="btn btn-edit-template no_pd" data-id="{{>prop.id}}"><img width="15px" src="/images/edit.png"></button>
-			        	<button type="button" class="btn btn-history-template no_pd" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>
-						<button type="button" class="btn send-email-to-customer no_pd" data-id="{{>prop.customer_id}}"><i class="fa fa-envelope-square"></i></button>
-						{{if prop.product_id}}
-						<button type="button" class="btn show-product no_pd" data-id="{{>prop.product_id}}"><i class="fa fa-product-hunt"></i></button>
-            			<button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template no_pd"><img width="15px" src="/images/view.png"></button>
-						{{/if}}
-						{{if !prop.credited}}
-						<button type="button" data-id="{{>prop.id}}" class="btn create-update-refund no_pd" title="Create or update refund"><i class="fa fa-exchange"></i></button>
-						{{/if}}
-            			<button type="button" class="btn resend-confirmation-email no_pd" data-id="{{>prop.customer_id}}">
-            				<i class="fa fa-paper-plane" aria-hidden="true"></i>
-            			</button>
-            			<button type="button" class="btn resend-refund-pdf-download no_pd" data-id="{{>prop.id}}">
-								<i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-					    </button>
-						</div>
-			        </td>
+              		<td>
+	                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{>prop.id}}')"><i class="fa fa-arrow-down"></i></button>
+	                </td>
 			      </tr>
+			      <tr class="action-btn-tr-{{>prop.id}} d-none">
+		                <td>Action</td>
+		                <td colspan="17">
+		                    <div class="cls_action_btn">
+							<button type="button" class="btn re-generate-coupon no_pd" data-id="{{>prop.id}}" title="re-generate coupon"><i class="fa fa-gift"></i></button>
+				        	<button type="button" class="btn btn-delete-template no_pd" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
+				        	<button type="button" class="btn btn-edit-template no_pd" data-id="{{>prop.id}}"><img width="15px" src="/images/edit.png"></button>
+				        	<button type="button" class="btn btn-history-template no_pd" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>
+							<button type="button" class="btn send-email-to-customer no_pd" data-id="{{>prop.customer_id}}"><i class="fa fa-envelope-square"></i></button>
+							{{if prop.product_id}}
+							<button type="button" class="btn show-product no_pd" data-id="{{>prop.product_id}}"><i class="fa fa-product-hunt"></i></button>
+	            			<button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template no_pd"><img width="15px" src="/images/view.png"></button>
+							{{/if}}
+							{{if !prop.credited}}
+							<button type="button" data-id="{{>prop.id}}" class="btn create-update-refund no_pd" title="Create or update refund"><i class="fa fa-exchange"></i></button>
+							{{/if}}
+	            			<button type="button" class="btn resend-confirmation-email no_pd" data-id="{{>prop.customer_id}}">
+	            				<i class="fa fa-paper-plane" aria-hidden="true"></i>
+	            			</button>
+	            			<button type="button" class="btn resend-refund-pdf-download no_pd" data-id="{{>prop.id}}">
+									<i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+						    </button>
+							</div>
+		                </td>
+		            </tr>
 			    {{/props}}  
 		    </tbody>
 		</table>

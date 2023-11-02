@@ -4752,6 +4752,7 @@ Route::middleware('auth')->prefix('return-exchange')->group(function () {
     Route::post('/update-status', [ReturnExchangeController::class, 'updateExchangeStatuses'])->name('returnexchange.update-status');
     Route::get('/update-status-log/{id?}', [ReturnExchangeController::class, 'listExchangeStatusesLog'])->name('returnexchange.update_status_log');
     Route::post('/status-send-email', [ReturnExchangeController::class, 'updateStatusEmailSend'])->name('return-exchange.status-send-email');
+    Route::post('returnexchange-column-visbility', [ReturnExchangeController::class, 'columnVisbilityUpdate'])->name('returnexchange.column.update');
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', [ReturnExchangeController::class, 'detail'])->name('return-exchange.detail');
         Route::get('/delete', [ReturnExchangeController::class, 'delete'])->name('return-exchange.delete');
