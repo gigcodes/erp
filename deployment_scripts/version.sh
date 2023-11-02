@@ -1,9 +1,5 @@
 #/bin/bash
-
-DB_USERNAME=erplive
-DB_PASSWORD="UhgjT68FgrhjOOo"
-DB_HOST=81.0.247.216
-DB_NAME=erp_live
+. /opt/etc/mysql-creds.conf
 DATE=$(date "+%Y-%m-%d %H:%M:%S")
 STORE_WEBSITE_ID=$1
 curl -m 10 --retry 5 --data-raw "Entering data into store_website_version" https://health.theluxuryunlimited.com/ping/b97e7c33-06af-4f26-bf69-199782203c72/start

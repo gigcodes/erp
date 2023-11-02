@@ -1,4 +1,4 @@
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 for server in 0{1..9} {10..10}
@@ -22,4 +22,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

@@ -5,10 +5,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$dbuser = 'emailsync';
-$dbpass = 'emailsync';
-$dbname = 'erp_live';
-$dbhost = '81.0.247.216';
+
+$env = parse_ini_file('/opt/etc/mysql-creds.conf');
+$dbuser = $env["EMAIL_MYSQL_USER"];
+$dbpass = $env["EMAIL_MYSQL_PASS"];
+$dbname = $env["EMAIL_MYSQL_DB"];
+$dbhost = $env["EMAIL_MYSQL_HOST"];
 $testmail='info@mio-moda.com';
 $hostname='{mail.mio-moda.com:993/imap/ssl}INBOX';
 $username = $argv[1];

@@ -1,12 +1,11 @@
 #!/bin/bash
-set -o pipefail
+
 SCRIPT_NAME=`basename $0`
 
 DOWNLOAD_PATH="/var/www/erp.theluxuryunlimited.com/storage/app/download_db"
 
 MY_CREDS=/opt/etc/mysql-creds.conf
 source $MY_CREDS
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
 DATES=`date +%s`
 args=("$@")
 idx=0
@@ -50,7 +49,6 @@ fi
 
 for port in $possible_ssh_port
 do
-	#echo "check port = $port"
 	telnet_output=`echo quit | telnet $ip $port 2>/dev/null | grep Connected`
 	if [ ! -z "$telnet_output" ]
 	then
@@ -82,4 +80,4 @@ fi
 
 #Call monitor_bash_scripts
 
-sh ./monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
