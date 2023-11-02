@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+use App\User;
+use App\Order;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class OrderStatusMagentoRequestResponseLog extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['order_id', 'order_product_id', 'request', 'response', 'url', 'method', 'status_code', 'time_taken', 'start_time', 'end_time', 'message', 'method_name', 'updated_by'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'updated_by')->select('name', 'id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id')->select('order_id', 'id');
+    }
+}

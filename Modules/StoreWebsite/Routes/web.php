@@ -69,7 +69,8 @@ Route::group([
     Route::get('/{id}/list-view', [StoreWebsiteController::class, 'dataViewPage'])->name('store-website.list-page.view');
     Route::get('/push-csv/{id}', [StoreWebsiteController::class,'pushCsvFile'])->name('store-website.push.csv');
     Route::get('pull-request/histories/{id}', [StoreWebsiteController::class, 'pullRequestHistoryShow'])->name('pull-request.histories.show');
-    Route::get('pull-request/log/{id}', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
+    Route::get('pull-request/log/', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
+    Route::get('csv-file/truncate', [StoreWebsiteController::class, 'csvFileTruncate'])->name('store-website-csv-truncate');
 
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
@@ -100,6 +101,10 @@ Route::group([
     Route::get('attach-tag-store', [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
 
     Route::post('create-project', [StoreWebsiteController::class, 'createProject'])->name('store-website.create-project');
+
+    Route::post('magento-media-sync', [StoreWebsiteController::class, 'magentoMediaSync'])->name('store-website.magento-media-sync');
+
+    Route::get('magento-media-sync-logs', [StoreWebsiteController::class, 'magentoMediaSyncLogs'])->name('store-website.magentoMediaSyncLogs');
 
     Route::group([
         'prefix' => '{id}',

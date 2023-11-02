@@ -37,6 +37,11 @@ class GoogleDocController extends Controller
                 $q->where('google_docs.name', 'LIKE', $keyword);
             });
         }*/
+        if ($keyword = request('search')) {
+            $data = $data->where(function ($q) use ($keyword) {
+                $q->where('name', 'LIKE', "%$keyword%");
+            });
+        }
         if ($keyword = request('docid')) {
             $data = $data->where(function ($q) use ($keyword) {
                 $q->where('docid', 'LIKE', "%$keyword%");

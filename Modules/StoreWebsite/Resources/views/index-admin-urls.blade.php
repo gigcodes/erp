@@ -120,14 +120,13 @@
 						<tr>
 							<!-- <th>Select</th> -->
 							<th>Id</th>
-							<th width="30%">Website</th>
-							<th width="30%">Admin Url</th>
-							<!-- <th width="30%">Store Directory</th>	
-							<th width="30%">Server Ip</th> -->
-							<th width="30%">Request Data</th>
-							<th width="30%">Response Data</th>
-							<th width="30%">Created By</th>
-							<th width="30%">Created Date</th>
+							<th>Website</th>
+							<th>Admin Url</th>
+							<th>Request Data</th>
+							<th>Response Data</th>
+							<th>Created By</th>
+							<th>Created Date</th>
+							<th>Status</th>
 							<th>Action</th>											
 						</tr>
 						</thead>
@@ -214,9 +213,14 @@
 						html += "<tr>";
 						html += "<td>" + (k + 1) + "</td>";
 						html += "<td>" + v.storewebsite.title + "</td>";
-						html += "<td>" + v.admin_url + "</td>";
-					/*	html += "<td>" + v.store_dir + "</td>";
-						html += "<td>" + v.server_ip_address + "</td>";*/
+						html += "<td>";
+						html += '<a href ="'+ v.admin_url +'" target="_blank" style="display:flex; gap:5px">';
+						html += '<input type="text" class="form-control" name="admin_url[edit:'+ v.id +']" value="'+ v.admin_url +'">';
+						html += '</a>';
+						html += '<button type="button" data-id="" class="btn btn-copy-api-token btn-sm" data-value="'+ v.admin_url +'">';
+						html += '<i class="fa fa-clone" aria-hidden="true"></i>';
+						html += '</button>';
+						html += "</td>";
 						html += "<td>" + v.request_data + "</td>";
 						html += "<td>" + v.response_data + "</td>";
 						html += "<td class='expand-row' style='word-break: break-all'>";
@@ -224,6 +228,12 @@
 						html += "<span class='td-full-container hidden'>" + (v.user !== undefined ? v.user.name : ' - ' ) + "</span>";
 						html += "</td>";
 						html += "<td>" + v.created_at + "</td>";
+
+						if(v.status==1){
+							html += "<td>Active</td>";
+						} else {
+							html += "<td>In Active</td>";
+						}
 						html += "</tr>";
                     });
                     $("#admin-urls-histories-list").find(".api-token-list-view").html(html);
