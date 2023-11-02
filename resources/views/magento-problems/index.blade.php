@@ -126,7 +126,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <textarea id="magento-error-body-text" class="form-control" name="reply"></textarea>
+                            <textarea id="magento-error-body-text" class="form-control" name="reply" style="position: relative; height: 100%;" rows="15"></textarea>
                         </div>
                     </div>
                 </div>

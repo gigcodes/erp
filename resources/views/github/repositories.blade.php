@@ -84,7 +84,65 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="generate-token-modal" tabindex="-1" role="dialog" aria-labelledby="generate-token-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><b>Add/Update Token</b></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">                
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <form method="post" id="addTokenForm">
+                                <input type="hidden" name="github_repositories_id" id="github_repositories_id">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <div class="form-group">
+                                                <label>Github Type</label>
+                                                <select class="form-control" id="github_type" name="github_type">
+                                                    <option value="ssh">SSH</option>
+                                                    <option value="git">GIT</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <div class="form-group">
+                                                <label>Token or rsa Key</label>
+                                                <input class="form-control" type="text" name="token_key" id="token_key">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <div class="form-group">
+                                                <label>Expiry Date</label>
+                                                <input class="form-control" type="date" name="expiry_date" id="expiry_date">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-secondary submit_create_tag float-right float-lg-right">Add</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@include('github-token-history')
 @endsection
 
 @push('scripts')
@@ -109,6 +167,70 @@
                 $('#repository-table tbody').empty().html(result.tbody);
 
                 $('#repository-table').DataTable();
+            }
+        });
+    });
+
+    $(document).on('submit', '#addTokenForm', function (e) {
+        e.preventDefault();
+
+        var github_repositories_id = $("#github_repositories_id").val();
+        var github_type = $("#github_type").val();
+        var token_key = $("#token_key").val();
+        var expiry_date = $("#expiry_date").val();
+        
+        $.ajax({
+            url: "{{route('github.addtoken')}}",
+            type: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                github_repositories_id: github_repositories_id,
+                github_type: github_type,
+                token_key: token_key,
+                expiry_date: expiry_date,
+            },
+            success: function (response) {
+                if (response.code == 200) {
+                    toastr['success'](response.message);
+                    $('#github-task-create').modal('hide');
+                } else {
+                    toastr['error'](response.message);
+                }
+
+                window.location.reload();
+            },
+            error: function () {
+                alert('There was error loading priority task list data');
+            }
+        });
+    });
+
+    $(document).on('click','.token-list-button',function(){
+        github_repositories_id = $(this).data('id');
+        $.ajax({
+            method: "GET",
+            url: `{{ route('github.token.histories', [""]) }}/` + github_repositories_id,
+            dataType: "json",
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += "<tr>";
+                        html += "<td>" + (k + 1) + "</td>";
+                        /*html += "<td>" + v.githubrepository.id + "</td>";
+                        html += "<td>" + v.githubrepository.name + "</td>";*/
+                        html += "<td>" + v.github_type + "</td>";
+                        html += "<td>" + v.token_key + "</td>";
+                        html += "<td>" + v.user.name + "</td>";
+                        html += "<td>" + v.details + "</td>";
+                        html += "<td>" + v.created_at + "</td>";
+                        html += "</tr>";
+                    });
+                    $("#github-token-histories-list").find(".github-token-list-view").html(html);
+                    $("#github-token-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
             }
         });
     });
@@ -181,6 +303,46 @@
             var repo_id = $(this).data('repo_id');
             fetchLabelsAndMessages(repo_id);
         });
+
+        $(document).on('click', '.generate-token-labels-button', function () {
+            var repo_id = $(this).data('repo_id');
+            $("#github_repositories_id").val(repo_id);
+
+            $('#addTokenForm')[0].reset();
+
+            $.ajax({
+                url: '{{ route("github.repo-data") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    repo_id: repo_id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if(data.data.expiry_date!=''){
+                        $("#expiry_date").val(data.data.expiry_date);
+                    }
+                    if(data.data.token_key!=''){
+                        $("#token_key").val(data.data.token_key);
+                    }
+                    if(data.data.github_type!=''){
+                        $("#github_type").val(data.data.github_type).trigger('change');
+                    }
+                },
+                error: function (error) {
+                    console.error(error);
+                    toastr['error']('Label message update failed!');
+                }
+            });
+            $('#generate-token-modal').modal('show');
+        });
+
+        // Function to fetch labels and messages and populate the modal
+        function generateTokenGithub(repo_id) {
+            $("#loading-image-preview").show();
+            
+            
+        }
 
         // AJAX request to update label message
         $(document).on('change', '.message-input', function () {

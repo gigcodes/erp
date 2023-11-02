@@ -413,6 +413,15 @@
 
 @include("storewebsite::page.templates.list-template")
 @include("storewebsite::page.templates.create-website-template")
+<div class="modal-iframe">
+    <div id="iframe">
+        <button type="button" class="btn-close close-iframe-btn" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <iframe
+                id="inlineFrameExample"
+                title="Inline Frame Example">
+        </iframe>
+    </div>
+</div>
 <script src="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
