@@ -2280,13 +2280,14 @@ class StoreWebsiteController extends Controller
     public function StorewebsiteDownloadListing(Request $request)
     {
         $perPage =  20;
-        
-        //$storeWebsites = StoreWebsite::latest()->paginate($perPage);
 
-        $keyword = request('name');
-        $storeWebsites = StoreWebsite::when((!empty($keyword)) , function ($q) use ($keyword) {
-            return $q->where('title', 'LIKE', "%$keyword%");
-        })->latest()->paginate($perPage);
+        $storeWebsites = new StoreWebsite();
+
+        if ($request->store_ids) {
+            $storeWebsites = $storeWebsites->WhereIn('id', $request->store_ids);
+        }
+
+        $storeWebsites = $storeWebsites->latest()->paginate($perPage);
 
         $storeWebsitesDropdown = StoreWebsite::latest()->groupBy('title')->get();
 
@@ -2358,13 +2359,15 @@ class StoreWebsiteController extends Controller
             $path = $response['path'];
 
             if ($status === 'success') {
-                
                 StoreWebsiteCsvFile::create([
                     'storewebsite_id' => $storeWebsiteId,
                     'status' => $status,
                     'message' => $message,
                     'action' => $action,
                     'path' => $path,
+                    'user_id' => Auth::user()->id,
+                    'command' => $command,
+                    'csv_file_id' => $request->input('csvfileId'),
                 ]);
 
                 return response()->json(['status' => 'success', 'message' => $message, 'code' => 200]);
@@ -2375,6 +2378,9 @@ class StoreWebsiteController extends Controller
                     'message' => $message,
                     'action' => $action,
                     'path' => $path,
+                    'command' => $command,
+                    'user_id' => Auth::user()->id,
+                    'csv_file_id' => $request->input('csvfileId'),
                 ]);
 
                 \Log::info('command:' . $command);
@@ -2386,8 +2392,11 @@ class StoreWebsiteController extends Controller
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
                 'status' => 'fail',
-                'message' => $response['message'],
+                'message' => "Invalid JSON response",
                 'action' => $action,
+                'command' => $command,
+                'user_id' => Auth::user()->id,
+                'csv_file_id' => $request->input('csvfileId'),
             ]);
 
             \Log::info('command:' . $command);
@@ -2446,6 +2455,7 @@ class StoreWebsiteController extends Controller
                 'status' => 'fail',
                 'message' => $message,
                 'action' => $action,
+                'user_id' => Auth::user()->id,
             ]);
 
             return response()->json(['code' => 500, 'data' => [], 'message' => $message]);
@@ -2461,10 +2471,10 @@ class StoreWebsiteController extends Controller
         $allOutput[] = $command;
         $result = exec($command, $allOutput);
        // Below static code for testing purpose. 
-        // $allOutput = [
-        //     "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
-        //     '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
-        // ];
+        $allOutput = [
+            "bash /var/www/erp.theluxuryunlimited.com/deployment_scripts/process_magento_csv.sh -a \"pull\" -s \"85.208.51.101\" -w \"Brands QA\" -d \"/home/brands-qa-1-1/current/\" -S \"gb-en\" -f \"Brands-QA-gb-en.csv\" 2>&1",
+            '{"status":"success","message":"success","path":"/var/www/erp.theluxuryunlimited.com/storage/app/magento/lang/csv/Brands-QA-gb-en.csv"}'
+        ];
 
         $response = json_decode($allOutput[1], true);
         \Log::info('command:' . $command);
@@ -2475,6 +2485,8 @@ class StoreWebsiteController extends Controller
             $status = $response['status'];
             $message = $response['message'];
             $path = $response['path'];
+
+            // $path = "/var/www/erp.local/storage/app/magento/lang/csv/Brands-QA-gb-en.csv";
 
             if ($status === 'success') {
                 StoreWebsiteCsvFile::create([
@@ -2493,6 +2505,16 @@ class StoreWebsiteController extends Controller
                         {
                             $new_file_path = str_replace('-en.cs', '-' . $language->locale . '.cs', $path);
                             $result = $this->translateFile($path, $language->locale, ','); 
+                            StoreWebsiteCsvFile::create([
+                                'storewebsite_id' => $storeWebsiteId,
+                                'status' => "success",
+                                'message' => "csv file created",
+                                'action' => $action,
+                                'filename' => $new_file_path,
+                                'user_id' => Auth::user()->id,
+                                'command' => $command,
+                            ]);
+
                             foreach ($result as $translationSet) {
                                 try {
                                     $translationDataStored = new GoogleTranslateCsvData();
@@ -2502,16 +2524,7 @@ class StoreWebsiteController extends Controller
                                     $translationDataStored->storewebsite_id = $storeWebsiteId;
                                     $translationDataStored->lang_id = $language->id;
                                     $translationDataStored->save();
-
-                                    StoreWebsiteCsvFile::create([
-                                        'storewebsite_id' => $storeWebsiteId,
-                                        'status' => "success",
-                                        'message' => "csv file created",
-                                        'action' => $action,
-                                        'filename' => $new_file_path,
-                                        'user_id' => Auth::user()->id,
-                                        'command' => $command,
-                                    ]);
+                             
                             
                                 } catch (\Exception $e) {
                                     return 'Upload failed: ' . $e->getMessage();
@@ -2523,6 +2536,16 @@ class StoreWebsiteController extends Controller
                         return response()->json(['message' =>$e->getMessage(), 'code' => 500]);
                     }
                 } else {
+
+                    StoreWebsiteCsvFile::create([
+                        'storewebsite_id' => $storeWebsiteId,
+                        'status' => $status,
+                        'message' => "File not found",
+                        'action' => $action,
+                        'path' => $path,
+                        'user_id' => Auth::user()->id,
+                        'command' => $command,
+                    ]);
                     throw new Exception('File not found');
                 }
 
@@ -2547,7 +2570,7 @@ class StoreWebsiteController extends Controller
             StoreWebsiteCsvFile::create([
                 'storewebsite_id' => $storeWebsiteId,
                 'status' => 'fail',
-                'message' => $response['message'],
+                'message' => "Invalid JSON response",
                 'action' => $action,
                 'user_id' => Auth::user()->id,
                 'command' => $command,
@@ -2563,6 +2586,9 @@ class StoreWebsiteController extends Controller
 
     public function translateFile($path, $language, $delimiter = ',')
     {
+        //local testing purpose
+        // $path = $path = storage_path('app/magento/lang/csv/Brands-QA-gb-en.csv');
+
         if (! file_exists($path) || ! is_readable($path)) {
             return false;
         }
@@ -2655,15 +2681,28 @@ class StoreWebsiteController extends Controller
         return View('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
     }
 
-    public function pushCsvFile($id)
+    public function pushCsvFile($id, Request $request)
     {
-        $filenames =   StoreWebsiteCsvFile::where('storewebsite_id', $id)
+        $query = StoreWebsiteCsvFile::where('storewebsite_id', $id)
         ->whereNotNull('filename')
-        ->where('filename', '!=', '') // Check for non-empty values
-        ->select('filename')
-        ->distinct()
-        ->get();
-    
+        ->where('filename', '!=', ''); // Check for non-empty values
+
+        // Check if 'search_filename' is provided in the request
+        if ($request->has('search_filename')) {
+            $searchFilename = $request->input('search_filename');
+            $query->where(function ($query) use ($searchFilename) {
+                $query->where('filename', 'like', '%' . $searchFilename . '%');
+            });
+        }
+
+        // Check if 'date' is provided in the request
+        if ($request->has('date')) {
+            $date = $request->input('date');
+            $query->whereDate('created_at', $date);
+        }
+
+        $filenames = $query->get();
+
         return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames]);
        
     }
@@ -2680,16 +2719,42 @@ class StoreWebsiteController extends Controller
         ], 200);
     }
 
-    public function pullRequesLogShow($id)
+    public function pullRequesLogShow(Request $request)
     {
-        $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('storewebsite_id', $id)->where('user_id', Auth::user()->id)->get();
 
-        return response()->json([
-            'status' => true,
-            'data' => $histories,
-            'message' => 'Successfully get history status',
-            'status_name' => 'success',
-        ], 200);
+        $action = $request->get('action');
+
+        if($action ==  "pull")
+        {
+            $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('storewebsite_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
+
+            return response()->json([
+                'status' => true,
+                'data' => $histories,
+                'message' => 'Successfully get history status',
+                'status_name' => 'success',
+            ], 200);
+    
+        } else {
+            $histories = StoreWebsiteCsvFile::with(['storewebsite','user'])->where('csv_file_id', $request->id)->where('user_id', Auth::user()->id)->where('action', $request->action)->get();
+
+            return response()->json([
+                'status' => true,
+                'data' => $histories,
+                'message' => 'Successfully get history status',
+                'status_name' => 'success',
+            ], 200);
+        }
+    }
+
+
+    public function csvFileTruncate()
+    {
+        StoreWebsiteCsvFile::truncate();
+
+        GoogleTranslateCsvData::truncate();
+
+        return redirect()->route('store-website.listing')->withSuccess('data Removed succesfully!');
     }
 
     public function deleteAdminPasswords(Request $request)

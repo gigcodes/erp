@@ -59,6 +59,8 @@
 	@include("script-documents.templates.list-template")
     @include("script-documents.create")
     @include("script-documents.edit")
+    @include('script-documents.history')
+    @include('script-documents.comment')
 	
 	<div id="uploadeScriptDocumentsScreencastModal" class="modal fade" role="dialog">
 		<div class="modal-dialog">
@@ -349,6 +351,99 @@
 					}
 				});
 			});
+		});
+
+		$(document).on('click','.script-document-history',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('script-documents.histories', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+						html += "<tr>";
+						/*html += "<td>" + v.id + "</td>";
+						html += "<td>" + v.created_at_date + "</td>";
+
+						if(v.script_type!=null){
+							html += "<td>" + v.script_type + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+						
+						html += "<td>" + v.file + "</td>";
+
+						if(v.description!=null){
+							html += "<td>" + v.description + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.usage_parameter!=null){
+							html += "<td>" + v.usage_parameter + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.category!=null){
+							html += "<td>" + v.category + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.comments!=null){
+							html += '<td><button type="button" data-id="'+ v.id +'" class="btn script-document-comment-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.author!=null){
+							html += "<td>" + v.author + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.location!=null){
+							html += "<td>" + v.location + "</td>";
+						} else {
+							html += "<td></td>";
+						}*/
+
+						if(v.last_run!=null){
+							html += "<td>" + v.last_run + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						if(v.status!=null){
+							html += "<td>" + v.status + "</td>";
+						} else {
+							html += "<td></td>";
+						}
+
+						html += "</tr>";
+                    });
+
+                    $("#script-document-histories-list").find(".script-document-list-view").html(html);
+                    $("#script-document-histories-list").modal("show");	                
+	            }
+	        });
+		});
+
+		$(document).on('click','.script-document-comment-view',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('script-documents.comment', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+	               
+                    $("#script-document-comment-list").find(".script-document-comment-view").html(response.data.comments);
+                    $("#script-document-comment-list").modal("show");
+	         
+	            }
+	        });
 		});
 	</script>
 @endsection

@@ -258,6 +258,7 @@
                     <th style="width: 5%;">Ord no</th>
                     <th style="width: 8%;">Ph no</th>
                     <th style="width: 16%;">Msg Box</th>
+                    <th style="width: 16%;">Images</th>
                     <th class="chat-msg" style="width: 13%;">Resolution Date</th>
                     <th style="width: 6%;">Status</th>
                     <th class="chat-msg" style="width: 6%;">Created</th>

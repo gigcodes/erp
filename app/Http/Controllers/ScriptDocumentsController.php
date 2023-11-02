@@ -29,7 +29,7 @@ class ScriptDocumentsController extends Controller
 
     public function records(Request $request)
     {   
-        $records = ScriptDocuments::orderBy('id', 'ASC');
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -47,8 +47,8 @@ class ScriptDocumentsController extends Controller
             );
         }
 
+        $records = $records->take(10)->groupBy('file')->get();
         $records_count = $records->count();
-        $records = $records->take(10)->get();
 
         $records = $records->map(
             function ($script_document) {
@@ -105,7 +105,6 @@ class ScriptDocumentsController extends Controller
 
         $script_document['user_id'] = \Auth::user()->id;
         $records->fill($script_document);
-
         $records->save();
 
         return redirect()->back()->with('success', 'You have successfully inserted a Script Document!');
@@ -236,7 +235,7 @@ class ScriptDocumentsController extends Controller
         $page = $_REQUEST['page'];
         $page = $page * 10;
 
-        $records = ScriptDocuments::orderBy('id', 'ASC')->offset($page)->limit(10);
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(10);
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -268,5 +267,42 @@ class ScriptDocumentsController extends Controller
                 'total' => count($records),
             ]
         );
+    }
+
+    public function ScriptDocumentHistory($id)
+    {   
+        $scriptDocument = ScriptDocuments::findorFail($id);
+
+        $records = [];
+        if(!empty($scriptDocument)){
+
+            $records = ScriptDocuments::where('file',$scriptDocument->file)->where('id', '!=', $id)->orderBy('id', 'DESC')->take(10)->get();
+
+            $records = $records->map(
+                function ($script_document) {
+                    $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+                    return $script_document;
+                }
+            );
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $records,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function ScriptDocumentComment($id)
+    {   
+        $scriptDocument = ScriptDocuments::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $scriptDocument,
+            'message' => 'Comment get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

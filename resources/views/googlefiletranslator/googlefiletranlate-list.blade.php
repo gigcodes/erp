@@ -100,7 +100,33 @@
 </div>
 <div class="row">
     <div class="col-md-12 p-0">
-        <h2 class="page-heading">GoogleFile Translator Languages List</h2>
+        <h2 class="page-heading">GoogleFile Translator Datas</h2>
+
+        <?php $type = request()->route('type'); 
+              $id = request()->route('id');
+        ?>
+
+        <form action="{{ route('googlefiletranslator.list-page.view', ['id' => $id , 'type' => $type]) }}" method="get" class="search">
+
+            <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_keyword" placeholder="Search keywords" name="search_keyword" value="{{ (request('search_keyword') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_msg" placeholder="Search message" name="search_msg" value="{{ (request('search_msg') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control" type="text" id="search_stand_value" placeholder="Search Standard value" name="search_stand_value" value="{{ (request('search_stand_value') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+            </div>
+            <div class="col-lg-2">
+                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                   <img src="{{ asset('images/search.png') }}" alt="Search">
+               </button>
+               <a href="{{ route('googlefiletranslator.list-page.view', ['id' => $id , 'type' => $type]) }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+            </div>
+        </form>
     </div>
 </div>
 <div class="row">
@@ -151,18 +177,13 @@
             @endforeach
         </select> --}}
     </div>
-    <div class="col-md-1 my-5">
-    {{-- <a href="#" class="filterSearch">
-            <i class="fa fa-search"></i>
-        </a> --}}
-    </div>
-
 </div>
 
 <div class="float-right my-3">
+    <?php $type = request()->route('type'); ?>
     @if(auth()->user()->hasRole('Lead Translator') || auth()->user()->hasRole('Admin'))
     <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
-    <a class="btn btn-secondary text-white btn_download_approved" data-id ={{$id}} onclick="return confirm('{{ __('Are you sure you want to Give a download Permission') }}')" >Approve To download</a>
+    <a class="btn btn-secondary text-white btn_download_approved" data-id ={{$id}} data-type ={{$type}} onclick="return confirm('{{ __('Are you sure you want to Give a download Permission') }}')" >Approve To download</a>
     @endif
 </div>
 
@@ -315,7 +336,9 @@
                             <div class="show_csv_co">
                                 {{$data->value}}
                             </div>
-                                @if($data->status == 1 && auth()->user()->hasRole('Admin'))
+                        </td>
+                        <td><div class="show_csv_co">{{$data->standard_value}}</div> 
+                            @if($data->status == 1 && auth()->user()->hasRole('Admin'))
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="status" id="accept" value="accept" data-id="{{$data->id}}">
                                         <label class="form-check-label" for="accept">
@@ -331,14 +354,13 @@
                                     </div>
                                 @endif
                         </td>
-                        <td><div class="show_csv_co">{{$data->standard_value}}</div> 
                         <td>{{$data->created_at}}</td>
 
                         @php
                         $userPermission = \App\Models\GoogleTranslateUserPermission::where('user_id', auth()->user()->id)->where('action', "edit")->first();
                          @endphp
                         @if($userPermission || auth()->user()->hasRole('Admin'))
-                        <td><button class="insert-code-shortcut" data-target="#edit_model"  data-user ="{{auth()->user()->id }}" data-lang ="{{$data->lang_id}}" data-value="{{$data->value}}" data-id="{{$data->id}}"><i class="fa fa-pencil"></i></button></td>
+                        <td><button class="insert-code-shortcut" data-target="#edit_model"  data-user ="{{auth()->user()->id }}" data-lang ="{{$data->lang_id}}" data-value="{{$data->standard_value}}" data-id="{{$data->id}}"><i class="fa fa-pencil"></i></button></td>
                         <td><button class="view-history" data-id="{{$data->id}}"><i class="fa fa-history"></i></button></td>
                         @endif
                     </tr>                        
@@ -346,6 +368,7 @@
             </tbody>
         </thead>
     </table>
+    {!! $googleTranslateDatas->appends(Request::except('page'))->links() !!}
 </div>
 
 <div class="modal fade" id="edit_model" role="dialog">
@@ -419,11 +442,13 @@
     $(document).on("click", ".btn_download_approved", function (e) {
         e.preventDefault();
         let id = $(this).data("id");
+        let type = $(this).data("type");
         $.ajax({
             type: "get",
             url: "{{route('googlefiletranslator.downlaod.permission')}}",
             data: {
-                id,
+                id:id,
+                type:type,
             },
             success: function (response) {
                 if(response.status == 200) {
