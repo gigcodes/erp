@@ -89,15 +89,15 @@
                   <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
                 </div> -->
 
-                <div class="form-group col-md-2 pd-3">
-                    <label style=" float: left;">Advance Amount :</label>
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Advance :</label>
                   <input style="width:100%;" name="advance_detail" type="text" class="form-control"
                          value="{{ isset($advance_detail) ? $advance_detail : '' }}"
                          placeholder="Search">
                 </div>
 
-                <div class="form-group col-md-2 pd-3">
-                    <label style=" float: left;">Balance Amount :</label>
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Balance :</label>
                   <input style="width:100%;" name="balance_amount" type="text" class="form-control"
                          value="{{ isset($balance_amount) ? $balance_amount : '' }}"
                          placeholder="Search">
@@ -106,6 +106,11 @@
                  <div class="form-group col-md-1 pd-3">
                     <label style=" float: left;">Date :</label>
                   <input type='date' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" style=" width: 100%;"/>
+                </div>
+
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">ETA :</label>
+                  <input type='date' class="form-control" name="estimated_delivery_date" value="{{ isset($estimated_delivery_date) ? $estimated_delivery_date : '' }}" style=" width: 100%;"/>
                 </div>
                    <div class="form-group col-md-2 pd-3">
                   <div class="form-group ml-3">
