@@ -12,6 +12,9 @@
                     <div>
                         <a href="#" class="btn btn-xs btn-secondary create-new-user">Create</a>
                     </div>
+                    <div>
+                        <a href="{{ route('zabbix.user.roles') }}" class="btn btn-xs btn-success">Roles</a>
+                    </div>
                 </div>
             </div>
         </div>

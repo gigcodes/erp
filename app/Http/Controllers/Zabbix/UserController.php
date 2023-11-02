@@ -93,7 +93,50 @@ class UserController extends Controller
         $roles = $user->getAllRoles();
 
         return view('zabbix.user.role.index', [
-            'role' => $roles
+            'roles' => $roles
+        ]);
+    }
+
+    public function rolesSave(Request $request)
+    {
+        $data = $request->all();
+
+        try {
+            $user = new User();
+            $userId = (int)$data['id'] ?? null;
+            if (!empty($data['id'])) {
+                $role = $user->getRoleById($userId);
+            } else {
+                $role = [];
+            }
+
+            $role['name'] = $data['name'] ?? '';
+            $role['type'] = $data['type'] ?? '';
+            unset($role['readonly']);
+
+            if ($userId) {
+                $role['roleid'] = $userId;
+            }
+
+            $user->saveRole($role);
+        }
+        catch (ZabbixException $zabbixException)
+        {
+            return response()->json([
+                'message' => $zabbixException->getMessage(),
+                'code' => 500
+            ]);
+        }
+        catch (Exception $e) {
+            return response()->json([
+                'message' => 'Something went wrong.',
+                'code' => 500
+            ]);
+        }
+
+        return response()->json([
+            'message' => sprintf('Role with id: %s was deleted. Reload page.', $userId),
+            'code' => 200
         ]);
     }
 

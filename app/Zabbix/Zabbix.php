@@ -107,6 +107,29 @@ class Zabbix
         return !empty($body['result']) ? $body['result'][0] : null;
     }
 
+    public function getRoleByIds($id)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'role.get',
+                'params' => [
+                    'roleids' => $id
+                ],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return !empty($body['result']) ? $body['result'][0] : null;
+    }
+
     /**
      * @param $id
      * @return mixed|null
@@ -168,6 +191,27 @@ class Zabbix
                 'jsonrpc' => '2.0',
                 'method' => 'user.delete',
                 'params' => [$id],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function saveRole(array $params = [], $action = 'create')
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => "role.$action",
+                'params' => $params,
                 'auth' => $this->getLoginApi(),
                 'id' => self::ZABBIX_ID
             ]
