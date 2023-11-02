@@ -68,35 +68,49 @@
            <div class="col-10" style="padding-left:0px;">
             <div>
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                <div class="form-group col-md-3 pd-3">
+                <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Search keywords :</label>
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>
 
                  <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
+                    <label style=" float: left;">Select Order Status :</label>
                   <select class="form-control select-multiple " name="status[]" multiple>
-                    <option value="">Select a Status</option>
                       @foreach ($order_status_list as $id => $order_st)
                         <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                   </select>
                 </div>
+
                  <!-- <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Select Brands :</label>
                   <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
                 </div> -->
-                 <div class="form-group col-md-2 pd-3">
-                  <div class='input-group date' id='order-datetime'>
-                    <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
-                     <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                  </div>
+
+                <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Advance Amount :</label>
+                  <input style="width:100%;" name="advance_detail" type="text" class="form-control"
+                         value="{{ isset($advance_detail) ? $advance_detail : '' }}"
+                         placeholder="Search">
+                </div>
+
+                <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Balance Amount :</label>
+                  <input style="width:100%;" name="balance_amount" type="text" class="form-control"
+                         value="{{ isset($balance_amount) ? $balance_amount : '' }}"
+                         placeholder="Search">
+                </div>
+
+                 <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Date :</label>
+                  <input type='date' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" style=" width: 100%;"/>
                 </div>
                    <div class="form-group col-md-2 pd-3">
                   <div class="form-group ml-3">
-{{--                      <select class="form-control select2" name="store_website_id" multiple="">--}}
-                      <select class="form-control select2" name="store_website_id[]" multiple="multiple" id="select2Multiple">
+                    <label style=" float: left;">Select Website :</label>
+                      <select class="form-control select2 globalSelect2" multiple="true" name="store_website_id[]" id="select2Multiple" >
                       <option value="">Select Site Name</option>
                       @forelse ($registerSiteList as $key => $item)
                           @if(isset($store_site) && in_array($key, $store_site))

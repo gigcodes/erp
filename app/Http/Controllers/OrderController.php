@@ -229,6 +229,8 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $term = $request->input('term');
+        $advance_detail = $request->input('advance_detail');
+        $balance_amount = $request->input('balance_amount');
         $order_status = $request->status ?? [''];
         $date = $request->date ?? '';
         $brandList = \App\Brand::all()->pluck('name', 'id')->toArray();
@@ -321,6 +323,14 @@ class OrderController extends Controller
             $orders = $orders->whereIn('swo.website_id', $store_site);
         }
 
+        if ($advance_detail != '') {
+            $orders = $orders->where('advance_detail', "<=", $advance_detail);
+        }
+
+        if ($balance_amount != '') {
+            $orders = $orders->where('balance_amount', "<=", $balance_amount);
+        }
+        
         $statusFilterList = clone $orders;
 
         $orders = $orders->leftJoin('order_products as op', 'op.order_id', 'orders.id')
