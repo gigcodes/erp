@@ -23,9 +23,15 @@ class UserController extends Controller
         $users = $user->getAllUsers();
         $roles = $user->getAllRoles();
 
+        $array = [];
+
+        foreach ($roles as $value) {
+            $array[(int)$value['roleid']] = $value;
+        }
+
         return view('zabbix.user.index', [
             'users' => $users,
-            'roles' => $roles
+            'roles' => $array
         ]);
     }
 

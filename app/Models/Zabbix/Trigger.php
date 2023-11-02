@@ -189,7 +189,8 @@ class Trigger implements JsonSerializable
             $this->zabbix->saveTrigger([
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
-                'event_name' => $this->getEventName()
+                'event_name' => $this->getEventName(),
+                'templateid' => $this->getTemplateId()
             ]);
         } else {
             $this->zabbix->updateTrigger([

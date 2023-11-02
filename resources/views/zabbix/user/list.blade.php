@@ -29,7 +29,7 @@
                 {{ $user->getSurname() }}
             </td>
             <td class="td-role-id-{{ $user->getId() }}">
-                {{ $user->getRoleId() }}
+                {{ $roles[$user->getRoleId()]['name'] }}
             </td>
             <td class="td-url-{{ $user->getId() }}">
                 {{ $user->getUrl() }}

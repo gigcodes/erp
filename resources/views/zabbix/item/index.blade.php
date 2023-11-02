@@ -33,6 +33,7 @@
                                 <th width="45%">Delay</th>
                                 <th width="45%">Interface ID</th>
                                 <th width="45%">Host ID</th>
+                                <th>Units</th>
                                 <th>Edit</th>
                             </tr>
                             </thead>
@@ -63,6 +64,9 @@
                                     </td>
                                     <td class="td-host-id-{{ $item->getId() }}">
                                         {{ $item->getHostId() }}
+                                    </td>
+                                    <td class="td-units-{{ $item->getId() }}">
+                                        {{ $item->getUnits() }}
                                     </td>
                                     <td>
                                         <a href="#" class="btn btn-xs btn-secondary btn-edit-item td-edit-{{ $item->getId() }}" data-id="{{ $item->getId() }}" data-json='<?=json_encode($item)?>'>Edit</a>

@@ -35,6 +35,7 @@ class Item implements JsonSerializable
     private $valueType;
     private $interfaceId;
     private $hostId;
+    private $units;
     /**
      * @var
      */
@@ -221,6 +222,25 @@ class Item implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getUnits(): ?string
+    {
+        return (string)$this->units;
+    }
+
+    /**
+     * @param $type
+     * @return $this
+     */
+    public function setUnits($units): self
+    {
+        $this->units = $units;
+
+        return $this;
+    }
+
     public function save()
     {
         if (!$this->getId()) {
@@ -269,6 +289,7 @@ class Item implements JsonSerializable
         $this->setDelay((string)$data['delay'] ?? '');
         $this->setInterfaceid((int)$data['interfaceid'] ?? 0);
         $this->setHostId((int)$data['hostid'] ?? 0);
+        $this->setUnits($data['units'] ?? 0);
 
         return $this;
     }
@@ -287,6 +308,7 @@ class Item implements JsonSerializable
             'intarfaceid' => $this->getInterfaceid(),
             'delay' => $this->getDelay(),
             'host_id' => $this->getHostId(),
+            'units' => $this->getUnits()
         ];
     }
 }

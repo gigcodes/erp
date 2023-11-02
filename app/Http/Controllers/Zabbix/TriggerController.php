@@ -19,7 +19,7 @@ class TriggerController extends Controller
 
         $triggers = array_reverse($trigger->getAll());
         $count = sizeof($triggers);
-        $triggers = array_slice($triggers, $page * 50, 50);
+        $triggers = array_slice($triggers, $page * 20, 20);
         $templates = $trigger->getAllTemplates();
 
         if ($request->ajax()) {
