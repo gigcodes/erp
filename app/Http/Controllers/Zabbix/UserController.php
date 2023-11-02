@@ -131,4 +131,39 @@ class UserController extends Controller
             'code' => 200
         ]);
     }
+
+    public function action(Request $request)
+    {
+        $data = $request->all();
+
+        try {
+            $user = new User();
+            $userId = (int)$data['id'] ?? null;
+            if (!empty($data['id'])) {
+                $user = $user->getById($userId);
+            } else {
+                throw new ZabbixException(sprintf('User with id: %s not found.', $userId));
+            }
+
+            $user->delete();
+        }
+        catch (ZabbixException $zabbixException)
+        {
+            return response()->json([
+                'message' => $zabbixException->getMessage(),
+                'code' => 500
+            ]);
+        }
+        catch (Exception $e) {
+            return response()->json([
+                'message' => 'Something went wrong.',
+                'code' => 500
+            ]);
+        }
+
+        return response()->json([
+            'message' => sprintf('User with id: %s was deleted. Reload page.', $userId),
+            'code' => 200
+        ]);
+    }
 }

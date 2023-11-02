@@ -152,7 +152,7 @@ class Trigger implements JsonSerializable
 
     public function setIsActive(bool $active): self
     {
-        $this->is_active = $active;
+        $this->is_active = !$active;
         return $this;
     }
 
@@ -183,6 +183,14 @@ class Trigger implements JsonSerializable
         return (new self())->setData($this->zabbix->getTriggerById($id));
     }
 
+    public function changeStatus($isActive = true)
+    {
+        $this->zabbix->changeStatusTrigger([
+            'triggerid' => $this->getId(),
+            'status' => (int)!$isActive
+        ]);
+    }
+
     public function save(): void
     {
         if (!$this->getId()) {
@@ -190,14 +198,16 @@ class Trigger implements JsonSerializable
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
                 'event_name' => $this->getEventName(),
-                'templateid' => $this->getTemplateId()
+                'templateid' => $this->getTemplateId(),
+                'priority' => $this->getSeverity()
             ]);
         } else {
             $this->zabbix->updateTrigger([
                 'triggerid' => $this->getId(),
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
-                'event_name' => $this->getEventName()
+                'event_name' => $this->getEventName(),
+                'priority' => $this->getSeverity()
             ]);
         }
     }
@@ -209,6 +219,8 @@ class Trigger implements JsonSerializable
         $this->setEventName($data['event_name'] ?? '');
         $this->setName($data['description'] ?? '');
         $this->setTemplateId((int)$data['templateid'] ?? 0);
+        $this->setIsActive((bool)$data['status'] ?? true);
+        $this->setSeverity($data['priority'] ?? 0);
         return $this;
     }
 
@@ -223,6 +235,8 @@ class Trigger implements JsonSerializable
             'expression' => $this->getExpression(),
             'event_name' => $this->getEventName(),
             'template_id' => $this->getTemplateId(),
+            'is_active' => $this->isActive(),
+            'priority' => $this->getSeverity()
         ];
     }
 }

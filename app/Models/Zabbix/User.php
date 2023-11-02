@@ -249,7 +249,6 @@ class User implements JsonSerializable
                 'surname' => $this->getSurname(),
                 'roleid' => $this->getRoleId(),
                 'passwd' => $this->getPassword(),
-                'url' => $this->getUrl(),
                 'usrgrps' => [
                     [
                         'usrgrpid' => 7
@@ -262,8 +261,7 @@ class User implements JsonSerializable
                 'name' => $this->getName(),
                 'surname' => $this->getSurname(),
                 'roleid' => $this->getRoleId(),
-                'userid' => $this->getId(),
-                'url' => $this->getUrl(),
+                'userid' => $this->getId()
             ]);
             return $this->getById($this->getId());
         }

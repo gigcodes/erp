@@ -117,9 +117,9 @@ class Zabbix
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
-                'method' => 'user.get',
+                'method' => 'item.get',
                 'params' => [
-                    'userids' => $id
+                    'itemids' => $id
                 ],
                 'auth' => $this->getLoginApi(),
                 'id' => self::ZABBIX_ID
@@ -182,6 +182,48 @@ class Zabbix
         return $body['result'];
     }
 
+    public function deleteItem($id)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'item.delete',
+                'params' => [$id],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function changeStatusTrigger($params)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'trigger.update',
+                'params' => $params,
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
     /**
      * @param array $params
      * @return mixed
@@ -215,6 +257,48 @@ class Zabbix
             'json' => [
                 'jsonrpc' => '2.0',
                 'method' => 'trigger.create',
+                'params' => $params,
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function saveItem($params)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'item.create',
+                'params' => $params,
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function updateItem($params)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'item.update',
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
                 'id' => self::ZABBIX_ID

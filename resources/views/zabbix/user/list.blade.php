@@ -6,9 +6,7 @@
         <th width="20%">Name</th>
         <th width="20%">Surname</th>
         <th>Role ID</th>
-        <th width="45%">Url</th>
-        <th width="45%">Timezone</th>
-        <th>Autologin</th>
+        <th>Delete</th>
         <th>Edit</th>
     </tr>
     </thead>
@@ -31,14 +29,8 @@
             <td class="td-role-id-{{ $user->getId() }}">
                 {{ $roles[$user->getRoleId()]['name'] }}
             </td>
-            <td class="td-url-{{ $user->getId() }}">
-                {{ $user->getUrl() }}
-            </td>
-            <td class="td-timezone-{{ $user->getId() }}">
-                {{ $user->getTimezone() }}
-            </td>
-            <td class="td-autologin-{{ $user->getId() }}">
-                {{ $user->getAutologin() }}
+            <td class="td-delete-{{ $user->getId() }}">
+                <a href="#" class="btn btn-xs btn-danger submit_delete_user td-edit-{{ $user->getId() }}" data-id="{{ $user->getId() }}" data-json='<?=json_encode($user)?>'>Delete</a>
             </td>
             <td>
                 <a href="#" class="btn btn-xs btn-secondary btn-edit-user td-edit-{{ $user->getId() }}" data-id="{{ $user->getId() }}" data-json='<?=json_encode($user)?>'>Edit</a>
