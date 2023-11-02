@@ -163,6 +163,26 @@
           </div>
         </div>
       </form>
+
+      <div class="mt-3 col-md-12">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status Name</th>
+                </tr>
+            <tbody>
+                @foreach ($magento_statuses as $magento_status)
+                    <tr>
+                        <td>{{ $magento_status->id }}</td>
+                        <td>{{ $magento_status->status_name }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+            </thead>
+        </table>
+    </div>
+</br></br>
     </div>
 
   </div>
@@ -182,13 +202,13 @@
             e.preventDefault();
             var $this = $(this);
             $.ajax({
-              url: "{{route('postman.status.create')}}",
+              url: "{{route('magento-problems.status.create')}}",
               type: "post",
               data: $('#status-create-form').serialize()
             }).done(function(response) {
               if (response.code = '200') {
                 $('#loading-image').hide();
-                $('#addPostman').modal('hide');
+                $('#status-create').modal('hide');
                 toastr['success']('Status  Created successfully!!!', 'success');
                 location.reload();
               } else {

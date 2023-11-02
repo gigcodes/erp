@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\MagentoProblem;
+use App\Models\MagentoProblemStatus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -47,7 +48,9 @@ class MagentoProblemController extends Controller
 
         $magentoProblems = $magentoProblems->latest()->paginate(\App\Setting::get('pagination', 10));
 
-        return view('magento-problems.index', compact('magentoProblems'));
+        $magento_statuses = MagentoProblemStatus::get();
+
+        return view('magento-problems.index', compact('magentoProblems', 'magento_statuses'));
 
     }
 
@@ -77,7 +80,7 @@ class MagentoProblemController extends Controller
     public function magentoProblemStatusCreate(Request $request)
     {
         try {
-            $status = new PostmanStatus();
+            $status = new MagentoProblemStatus();
             $status->status_name = $request->status_name;
             $status->save();
 
