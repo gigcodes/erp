@@ -6,11 +6,11 @@ use App\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MagentoProblemUserHistory extends Model
+class WebsiteLogUserHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['magento_problem_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['website_log_id', 'old_value', 'new_value',  'user_id'];
 
     public function user()
     {

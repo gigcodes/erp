@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use App\User;
+use App\Models\WebsiteLogStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MagentoProblemUserHistory extends Model
+class WebsiteLogStatusHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['magento_problem_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['website_log_id', 'old_value', 'new_value',  'user_id'];
 
     public function user()
     {
@@ -19,11 +20,11 @@ class MagentoProblemUserHistory extends Model
 
     public function newValue()
     {
-        return $this->belongsTo(User::class, 'new_value');
+        return $this->belongsTo(WebsiteLogStatus::class, 'new_value');
     }
 
     public function oldValue()
     {
-        return $this->belongsTo(User::class, 'old_value');
+        return $this->belongsTo(WebsiteLogStatus::class, 'old_value');
     }
 }
