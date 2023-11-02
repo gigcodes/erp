@@ -280,6 +280,11 @@ class User implements JsonSerializable
         return (new self())->setData($user);
     }
 
+    public function getAllRoles()
+    {
+        return $this->zabbix->getAllUserRoles();
+    }
+
     public function setData(array $data = [])
     {
         $this->setName($data['name'] ?? '');
@@ -292,6 +297,13 @@ class User implements JsonSerializable
         $this->setAutologin((int)$data['autologin'] ?? 0);
 
         return $this;
+    }
+
+    public function delete(): ?int
+    {
+        $this->zabbix->deleteUser($this->getId());
+
+        return $this->getId();
     }
 
     /**
