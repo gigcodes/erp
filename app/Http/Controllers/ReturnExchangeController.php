@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\CreateCouponRequest;
 use App\Jobs\UpdateReturnStatusMessageTpl;
 use seo2websites\MagentoHelper\MagentoHelperv2;
+use App\Models\DataTableColumn;
 
 class ReturnExchangeController extends Controller
 {
@@ -197,7 +198,15 @@ class ReturnExchangeController extends Controller
         $returnExchange = ReturnExchange::latest('created_at')->paginate(10);
         $quickreply = Reply::where('model', 'Order')->get();
 
-        return view('return-exchange.index', compact('returnExchange', 'quickreply'));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
+
+        $dynamicColumnsToShowPostman = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+        }
+
+        return view('return-exchange.index', compact('returnExchange', 'quickreply', 'dynamicColumnsToShowPostman'));
     }
 
     public function records(Request $request)
@@ -282,6 +291,14 @@ class ReturnExchangeController extends Controller
         }
         $order_status_list = \DB::table('return_exchange_statuses')->get();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
+
+        $dynamicColumnsToShowPostman = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+        }
+
         return response()->json([
             'code' => 200,
             'data' => $items,
@@ -289,6 +306,7 @@ class ReturnExchangeController extends Controller
             'pagination' => (string) $returnExchange->links(),
             'total' => $returnExchange->total(),
             'page' => $returnExchange->currentPage(),
+            'dynamicColumnsToShowPostman' => $dynamicColumnsToShowPostman,
         ]);
     }
 
@@ -1301,5 +1319,26 @@ class ReturnExchangeController extends Controller
             $pdf->render();
             $pdf->stream('refund.pdf');
         }
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','return-exchange')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'return-exchange';
+            $column->column_name = json_encode($request->column_returnexchange); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'return-exchange';
+            $column->column_name = json_encode($request->column_returnexchange); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 }
