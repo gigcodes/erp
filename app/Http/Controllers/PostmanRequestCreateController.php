@@ -1129,60 +1129,64 @@ class PostmanRequestCreateController extends Controller
     public function sendPostmanRequestAPI(Request $request)
     {
         try {
-            $postmanUrls = PostmanMultipleUrl::whereIn('id', $request->urls)->get();
+            if(!empty($request->urls)){
+                $postmanUrls = PostmanMultipleUrl::whereIn('id', $request->urls)->get();
 
-            foreach ($postmanUrls as $postmanUrl) {
-                $postman = PostmanRequestCreate::where('id', $postmanUrl->postman_request_create_id)->first();
-                //dd($postmanUrls);
-                if (empty($postman)) {
-                    \Log::error('Postman Send request API Error=> Postman request data not found' . ' #id #' . $postmanUrl->postman_request_create_id ?? '');
-                    $this->PostmanErrorLog($postmanUrl->postman_request_create_id ?? '', 'Postman Send request API ', ' Postman request data not found', 'postman_request_creates');
+                foreach ($postmanUrls as $postmanUrl) {
+                    $postman = PostmanRequestCreate::where('id', $postmanUrl->postman_request_create_id)->first();
+                    //dd($postmanUrls);
+                    if (empty($postman)) {
+                        \Log::error('Postman Send request API Error=> Postman request data not found' . ' #id #' . $postmanUrl->postman_request_create_id ?? '');
+                        $this->PostmanErrorLog($postmanUrl->postman_request_create_id ?? '', 'Postman Send request API ', ' Postman request data not found', 'postman_request_creates');
 
-                    return response()->json(['code' => 500, 'message' => 'Request Data not found']);
-                } else {
-                    PostmanRequestHistory::create(
-                        [
-                            'user_id' => \Auth::user()->id,
-                            'request_id' => $postman->id,
-                            'request_data' => $postman->body_json,
-                            'request_url' => $postmanUrl->request_url,
-                            'request_headers' => "'Content-Type: application/json',
-                                                'Authorization: '" . $postman->authorization_type . "',
-                                                'Cookie: PHPSESSID=l15g0ovuc3jpr98tol956voan6'",
-                        ]
-                    );
-                    $header = [
-                        'Content-Type: application/json',
-                        $postman->request_headers,
-                        'Authorization:Bearer ' . $postman->authorization_token,
-                    ];
-                    $response = $this->fireApi($postman->body_json, $postmanUrl->request_url, $header, $postman->request_type);
-                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                    $curl = curl_init();
-                    $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                    //$url = $request->urls;
-                    $url = $postmanUrl->request_url;
-                    LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
-                    curl_close($curl);
+                        return response()->json(['code' => 500, 'message' => 'Request Data not found']);
+                    } else {
+                        PostmanRequestHistory::create(
+                            [
+                                'user_id' => \Auth::user()->id,
+                                'request_id' => $postman->id,
+                                'request_data' => $postman->body_json,
+                                'request_url' => $postmanUrl->request_url,
+                                'request_headers' => "'Content-Type: application/json',
+                                                    'Authorization: '" . $postman->authorization_type . "',
+                                                    'Cookie: PHPSESSID=l15g0ovuc3jpr98tol956voan6'",
+                            ]
+                        );
+                        $header = [
+                            'Content-Type: application/json',
+                            $postman->request_headers,
+                            'Authorization:Bearer ' . $postman->authorization_token,
+                        ];
+                        $response = $this->fireApi($postman->body_json, $postmanUrl->request_url, $header, $postman->request_type);
+                        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                        $curl = curl_init();
+                        $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                        //$url = $request->urls;
+                        $url = $postmanUrl->request_url;
+                        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $http_code, \App\Http\Controllers\PostmanRequestCreateController::class, 'sendPostmanRequestAPI');
+                        curl_close($curl);
 
-                    $response = $response ? json_encode($response) : 'Not found response';
-                    //dd($response);
-                    PostmanResponse::create(
-                        [
-                            'user_id' => \Auth::user()->id,
-                            'request_id' => $postman->id,
-                            'response' => $response,
-                            'request_url' => $postmanUrl->request_url,
-                            'request_data' => $postman->body_json,
-                            'response_code' => $http_code,
-                        ]
-                    );
+                        $response = $response ? json_encode($response) : 'Not found response';
+                        //dd($response);
+                        PostmanResponse::create(
+                            [
+                                'user_id' => \Auth::user()->id,
+                                'request_id' => $postman->id,
+                                'response' => $response,
+                                'request_url' => $postmanUrl->request_url,
+                                'request_data' => $postman->body_json,
+                                'response_code' => $http_code,
+                            ]
+                        );
+                    }
+                    \Log::info('Postman Send request API Response => ' . $response . ' #id #' . $postman->id ?? '');
+                    $this->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses');
                 }
-                \Log::info('Postman Send request API Response => ' . $response . ' #id #' . $postman->id ?? '');
-                $this->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses');
-            }
 
-            return response()->json(['code' => 200, 'data' => [], 'message' => 'Postman requested successfully!!!']);
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Postman requested successfully!!!']);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Please select URL.', 'status' => false]);
+            }
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman Send request Send postman request API Error => ' . json_decode($e));

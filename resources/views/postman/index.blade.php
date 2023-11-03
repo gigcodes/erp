@@ -1781,7 +1781,7 @@
       },
       data: $('#multiUrls').serialize()
     }).done(function(response) {
-      if (response.code = '200') {
+      if (response.code == '200') {
         toastr['success']('Postman requested successfully!!!', 'success');
       } else {
         toastr['error'](response.message, 'error');
