@@ -1178,9 +1178,13 @@ class PostmanRequestCreateController extends Controller
                                 'response_code' => $http_code,
                             ]
                         );
+
+                        if(!empty($response)){
+                            \Log::info('Postman Send request API Response => ' . $response . ' #id #' . $postman->id ?? '');
+                            $this->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses');
+                        }
+
                     }
-                    \Log::info('Postman Send request API Response => ' . $response . ' #id #' . $postman->id ?? '');
-                    $this->PostmanErrorLog($postman->id ?? '', 'Postman Send request API Response ', $response, 'postman_responses');
                 }
 
                 return response()->json(['code' => 200, 'data' => [], 'message' => 'Postman requested successfully!!!']);
