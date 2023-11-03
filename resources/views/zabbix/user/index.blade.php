@@ -12,6 +12,9 @@
                     <div>
                         <a href="#" class="btn btn-xs btn-secondary create-new-user">Create</a>
                     </div>
+                    <div>
+                        <a href="{{ route('zabbix.user.roles') }}" class="btn btn-xs btn-success">Roles</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -74,11 +77,6 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Url</label>
-                                                <input type="text" class="form-control" name="url"
-                                                       placeholder="Enter url" id="user-url">
-                                            </div>
-                                            <div class="form-group">
                                                 <label>Password</label>
                                                 <input type="text" class="form-control" name="password"
                                                        placeholder="Enter password" id="user-password">
@@ -115,7 +113,8 @@
         $("#user-role-id").select2();
         $(document).on("click", ".submit_delete_user", function (e) {
             e.preventDefault();
-            var url = "{{ route('zabbix.user.delete') }}";
+            let userId = $(this).attr('data-id');
+            var url = "{{ route('zabbix.user.delete') }}?id="+userId+"";
             var formData = $(this).closest('form').serialize();
 
             $('#loading-image-preview').show();

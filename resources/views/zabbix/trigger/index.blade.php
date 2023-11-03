@@ -65,6 +65,11 @@
                                                        placeholder="Enter expression" id="trigger-expression">
                                             </div>
                                             <div class="form-group">
+                                                <label>Priority</label>
+                                                <input type="text" class="form-control" name="severity"
+                                                       placeholder="Enter priority" id="trigger-priority">
+                                            </div>
+                                            <div class="form-group">
                                                 <label>Templates</label>
                                                 <select id="trigger-template-id" class="form-control input-sm career-store-websites"
                                                 name="template_id" required>
@@ -128,6 +133,36 @@
             })
         });
 
+        $(document).on("click", ".btn-status-trigger", function (e) {
+            e.preventDefault();
+            let userId = $(this).attr('data-id');
+            var url = "{{ route('zabbix.trigger.status') }}?id="+userId+"";
+            var formData = $(this).closest('form').serialize();
+
+            $('#loading-image-preview').show();
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                success: function (resp) {
+                    $('#loading-image-preview').hide();
+                    $('#website-project-name').val("");
+                    $('#store-create-project').modal('hide');
+                    if (resp.code == 200) {
+                        toastr["success"](resp.message);
+                    } else {
+                        toastr["error"](resp.message);
+                    }
+                },
+                error: function (err) {
+                    $('#loading-image-preview').hide();
+                    $('#website-project-name').val("");
+                    $('#user-create-new').modal('hide');
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
+        });
+
         $(document).on("click", ".submit_create_trigger", function (e) {
             e.preventDefault();
             var url = "{{ route('zabbix.trigger.save') }}";
@@ -171,6 +206,7 @@
             $('#trigger-event-name').val(data.event_name);
             $('#trigger-expression').val(data.expression);
             $('#trigger-id').val(data.id);
+            $('#trigger-priority').val(data.priority);
             $("#trigger-template-id option[value='" + data.template_id + "']").prop("selected", true);
             $('.submit_delete_trigger').attr('data-id', data.id);
             $("#trigger-template-id").select2({ width: '100%' });
@@ -181,6 +217,7 @@
             $('#trigger-name').val('');
             $('#trigger-event-name').val('');
             $('#trigger-expression').val('');
+            $('#trigger-priority').val('');
         }
 
         // $('.page-link').click(function (e) {
