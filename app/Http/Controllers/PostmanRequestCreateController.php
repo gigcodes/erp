@@ -28,6 +28,8 @@ use App\Models\PostmanApiIssueFixDoneHistory;
 use App\Models\DataTableColumn;
 use App\DeveloperTask;
 use App\Task;
+use App\StoreWebsite;
+use App\StoreViewCodeServerMap;
 
 class PostmanRequestCreateController extends Controller
 {
@@ -1446,5 +1448,92 @@ class PostmanRequestCreateController extends Controller
         $merged = $othertaskStatistics->merge($taskStatistics);
 
         return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+
+    public function addStoreWebsiteUrlInFlutterPostman(Request $request)
+    {
+        
+        $ids = [1,5,9,3,17];
+        $postmans = PostmanRequestCreate::select('id')->where('folder_name', 3)->get();
+
+        $storeCodes = StoreViewCodeServerMap::groupBy('server_id')->orderBy('server_id', 'ASC')->select('code', 'id', 'server_id')->get()->toArray();
+
+        $storeWebsites = StoreWebsite::select('id', 'website')->whereIn('id', $ids)->get();
+
+
+        if(!empty($postmans)){
+            foreach ($postmans as $key => $value_postmans) {
+
+                if(!empty($storeWebsites)){
+                    foreach ($storeWebsites as $key => $value_storeWebsites) {
+
+                        if(!empty($storeCodes)){
+                            foreach ($storeCodes as $key => $value_storeCodes) {
+
+                                $request_url = $value_storeWebsites['website'].$value_storeCodes['code'].'/';
+
+                                $urlCreated = PostmanMultipleUrl::where('postman_request_create_id', $value_postmans->id)->where('request_url', 'like', $request_url)->first();
+
+                                if(empty($urlCreated)){
+                                    PostmanMultipleUrl::create([
+                                        'user_id' => \Auth::user()->id,
+                                        'postman_request_create_id' => $value_postmans->id,
+                                        'request_url' => $request_url
+                                    ]);
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        
+    }
+
+    public function index_request_hisory()
+    {   
+        try {
+
+            $q = PostmanResponse::query();
+            $q->select('postman_responses.*', 'u.name AS userName');
+            $q->leftJoin('users AS u', 'u.id', 'postman_responses.user_id');
+            $q->orderBy('id', 'DESC');
+            $counter = $q->count();
+            $postHis = $q->paginate(Setting::get('pagination'));
+
+            return view('postman.index_request', compact(
+                'postHis',
+                'counter'
+            ));
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman controller index method error => ' . json_encode($msg));
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function index_response_hisory()
+    {
+        try {
+
+            $q = PostmanResponse::query();
+            $q->select('postman_responses.*', 'u.name AS userName');
+            $q->leftJoin('users AS u', 'u.id', 'postman_responses.user_id');
+            $q->orderBy('id', 'DESC');
+            $counter = $q->count();
+            $postHis = $q->paginate(Setting::get('pagination'));
+
+            return view('postman.index_response', compact(
+                'postHis',
+                'counter'
+            ));
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman controller index method error => ' . json_encode($msg));
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }
