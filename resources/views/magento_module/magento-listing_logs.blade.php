@@ -80,7 +80,9 @@
 								{{$magento_module->status}}
 							</td>
 							<td width="10%" class="expand-row">
-								{{$magento_module->response}}
+								<button type="button" data-id="{{$magento_module->id}}" class="btn btn-primary magento-module-response-view" >
+				        			<i class="fa fa-eye" aria-hidden="true"></i>
+				        		</button>
 							</td>
 							<td width="10%" class="expand-row">
 								{{$magento_module->updated_at}}
@@ -96,5 +98,25 @@
 		</div>
 	</div>
 </div>
-@endsection
 
+@include('magento_module.response')
+
+<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
+<script src="{{ asset('/js/jquery-ui.js')}}"></script>
+<script type="text/javascript">	
+	$(document).on('click','.magento-module-response-view',function(){
+        id = $(this).data('id');
+		$.ajax({
+            method: "GET",
+            url: `{{ route('magento_module_listing_logs_details', [""]) }}/` + id,
+            dataType: "json",
+            success: function(response) {
+               
+                $("#magento_module-comment-list").find(".magento_module-comment-view").html(response.data.response);
+                $("#magento_module-comment-list").modal("show");
+         
+            }
+        });
+	});
+</script>
+@endsection

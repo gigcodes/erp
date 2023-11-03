@@ -9,6 +9,14 @@ use App\CodeShortcut;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use App\CodeShortCutPlatform;
+use App\User;
+use App\DeveloperTask;
+use App\Task;
+use Auth;
+use App\Models\WebsiteLogStatus;
+use App\Models\WebsiteLogStatusHistory;
+use App\Models\WebsiteLogUserHistory;
+use Illuminate\Support\Facades\DB;
 
 class WebsiteLogController extends Controller
 {
@@ -304,9 +312,13 @@ class WebsiteLogController extends Controller
     public function websiteLogStoreView()
     {
         try {
-            $dataArr = WebsiteLog::latest()->paginate(25);
+            $dataArr = WebsiteLog::latest()->groupBy('website_id')->paginate(25);
 
-            return view('website-logs.website-log-view', compact('dataArr'));
+            $website_log_statuses = WebsiteLogStatus::get();
+
+            $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
+            return view('website-logs.website-log-view', compact('dataArr', 'website_log_statuses', 'allUsers'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -380,5 +392,105 @@ class WebsiteLogController extends Controller
 
             return response()->json(['code' => 200, 'message' => 'CodeShortcut Insert successfully!!!']);
         }
+    }
+
+    public function websiteLogsStatusCreate(Request $request)
+    {
+        try {
+            $status = new WebsiteLogStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function taskCount($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $WebsiteLogId = $request->input('WebsiteLogId');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $WebsiteLog = WebsiteLog::find($WebsiteLogId);
+        $history = new WebsiteLogStatusHistory();
+        $history->website_log_id = $WebsiteLogId;
+        $history->old_value = $WebsiteLog->status;
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $WebsiteLog->status = $selectedStatus;
+        $WebsiteLog->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function WebsiteLogsStatusHistories($id)
+    {
+        $datas = WebsiteLogStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('website_log_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function updateUser(Request $request)
+    {
+        $WebsiteLogId = $request->input('WebsiteLogId');
+        $selectedUser = $request->input('selectedUser');
+
+        $WebsiteLog = WebsiteLog::find($WebsiteLogId);
+        $history = new WebsiteLogUserHistory();
+        $history->website_log_id = $WebsiteLogId;
+        $history->old_value = $WebsiteLog->user_id;
+        $history->new_value = $selectedUser;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $WebsiteLog->user_id = $selectedUser;
+        $WebsiteLog->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function WebsiteLogsUserHistories($id)
+    {
+        $datas = WebsiteLogUserHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('website_log_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
