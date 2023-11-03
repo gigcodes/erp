@@ -72,6 +72,9 @@
               <div>
                   <a href="{{ route('zabbix.user.index') }}" class="btn btn-xs btn-secondary create-new-user">Manage users</a>
               </div>
+              <div>
+                  <a href="{{ route('zabbix.trigger.index') }}" class="btn btn-xs btn-secondary create-new-user">Triggers</a>
+              </div>
           </div>
       </div>
   </div>
@@ -176,7 +179,7 @@
                     {
                       data: 'name',                                             
                       render: function(data, type, row, meta) {
-                        return '<div class="singleline-flex">'+data+'<a href="#" data-id="'+row.hostid+'" class="btn btn-primary infobtn float-right"> <i class="fa fa-info"></i></a></div>';
+                        return '<div class="singleline-flex"><a href="{{ route('zabbix.item.index') }}/'+row.hostid+'">'+data+'</a><a href="#" data-id="'+row.hostid+'" class="btn btn-primary infobtn float-right"> <i class="fa fa-info"></i></a></div>';
                       }
                     },
                     {
