@@ -21,6 +21,7 @@ use App\Models\GoogleDialogAccount;
 use App\Models\DialogflowEntityType;
 use Illuminate\Support\Facades\Storage;
 use App\Library\Google\DialogFlow\DialogFlowService;
+use App\Models\DataTableColumn;
 
 class MessageController extends Controller
 {
@@ -147,8 +148,16 @@ class MessageController extends Controller
         $parentIntents = ChatbotQuestion::where(['keyword_or_question' => 'intent'])->where('google_account_id', '>', 0)
             ->pluck('value', 'id')->toArray();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'chatbot-messages')->first();
+
+        $dynamicColumnsToShowPostman = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+        }
+
         //dd($pendingApprovalMsg);
-        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents'));
+        return view('chatbot::message.index', compact('pendingApprovalMsg', 'page', 'allCategoryList', 'reply_categories', 'allEntityType', 'variables', 'parentIntents', 'dynamicColumnsToShowPostman'));
     }
 
     public function todayMessagesCheck(Request $request)
@@ -800,5 +809,26 @@ class MessageController extends Controller
         }
 
         return response()->json(['code' => 400, 'data' => null, 'message' => 'Question not found']);
+    }
+
+    public function chatbotMessagesColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','chatbot-messages')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'chatbot-messages';
+            $column->column_name = json_encode($request->column_chatbox); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'chatbot-messages';
+            $column->column_name = json_encode($request->column_chatbox); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 }

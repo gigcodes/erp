@@ -126,6 +126,7 @@ Route::group([
     });
 
     Route::group(['prefix' => 'messages'], function () {
+        Route::post('chatbot-messages-column-visbility', [MessageController::class, 'chatbotMessagesColumnVisbilityUpdate'])->name('chatbot.messages.column.update');
         Route::get('/', [MessageController::class, 'index'])->name('chatbot.messages.list');
         Route::get('/today', [MessageController::class, 'todayMessages'])->name('chatbot.messages.today-list');
         Route::get('/today-check-new', [MessageController::class, 'todayMessagesCheck'])->name('chatbot.messages.todayMessagesCheck');
