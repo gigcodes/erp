@@ -44,6 +44,7 @@
           <thead>
               <tr>
                   <th width="5%">S.No</th>
+                  <th width="8%">Title</th>
                   <th width="8%">Category</th>
                   <th width="60%">Note</th>
                   <th width="7%">User Name</th>
@@ -56,6 +57,7 @@
           @foreach($records as $key => $value)
               <tr>
                   <td>{{$key+1}}</td>
+                  <td>{{$value->title}}</td>
                   <td>{{$value->category_name}}</td>
                   @if (strlen($value->note) > 200)
                       <td style="word-break: break-word;" data-log_message="{!!$value->note !!}" class="page-note-popup">{{ substr($value->note,0,200) }}...</td>

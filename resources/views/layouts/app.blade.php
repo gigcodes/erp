@@ -7456,14 +7456,22 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
         var stickyNotesPage = "{{ request()->fullUrl() }}";
 
-        var x = `<div class='sticky_notes_container'>
+        var x = `<div class='sticky_notes_container pageNotesModal' style=" padding: 10px; margin: 20px;">
             <div class="icon-check">
             <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
                    Sticky Note
-                    <div class='text_box'>
-                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}'></textarea>
+                   <div class="text_box-text mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                        Title
+                      </label>
+                      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" type="text" placeholder="Title" style=" width: 100%;">
+                    </div>
+                    
+                    <div class='text_box-textarea mb-4'>
+                        <label>Notes</label></br>
+                        <textarea maxlength='100' rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
                     </div>
                 </div>`;
 
@@ -7471,37 +7479,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             StickyBox();
         });
 
+        
+        var marginVar = 20;
+       
         function StickyBox () {
+
+             marginVar += 20;
+
             $(".sticknotes_content").draggable();
             $('#sticky_note_boxes').append(x);
+
+              var lastStickyNote = $("#sticky_note_boxes .sticky_notes_container:last");
+
+              lastStickyNote.css("margin", marginVar+"px"); 
+
+
                 $(".sticky_notes_container").draggable();
                 $('.close-icon').each(function(){
                     $('.close-icon').click(function() {
                         $(this).closest('.sticky_notes_container').remove();
                     });
                 });
-                $('.check-icon').on('click', function() {
-                    var textareaValue = $(this).parent().siblings('.text_box').find('textarea').val();
-                     var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
+                
+            }
 
-                    $.ajax({
-                        url: '{{ route('stickyNotesCreate') }}',
-                        method: 'POST',
-                        data: {
-                            value: textareaValue,
-                            page: page,
-                            _token: "{{ csrf_token() }}",
-                        },
-                        success: function(response) {
-                        toastr['success'](response.message, 'success');
-                        },
-                        error: function(xhr, status, error) {
-                            console.log('Save Error:', error);
-                        }
-                    });
-                    $(this).closest('.sticky_notes_container').remove();
+            $(document).on("click", ".check-icon", function (event) {
+                event.preventDefault();
+                var textareaValue = $(this).parent().siblings('.text_box-textarea').find('textarea').val();
+                var page = $(this).parent().siblings('.text_box-textarea').find('textarea').data('page');
+
+                var title = $(this).parent().siblings('.text_box-text').find('input').val();
+
+                $.ajax({
+                    url: '{{ route('stickyNotesCreate') }}',
+                    method: 'POST',
+                    data: {
+                        value: textareaValue,
+                        page: page,
+                        title: title,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                    toastr['success'](response.message, 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Save Error:', error);
+                    }
+                });
+                $(this).closest('.sticky_notes_container').remove();
             });
-        }
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
