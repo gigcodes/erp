@@ -489,6 +489,15 @@ Route::prefix('blog')->middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/zabbix/users', [\App\Http\Controllers\Zabbix\UserController::class, 'index'])->name('zabbix.user.index');
     Route::post('/zabbix/user/save', [\App\Http\Controllers\Zabbix\UserController::class, 'save'])->name('zabbix.user.save');
+    Route::get('/zabbix/items/{hostId?}', [\App\Http\Controllers\Zabbix\ItemController::class, 'index'])->name('zabbix.item.index');
+    Route::get('/zabbix/user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
+    Route::post('/zabbix/user/role/save', [\App\Http\Controllers\Zabbix\UserController::class, 'rolesSave'])->name('zabbix.user.role.save');
+    Route::get('/zabbix/triggers', [\App\Http\Controllers\Zabbix\TriggerController::class, 'index'])->name('zabbix.trigger.index');
+    Route::post('/zabbix/triggers/save', [\App\Http\Controllers\Zabbix\TriggerController::class, 'save'])->name('zabbix.trigger.save');
+    Route::post('/zabbix/user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
+    Route::post('/zabbix/item/delete', [\App\Http\Controllers\Zabbix\ItemController::class, 'delete'])->name('zabbix.item.delete');
+    Route::post('/zabbix/trigger/change_status', [\App\Http\Controllers\Zabbix\TriggerController::class, 'changeStatus'])->name('zabbix.trigger.status');
+    Route::post('/zabbix/item/save', [\App\Http\Controllers\Zabbix\ItemController::class, 'save'])->name('zabbix.item.save');
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
     Route::get('discount-sale-price/type', [DiscountSalePriceController::class, 'type']);
@@ -1849,6 +1858,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-task-from-shortcut', [TaskModuleController::class, 'createTaskFromSortcut'])->name('task.create.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcut', [TaskModuleController::class, 'createMultipleTaskFromSortcut'])->name('task.create.multiple.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcutpostman', [TaskModuleController::class, 'createMultipleTaskFromSortcutPostman'])->name('task.create.multiple.task.shortcutpostman');
+    Route::post('task/create-multiple-task-from-shortcutmagentoproblems', [TaskModuleController::class, 'createMultipleTaskFromSortcutMagentoProblems'])->name('task.create.multiple.task.shortcutmagentoproblems');
+    Route::post('task/create-multiple-task-from-shortcutwebsitelogs', [TaskModuleController::class, 'createMultipleTaskFromSortcutWebsiteLogs'])->name('task.create.multiple.task.shortcutwebsitelogs');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
     Route::post('task/recurring-history', [TaskModuleController::class, 'recurringHistory'])->name('task.recurringHistory');
@@ -4295,6 +4306,13 @@ Route::middleware('auth')->group(function () {
     Route::get('website/command/log', [WebsiteLogController::class, 'runWebsiteLogCommand'])->name('website.command-log');
     Route::get('website/search/insert/code-shortcut', [WebsiteLogController::class, 'websiteInsertCodeShortcut'])->name('website.insert.code.shortcut');
 
+    Route::post('website/status/create', [WebsiteLogController::class, 'websiteLogsStatusCreate'])->name('website.status.create');
+    Route::get('website/countdevtask/{id}', [WebsiteLogController::class, 'taskCount']);
+    Route::post('website/updatestatus', [WebsiteLogController::class, 'updateStatus'])->name('website.updatestatus');
+    Route::get('website/status/histories/{id}', [WebsiteLogController::class, 'websitelogsStatusHistories'])->name('website.status.histories');
+    Route::post('website/updateuser', [WebsiteLogController::class, 'updateUser'])->name('website.updateuser');
+    Route::get('website/user/histories/{id}', [WebsiteLogController::class, 'websitelogsUserHistories'])->name('website.user.histories');
+
     Route::get('/uicheck', [UicheckController::class, 'index'])->name('uicheck');
     Route::post('uicheck/store', [UicheckController::class, 'store'])->name('uicheck.store');
     Route::post('uicheck/dev/status/history', [UicheckController::class, 'getUiDeveloperStatusHistoryLog'])->name('uicheck.dev.status.history');
@@ -5705,6 +5723,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/magento-problems', [MagentoProblemController::class, 'index'])->name('magento-problems-lists');
+    Route::post('magento-problems/status/create', [MagentoProblemController::class, 'magentoProblemStatusCreate'])->name('magento-problems.status.create');
+    Route::get('magento-problems/countdevtask/{id}', [MagentoProblemController::class, 'taskCount']);
+    Route::post('magento-problems/updatestatus', [MagentoProblemController::class, 'updateStatus'])->name('magento-problems.updatestatus');
+    Route::get('magento-problems/status/histories/{id}', [MagentoProblemController::class, 'magentoproblemsStatusHistories'])->name('magento-problems.status.histories');
+    Route::post('magento-problems/updateuser', [MagentoProblemController::class, 'updateUser'])->name('magento-problems.updateuser');
+    Route::get('magento-problems/user/histories/{id}', [MagentoProblemController::class, 'magentoproblemsUserHistories'])->name('magento-problems.user.histories');
 });   
 Route::middleware('auth')->group(function () {
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');

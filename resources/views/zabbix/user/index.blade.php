@@ -12,6 +12,9 @@
                     <div>
                         <a href="#" class="btn btn-xs btn-secondary create-new-user">Create</a>
                     </div>
+                    <div>
+                        <a href="{{ route('zabbix.user.roles') }}" class="btn btn-xs btn-success">Roles</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -22,55 +25,7 @@
 
                 <div class="col-md-12">
                     <div class="table-responsive mt-3">
-                        <table class="table table-bordered overlay api-token-table">
-                            <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th width="15%">Username</th>
-                                <th width="20%">Name</th>
-                                <th width="20%">Surname</th>
-                                <th>Role ID</th>
-                                <th width="45%">Url</th>
-                                <th width="45%">Timezone</th>
-                                <th>Autologin</th>
-                                <th>Edit</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php /** @var \App\Models\Zabbix\User $user */ ?>
-                            @foreach($users as $user)
-                                <tr>
-                                    <td class="td-id-{{ $user->getId() }}">
-                                        {{ $user->getId() }}
-                                    </td>
-                                    <td class="td-username-{{ $user->getId() }}">
-                                        {{ $user->getUsername() }}
-                                    </td>
-                                    <td class="td-name-{{ $user->getId() }}">
-                                        {{ $user->getName() }}
-                                    </td>
-                                    <td class="td-surname-{{ $user->getId() }}">
-                                        {{ $user->getSurname() }}
-                                    </td>
-                                    <td class="td-role-id-{{ $user->getId() }}">
-                                        {{ $user->getRoleId() }}
-                                    </td>
-                                    <td class="td-url-{{ $user->getId() }}">
-                                        {{ $user->getUrl() }}
-                                    </td>
-                                    <td class="td-timezone-{{ $user->getId() }}">
-                                        {{ $user->getTimezone() }}
-                                    </td>
-                                    <td class="td-autologin-{{ $user->getId() }}">
-                                        {{ $user->getAutologin() }}
-                                    </td>
-                                    <td>
-                                        <a href="#" class="btn btn-xs btn-secondary btn-edit-user td-edit-{{ $user->getId() }}" data-id="{{ $user->getId() }}" data-json='<?=json_encode($user)?>'>Edit</a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                        @include('zabbix.user.list')
                     </div>
                 </div>
 
@@ -82,7 +37,7 @@
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><b>Create new User</b></h5>
+                    <h5 class="modal-title"><b>Save User</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -113,14 +68,13 @@
                                                        placeholder="Enter username" id="user-username">
                                             </div>
                                             <div class="form-group">
-                                                <label>Role ID</label>
-                                                <input type="text" class="form-control" name="role_id"
-                                                       placeholder="Enter Role ID" id="user-role-id">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Url</label>
-                                                <input type="text" class="form-control" name="url"
-                                                       placeholder="Enter url" id="user-url">
+                                                <label>Roles</label>
+                                                <select id="user-role-id" class="form-control input-sm career-store-websites"
+                                                name="role_id" required>
+                                                    @foreach ($roles as $role)
+                                                        <option value="{{ $role['roleid'] }}">{{ $role['name'] }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div class="form-group">
                                                 <label>Password</label>
@@ -132,8 +86,13 @@
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <button type="submit"
+                                                    class="btn btn-danger submit_delete_user float-left float-lg-left"
+                                                    data-id="">
+                                                Delete
+                                            </button>
+                                            <button type="submit"
                                                     class="btn btn-secondary submit_create_user float-right float-lg-right">
-                                                Submit
+                                                Save
                                             </button>
                                         </div>
                                     </div>
@@ -150,6 +109,36 @@
             e.preventDefault();
             $('#user-create-new').modal('show');
             restoreForm();
+        });
+        $("#user-role-id").select2();
+        $(document).on("click", ".submit_delete_user", function (e) {
+            e.preventDefault();
+            let userId = $(this).attr('data-id');
+            var url = "{{ route('zabbix.user.delete') }}?id="+userId+"";
+            var formData = $(this).closest('form').serialize();
+
+            $('#loading-image-preview').show();
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                success: function (resp) {
+                    $('#loading-image-preview').hide();
+                    $('#website-project-name').val("");
+                    $('#store-create-project').modal('hide');
+                    if (resp.code == 200) {
+                        toastr["success"](resp.message);
+                    } else {
+                        toastr["error"](resp.message);
+                    }
+                },
+                error: function (err) {
+                    $('#loading-image-preview').hide();
+                    $('#website-project-name').val("");
+                    $('#user-create-new').modal('hide');
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
         });
 
         $(document).on("click", ".submit_create_user", function (e) {
@@ -213,9 +202,13 @@
             $('#user-url').val(data.url);
             $('#user-role-id').val(data.role_id);
             $('#user-id').val(data.id);
+            $('.submit_delete_user').attr('data-id', data.id);
+            $("#user-role-id option[value='" + data.role_id + "']").prop("selected", true);
+            $("#user-role-id").select2();
         });
 
         var restoreForm = function() {
+            $('.submit_delete_user').val('');
             $('#user-id').val('');
             $('#user-name').val('');
             $('#user-surname').val('');
