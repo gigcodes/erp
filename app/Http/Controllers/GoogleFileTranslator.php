@@ -14,6 +14,11 @@ use App\Models\GoogleTranslateUserPermission;
 use App\Models\GoogleTranslateCsvDataImport;
 use App\Models\GoogleTranslateCsvData;
 use App\Models\GoogleFileTranslateHistory;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
+use App\Models\StoreWebsiteCsvFile;
+use Illuminate\Support\Facades\Storage;
+
 
 class GoogleFileTranslator extends Controller
 {
@@ -151,11 +156,11 @@ class GoogleFileTranslator extends Controller
     public function update(Request $request)
     {
         $record = GoogleTranslateCsvData::find($request->record_id);
-        $oldRecord = $record->value;
+        $oldRecord = $record->standard_value;
         $oldStatus = $record->status;
        
         $record->updated_by_user_id = $request->update_by_user_id;
-        $record->value = $request->update_record;
+        $record->standard_value = $request->update_record;
         $record->status = 1;
         $record->save();
 
@@ -285,17 +290,56 @@ class GoogleFileTranslator extends Controller
         return $newCsvData;
     }
 
-    public function dataViewPage($id)
+    public function dataViewPage($id, $type, Request $request)
     {
-        $googleTranslateDatas=  GoogleTranslateCsvData::Where('google_file_translate_id',$id)->latest()->get();
 
-        return View('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
+        $query = new GoogleTranslateCsvData();
+
+        if ($type == "googletranslate") {
+            $query = $query->where('google_file_translate_id', $id)->latest();
+        } else {
+            $lang = explode('-', $type);
+            $lang = end($lang);
+
+            if (preg_match('/-([a-zA-Z]{2})\.csv$/', $type, $matches)) {
+                $lang = $matches[1];
+            }
+            $getLang = Language::where('locale', $lang)->first();
+    
+            $query = $query->where('storewebsite_id', $id)
+                ->where('lang_id', $getLang->id)
+                ->latest();
+        }
+    
+        if (!empty($request->date)) {
+            $query = $query->where('created_at', 'LIKE', '%' . $request->date . '%');
+        }
+        if (!empty($request->search_msg)) {
+            $query = $query->where('value', 'LIKE', '%' . $request->search_msg . '%');
+        }
+    
+        if ($request->search_keyword != "") {
+            $query = $query->where('key', 'LIKE', '%' . $request->search_keyword . '%');
+        }
+
+        if (!empty($request->search_stand_value)) {
+            $query = $query->where('standard_value', 'LIKE', '%' . $request->search_stand_value . '%');
+        }
+    
+        $googleTranslateDatas = $query->paginate(25); // Change 25 to the number of items per page you want to display.
+    
+        return view('googlefiletranslator.googlefiletranlate-list', ['id' => $id, 'googleTranslateDatas' => $googleTranslateDatas]);
     }
 
     public function downloadPermission(Request $request)
     {
-        $googleTranslate = GoogleFiletranslatorFile::find($request->id);
-        $googleTranslate->download_status = 1 ;
+        $parts = explode('-', $request->type);
+        $filename = $parts[1]; // Extract the second part as the filename
+
+
+        $googleTranslate = StoreWebsiteCsvFile::Where('storewebsite_id',$request->id)->where('filename', 'like', '%' . $filename . '%')
+        ->first();
+        $googleTranslate->download_status = 1;
         $googleTranslate->save();
 
         return response()->json(['status' => 200, 'data' => $googleTranslate, 'message' => "download permision allowed"]);
@@ -369,7 +413,7 @@ class GoogleFileTranslator extends Controller
         if($request->status == 'reject')
         {
             $googleTranslateDatas->status = 2;
-            $googleTranslateDatas->value = $oldvalue;
+            $googleTranslateDatas->standard_value = $oldvalue;
             $googleTranslateDatas->save();
 
             return response()->json([
@@ -380,5 +424,71 @@ class GoogleFileTranslator extends Controller
             ], 500);
         }
        
+    }
+
+
+    public function downloadCsv($id, $type)
+    {
+        $csv = ''; // Initialize the $csv variable as an empty string
+        $getLang = null; // Initialize $getLang variable
+
+        $lang = explode('-', $type);
+        $lang = end($lang);
+    
+        
+        if (preg_match('/-([a-zA-Z]{2})\.csv$/', $type, $matches)) {
+            $lang = $matches[1];
+        }
+        $getLang = Language::where('locale', $lang)->first();
+
+        if ($type == "googletranslate") {
+            $googleTranslateDatas = GoogleTranslateCsvData::where('google_file_translate_id', $id)->latest()->get();
+        } else {
+            $googleTranslateDatas = GoogleTranslateCsvData::where('storewebsite_id', $id)
+                ->where('lang_id', $getLang->id)
+                ->latest()
+                ->get();
+        }
+        
+        $fileName = 'google_translate_data_' . ($getLang ? $getLang->locale : '') . '.csv';
+
+        $csvContent = '"Value","StanardValue"' . "\n";
+
+        foreach ($googleTranslateDatas as $data) {
+            // Ensure that values are enclosed in double quotes and separated by commas
+            $csvContent .= '"' . $this->formatForCSV($data->value) . '","' .
+            $this->formatForCSV($data->standard_value) . '"' . "\n";
+        }
+
+         // Specify the storage disk (e.g., 'public' or 'local') and the directory path
+        $disk = 'public';
+        $directory = 'csv/';
+
+        // Store the CSV file
+        Storage::disk($disk)->put($directory . $fileName, $csvContent);
+        // Set the content type and disposition for download
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ];
+        
+        // Optionally, you can set other headers like cache control if needed
+        $headers['Cache-Control'] = 'must-revalidate, post-check=0, pre-check=0';
+        $headers['Expires'] = '0';
+        $headers['Pragma'] = 'public';
+        
+        // Send the file as a download response
+        return Response::make($csvContent, 200, $headers);
+        
+    }
+
+    public function formatForCSV($value)
+    {
+        // If the value contains a comma or a double quote, enclose it in double quotes and escape existing double quotes.
+        if (strpos($value, ',') !== false || strpos($value, '"') !== false) {
+            return '"' . str_replace('"', '""', $value) . '"';
+        }
+
+        return $value;
     }
 }

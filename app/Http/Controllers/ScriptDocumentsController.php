@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScriptDocuments;
 use App\Models\ScriptDocumentFiles;
+use App\Models\ScriptsExecutionHistory;
 use App\User;
 use Exception;
 use App\TestCase;
@@ -20,35 +21,49 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
 
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
+        $records = $records->groupBy('file')->get();
+        $records_count = $records->count();
+
         return view(
             'script-documents.index', [
                 'title' => $title,
+                'records_count' => $records_count,
             ]
         );
     }
 
     public function records(Request $request)
     {   
-        $records = ScriptDocuments::orderBy('id', 'ASC');
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
                 function ($q) use ($keyword) {
                     $q->where('file', 'LIKE', "%$keyword%");
+                    $q->orWhere('description', 'LIKE', "%$keyword%");
                     $q->orWhere('category', 'LIKE', "%$keyword%");
                     $q->orWhere('usage_parameter', 'LIKE', "%$keyword%");
                     $q->orWhere('comments', 'LIKE', "%$keyword%");
                     $q->orWhere('author', 'LIKE', "%$keyword%");
+                    $q->orWhere('location', 'LIKE', "%$keyword%");
+                    $q->orWhere('last_run', 'LIKE', "%$keyword%");
+                    $q->orWhere('status', 'LIKE', "%$keyword%");
                 }
             );
         }
 
+        $records = $records->take(25)->groupBy('file')->get();
         $records_count = $records->count();
-        $records = $records->take(10)->get();
 
         $records = $records->map(
             function ($script_document) {
                 $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+
+                $script_document->last_output_text = '';
+                if(!empty($script_document->last_output)){
+                    $script_document->last_output_text = base64_decode($script_document->last_output);
+                }
                 return $script_document;
             }
         );
@@ -72,6 +87,10 @@ class ScriptDocumentsController extends Controller
                 'category' => 'required|string',
                 'comments' => 'required|string',
                 'author' => 'required|string',
+                'description' => 'required',
+                'location' => 'required',
+                'last_run' => 'required',
+                'status' => 'required'
             ]
         );
 
@@ -97,7 +116,6 @@ class ScriptDocumentsController extends Controller
 
         $script_document['user_id'] = \Auth::user()->id;
         $records->fill($script_document);
-
         $records->save();
 
         return redirect()->back()->with('success', 'You have successfully inserted a Script Document!');
@@ -133,6 +151,10 @@ class ScriptDocumentsController extends Controller
                 'category' => 'required|string',
                 'comments' => 'required|string',
                 'author' => 'required|string',
+                'description' => 'required',
+                'location' => 'required',
+                'last_run' => 'required',
+                'status' => 'required',
             ]
         );
 
@@ -222,9 +244,9 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
         $page = $_REQUEST['page'];
-        $page = $page * 10;
+        $page = $page * 25;
 
-        $records = ScriptDocuments::orderBy('id', 'ASC')->offset($page)->limit(10);
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(25)->groupBy('file');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -247,6 +269,8 @@ class ScriptDocumentsController extends Controller
             }
         );
 
+        $records;
+
         // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
 
         return view(
@@ -256,5 +280,41 @@ class ScriptDocumentsController extends Controller
                 'total' => count($records),
             ]
         );
+    }
+
+    public function ScriptDocumentHistory($id)
+    {   
+        $records = ScriptsExecutionHistory::with('scriptDocument')->where('script_document_id', $id)->orderBy('id', 'DESC')->get();
+
+        $records = $records->map(
+            function ($script_document) {
+                $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+
+                $script_document->last_output_text = '';
+                if(!empty($script_document->run_output)){
+                    $script_document->last_output_text = base64_decode($script_document->run_output);
+                }
+                return $script_document;
+            }
+        );
+
+        return response()->json([
+            'status' => true,
+            'data' => $records,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function ScriptDocumentComment($id)
+    {   
+        $scriptDocument = ScriptDocuments::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $scriptDocument,
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

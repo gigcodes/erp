@@ -1,5 +1,5 @@
 <script type="text/x-jsrender" id="template-create-website">
-	<form name="form-create-website" id="form-create-website" method="post" enctype="multipart/form-data">
+	<form name="form-create-website" id="form-create-website" class="formcreatewebsite" method="post" enctype="multipart/form-data">
    <?php echo csrf_field(); ?>
    <div class="modal-content">
       <div class="modal-header">
@@ -17,12 +17,14 @@
                <div class="form-group">
                   <label for="title">Title</label>
                   <input type="text" id='swTitle' name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control mt-0"  placeholder="Enter Title">
+                  <span class="text-danger text-danger-url"></span>
                </div>
             </div>
             <div class="col-md-4">
                <div class="form-group">
                   <label for="website">Website</label>
                   <input type="text" name="website" value="{{if data}}{{:data.website}}{{/if}}" class="form-control" id="website" placeholder="Enter Website">
+                  <span class="text-danger text-danger-url"></span>
                </div>
             </div>
             <div class="col-md-4">
@@ -274,6 +276,7 @@
                <div class="form-group">
                   <label for="server_ip">Server IP</label>
                   <input type="text" name="server_ip" value="{{if data}}{{:data.server_ip}}{{/if}}" class="form-control" id="server_ip" placeholder="Enter Server IP">
+                  <span class="text-danger text-danger-url"></span>
                </div>
             </div>
             <div class="col-md-4">
@@ -341,6 +344,7 @@
                <div class="form-group">
                   <label for="country_duty">Working Directory</label>
                   <input type="text" name="working_directory" value="{{if data}}{{:data.working_directory}}{{/if}}" class="form-control" id="working_directory" placeholder="Enter Working Directory">
+                  <span class="text-danger text-danger-url"></span>
                </div>
             </div>
             <div class="col-md-4">
@@ -380,6 +384,21 @@
                        }
    ?>
                   </select>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="form-group">
+                  <label for="instance_number">Admin URL</label></br>
+                  <div style="display: flex">
+                      <a id="generated-admin-href" href ="{{if last_adminurl}}{{:last_adminurl.admin_url}}{{/if}}" target="_blank" style="display:flex; gap:5px"> 
+                           <input class="fileUrl" id="generated-admin-url" type="text" value="{{if last_adminurl}}{{:last_adminurl.admin_url}}{{/if}}" />
+                        </a>
+
+                      <button type="button" data-id="" class="btn btn-sm btn-copy-admin-url" data-value="">
+                          <i class="fa fa-clone" aria-hidden="true"></i>
+                      </button>
+                  </div>
+                  <a href="javascript:void(0)" onClick="createAdminUrl()" id="generate-admin-url">Generate URL</a>
                </div>
             </div>
          </div>
@@ -455,10 +474,24 @@
                         {{/if}}
                         <a href="<?php echo url('/store-website/log-website-users/'); ?>/{{>prop.store_website_id}}" type="button" title="Website user history" class="btn btn-sm" style="border:1px solid">
                           <i class="fa fa-history aria-hidden="true""></i>
-                        </a>
+                        </a>      
+                        <button type="button" data-id="{{>prop.id}}" class="btn btn btn-sm btn-magento-user-request" style="border:1px solid"><i class="fa fa-retweet" aria-hidden="true"></i></button>          
                      </div>
                   </div>
                </div>
+
+               <div class="table-responsive" id="request-response-{{>prop.id}}" style="display:none;">
+               <table class="table">
+                 <tr>
+                   <th>Request :</th>
+                   <td>{{>prop.request_data}}</td>
+                 </tr>
+                 <tr>                   
+                   <th>Response :</th>
+                   <td>{{>prop.response_data}}</td>
+                 </tr>
+               </table>
+            </div>
             </div>
             {{/props}}
             {{else}}

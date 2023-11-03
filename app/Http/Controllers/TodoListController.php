@@ -200,9 +200,11 @@ class TodoListController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TodoList $todoList)
+    public function destroy($id)
     {
-        //
+        TodoList::where('id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Your Todo Task has been deleted successfuly!');
     }
 
     public function createTodolistRemarkHistory($request, $id)

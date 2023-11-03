@@ -44,12 +44,13 @@ class EmailController extends Controller
         $user = Auth::user();
         $admin = $user->isAdmin();
         $usernames = [];
-        if (! $admin) {
-            $emaildetails = \App\EmailAssign::select('id', 'email_address_id')->with('emailAddress')->where(['user_id' => $user->id])->get();
+        if (!$admin) {
+            $emaildetails = \App\EmailAssign::select('id', 'email_address_id')
+                ->with('emailAddress:username')
+                ->where(['user_id' => $user->id])
+                ->getModels();
             if ($emaildetails) {
-                foreach ($emaildetails as $_email) {
-                    $usernames[] = $_email->emailAddress->username;
-                }
+                $usernames = array_map(fn ($item) => $item->emailAddress->username, $emaildetails);
             }
         }
 
@@ -89,13 +90,6 @@ class EmailController extends Controller
             });
         }
 
-        if (empty($category)) {
-            $query = $query->whereHas('category', function ($q) {
-                $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
-            })
-            ->orWhere('email_category_id', '<=', 0);
-        }
-
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
             $receiver = $email;
@@ -113,10 +107,6 @@ class EmailController extends Controller
             $query = $query->where('is_draft', 1)->where('emails.status', '<>', 'pre-send');
         } elseif ($type == 'pre-send') {
             $query = $query->where('emails.status', 'pre-send');
-        } elseif (! empty($request->type)) {
-            $query = $query->where(function ($query) use ($type) {
-                $query->where('type', $type)->where('emails.status', '<>', 'bin')->where('is_draft', '<>', 1)->where('emails.status', '<>', 'pre-send');
-            });
         } else {
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
@@ -136,7 +126,7 @@ class EmailController extends Controller
                 $query->where('from', 'like', '%' . $term . '%')
                     ->orWhere('to', 'like', '%' . $term . '%')
                     ->orWhere('subject', 'like', '%' . $term . '%')
-                    ->orWhere('message', 'like', '%' . $term . '%');
+                    ->orWhere('chat_messages.message', 'like', '%' . $term . '%');
             });
         }
 
@@ -144,19 +134,19 @@ class EmailController extends Controller
             if ($sender) {
                 $sender = explode(',', $request->sender);
                 $query = $query->where(function ($query) use ($sender) {
-                    $query->whereIn('from', $sender);
+                    $query->whereIn('emails.from', $sender);
                 });
             }
             if ($receiver) {
                 $receiver = explode(',', $request->receiver);
                 $query = $query->where(function ($query) use ($receiver) {
-                    $query->whereIn('to', $receiver);
+                    $query->whereIn('emails.to', $receiver);
                 });
             }
             if ($status) {
                 $status = explode(',', $request->status);
                 $query = $query->where(function ($query) use ($status) {
-                    $query->whereIn('emails..status', $status);
+                    $query->whereIn('emails.status', $status);
                 });
             }
             if ($category) {
@@ -231,7 +221,7 @@ class EmailController extends Controller
             $email_status = $email_status->where('type', '!=', 'sent');
         }
 
-        $email_status = $email_status->get();
+        $email_status = $email_status->get(['id', 'email_status']);
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
@@ -245,7 +235,7 @@ class EmailController extends Controller
             $email_categories = $email_categories->where('type', '!=', 'sent');
         }
 
-        $email_categories = $email_categories->get();
+        $email_categories = $email_categories->get(['id', 'category_name']);
 
         if ($request->ajax()) {
             return response()->json([
@@ -272,7 +262,21 @@ class EmailController extends Controller
         $totalEmail = Email::count();
         $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
-        return view('emails.index', ['emails' => $emails, 'type' => 'email', 'search_suggestions' => $search_suggestions, 'email_status' => $email_status, 'email_categories' => $email_categories, 'emailModelTypes' => $emailModelTypes, 'reports' => $reports, 'digita_platfirms' => $digita_platfirms, 'receiver' => $receiver, 'from' => $from, 'totalEmail' => $totalEmail, 'modelColors' => $modelColors])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',
+            [
+                'emails' => $emails,
+                'type' => 'email',
+                'search_suggestions' => $search_suggestions,
+                'email_status' => $email_status,
+                'email_categories' => $email_categories,
+                'emailModelTypes' => $emailModelTypes,
+                'reports' => $reports,
+                'digita_platfirms' => $digita_platfirms,
+                'receiver' => $receiver,
+                'from' => $from,
+                'totalEmail' => $totalEmail,
+                'modelColors' => $modelColors
+            ])->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function platformUpdate(Request $request)

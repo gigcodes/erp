@@ -45,8 +45,12 @@ Route::group([
     Route::get('builder-api-key-histories/{id}', [StoreWebsiteController::class, 'builderApiKeyHistory'])->name('store-website.builder-api-key-histories');
     Route::get('api-token', [StoreWebsiteController::class, 'apiToken'])->name('store-website.apiToken');
     Route::get('admin-password', [StoreWebsiteController::class, 'adminPassword'])->name('store-website.adminPassword');
+    Route::get('admin-urls', [StoreWebsiteController::class, 'adminUrls'])->name('store-website.adminUrls');
     Route::post('api-token/generate-api-token', [StoreWebsiteController::class, 'apiTokenGenerate'])->name('store-website.apiTokenGenerate');
     Route::post('api-token/bulk-generate-api-token', [StoreWebsiteController::class, 'apiTokenBulkGenerate'])->name('store-website.apiTokenBulkGenerate');
+
+    Route::post('admin-urls/bulk-generate-admin-url', [StoreWebsiteController::class, 'adminUrlBulkGenerate'])->name('store-website.adminUrlBulkGenerate');
+
     Route::post('api-token/get-api-token-logs/{id}', [StoreWebsiteController::class, 'getApiTokenLogs'])->name('store-website.getApiTokenLogs');
     Route::post('api-token/test-api-token/{id}', [StoreWebsiteController::class, 'testApiToken'])->name('store-website.testApiToken');
     Route::post('generate-reindex', [StoreWebsiteController::class, 'generateReIndexfile']);
@@ -56,6 +60,7 @@ Route::group([
     Route::get('get-admin-password', [StoreWebsiteController::class, 'getAdminPassword']);
     Route::post('user-permission/update', [StoreWebsiteController::class, 'userPermission'])->name('store-website.user.permission');
     Route::get('api-token-histories/{id}', [StoreWebsiteController::class, 'apiTokenHistory'])->name('store-website.token.histories');
+    Route::get('admin-url-histories/{id}', [StoreWebsiteController::class, 'adminUrlHistory'])->name('store-website.url.histories');
     Route::get('version-numbers', [StoreWebsiteController::class, 'versionNumbers'])->name('store-website.version-numbers');
     Route::get('csv-download/listing', [StoreWebsiteController::class, 'StorewebsiteDownloadListing'])->name('store-website.listing');
     Route::post('mulitple/csv-download', [StoreWebsiteController::class, 'mulitipleStorewebsiteDownload'])->name('mulitiple.store-website.listing');
@@ -64,7 +69,8 @@ Route::group([
     Route::get('/{id}/list-view', [StoreWebsiteController::class, 'dataViewPage'])->name('store-website.list-page.view');
     Route::get('/push-csv/{id}', [StoreWebsiteController::class,'pushCsvFile'])->name('store-website.push.csv');
     Route::get('pull-request/histories/{id}', [StoreWebsiteController::class, 'pullRequestHistoryShow'])->name('pull-request.histories.show');
-    Route::get('pull-request/log/{id}', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
+    Route::get('pull-request/log/', [StoreWebsiteController::class, 'pullRequesLogShow'])->name('pull-request.log.show');
+    Route::get('csv-file/truncate', [StoreWebsiteController::class, 'csvFileTruncate'])->name('store-website-csv-truncate');
 
 
     Route::get('/magento-user-lising', [StoreWebsiteController::class, 'magentoUserList'])->name('store-website.user-list');
@@ -78,10 +84,14 @@ Route::group([
     Route::post('/generate-file-store', [StoreWebsiteController::class, 'generateStorefile'])->name('store-website.generate-file-store');
 
     Route::post('/save-user-in-magento', [StoreWebsiteController::class, 'saveUserInMagento'])->name('store-website.save-user-in-magento');
+    Route::post('/save-user-in-magento-admin-password', [StoreWebsiteController::class, 'saveUserInMagentoAdminPassword'])->name('store-website.save-user-in-magento-admin-password');
+    Route::post('delete-admin-passwords', [StoreWebsiteController::class, 'deleteAdminPasswords'])->name('delete-admin-passwords');
     Route::post('/delete-user-in-magento', [StoreWebsiteController::class, 'deleteUserInMagento'])->name('store-website.delete-user-in-magento');
     Route::post('/update-company-website-address', [StoreWebsiteController::class, 'updateCompanyWebsiteAddress']);
     Route::get('/copy-website-store-views/{id}', [StoreWebsiteController::class, 'copyWebsiteStoreViews']);
     Route::get('/delete-store-views/{id}', [StoreWebsiteController::class, 'deleteStoreViews']);
+
+    Route::post('/create-admin-url', [StoreWebsiteController::class, 'createAdminUrl'])->name('store-website.create-admin-url');
 
     // Create Tags for multiple website
     Route::get('list-tag', [StoreWebsiteController::class, 'list_tags'])->name('store-website.list_tags');
@@ -91,6 +101,10 @@ Route::group([
     Route::get('attach-tag-store', [StoreWebsiteController::class, 'attach_tags_store'])->name('store-website.attach_tags_store');
 
     Route::post('create-project', [StoreWebsiteController::class, 'createProject'])->name('store-website.create-project');
+
+    Route::post('magento-media-sync', [StoreWebsiteController::class, 'magentoMediaSync'])->name('store-website.magento-media-sync');
+
+    Route::get('magento-media-sync-logs', [StoreWebsiteController::class, 'magentoMediaSyncLogs'])->name('store-website.magentoMediaSyncLogs');
 
     Route::group([
         'prefix' => '{id}',
@@ -202,6 +216,7 @@ Route::group([
         Route::post('reconsile-brand', [BrandController::class, 'reconsileBrands'])->name('store-website.brand.reconsile-brands');
         Route::post('reconsile-brand-history-log', [BrandController::class, 'reconsileBrandsHistoryLog'])->name('reconsile-brands-history-log');
         Route::post('push-brand-history-log', [BrandController::class, 'pushBrandsLog'])->name('push-brands-history-log');
+        Route::post('column-visbility', [BrandController::class, 'columnVisbilityUpdate'])->name('store-website.brand.column.update');
     });
 
     Route::group(['prefix' => 'price-override'], function () {

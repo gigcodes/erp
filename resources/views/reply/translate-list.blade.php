@@ -19,55 +19,63 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Quick Replies Translate List</h2>
-        <div class="pull-left">
-            <div class="row">
-                <div class="col-md-12 ml-sm-6">            
-                    <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
-                        <div class="row">
-                            <div class="col-md-4 pd-sm">
-                                {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
-                            </div>
-                            <div class="col-md-3 pd-sm">
-                                <select name="lang" id="lang" class="form-control globalSelect" data-placeholder="Sort By">
-                                    <option  Value="">Select lang</option>
-                                    @foreach ($getLangs as $r)
-                                    <option  Value="{{$r}}"  {{ (request('lang') == $r ? "selected" : "") }} >{{$r}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
-                            </div>
-                            
-                            <div class="col-md-1 pd-sm">
-                                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
-                                    <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
-                            </div>    
-                            <div class="col-md-1 pd-sm">
-                                <a href="{{ route('reply.replyTranslateList') }}" class="btn btn-image" id="">
-                                    <img src="/images/resend2.png" style="cursor: nwse-resize;">
-                                </a>
-                            </div>                            
+        
+        <div class="col-md-12 ml-sm-6">         
+            <div class="col-md-9 ml-sm-6">     
+                <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
+                    <div class="row">
+                        <div class="col-md-3 pd-sm">
+                            {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="float-right my-3 pr-5">
-            <button class="btn btn-secondary text-white my-3" data-toggle="modal" data-target="#statusColor"> Status Color</button>
+                        <div class="col-md-2 pd-sm">
+                            <select name="lang" id="lang" class="form-control globalSelect" data-placeholder="Sort By">
+                                <option  Value="">Select lang</option>
+                                @foreach ($getLangs as $r)
+                                <option  Value="{{$r}}"  {{ (request('lang') == $r ? "selected" : "") }} >{{$r}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 pd-sm">
+                            <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
+                        </div>
 
-            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
-                {{-- ToDo: Have to plan about this, Need to display permission history --}}
-                {{-- <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a> --}}
-            @endif
+                        <div class="col-md-2 pd-sm">
+                            <select name="status" class="form-control" placeholder="Search Status">
+                                <option value="">Search Status</option>
+                                <option value="approved" @if(request()->get('status')=='approved') selected @endif>Approved</option>
+                                <option value="rejected" @if(request()->get('status')=='rejected') selected @endif>Rejected</option>
+                                <option value="pending" @if(request()->get('status')=='pending') selected @endif>Pending</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2 pd-sm" style="padding-top: 10px;">
+                            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                                <img src="{{ asset('images/search.png') }}" alt="Search">
+                            </button>
+
+                            <a href="{{ route('reply.replyTranslateList') }}" class="btn btn-image" id="">
+                                <img src="/images/resend2.png" style="cursor: nwse-resize;">
+                            </a>
+                        </div>                             
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3 float-right">
+                <button class="btn btn-secondary text-white" data-toggle="modal" data-target="#statusColor"> Status Color</button>
+
                 @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
-                <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#remove_permissions_model">Remove Permission</a>
-            @endif
-            @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
-                <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
-            @endif
+                    {{-- ToDo: Have to plan about this, Need to display permission history --}}
+                    {{-- <a class="btn btn-secondary text-white btn_history_permissions" data-toggle="modal" data-target="#history_permissions_model">Permission History</a> --}}
+                @endif
+                    @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
+                    <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#remove_permissions_model">Remove Permission</a>
+                @endif
+                @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
+                    <a class="btn btn-secondary text-white btn_select_user" data-toggle="modal" data-target="#permissions_model">Permission</a>
+                @endif
+            </div>  
         </div>
+        
     </div>
 </div>
 
@@ -88,13 +96,13 @@
                             <th class="chat-msg" width="5%">ID</th>
                             <th class="chat-msg" width="10%">Store website</th>
                             <th class="chat-msg" width="10%">Category</th>
-							<th class="chat-msg" width="7%">Translate From</th>
+                            <th class="chat-msg" width="7%">Translate From</th>
                             <th class="chat-msg" width="10%">Original Reply</th>
                             @foreach ($lang as $r)
                                 <th class="chat-msg" width="9%">{{$r}}</th>
                             @endforeach
                             <th class="chat-msg" width="9%">Created On</th>
-							<th class="chat-msg" width="9%">Updated On</th>
+                            <th class="chat-msg" width="9%">Updated On</th>
                         </tr>
                         @foreach (json_decode($replies) as $key => $reply)
                             <tr>
@@ -118,7 +126,7 @@
                                     </div>
                                 </td>
                                 <td class="expand-row" id="reply_model">{{ $reply->translate_from }}</td>
-								<td style="cursor:pointer;" id="reply_text" class="expand-row change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->original_text }}">
+                                <td style="cursor:pointer;" id="reply_text" class="expand-row change-reply-text" data-id="{{ $reply->id }}" data-message="{{ $reply->original_text }}">
                                     <div class="expand-row table-hover-cell" style="word-break: break-all;">
                                         <div class="td-mini-container">
                                             {!! strlen($reply->original_text) > 20 ? substr($reply->original_text, 0, 20).'...' : $reply->original_text !!}
@@ -136,16 +144,24 @@
                                         $status = null;
                                         $status_color = null;
 
-                                        if($reply) {
-                                            foreach ($reply->translate_text as $key => $translate){
-                                               if(isset($translate->$l)) {
-                                                   $text = $translate->$l;
-                                                   $id = $reply->translate_id[$key];
-                                                   $re_lang = $reply->translate_lang[$key];
-                                                   $status = $reply->translate_status[$key];
-                                                   $status_color = $reply->translate_status_color[$key];
-                                               }
-                                            }
+                                        if(!empty($reply->transalates->$l->translate_text)){
+                                            $text = $reply->transalates->$l->translate_text;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_id)){
+                                            $id = $reply->transalates->$l->translate_id;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_lang)){
+                                            $re_lang = $reply->transalates->$l->translate_lang;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_status)){
+                                            $status = $reply->transalates->$l->translate_status;
+                                        }
+
+                                        if(!empty($reply->transalates->$l->translate_status_color)){
+                                            $status_color = $reply->transalates->$l->translate_status_color;
                                         }
                                     @endphp
                                     @if($text)
@@ -206,9 +222,9 @@
                                         </div>
                                     </div>
                                 </td>
-								<td>
+                                <td>
                                     <?php if($reply->updated_at!='' && $reply->updated_at!=null) {
-								    ?>
+                                    ?>
                                     <div class="expand-row table-hover-cell" style="word-break: break-all;">
                                         <div class="td-mini-container">
                                             {!! strlen($reply->updated_at) > 10 ? substr($reply->updated_at, 0, 10).'...' : $reply->updated_at !!}
@@ -218,7 +234,7 @@
                                         </div>
                                     </div>
                                 <?php
-								} else { echo '-'; } ?>
+                                } else { echo '-'; } ?>
                                 </td>
                             </tr>
                         @endforeach
@@ -822,10 +838,10 @@ function updateTranslateReply(ele) {
     let btn = jQuery(ele);
     let reply_id = btn.data('reply_id');
     let is_flagged = btn.data('is_flagged');
-	
-	//alert(jQuery(ele).is(':checked'));
-	
-	//alert(is_flagged)
+    
+    //alert(jQuery(ele).is(':checked'));
+    
+    //alert(is_flagged)
 
     if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure? Do you want unflagged this ?' : 'Are you sure want flagged this ?')) {
         jQuery.ajax({

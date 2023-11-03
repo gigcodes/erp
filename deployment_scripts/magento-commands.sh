@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+SCRIPT_NAME=`basename $0`
+
 function HELP {
 	echo "--server: Server Name"
 	echo "--type: which function to call"
@@ -45,23 +48,30 @@ if [ $type = "debug" ]
 then
 	if [ $debug = "true" ]
 	then
-		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=true ; bin/magento dev:query-log:enable ; bin/magento cache:flush"
+		ssh -i $SSH_KEY root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=true ; bin/magento dev:query-log:enable ; bin/magento cache:flush" | tee -a ${SCRIPT_NAME}.log
 	else
-		ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=false ; bin/magento dev:query-log:disable ; bin/magento cache:flush ; rm -f var/debug/db.log"
+		ssh -i $SSH_KEY root@$server "cd /home/*/current/ ; bin/magento setup:config:set --enable-debug-logging=false ; bin/magento dev:query-log:disable ; bin/magento cache:flush ; rm -f var/debug/db.log" | tee -a ${SCRIPT_NAME}.log
 	fi
 fi
 
 if [ $type = "tests" ]
 then
-	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; bin/magento dev:tests:run $test"
+	ssh -i $SSH_KEY root@$server "cd /home/*/current/ ; bin/magento dev:tests:run $test" | tee -a ${SCRIPT_NAME}.log
 fi
 
 if [ $type = "custom" ]
 then
-	ssh -i ~/.ssh/id_rsa root@$server "cd /home/*/current/ ; $command"
+	ssh -i $SSH_KEY root@$server "cd /home/*/current/ ; $command" | tee -a ${SCRIPT_NAME}.log
 fi
 
-if [ $? -ne 0 ]
+if [[ $? -eq 0 ]]
 then
-	exit 1
+   STATUS="Successful"
+else
+   STATUS="Failed"
 fi
+
+#Call monitor_bash_scripts
+
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+

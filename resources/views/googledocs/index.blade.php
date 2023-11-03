@@ -32,18 +32,18 @@
                             <form class="form-inline message-search-handler" method="get">
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select File Name: </b>
-                                    <select class="form-control globalSelect2" multiple="true" id="name" name="name[]" placeholder="Select File Name">
-                                        @foreach($data as $val)
-                                        <option value="{{ $val->id }}" @if(in_array($val->id, $request->input('name', []))) selected @endif>{{ $val->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    {{ Form::select("name[]", \App\GoogleDoc::pluck('name','id')->toArray(), request('name'), ["class" => "form-control globalSelect2", "multiple"]) }}
                                 </div>
                                 <div class="col-lg-3 pd-sm">
                                     <b>Select Tasks: </b>
-                                    <select class="form-control globalSelect2" multiple="true" id="tasks" name="tasks[]" placeholder="Select Tasks">
-                                        @foreach($tasks as $val)
-                                            <option value="{{ $val }}" @if(in_array($val, $request->input('tasks', []))) selected @endif>{{ $val }}</option>
-                                        @endforeach
+                                    <input class="form-control" type="text" id="tag-tasks" name="tasks" placeholder="Enter Task Id" style="width: 100%;" value="{{request()->get('tasks')}}">
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Select Tasks Type: </b>
+                                    <select class="form-control" id="task_type" name="task_type" placeholder="Select Task Type">
+                                        <option value="">Select Type</option>
+                                        <option value="App\Task" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\Task')) selected @endif>TASK</option>
+                                        <option value="App\DeveloperTask" @if(!empty($request->input('task_type')) && ($request->input('task_type')=='App\DeveloperTask')) selected @endif>DEVTASK</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-3 pd-sm">
@@ -53,15 +53,6 @@
                                             <option value="{{ $key }}" @if(in_array($key, $request->input('googleDocCategory', []))) selected @endif>{{ $c }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                                <div class="col-lg-2 pd-sm">
-                                    <b>Enter Search Url: </b>
-                                    <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
-                                    <datalist id="docid-lists">
-                                        @foreach ($data as $key => $val )
-                                            <option value="{{$val->docId}}"></option>
-                                        @endforeach
-                                    </datalist>
                                 </div>
     				            @if(Auth::user()->isAdmin())
                                     <div class="col-lg-3 pd-sm">
@@ -73,6 +64,19 @@
                                         </select>
                                     </div>
     				            @endif
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Enter Search Url: </b>
+                                    <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
+                                    <datalist id="docid-lists">
+                                        @foreach ($data as $key => $val )
+                                            <option value="{{$val->docId}}"></option>
+                                        @endforeach
+                                    </datalist>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Enter keyword for search: </b>
+                                    <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                                </div>
                                 <div class="col-lg-1 pd-sm">
                                     <div class="form-group">
                                         <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
@@ -88,6 +92,9 @@
             </div>
 	    @if(Auth::user()->isAdmin())
             <div class="pull-right">
+                <button type="button" class="btn btn-secondary open-google-documents">
+                    Open Documents
+                </button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#updatemultipleGoogleDocPermissionModal">
                     Add Permission
                   </button>   
@@ -439,6 +446,48 @@ $(document).on('click', '.permissionview', function (e) {
             $('.google_doc_check').prop('checked', isChecked);
         });
     });
-    
+
+    $(document).ready(function($) {
+        // Now you can use $ safely within this block
+        /*$("#tag-input").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('google-docs.filename') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });*/
+
+        $("#tag-tasks").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('google-docs.tasks') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+    })
     </script>
 @endsection

@@ -179,6 +179,7 @@ class PageNotesController extends Controller
         $pageNotes = new PageNotes;
         $pageNotes->url = $request->get('page');
         $pageNotes->note = $request->get('value');
+        $pageNotes->title = $request->get('title');
         $pageNotes->user_id = \Auth::user()->id;
         $pageNotes->save();
 
