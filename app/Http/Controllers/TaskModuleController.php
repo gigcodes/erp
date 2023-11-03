@@ -2530,6 +2530,68 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function createMultipleTaskFromSortcutMagentoProblems(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function createMultipleTaskFromSortcutWebsiteLogs(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
     public function createTaskFromSortcut(Request $request)
     {
         // _p(request()->all(), 1);
