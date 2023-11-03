@@ -8,6 +8,7 @@ use Exception;
 use Throwable;
 use Elastic\Elasticsearch\ClientBuilder;
 use Elastic\Elasticsearch\Client;
+use GuzzleHttp\RequestOptions;
 
 class Elasticsearch
 {
@@ -27,6 +28,9 @@ class Elasticsearch
     {
         $hosts = explode(',', env('ELASTICSEARCH_HOST', []));
         $this->connection = ClientBuilder::create()
+            ->setHttpClientOptions([
+                RequestOptions::CONNECT_TIMEOUT => 5,
+            ])
             ->setHosts(
                 $hosts ?? [$_ENV['ELASTICSEARCH_HOST'] ?? 'elasticsearch:9200']
             )

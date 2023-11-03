@@ -55,18 +55,6 @@ class MessageController extends Controller
 
         $queryParam = [];
 
-        $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
-            ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
-            ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
-            ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id')
-            ->leftJoin('store_websites as sw', 'sw.id', 'c.store_website_id')
-            ->leftJoin('bug_trackers  as bt', 'bt.id', 'chat_messages.bug_id')
-            ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
-            ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
-            ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
-            ->leftJoin('tmp_replies as tmp', 'tmp.chat_message_id', 'chat_messages.id')
-            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
-
         if (! empty($search)) {
             $queryParam['multi_match']['query'] = $search;
 
@@ -963,7 +951,7 @@ class MessageController extends Controller
             ->orderByRaw('cr.id DESC, chat_messages.id DESC')
             ->offset(($currentPage - 1) * 20)->limit(20);
 
-        $total = Cache::remember('chatbot-messages-page-size', 60*60, fn () => $pendingApprovalMsg->toBase()->getCountForPagination());
+        $total = 3000000;
 
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
             'items' => $pendingApprovalMsg->select([...$select, DB::raw('CASE WHEN `e`.`id` IS NOT NULL THEN 1 ELSE 0 END AS is_email')])->get(),
