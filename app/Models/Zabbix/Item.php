@@ -35,6 +35,7 @@ class Item implements JsonSerializable
     private $valueType;
     private $interfaceId;
     private $hostId;
+    private $units;
     /**
      * @var
      */
@@ -221,10 +222,29 @@ class Item implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getUnits(): ?string
+    {
+        return (string)$this->units;
+    }
+
+    /**
+     * @param $type
+     * @return $this
+     */
+    public function setUnits($units): self
+    {
+        $this->units = $units;
+
+        return $this;
+    }
+
     public function save()
     {
         if (!$this->getId()) {
-            $this->zabbix->saveUser([
+            $this->zabbix->saveItem([
                 'name' => $this->getName(),
                 'key_' => $this->getKey(),
                 'hostid' => $this->getHostId(),
@@ -232,25 +252,25 @@ class Item implements JsonSerializable
                 'value_type' => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
+                'units' => $this->getUnits()
             ]);
-            return $this->getById(1);
         } else {
-            $this->zabbix->updateUser([
+            $this->zabbix->updateItem([
                 'name' => $this->getName(),
                 'key_' => $this->getKey(),
                 'hostid' => $this->getHostId(),
                 'type' => $this->getType(),
                 'value_type' => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
-                'delay' => $this->getDelay()
+                'delay' => $this->getDelay(),
+                'units' => $this->getUnits()
             ]);
-            return $this->getById($this->getId());
         }
     }
 
     public function getById(int $id): ?self
     {
-        $item = $this->zabbix->getUserByIds($id);
+        $item = $this->zabbix->getItemByIds($id);
 
         if (!$item) {
             return null;
@@ -269,8 +289,16 @@ class Item implements JsonSerializable
         $this->setDelay((string)$data['delay'] ?? '');
         $this->setInterfaceid((int)$data['interfaceid'] ?? 0);
         $this->setHostId((int)$data['hostid'] ?? 0);
+        $this->setUnits($data['units'] ?? 0);
 
         return $this;
+    }
+
+    public function delete(): ?int
+    {
+        $this->zabbix->deleteItem($this->getId());
+
+        return $this->getId();
     }
 
     /**
@@ -287,6 +315,7 @@ class Item implements JsonSerializable
             'intarfaceid' => $this->getInterfaceid(),
             'delay' => $this->getDelay(),
             'host_id' => $this->getHostId(),
+            'units' => $this->getUnits()
         ];
     }
 }

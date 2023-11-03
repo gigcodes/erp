@@ -249,7 +249,6 @@ class User implements JsonSerializable
                 'surname' => $this->getSurname(),
                 'roleid' => $this->getRoleId(),
                 'passwd' => $this->getPassword(),
-                'url' => $this->getUrl(),
                 'usrgrps' => [
                     [
                         'usrgrpid' => 7
@@ -262,8 +261,7 @@ class User implements JsonSerializable
                 'name' => $this->getName(),
                 'surname' => $this->getSurname(),
                 'roleid' => $this->getRoleId(),
-                'userid' => $this->getId(),
-                'url' => $this->getUrl(),
+                'userid' => $this->getId()
             ]);
             return $this->getById($this->getId());
         }
@@ -278,6 +276,11 @@ class User implements JsonSerializable
         }
 
         return (new self())->setData($user);
+    }
+
+    public function getRoleById($id): array
+    {
+        return $this->zabbix->getRoleByIds($id);
     }
 
     public function getAllRoles()
@@ -304,6 +307,16 @@ class User implements JsonSerializable
         $this->zabbix->deleteUser($this->getId());
 
         return $this->getId();
+    }
+
+    public function saveRole(array $params = [])
+    {
+
+        if (!empty($params['roleid'])) {
+            $this->zabbix->saveRole($params, 'update');
+        } else {
+            $this->zabbix->saveRole($params);
+        }
     }
 
     /**

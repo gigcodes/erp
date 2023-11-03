@@ -33,7 +33,9 @@
                                 <th width="45%">Delay</th>
                                 <th width="45%">Interface ID</th>
                                 <th width="45%">Host ID</th>
+                                <th>Units</th>
                                 <th>Edit</th>
+                                <th>Delete</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -64,8 +66,14 @@
                                     <td class="td-host-id-{{ $item->getId() }}">
                                         {{ $item->getHostId() }}
                                     </td>
+                                    <td class="td-units-{{ $item->getId() }}">
+                                        {{ $item->getUnits() }}
+                                    </td>
                                     <td>
                                         <a href="#" class="btn btn-xs btn-secondary btn-edit-item td-edit-{{ $item->getId() }}" data-id="{{ $item->getId() }}" data-json='<?=json_encode($item)?>'>Edit</a>
+                                    </td>
+                                    <td>
+                                    <a href="#" class="btn btn-xs btn-danger btn-delete-item td-delete-{{ $item->getId() }}" data-id="{{ $item->getId() }}" data-json='<?=json_encode($item)?>'>Delete</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -127,6 +135,16 @@
                                                 <input type="text" class="form-control" name="delay"
                                                        placeholder="Enter delay" id="item-delay">
                                             </div>
+                                            <div class="form-group">
+                                                <label>Units</label>
+                                                <input type="text" class="form-control" name="units"
+                                                       placeholder="Enter units" id="item-units">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Interface id</label>
+                                                <input type="text" class="form-control" name="interfaceid"
+                                                       placeholder="Enter Interface ID" id="item-units" value="1">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -150,6 +168,36 @@
             e.preventDefault();
             $('#item-create-new').modal('show');
             restoreForm();
+        });
+
+        $(document).on("click", ".btn-delete-item", function (e) {
+            e.preventDefault();
+            let userId = $(this).attr('data-id');
+            var url = "{{ route('zabbix.item.delete') }}?id="+userId+"";
+            var formData = $(this).closest('form').serialize();
+
+            $('#loading-image-preview').show();
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                success: function (resp) {
+                    $('#loading-image-preview').hide();
+                    $('#website-project-name').val("");
+                    $('#store-create-project').modal('hide');
+                    if (resp.code == 200) {
+                        toastr["success"](resp.message);
+                    } else {
+                        toastr["error"](resp.message);
+                    }
+                },
+                error: function (err) {
+                    $('#loading-image-preview').hide();
+                    $('#website-project-name').val("");
+                    $('#user-create-new').modal('hide');
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
         });
 
         $(document).on("click", ".submit_create_item", function (e) {
@@ -213,6 +261,8 @@
             $('#item-type').val(data.type);
             $('#item-value-type').val(data.value_type);
             $('#item-delay').val(data.delay);
+            $('#item-units').val(data.units);
+            $('#item-interfaceid').val(data.intarfaceid);
         });
 
         var restoreForm = function() {
@@ -223,6 +273,8 @@
             $('#item-type').val('');
             $('#item-value-type').val('');
             $('#item-delay').val('');
+            $('#item-units').val('');
+            $('#item-interfaceid').val('');
         }
     </script>
 @endsection
