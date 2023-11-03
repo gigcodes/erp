@@ -22,7 +22,7 @@
 
                 <div class="col-md-12">
                     <div class="table-responsive mt-3">
-                        @include('zabbix.role.list')
+                        @include('zabbix.user.role.list')
                     </div>
                 </div>
 
@@ -55,29 +55,18 @@
                                                        placeholder="Enter name" id="role-name">
                                             </div>
                                             <div class="form-group">
-                                                <label>Surname</label>
-                                                <input type="text" class="form-control" name="surname"
-                                                       placeholder="Enter surname" id="role-surname">
+                                                <label>Type</label>
+                                                <select id="role-type" class="form-control input-sm"
+                                                        name="type" required>
+                                                    <option value="1">User (default)</option>
+                                                    <option value="2">Admin</option>
+                                                    <option value="3">Super admin</option>
+                                                </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Username</label>
-                                                <input type="text" class="form-control" name="rolename"
-                                                       placeholder="Enter rolename" id="role-rolename">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Role ID</label>
-                                                <input type="text" class="form-control" name="role_id"
-                                                       placeholder="Enter Role ID" id="role-role-id">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Url</label>
-                                                <input type="text" class="form-control" name="url"
-                                                       placeholder="Enter url" id="role-url">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Password</label>
-                                                <input type="text" class="form-control" name="password"
-                                                       placeholder="Enter password" id="role-password">
+                                                <label>Readonly</label>
+                                                <input type="checkbox" class="form-check-input" name="readonly"
+                                                       id="role-readonly">
                                             </div>
                                         </div>
                                     </div>
@@ -106,7 +95,7 @@
 
         $(document).on("click", ".submit_create_role", function (e) {
             e.preventDefault();
-            var url = "{{ route('zabbix.role.save') }}";
+            var url = "{{ route('zabbix.user.role.save') }}";
             var formData = $(this).closest('form').serialize();
 
             $('#loading-image-preview').show();
@@ -120,22 +109,6 @@
                     $('#store-create-project').modal('hide');
                     if (resp.code == 200) {
                         toastr["success"](resp.message);
-                        let role = resp.role;
-                        let roleId = role.id;
-                        console.log('.td-description-' + roleId);
-                        $('.td-description-' + roleId).text(role.description);
-                        $('.td-type-' + roleId).text(role.type);
-                        $('.td-location-' + roleId).text(role.location);
-                        $('.td-created-at-' + roleId).text(role.created_at);
-                        $('.td-store-websites-' + roleId).text(role.store_website_id);
-                        $('.td-edit-' + roleId).attr('data-json', resp.role_json);
-                        if (!role.is_active) {
-                            $('.td-is-active-' + roleId).removeAttr('checked');
-                        } else {
-                            $('.td-is-active-' + roleId).attr('checked', role.is_active);
-                        }
-
-
                     } else {
                         toastr["error"](resp.message);
                     }
@@ -160,21 +133,20 @@
             let data = JSON.parse($(this).attr('data-json'));
 
             $('#role-name').val(data.name);
-            $('#role-surname').val(data.surname);
-            $('#role-rolename').val(data.rolename);
-            $('#role-url').val(data.url);
-            $('#role-role-id').val(data.role_id);
-            $('#role-id').val(data.id);
+            $('#role-id').val(data.roleid);
+            $("#role-type option[value='" + data.type + "']").prop("selected", true);
+
+            if (data.readonly !== "0") {
+                console.log('Checked', data.readonly);
+                $('#role-readonly').attr('checked', data.readonly);
+            }
         });
 
         var restoreForm = function() {
             $('#role-id').val('');
             $('#role-name').val('');
-            $('#role-surname').val('');
-            $('#role-rolename').val('');
-            $('#role-role-id').val('');
-            $('#role-url').val('');
-            $('#role-password').val('');
+            $('#role-type').val('');
+            $('#role-readonly').removeAttr('checked');
         }
     </script>
 @endsection

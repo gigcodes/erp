@@ -47,6 +47,9 @@ class ItemController extends Controller
             $item->setType($data['type'] ?? '');
             $item->setValueType((int)$data['value_type'] ?? 1);
             $item->setDelay($data['delay'] ?? 1);
+            $item->setHostId((int)$data['host_id']);
+            $item->setUnits($data['units'] ?? '');
+            $item->setInterfaceid((int)$data['interfaceid'] ?? 0);
 
             $item->save();
         }
@@ -67,6 +70,41 @@ class ItemController extends Controller
         return response()->json([
             'message' => sprintf('Item with name: %s was edited. Reload page.', $item->getName()),
             'item' => $item,
+            'code' => 200
+        ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $data = $request->all();
+
+        try {
+            $user = new Item();
+            $userId = (int)$data['id'] ?? null;
+            if (!empty($data['id'])) {
+                $user = $user->getById($userId);
+            } else {
+                throw new ZabbixException(sprintf('Item with id: %s not found.', $userId));
+            }
+
+            $user->delete();
+        }
+        catch (ZabbixException $zabbixException)
+        {
+            return response()->json([
+                'message' => $zabbixException->getMessage(),
+                'code' => 500
+            ]);
+        }
+        catch (Exception $e) {
+            return response()->json([
+                'message' => 'Something went wrong.',
+                'code' => 500
+            ]);
+        }
+
+        return response()->json([
+            'message' => sprintf('Item with id: %s was deleted. Reload page.', $userId),
             'code' => 200
         ]);
     }

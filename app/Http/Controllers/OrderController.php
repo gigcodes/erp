@@ -230,8 +230,11 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $term = $request->input('term');
+        $advance_detail = $request->input('advance_detail');
+        $balance_amount = $request->input('balance_amount');
         $order_status = $request->status ?? [''];
         $date = $request->date ?? '';
+        $estimated_delivery_date = $request->estimated_delivery_date ?? '';
         $brandList = \App\Brand::all()->pluck('name', 'id')->toArray();
         $brandIds = array_filter($request->get('brand_id', []));
         $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
@@ -318,8 +321,20 @@ class OrderController extends Controller
             $orders = $orders->where('order_date', $date);
         }
 
+        if ($estimated_delivery_date != '') {
+            $orders = $orders->where('estimated_delivery_date', $estimated_delivery_date);
+        }
+
         if ($store_site = $request->store_website_id) {
             $orders = $orders->whereIn('swo.website_id', $store_site);
+        }
+
+        if ($advance_detail != '') {
+            $orders = $orders->where('advance_detail', "<=", $advance_detail);
+        }
+
+        if ($balance_amount != '') {
+            $orders = $orders->where('balance_amount', "<=", $balance_amount);
         }
 
         $statusFilterList = clone $orders;
@@ -390,7 +405,8 @@ class OrderController extends Controller
         }
 
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList', 'dynamicColumnsToShowPostman'));
+        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList', 'dynamicColumnsToShowPostman', 'estimated_delivery_date', 'advance_detail', 'balance_amount'));
+
     }
 
     public function orderPreviewSentMails(Request $request)
