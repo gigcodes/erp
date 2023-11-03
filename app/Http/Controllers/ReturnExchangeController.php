@@ -291,6 +291,14 @@ class ReturnExchangeController extends Controller
         }
         $order_status_list = \DB::table('return_exchange_statuses')->get();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'return-exchange')->first();
+
+        $dynamicColumnsToShowPostman = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+        }
+
         return response()->json([
             'code' => 200,
             'data' => $items,
@@ -298,6 +306,7 @@ class ReturnExchangeController extends Controller
             'pagination' => (string) $returnExchange->links(),
             'total' => $returnExchange->total(),
             'page' => $returnExchange->currentPage(),
+            'dynamicColumnsToShowPostman' => $dynamicColumnsToShowPostman,
         ]);
     }
 
