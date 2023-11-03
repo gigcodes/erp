@@ -487,6 +487,17 @@ Route::prefix('blog')->middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/zabbix/users', [\App\Http\Controllers\Zabbix\UserController::class, 'index'])->name('zabbix.user.index');
+    Route::post('/zabbix/user/save', [\App\Http\Controllers\Zabbix\UserController::class, 'save'])->name('zabbix.user.save');
+    Route::get('/zabbix/items/{hostId?}', [\App\Http\Controllers\Zabbix\ItemController::class, 'index'])->name('zabbix.item.index');
+    Route::get('/zabbix/user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
+    Route::post('/zabbix/user/role/save', [\App\Http\Controllers\Zabbix\UserController::class, 'rolesSave'])->name('zabbix.user.role.save');
+    Route::get('/zabbix/triggers', [\App\Http\Controllers\Zabbix\TriggerController::class, 'index'])->name('zabbix.trigger.index');
+    Route::post('/zabbix/triggers/save', [\App\Http\Controllers\Zabbix\TriggerController::class, 'save'])->name('zabbix.trigger.save');
+    Route::post('/zabbix/user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
+    Route::post('/zabbix/item/delete', [\App\Http\Controllers\Zabbix\ItemController::class, 'delete'])->name('zabbix.item.delete');
+    Route::post('/zabbix/trigger/change_status', [\App\Http\Controllers\Zabbix\TriggerController::class, 'changeStatus'])->name('zabbix.trigger.status');
+    Route::post('/zabbix/item/save', [\App\Http\Controllers\Zabbix\ItemController::class, 'save'])->name('zabbix.item.save');
     Route::get('discount-sale-price', [DiscountSalePriceController::class, 'index']);
     Route::delete('discount-sale-price/{id}', [DiscountSalePriceController::class, 'delete']);
     Route::get('discount-sale-price/type', [DiscountSalePriceController::class, 'type']);
@@ -541,6 +552,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
     Route::post('magento_modules/listing-careers/create_or_edit', [\App\Http\Controllers\MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
     Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
+    Route::get('magento_modules_logs/{id}', [MagentoModuleController::class, 'magentoModuleListLogsDetails'])->name('magento_module_listing_logs_details');
     Route::get('magento_modules/ajax-listing-logs', [MagentoModuleController::class, 'magentoModuleListLogsAjax'])->name('magento_modules.ajax-sync-logs');
 
     Route::get('magento_modules/get-api-value-histories/{magento_module}', [MagentoModuleController::class, 'getApiValueHistories'])->name('magento_module.get-api-value-histories');
@@ -1624,6 +1636,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/update-delivery-date', [OrderController::class, 'updateDelDate'])->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', [OrderController::class, 'viewEstDelDateHistory'])->name('order.viewEstDelDateHistory');
     Route::post('order/addNewReply', [OrderController::class, 'addNewReply'])->name('order.addNewReply');
+    Route::post('order/orderChangeStatusHistory', [OrderController::class, 'orderChangeStatusHistory'])->name('order.orderChangeStatusHistory');
     Route::post('order/get-customer-address', [OrderController::class, 'getCustomerAddress'])->name('order.customer.address');
     Route::post('order/get-error-logs', [OrderController::class, 'getOrderErrorLog'])->name('order.customer.address');
     Route::post('order/get-email-error-logs', [OrderController::class, 'getOrderExceptionErrorLog'])->name('order.get.email.error.logs');
@@ -4444,10 +4457,13 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
     Route::prefix('github')->group(function () {
         Route::resource('/organizations', Github\OrganizationController::class);
         Route::post('/github-task/store', [Github\RepositoryController::class, 'githubTaskStore'])->name('github.github-task.store');
+        Route::post('/addtoken', [Github\RepositoryController::class, 'githubAddToken'])->name('github.addtoken');
+        //Route::post('/addtokenhistory', [Github\RepositoryController::class, 'addGithubTokenHistory'])->name('github.addtokenhistory');
         Route::post('/pull-request-activities/update', [Github\RepositoryController::class, 'pullRequestActivitiesUpdate'])->name('github.pull-request-activities.update');
         Route::post('/repos/job-name-store', [Github\RepositoryController::class, 'jobNameStore'])->name('github.job-name.store');
         Route::post('/repos/sync-repo-labels', [Github\RepositoryController::class, 'syncRepoLabels'])->name('github.sync-repo-labels');
         Route::get('/repos/list-repo-labels', [Github\RepositoryController::class, 'listRepoLabels'])->name('github.list-repo-labels');
+        Route::post('/repos/get-repo-data', [Github\RepositoryController::class, 'getRepositoryDara'])->name('github.repo-data');
         Route::post('/repos/update-repo-label-message', [Github\RepositoryController::class, 'updateRepoLabelMessage'])->name('github.update-repo-label-message');
         Route::get('/repos/get-github-jobs', [Github\RepositoryController::class, 'getGithubJobs'])->name('github.get-jobs');
         Route::get('/repos/get-github-actions-jobs', [Github\RepositoryController::class, 'getGithubActionsAndJobs'])->name('github.get-actions-jobs');
@@ -4490,6 +4506,7 @@ Route::middleware('auth', 'role_or_permission:Admin|deployer')->group(function (
         Route::get('/actions', [Github\RepositoryController::class, 'actionIndex'])->name('github.actionIndex');
         Route::get('/repo/status', [Github\RepositoryController::class, 'repoStatusCheck'])->name('github.repoStatusCheck');
         Route::get('/repo/pr-request', [Github\RepositoryController::class, 'getLatestPullRequests'])->name('github.pr.request');
+        Route::get('repo-histories/{id}', [Github\RepositoryController::class, 'githubTokenHistory'])->name('github.token.histories');
     });
 });
 
@@ -5286,16 +5303,23 @@ Route::prefix('magento-product-error')->middleware('auth')->group(function () {
 //Magento Command
 Route::post('magento/command/permission/user', [MagentoCommandController::class, 'userPermission'])->name('magento.command.user.permission');
 Route::get('magento/command', [MagentoCommandController::class, 'index'])->name('magento.command');
+Route::get('magento/magento_command', [MagentoCommandController::class, 'index_command'])->name('magento.magento_command');
 Route::get('magento/get-command', [MagentoCommandController::class, 'getMagentoCommand'])->name('magento.getMagentoCommand');
 Route::get('magento/command/search', [MagentoCommandController::class, 'search'])->name('magento.command.search');
+Route::get('magento/magento_command/searchcron', [MagentoCommandController::class, 'searchcron'])->name('magento.command.searchcron');
 Route::post('magento/command/add', [MagentoCommandController::class, 'store'])->name('magento.command.add');
+Route::post('magento/command/addcommand', [MagentoCommandController::class, 'storecommand'])->name('magento.command.addcommand');
 Route::post('magento/command/run', [MagentoCommandController::class, 'runCommand'])->name('magento.command.run');
+Route::post('magento/command/runmagentocommand', [MagentoCommandController::class, 'runMagentoCommand'])->name('magento.command.runmagentocommand');
 Route::post('magento/command/run-on-multiple-website', [MagentoCommandController::class, 'runOnMultipleWebsite'])->name('magento.command.runOnMultipleWebsite');
 Route::post('magento/command/run-mysql-command', [MagentoCommandController::class, 'runMySqlQuery'])->name('magento.command.runMySqlQuery');
 Route::get('magento/command/run-mysql-command-logs', [MagentoCommandController::class, 'mySqlQueryLogs'])->name('magento.command.mySqlQueryLogs');
 Route::post('magento/command/edit', [MagentoCommandController::class, 'edit'])->name('magento.command.edit');
+Route::post('magento/command/editcommand', [MagentoCommandController::class, 'editcommand'])->name('magento.command.editcommand');
 Route::post('magento/command/history', [MagentoCommandController::class, 'commandHistoryLog'])->name('magento.command.history');
+Route::post('magento/cron/history', [MagentoCommandController::class, 'cronHistoryLog'])->name('magento.cron.history');
 Route::delete('magento/command/delete', [MagentoCommandController::class, 'destroy'])->name('magento.command.delete');
+Route::delete('magento/command/deletecommand', [MagentoCommandController::class, 'deletecommand'])->name('magento.command.deletecommand');
 Route::get('/magento/command/run-mulitiple-command-logs', [MagentoCommandController::class, 'getMulitipleCommands'])->name('magento.mulitiple.command.lists');
 Route::prefix('message-queue-history')->middleware('auth')->group(function () {
     Route::get('/', [MessageQueueHistoryController::class, 'index'])->name('message-queue-history.index');
@@ -5693,4 +5717,6 @@ Route::middleware('auth')->group(function () {
 });   
 Route::middleware('auth')->group(function () {
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
+    Route::post('monit-status/command/run', [MonitStatusController::class, 'runCommand'])->name('monit-status.command.run');
+    Route::get('monit-api-histories/{id}', [MonitStatusController::class, 'monitApiHistory'])->name('monit-status.api.histories');
 });

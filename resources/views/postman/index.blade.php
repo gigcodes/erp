@@ -545,7 +545,7 @@
                                     <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                                     <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
 
-                                    <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page'  }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                    <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page - '.$postman->id  }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
 
                                     <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($postman) {{ $postman->id }} @endif" data-category="{{ $postman->id }}"><i class="fa fa-info-circle"></i></button>
                                 </div>
@@ -667,7 +667,7 @@
                       <a title="Preview Remark History" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_remark_history pd-5 btn-ht" href="javascript:;"><i class="fa fa-history" aria-hidden="true"></i></a>
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
 
-                      <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page' }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                      <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page - '.$postman->id }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </td>

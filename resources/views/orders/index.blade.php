@@ -419,7 +419,7 @@
                   @if (!in_array('Order Status', $dynamicColumnsToShowPostman))
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -605,6 +605,9 @@
                     <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
                 </div>
             </td>
         </tr>
@@ -710,7 +713,7 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -866,6 +869,9 @@
                     <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
                 </div>
             </td>
             </tr>
@@ -1252,6 +1258,7 @@
       </div>
       <form action="" id="product-update-status-message-tpl-frm" method="POST">
           @csrf
+          <input type="hidden" name="order_id" id="order-status-id-tpl" value="">
           <input type="hidden" name="order_id" id="order-product-id-status-tpl" value="">
           <input type="hidden" name="order_status_id" id="order-product-status-id-status-tpl" value="">
           <input type="hidden" name="order_product_item_id" id="order_product_item_id" value="">
@@ -1403,6 +1410,7 @@
 @include('partials.modals.return-exchange-modal')
 @include('partials.modals.estimated-delivery-date-histories')
 @include('orders.partials.column-visibility-modal')
+@include('orders.order-status-change-history')
 @section('scripts')
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -2029,6 +2037,9 @@
           var id = $(this).data("id");
           var product_item_id = $(this).data("order_product_item_id");
           var status = $(this).val();
+
+          var order_status = $(".order-status-select-"+id).val();
+
           $("#product-preview").hide();
           $.ajax({
             headers: {
@@ -2040,7 +2051,8 @@
               id : id,
               order_id: id,
               order_product_item_id: product_item_id,
-              order_status_id : status
+              order_status_id : status,
+              order_status : order_status,
             },
             beforeSend: function() {
               $("loading-image").show();
@@ -2048,7 +2060,8 @@
           }).done( function(response) {
             $("loading-image").hide();
             if(response.code == 200) {
-
+                
+              $("#order-status-id-tpl").val(order_status);
               $("#order-product-id-status-tpl").val(id);
               $("#product-preview").html(response.preview);
               $("#order_product_item_id").val(product_item_id);
@@ -2095,6 +2108,7 @@
               from_mail:$("#email_from_mail_product").val(),
               to_mail:$("#email_to_mail_product").val(),
               order_via: selected_array,
+              order_status_id : $("#order-status-id-tpl").val(),
             }
             }).done( function(response) {
               $("#product-update-status-message-tpl").modal("hide");
@@ -2134,7 +2148,7 @@
       });
 
 
-	//   $('ul.pagination').hide();
+	  // $('ul.pagination').hide();
 	// 	$('.infinite-scroll').jscroll({
 	// 		autoTrigger: true,
 	// 		// debug: true,
@@ -2147,7 +2161,7 @@
 	// 			$('ul.pagination').hide();
 	// 		}
 	// 	});
-    // });
+    });
 
     $(document).on('click', '.change_message_status', function(e) {
       e.preventDefault();
@@ -2890,5 +2904,41 @@
         function changeOrderStatusPage(pageNumber) {
           listStatusColor(pageNumber);
         }
+
+        $(document).on('click','.order-status-change-history',function(){
+            var order_id = $(this).data('id');
+            var product_item_id = $(this).data("order_product_item_id");
+            $.ajax({
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: "POST",
+                url: `{{ route('order.orderChangeStatusHistory') }}`,
+                dataType: "json",
+                data: {
+                    order_id: order_id,
+                    product_item_id:product_item_id
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += "<tr>";
+                            html += "<td>" + (k + 1) + "</td>";
+                            html += "<td>" + v.order.order_id + "</td>";
+                            html += "<td>" + v.request + "</td>";
+                            html += "<td>" + v.response + "</td>";
+                            html += "<td>" + v.user.name + "</td>";
+                            html += "<td>" + v.created_at + "</td>";
+                            html += "</tr>";
+                        });
+                        $("#order-status-change-histories-list").find(".order-status-change-list-view").html(html);
+                        $("#order-status-change-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
   </script>
 @endsection
