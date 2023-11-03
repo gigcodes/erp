@@ -1678,8 +1678,9 @@
             //form.find('[name="'+key+'[]"]').val(v);
             $('.add_more_urls_div').html('');
             $('.add_more_urls_div').css('display', 'none');
+            $('.add_more_urls_div').append('<input type="text" id="searchInput" placeholder="Search URL" class="form-control"><br/>');
             $.each(response.postmanUrl, function(i, e) {
-              $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="' + e.request_url + '" class="form-control" id="request_url" placeholder="Enter request url">');
+              $('.add_more_urls_div').append('<input type="text" name="request_url[]" value="' + e.request_url + '" class="form-control urlInput" id="request_url" placeholder="Enter request url">');
             });
           } else if (key == 'folder_name') {
             $("#folder_name").val(v);
@@ -2607,6 +2608,22 @@
 
     $(document).on("click", ".btn-show-request-url", function () {
         $(".add_more_urls_div").toggle();
+    });
+
+    $(document).on('input', '#searchInput', function(e) {
+        e.preventDefault();
+        const searchInput = $(this).val();
+        const urlInputs = $(".urlInput");
+
+        urlInputs.each(function() {
+            const urlInput = $(this);
+            const url = urlInput.val();
+            if (url.includes(searchInput)) {
+                urlInput.removeClass("hidden");
+            } else {
+                urlInput.addClass("hidden");
+            }
+        });
     });
 </script>
 @endsection
