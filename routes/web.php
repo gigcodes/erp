@@ -813,6 +813,7 @@ Route::prefix('product')->middleware('auth')->group(function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(function () {
+	Route::delete('list-api-logs-delete', [LaravelLogController::class, 'listApiLogsDelete'])->name('list-api-logs-delete');
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', [Logging\LogListMagentoController::class, 'updateProductPushInformation'])->name('update.magento.product-push-information');
