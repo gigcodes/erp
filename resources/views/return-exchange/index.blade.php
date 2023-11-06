@@ -62,6 +62,7 @@
 				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_status">
 					Create Status
 				</a>
+				<button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
 				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_refund">
 					Create Refund
 				</a>
@@ -239,7 +240,7 @@
 @include("return-exchange.templates.modal-productDetails")
 @include("return-exchange.templates.create-refund")
 @include("return-exchange.templates.update-refund-modal")
-
+@include("return-exchange.partial.modal-status-color")
 @endsection
 
 @section('scripts')

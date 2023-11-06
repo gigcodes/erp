@@ -4745,6 +4745,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
 Route::middleware('auth')->prefix('return-exchange')->group(function () {
     Route::get('/', [ReturnExchangeController::class, 'index'])->name('return-exchange.list');
     Route::get('/records', [ReturnExchangeController::class, 'records'])->name('return-exchange.records');
+    Route::post('/statuscolor', [ReturnExchangeController::class, 'statuscolor'])->name('return-exchange.statuscolor');
     Route::get('/model/{id}', [ReturnExchangeController::class, 'getOrders']);
     Route::get('/getProducts/{id}', [ReturnExchangeController::class, 'getProducts']);
     Route::get('/getRefundInfo/{id}', [ReturnExchangeController::class, 'getRefundInfo']);
