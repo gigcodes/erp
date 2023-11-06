@@ -3272,6 +3272,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/postman/create', [PostmanRequestCreateController::class, 'store']);
     Route::post('/postman/edit', [PostmanRequestCreateController::class, 'edit']);
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
+    Route::get('postman/addstorewebsiteurlinflutterpostman', [PostmanRequestCreateController::class, 'addStoreWebsiteUrlInFlutterPostman']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
     Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
@@ -3304,7 +3305,9 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/send/request', [PostmanRequestCreateController::class, 'sendPostmanRequestAPI']);
 
     Route::post('postman/requested/history', [PostmanRequestCreateController::class, 'postmanRequestHistoryLog']);
+    Route::get('postman/request/history', [PostmanRequestCreateController::class, 'index_request_hisory']);
     Route::post('postman/response/history', [PostmanRequestCreateController::class, 'postmanResponseHistoryLog']);
+    Route::get('postman/response/history', [PostmanRequestCreateController::class, 'index_response_hisory']);
     Route::post('postman/add/json/version', [PostmanRequestCreateController::class, 'jsonVersion']);
     Route::post('postman/removeuser/permission', [PostmanRequestCreateController::class, 'removeUserPermission']);
     Route::post('postman/remark/history', [PostmanRequestCreateController::class, 'postmanRemarkHistoryLog']);
