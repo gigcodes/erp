@@ -4517,6 +4517,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
+                                    </li>
                                 </ul>
                             </li>
 

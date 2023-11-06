@@ -68,35 +68,54 @@
            <div class="col-10" style="padding-left:0px;">
             <div>
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                <div class="form-group col-md-3 pd-3">
+                <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Search keywords :</label>
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>
 
                  <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
+                    <label style=" float: left;">Select Order Status :</label>
                   <select class="form-control select-multiple " name="status[]" multiple>
-                    <option value="">Select a Status</option>
                       @foreach ($order_status_list as $id => $order_st)
                         <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                   </select>
                 </div>
+
                  <!-- <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Select Brands :</label>
                   <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
                 </div> -->
-                 <div class="form-group col-md-2 pd-3">
-                  <div class='input-group date' id='order-datetime'>
-                    <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
-                     <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                  </div>
+
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Advance :</label>
+                  <input style="width:100%;" name="advance_detail" type="text" class="form-control"
+                         value="{{ isset($advance_detail) ? $advance_detail : '' }}"
+                         placeholder="Search">
+                </div>
+
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Balance :</label>
+                  <input style="width:100%;" name="balance_amount" type="text" class="form-control"
+                         value="{{ isset($balance_amount) ? $balance_amount : '' }}"
+                         placeholder="Search">
+                </div>
+
+                 <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Date :</label>
+                  <input type='date' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" style=" width: 100%;"/>
+                </div>
+
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">ETA :</label>
+                  <input type='date' class="form-control" name="estimated_delivery_date" value="{{ isset($estimated_delivery_date) ? $estimated_delivery_date : '' }}" style=" width: 100%;"/>
                 </div>
                    <div class="form-group col-md-2 pd-3">
                   <div class="form-group ml-3">
-{{--                      <select class="form-control select2" name="store_website_id" multiple="">--}}
-                      <select class="form-control select2" name="store_website_id[]" multiple="multiple" id="select2Multiple">
+                    <label style=" float: left;">Select Website :</label>
+                      <select class="form-control select2 globalSelect2" multiple="true" name="store_website_id[]" id="select2Multiple" >
                       <option value="">Select Site Name</option>
                       @forelse ($registerSiteList as $key => $item)
                           @if(isset($store_site) && in_array($key, $store_site))
@@ -400,7 +419,7 @@
                   @if (!in_array('Order Status', $dynamicColumnsToShowPostman))
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -586,6 +605,9 @@
                     <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
                 </div>
             </td>
         </tr>
@@ -691,7 +713,7 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -847,6 +869,9 @@
                     <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
                 </div>
             </td>
             </tr>
@@ -1233,6 +1258,7 @@
       </div>
       <form action="" id="product-update-status-message-tpl-frm" method="POST">
           @csrf
+          <input type="hidden" name="order_id" id="order-status-id-tpl" value="">
           <input type="hidden" name="order_id" id="order-product-id-status-tpl" value="">
           <input type="hidden" name="order_status_id" id="order-product-status-id-status-tpl" value="">
           <input type="hidden" name="order_product_item_id" id="order_product_item_id" value="">
@@ -1384,6 +1410,7 @@
 @include('partials.modals.return-exchange-modal')
 @include('partials.modals.estimated-delivery-date-histories')
 @include('orders.partials.column-visibility-modal')
+@include('orders.order-status-change-history')
 @section('scripts')
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -2010,6 +2037,9 @@
           var id = $(this).data("id");
           var product_item_id = $(this).data("order_product_item_id");
           var status = $(this).val();
+
+          var order_status = $(".order-status-select-"+id).val();
+
           $("#product-preview").hide();
           $.ajax({
             headers: {
@@ -2021,7 +2051,8 @@
               id : id,
               order_id: id,
               order_product_item_id: product_item_id,
-              order_status_id : status
+              order_status_id : status,
+              order_status : order_status,
             },
             beforeSend: function() {
               $("loading-image").show();
@@ -2029,7 +2060,8 @@
           }).done( function(response) {
             $("loading-image").hide();
             if(response.code == 200) {
-
+                
+              $("#order-status-id-tpl").val(order_status);
               $("#order-product-id-status-tpl").val(id);
               $("#product-preview").html(response.preview);
               $("#order_product_item_id").val(product_item_id);
@@ -2076,6 +2108,7 @@
               from_mail:$("#email_from_mail_product").val(),
               to_mail:$("#email_to_mail_product").val(),
               order_via: selected_array,
+              order_status_id : $("#order-status-id-tpl").val(),
             }
             }).done( function(response) {
               $("#product-update-status-message-tpl").modal("hide");
@@ -2115,7 +2148,7 @@
       });
 
 
-	//   $('ul.pagination').hide();
+	  // $('ul.pagination').hide();
 	// 	$('.infinite-scroll').jscroll({
 	// 		autoTrigger: true,
 	// 		// debug: true,
@@ -2128,7 +2161,7 @@
 	// 			$('ul.pagination').hide();
 	// 		}
 	// 	});
-    // });
+    });
 
     $(document).on('click', '.change_message_status', function(e) {
       e.preventDefault();
@@ -2871,5 +2904,41 @@
         function changeOrderStatusPage(pageNumber) {
           listStatusColor(pageNumber);
         }
+
+        $(document).on('click','.order-status-change-history',function(){
+            var order_id = $(this).data('id');
+            var product_item_id = $(this).data("order_product_item_id");
+            $.ajax({
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: "POST",
+                url: `{{ route('order.orderChangeStatusHistory') }}`,
+                dataType: "json",
+                data: {
+                    order_id: order_id,
+                    product_item_id:product_item_id
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += "<tr>";
+                            html += "<td>" + (k + 1) + "</td>";
+                            html += "<td>" + v.order.order_id + "</td>";
+                            html += "<td>" + v.request + "</td>";
+                            html += "<td>" + v.response + "</td>";
+                            html += "<td>" + v.user.name + "</td>";
+                            html += "<td>" + v.created_at + "</td>";
+                            html += "</tr>";
+                        });
+                        $("#order-status-change-histories-list").find(".order-status-change-list-view").html(html);
+                        $("#order-status-change-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
   </script>
 @endsection

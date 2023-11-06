@@ -12,8 +12,8 @@ class GithubRepository extends Model
         'name',
         'html',
         'webhook',
-        'created_at',
-        'updated_at',
+        'token_key',
+        'github_type',
     ];
 
     public function users()

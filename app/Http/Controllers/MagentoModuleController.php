@@ -841,7 +841,7 @@ class MagentoModuleController extends Controller
     {   
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
-        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id');
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('created_at', 'DESC');
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
             $magento_modules = $magento_modules->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
@@ -1776,5 +1776,17 @@ class MagentoModuleController extends Controller
         \Log::info('store return_var:' . $return_var);
 
         return response()->json(['code' => 200, 'data' => $result]);
+    }
+
+    public function magentoModuleListLogsDetails($id)
+    {   
+        $MagentoModuleLogs = MagentoModuleLogs::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $MagentoModuleLogs,
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
