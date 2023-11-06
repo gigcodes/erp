@@ -206,7 +206,22 @@ class ReturnExchangeController extends Controller
             $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
         }
 
-        return view('return-exchange.index', compact('returnExchange', 'quickreply', 'dynamicColumnsToShowPostman'));
+        $status = ReturnExchangeStatus::all();
+
+        return view('return-exchange.index', compact('returnExchange', 'quickreply', 'dynamicColumnsToShowPostman', 'status'));
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $rexchangestatus = ReturnExchangeStatus::find($key);
+            $rexchangestatus->return_exchange_color = $value;
+            $rexchangestatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function records(Request $request)
@@ -277,6 +292,7 @@ class ReturnExchangeController extends Controller
             'c.name as customer_name',
             'rep.product_id', 'rep.name',
             'stat.status_name as status_name',
+            'stat.return_exchange_color as return_exchange_color',
             'w.title as website',
         ])->paginate($limit);
 
