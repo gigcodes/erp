@@ -6,7 +6,9 @@ use App\Brand;
 use App\Email;
 use App\Category;
 use App\ChatMessage;
+use App\Observers\TaskObserver;
 use App\ScrapedProducts;
+use App\Task;
 use Plank\Mediable\Media;
 use App\Observers\BrandObserver;
 use App\Observers\EmailObserver;
@@ -146,6 +148,7 @@ class EventServiceProvider extends ServiceProvider
         Email::observe(EmailObserver::class);
         Media::observe(MediaObserver::class);
         ChatMessage::observe(ChatMessageObserver::class);
+        ChatMessage::observe(TaskObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
 
