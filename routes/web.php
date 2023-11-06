@@ -813,6 +813,7 @@ Route::prefix('product')->middleware('auth')->group(function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(function () {
+	Route::delete('list-api-logs-delete', [LaravelLogController::class, 'listApiLogsDelete'])->name('list-api-logs-delete');
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', [Logging\LogListMagentoController::class, 'updateProductPushInformation'])->name('update.magento.product-push-information');
@@ -4745,6 +4746,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
 Route::middleware('auth')->prefix('return-exchange')->group(function () {
     Route::get('/', [ReturnExchangeController::class, 'index'])->name('return-exchange.list');
     Route::get('/records', [ReturnExchangeController::class, 'records'])->name('return-exchange.records');
+    Route::post('/statuscolor', [ReturnExchangeController::class, 'statuscolor'])->name('return-exchange.statuscolor');
     Route::get('/model/{id}', [ReturnExchangeController::class, 'getOrders']);
     Route::get('/getProducts/{id}', [ReturnExchangeController::class, 'getProducts']);
     Route::get('/getRefundInfo/{id}', [ReturnExchangeController::class, 'getRefundInfo']);
