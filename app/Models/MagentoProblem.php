@@ -10,5 +10,15 @@ class MagentoProblem extends Model
     use HasFactory;
 
     public $table = 'magento_problems';
+
+    public $fillable = [
+        'user_id',
+        'source',
+        'test',
+        'severity',
+        'type',
+        'error_body',
+        'status',
+    ];
     
 }

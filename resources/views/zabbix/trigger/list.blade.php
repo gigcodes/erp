@@ -6,6 +6,8 @@
         <th width="20%">Expression</th>
         <th>Event Name</th>
         <th>Template ID</th>
+        <th>Priority</th>
+        <th>Is active</th>
         <th>Edit</th>
     </tr>
     </thead>
@@ -27,6 +29,16 @@
             </td>
             <td class="td-template-id-{{ $trigger->getId() }}">
                 {{ $trigger->getTemplateId() }}
+            </td>
+            <td class="td-priority-{{ $trigger->getId() }}">
+                {{ $trigger->getSeverity() }}
+            </td>
+            <td class="td-status-{{ $trigger->getId() }}">
+                @if($trigger->isActive()) 
+                <a href="#" class="btn btn-xs btn-warning btn-status-trigger td-status-{{ $trigger->getId() }}" data-id="{{ $trigger->getId() }}" data-json='<?=json_encode($trigger)?>'>Deactivate</a>
+                @else
+                <a href="#" class="btn btn-xs btn-success btn-status-trigger td-status-{{ $trigger->getId() }}" data-id="{{ $trigger->getId() }}" data-json='<?=json_encode($trigger)?>'>Enable</a>
+                @endif
             </td>
             <td>
                 <a href="#" class="btn btn-xs btn-secondary btn-edit-trigger td-edit-{{ $trigger->getId() }}" data-id="{{ $trigger->getId() }}" data-json='<?=json_encode($trigger)?>'>Edit</a>
