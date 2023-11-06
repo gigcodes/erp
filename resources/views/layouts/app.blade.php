@@ -56,9 +56,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
     @if(Auth::user())
         @if(Auth::user()->user_timeout!=0)
-            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('login') }}">
+            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
         @else
-            <meta http-equiv="refresh" content = "28800; url={{ route('login') }}">
+            <meta http-equiv="refresh" content = "28800; url={{ route('logout-refresh') }}">
         @endif
     @endif
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->

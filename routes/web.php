@@ -492,6 +492,7 @@ Route::middleware('auth')->group(function () {
     Route::post('discount-sale-price/create', [DiscountSalePriceController::class, 'create']);
     Route::get('create-media-image', [CustomerController::class, 'testImage']);
     Route::get('generate-favicon', [HomeController::class, 'generateFavicon']);
+    Route::get('logout-refresh', [HomeController::class, 'logoutRefresh'])->name('logout-refresh');
 
     Route::get('/products/affiliate', [ProductController::class, 'affiliateProducts']);
     Route::get('/products/change-category', [ProductController::class, 'changeCategory']);
