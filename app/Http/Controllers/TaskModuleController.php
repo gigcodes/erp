@@ -2247,6 +2247,99 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function createMultipleTaskFromSortcutPostman(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function createMultipleTaskFromSortcutMagentoProblems(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function createMultipleTaskFromSortcutWebsiteLogs(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
     public function createTaskFromSortcut(Request $request)
     {
         // _p(request()->all(), 1);
@@ -4536,5 +4629,23 @@ class TaskModuleController extends Controller
             'message' => 'Successfully get Logs history status',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function deleteDevTask(Request $request)
+    {
+        $id = $request->input('id');
+        if ($request->tasktype == 'Devtask') {
+            $task = DeveloperTask::find($id);
+        } elseif ($request->tasktype == 'Othertask') {
+            $task = Task::find($id);
+        }
+
+        if ($task) {
+            $task->delete();
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['code' => 200]);
+        }
     }
 }

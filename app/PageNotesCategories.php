@@ -18,6 +18,6 @@ class PageNotesCategories extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name',
+        'name', 'created_by',
     ];
 }
