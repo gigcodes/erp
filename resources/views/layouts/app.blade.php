@@ -5089,6 +5089,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <div class="row">
                                         <div class="col-12 pb-3">
                                             <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="task_user_id" id="task_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -6027,6 +6037,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         $('#ipusers').select2({width: '20%'});
+        $('#task_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6468,6 +6479,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-task-search-menu", function (e) {
         var keyword = $('.task-search-table').val();
+        var task_user_id = $('#task_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6475,6 +6487,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 term: keyword,
+                selected_user: task_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
