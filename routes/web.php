@@ -4050,6 +4050,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 // pages notes started from here
 Route::middleware('auth')->group(function () {
     Route::prefix('page-notes')->group(function () {
+    	Route::post('/category/create', [PageNotesController::class, 'createCategory'])->name('pageNotes.createCategory');
         Route::post('create', [PageNotesController::class, 'create'])->name('createPageNote');
         Route::get('list', [PageNotesController::class, 'list'])->name('listPageNote');
         Route::get('edit', [PageNotesController::class, 'edit'])->name('editPageNote');

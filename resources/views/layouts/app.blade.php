@@ -1460,7 +1460,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $permissionCount = \App\PermissionRequest::count();
                                     @endphp
-                                        <a class="quick-icon permission-request" href="#">
+                                        <a title="Permission Request" class="quick-icon permission-request" href="#">
                                             <span><i class="fa fa-reply fa-2x"></i>
                                                 @if($permissionCount)
                                                     <span class="permission-alert-badge"></span>
@@ -1471,7 +1471,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 @endif
                                 <li>
-                                    <a class="notification-button quick-icon" href="#"><span><i
+                                    <a title="Quick User Event Notification" class="notification-button quick-icon" href="#"><span><i
                                                 class="fa fa-bell fa-2x"></i></span></a>
                                 </li>
                                 <li>
@@ -1487,7 +1487,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </button>
                                 </li>
                                 <li>
-                                    <a class="instruction-button quick-icon" href="#"><span><i
+                                    <a title="Quick Instruction" class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
@@ -1495,7 +1495,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="daily-planner-button quick-icon" target="__blank"
+                                    <a title="Daily Planner" class="daily-planner-button quick-icon" target="__blank"
                                         href="{{ route('dailyplanner.index') }}">
                                         <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1503,7 +1503,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
                                 <li>
-                                    <a id="message-chat-data-box" class="quick-icon">
+                                    <a title="Chat" id="message-chat-data-box" class="quick-icon">
                                         <span class="p1 fa-stack has-badge" id="new_message"
                                             data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                             <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
@@ -1511,13 +1511,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-zoom-meeting quick-icon" data-toggle="modal"
+                                    <a title="Create Meeting" class="create-zoom-meeting quick-icon" data-toggle="modal"
                                         data-target="#quick-zoomModal">
                                         <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-easy-task quick-icon" data-toggle="modal"
+                                    <a title="Create Task / Dev Task" class="create-easy-task quick-icon" data-toggle="modal"
                                         data-target="#quick-create-task">
                                         <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -7468,7 +7468,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     
                     <div class='text_box-textarea mb-4'>
                         <label>Notes</label></br>
-                        <textarea maxlength='100' rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
+                        <textarea rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
                     </div>
                 </div>`;
 

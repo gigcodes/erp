@@ -128,6 +128,10 @@ class PageNotesController extends Controller
             $search = '%' . $request->search . '%';
             $records = $records->where('page_notes.note', 'like', $search);
         }
+
+        if ($request->category_id) {
+            $records = $records->where('page_notes.category_id', $request->category_id);
+        }
         //END - DEVTASK-4289
 
         $records = $records->paginate(Setting::get('pagination'));
@@ -184,5 +188,22 @@ class PageNotesController extends Controller
         $pageNotes->save();
 
         return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
+    }
+
+    public function createCategory(Request $request)
+    {
+        
+        $input = $request->except('_token');
+        $isExist = \App\PageNotesCategories::where('name', $request->name)->first();
+        if (! $isExist) {
+            \App\PageNotesCategories::create([
+                'name' => $request->name,
+                'created_by' => \Auth::user()->id
+            ]);
+
+            return response()->json(['message' => 'Successful'], 200);
+        } else {
+            return response()->json(['message' => 'Fail'], 401);
+        }
     }
 }
