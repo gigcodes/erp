@@ -1496,6 +1496,9 @@ class PostmanRequestCreateController extends Controller
                 }
             }
         }
+
+        echo 'success';
+        exit;
         
     }
 
