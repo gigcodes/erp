@@ -8,7 +8,15 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Laravel API Logs (<span class="page-total">{{ $count }}</span>)</h2>
+        <h2 class="page-heading">
+            Laravel API Logs (<span class="page-total">{{ $count }}</span>)
+
+            <div class="pull-right pr-3">
+                {!! Form::open(['method' => 'DELETE','route' => ['list-api-logs-delete'],'style'=>'display:inline']) !!}
+                    <button type="submit" class="btn btn-sm btn-secondary" title="Delete All Laravel API Logs" onclick="return confirm('{{ __('Are you sure you want to Delete All Laravel API Logs?') }}')">Delete All Laravel API Logs</button>
+                {!! Form::close() !!}
+            </div>
+        </h2>
         <!-- <div class="pull-right">
                                                                  <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a>
                                                                  <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>

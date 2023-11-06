@@ -27,7 +27,7 @@
 						<th style="width:5%;">Refund Reason</th>
 					<?php } ?>
 					<?php if(!in_array('Status', $dynamicColumnsToShowPostman)){ ?>
-						<th style="width:5%;">Status</th>
+						<th style="width:15%;">Status</th>
 					<?php } ?>
 					<?php if(!in_array('Pickup Address', $dynamicColumnsToShowPostman)){ ?>
 						<th style="width:5%;">Pickup Address</th>
@@ -65,7 +65,7 @@
 					<th style="width:5%;">Type</th>
 					<th style="width:5%;">Refund</th>
 					<th style="width:5%;">Refund Reason</th>
-					<th style="width:5%;">Status</th>
+					<th style="width:15%;">Status</th>
 					<!-- <th>Change Status</th> -->
 					<th style="width:5%;">Pickup Address</th>
 					<!-- <th style="width:6%;">Refund details</th> -->
@@ -83,7 +83,7 @@
 		    <tbody>
 	    		<?php if(!empty($dynamicColumnsToShowPostman)){ ?>
     				{{props data ~oslist = order_status_list}}
-						<tr>
+						<tr style="background-color: {{:prop.return_exchange_color}} !important;">
 							<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
 
 							<?php if(!in_array('ID', $dynamicColumnsToShowPostman)){ ?>
@@ -245,7 +245,7 @@
 					{{/props}}
 				<?php } else { ?>
 					{{props data ~oslist = order_status_list}}
-						<tr>
+						<tr style="background-color: {{:prop.return_exchange_color}} !important;">
 							<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
 
 							<td>{{:prop.id}}</td>
