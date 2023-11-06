@@ -13,7 +13,8 @@
     <td>{{ ++$i }}</td>
     <td class="expand-row" style="word-break: break-all">
         <span class="td-mini-container">
-           {{ strlen($file->name) > 15 ? substr($file->name, 0, 15).'...' :  $file->name}}
+           {{-- strlen($file->name) > 15 ? substr($file->name, 0, 15).'...' :  $file->name --}}
+           {{$file->name}}
         </span>
         <span class="td-full-container hidden">
             {{ $file->name }}
@@ -73,6 +74,12 @@
         @endif
     </td>
     <td>
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$file->id}}')"><i class="fa fa-arrow-down"></i></button>
+    </td>
+</tr>
+<tr class="action-btn-tr-{{$file->id}} d-none">
+    <td>Action</td>
+    <td colspan="7">
         <div class="action" style="display:flex;">
             @if($file->type === 'spreadsheet')
             <a class="btn btn-image" href="{{env('GOOGLE_EXCEL_FILE_URL').$file->docId.'/edit' }}" target="_blank">
@@ -112,7 +119,6 @@
             @endif
          </div>
     </td>
-
 </tr>
 @endforeach
 
@@ -144,5 +150,10 @@ $(document).on('click', '.open-google-documents', function () {
         return;
     }
 });
+
+function Showactionbtn(id){
+  $(".action-btn-tr-"+id).toggleClass('d-none')
+  $("#asset_user_name").select2('destroy');
+}
 </script>
 

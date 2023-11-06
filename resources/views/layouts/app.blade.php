@@ -1376,6 +1376,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Upload Screencast/File" type="button" data-toggle="modal" data-target="#uploadeScreencastModal" class="quick-icon" style="padding: 0px 1px;" onclick="showCreateScreencastModal()"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
