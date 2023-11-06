@@ -10,18 +10,11 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <!-- <th width="4%">ID</th>
-                                <th width="6%">Date</th>
-                                <th width="3%">Script Type</th>
-                                <th width="3%">File</th>
-                                <th width="5%">Description</th>
-                                <th width="8%">Usage Parameter</th>
-                                <th width="4%">Category</th>
-                                <th width="5%">Comments</th>
-                                <th width="10%">Author</th>
-                                <th width="10%">Location</th> -->
-                                <th width="10%">Last Run</th>
-                                <th width="10%">Status</th>
+                                <th width="10%">Description</th>
+                                <th width="10%">Run Time</th>                                
+                                <th width="10%">Run Output</th>
+                                <th width="10%">Run Status</th>
+                                <th width="10%">Created Date</th>
                             </tr>
                         </thead>
                         <tbody class="script-document-list-view">

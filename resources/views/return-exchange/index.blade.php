@@ -51,6 +51,8 @@
 	<div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading mb-3">Return Exchange <span id="total-counter"></span>
 			<div class="pull-right pr-3">
+				<button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#returnexchangedatatablecolumnvisibilityList">Column Visiblity</button>
+
 				<a href="#" class="btn btn-xs btn-secondary delete-orders" id="bulk_delete">
 					Delete
 				</a>
@@ -60,6 +62,7 @@
 				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_status">
 					Create Status
 				</a>
+				<button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
 				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_refund">
 					Create Refund
 				</a>
@@ -230,14 +233,14 @@
   	<div class="modal-dialog modal-lg" role="document">
   	</div>	
 </div>
-
+@include("return-exchange.column-visibility-modal")
 @include("return-exchange.templates.list-template")
 @include("return-exchange.templates.modal-emailToCustomer")
 @include("return-exchange.templates.modal-createstatus")
 @include("return-exchange.templates.modal-productDetails")
 @include("return-exchange.templates.create-refund")
 @include("return-exchange.templates.update-refund-modal")
-
+@include("return-exchange.partial.modal-status-color")
 @endsection
 
 @section('scripts')
@@ -250,6 +253,12 @@
 	<script type="text/javascript" src="/js/return-exchange.js"></script>
 	<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
 	<script type="text/javascript">
+
+		function Showactionbtn(id){
+	      	$(".action-btn-tr-"+id).toggleClass('d-none')
+	      	$("#asset_user_name").select2('destroy');
+	    }
+
 		msQueue.init({
 			bodyView : $("#return-exchange-page"),
 			baseUrl : "<?php echo url("/"); ?>"

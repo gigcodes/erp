@@ -76,7 +76,7 @@
                 <div class="row">
                     <div class="col-md-2 pl-0 pr-3">
                         <select class="form-control select-multiple" name="host_name">
-                            <option selected>Host Name</option>
+                            <option value="" selected>Host Name</option>
                             @foreach($search_data->unique('hostname') as $key => $hostname)
                                 @if($hostname->hostname != '')
                                     <option value="{{ $hostname->hostname }}" {{ request()->get('host_name') == $hostname->hostname ? 'selected' : '' }}>{{ $hostname->hostname }}</option>
@@ -86,7 +86,7 @@
                     </div>
                     <div class="col-md-2 pl-0 pr-0">
                         <select class="form-control select-multiple" name="event_id">
-                            <option selected>Event ID</option>
+                            <option value="" selected>Event ID</option>
                             @foreach($search_data->unique('eventid') as $key => $event_id)
                                 @if($event_id->eventid != '')
                                     <option value="{{ $event_id->eventid }}" {{ request()->get('event_id') == $event_id->eventid ? 'selected' : '' }}>{{ $event_id->eventid }}</option>
@@ -96,7 +96,7 @@
                     </div>
                     <div class="col-md-2 pr-2">
                         <select class="form-control select-multiple" name="object_id">
-                            <option selected>Object ID</option>
+                            <option value="" selected>Object ID</option>
                             @foreach($search_data->unique('objectid') as $key => $object_id)
                                 @if($object_id->objectid != '')
                                     <option value="{{ $object_id->objectid }}" {{ request()->get('object_id') == $object_id->objectid ? 'selected' : '' }}>{{ $object_id->objectid }}</option>
@@ -106,7 +106,7 @@
                     </div>
                     <div class="col-md-2 pr-2">
                         <select class="form-control select-multiple" name="problem">
-                            <option selected>Problem</option>
+                            <option value="" selected>Problem</option>
                             @foreach($search_data->unique('name') as $key => $problem)
                                 @if($problem->name != '')
                                 <option value="{{ $problem->name }}" {{ request()->get('problem') == $problem->name ? 'selected' : '' }}>{{ $problem->name }}</option>
