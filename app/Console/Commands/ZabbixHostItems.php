@@ -167,11 +167,15 @@ class ZabbixHostItems extends Command
 
         $results = json_decode($result);
 
-        if (isset($results[0]->result)) {
-            return $results[0]->result;
-        } else {
-            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
+        try {
+            if (isset($results[0]->result)) {
+                return $results[0]->result;
+            } else {
+                \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
 
+                return 0;
+            }
+        } catch (\Throwable $throwable) {
             return 0;
         }
     }
