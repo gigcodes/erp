@@ -87,7 +87,7 @@ class MagentoCommandController extends Controller
     public function getMagentoCommand(Request $request)
     {
         
-        $magentoCommand = MagentoCommand::whereNotNull('id');
+        $magentoCommand = MagentoCommand::whereNotNull('id')->orderby('id', 'DESC');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
         if (! empty($request->website)) {
             $magentoCommand->whereIn('website_ids', $request->website);
