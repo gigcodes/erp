@@ -10,6 +10,7 @@ use Auth;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Plank\Mediable\Mediable;
 use App\Hubstaff\HubstaffMember;
 use Illuminate\Support\Facades\DB;
@@ -659,10 +660,18 @@ class Task extends Model
                 $qb->orderByDesc('tasks.is_flagged');
                 $qb->orderByDesc('message_created_at');
             }
+
+            $filters = $request->all();
+            $cacheKey = 'filtered_task_' . serialize($filters);
+
             $qb->offset($offSet);
             $qb->limit($paginate);
 
-            return $qb->get();
+            $cachedData = Cache::remember($cacheKey, 60 * 60 * 4, function () use ($qb) {
+                return $qb->get();
+            });
+
+            return $cachedData;
         }
     }
 
