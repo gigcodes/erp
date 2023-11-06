@@ -745,27 +745,7 @@
                                         {{ $task->task_details }}
                                     </span>
                                         </td>
-                                    <!-- <td class="expand-row table-hover-cell p-2">
-                                            @if (array_key_exists($task->assign_from, $users))
-                                        @if ($task->assign_from == Auth::id())
-                                            <span class="td-mini-container">
-                                                        <a href="{{ route('users.show', $task->assign_from) }}">{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}</a>
-                                                    </span>
-                                                    <span class="td-full-container hidden">
-                                                        <a href="{{ route('users.show', $task->assign_from) }}">{{ $users[$task->assign_from] }}</a>
-                                                    </span>
-                                                @else
-                                            <span class="td-mini-container">
-                                                        {{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}
-                                                    </span>
-                                                    <span class="td-full-container hidden">
-                                                        {{ $users[$task->assign_from] }}
-                                                    </span>
-                                                @endif
-                                    @else
-                                        Doesn't Exist
-                                            @endif
-                                            </td> -->
+                                    
                                         <td class="table-hover-cell p-2">
                                         @php
                                             $special_task = $task; 

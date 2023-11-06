@@ -51,13 +51,9 @@ class Helpers
 
     public static function getUserArray($users)
     {
-        $userArray = [];
+        return collect($users)->pluck('name', 'id')->toArray();
 
-        foreach ($users as $user) {
-            $userArray[((string) $user->id)] = $user->name;
-        }
-
-        return $userArray;
+        //return $users->pluck('name', 'id')->toArray();
     }
 
     public static function getUserNameById($id)

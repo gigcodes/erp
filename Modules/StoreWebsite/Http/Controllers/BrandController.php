@@ -16,6 +16,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\Models\DataTableColumn;
 
 class BrandController extends Controller
 {
@@ -209,7 +210,15 @@ class BrandController extends Controller
         }
         $categories = Category::join('products', 'products.category', '=', 'categories.id')->orderBy('categories.title', 'asc')->pluck('categories.title', 'categories.id');
 
-        return view('storewebsite::brand.index', compact(['title', 'brands', 'storeWebsite', 'apppliedResult', 'categories', 'apppliedResultCount']));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'store-website_brand')->first();
+        
+        $dynamicColumnsToShow = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShow = json_decode($hideColumns, true);
+        }
+
+        return view('storewebsite::brand.index', compact(['title', 'brands', 'storeWebsite', 'apppliedResult', 'categories', 'apppliedResultCount', 'dynamicColumnsToShow']));
     }
 
     public function pushBrandsLog(Request $request)
@@ -552,5 +561,30 @@ class BrandController extends Controller
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {
+         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','store-website_brand')->first();
+         
+         if($userCheck)
+         {
+           $column = DataTableColumn::find($userCheck->id);
+           $column->section_name = 'store-website_brand';
+           $column->column_name = json_encode($request->columns); 
+           $column->save();
+         } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'store-website_brand';
+            $column->column_name = json_encode($request->columns); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+         }
+       
+         return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
+            'status_name' => 'success',
+        ], 200);
     }
 }

@@ -21,11 +21,15 @@
                                     <table class="table table-sm table-bordered">
                                         <thead>
                                         <tr>
-                                            <th width="5%">ID</th>
-                                            <th width="5%">File Name</th>
-                                            <th width="5%">Created Date</th>
+                                            <th width="2%">ID</th>
+                                            <th width="4%">No</th>
+                                            <th width="20%">File Name</th>
+                                            <th width="10%">Category</th>
+                                            <th width="10%">Task</th>
+                                            <th width="10%">Created By</th>
+                                            <th width="10%">Created Date</th>
                                             <th width="10%">URL</th>
-                                            <th width="10%">Action</th>
+                                            <th width="4%">Action</th>
                                         </tr>
                                         </thead>
                                         <tbody class="show-search-google-doc-list">

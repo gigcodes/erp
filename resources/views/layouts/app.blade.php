@@ -408,7 +408,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     user '=>['
     authenticated '=>auth()->check(),'
     id '=>auth()->check() ? auth()->user()->id : null,'
-    name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
+    name '=>auth()->check() ? auth()->user()-> name : null,]], JSON_INVALID_UTF8_IGNORE)!!}';
     </script>
 
 
@@ -1376,6 +1376,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Upload Screencast/File" type="button" data-toggle="modal" data-target="#uploadeScreencastModal" class="quick-icon" style="padding: 0px 1px;" onclick="showCreateScreencastModal()"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
@@ -1460,7 +1464,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $permissionCount = \App\PermissionRequest::count();
                                     @endphp
-                                        <a class="quick-icon permission-request" href="#">
+                                        <a title="Permission Request" class="quick-icon permission-request" href="#">
                                             <span><i class="fa fa-reply fa-2x"></i>
                                                 @if($permissionCount)
                                                     <span class="permission-alert-badge"></span>
@@ -1471,23 +1475,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 @endif
                                 <li>
-                                    <a class="notification-button quick-icon" href="#"><span><i
+                                    <a title="Quick User Event Notification" class="notification-button quick-icon" href="#"><span><i
                                                 class="fa fa-bell fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
                                         $description = \App\Meetings\ZoomMeetingParticipant::whereNull('description')->count();
                                     @endphp
-                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="Zoom View All Participants">
+                                    <button type="button" class="btn btn-xs ParticipantsList" title="view Participants" onclick="viewParticipantsIcon()">
                                         <span><i class="fa fa-users fa-2x"></i>
                                             @if($description > 0)
                                                 <span class="description-alert-badge"></span>
                                             @endif                                                                                        
                                         </span>
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
-                                    <a class="instruction-button quick-icon" href="#"><span><i
+                                    <a title="Quick Instruction" class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
@@ -1495,7 +1499,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="daily-planner-button quick-icon" target="__blank"
+                                    <a title="Daily Planner" class="daily-planner-button quick-icon" target="__blank"
                                         href="{{ route('dailyplanner.index') }}">
                                         <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1503,7 +1507,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
                                 <li>
-                                    <a id="message-chat-data-box" class="quick-icon">
+                                    <a title="Chat" id="message-chat-data-box" class="quick-icon">
                                         <span class="p1 fa-stack has-badge" id="new_message"
                                             data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                             <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
@@ -1511,13 +1515,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-zoom-meeting quick-icon" data-toggle="modal"
+                                    <a title="Create Meeting" class="create-zoom-meeting quick-icon" data-toggle="modal"
                                         data-target="#quick-zoomModal">
                                         <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-easy-task quick-icon" data-toggle="modal"
+                                    <a title="Create Task / Dev Task" class="create-easy-task quick-icon" data-toggle="modal"
                                         data-target="#quick-create-task">
                                         <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -4514,6 +4518,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ url('script-documents') }}">Script Documents</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -5315,6 +5325,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.list-documetation-shortcut-modal')
         @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
+        @include('partials.modals.view-all-participants')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -7449,14 +7460,22 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
         var stickyNotesPage = "{{ request()->fullUrl() }}";
 
-        var x = `<div class='sticky_notes_container'>
+        var x = `<div class='sticky_notes_container pageNotesModal' style=" padding: 10px; margin: 20px;">
             <div class="icon-check">
             <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
                    Sticky Note
-                    <div class='text_box'>
-                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}'></textarea>
+                   <div class="text_box-text mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                        Title
+                      </label>
+                      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" type="text" placeholder="Title" style=" width: 100%;">
+                    </div>
+                    
+                    <div class='text_box-textarea mb-4'>
+                        <label>Notes</label></br>
+                        <textarea rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
                     </div>
                 </div>`;
 
@@ -7464,37 +7483,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             StickyBox();
         });
 
+        
+        var marginVar = 20;
+       
         function StickyBox () {
+
+             marginVar += 20;
+
             $(".sticknotes_content").draggable();
             $('#sticky_note_boxes').append(x);
+
+              var lastStickyNote = $("#sticky_note_boxes .sticky_notes_container:last");
+
+              lastStickyNote.css("margin", marginVar+"px"); 
+
+
                 $(".sticky_notes_container").draggable();
                 $('.close-icon').each(function(){
                     $('.close-icon').click(function() {
                         $(this).closest('.sticky_notes_container').remove();
                     });
                 });
-                $('.check-icon').on('click', function() {
-                    var textareaValue = $(this).parent().siblings('.text_box').find('textarea').val();
-                     var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
+                
+            }
 
-                    $.ajax({
-                        url: '{{ route('stickyNotesCreate') }}',
-                        method: 'POST',
-                        data: {
-                            value: textareaValue,
-                            page: page,
-                            _token: "{{ csrf_token() }}",
-                        },
-                        success: function(response) {
-                        toastr['success'](response.message, 'success');
-                        },
-                        error: function(xhr, status, error) {
-                            console.log('Save Error:', error);
-                        }
-                    });
-                    $(this).closest('.sticky_notes_container').remove();
+            $(document).on("click", ".check-icon", function (event) {
+                event.preventDefault();
+                var textareaValue = $(this).parent().siblings('.text_box-textarea').find('textarea').val();
+                var page = $(this).parent().siblings('.text_box-textarea').find('textarea').data('page');
+
+                var title = $(this).parent().siblings('.text_box-text').find('input').val();
+
+                $.ajax({
+                    url: '{{ route('stickyNotesCreate') }}',
+                    method: 'POST',
+                    data: {
+                        value: textareaValue,
+                        page: page,
+                        title: title,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                    toastr['success'](response.message, 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Save Error:', error);
+                    }
+                });
+                $(this).closest('.sticky_notes_container').remove();
             });
-        }
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
@@ -7538,6 +7575,80 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     $('.notification-button').on('click', function() {
         $("#quick-user-event-notification-modal").modal("show");
     });
+
+    $('.ParticipantsList').on('click', function() {
+        $("#participants-list-modal").modal("show");
+    });
+    
+    function viewParticipantsIcon(pageNumber = 1) {
+        var button = document.querySelector('.btn.btn-xs.ParticipantsList'); 
+
+            $.ajax({
+                url: "{{route('list.all.participants')}}",
+                type: 'GET',
+                dataType: "json",
+                data: {
+                    page:pageNumber,
+                },
+                beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+            }).done(function(response) {
+                $('#participants-list-modal-html').empty().html(response.html);
+                $('#participants-list-modal').modal('show');
+                renderdomainPagination(response.data);
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {
+                $('.loading-image-preview').show();
+                console.log(response);
+            });
+    }
+
+    function renderdomainPagination(response) {
+        var paginationContainer = $(".pagination-container-participation");
+        var currentPage = response.current_page;
+        var totalPages = response.last_page;
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+            if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                startPage = totalPages - maxVisiblePages + 1;
+            } else {
+                startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+            }
+
+            if (startPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(1)'>1</a></li>";
+                if (startPage > 2) {
+                html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                }
+            }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+    function changeParticipantsPage(pageNumber) {
+        viewParticipantsIcon(pageNumber);
+    }
+
 
     $('select[name="repeat"]').on('change', function() {
         $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');

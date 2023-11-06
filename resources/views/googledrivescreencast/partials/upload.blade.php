@@ -1,5 +1,7 @@
 
-
+<style type="text/css">
+#uploadeScreencastModal .select2-selection__rendered{display: inline !important;}
+</style>
 <div id="uploadeScreencastModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 

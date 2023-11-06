@@ -11,6 +11,7 @@ class ScriptDocuments extends Model
 
     protected $fillable = [
         'user_id',
+        'script_type',
         'file',
         'category',
         'usage_parameter',
@@ -19,6 +20,8 @@ class ScriptDocuments extends Model
         'description',
         'location',
         'last_run',
-        'status'
+        'last_output',
+        'status',
+        'history_status'
     ];
 }
