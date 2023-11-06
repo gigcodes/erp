@@ -9,6 +9,7 @@ use App\StoreWebsitePage;
 use Illuminate\Http\Request;
 use App\StoreWebsitePagePullLog;
 use App\Http\Controllers\Controller;
+use Exception;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
@@ -29,6 +30,9 @@ class PageController extends Controller
         $title = 'Pages | Store Website';
 
         $storeWebsites = StoreWebsite::all()->pluck('website', 'id');
+        $storeWebsitesModel = StoreWebsite::query()
+            ->select('title', 'magento_url')
+            ->pluck('magento_url', 'title');
         $pages = StoreWebsitePage::join('store_websites as  sw', 'sw.id', 'store_website_pages.store_website_id')
             ->select([\DB::raw("concat(store_website_pages.title,'-',sw.title) as page_name"), 'store_website_pages.id'])
             ->pluck('page_name', 'id');
@@ -47,6 +51,7 @@ class PageController extends Controller
             'languagesList' => $languagesList,
             'statuses' => $statuses,
             'users' => $users,
+            'storeWebsitesModel' => $storeWebsitesModel
         ]);
     }
 
@@ -229,6 +234,22 @@ class PageController extends Controller
     {
         $post = $request->all();
         $id = $request->get('id', 0);
+
+        try {
+            if (!empty($post['copy_to']) && is_array($post['copy_to'])) {
+                $pages = StoreWebsitePage::whereIn('id', $post['copy_to'])->getModels();
+
+                foreach ($pages as $page) {
+                    $page->content = $post['content'];
+                    $page->save();
+                }
+
+                return response()->json(['code' => 200, 'data' => $pages]);
+            }
+        } catch (Exception|\Throwable $e) {
+
+        }
+
 
         $params = [
             'title' => 'required',
