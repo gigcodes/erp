@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Elastic\Elasticsearch\Exception\ElasticsearchException;
 use Exception;
 use Throwable;
 use Elastic\Elasticsearch\ClientBuilder;
@@ -26,15 +27,7 @@ class Elasticsearch
      */
     public function __construct()
     {
-        $hosts = explode(',', env('ELASTICSEARCH_HOST', []));
-        $this->connection = ClientBuilder::create()
-            ->setHttpClientOptions([
-                RequestOptions::CONNECT_TIMEOUT => 5,
-            ])
-            ->setHosts(
-                $hosts ?? [$_ENV['ELASTICSEARCH_HOST'] ?? 'elasticsearch:9200']
-            )
-            ->build();
+        $this->connection = $this->connect();
     }
 
     /**
@@ -121,5 +114,18 @@ class Elasticsearch
         } catch (Exception|Throwable $e) {
             return 0;
         }
+    }
+
+    public function connect()
+    {
+        $hosts = explode(',', env('ELASTICSEARCH_HOST', []));
+        return ClientBuilder::create()
+            ->setHttpClientOptions([
+                RequestOptions::CONNECT_TIMEOUT => 5,
+            ])
+            ->setHosts(
+                $hosts ?? [$_ENV['ELASTICSEARCH_HOST'] ?? 'elasticsearch:9200']
+            )
+            ->build();
     }
 }

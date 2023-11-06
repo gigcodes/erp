@@ -4,6 +4,7 @@ namespace Modules\ChatBot\Http\Controllers;
 
 use App\Console\Commands\ReindexMessages;
 use App\Elasticsearch\Elasticsearch;
+use App\Elasticsearch\Reindex\Messages;
 use App\Task;
 use App\Vendor;
 use App\Customer;
@@ -37,13 +38,12 @@ class MessageController extends Controller
      *
      * @return Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $isElastic = null)
     {
         $elastic = new Elasticsearch();
-        $sizeof = $elastic->count('messages');
-        $isElastic = true;
+        $sizeof = $elastic->count(Messages::INDEX_NAME);
 
-        if ($sizeof < 100000) {
+        if (!$isElastic) {
             $isElastic = false;
             return $this->indexDB($request, $isElastic);
         }
@@ -130,7 +130,7 @@ class MessageController extends Controller
         $pendingApprovalMsg = array_map(fn($item) => (new \App\ChatMessage())->setRawAttributes($item['_source']),
             Elasticsearch::search(
                 [
-                    'index' => 'messages',
+                    'index' => Messages::INDEX_NAME,
                     'from' => ($currentPage - 1) * 20,
                     'size' => 20,
                     'body' => [
@@ -143,7 +143,7 @@ class MessageController extends Controller
                             ['id' => 'desc']
                         ]
                     ]
-                ])['hits']['hits']
+                ])['hits']['hits'] ?? []
         );
 
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
