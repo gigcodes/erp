@@ -50,7 +50,7 @@ class ZabbixProblemImport extends Command
                     $host = Host::where('hostid', $problem->host_id)->first();
                     if (! is_null($check_if_exists)) {
                         $array = [
-                            'object_id' => $problem->object_id,
+                            'objectid' => $problem->objectid,
                             'name' => $problem->name,
                             'hostname' => $host->host,
                         ];
