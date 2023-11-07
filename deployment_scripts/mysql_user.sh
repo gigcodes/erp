@@ -175,7 +175,8 @@ elif [ "$function" = "revoke" ]
 then
 	Revoke | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "list" ]
-	list
+then
+	list | tee -a ${SCRIPT_NAME}.log
 fi
 
 if [[ $? -eq 0 ]]
