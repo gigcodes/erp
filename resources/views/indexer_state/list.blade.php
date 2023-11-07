@@ -6,6 +6,7 @@
         <th>Status</th>
         <th>Logs</th>
         <th>Settings</th>
+        <th>Reindex</th>
     </tr>
     </thead>
     <tbody>
@@ -26,6 +27,9 @@
             </td>
             <td>
                 <a href="#" class="btn btn-xs btn-secondary btn-edit-indexer td-edit-{{ $indexer->getId() }}" data-id="{{ $indexer->getId() }}" data-json='<?=json_encode($indexer)?>'>Edit</a>
+            </td>
+            <td>
+                <a href="#" class="btn btn-xs btn btn-success btn-reindex-indexer td-edit-{{ $indexer->getId() }}" data-id="{{ $indexer->getId() }}" data-json='<?=json_encode($indexer)?>'>Reindex</a>
             </td>
         </tr>
     @endforeach
