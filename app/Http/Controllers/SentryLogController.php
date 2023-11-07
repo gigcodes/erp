@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Sentry\SentryAccount;
 use App\Sentry\SentryErrorLog;
 use GuzzleHttp\RequestOptions;
+use App\Models\SentyStatus;
 
 class SentryLogController extends Controller
 {
@@ -44,7 +45,9 @@ class SentryLogController extends Controller
             $projects[] = $data;
         }
 
-        return view('sentry-log.index', compact('sentryLogsData', 'projects'));
+        $status = SentyStatus::all();
+
+        return view('sentry-log.index', compact('sentryLogsData', 'projects', 'status'));
     }
 
     public function getSentryLogData(Request $request)
@@ -198,5 +201,33 @@ class SentryLogController extends Controller
         \Artisan::call('sentry:load_error_logs');
 
         return redirect()->back();
+    }
+
+    public function sentryStatusCreate(Request $request)
+    {
+        try {
+            $status = new SentyStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = SentyStatus::find($key);
+            $bugstatus->senty_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 }

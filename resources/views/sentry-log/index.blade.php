@@ -3,8 +3,7 @@
 <style type="text/css">
   .float-right-addbtn{
     float: right !important;
-    margin-top: 1%;
-    margin-right: 0.095rem;
+    margin-right: 5px;
   }
   .form-group {
     padding: 10px;
@@ -86,7 +85,10 @@
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
-    <h2 class="page-heading">SENTRY logs</h2>
+    <h2 class="page-heading">
+      SENTRY logs
+      (<span>{{count($sentryLogsData)}}</span>)
+    </h2>
   </div>
 </div>
 
@@ -114,11 +116,13 @@
       </div>
     </form>
 <div class="col-md-8">
+  <button type="button" class="btn btn-secondary float-right-addbtn" data-toggle="modal" data-target="#status-create">Add Status</button>
+  <button type="button" class="btn btn-secondary float-right-addbtn" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
   <button type="button" class="btn btn-secondary float-right-addbtn" id="add_account">+ Add Account</button>
   <button type="button" class="btn btn-secondary float-right-addbtn" id="list_account"> List Account</button>
   <button type="button" class="btn btn-danger float-right-addbtn" id="refresh_logs"> Refresh Logs</button>
 </div>
-  <table class="table table-bordered" id="sentry_log_table">
+  <table class="table table-bordered" id="sentry_log_table" style=" margin-top: 10px; position: relative;  display: inline-block;">
     <thead>
       <tr>
         <th style="width: 5%">#</th>
@@ -159,6 +163,34 @@
     @endforeach
   </table>
 </div>
+<div id="status-create" class="modal fade in" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add Stauts</h4>
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <form  method="POST" id="status-create-form">
+        @csrf
+        @method('POST')
+          <div class="modal-body">
+            <div class="form-group">
+              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+@include("sentry-log.modal-status-color")
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
@@ -206,6 +238,28 @@
           })
       }
     });
+
+    $(document).on("click", ".status-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+          url: "{{route('sentry.status.create')}}",
+          type: "post",
+          data: $('#status-create-form').serialize()
+        }).done(function(response) {
+          if (response.code = '200') {
+            $('#loading-image').hide();
+            $('#addPostman').modal('hide');
+            toastr['success']('Status  Created successfully!!!', 'success');
+            location.reload();
+          } else {
+            toastr['error'](response.message, 'error');
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+          toastr['error'](errObj.message, 'error');
+        });
+      });
 
     $(document).on("click", "#add_account" , function(){        
       $("#sentry_modal").modal('show');
