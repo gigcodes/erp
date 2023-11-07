@@ -8,6 +8,7 @@ use App\Elasticsearch\Elasticsearch;
 use App\Models\IndexerState;
 use App\Elasticsearch\Reindex\Interfaces\Reindex as ReindexInterface;
 use Throwable;
+use Log;
 
 class Reindex
 {
@@ -37,6 +38,8 @@ class Reindex
             } catch (Throwable $throwable) {
                 $indexer->setStatus(ReindexInterface::INVALIDATE);
                 $indexer->save();
+
+                Log::error('Reindex error: ' . $throwable->getMessage() . ' trace: ' . json_encode($throwable->getTrace()));
             }
         }
     }

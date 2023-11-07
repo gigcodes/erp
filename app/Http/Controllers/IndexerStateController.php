@@ -11,6 +11,7 @@ use App\Models\MagentoModuleCareers as Career;
 use App\StoreWebsite;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Elasticsearch\Reindex\Interfaces\Reindex;
@@ -53,7 +54,31 @@ class IndexerStateController extends Controller
 
     public function reindex(Request $request)
     {
+        try {
+            $data = $request->all();
 
+            $id = $data['id'] ?? null;
+
+            if ($id === null) {
+                throw new \Exception('Id is required param.');
+            }
+
+            /** @var IndexerState $indexerState */
+            $indexerState = IndexerState::find($id);
+
+            if ($indexerState === null) {
+                throw new \Exception(sprintf('Indexer with %s id not found.', $id));
+            }
+
+            if ($indexerState->isSkip()) {
+                throw new \Exception(sprintf('Cannot start again reindex for index: %s', $indexerState->getIndex()));
+            }
+
+            Artisan::call('reindex:messages');
+        } catch (\Throwable $throwable) {
+
+        }
+        return response()->json(['message' => 'Reindex successful, reload page.', 'code' => 200]);
     }
 
     private function createIndexerStateIfNotExist(): void
