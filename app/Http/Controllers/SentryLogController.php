@@ -8,16 +8,38 @@ use App\Sentry\SentryAccount;
 use App\Sentry\SentryErrorLog;
 use GuzzleHttp\RequestOptions;
 use App\Models\SentyStatus;
+use App\Models\SantryStatusHistory;
+use App\DeveloperTask;
+use App\Task;
+use App\User;
+use DB;
+use Auth;
 
 class SentryLogController extends Controller
 {
     public function index(Request $request)
-    {
+    {   
+        $sentry_logs = SentryErrorLog::orderBy('id', 'DESC');
+
         if ($request->project_list) {
             $sentry_logs = SentryErrorLog::where('project_id', $request->project_list)->get();
-        } else {
-            $sentry_logs = SentryErrorLog::get();
         }
+
+        if ($request->keyword) {
+            if ($keyword = $request->keyword) {
+                $sentry_logs = $sentry_logs->where(
+                    function ($q) use ($keyword) {
+                        $q->where('error_title', 'LIKE', "%$keyword%");
+                        $q->orWhere('error_id', 'LIKE', "%$keyword%");
+                        $q->orWhere('device_name', 'LIKE', "%$keyword%");
+                        $q->orWhere('os', 'LIKE', "%$keyword%");
+                        $q->orWhere('os_name', 'LIKE', "%$keyword%");
+                        $q->orWhere('release_version', 'LIKE', "%$keyword%");
+                    }
+                );
+            }
+        }
+        $sentry_logs = $sentry_logs->get();
 
         $project_list = SentryAccount::get();
         $sentryLogsData = [];
@@ -37,6 +59,8 @@ class SentryLogController extends Controller
             $res['release_version'] = $error_log->release_version;
             $res['first_seen'] = $error_log->first_seen;
             $res['last_seen'] = $error_log->last_seen;
+            $res['status_id'] = $error_log->status_id;
+            $res['unique_id'] = $error_log->id;
             $sentryLogsData[] = $res;
         }
         foreach ($project_list as $project) {
@@ -47,7 +71,9 @@ class SentryLogController extends Controller
 
         $status = SentyStatus::all();
 
-        return view('sentry-log.index', compact('sentryLogsData', 'projects', 'status'));
+        $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
+        return view('sentry-log.index', compact('sentryLogsData', 'projects', 'status', 'allUsers'));
     }
 
     public function getSentryLogData(Request $request)
@@ -229,5 +255,56 @@ class SentryLogController extends Controller
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function taskCount($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $SantryLogId = $request->input('SantryLogId');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $SentryErrorLog = SentryErrorLog::find($SantryLogId);
+        $history = new SantryStatusHistory();
+        $history->santry_log_id = $SantryLogId;
+        $history->old_value = $SentryErrorLog->status_id;
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $SentryErrorLog->status_id = $selectedStatus;
+        $SentryErrorLog->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function sentryStatusHistories($id)
+    {
+        $datas = SantryStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('santry_log_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

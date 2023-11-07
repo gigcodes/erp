@@ -21,6 +21,7 @@ class SentryErrorLog extends Model
         'os',
         'os_name',
         'release_version',
+        'status_id',
     ];
 
     public function sentry_project()
