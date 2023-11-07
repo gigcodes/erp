@@ -4948,7 +4948,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5395,7 +5395,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
 			@php
-				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
             $statuses = \App\TodoStatus::get();
 			@endphp
 			<div class="modal-body show-list-records" id="todolist-request">
@@ -5417,7 +5417,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 						<td>
                             <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
                                 @foreach ($statuses as $status )
-                                <option value="{{$status->id}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
+                                <option value="{{$status->name}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
                                 @endforeach
                             </select>
 						</td>
@@ -7466,8 +7466,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
                    Sticky Note
-                   <div class="text_box-text mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                   <hr>
+                   <div class="text_box-select mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                        Type
+                      </label>
+                      <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" style=" width: 100%;">
+                      <option value="notes">Notes</option>
+                      <option value="todolist">To do List</option>
+                      </select>
+                    </div>
+                    <div class="text_box-text mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
                         Title
                       </label>
                       <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" type="text" placeholder="Title" style=" width: 100%;">
@@ -7514,6 +7524,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
                 var title = $(this).parent().siblings('.text_box-text').find('input').val();
 
+                var type = $(this).parent().siblings('.text_box-select').find('select').val();
+
                 $.ajax({
                     url: '{{ route('stickyNotesCreate') }}',
                     method: 'POST',
@@ -7521,6 +7533,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         value: textareaValue,
                         page: page,
                         title: title,
+                        type: type,
                         _token: "{{ csrf_token() }}",
                     },
                     success: function(response) {
