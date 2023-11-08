@@ -868,7 +868,7 @@ class VirtualminDomainController extends Controller
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
 
                         $parameters = [
                             'value' => $request->value,
@@ -877,8 +877,9 @@ class VirtualminDomainController extends Controller
                         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
                         $headers = [];
-                        $headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
-                        $headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
+                        $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
+                        //$headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
+                        //$headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
                         $headers[] = 'Content-Type: application/json';
                         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
                         $result = curl_exec($ch);
