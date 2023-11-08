@@ -387,7 +387,7 @@ class VirtualminDomainController extends Controller
             if (! empty($keyword) || isset($keyword)) {
                 $domainsDnsRecords = $domainsDnsRecords->where('domain_with_dns_name', 'LIKE', '%' . $keyword . '%')->orWhere('content', 'LIKE', '%' . $keyword . '%');
             }
-            
+
             if (! empty($dns_type) || isset($dns_type)) {
                 $domainsDnsRecords = $domainsDnsRecords->where('dns_type', $dns_type);
             }
@@ -397,6 +397,86 @@ class VirtualminDomainController extends Controller
             }
 
             $domainsDnsRecords = $domainsDnsRecords->paginate(10);
+
+            if(!empty($domain)){
+
+                //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+                $url = getenv('CLOUDFLARE_DOMAIN_TOKEN_VERIFY_URL');
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                $headers = [];
+                $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
+                //$headers[] = 'Content-Type: application/json';
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                $result = curl_exec($ch);
+                $response = json_decode($result);
+                curl_close($ch);
+
+                if($response->success==1){
+                    $url = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL');
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                    $headers = [];
+                    $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
+                    //$headers[] = 'Content-Type: application/json';
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                    $result = curl_exec($ch);
+                    $response = json_decode($result);
+                    curl_close($ch);
+
+                    $zoneIdentifier = '';
+                    if(!empty($response->result)){
+                        foreach ($response->result as $key => $value) {
+                            if($domain->name==$value->name){
+                                $zoneIdentifier = $value->id;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!empty($zoneIdentifier)){
+
+                        $url = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL').'/'.$zoneIdentifier.'/settings/rocket_loader';
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+                        $headers = [];
+                        $headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
+                        $headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        $result = curl_exec($ch);
+
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        if (curl_errno($ch)) {
+                            \Log::info('API Error: ' . curl_error($ch));
+                        }
+                        $response = json_decode($result);
+
+                        curl_close($ch);
+
+                        if(!empty($response->success)){ 
+                            $domain->rocket_loader = $response->result->value;
+                            $domain->save();  
+                        }
+                    }
+                }
+            }
 
             return view('virtualmin-domain.managecloud', ['domainsDnsRecords' => $domainsDnsRecords, 'domain' => $domain]);
 
@@ -693,6 +773,140 @@ class VirtualminDomainController extends Controller
                     }
                 } else{
                     return response()->json(['code' => 500, 'message' => 'Domain DNS is not exists.']);
+                }
+            } else{
+                return response()->json(['code' => 500, 'message' => 'Domain is not exists.']);
+            }
+            
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+        $id = $request->get('id', 0);
+        $pageNotes = \App\PageNotes::where('id', $id)->first();
+        if ($pageNotes) {
+            $pageNotes->user_id = \Auth::user()->id;
+            $pageNotes->category_id = $request->get('category_id', null);
+            $pageNotes->note = $request->get('note', '');
+
+            if ($pageNotes->save()) {
+                $list = $pageNotes->getAttributes();
+                $list['name'] = $pageNotes->user->name;
+                $list['category_name'] = ! empty($pageNotes->pageNotesCategories->name) ? $pageNotes->pageNotesCategories->name : '';
+
+                return response()->json(['code' => 1, 'notes' => $list]);
+            }
+        }
+
+        return response()->json(['code' => -1, 'message' => 'oops, something went wrong!!']);
+    }
+
+    public function domainstatusupdate(Request $request)
+    {   
+        try {
+
+            $this->validate($request, [
+                'id' => 'required',
+                'value' => 'required',
+            ]);
+
+            $domain = VirtualminDomain::findOrFail($request->id);
+
+            if(!empty($domain)){
+
+                //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+                $url = getenv('CLOUDFLARE_DOMAIN_TOKEN_VERIFY_URL');
+
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                $headers = [];
+                $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
+                //$headers[] = 'Content-Type: application/json';
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                $result = curl_exec($ch);
+                $response = json_decode($result);
+                curl_close($ch);
+
+                if($response->success==1){
+                    $url = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL');
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_POST, 0);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+                    $headers = [];
+                    $headers[] = 'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN');
+                    //$headers[] = 'Content-Type: application/json';
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                    $result = curl_exec($ch);
+                    $response = json_decode($result);
+                    curl_close($ch);
+
+                    $zoneIdentifier = '';
+                    if(!empty($response->result)){
+                        foreach ($response->result as $key => $value) {
+                            if($domain->name==$value->name){
+                                $zoneIdentifier = $value->id;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(!empty($zoneIdentifier)){
+
+                        $url = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL').'/'.$zoneIdentifier.'/settings/rocket_loader';
+
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                        curl_setopt($ch, CURLOPT_POST, 1);
+
+                        $parameters = [
+                            'value' => $request->value,
+                        ];
+
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
+
+                        $headers = [];
+                        $headers[] = 'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL');
+                        $headers[] = 'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY');
+                        $headers[] = 'Content-Type: application/json';
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        $result = curl_exec($ch);
+
+                        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                        if (curl_errno($ch)) {
+                            \Log::info('API Error: ' . curl_error($ch));
+                        }
+                        return $response = json_decode($result);
+
+                        curl_close($ch);
+
+                        if(!empty($response->success)){
+
+                            $domain->rocket_loader = $response->result->value;
+                            $domain->save(); 
+
+                            return response()->json(['code' => 200, 'message' => 'Domain DNS updated successfully']);
+
+                        } else{
+                            return response()->json(['code' => 500, 'message' => $response->errors[0]->message]);
+                        }
+
+                    } else {
+                        return response()->json(['code' => 500, 'message' => 'Invalid zone identifier']);
+                    }
+                } else {
+                    return response()->json(['code' => 500, 'message' => 'Invalid API Token']);
                 }
             } else{
                 return response()->json(['code' => 500, 'message' => 'Domain is not exists.']);
