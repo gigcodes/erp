@@ -88,7 +88,7 @@ fi
 
 for portssh in $SSHPORT
 do
-	ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$SERVER 'exit' | tee -a ${SCRIPT_NAME}.log
+	ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$SERVER 'exit' &>> ${SCRIPT_NAME}.log
 	if [ $? -ne 255 ]
 	then
 	        PORT=`echo $portssh`
