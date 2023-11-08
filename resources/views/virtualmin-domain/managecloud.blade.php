@@ -56,15 +56,27 @@
                 @method('POST')
                 <div class="modal-body">
                     <div class="form-group">
+                        {!! Form::label('ip_address', 'Content', ['class' => 'form-control-label']) !!}
+                        {!! Form::text('ip_address', null, ['class'=>'form-control','required']) !!}
+                    </div>
+                    <div class="form-group">
                         {!! Form::label('name', 'DNS Name', ['class' => 'form-control-label']) !!}
                         {!! Form::text('name', null, ['class'=>'form-control','required']) !!}
-                        {!! Form::hidden('Virtual_min_domain_id', $domain->id, ['class'=>'form-control','required']) !!}                        
+                        {!! Form::hidden('Virtual_min_domain_id', $domain->id) !!}
+                        {!! Form::hidden('dns_type', 'A') !!}         
                     </div>
                     <div class="form-group">
                         {!! Form::label('type', 'Select DNS Type', ['class' => 'form-control-label']) !!}
                         <select name="type" id="type" class="form-control select2">
                             <option value="A">A</option>
                             <option value="cname">CNAME</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label('proxied', 'Select Proxied Type', ['class' => 'form-control-label']) !!}
+                        <select name="proxied" id="proxied" class="form-control select2">
+                            <option value="1">Enable</option>
+                            <option value="2">Disable</option>
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -90,15 +102,20 @@
                 @method('POST')
                 <div class="modal-body">
                     <div class="form-group">
+                        {!! Form::label('ip_address', 'Content', ['class' => 'form-control-label']) !!}
+                        {!! Form::text('ip_address', null, ['class'=>'form-control','required']) !!}
+                    </div>
+                    <div class="form-group">
                         {!! Form::label('name', 'DNS Name', ['class' => 'form-control-label']) !!}
                         {!! Form::text('name', null, ['class'=>'form-control','required']) !!}
-                        {!! Form::hidden('Virtual_min_domain_id', $domain->id, ['class'=>'form-control','required']) !!}                        
+                        {!! Form::hidden('Virtual_min_domain_id', $domain->id) !!}
+                        {!! Form::hidden('dns_type', 'MX') !!}                    
                     </div>
                     <div class="form-group">
                         {!! Form::label('priority', 'Select Priority', ['class' => 'form-control-label']) !!}
                         <select name="priority" id="priority" class="form-control select2">
                             @for ($i = 0; $i <= 100; $i++)
-                                <option value="">{{ $i }}</option>
+                                <option value="{{ $i }}">{{ $i }}</option>
                             @endfor                            
                         </select>
                     </div>
@@ -106,6 +123,13 @@
                         {!! Form::label('type', 'Select DNS Type', ['class' => 'form-control-label']) !!}
                         <select name="type" id="type" class="form-control select2">
                             <option value="MX">MX</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label('proxied', 'Select Proxied Type', ['class' => 'form-control-label']) !!}
+                        <select name="proxied" id="proxied" class="form-control select2">
+                            <option value="1">Enable</option>
+                            <option value="2">Disable</option>
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -131,14 +155,26 @@
                 @method('POST')
                 <div class="modal-body">
                     <div class="form-group">
+                        {!! Form::label('ip_address', 'Content', ['class' => 'form-control-label']) !!}
+                        {!! Form::text('ip_address', null, ['class'=>'form-control','required']) !!}
+                    </div>
+                    <div class="form-group">
                         {!! Form::label('name', 'DNS Name', ['class' => 'form-control-label']) !!}
                         {!! Form::text('name', null, ['class'=>'form-control','required']) !!}
-                        {!! Form::hidden('Virtual_min_domain_id', $domain->id, ['class'=>'form-control','required']) !!}                        
+                        {!! Form::hidden('Virtual_min_domain_id', $domain->id) !!}
+                        {!! Form::hidden('dns_type', 'TXT') !!}                        
                     </div>
                     <div class="form-group">
                         {!! Form::label('type', 'Select DNS Type', ['class' => 'form-control-label']) !!}
                         <select name="type" id="type" class="form-control select2">
                             <option value="MX">MX</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        {!! Form::label('proxied', 'Select Proxied Type', ['class' => 'form-control-label']) !!}
+                        <select name="proxied" id="proxied" class="form-control select2">
+                            <option value="1">Enable</option>
+                            <option value="2">Disable</option>
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -147,6 +183,48 @@
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="dns-records-div" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update A DNS Record</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0px;">
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dns-mx-records-div" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update MX DNS Record</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0px;">
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dns-txt-records-div" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Update TXT DNS Record</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0px;">
+            
+            </div>
         </div>
     </div>
 </div>
@@ -165,16 +243,43 @@
                     <table class="table table-bordered" style="table-layout: fixed;" id="virtualmin-domains-list">
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="10%">Name</th>
-                            <th width="20%">Status</th>
-                            <th width="20%">Start Date</th>
-                            <th width="20%">Expiry Date</th>
-                            <th width="5%">Action</th>
+                            <th width="20%">DNS Name</th>
+                            <th width="20%">DNS Type</th>
+                            <th width="20%">Priority</th>
+                            <th width="20%">Proxied</th>
+                            <th width="20%">IPV4</th>
+                            <th width="10%">Action</th>
                         </tr>
                         @foreach ($domainsDnsRecords as $key => $domain)
                             <tr data-id="{{ $domain->id }}">
                                 <td>{{ $domain->id }}</td>
-                                
+                                <td>{{ $domain->domain_with_dns_name }}</td>
+                                <td>{{ $domain->type }}</td>
+                                <td>{{ $domain->priority }}</td>
+                                <td>@if($domain->proxied==1){{'true'}} @else {{'false'}} @endif</td>
+                                <td>{{ $domain->content }}</td>
+                                <td>
+                                    @if($domain->dns_type=='A')
+                                        <button type="button" title="Edit" data-id="{{$domain->id}}" class="btn btn-xs edit-dns-btn">
+                                            <i class="fa fa-edit" aria-hidden="true"></i>
+                                        </button>
+                                    @elseif($domain->dns_type=='MX')
+                                        <button type="button" title="Edit" data-id="{{$domain->id}}" class="btn btn-xs edit-dns-mx-btn">
+                                            <i class="fa fa-edit" aria-hidden="true"></i>
+                                        </button>
+                                    @elseif($domain->dns_type=='TXT')
+                                        <button type="button" title="Edit" data-id="{{$domain->id}}" class="btn btn-xs edit-dns-txt-btn">
+                                            <i class="fa fa-edit" aria-hidden="true"></i>
+                                        </button>
+                                    @endif
+
+                                    <a href="javascript:;" class="btn virtualmin_domains_dnsdelete" data-id="{{$domain->id}}"><i class="fa fa-trash" style="color: #808080;"></i></a>
+
+                                    <button type="button" class="btn btn-xs domain-history"
+                                        data-id="{{ $domain->id }}" title="Domain History" onclick="listdomainhistory()">
+                                        <i class="fa fa-info-circle" style="color: #808080;"></i>
+                                    </button>
+                                </td>                                
                             </tr>
                         @endforeach
                     </table>
@@ -185,7 +290,7 @@
     </div>
 </div>
 
-<div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 999999999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
 </div>
 
 <div id="domain-history-modal" class="modal fade" role="dialog">
@@ -193,7 +298,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <h4 class="modal-title"><b>Virtualmin Domains History</b></h4>
+                    <h4 class="modal-title"><b>Virtualmin Domains DNS History</b></h4>
                 </div>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
@@ -220,6 +325,7 @@
     $(document).on("click", ".a-dns-save-btn", function(e) {
         e.preventDefault();
         var $this = $(this);
+        $('#loading-image').show();
         $.ajax({
             url: "{{route('virtualmin.domains.createadns')}}",
             type: "post",
@@ -228,7 +334,57 @@
             if (response.code == '200') {
                 $('#loading-image').hide();
                 toastr['success']('Domain  Created successfully!!!', 'success');
-                //location.reload();
+                location.reload();
+            } else if (response.code == '500') {
+                $('#loading-image').hide();
+                toastr['error'](response.message, 'error');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click", ".mx-dns-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $('#loading-image').show();
+        $.ajax({
+            url: "{{route('virtualmin.domains.createadns')}}",
+            type: "post",
+            data: $('#mx-dns-create-form').serialize()
+        }).done(function(response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                toastr['success']('Domain  Created successfully!!!', 'success');
+                location.reload();
+            } else if (response.code == '500') {
+                $('#loading-image').hide();
+                toastr['error'](response.message, 'error');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click", ".txt-dns-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $('#loading-image').show();
+        $.ajax({
+            url: "{{route('virtualmin.domains.createadns')}}",
+            type: "post",
+            data: $('#txt-dns-create-form').serialize()
+        }).done(function(response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                toastr['success']('Domain  Created successfully!!!', 'success');
+                location.reload();
             } else if (response.code == '500') {
                 $('#loading-image').hide();
                 toastr['error'](response.message, 'error');
@@ -246,7 +402,7 @@
         var id = button.getAttribute('data-id');
 
             $.ajax({
-                url: '{{ route('virtualmin.domains.history') }}',
+                url: '{{ route('virtualmin.domains.dnshistories') }}',
                 dataType: "json",
                 data: {
                     id: id,
@@ -310,5 +466,132 @@
     function changedomainPage(pageNumber) {
         listdomainhistory(pageNumber);
     }
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
+
+    $(document).on('click', '.virtualmin_domains_dnsdelete', function (event) {
+        event.preventDefault();
+        var id = $(this).data('id');
+        if(confirm('Are you sure you want to delete this DNS?')){
+
+            $('#loading-image').show();
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{route('virtualmin.domains.dnsdelete')}}",
+                type: "post",
+                data: {'id':id}
+            }).done(function(response) {
+                if (response.code == '200') {
+                    $('#loading-image').hide();
+                    toastr['success']('Domain DNS Deleted successfully!!!', 'success');
+                    location.reload();
+                } else if (response.code == '500') {
+                    $('#loading-image').hide();
+                    toastr['error'](response.message, 'error');
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        }
+    });
+
+    $(document).on("click", ".edit-dns-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+
+        var $this = $(this);
+        $.ajax({
+            type: "GET",
+            data : {
+              id :id
+            },
+            url: "{{ route('virtualmin.domains.dnsedit') }}"
+        }).done(function (data) {
+           $("#dns-records-div").find(".modal-body").html(data);
+           
+           $("#dns-records-div").modal("show");
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+    $(document).on("click", ".edit-dns-mx-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+
+        var $this = $(this);
+        $.ajax({
+            type: "GET",
+            data : {
+              id :id
+            },
+            url: "{{ route('virtualmin.domains.dnsedit') }}"
+        }).done(function (data) {
+           $("#dns-mx-records-div").find(".modal-body").html(data);
+           
+           $("#dns-mx-records-div").modal("show");
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+    $(document).on("click", ".edit-dns-txt-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $this.data('id');
+
+        var $this = $(this);
+        $.ajax({
+            type: "GET",
+            data : {
+              id :id
+            },
+            url: "{{ route('virtualmin.domains.dnsedit') }}"
+        }).done(function (data) {
+           $("#dns-txt-records-div").find(".modal-body").html(data);
+           
+           $("#dns-txt-records-div").modal("show");
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
+
+    $(document).on('click', '.a-dns-update-btn', function (e) {
+        e.preventDefault();
+        var $this = $(this);
+        var $form  = $this.closest("form");
+        $('#loading-image').show();
+        $.ajax({
+            type: "POST",
+            data : $form.serialize(),
+            url: "{{ route('virtualmin.domains.dnsupdate') }}"
+        }).done(function (response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                toastr['success']('Domain DNS Updated successfully!!!', 'success');
+                location.reload();
+            } else if (response.code == '500') {
+                $('#loading-image').hide();
+                toastr['error'](response.message, 'error');
+            } else {
+                toastr['error'](response.message, 'error');
+            } 
+        }).fail(function (response) {
+            console.log(response);
+        });
+    });
 </script>
 @endsection

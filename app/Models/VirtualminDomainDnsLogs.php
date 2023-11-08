@@ -9,5 +9,5 @@ class VirtualminDomainDnsLogs extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['url', 'created_by', 'command', 'job_id', 'status', 'response'];
+    protected $fillable = ['url', 'dns_type', 'created_by', 'command', 'job_id', 'status', 'response'];
 }
