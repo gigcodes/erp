@@ -70,13 +70,16 @@
       <div class="col-lg-12 pl-5 pr-5">
           <div style="display: flex !important; float: right !important;">
               <div>
-                  <a href="{{ route('zabbix.user.index') }}" class="btn btn-xs btn-secondary create-new-user">Manage users</a>
+                  <a href="{{ route('zabbix.user.index') }}" class="btn m-1 btn-xs btn-secondary create-new-user">Manage users</a>
               </div>
               <div>
-                  <a href="{{ route('zabbix.trigger.index') }}" class="btn btn-xs btn-secondary create-new-user">Triggers</a>
+                  <a href="{{ route('zabbix.trigger.index') }}" class="btn m-1 btn-xs btn-secondary create-new-user">Triggers</a>
               </div>
               <div>
-                  <a href="#" class="btn btn-xs m-5 btn-secondary create-new-host">Create new HOST</a>
+                  <a href="#" class="btn btn-xs m-1 btn-secondary create-new-host">Create new HOST</a>
+              </div>
+              <div>
+                  <a href="{{ route('zabbix.item.index') }}" class="btn btn-xs m-1 btn-secondary">Items</a>
               </div>
           </div>
       </div>

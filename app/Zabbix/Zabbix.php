@@ -453,6 +453,8 @@ class Zabbix
                 'method' => 'item.get',
                 'params' => [
                     'limit' => 50,
+                    "sortfield"=> "itemid",
+                    "sortorder"=> "DESC",
                 ],
 
                 'auth' => $this->getLoginApi(),
