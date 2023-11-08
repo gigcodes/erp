@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('title')
+Indexer State
+@endsection
+
 @section('content')
 <style>
     .index-invalidate {
@@ -50,11 +54,11 @@
         </div>
     </div>
 
-    <div class="modal fade" id="role-create-new" role="dialog">
+    <div class="modal fade" id="indexer-settings" role="dialog">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><b>Create new User</b></h5>
+                    <h5 class="modal-title"><b>Indexer Settings</b></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -68,32 +72,19 @@
                                     <div class="col-md-12">
                                         <div class="table-responsive mt-3">
                                             <input hidden type="text" class="form-control" name="id"
-                                                   placeholder="Enter id" id="role-id">
+                                                   placeholder="Enter id" id="indexer-id">
                                             <div class="form-group">
-                                                <label>Name</label>
-                                                <input type="text" class="form-control" name="name"
-                                                       placeholder="Enter name" id="role-name">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Type</label>
-                                                <select id="role-type" class="form-control input-sm"
-                                                        name="type" required>
-                                                    <option value="1">User (default)</option>
-                                                    <option value="2">Admin</option>
-                                                    <option value="3">Super admin</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Readonly</label>
-                                                <input type="checkbox" class="form-check-input" name="readonly"
-                                                       id="role-readonly">
+                                                <label>Cycles</label>
+                                                <input type="text" class="form-control" name="cycles"
+                                                       placeholder="Enter count" id="indexer-cycles" value="10000">
+                                                <small>Specify the number of cycles, for 1 cycle saves 5000 records from the database to elastic. Default value "500".</small>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <button type="submit"
-                                                    class="btn btn-secondary submit_create_role float-right float-lg-right">
+                                                    class="btn btn-secondary submit_save_reindex float-right float-lg-right">
                                                 Submit
                                             </button>
                                         </div>
@@ -107,15 +98,10 @@
         </div>
     </div>
     <script>
-        $(document).on("click", ".create-new-role", function (e) {
-            e.preventDefault();
-            $('#role-create-new').modal('show');
-            restoreForm();
-        });
 
-        $(document).on("click", ".submit_create_role", function (e) {
+        $(document).on("click", ".submit_save_reindex", function (e) {
             e.preventDefault();
-            var url = "";
+            var url = "{{ route('indexer-state.save') }}";
             var formData = $(this).closest('form').serialize();
 
             $('#loading-image-preview').show();
@@ -125,48 +111,47 @@
                 data: formData,
                 success: function (resp) {
                     $('#loading-image-preview').hide();
-                    $('#website-project-name').val("");
-                    $('#store-create-project').modal('hide');
                     if (resp.code == 200) {
                         toastr["success"](resp.message);
+                        $.ajax({
+                            url: "{{ route('indexer-state.index') }}",
+                            method: 'GET',
+                            success: function (resp) {
+                                let reindexTable = $("#reindex-table");
+                                reindexTable.empty();
+                                reindexTable.html(resp.tpl);
+                            }
+                        })
                     } else {
                         toastr["error"](resp.message);
                     }
                 },
                 error: function (err) {
                     $('#loading-image-preview').hide();
-                    $('#website-project-name').val("");
-                    $('#role-create-new').modal('hide');
                     toastr["error"](err.responseJSON.message);
                 }
             })
         });
 
-        $('a.btn-edit-role').click(function(e) {
+        $(document).on('click', 'a.btn-edit-indexer', function(e) {
             e.preventDefault();
-            $('#role-create-new').modal('show');
+            $('#indexer-settings').modal('show');
 
             restoreForm();
 
-            $('#role-id').val($(this).attr('data-id'));
+            $('#indexer-id').val($(this).attr('data-id'));
 
             let data = JSON.parse($(this).attr('data-json'));
 
-            $('#role-name').val(data.name);
-            $('#role-id').val(data.roleid);
-            $("#role-type option[value='" + data.type + "']").prop("selected", true);
+            let settings = JSON.parse(data.settings);
 
-            if (data.readonly !== "0") {
-                console.log('Checked', data.readonly);
-                $('#role-readonly').attr('checked', data.readonly);
-            }
+            $('#indexer-cycles').val(settings.cycles);
+            $('#indexer-id').val(data.id);
         });
 
         var restoreForm = function() {
-            $('#role-id').val('');
-            $('#role-name').val('');
-            $('#role-type').val('');
-            $('#role-readonly').removeAttr('checked');
+            $('#indexer-cycles').val('');
+            $('#indexer-id').val('');
         }
 
         $(document).ready(function() {

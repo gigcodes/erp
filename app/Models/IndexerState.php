@@ -112,7 +112,7 @@ class IndexerState extends Model
      */
     public function setSettings(array $settings = []): self
     {
-        $this->setAttribute(self::STATUS, json_encode($settings));
+        $this->setAttribute(self::SETTINGS, json_encode($settings));
 
         return $this;
     }

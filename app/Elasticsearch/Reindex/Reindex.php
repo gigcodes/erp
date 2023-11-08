@@ -34,6 +34,7 @@ class Reindex
 
                 /** @var ReindexInterface $class */
                 $class = new $className();
+                $class->setIndexerState($indexer);
                 $class->execute();
 
                 $indexer->setStatus(ReindexInterface::VALID);

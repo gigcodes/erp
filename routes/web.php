@@ -5748,4 +5748,5 @@ Route::middleware('auth')->group(function () {
     Route::get('indexerstate/list', [\App\Http\Controllers\IndexerStateController::class, 'index'])->name('indexer-state.index');
     Route::get('indexerstate/elastic_connection', [\App\Http\Controllers\IndexerStateController::class, 'elasticConnect'])->name('indexer-state.elastic-conn');
     Route::get('indexerstate/reindex', [\App\Http\Controllers\IndexerStateController::class, 'reindex'])->name('indexer-state.reindex');
+    Route::post('indexerstate/save', [\App\Http\Controllers\IndexerStateController::class, 'save'])->name('indexer-state.save');
 });

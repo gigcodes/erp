@@ -208,10 +208,6 @@
                             </button>
                         </div>
                     </form>
-
-                    <a class="btn btn-xs btn-secondary messages-reindex" href="{{ route('chatbot.messages.reindex') }}">Reindex</a>
-
-
                     <form method="post" class="pt-3 d-flex align-items-center chatbot-send-field">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:300px;"]); ?>
@@ -220,6 +216,13 @@
                             <i class="glyphicon glyphicon-send"></i>
                         </button>
                     </form>
+                    <div>
+                        @if($isElastic)
+                            <a class="btn btn-xs btn-secondary" href="{{ route('chatbot.messages.list') }}">Switch to Database</a>
+                        @else
+                            <a class="btn btn-xs btn-warning" href="{{ route('chatbot.messages.list') }}/elastic">Switch to Elastic data</a>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -482,7 +485,9 @@
 
         var isMessagesPage = function()
         {
-            if (window.location.pathname === '/chatbot/messages') {
+            let path = '/chatbot/messages';
+            let pathName = window.location.pathname;
+            if (pathName.indexOf(path) !== -1) {
                 return true;
             }
 

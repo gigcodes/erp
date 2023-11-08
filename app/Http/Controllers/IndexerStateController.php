@@ -7,21 +7,16 @@ namespace App\Http\Controllers;
 use App\Elasticsearch\Elasticsearch;
 use App\Models\IndexerState;
 use Exception;
-use App\Models\MagentoModuleCareers as Career;
-use App\StoreWebsite;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use App\Elasticsearch\Reindex\Interfaces\Reindex;
 
 class IndexerStateController extends Controller
 {
     public function index(Request $request)
     {
-        $indexerStates = IndexerState::all();
         $this->createIndexerStateIfNotExist();
+        $indexerStates = IndexerState::all();
 
         if ($request->ajax()) {
             $view = (string)view('indexer_state.list', [
@@ -80,7 +75,39 @@ class IndexerStateController extends Controller
         } catch (\Throwable $throwable) {
             return response()->json(['message' => $throwable->getMessage(), 'code' => 500], 500);
         }
-        return response()->json(['message' => 'Reindex successful, reload page.', 'code' => 200]);
+        return response()->json(['message' => 'Reindex started.', 'code' => 200]);
+    }
+
+    public function save(Request $request)
+    {
+        try {
+            $data = $request->all();
+
+            $id = $data['id'] ?? null;
+
+            if ($id === null) {
+                throw new \Exception('Id is required param.');
+            }
+
+            /** @var IndexerState $indexerState */
+            $indexerState = IndexerState::find($id);
+
+            if ($indexerState === null) {
+                throw new \Exception(sprintf('Indexer with %s id not found.', $id));
+            }
+
+            if ($data['cycles']) {
+                $indexerState->setSettings([
+                    'cycles' => (int)$data['cycles']
+                ]);
+                $indexerState->save();
+            }
+
+            return response()->json(['message' => 'Indexer saved.', 'code' => 200]);
+        }
+        catch (\Throwable $throwable) {
+            return response()->json(['message' => $throwable->getMessage(), 'code' => 500], 500);
+        }
     }
 
     private function createIndexerStateIfNotExist(): void
