@@ -24,9 +24,11 @@ class IndexerStateController extends Controller
         $this->createIndexerStateIfNotExist();
 
         if ($request->ajax()) {
-            return view('indexer_state.list', [
+            $view = (string)view('indexer_state.list', [
                 'indexerStates' => $indexerStates
             ]);
+
+            return response()->json(['code' => 200, 'tpl' => $view]);
         }
 
         return view('indexer_state.index', [
@@ -74,9 +76,9 @@ class IndexerStateController extends Controller
                 throw new \Exception(sprintf('Cannot start again reindex for index: %s', $indexerState->getIndex()));
             }
 
-            Artisan::call('reindex:messages');
+            \App\Jobs\Reindex::dispatch();
         } catch (\Throwable $throwable) {
-
+            return response()->json(['message' => $throwable->getMessage(), 'code' => 500], 500);
         }
         return response()->json(['message' => 'Reindex successful, reload page.', 'code' => 200]);
     }

@@ -24,6 +24,9 @@ class Reindex
                     continue;
                 }
 
+                $indexer->setStatus(ReindexInterface::RUNNING);
+                $indexer->save();
+
                 $this->createIndexIfNotExist($indexer->getIndex());
                 $this->removeAll($indexer->getIndex());
 

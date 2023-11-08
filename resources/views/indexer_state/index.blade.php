@@ -42,7 +42,7 @@
                 <?php echo csrf_field(); ?>
 
                 <div class="col-md-12">
-                    <div class="table-responsive mt-3">
+                    <div class="table-responsive mt-3" id="reindex-table">
                         @include('indexer_state.list')
                     </div>
                 </div>
@@ -189,5 +189,38 @@
                 }
             })
         });
+
+        $(document).on('click', 'a.btn-reindex-indexer', function (e) {
+            e.preventDefault();
+
+            let indexerStateId = $(this).attr('data-id');
+
+            var url = "{{ route('indexer-state.reindex') }}?id=" + indexerStateId;
+
+            let reindexTable = $("#reindex-table");
+            $('#loading-image-preview').show();
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (resp) {
+                    toastr["success"](resp.message);
+                },
+                error: function (err) {
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
+            setTimeout(function() {
+                $.ajax({
+                    url: "{{ route('indexer-state.index') }}",
+                    method: 'GET',
+                    success: function (resp) {
+                        let reindexTable = $("#reindex-table");
+                        reindexTable.empty();
+                        reindexTable.html(resp.tpl);
+                    }
+                })
+            }, 2000)
+            $('#loading-image-preview').hide();
+        })
     </script>
 @endsection
