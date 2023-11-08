@@ -9,6 +9,35 @@ use JsonSerializable;
 
 class Item implements JsonSerializable
 {
+    const TYPES = [
+        0 => 'Zabbix agent',
+        2 => 'Zabbix trapper',
+        3 => 'Simple check',
+        5 => 'Zabbix agent',
+        7 => 'Zabbix internal',
+        9 => 'Zabbix agent (active)',
+        10 => 'Web item',
+        11 => 'External check',
+        12 => 'IPMI agent',
+        13 => 'SSH agent',
+        14 => 'TELNET',
+        15 => 'Calculated',
+        16 => 'JMX agent',
+        17 => 'SNMP trap',
+        18 => 'Dependent item',
+        19 => 'HTTP agent',
+        20 => 'SNMP agent',
+        21 => 'Script',
+    ];
+
+    const VALUE_TYPES = [
+        0 => 'numeric float',
+        1 => 'character',
+        2 => 'log',
+        3 => 'numeric unsigned',
+        4 => 'text'
+    ];
+
     /**
      * @var Zabbix
      */
