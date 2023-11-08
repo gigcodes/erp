@@ -75,6 +75,9 @@
               <div>
                   <a href="{{ route('zabbix.trigger.index') }}" class="btn btn-xs btn-secondary create-new-user">Triggers</a>
               </div>
+              <div>
+                  <a href="#" class="btn btn-xs m-5 btn-secondary create-new-host">Create new HOST</a>
+              </div>
           </div>
       </div>
   </div>
@@ -84,6 +87,7 @@
       <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="zabbix-table">
         <thead>       
             <tr>
+                <th>Actions</th>
                 <th>Host</th>
                 <th>Free inodes in %</th>
                 <th>Space utilization</th>
@@ -143,6 +147,73 @@
       </div>
   </div>
 </div>
+
+<div class="modal fade" id="host-create-new" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><b>Save Host</b></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="" method="post">
+                            <?php echo csrf_field(); ?>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="table-responsive mt-3">
+                                        <input hidden type="text" class="form-control" name="id"
+                                               placeholder="Enter id" id="host-id">
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input type="text" class="form-control" name="name"
+                                                   placeholder="Enter name" id="host-name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>IP</label>
+                                            <input type="text" class="form-control" name="ip"
+                                                   placeholder="Enter ip" id="host-ip">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Port</label>
+                                            <input type="text" class="form-control" name="port"
+                                                   placeholder="Enter port" id="host-port">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Templates</label>
+                                            <select id="host-template-ids" class="form-control input-sm career-store-websites"
+                                                    name="template_ids[]" multiple required>
+                                                @foreach ($templates as $template)
+                                                    <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <button type="submit"
+                                                class="btn btn-danger delete-host float-left float-lg-left"
+                                                data-id="">
+                                            Delete
+                                        </button>
+                                        <button type="submit"
+                                                class="btn btn-secondary submit-save-host float-right float-lg-right">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -167,7 +238,7 @@
                 ajax: {
                     "url": "{{ route('zabbix.index') }}",
                     data: function(d) {
-                       
+                       console.log(d)
                     },
                 },
                 columnDefs: [{
@@ -176,6 +247,12 @@
                     searchable: true
                 }],
                 columns: [
+                    {
+                        data: 'id',
+                        render: function(data, type, row, meta) {
+                            return '<div class="singleline-flex"><button type="button" data-id="'+data+'"class="btn btn-secondary edit-host-btn">Actions</button></div>';
+                        }
+                    },
                     {
                       data: 'name',                                             
                       render: function(data, type, row, meta) {
@@ -276,7 +353,114 @@
         })
     </script>
 
+    <script>
+        $(document).on("click", ".create-new-host", function (e) {
+            e.preventDefault();
+            $('#host-create-new').modal('show');
+            restoreForm();
+        });
+        $("#host-template-ids").select2();
+        $(document).on("click", ".delete-host", function (e) {
+            e.preventDefault();
+            let hostId = $(this).attr('data-id');
+            var url = "{{ route('zabbix.host.delete') }}?id="+hostId+"";
 
+            var formData = $(this).closest('form').serialize();
+
+            $('#loading-image-preview').show();
+            $.ajax({
+                url: url,
+                method: 'DELETE',
+                data: formData,
+                success: function (resp) {
+                    $('#loading-image-preview').hide();
+                    if (resp.code == 200) {
+                        toastr["success"](resp.message);
+                    } else {
+                        toastr["error"](resp.message);
+                    }
+                },
+                error: function (err) {
+                    $('#loading-image-preview').hide();
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
+        });
+
+        $(document).on("click", ".submit-save-host", function (e) {
+            e.preventDefault();
+            var url = "{{ route('zabbix.host.save') }}";
+            var formData = $(this).closest('form').serialize();
+
+            $('#loading-image-preview').show();
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                success: function (resp) {
+                    $('#loading-image-preview').hide();
+                    if (resp.code == 200) {
+                        toastr["success"](resp.message);
+                    } else {
+                        toastr["error"](resp.message);
+                    }
+                },
+                error: function (err) {
+                    $('#host-create-new').modal('hide');
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
+        });
+
+        $(document).on('click', 'button.edit-host-btn', function(e) {
+            e.preventDefault();
+            console.log('Test');
+            $('#host-create-new').modal('show');
+
+            restoreForm();
+
+            let hostId = $(this).attr('data-id');
+
+            var url = "{{ route('zabbix.host.detail') }}?id=" + hostId;
+
+            $('#loading-image-preview').show();
+            let data;
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (resp) {
+                    $('#loading-image-preview').hide();
+                    if (resp.code == 200) {
+                        data = resp.data;
+                        $('#host-name').val(data.name);
+                        $('#host-ip').val(data.ip);
+                        $('#host-port').val(data.port);
+                        $('#host-url').val(data.url);
+                        $('#host-id').val(data.id);
+                        $('.delete-host').attr('data-id', data.id);
+                    } else {
+                        toastr["error"](resp.message);
+                    }
+                },
+                error: function (err) {
+                    $('#host-create-new').modal('hide');
+                    $('#loading-image-preview').hide();
+                    toastr["error"](err.responseJSON.message);
+                }
+            })
+
+            
+        });
+
+        var restoreForm = function() {
+            $('.submit_delete_host').val('');
+            $('#host-id').val('');
+            $('#host-name').val('');
+            $('#host-ip').val('');
+            $('#host-port').val('');
+            $('#host-template-ids').val('');
+        }
+    </script>
 
 
 @endsection

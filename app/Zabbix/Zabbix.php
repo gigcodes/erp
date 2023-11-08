@@ -154,6 +154,26 @@ class Zabbix
         return !empty($body['result']) ? $body['result'][0] : null;
     }
 
+    public function getHostById($id)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'hostinterface.get',
+                'params' => [
+                    "output" => "extend",
+                    'hostids' => $id
+                ],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        return !empty($body['result']) ? $body['result'][0] : null;
+    }
+
     /**
      * @param array $params
      * @return mixed
@@ -205,12 +225,54 @@ class Zabbix
         return $body['result'];
     }
 
+    public function deleteHost($id)
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => 'host.delete',
+                'params' => [$id],
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
     public function saveRole(array $params = [], $action = 'create')
     {
         $request = $this->curl->post('', [
             'json' => [
                 'jsonrpc' => '2.0',
                 'method' => "role.$action",
+                'params' => $params,
+                'auth' => $this->getLoginApi(),
+                'id' => self::ZABBIX_ID
+            ]
+        ]);
+
+        $body = json_decode((string)$request->getBody(), true);
+
+        if (!empty($body['error'])) {
+            throw new ZabbixException($body['error']['data']);
+        }
+
+        return $body['result'];
+    }
+
+    public function saveHost(array $params = [], $action = 'create')
+    {
+        $request = $this->curl->post('', [
+            'json' => [
+                'jsonrpc' => '2.0',
+                'method' => "host.$action",
                 'params' => $params,
                 'auth' => $this->getLoginApi(),
                 'id' => self::ZABBIX_ID
