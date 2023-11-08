@@ -31,7 +31,7 @@ class TriggerController extends Controller
 
 
         array_map(function ($trigger) {
-            $zbxTrigger = $this->zabbix->call('trigger.get', ['triggerids' => $trigger->getId()]);
+            $zbxTrigger = $this->zabbix->call('trigger.get', ['triggerids' => $trigger->getTemplateId()]);
 
             if (isset($zbxTrigger[0])) {
                 $trigger->setTemplateName($zbxTrigger[0]['description']);
