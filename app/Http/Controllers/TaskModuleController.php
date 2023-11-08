@@ -1283,15 +1283,21 @@ class TaskModuleController extends Controller
         } else {
             $userid = $request->input('selected_user');
 
+            $userqueryInner = '';
+
             if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
+
+                $userqueryInner .= ' OR master_user_id = ' . $searchMasterUserId;
             }
 
             if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
+
+                $userqueryInner .= ' OR  second_master_user_id = ' . $searchSecondMasterUserId;
             }
 
-            $userquery = ' AND (assign_to = ' . $userid . ' OR master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ')';
+            $userquery = ' AND (assign_to = ' . $userid . $userqueryInner . ')';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {

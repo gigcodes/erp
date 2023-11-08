@@ -56,9 +56,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
     @if(Auth::user())
         @if(Auth::user()->user_timeout!=0)
-            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('login') }}">
+            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
         @else
-            <meta http-equiv="refresh" content = "28800; url={{ route('login') }}">
+            <meta http-equiv="refresh" content = "28800; url={{ route('logout-refresh') }}">
         @endif
     @endif
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
@@ -1376,6 +1376,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Upload Screencast/File" type="button" data-toggle="modal" data-target="#uploadeScreencastModal" class="quick-icon" style="padding: 0px 1px;" onclick="showCreateScreencastModal()"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
@@ -1460,7 +1464,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $permissionCount = \App\PermissionRequest::count();
                                     @endphp
-                                        <a class="quick-icon permission-request" href="#">
+                                        <a title="Permission Request" class="quick-icon permission-request" href="#">
                                             <span><i class="fa fa-reply fa-2x"></i>
                                                 @if($permissionCount)
                                                     <span class="permission-alert-badge"></span>
@@ -1471,7 +1475,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 @endif
                                 <li>
-                                    <a class="notification-button quick-icon" href="#"><span><i
+                                    <a title="Quick User Event Notification" class="notification-button quick-icon" href="#"><span><i
                                                 class="fa fa-bell fa-2x"></i></span></a>
                                 </li>
                                 <li>
@@ -1487,7 +1491,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </button>
                                 </li>
                                 <li>
-                                    <a class="instruction-button quick-icon" href="#"><span><i
+                                    <a title="Quick Instruction" class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
@@ -1495,7 +1499,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="daily-planner-button quick-icon" target="__blank"
+                                    <a title="Daily Planner" class="daily-planner-button quick-icon" target="__blank"
                                         href="{{ route('dailyplanner.index') }}">
                                         <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1503,7 +1507,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
                                 <li>
-                                    <a id="message-chat-data-box" class="quick-icon">
+                                    <a title="Chat" id="message-chat-data-box" class="quick-icon">
                                         <span class="p1 fa-stack has-badge" id="new_message"
                                             data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                             <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
@@ -1511,13 +1515,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-zoom-meeting quick-icon" data-toggle="modal"
+                                    <a title="Create Meeting" class="create-zoom-meeting quick-icon" data-toggle="modal"
                                         data-target="#quick-zoomModal">
                                         <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-easy-task quick-icon" data-toggle="modal"
+                                    <a title="Create Task / Dev Task" class="create-easy-task quick-icon" data-toggle="modal"
                                         data-target="#quick-create-task">
                                         <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -5085,6 +5089,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <div class="row">
                                         <div class="col-12 pb-3">
                                             <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="task_user_id" id="task_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -6023,6 +6037,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         $('#ipusers').select2({width: '20%'});
+        $('#task_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6464,6 +6479,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-task-search-menu", function (e) {
         var keyword = $('.task-search-table').val();
+        var task_user_id = $('#task_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6471,6 +6487,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 term: keyword,
+                selected_user: task_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -7471,7 +7488,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     
                     <div class='text_box-textarea mb-4'>
                         <label>Notes</label></br>
-                        <textarea maxlength='100' rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
+                        <textarea rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
                     </div>
                 </div>`;
 
