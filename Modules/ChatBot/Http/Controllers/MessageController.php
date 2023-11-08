@@ -954,7 +954,7 @@ class MessageController extends Controller
         $total = 3000000;
 
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
-            'items' => $pendingApprovalMsg->select([...$select, DB::raw('CASE WHEN `e`.`id` IS NOT NULL THEN 1 ELSE 0 END AS is_email')])->get(),
+            'items' => $pendingApprovalMsg->select(DB::statement('call getchatmessages()')),
             'total' => $total,
             'perPage' => 20,
             'currentPage' => $currentPage,
