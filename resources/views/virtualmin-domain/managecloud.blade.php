@@ -9,29 +9,37 @@
         <h2 class="page-heading">Virtualmin Domains Manage Cloud - {{$domain->name}}</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <!-- <div class="col-8">
-                    <form action="{{ route('virtualmin.domains') }}" method="get" class="search">
+                <div class="col-7">
+                    <form action="{{ route('virtualmin.domains.managecloud', ['id' => $domain->id]) }}" method="get" class="search">
                         <div class="row">
                             <div class="col-md-4 pd-sm">
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}">
                             </div>                            
                             <div class="col-md-3 pd-sm">                                
-                                <select name="status" id="status" class="form-control select2">
-                                    <option value="">-- Select a status --</option> 
-                                    <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Enabled</option>
-                                    <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Disabled</option>
+                                <select name="dns_type" id="dns_type" class="form-control select2">
+                                    <option value="">-- Select DNS Type --</option> 
+                                    <option value="A" {{ request('dns_type') == 'A' ? 'selected' : '' }}>A</option>
+                                    <option value="MX" {{ request('dns_type') == 'MX' ? 'selected' : '' }}>MX</option>
+                                    <option value="TXT" {{ request('dns_type') == 'TXT' ? 'selected' : '' }}>TXT</option>
                                 </select>
                             </div>
+                            <!-- <div class="col-md-2 pd-sm">                                
+                                <select name="proxied" id="proxied" class="form-control select2">
+                                    <option value="">-- Select Proxied --</option> 
+                                    <option value="1" {{ request('proxied') == 1 ? 'selected' : '' }}>Enable</option>
+                                    <option value="0" {{ request('proxied') == 0 ? 'selected' : '' }}>Disable</option>
+                                </select>
+                            </div> -->
                             <div class="col-md-4 pd-sm pl-0 mt-2">
                                  <button type="submit" class="btn btn-image search">
                                     <img src="{{ asset('images/search.png') }}" alt="Search">
                                 </button>
-                                <a href="{{ route('virtualmin.domains') }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                                <a href="{{ route('virtualmin.domains.managecloud', ['id' => $domain->id]) }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
                     </form>
-                </div> -->
-                <div class="col-4">
+                </div>
+                <div class="col-5">
                     <div class="pull-right">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#a-dns-create">Create A DNS Record</button>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mx-dns-create">Create MX DNS Record</button>
@@ -248,6 +256,7 @@
                             <th width="20%">Priority</th>
                             <th width="20%">Proxied</th>
                             <th width="20%">IPV4</th>
+                            <th width="20%">Created Date</th>
                             <th width="10%">Action</th>
                         </tr>
                         @foreach ($domainsDnsRecords as $key => $domain)
@@ -256,8 +265,9 @@
                                 <td>{{ $domain->domain_with_dns_name }}</td>
                                 <td>{{ $domain->type }}</td>
                                 <td>{{ $domain->priority }}</td>
-                                <td>@if($domain->proxied==1){{'true'}} @else {{'false'}} @endif</td>
+                                <td>@if($domain->proxied==1){{'Enable'}} @else {{'Disable'}} @endif</td>
                                 <td>{{ $domain->content }}</td>
+                                <td>{{ $domain->created_at }}</td>
                                 <td>
                                     @if($domain->dns_type=='A')
                                         <button type="button" title="Edit" data-id="{{$domain->id}}" class="btn btn-xs edit-dns-btn">

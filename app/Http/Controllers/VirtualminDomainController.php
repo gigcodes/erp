@@ -378,18 +378,23 @@ class VirtualminDomainController extends Controller
             // Find the domain in the local database
             $domain = VirtualminDomain::findOrFail($id);
 
-            /*$keyword = $request->get('keyword');
-            $status = $request->get('status');*/
+            $keyword = $request->get('keyword');
+            $dns_type = $request->get('dns_type');
 
             // data search action
             $domainsDnsRecords = VirtualminDomainDnsRecords::with('VirtualminDomain')->where('Virtual_min_domain_id', $id)->whereNull('deleted_at')->orderBy('id', 'DESC');
 
-            /*if (! empty($keyword) || isset($keyword)) {
-                $domains = $domains->where('name', 'LIKE', '%' . $keyword . '%');
+            if (! empty($keyword) || isset($keyword)) {
+                $domainsDnsRecords = $domainsDnsRecords->where('domain_with_dns_name', 'LIKE', '%' . $keyword . '%')->orWhere('content', 'LIKE', '%' . $keyword . '%');
             }
-            if (! empty($status) || isset($status)) {
-                $domains = $domains->where('is_enabled', $status);
-            }*/
+            
+            if (! empty($dns_type) || isset($dns_type)) {
+                $domainsDnsRecords = $domainsDnsRecords->where('dns_type', $dns_type);
+            }
+
+            if (! empty($proxied) || isset($proxied)) {
+                $domainsDnsRecords = $domainsDnsRecords->where('proxied', $proxied);
+            }
 
             $domainsDnsRecords = $domainsDnsRecords->paginate(10);
 
@@ -613,7 +618,7 @@ class VirtualminDomainController extends Controller
                         }
 
                         if(!empty($zoneIdentifier)){
-                            
+
                             $url = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL').'/'.$zoneIdentifier.'/dns_records/'.$domainsDnsRecords->identifier_id;
 
                             $ch = curl_init();
