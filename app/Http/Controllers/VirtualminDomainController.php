@@ -83,8 +83,8 @@ class VirtualminDomainController extends Controller
             $result = curl_exec($ch);
 
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            \Log::info('Virtualmin Domain API result: ' . $result);
-            \Log::info('Virtualmin Domain API Error Number: ' . curl_errno($ch));
+           /* \Log::info('Virtualmin Domain API result: ' . $result);
+            \Log::info('Virtualmin Domain API Error Number: ' . curl_errno($ch));*/
             if (curl_errno($ch)) {
                 \Log::info('API Error: ' . curl_error($ch));
                 //MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => curl_error($ch)]);
@@ -107,6 +107,25 @@ class VirtualminDomainController extends Controller
                 $virtualminDomainHistory->output = $result;
                 $virtualminDomainHistory->status = $response->result->status;
                 $virtualminDomainHistory->save();
+
+                //create virtual server
+                // Base URL
+                $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi?program=create-domain&domain='.trim($request->name).'&mail&unix&dir';
+
+                $token = getenv('VIRTUAL_SERVER_USER').':'.getenv('VIRTUAL_SERVER_PASS');
+
+                // Initialize cURL session
+                $ch = curl_init(trim($url));
+
+                // Set cURL options
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Authorization: Basic ' . base64_encode($token)
+                ));
+
+                // Execute cURL session and get the response
+                $response = curl_exec($ch);
 
                 return response()->json(['code' => 200, 'message' => 'Domain Create successfully']);
 
