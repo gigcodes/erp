@@ -241,6 +241,25 @@ class Item implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
+    public function getTemplateId(): int
+    {
+        return $this->templateId ?? 0;
+    }
+
+    /**
+     * @param $templateId
+     * @return $this
+     */
+    public function setTemplateId(int $templateId): self
+    {
+        $this->templateId = $templateId;
+
+        return $this;
+    }
+
     public function save()
     {
         if (!$this->getId()) {
@@ -252,7 +271,8 @@ class Item implements JsonSerializable
                 'value_type' => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
-                'units' => $this->getUnits()
+                'units' => $this->getUnits(),
+                'templateids' => $this->getTemplateId()
             ]);
         } else {
             $this->zabbix->updateItem([
@@ -263,7 +283,8 @@ class Item implements JsonSerializable
                 'value_type' => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
-                'units' => $this->getUnits()
+                'units' => $this->getUnits(),
+                'templateids' => $this->getTemplateId()
             ]);
         }
     }
@@ -290,6 +311,7 @@ class Item implements JsonSerializable
         $this->setInterfaceid((int)$data['interfaceid'] ?? 0);
         $this->setHostId((int)$data['hostid'] ?? 0);
         $this->setUnits($data['units'] ?? 0);
+        $this->setTemplateId((int)$data['templateid'] ?? 0);
 
         return $this;
     }
@@ -315,7 +337,8 @@ class Item implements JsonSerializable
             'intarfaceid' => $this->getInterfaceid(),
             'delay' => $this->getDelay(),
             'host_id' => $this->getHostId(),
-            'units' => $this->getUnits()
+            'units' => $this->getUnits(),
+            'templateid' => $this->getTemplateId()
         ];
     }
 }

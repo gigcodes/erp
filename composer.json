@@ -33,6 +33,7 @@
     "googleads/google-ads-php": "^19.0",
     "googleads/googleads-php-lib": "^59.0",
     "guzzlehttp/guzzle": "^6.3.1|^7.2.2",
+    "intellitrend/zabbixapi": "^3.2",
     "intervention/image": "^2.5",
     "iwasherefirst2/laravel-multimail": "^1.3",
     "jenkins-khan/jenkins-api": "dev-master",

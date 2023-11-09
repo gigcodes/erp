@@ -1,6 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .gray-td {
+        background-color: gray;
+        color: #fff;
+    }
+    .orange-td {
+        background-color: orange;
+        color: #fff;
+    }
+    .red-td {
+        background-color: red;
+        color: #fff;
+    }
+</style>
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Zabbix Triggers <span class="count-text"></span></h2>
