@@ -111,7 +111,7 @@ class VirtualminDomainController extends Controller
                 //create virtual server
                 // Base URL
 
-                $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+                $url = getenv('VIRTUALMIN_ENDPOINT');
 
                 // Parameters
                 $params = array(
@@ -124,7 +124,7 @@ class VirtualminDomainController extends Controller
                 // Append parameters to URL
                 $url .= '?' . http_build_query($params);
 
-                $token = getenv('VIRTUAL_SERVER_USER').':'.getenv('VIRTUAL_SERVER_PASS');
+                $token = getenv('VIRTUALMIN_USER').':'.getenv('VIRTUALMIN_PASS');
 
                 // Initialize cURL session
                 $ch = curl_init(trim($url));
