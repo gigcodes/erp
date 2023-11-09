@@ -56,7 +56,7 @@
 
 					<a target="_blank" href="/store-website/magento-media-sync-logs" class="btn btn-secondary"> Magento Media Sync Logs</a>&nbsp;
 
-					<button class="btn btn-secondary" data-toggle="modal" data-target="#varnish-front-end"> Varnish </button>&nbsp;
+					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#varnish-front-end"> Varnish </button>&nbsp; -->
 
 					<a target="_blank" href="/store-website/varnish-logs" class="btn btn-secondary"> Varnish Logs</a>&nbsp;
 				</div>

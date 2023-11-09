@@ -15,9 +15,9 @@ $i = 1;
 		<td>
 			{{$VarnishStatsLog->response_data}}
 		</td>
-		<td>
+		<!-- <td>
 			{{$VarnishStatsLog->user->name}}
-		</td>
+		</td> -->
 		<td>
 			{{$VarnishStatsLog->created_at}}
 		</td>
