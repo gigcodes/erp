@@ -73,7 +73,7 @@ class SonarQubeController extends Controller
         $response = Http::withBasicAuth($username, $password)
             ->get($url, $queryParams);
 
-        $responseData = $response->json();
+        return $responseData = $response->json();
 
         return view('sonarCube.index', ['issues' => $responseData]);
     }

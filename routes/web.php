@@ -504,6 +504,7 @@ Route::middleware('auth')->group(function () {
     Route::post('discount-sale-price/create', [DiscountSalePriceController::class, 'create']);
     Route::get('create-media-image', [CustomerController::class, 'testImage']);
     Route::get('generate-favicon', [HomeController::class, 'generateFavicon']);
+    Route::get('logout-refresh', [HomeController::class, 'logoutRefresh'])->name('logout-refresh');
 
     Route::get('/products/affiliate', [ProductController::class, 'affiliateProducts']);
     Route::get('/products/change-category', [ProductController::class, 'changeCategory']);
@@ -813,6 +814,7 @@ Route::prefix('product')->middleware('auth')->group(function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(function () {
+	Route::delete('list-api-logs-delete', [LaravelLogController::class, 'listApiLogsDelete'])->name('list-api-logs-delete');
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', [Logging\LogListMagentoController::class, 'updateProductPushInformation'])->name('update.magento.product-push-information');
@@ -3270,6 +3272,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/postman/create', [PostmanRequestCreateController::class, 'store']);
     Route::post('/postman/edit', [PostmanRequestCreateController::class, 'edit']);
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
+    Route::get('postman/addstorewebsiteurlinflutterpostman', [PostmanRequestCreateController::class, 'addStoreWebsiteUrlInFlutterPostman']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
     Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
@@ -3302,7 +3305,9 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/send/request', [PostmanRequestCreateController::class, 'sendPostmanRequestAPI']);
 
     Route::post('postman/requested/history', [PostmanRequestCreateController::class, 'postmanRequestHistoryLog']);
+    Route::get('postman/request/history', [PostmanRequestCreateController::class, 'index_request_hisory']);
     Route::post('postman/response/history', [PostmanRequestCreateController::class, 'postmanResponseHistoryLog']);
+    Route::get('postman/response/history', [PostmanRequestCreateController::class, 'index_response_hisory']);
     Route::post('postman/add/json/version', [PostmanRequestCreateController::class, 'jsonVersion']);
     Route::post('postman/removeuser/permission', [PostmanRequestCreateController::class, 'removeUserPermission']);
     Route::post('postman/remark/history', [PostmanRequestCreateController::class, 'postmanRemarkHistoryLog']);
@@ -4065,6 +4070,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 // pages notes started from here
 Route::middleware('auth')->group(function () {
     Route::prefix('page-notes')->group(function () {
+    	Route::post('/category/create', [PageNotesController::class, 'createCategory'])->name('pageNotes.createCategory');
         Route::post('create', [PageNotesController::class, 'create'])->name('createPageNote');
         Route::get('list', [PageNotesController::class, 'list'])->name('listPageNote');
         Route::get('edit', [PageNotesController::class, 'edit'])->name('editPageNote');
@@ -4745,6 +4751,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
 Route::middleware('auth')->prefix('return-exchange')->group(function () {
     Route::get('/', [ReturnExchangeController::class, 'index'])->name('return-exchange.list');
     Route::get('/records', [ReturnExchangeController::class, 'records'])->name('return-exchange.records');
+    Route::post('/statuscolor', [ReturnExchangeController::class, 'statuscolor'])->name('return-exchange.statuscolor');
     Route::get('/model/{id}', [ReturnExchangeController::class, 'getOrders']);
     Route::get('/getProducts/{id}', [ReturnExchangeController::class, 'getProducts']);
     Route::get('/getRefundInfo/{id}', [ReturnExchangeController::class, 'getRefundInfo']);
