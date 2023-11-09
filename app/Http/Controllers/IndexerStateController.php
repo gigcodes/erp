@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use App\Elasticsearch\Reindex\Interfaces\Reindex;
+use Illuminate\Support\Facades\Artisan;
 
 class IndexerStateController extends Controller
 {
@@ -71,7 +72,7 @@ class IndexerStateController extends Controller
                 throw new \Exception(sprintf('Cannot start again reindex for index: %s', $indexerState->getIndex()));
             }
 
-            \App\Jobs\Reindex::dispatch();
+            Artisan::call('reindex:messages');
         } catch (\Throwable $throwable) {
             return response()->json(['message' => $throwable->getMessage(), 'code' => 500], 500);
         }
