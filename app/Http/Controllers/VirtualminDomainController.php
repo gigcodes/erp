@@ -110,7 +110,19 @@ class VirtualminDomainController extends Controller
 
                 //create virtual server
                 // Base URL
-                $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi?program=create-domain&domain='.trim($request->name).'&mail&unix&dir';
+
+                $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
+
+                // Parameters
+                $params = array(
+                    'program' => 'create-domain',
+                    'domain' => $request->name,
+                    'user' => 'adminuser',
+                    'pass' => 'adminpassword',
+                );
+
+                // Append parameters to URL
+                $url .= '?' . http_build_query($params);
 
                 $token = getenv('VIRTUAL_SERVER_USER').':'.getenv('VIRTUAL_SERVER_PASS');
 
