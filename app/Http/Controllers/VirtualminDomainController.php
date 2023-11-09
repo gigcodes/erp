@@ -513,7 +513,7 @@ class VirtualminDomainController extends Controller
 
         } catch (\Exception $e) {
             /*return Redirect::route('virtualmin-domain.index')->with('error', $e->getMessage());*/
-            return redirect()->route('virtualmin-domain.index')->with('error', $e->getMessage());
+            return redirect()->route('virtualmin.domains')->with('error', $e->getMessage());
         }
     }
 
