@@ -134,6 +134,11 @@
                 <th>Event Id</th>
                 <th>Object ID</th>
                 <th>Problem</th>
+                <th>DateTime</th>
+                <th>Recovery Time</th>
+                <th>Time Duration</th>
+                <th>Severity</th>
+                <th>Acknowledged</th>
             </tr>
             </thead>
 
@@ -145,6 +150,11 @@
                     <td>{{$problem->eventid}}</td>
                     <td>{{$problem->objectid}}</td>
                     <td>{{$problem->name}}</td>
+                    <td>{{$problem->datetime ? date('Y-m-d H:i:s', $problem->datetime) : ''}}</td>
+                    <td>{{$problem->recovery_time ? date('Y-m-d H:i:s', $problem->recovery_time) : ''}}</td>
+                    <td>{{$problem->time_duration ? date('Y-m-d H:i:s', $problem->time_duration) : ''}}</td>
+                    <td>{{\App\Problem::SEVERITY[$problem->severity] ?? ''}}</td>
+                    <td>{{$problem->acknowledged ? 'Yes' : 'No'}}</td>
                 </tr>
             @endforeach
             </tbody>
@@ -213,6 +223,36 @@
                       render: function(data, type, row, meta) {
                         return data;
                       }
+                    },
+                    {
+                        data: 'datetime',
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'recovery_time',
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'time_duration',
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'severity',
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: 'acknowledged',
+                        render: function(data, type, row, meta) {
+                            return data;
+                        }
                     }
                     
                 ],
