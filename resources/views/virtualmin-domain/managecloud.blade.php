@@ -29,6 +29,7 @@
                 <span class="switch-label" data-on="On" data-off="Off"></span> 
                 <span class="switch-handle"></span> 
             </label>
+            <span style="float:right;">Rocket loader settings :</span>
         </h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
