@@ -52,10 +52,10 @@
                                         {{ $item->getKey() }}
                                     </td>
                                     <td class="td-type-{{ $item->getId() }}">
-                                        {{ $item->getType() }}
+                                        {{ \App\Models\Zabbix\Item::TYPES[$item->getType()] }}
                                     </td>
                                     <td class="td-value-type-{{ $item->getId() }}">
-                                        {{ $item->getValueType() }}
+                                        {{ \App\Models\Zabbix\Item::VALUE_TYPES[$item->getValueType()] }}
                                     </td>
                                     <td class="td-delay-{{ $item->getId() }}">
                                         {{ $item->getDelay() }}
@@ -116,9 +116,22 @@
                                                        placeholder="Enter type" id="item-type">
                                             </div>
                                             <div class="form-group">
+                                                <label>Type</label>
+                                                <select id="item-type" class="form-control input-sm"
+                                                        name="type" required>
+                                                        @foreach(\App\Models\Zabbix\Item::TYPES as $key => $value)
+                                                            <option value="{{ $key }}">{{ $value }}</option>
+                                                        @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
                                                 <label>Value Type</label>
-                                                <input type="text" class="form-control" name="value_type"
-                                                       placeholder="Enter value type" id="item-value-type">
+                                                <select id="item-value-type" class="form-control input-sm"
+                                                name="value_type" required>
+                                                @foreach(\App\Models\Zabbix\Item::VALUE_TYPES as $key => $value)
+                                                    <option value="{{ $key }}">{{ $value }}</option>
+                                                @endforeach
+                                                </select>
                                             </div>
                                             <div class="form-group">
                                                 <label>Key</label>
@@ -145,16 +158,6 @@
                                                 <input type="text" class="form-control" name="interfaceid"
                                                        placeholder="Enter Interface ID" id="item-units" value="1">
                                             </div>
-                                            <div class="form-group">
-                                            <label>Templates</label>
-                                            <select id="item-template-id" class="form-control input-sm career-store-websites"
-                                                    name="template_id" required>
-                                                    <option value="0">Choose template</option>
-                                                @foreach ($templates as $template)
-                                                    <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
