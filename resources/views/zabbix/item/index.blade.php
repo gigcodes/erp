@@ -112,11 +112,6 @@
                                             </div>
                                             <div class="form-group">
                                                 <label>Type</label>
-                                                <input type="text" class="form-control" name="type"
-                                                       placeholder="Enter type" id="item-type">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Type</label>
                                                 <select id="item-type" class="form-control input-sm"
                                                         name="type" required>
                                                         @foreach(\App\Models\Zabbix\Item::TYPES as $key => $value)
