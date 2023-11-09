@@ -512,7 +512,8 @@ class VirtualminDomainController extends Controller
             return view('virtualmin-domain.managecloud', ['domainsDnsRecords' => $domainsDnsRecords, 'domain' => $domain]);
 
         } catch (\Exception $e) {
-            return Redirect::route('virtualmin-domain.index')->with('error', $e->getMessage());
+            /*return Redirect::route('virtualmin-domain.index')->with('error', $e->getMessage());*/
+            return redirect()->route('virtualmin-domain.index')->with('error', $e->getMessage());
         }
     }
 
