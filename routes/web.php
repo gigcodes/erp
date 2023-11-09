@@ -1449,6 +1449,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
         Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
+        Route::post('domains/create', [VirtualminDomainController::class, 'domainCreate'])->name('virtualmin.domains.create');
+        Route::get('/domains/{id}/managecloud', [VirtualminDomainController::class, 'managecloudDomain'])->name('virtualmin.domains.managecloud');
+        Route::post('domains/createadns', [VirtualminDomainController::class, 'adnsCreate'])->name('virtualmin.domains.createadns');
+        Route::post('/domains/dnsdelete', [VirtualminDomainController::class, 'deletednsDomain'])->name('virtualmin.domains.dnsdelete');
+        Route::get('/domains/dnshistories', [VirtualminDomainController::class, 'domainShowDns'])->name('virtualmin.domains.dnshistories');
+        Route::get('/domains/dnsedit', [VirtualminDomainController::class, 'dnsedit'])->name('virtualmin.domains.dnsedit');
+        Route::post('/domains/dnsupdate', [VirtualminDomainController::class, 'dnsupdate'])->name('virtualmin.domains.dnsupdate');
+        Route::post('/domains/domainstatusupdate', [VirtualminDomainController::class, 'domainstatusupdate'])->name('virtualmin.domains.domainstatusupdate');
     });
 
     Route::group(['prefix' => 'sonarqube'], function () {
