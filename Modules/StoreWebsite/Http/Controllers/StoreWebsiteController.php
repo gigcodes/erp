@@ -68,6 +68,7 @@ use App\Models\WebsiteStoreProject;
 use App\Models\StoreWebsiteCsvPullHistory;
 use App\Models\StoreWebsiteAdminUrl;
 use App\Models\MagentoMediaSync;
+use App\Models\VarnishStats;
 
 class StoreWebsiteController extends Controller
 {
@@ -2956,5 +2957,70 @@ class StoreWebsiteController extends Controller
         $MagentoMediaSyncLogs = $MagentoMediaSyncLogs->get();
 
         return view('storewebsite::index-magento-media-sync-logs', compact('title', 'MagentoMediaSyncLogs', 'request'));
+    }
+
+    public function varnishFrontendCron(Request $request)
+    {
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'varnish_store_website_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 400, 'message' => $outputString]);
+        }
+
+        $sourceStoreWebsites = StoreWebsite::whereNull('deleted_at')->where('id', $request->varnish_store_website_id)->first();
+        $cwd='';
+        $assetsmanager = new AssetsManager;
+        if($sourceStoreWebsites){
+            $assetsmanager = AssetsManager::where('id', $sourceStoreWebsites->assets_manager_id)->first();
+        }
+        
+        if(!empty($sourceStoreWebsites->server_ip) && !empty($sourceStoreWebsites->title) && !empty($assetsmanager->ip_name)){
+
+            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+
+            $cmd = "bash $scriptsPath" . "varnish_get_details.sh -s \"$assetsmanager->ip_name\" -i \"$sourceStoreWebsites->server_ip\" -w \"$sourceStoreWebsites->title\" 2>&1";
+
+            // NEW Script
+            $result = exec($cmd, $output, $return_var);
+
+            \Log::info('store command:' . $cmd);
+            \Log::info('store output:' . print_r($output, true));
+            \Log::info('store return_var:' . $return_var);
+
+            $useraccess = VarnishStats::create([
+                'created_by' => Auth::user()->id,
+                'store_website_id' => $request->varnish_store_website_id,
+                'assets_manager_id' => $sourceStoreWebsites->assets_manager_id,
+                'server_name' => $sourceStoreWebsites->title,
+                'server_ip' => $sourceStoreWebsites->server_ip,
+                'website_name' => $assetsmanager->ip_name,
+                'request_data' => $cmd,
+                'response_data' => json_encode($result),
+            ]);
+        } else {
+            return response()->json(['code' => 400 , 'message' => 'Something went wrong. Please try again.']);
+        }
+    }
+
+    public function varnishLogs(Request $request)
+    {
+        $title = 'Varnish Logs | Store Website';
+
+        $VarnishStatsLogs = VarnishStats::with(['user','storewebsite'])->orderBy('id', 'DESC');
+
+        $VarnishStatsLogs = $VarnishStatsLogs->get();
+
+        return view('storewebsite::index-varnish-logs', compact('title', 'VarnishStatsLogs'));
     }
 }
