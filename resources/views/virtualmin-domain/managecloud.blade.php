@@ -184,7 +184,7 @@
                         {!! Form::text('name', null, ['class'=>'form-control','required']) !!}
                         {!! Form::hidden('Virtual_min_domain_id', $domain->id) !!}
                         {!! Form::hidden('dns_type', 'TXT') !!}   
-                        {!! Form::hidden('type', 'MX') !!}
+                        {!! Form::hidden('type', 'TXT') !!}
                         {!! Form::hidden('proxied', 2) !!}                     
                     </div>
                     <div class="modal-footer">
@@ -616,6 +616,7 @@
         var $this = $(this);
         var id = $this.data('id');
 
+        $('#loading-image').show();
         $.ajax({
             headers: {
                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
