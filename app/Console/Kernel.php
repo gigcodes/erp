@@ -745,7 +745,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('store:zabbix')->everyFiveMinutes();
         $schedule->command('zabbix:problem')->everyFiveMinutes();
         $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
-        $schedule->command('insert-varnish-records')->dailyAt('23:58');
+        $schedule->command('insert-varnish-records')->everyFiveMinutes();
     }
 
     /**`

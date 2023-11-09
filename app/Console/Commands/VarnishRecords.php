@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 use App\AssetsManager;
+use App\StoreWebsite;
 use App\Models\VarnishStats;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -43,35 +44,48 @@ class VarnishRecords extends Command
         try {
             Log::info('Start Varnish Records');
 
-            $storeWebsites = \App\StoreWebsite::get();
-            if (! $storeWebsites->isEmpty()) {
+            $storeWebsites = StoreWebsite::get();
+            if(!empty($storeWebsites)){
                 foreach ($storeWebsites as $storeWebsite) {
 
-                    $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
-                    
-                    if(!empty($storeWebsite->server_ip) && !empty($storeWebsite->title) && !empty($assetsmanager->ip_name)){
+                    Log::info($storeWebsite->title);
 
-                        $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+                    if((!empty($storeWebsite->assets_manager_id)) && ($storeWebsite->assets_manager_id >0)){
 
-                        $cmd = "bash $scriptsPath" . "varnish_get_details.sh -s \"$assetsmanager->ip_name\" -i \"$storeWebsite->server_ip\" -w \"$storeWebsite->title\" 2>&1";
+                        Log::info('asset -'.$storeWebsite->assets_manager_id);
+    
+                        $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
+                
+                        if(!empty($storeWebsite->server_ip) && !empty($storeWebsite->title) && !empty($assetsmanager->ip_name)){
 
-                        // NEW Script
-                        $result = exec($cmd, $output, $return_var);
+                            Log::info('server_ip -'.$storeWebsite->server_ip.'--- title -'.$storeWebsite->title.'--- ip_name -'.$assetsmanager->ip_name);
 
-                        \Log::info('store command:' . $cmd);
-                        \Log::info('store output:' . print_r($output, true));
-                        \Log::info('store return_var:' . $return_var);
+                            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-                        $useraccess = VarnishStats::create([
-                            'created_by' => 0,
-                            'store_website_id' => $request->varnish_store_website_id,
-                            'assets_manager_id' => $storeWebsite->assets_manager_id,
-                            'server_name' => $storeWebsite->title,
-                            'server_ip' => $storeWebsite->server_ip,
-                            'website_name' => $assetsmanager->ip_name,
-                            'request_data' => $cmd,
-                            'response_data' => json_encode($result),
-                        ]);
+                            Log::info($scriptsPath);
+
+                            $cmd = "bash $scriptsPath" . "varnish_get_details.sh -s \"$assetsmanager->ip_name\" -i \"$storeWebsite->server_ip\" -w \"$storeWebsite->title\"";
+
+                            Log::info($cmd);
+
+                            // NEW Script
+                            $result = exec($cmd, $output, $return_var);
+
+                            \Log::info('store command:' . $cmd);
+                            \Log::info('store output:' . print_r($output, true));
+                            \Log::info('store return_var:' . $return_var);
+
+                            /*VarnishStats::create([
+                                'created_by' => 0,
+                                'store_website_id' => $storeWebsite->id,
+                                'assets_manager_id' => $storeWebsite->assets_manager_id,
+                                'server_name' => $storeWebsite->title,
+                                'server_ip' => $storeWebsite->server_ip,
+                                'website_name' => $assetsmanager->ip_name,
+                                'request_data' => $cmd,
+                                'response_data' => json_encode($result),
+                            ]);*/
+                        }
                     }
                 }
             }

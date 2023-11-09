@@ -15,20 +15,16 @@ class CreateVarnishStatsTable extends Migration
     {
         Schema::create('varnish_stats', function (Blueprint $table) {
             $table->id();
-            $table->integer('created_by');
-            $table->integer('store_website_id')->nullable();
-            $table->integer('assets_manager_id')->nullable();
+            $table->string('timestamp')->nullable();
             $table->string('server_name')->nullable();
             $table->string('server_ip')->nullable();
             $table->string('website_name')->nullable();
             $table->string('cache_name')->nullable();
-            $table->integer('cache_hit');
-            $table->integer('cache_miss');
-            $table->integer('cache_hitpass');
-            $table->float('cache_hitrate', 8,2);
-            $table->float('cache_missrate', 8,2);
-            $table->longText('request_data');
-            $table->longText('response_data');
+            $table->longText('cache_hit')->nullable();
+            $table->longText('cache_miss')->nullable();
+            $table->longText('cache_hitpass')->nullable();
+            $table->longText('cache_hitrate')->nullable();
+            $table->longText('cache_missrate')->nullable();
             $table->timestamps();
         });
     }
