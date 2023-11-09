@@ -124,7 +124,7 @@ class VirtualminDomainController extends Controller
                 // Append parameters to URL
                 $url .= '?' . http_build_query($params);
 
-                $token = getenv('VIRTUAL_SERVER_USER').':'.getenv('VIRTUAL_SERVER_PASS');
+                $token = getenv('VIRTUALMIN_USER').':'.getenv('VIRTUALMIN_PASS');
 
                 // Initialize cURL session
                 $ch = curl_init(trim($url));
