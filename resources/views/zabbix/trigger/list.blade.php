@@ -28,9 +28,18 @@
                 {{ $trigger->getEventName() }}
             </td>
             <td class="td-template-id-{{ $trigger->getId() }}">
-                {{ $trigger->getTemplateId() }}
+                {{ $trigger->getTemplateName() }}
             </td>
-            <td class="td-priority-{{ $trigger->getId() }}">
+            <td class="td-priority-{{ $trigger->getId() }} 
+            <?php 
+                if ($trigger->getSeverity() >= 4) 
+                    print 'red-td'; 
+                else if ($trigger->getSeverity() >= 2) 
+                    print 'red-td';
+                else 
+                    print 'gray-td';
+                ?>
+                ">
                 {{ $trigger->getSeverity() }}
             </td>
             <td class="td-status-{{ $trigger->getId() }}">

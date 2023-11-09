@@ -145,6 +145,16 @@
                                                 <input type="text" class="form-control" name="interfaceid"
                                                        placeholder="Enter Interface ID" id="item-units" value="1">
                                             </div>
+                                            <div class="form-group">
+                                            <label>Templates</label>
+                                            <select id="item-template-id" class="form-control input-sm career-store-websites"
+                                                    name="template_id" required>
+                                                    <option value="0">Choose template</option>
+                                                @foreach ($templates as $template)
+                                                    <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -164,6 +174,7 @@
         </div>
     </div>
     <script>
+        $("#item-template-id").select2();
         $(document).on("click", ".create-new-item", function (e) {
             e.preventDefault();
             $('#item-create-new').modal('show');
@@ -263,6 +274,8 @@
             $('#item-delay').val(data.delay);
             $('#item-units').val(data.units);
             $('#item-interfaceid').val(data.intarfaceid);
+            $("#item-template-id option[value='" + data.templateid + "']").prop("selected", true);
+            $("#item-template-id").select2();
         });
 
         var restoreForm = function() {
@@ -275,6 +288,7 @@
             $('#item-delay').val('');
             $('#item-units').val('');
             $('#item-interfaceid').val('');
+            $('#item-template-id').val('');
         }
     </script>
 @endsection
