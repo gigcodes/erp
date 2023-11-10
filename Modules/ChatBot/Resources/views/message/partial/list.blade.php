@@ -234,7 +234,7 @@ padding: 3px 2px;
                     @endif
                 </td>
             @else
-                <td class="user-input" >{{ $pam->question }}
+                <td class="user-input" >{{ $pam->question ??$pam->message }}
                     @if($pam->chat_read_id == 1)
                         <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                             <i class="fa fa-check-square-o text-dark"></i>
