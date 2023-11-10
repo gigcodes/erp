@@ -73,9 +73,9 @@
                             <th width="5%">close Date</th>
 
                         </tr>
-                        @foreach ($issues['issues'] as $key=>$issue)
+                        @foreach ($issues as $key=>$issue)
                             <tr>
-                                <td>{{ $key+1 }}</td>
+                                <td>{{ $issue['id'] }}</td>
                                 <td>{{ $issue['severity'] }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -120,6 +120,7 @@
                             </tr>
                         @endforeach
                     </table>
+                    {{ $issues->appends(request()->except('page'))->links() }}
                 </div>
             </div>
         </div>
