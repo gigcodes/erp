@@ -52,7 +52,7 @@ do
 	telnet_output=`echo quit | telnet $ip $port 2>/dev/null | grep Connected`
 	if [ ! -z "$telnet_output" ]
 	then
-		SSH_PORT=$port | tee -a ${SCRIPT_NAME}.log
+		SSH_PORT=$port 
 	fi
 done
 
