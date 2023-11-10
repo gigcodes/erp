@@ -629,7 +629,7 @@
             if (response.code == '200') {
                 $('#loading-image').hide();
                 toastr['success']('Domain Rocket loader settings successfully!!!', 'success');
-                location.reload();
+                //location.reload();
             } else if (response.code == '500') {
                 $('#loading-image').hide();
                 toastr['error'](response.message, 'error');

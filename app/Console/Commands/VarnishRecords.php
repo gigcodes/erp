@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 use App\AssetsManager;
 use App\StoreWebsite;
 use App\Models\VarnishStats;
+use App\Models\VarnishStatsLogs;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -85,6 +86,11 @@ class VarnishRecords extends Command
                                 'request_data' => $cmd,
                                 'response_data' => json_encode($result),
                             ]);*/
+
+                            VarnishStatsLogs::create([
+                                'request_data' => $cmd,
+                                'response_data' => json_encode($result),
+                            ]);
                         }
                     }
                 }

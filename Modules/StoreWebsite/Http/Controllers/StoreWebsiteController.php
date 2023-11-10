@@ -69,6 +69,7 @@ use App\Models\StoreWebsiteCsvPullHistory;
 use App\Models\StoreWebsiteAdminUrl;
 use App\Models\MagentoMediaSync;
 use App\Models\VarnishStats;
+use App\Models\VarnishStatsLogs;
 
 class StoreWebsiteController extends Controller
 {
@@ -3017,7 +3018,7 @@ class StoreWebsiteController extends Controller
     {
         $title = 'Varnish Logs | Store Website';
 
-        $VarnishStatsLogs = VarnishStats::with(['user','storewebsite'])->orderBy('id', 'DESC');
+        $VarnishStatsLogs = VarnishStatsLogs::orderBy('id', 'DESC');
 
         $VarnishStatsLogs = $VarnishStatsLogs->paginate(1);
 
