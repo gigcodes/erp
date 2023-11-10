@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Zabbix;
 
+use App\Zabbix\ZabbixApi;
 use App\Zabbix\ZabbixException;
 use Exception;
 use Illuminate\Routing\Controller;
@@ -12,6 +13,12 @@ use App\Models\Zabbix\Trigger;
 
 class TriggerController extends Controller
 {
+    public function __construct(
+        private Trigger $trigger,
+        private ZabbixApi $zabbix
+    ) {
+    }
+
     public function index(Request $request)
     {
         $page = $request->get('page', 1);
@@ -22,6 +29,14 @@ class TriggerController extends Controller
         $triggers = array_slice($triggers, $page * 20, 20);
         $templates = $trigger->getAllTemplates();
 
+
+        array_map(function ($trigger) {
+            $zbxTrigger = $this->zabbix->call('trigger.get', ['triggerids' => $trigger->getTemplateId()]);
+
+            if (isset($zbxTrigger[0])) {
+                $trigger->setTemplateName($zbxTrigger[0]['description']);
+            }
+        }, $triggers);
         if ($request->ajax()) {
             $view = (string)view('zabbix.trigger.list', [
                 'triggers' => $triggers,
@@ -61,9 +76,6 @@ class TriggerController extends Controller
             $item->setName($data['name'] ?? '');
             $item->setExpression($data['expression'] ?? '');
             $item->setSeverity($data['severity'] ?? 1);
-            if (!empty($data['template_id']) && $data['template_id'] !== 0) {
-                $item->setTemplateId((int)$data['template_id'] ?? 0);
-            }
 
             $item->save();
         }

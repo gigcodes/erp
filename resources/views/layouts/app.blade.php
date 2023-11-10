@@ -56,9 +56,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
     @if(Auth::user())
         @if(Auth::user()->user_timeout!=0)
-            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('login') }}">
+            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
         @else
-            <meta http-equiv="refresh" content = "28800; url={{ route('login') }}">
+            <meta http-equiv="refresh" content = "28800; url={{ route('logout-refresh') }}">
         @endif
     @endif
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
@@ -186,7 +186,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     #database-backup-monitoring .database-alert-badge,
     #website_Off_status .status-alert-badge,
     .permission-alert-badge,
-    #timer-alerts .timer-alert-badge, .description-alert-badge {
+    #timer-alerts .timer-alert-badge, .description-alert-badge,
+    #script-document-logs .script-document-error-badge {
         position: absolute;
         top: -4px;
         border-radius: 50%;
@@ -1376,6 +1377,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Upload Screencast/File" type="button" data-toggle="modal" data-target="#uploadeScreencastModal" class="quick-icon" style="padding: 0px 1px;" onclick="showCreateScreencastModal()"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
@@ -1460,7 +1465,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $permissionCount = \App\PermissionRequest::count();
                                     @endphp
-                                        <a class="quick-icon permission-request" href="#">
+                                        <a title="Permission Request" class="quick-icon permission-request" href="#">
                                             <span><i class="fa fa-reply fa-2x"></i>
                                                 @if($permissionCount)
                                                     <span class="permission-alert-badge"></span>
@@ -1471,7 +1476,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 @endif
                                 <li>
-                                    <a class="notification-button quick-icon" href="#"><span><i
+                                    <a title="Quick User Event Notification" class="notification-button quick-icon" href="#"><span><i
                                                 class="fa fa-bell fa-2x"></i></span></a>
                                 </li>
                                 <li>
@@ -1487,7 +1492,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </button>
                                 </li>
                                 <li>
-                                    <a class="instruction-button quick-icon" href="#"><span><i
+                                    <a title="Quick Instruction" class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
@@ -1495,7 +1500,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="daily-planner-button quick-icon" target="__blank"
+                                    <a title="Daily Planner" class="daily-planner-button quick-icon" target="__blank"
                                         href="{{ route('dailyplanner.index') }}">
                                         <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1503,7 +1508,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
                                 <li>
-                                    <a id="message-chat-data-box" class="quick-icon">
+                                    <a title="Chat" id="message-chat-data-box" class="quick-icon">
                                         <span class="p1 fa-stack has-badge" id="new_message"
                                             data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                             <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
@@ -1511,13 +1516,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-zoom-meeting quick-icon" data-toggle="modal"
+                                    <a title="Create Meeting" class="create-zoom-meeting quick-icon" data-toggle="modal"
                                         data-target="#quick-zoomModal">
                                         <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-easy-task quick-icon" data-toggle="modal"
+                                    <a title="Create Task / Dev Task" class="create-easy-task quick-icon" data-toggle="modal"
                                         data-target="#quick-create-task">
                                         <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1540,12 +1545,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <input type="text" id="searchField" placeholder="Search">
-                                </li>
-                                <li>
                                     <a title="Search Command" id="search-command" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-terminal fa-2x" aria-hidden="true"></i></span>
                                     </a>
+                                </li>
+                                <li>
+                                    <a title="Script Document Error Logs" id="script-document-logs" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
+                                        <span class="script-document-error-badge hide"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <input type="text" id="searchField" placeholder="Search">
                                 </li>
                             </ul>                         
                         </nav>
@@ -4944,7 +4955,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5085,6 +5096,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <div class="row">
                                         <div class="col-12 pb-3">
                                             <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="task_user_id" id="task_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -5306,8 +5327,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
+        @include('partials.modals.script-document-error-logs-modal')
         @include('partials.modals.magento-cron-error-status-modal')
         @include('partials.modals.magento-commands-modal')
+        @include('partials.modals.last-output')
 
         @include('googledrivescreencast.partials.upload')
         <div id="sticky_note_boxes" class="sticknotes_content">
@@ -5391,7 +5414,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
 			@php
-				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
             $statuses = \App\TodoStatus::get();
 			@endphp
 			<div class="modal-body show-list-records" id="todolist-request">
@@ -5413,7 +5436,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 						<td>
                             <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
                                 @foreach ($statuses as $status )
-                                <option value="{{$status->id}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
+                                <option value="{{$status->name}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
                                 @endforeach
                             </select>
 						</td>
@@ -6023,6 +6046,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         $('#ipusers').select2({width: '20%'});
+        $('#task_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6464,6 +6488,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-task-search-menu", function (e) {
         var keyword = $('.task-search-table').val();
+        var task_user_id = $('#task_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6471,6 +6496,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 term: keyword,
+                selected_user: task_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -7462,8 +7488,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
                    Sticky Note
-                   <div class="text_box-text mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                   <hr>
+                   <div class="text_box-select mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                        Type
+                      </label>
+                      <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" style=" width: 100%;">
+                      <option value="notes">Notes</option>
+                      <option value="todolist">To do List</option>
+                      </select>
+                    </div>
+                    <div class="text_box-text mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
                         Title
                       </label>
                       <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" type="text" placeholder="Title" style=" width: 100%;">
@@ -7471,7 +7507,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     
                     <div class='text_box-textarea mb-4'>
                         <label>Notes</label></br>
-                        <textarea maxlength='100' rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
+                        <textarea rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
                     </div>
                 </div>`;
 
@@ -7510,6 +7546,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
                 var title = $(this).parent().siblings('.text_box-text').find('input').val();
 
+                var type = $(this).parent().siblings('.text_box-select').find('select').val();
+
                 $.ajax({
                     url: '{{ route('stickyNotesCreate') }}',
                     method: 'POST',
@@ -7517,6 +7555,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         value: textareaValue,
                         page: page,
                         title: title,
+                        type: type,
                         _token: "{{ csrf_token() }}",
                     },
                     success: function(response) {
@@ -9108,6 +9147,7 @@ if (!\Auth::guest()) {
         if (Role) {
             getEventAlerts();
             getTimeEstimationAlerts();
+            getScriptDocumentLogs();
         }
         @endif
     });
@@ -9128,6 +9168,24 @@ if (!\Auth::guest()) {
             }
             if(response.count > 0) {
                 $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function getScriptDocumentLogs(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('script-documents.errorlogs')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            if(response.count > 0) {
+                $('.script-document-error-badge').removeClass("hide");
             }
         }).fail(function (response) {
             $('.ajax-loader').hide();
@@ -9264,6 +9322,47 @@ if (!\Auth::guest()) {
         });
     });
 
+
+    $(document).on('click','#script-document-logs',function(e){
+        e.preventDefault();
+        $('#script-document-error-logs-alerts-modal').modal('show');
+        getScriptDocumentErrorLogs(true);
+    });
+
+    function getScriptDocumentErrorLogs(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('script-documents.getScriptDocumentErrorLogsList')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#script-document-error-logs-alerts-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#script-document-error-logs-alerts-modal').modal('show');
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    $(document).on('click','.script-document-last_output-header-view',function(){
+        id = $(this).data('id');
+        $.ajax({
+            method: "GET",
+            url: `{{ route('script-documents.comment', [""]) }}/` + id,
+            dataType: "json",
+            success: function(response) {
+               
+                $("#script-document-last-output-list-header").find(".script-document-last-output-header-view").html(response.last_output);
+                $("#script-document-last-output-list-header").modal("show");
+         
+            }
+        });
+    });
 
     $(document).on('click','#google-drive-screen-cast',function(e){
         e.preventDefault();

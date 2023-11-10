@@ -52,10 +52,10 @@
                                         {{ $item->getKey() }}
                                     </td>
                                     <td class="td-type-{{ $item->getId() }}">
-                                        {{ $item->getType() }}
+                                        {{ \App\Models\Zabbix\Item::TYPES[$item->getType()] }}
                                     </td>
                                     <td class="td-value-type-{{ $item->getId() }}">
-                                        {{ $item->getValueType() }}
+                                        {{ \App\Models\Zabbix\Item::VALUE_TYPES[$item->getValueType()] }}
                                     </td>
                                     <td class="td-delay-{{ $item->getId() }}">
                                         {{ $item->getDelay() }}
@@ -116,9 +116,22 @@
                                                        placeholder="Enter type" id="item-type">
                                             </div>
                                             <div class="form-group">
+                                                <label>Type</label>
+                                                <select id="item-type" class="form-control input-sm"
+                                                        name="type" required>
+                                                        @foreach(\App\Models\Zabbix\Item::TYPES as $key => $value)
+                                                            <option value="{{ $key }}">{{ $value }}</option>
+                                                        @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
                                                 <label>Value Type</label>
-                                                <input type="text" class="form-control" name="value_type"
-                                                       placeholder="Enter value type" id="item-value-type">
+                                                <select id="item-value-type" class="form-control input-sm"
+                                                name="value_type" required>
+                                                @foreach(\App\Models\Zabbix\Item::VALUE_TYPES as $key => $value)
+                                                    <option value="{{ $key }}">{{ $value }}</option>
+                                                @endforeach
+                                                </select>
                                             </div>
                                             <div class="form-group">
                                                 <label>Key</label>
@@ -164,6 +177,7 @@
         </div>
     </div>
     <script>
+        $("#item-template-id").select2();
         $(document).on("click", ".create-new-item", function (e) {
             e.preventDefault();
             $('#item-create-new').modal('show');
@@ -263,6 +277,8 @@
             $('#item-delay').val(data.delay);
             $('#item-units').val(data.units);
             $('#item-interfaceid').val(data.intarfaceid);
+            $("#item-template-id option[value='" + data.templateid + "']").prop("selected", true);
+            $("#item-template-id").select2();
         });
 
         var restoreForm = function() {
@@ -275,6 +291,7 @@
             $('#item-delay').val('');
             $('#item-units').val('');
             $('#item-interfaceid').val('');
+            $('#item-template-id').val('');
         }
     </script>
 @endsection

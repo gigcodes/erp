@@ -1283,15 +1283,21 @@ class TaskModuleController extends Controller
         } else {
             $userid = $request->input('selected_user');
 
+            $userqueryInner = '';
+
             if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
+
+                $userqueryInner .= ' OR master_user_id = ' . $searchMasterUserId;
             }
 
             if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
+
+                $userqueryInner .= ' OR  second_master_user_id = ' . $searchSecondMasterUserId;
             }
 
-            $userquery = ' AND (assign_to = ' . $userid . ' OR master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ')';
+            $userquery = ' AND (assign_to = ' . $userid . $userqueryInner . ')';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
@@ -2562,6 +2568,37 @@ class TaskModuleController extends Controller
     }
 
     public function createMultipleTaskFromSortcutWebsiteLogs(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function createMultipleTaskFromSortcutSentry(Request $request)
     {
         try {
             $this->validate(

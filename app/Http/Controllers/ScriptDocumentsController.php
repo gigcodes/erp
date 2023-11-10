@@ -313,8 +313,29 @@ class ScriptDocumentsController extends Controller
         return response()->json([
             'status' => true,
             'data' => $scriptDocument,
+            'last_output' => base64_decode(utf8_encode($scriptDocument['last_output'])),
             'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function getScriptDocumentErrorLogs(Request $request)
+    {
+
+        $records = ScriptsExecutionHistory::select('*', DB::raw("MAX(id) AS id"))->where('run_status', 'Failed')->orderBy('id', 'DESC');
+        $records = $records->groupBy('script_document_id')->get();
+
+        return response()->json(['code' => 200, 'message' => 'Content render', 'count' => $records->count()]);
+    }
+
+    public function getScriptDocumentErrorLogsList(Request $request)
+    {   
+        $datas = ScriptsExecutionHistory::with('scriptDocument')->select('*', DB::raw("MAX(id) AS id"))->where('run_status', 'Failed')->orderBy('id', 'DESC');
+        $datas = $datas->groupBy('script_document_id')->take(10)->get();
+
+        return response()->json([
+            'tbody' => view('partials.modals.script-document-error-logs-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
     }
 }
