@@ -407,7 +407,7 @@
                                                             <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
 
                                                             <input type="hidden" name="is_audio" id="is_audio_{{$task->id}}" value="0" >
-                                                            <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
+                                                            <!-- <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button> -->
                                                         </div>
                                                         @if (isset($task->message))
                                                             <div style="max-width: 30px;">
@@ -514,49 +514,6 @@
                                         <td colspan="11">
                                             <div>
                                                 <div class="row cls_action_box" style="margin:0px;">
-                                                    @if(auth()->user()->isAdmin())
-                                                        <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
-                                                        <button type="button" class='btn delete-single-task pd-5' data-id="{{ $task->id }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                                                    @endif
-                                                    <button data-toggle="modal" data-target="#taskReminderModal" class='btn pd-5 task-set-reminder' data-id="{{ $task->id }}" data-frequency="{{ !empty($task->reminder_message) ? $task->frequency : '60' }}" data-reminder_message="{{ !empty($task->reminder_message) ? $task->reminder_message : 'Plz update' }}" data-reminder_from="{{ $task->reminder_from }}" data-reminder_last_reply="{{ ($task && !empty($task->reminder_last_reply)) ? $task->reminder_last_reply : '' }}">
-                                                        <i class="fa fa-bell @if(!empty($task->reminder_message) && $task->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
-                                                    </button>
-                                                    @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id() || $task->master_user_id == Auth::id() || $task->second_master_user_id == Auth::id())
-                                                        {{-- <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png" /></button> --}}
-                                                        {{-- @if ($task->assign_from == Auth::id()) --}}
-                                                        @if(auth()->user()->isAdmin())
-                                                            <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png" /></button>
-                                                            {{-- @else
-                                            <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png" /></button> --}}
-                                                        @endif
-                                                        <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></button>
-                                                        <button type="button" data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
-                                                            <i class="fa fa-upload" aria-hidden="true"></i>
-                                                        </button>
-                                                    @endif
-                                                    <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
-                                                        <i class="fa fa-list" aria-hidden="true"></i>
-                                                    </button>
-                                                    @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
-                                                        @if ($task->is_private == 1)
-                                                            <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}" /></button>
-                                                        @else
-                                                            {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
-                                                        @endif
-                                                    @endif
-
-                                                    @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
-                                                        <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a>
-                                                    @endif
-
-                                                    @if ($task->is_flagged == 1)
-                                                        <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/flagged.png')}}" /></button>
-                                                    @else
-                                                        <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}" /></button>
-                                                    @endif
-                                                    <button class="btn btn-image expand-row-btn-lead" data-task_id="{{ $task->id }}"><img src="/images/forward.png"></button>
-                                                    <button class="btn btn-image set-remark" data-task_id="{{ $task->id }}" data-task_type="TASK"><i class="fa fa-comment" aria-hidden="true"></i></button>
-
                                                     <button class="btn btn-image mt-2 create-task-document" title="Create document" data-id="{{$task->id}}">
                                                         <i class="fa fa-file-text" aria-hidden="true"></i>
                                                     </button>
@@ -622,34 +579,6 @@
         </div>
     </div>
 
-    <div id="preview-task-image" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="col-md-12">
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th style="width:1%;">No</th>
-                                <th style=" width: 30%">Files</th>
-                                <th style="word-break: break-all; width:12%">Send to</th>
-                                <th style="width: 1%;">User</th>
-                                <th style="width: 11%">Created at</th>
-                                <th style="width: 6%">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody class="task-image-list-view">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="preview-task-create-get-modal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -681,38 +610,6 @@
             </div>
         </div>
     </div>
-
-
-    <div id="file-upload-area-section" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="{{ route('task.save-documents') }}" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="task_id" id="hidden-task-id" value="">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Upload File(s)</h4>
-                    </div>
-                    <div class="modal-body" style="background-color: #999999;">
-                        @csrf
-                        <div class="form-group">
-                            <label for="document">Documents</label>
-                            <div class="needsclick dropzone" id="document-dropzone">
-
-                            </div>
-                        </div>
-                        <div class="form-group add-task-list">
-
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default btn-save-documents">Save</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div id="send-message-text-box" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1041,52 +938,6 @@
 		</div>
 
 	</div>
-</div>
-<div id="record-voice-notes" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Record & Send Voice Message</h4>
-            </div>
-            <div class="modal-body" >
-                <Style>
-                    #rvn_status:after {
-                        overflow: hidden;
-                        display: inline-block;
-                        vertical-align: bottom;
-                        -webkit-animation: ellipsis steps(4, end) 900ms infinite;
-                        animation: ellipsis steps(4, end) 900ms infinite;
-                        content: "\2026";
-                        /* ascii code for the ellipsis character */
-                        width: 0px;
-                        }
-
-                        @keyframes ellipsis {
-                        to {
-                            width: 40px;
-                        }
-                        }
-
-                        @-webkit-keyframes ellipsis {
-                        to {
-                            width: 40px;
-                        }
-                        }
-                    </style>
-                <input type="hidden" name="rvn_id" id="rvn_id" value="">
-                <input type="hidden" name="rvn_tid" id="rvn_tid" value="">
-                <button id="rvn_recordButton" class="btn btn-s btn-secondary">Start Recording</button>
-                <button id="rvn_pauseButton" class="btn btn-s btn-secondary"disabled>Pause Recording</button>
-                <button id="rvn_stopButton" class="btn btn-s btn-secondary"disabled>Stop Recording</button>
-                <div id="formats">Format: start recording to see sample rate</div>
-                <div id="rvn_status">Status: Not started...</div>
-                <div id="recordingsList"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="rvn-btn-close-modal" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 
@@ -1603,15 +1454,7 @@
         $(document).on('click', '.expand-row-btn', function() {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
         });
-        $(document).on('click', '.expand-row-btn-lead', function() {
-           var id =  $(this).data('task_id');
-            $(".expand-col-lead"+id).toggleClass('dis-none');
-        });
-        $(document).on("click", ".set-remark", function(e) {
-            $('.remark_pop').val("");
-            var task_id = $(this).data('task_id');
-            $('.sub_remark').attr("data-task_id", task_id);
-        });
+        
         $(document).on("click", ".set-remark, .sub_remark", function(e) {
             var thiss = $(this);
             var task_id = $(this).data('task_id');
@@ -1743,49 +1586,7 @@
         var timer = 0;
         var delay = 200;
         var prevent = false;
-        $(document).on('click', '.task-complete', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            var thiss = $(this);
-            timer = setTimeout(function() {
-                if (!prevent) {
-                    var task_id = $(thiss).data('id');
-                    var image = $(thiss).html();
-                    var url = "/task/complete/" + task_id;
-                    var current_user = <?php echo Auth::id(); ?>;
-                    if (!$(thiss).is(':disabled')) {
-                        $.ajax({
-                            type: "GET",
-                            url: url,
-                            data: {
-                                type: 'complete'
-                            },
-                            beforeSend: function() {
-                                $(thiss).text('Completing...');
-                            }
-                        }).done(function(response) {
-                            if (response.task.is_verified != null) {
-                                $(thiss).html('<img src="/images/completed.png" />');
-                            } else if (response.task.is_completed != null) {
-                                $(thiss).html('<img src="/images/completed-green.png" />');
-                            } else {
-                                $(thiss).html('<img src="/images/incomplete.png" />');
-                            }
-                            $(thiss).attr('disabled', true);
-                            // if (response.task.assign_from != current_user) {
-                            //     $(thiss).attr('disabled', true);
-                            // }
-                        }).fail(function(response) {
-                            $(thiss).html(image);
-                            alert('Could not mark as completed!');
-                            toastr['error'](response.responseJSON.message);
-                            console.log(response);
-                        });
-                    }
-                }
-                prevent = false;
-            }, delay);
-        });
+        
         $(document).on('click', '.task-verify', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -1849,10 +1650,7 @@
         $(document).on('click', '.remove-note', function() {
             $(this).closest('.form-group').remove();
         });
-        $(document).on('click', '.reminder-message', function() {
-            var id = $(this).data('id');
-            $('#reminderMessageModal').find('input[name="message_id"]').val(id);
-        });
+        
         $(document).on('click', '.convert-task-appointment', function() {
             var thiss = $(this);
             var id = $(this).data('id');
@@ -1872,31 +1670,6 @@
                 $(thiss).html('<img src="/images/details.png" />');
                 console.log(response);
                 alert('Could not convert a task');
-            });
-        });
-        $(document).on('click', '.flag-task', function() {
-            var task_id = $(this).data('id');
-            var thiss = $(this);
-            $.ajax({
-                type: "POST",
-                url: "{{ route('task.flag') }}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    task_id: task_id
-                },
-                beforeSend: function() {
-                    $(thiss).text('Flagging...');
-                }
-            }).done(function(response) {
-                if (response.is_flagged == 1) {
-                    $(thiss).html('<img src="/images/flagged.png" />');
-                } else {
-                    $(thiss).html('<img src="/images/unflagged.png" />');
-                }
-            }).fail(function(response) {
-                $(thiss).html('<img src="/images/unflagged.png" />');
-                alert('Could not flag task!');
-                console.log(response);
             });
         });
         var selected_tasks = [];
@@ -2109,13 +1882,6 @@
                 }
             });
         });
-        $(document).on("click", ".btn-file-upload", function() {
-            var $this = $(this);
-            var task_id = $this.data("id");
-            $("#file-upload-area-section").modal("show");
-            $("#hidden-task-id").val(task_id);
-            $("#loading-image").hide();
-        });
         var uploadedDocumentMap = {}
         Dropzone.options.documentDropzone = {
             url: '{{ route("task.upload-documents") }}',
@@ -2167,24 +1933,6 @@
             }).fail(function(jqXHR, ajaxOptions, thrownError) {
                 toastr["error"](jqXHR.responseJSON.message);
                 $("#loading-image").hide();
-            });
-        });
-        $(document).on('click', '.preview-img-btn', function(e) {
-            e.preventDefault();
-            id = $(this).data('id');
-            if (!id) {
-                alert("No data found");
-                return;
-            }
-            $.ajax({
-                url: "/task/preview-img/" + id,
-                type: 'GET',
-                success: function(response) {
-                    $("#preview-task-image").modal("show");
-                    $(".task-image-list-view").html(response);
-                    initialize_select2()
-                },
-                error: function() {}
             });
         });
         function humanizeDuration(input, units) {
@@ -2253,32 +2001,7 @@
                 }
             }
         });
-        $(document).on("click", ".delete-single-task", function() {
-            var id = $(this).data('id');
-            if (!id) {
-                return;
-            }
-            console.log(id);
-            selected_tasks.push(id);
-            console.log(selected_tasks);
-            var x = window.confirm("Are you sure you want to bin these tasks");
-            if (!x) {
-                return;
-            }
-            $.ajax({
-                type: "POST",
-                url: "{{ url('task/bulk-delete') }}",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    selected_tasks: selected_tasks
-                }
-            }).done(function(response) {
-                location.reload();
-            }).fail(function(response) {
-                console.log(response);
-                alert('Could not delete task');
-            });
-        });
+        
         $(document).on("click", ".link-send-document", function(e) {
             e.preventDefault();
             var id = $(this).data("id");
