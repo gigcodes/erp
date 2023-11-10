@@ -112,11 +112,6 @@
                                             </div>
                                             <div class="form-group">
                                                 <label>Type</label>
-                                                <input type="text" class="form-control" name="type"
-                                                       placeholder="Enter type" id="item-type">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Type</label>
                                                 <select id="item-type" class="form-control input-sm"
                                                         name="type" required>
                                                         @foreach(\App\Models\Zabbix\Item::TYPES as $key => $value)
@@ -139,9 +134,14 @@
                                                        placeholder="Enter Key" id="item-key">
                                             </div>
                                             <div class="form-group">
-                                                <label>Host ID</label>
-                                                <input type="text" class="form-control" name="host_id"
-                                                       placeholder="Enter host id" id="item-host-id">
+                                                <label>Template</label>
+                                                <select id="item-host-id" class="form-control input-sm"
+                                                        name="host_id" required>
+                                                    <option value="0">Choose template</option>
+                                                    @foreach ($templates as $template)
+                                                        <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div class="form-group">
                                                 <label>Delay</label>
@@ -177,7 +177,7 @@
         </div>
     </div>
     <script>
-        $("#item-template-id").select2();
+        $("#item-template-id").select2({ width: '100%' });
         $(document).on("click", ".create-new-item", function (e) {
             e.preventDefault();
             $('#item-create-new').modal('show');
@@ -271,14 +271,15 @@
 
             $('#item-name').val(data.name);
             $('#item-key').val(data.key);
-            $('#item-host-id').val(data.host_id);
+            $('#item-host-id').val(data.host_id ? data.host_id : 0);
             $('#item-type').val(data.type);
             $('#item-value-type').val(data.value_type);
             $('#item-delay').val(data.delay);
             $('#item-units').val(data.units);
             $('#item-interfaceid').val(data.intarfaceid);
             $("#item-template-id option[value='" + data.templateid + "']").prop("selected", true);
-            $("#item-template-id").select2();
+            $('#item-host-id').select2({ width: '100%' });
+            $("#item-template-id").select2({ width: '100%' });
         });
 
         var restoreForm = function() {
@@ -286,6 +287,7 @@
             $('#item-name').val('');
             $('#item-key').val('');
             $('#item-host-id').val('');
+            $('#item-host-id').select2({ width: '100%' });
             $('#item-type').val('');
             $('#item-value-type').val('');
             $('#item-delay').val('');

@@ -53,6 +53,11 @@ class ZabbixProblemImport extends Command
                             'objectid' => $problem->objectid,
                             'name' => $problem->name,
                             'hostname' => $host->host,
+                            'datetime' => $problem->clock,
+                            'recovery_time' => $problem->r_clock,
+                            'severity' => $problem->severity,
+                            'time_duration' => $problem->ns,
+                            'acknowledged' => (bool)$problem->acknowledged,
                         ];
 
                         Problem::where('eventid', $problem->eventid)->update($array);
@@ -62,6 +67,11 @@ class ZabbixProblemImport extends Command
                             'objectid' => $problem->objectid,
                             'name' => $problem->name,
                             'hostname' => $host->host,
+                            'datetime' => $problem->clock,
+                            'recovery_time' => $problem->r_clock,
+                            'severity' => $problem->severity,
+                            'time_duration' => $problem->ns,
+                            'acknowledged' => (bool)$problem->acknowledged,
                         ];
                         Problem::create($array);
                     }
