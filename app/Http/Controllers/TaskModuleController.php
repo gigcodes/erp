@@ -579,6 +579,263 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function indexModules(Request $request)
+    {
+        if (! $request->input('type') || $request->input('type') == '') {
+            $type = 'pending';
+        } else {
+            $type = $request->input('type');
+        }
+
+        $category = '';
+        if ($request->category != '') {
+            $category = $request->category;
+            if ($request->category == 1) {
+                $category = '';
+            }
+        }
+
+        $term = $request->term ?? '';
+        $data['task'] = [];
+
+        $search_term_suggestions = [];
+        $search_suggestions = [];
+        $assign_from_arr = [0];
+        $special_task_arr = [0];
+        $assign_to_arr = [0];
+        $data['task']['pending'] = [];
+        $data['task']['statutory_not_completed'] = [];
+        $data['task']['completed'] = [];
+
+        if ($type == 'pending') {
+            // Get Pending tasks via model
+            $data['task']['pending'] = Task::getSearchedTasks('pending_list', $request);
+
+
+
+            foreach ($data['task']['pending'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['pending'] as $task) {
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    // $from_user = User::find($task->assign_from);
+                    $from_user = $task->assign_from_username;
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    // $to_user = User::find($task->assign_to);
+                    $to_user = $task->assign_to_username;
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        } elseif ($type == 'completed') {
+            // Get Completed tasks via model
+            $data['task']['completed'] = Task::getSearchedTasks('completed_list', $request);
+
+            foreach ($data['task']['completed'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['completed'] as $task) {
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    $from_user = $task->assign_from_username;
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    $to_user = $task->assign_to_username;
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        } elseif ($type == 'statutory_not_completed') {
+            // Get Statutory tasks via model
+            $data['task']['statutory_not_completed'] = Task::getSearchedTasks('statutory_not_completed_list', $request);
+
+            foreach ($data['task']['statutory_not_completed'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['statutory_not_completed'] as $task) {
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    $from_user = $task->assign_from_username;
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    $to_user = $task->assign_to_username;
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        } else {
+            return;
+        }
+
+        $usersOrderByName = User::orderBy('name')->get();
+        $data['users'] = $usersOrderByName->toArray();
+        $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
+
+        // foreach ($data['task']['pending'] as $task) {
+        // }
+
+        // $category = '';
+
+        // Lead user process starts
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $isTeamLeader = head($model_team);
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        $isTeamLeader = null;
+        if (count($model_team) > 0) $isTeamLeader = $model_team[0];
+        // Lead user process ends
+
+        $selected_user = $request->input('selected_user');
+
+        if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
+            $usrlst = [];
+
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
+
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
+
+            foreach ($usersOrderByName as $user) {
+                if (in_array($user->id, $team_members_array)) $usrlst[] = $user;
+            }
+
+        } else {
+            $usrlst = $usersOrderByName;
+        }
+
+        $users = Helpers::getUserArray($usrlst);
+
+        $all_task_categories = TaskCategory::all();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
+        $categories = $approved_categories = $task_categories = [];
+        foreach ($all_task_categories as $category) {
+            if($category->parent_id == 0)
+                $task_categories[] = $category;
+
+            $categories[$category->id] = $category->title;
+
+            if($category->is_approved == 1) {
+                $approved_categories[] = $category->toArray();
+            }
+        }
+
+        $selected_category = $request->category;
+
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
+
+        $task_categories_dropdown = nestable($approved_categories)->attr(
+            [
+                'name' => 'category',
+                'class' => 'form-control input-sm',
+            ]
+        )->selected($selected_category)->renderAsDropdown();
+
+        if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
+            return response()->json(['user not allowed'], 405);
+        }
+
+        $tasks_view = [];
+        $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
+
+        $openTask = \App\Task::join('users as u', 'u.id', 'tasks.assign_to')->whereNull('tasks.is_completed')->groupBy('tasks.assign_to')->select(\DB::raw('count(u.id) as total'), 'u.name as person')->pluck('total', 'person');
+
+        if ($request->is_statutory_query == 3) {
+            $title = 'Discussion tasks';
+        } else {
+            $title = 'Task & Activity';
+        }
+
+        $task_statuses = TaskStatus::all();
+
+        if ($request->ajax()) {
+            if ($type == 'pending') {
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            } elseif ($type == 'statutory_not_completed') {
+                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            } elseif ($type == 'completed') {
+                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            } else {
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            }
+        }
+
+        if ($request->is_statutory_query == 3) {
+            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+        } else {
+            $taskStatusData = TaskStatus::get();
+
+            $statuseslist = $taskStatusData->pluck('name', 'id')->toArray();
+            $selectStatusList = $taskStatusData->pluck('id')->toArray();
+            $taskstatus = $taskStatusData;
+
+            return view('task-module.show-modules', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
+        }
+    }
+
     public function statuscolor(Request $request)
     {
         $status_color = $request->all();

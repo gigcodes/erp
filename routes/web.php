@@ -1786,6 +1786,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('slot')->group(function () {
             Route::post('assign', [TaskModuleController::class, 'slotAssign'])->name('task.slot.assign');
         });
+
+        Route::get('task-modules', [TaskModuleController::class, 'indexModules'])->name('task.task-modules');
     });
 
     Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder'])->name('task.reminder.update');
