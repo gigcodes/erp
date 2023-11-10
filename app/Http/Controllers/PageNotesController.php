@@ -6,6 +6,7 @@ use App\Setting;
 use App\PageNotes;
 use Carbon\Carbon; //Purpose : Add Setting - DEVTASK-4289
 use Illuminate\Http\Request;
+use App\TodoList;
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -179,15 +180,26 @@ class PageNotesController extends Controller
     }
 
     public function stickyNotesCreate(Request $request)
-    {
-        $pageNotes = new PageNotes;
-        $pageNotes->url = $request->get('page');
-        $pageNotes->note = $request->get('value');
-        $pageNotes->title = $request->get('title');
-        $pageNotes->user_id = \Auth::user()->id;
-        $pageNotes->save();
+    {   
+        if(!empty($request['type']) && $request['type']=='todolist'){
+            $todolists = new TodoList();
+            $todolists->user_id = \Auth::user()->id;
+            $todolists->title = $request->get('title');
+            $todolists->subject = $request->get('value');
+            $todolists->status = 'Active';
+            $todolists->save();
 
-        return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
+            return response()->json(['code' => 200, 'message' => 'Todo List Added Successfully.']);
+        } else {
+            $pageNotes = new PageNotes;
+            $pageNotes->url = $request->get('page');
+            $pageNotes->note = $request->get('value');
+            $pageNotes->title = $request->get('title');
+            $pageNotes->user_id = \Auth::user()->id;
+            $pageNotes->save();
+
+            return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
+        }        
     }
 
     public function createCategory(Request $request)

@@ -26,7 +26,7 @@ USER="root"
 #CWDDIR="/home/prod-1-1/current/var/"
 for portssh in $possible_ssh_port
 do
-        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' | tee -a ${SCRIPT_NAME}.log
+        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit' &>> ${SCRIPT_NAME}.log
         if [ $? -ne 255 ]
         then
                 PORT=`echo $portssh`

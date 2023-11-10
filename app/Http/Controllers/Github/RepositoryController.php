@@ -1856,18 +1856,18 @@ class RepositoryController extends Controller
 
         $GithubTokenHistory = new GithubTokenHistory();
         $GithubTokenHistory->github_repositories_id = $githubToken['github_repositories_id'];
-        $GithubTokenHistory->run_by = auth()->user()->id;
+        $GithubTokenHistory->run_by = 0;
         $GithubTokenHistory->github_type = $githubToken['github_type'];
         $GithubTokenHistory->token_key = $githubToken['token_key'];
         $GithubTokenHistory->details = $data['details'];
         $GithubTokenHistory->save();
         
-        if ($GithubTokenHistory) {
+        if ($githubToken) {
             
             return response()->json(
                 [
                     'code' => 200,
-                    'data' => [],
+                    'data' => $githubToken,
                     'message' => 'Token history updated successfully!',
                 ]
             );

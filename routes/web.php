@@ -493,6 +493,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/zabbix/user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
     Route::post('/zabbix/user/role/save', [\App\Http\Controllers\Zabbix\UserController::class, 'rolesSave'])->name('zabbix.user.role.save');
     Route::get('/zabbix/triggers', [\App\Http\Controllers\Zabbix\TriggerController::class, 'index'])->name('zabbix.trigger.index');
+    Route::get('/zabbix/host/detail', [ZabbixController::class, 'detail'])->name('zabbix.host.detail');
+    Route::delete('/zabbix/host/delete', [ZabbixController::class, 'delete'])->name('zabbix.host.delete');
+    Route::post('/zabbix/host/save', [ZabbixController::class, 'save'])->name('zabbix.host.save');
     Route::post('/zabbix/triggers/save', [\App\Http\Controllers\Zabbix\TriggerController::class, 'save'])->name('zabbix.trigger.save');
     Route::post('/zabbix/user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
     Route::post('/zabbix/item/delete', [\App\Http\Controllers\Zabbix\ItemController::class, 'delete'])->name('zabbix.item.delete');
@@ -1446,6 +1449,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
         Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
+        Route::post('domains/create', [VirtualminDomainController::class, 'domainCreate'])->name('virtualmin.domains.create');
+        Route::get('/domains/{id}/managecloud', [VirtualminDomainController::class, 'managecloudDomain'])->name('virtualmin.domains.managecloud');
+        Route::post('domains/createadns', [VirtualminDomainController::class, 'adnsCreate'])->name('virtualmin.domains.createadns');
+        Route::post('/domains/dnsdelete', [VirtualminDomainController::class, 'deletednsDomain'])->name('virtualmin.domains.dnsdelete');
+        Route::get('/domains/dnshistories', [VirtualminDomainController::class, 'domainShowDns'])->name('virtualmin.domains.dnshistories');
+        Route::get('/domains/dnsedit', [VirtualminDomainController::class, 'dnsedit'])->name('virtualmin.domains.dnsedit');
+        Route::post('/domains/dnsupdate', [VirtualminDomainController::class, 'dnsupdate'])->name('virtualmin.domains.dnsupdate');
+        Route::post('/domains/domainstatusupdate', [VirtualminDomainController::class, 'domainstatusupdate'])->name('virtualmin.domains.domainstatusupdate');
     });
 
     Route::group(['prefix' => 'sonarqube'], function () {
@@ -1775,6 +1786,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('slot')->group(function () {
             Route::post('assign', [TaskModuleController::class, 'slotAssign'])->name('task.slot.assign');
         });
+
+        Route::get('task-modules', [TaskModuleController::class, 'indexModules'])->name('task.task-modules');
     });
 
     Route::post('task/reminder', [TaskModuleController::class, 'updateTaskReminder'])->name('task.reminder.update');
@@ -1861,6 +1874,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-multiple-task-from-shortcut', [TaskModuleController::class, 'createMultipleTaskFromSortcut'])->name('task.create.multiple.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcutpostman', [TaskModuleController::class, 'createMultipleTaskFromSortcutPostman'])->name('task.create.multiple.task.shortcutpostman');
     Route::post('task/create-multiple-task-from-shortscriptdocument', [TaskModuleController::class, 'createMultipleTaskFromScriptDocument'])->name('task.create.multiple.task.shortscriptdocument');
+    Route::post('task/create-multiple-task-from-shortcutsentry', [TaskModuleController::class, 'createMultipleTaskFromSortcutSentry'])->name('task.create.multiple.task.shortcutsentry');
     Route::post('task/create-multiple-task-from-shortcutmagentoproblems', [TaskModuleController::class, 'createMultipleTaskFromSortcutMagentoProblems'])->name('task.create.multiple.task.shortcutmagentoproblems');
     Route::post('task/create-multiple-task-from-shortcutwebsitelogs', [TaskModuleController::class, 'createMultipleTaskFromSortcutWebsiteLogs'])->name('task.create.multiple.task.shortcutwebsitelogs');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
@@ -3342,7 +3356,9 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents-histories/{id}', [ScriptDocumentsController::class, 'ScriptDocumentHistory'])->name('script-documents.histories');
     Route::get('script-documents-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentComment'])->name('script-documents.comment');
     Route::get('script-documents/countdevtask/{id}', [ScriptDocumentsController::class, 'taskCount']);
-    
+    Route::get('script-documents/error-logs', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogs'])->name('script-documents.errorlogs');
+    Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
+
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
     Route::get('bug-tracking/create', [BugTrackingController::class, 'create'])->name('bug-tracking.create');
@@ -5154,6 +5170,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::post('sentry-log/display-user-account', [SentryLogController::class, 'displayUserAccountList'])->name('sentry.display-user');
     Route::post('sentry-log/saveuseraccount', [SentryLogController::class, 'saveUserAccount'])->name('sentry.adduser');
     Route::post('sentry-log/refresh_logs', [SentryLogController::class, 'refreshLogs'])->name('sentry.refresh-logs');
+    Route::post('sentry-log/status/create', [SentryLogController::class, 'sentryStatusCreate'])->name('sentry.status.create');
+    Route::post('sentry-log/statuscolor', [SentryLogController::class, 'statuscolor'])->name('sentry.statuscolor');
+    Route::get('sentry-log/countdevtask/{id}', [SentryLogController::class, 'taskCount']);
+    Route::post('sentry-log/updatestatus', [SentryLogController::class, 'updateStatus'])->name('sentry.updatestatus');
+    Route::get('sentry-log/status/histories/{id}', [SentryLogController::class, 'sentryStatusHistories'])->name('sentry.status.histories');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
