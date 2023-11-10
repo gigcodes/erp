@@ -855,6 +855,16 @@ $(document).on("click", ".load-communication-modal", function () {
           }
         });
       }
+
+      $('.modal-body').find('p').each(function() {
+        var currentText = $(this).html();
+
+        var urlRegex = /(https?:\/\/[^\s]+)/g;
+        var newText = currentText.replace(urlRegex, function(url) {
+          return '<a href="' + url + '" target="_blank">' + url + '</a>';
+        });
+        $(this).html(newText);
+      });
     })
     .fail(function (response) {
       //$(thiss).text('Load More');
