@@ -6,7 +6,7 @@
         <th width="20%">Expression</th>
         <th>Event Name</th>
         <th>Template ID</th>
-        <th>Priority</th>
+        <th>Severity</th>
         <th>Is active</th>
         <th>Edit</th>
     </tr>
@@ -28,10 +28,39 @@
                 {{ $trigger->getEventName() }}
             </td>
             <td class="td-template-id-{{ $trigger->getId() }}">
-                {{ $trigger->getTemplateId() }}
+                {{ $trigger->getTemplateName() }}
             </td>
-            <td class="td-priority-{{ $trigger->getId() }}">
-                {{ $trigger->getSeverity() }}
+            <td class="td-priority-{{ $trigger->getId() }} 
+            <?php 
+                if ($trigger->getSeverity() >= 4)
+                    print 'red-td'; 
+                else if ($trigger->getSeverity() >= 2)
+                    print 'orange-td';
+                else 
+                    print 'gray-td';
+                ?>
+                ">
+                <?php
+                    $severity = $trigger->getSeverity();
+                    if ($severity == 1) {
+                        print 'Information';
+                    }
+                    else if ($severity == 2) {
+                        print 'Warning';
+                    }
+                    else if ($severity == 3) {
+                        print 'Average';
+                    }
+                    else if ($severity == 4) {
+                        print 'High';
+                    }
+                    else if ($severity == 5) {
+                        print 'Disaster';
+                    }
+                    else {
+                        print '(default) not classified';
+                    }
+                ?>
             </td>
             <td class="td-status-{{ $trigger->getId() }}">
                 @if($trigger->isActive()) 

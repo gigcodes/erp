@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Zabbix;
 
+use App\Models\Zabbix\Trigger;
+use App\Zabbix\ZabbixApi;
 use App\Zabbix\ZabbixException;
 use Exception;
 use Illuminate\Routing\Controller;
@@ -12,18 +14,32 @@ use App\Models\Zabbix\Item;
 
 class ItemController extends Controller
 {
+
+    public function __construct(
+        private Trigger $trigger,
+        private ZabbixApi $zabbix
+    ) {
+    }
+
     /**
      * @param Request $request
      * @return array|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function index(Request $request, ?int $hostId)
+    public function index(Request $request, $hostId = null)
     {
         $item = new Item();
 
-        $items = $item->getItemsByHostId($hostId);
+        if ($hostId) {
+            $items = $item->getItemsByHostId($hostId);
+        } else {
+            $items = $item->getAllItems();
+        }
+
+        $templates = $this->trigger->getAllTemplates();
 
         return view('zabbix.item.index', [
-            'items' => $items
+            'items' => $items,
+            'templates' => $templates
         ]);
     }
 
@@ -50,6 +66,10 @@ class ItemController extends Controller
             $item->setHostId((int)$data['host_id']);
             $item->setUnits($data['units'] ?? '');
             $item->setInterfaceid((int)$data['interfaceid'] ?? 0);
+
+            if (!empty($data['template_id'])) {
+                $item->setTemplateId((int)$data['template_id']);
+            }
 
             $item->save();
         }
