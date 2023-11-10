@@ -28,6 +28,44 @@ class VirtualminDomainController extends Controller
      */
     public function index(Request $request)
     {
+        // API endpoint URL for getting zones
+        $api_url = getenv('CLOUDFLARE_CREATE_DOMAIN_URL');
+
+        // cURL setup
+        $ch = curl_init($api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY'),
+            'X-Auth-Email: '.getenv('CLOUDFLARE_EMAIL'), // Use the email associated with your Cloudflare account
+        ]);
+
+        // Execute cURL session
+        $response = curl_exec($ch);
+
+        // Close cURL session
+        curl_close($ch);
+
+        // Decode and display the response
+        $result = json_decode($response, true);
+
+        if ($result && isset($result['success']) && $result['success']) {
+            // Cloudflare API request was successful
+            foreach ($result['result'] as $zone) {
+
+                $domainsDnsRecordsData = VirtualminDomain::where('name', $zone['name'])->first();
+
+                if(!empty($domainsDnsRecordsData)){
+                    $domainsDnsRecordsData->identifier_id = $zone['id'];
+                    $domainsDnsRecordsData->save();
+                } else {
+                    $VirtualminDomainD = new VirtualminDomain();
+                    $VirtualminDomainD->name = $zone['name'];
+                    $VirtualminDomainD->identifier_id = $zone['id'];
+                    $VirtualminDomainD->save();
+                }
+            }
+        } 
+
         $keyword = $request->get('keyword');
         $status = $request->get('status');
 
