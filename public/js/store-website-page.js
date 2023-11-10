@@ -60,6 +60,18 @@ var page = {
       page.loadPage($(this));
     });
 
+    window.addEventListener('message', (event) => {
+      let data = event.data;
+
+      let action = data.action;
+      let content = data.content;
+
+      if (action === 'cms_page_edit') {
+        toastr["success"]("Content updated successfuly.", "success");
+        $("#google_translate_element").summernote("insertText", content);
+      }
+    });
+
     $(document).on("change", ".website-language-change", function (e) {
       e.preventDefault();
       page.loadTranslation($(this));
@@ -168,6 +180,8 @@ var page = {
     common.find(".modal-dialog").html(tplHtml);
     page.assignSelect2();
     common.modal("show");
+
+    $('.btn-edit-cms-page-select').select2();
   },
   editRecord: function (ele) {
     var _z = {
@@ -189,6 +203,7 @@ var page = {
     var common = $(".common-modal");
     common.find(".modal-dialog").html(tplHtml);
     common.modal("show");
+    $('.btn-edit-cms-page-select').select2();
     $('textarea[name="meta_keywords"]').trigger("change");
     $('textarea[name="meta_description"]').trigger("change");
     $("#google_translate_element").summernote();

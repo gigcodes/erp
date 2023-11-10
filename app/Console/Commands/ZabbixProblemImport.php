@@ -50,7 +50,7 @@ class ZabbixProblemImport extends Command
                     $host = Host::where('hostid', $problem->host_id)->first();
                     if (! is_null($check_if_exists)) {
                         $array = [
-                            'object_id' => $problem->object_id,
+                            'objectid' => $problem->objectid,
                             'name' => $problem->name,
                             'hostname' => $host->host,
                         ];
@@ -98,11 +98,15 @@ class ZabbixProblemImport extends Command
 
         $results = json_decode($result);
 
-        if (isset($results[0]->result)) {
-            return $results[0]->result;
-        } else {
-            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
+        try {
+            if (isset($results[0]->result)) {
+                return $results[0]->result;
+            } else {
+                \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
 
+                return 0;
+            }
+        } catch (\Exception|\Throwable $e) {
             return 0;
         }
     }

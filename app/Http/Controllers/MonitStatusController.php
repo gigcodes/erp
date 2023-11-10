@@ -91,6 +91,21 @@ class MonitStatusController extends Controller
                             if(!empty($valueXaml['uptime'])){
                                 //$monitStatusArray[$iii]['uptime'] = $valueXaml['uptime'];
                                 $uptime = $valueXaml['uptime'];
+
+                                if(is_numeric(trim($uptime))){
+
+                                    $seconds = $uptime;
+
+                                    // Calculate days, hours, and minutes
+                                    $days = floor($seconds / 86400); // 1 day = 24 hours * 60 minutes * 60 seconds
+                                    $seconds %= 86400; // Remaining seconds after calculating days
+                                    $hours = floor($seconds / 3600); // 1 hour = 60 minutes * 60 seconds
+                                    $seconds %= 3600; // Remaining seconds after calculating hours
+                                    $minutes = floor($seconds / 60); // 1 minute = 60 seconds
+
+                                    // Format the result
+                                    $uptime = $days.'d '.$hours.'h '.$minutes.'m';
+                                }
                             }
 
                             //$monitStatusArray[$iii]['status'] = $valueXaml['status'];
@@ -147,7 +162,7 @@ class MonitStatusController extends Controller
         }
 
         //$monitStatus = $monitStatus->latest()->paginate(\App\Setting::get('pagination', 25));
-        $monitStatus = $monitStatus->latest()->get();
+        $monitStatus = $monitStatus->latest()->orderBy('status', 'ASC')->get();
 
         return view('monit-status.monit-status-list', compact('monitStatus'));
     }

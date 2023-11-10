@@ -13,7 +13,7 @@ class GithubToken extends Model
 
     use SoftDeletes;
 
-    protected $fillable = ['created_by', 'github_repositories_id', 'github_type', 'token_key'];
+    protected $fillable = ['created_by', 'github_repositories_id', 'github_type', 'token_key', 'expiry_date'];
 
     public function user()
     {
