@@ -87,6 +87,111 @@
     @include('task-module.partials.modal-chat')
     @include('partials.flash_messages')
 
+    <div class="row">
+        <div class="col-xs-12">
+            <form class="form-search-data">
+                <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
+                <input type="hidden" name="type" id="tasktype" value="pending">
+                <div class="row">
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group cls_task_subject">
+                            <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            {!! $task_categories_dropdown !!}
+                        </div>
+                    </div>
+
+                    @if(auth()->user()->checkPermission('activity-list'))
+                        <div class="col-xs-12 col-md-2 pd-2">
+                            <div class="form-group ml-3">
+                                <select id="search_by_user" class="form-control select2" name="selected_user[]" multiple>
+                                    <option value="">Select a User</option>
+                                    @foreach ($users as $id => $user)
+                                        <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12  col-md-1 pd-2">
+                            <div class="form-group ml-3">
+                                <select id="master_user_id" class="form-control select2" name="search_master_user_id" id="search_master_user_id">
+                                    <option value="">Lead 1 Select</option>
+                                    @foreach($users as $leadId => $leadName)
+                                        <option value="{{ $leadId }}">{{ $leadName }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12  col-md-1 pd-2">
+                            <div class="form-group ml-3">
+                                <select id="master_user_id" class="form-control select2" name="search_second_master_user_id" id="search_second_master_user_id">
+                                    <option value="">Lead 2 Select
+                                    <option>
+                                    @foreach($users as $leadId => $leadName)
+                                        <option value="{{ $leadId }}">{{ $leadName }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endif
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="is_statutory_query" id="is_statutory_query" class="form-control input-sm">
+                                <option @if(request('is_statutory_query')==0) selected @endif value="0">Other Task</option>
+                                <option @if(request('is_statutory_query')==1) selected @endif value="1">Statutory Task</option>
+                                <option @if(request('is_statutory_query')==2) selected @endif value="2">Calendar Task</option>
+                            <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="sort_by" id="sort_by" class="form-control input-sm">
+                                <option value="">Sort by</option>
+                                <option @if(request('sort_by')==1) selected @endif value="1">Date desc</option>
+                                <option @if(request('sort_by')==2) selected @endif value="2">Date Asc</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="filter_by" id="filter_by" class="form-control input-sm">
+                                <option value="">Filter by</option>
+                                <option @if(request('filter_by')==1) selected @endif value="1">Pending tasks</option>
+                                <option @if(request('filter_by')==2) selected @endif value="2">Completed by user</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="filter_status" id="filter_status" class="form-control input-sm">
+                                <option value="">Status Filter</option>
+                                @foreach($task_statuses as $task_statuse)
+                                    <option @if(request('filter_status') == $task_statuse->id) selected @endif value="{{$task_statuse->id}}">{{$task_statuse->name}}</option>
+                @endforeach
+                </select>
+            </div>
+    </div> --}}
+
+                    <div class="col-xs-12 col-md-1 pd-2 status-selection">
+                        <?php echo Form::select("filter_status[]", $statuseslist, request()->get('filter_status', $selectStatusList), ["class" => "form-control multiselect", "multiple" => true]); ?>
+                    </div>
+
+
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <input type="checkbox" checked="checked" name="flag_filter"> Flagged
+                    </div>
+                    <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}" /></button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
     <?php
     if (\App\Helpers::getadminorsupervisor() && !empty($selected_user))
         $isAdmin = true;
