@@ -123,12 +123,10 @@ class IndexerStateController extends Controller
             [
                 'data' => [
                     'select' => [
-                        'host' => $select->getConnection()->getConfig('host'),
-                        'data' => $select->get(),
+                        'host' => $select->getConnection()->getConfig('host')
                     ],
                     'insert' => [
-                        'host' => $create->getConnection()->getConfig('host'),
-                        'data' => $create,
+                        'host' => $create->getConnection()->getConfig('host')
                     ]
                 ]
             ]
