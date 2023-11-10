@@ -493,6 +493,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/zabbix/user/roles', [\App\Http\Controllers\Zabbix\UserController::class, 'roles'])->name('zabbix.user.roles');
     Route::post('/zabbix/user/role/save', [\App\Http\Controllers\Zabbix\UserController::class, 'rolesSave'])->name('zabbix.user.role.save');
     Route::get('/zabbix/triggers', [\App\Http\Controllers\Zabbix\TriggerController::class, 'index'])->name('zabbix.trigger.index');
+    Route::get('/zabbix/host/detail', [ZabbixController::class, 'detail'])->name('zabbix.host.detail');
+    Route::delete('/zabbix/host/delete', [ZabbixController::class, 'delete'])->name('zabbix.host.delete');
+    Route::post('/zabbix/host/save', [ZabbixController::class, 'save'])->name('zabbix.host.save');
     Route::post('/zabbix/triggers/save', [\App\Http\Controllers\Zabbix\TriggerController::class, 'save'])->name('zabbix.trigger.save');
     Route::post('/zabbix/user/delete', [\App\Http\Controllers\Zabbix\UserController::class, 'delete'])->name('zabbix.user.delete');
     Route::post('/zabbix/item/delete', [\App\Http\Controllers\Zabbix\ItemController::class, 'delete'])->name('zabbix.item.delete');
@@ -504,6 +507,7 @@ Route::middleware('auth')->group(function () {
     Route::post('discount-sale-price/create', [DiscountSalePriceController::class, 'create']);
     Route::get('create-media-image', [CustomerController::class, 'testImage']);
     Route::get('generate-favicon', [HomeController::class, 'generateFavicon']);
+    Route::get('logout-refresh', [HomeController::class, 'logoutRefresh'])->name('logout-refresh');
 
     Route::get('/products/affiliate', [ProductController::class, 'affiliateProducts']);
     Route::get('/products/change-category', [ProductController::class, 'changeCategory']);
@@ -813,6 +817,7 @@ Route::prefix('product')->middleware('auth')->group(function () {
 });
 
 Route::prefix('logging')->middleware('auth')->group(function () {
+	Route::delete('list-api-logs-delete', [LaravelLogController::class, 'listApiLogsDelete'])->name('list-api-logs-delete');
     Route::any('list/api/logs', [LaravelLogController::class, 'apiLogs'])->name('api-log-list');
     Route::any('list/api/logs/generate-report', [LaravelLogController::class, 'generateReport'])->name('api-log-list-generate-report');
     Route::post('list-magento/product-push-update-infomation', [Logging\LogListMagentoController::class, 'updateProductPushInformation'])->name('update.magento.product-push-information');
@@ -1444,6 +1449,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('/domains/{id}/disable', [VirtualminDomainController::class, 'disableDomain'])->name('virtualmin.domains.disable');
         Route::get('/domains/{id}/delete', [VirtualminDomainController::class, 'deleteDomain'])->name('virtualmin.domains.delete');
         Route::get('/domains/histories', [VirtualminDomainController::class, 'domainShow'])->name('virtualmin.domains.history');
+        Route::post('domains/create', [VirtualminDomainController::class, 'domainCreate'])->name('virtualmin.domains.create');
+        Route::get('/domains/{id}/managecloud', [VirtualminDomainController::class, 'managecloudDomain'])->name('virtualmin.domains.managecloud');
+        Route::post('domains/createadns', [VirtualminDomainController::class, 'adnsCreate'])->name('virtualmin.domains.createadns');
+        Route::post('/domains/dnsdelete', [VirtualminDomainController::class, 'deletednsDomain'])->name('virtualmin.domains.dnsdelete');
+        Route::get('/domains/dnshistories', [VirtualminDomainController::class, 'domainShowDns'])->name('virtualmin.domains.dnshistories');
+        Route::get('/domains/dnsedit', [VirtualminDomainController::class, 'dnsedit'])->name('virtualmin.domains.dnsedit');
+        Route::post('/domains/dnsupdate', [VirtualminDomainController::class, 'dnsupdate'])->name('virtualmin.domains.dnsupdate');
+        Route::post('/domains/domainstatusupdate', [VirtualminDomainController::class, 'domainstatusupdate'])->name('virtualmin.domains.domainstatusupdate');
     });
 
     Route::group(['prefix' => 'sonarqube'], function () {
@@ -1858,6 +1871,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-task-from-shortcut', [TaskModuleController::class, 'createTaskFromSortcut'])->name('task.create.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcut', [TaskModuleController::class, 'createMultipleTaskFromSortcut'])->name('task.create.multiple.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcutpostman', [TaskModuleController::class, 'createMultipleTaskFromSortcutPostman'])->name('task.create.multiple.task.shortcutpostman');
+    Route::post('task/create-multiple-task-from-shortcutsentry', [TaskModuleController::class, 'createMultipleTaskFromSortcutSentry'])->name('task.create.multiple.task.shortcutsentry');
     Route::post('task/create-multiple-task-from-shortcutmagentoproblems', [TaskModuleController::class, 'createMultipleTaskFromSortcutMagentoProblems'])->name('task.create.multiple.task.shortcutmagentoproblems');
     Route::post('task/create-multiple-task-from-shortcutwebsitelogs', [TaskModuleController::class, 'createMultipleTaskFromSortcutWebsiteLogs'])->name('task.create.multiple.task.shortcutwebsitelogs');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
@@ -3270,6 +3284,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/postman/create', [PostmanRequestCreateController::class, 'store']);
     Route::post('/postman/edit', [PostmanRequestCreateController::class, 'edit']);
     Route::delete('postman/delete', [PostmanRequestCreateController::class, 'destroy']);
+    Route::get('postman/addstorewebsiteurlinflutterpostman', [PostmanRequestCreateController::class, 'addStoreWebsiteUrlInFlutterPostman']);
 
     Route::get('postman/folder', [PostmanRequestCreateController::class, 'folderindex']);
     Route::get('postman/workspace', [PostmanRequestCreateController::class, 'workspaceIndex']);
@@ -3302,7 +3317,9 @@ Route::middleware('auth')->group(function () {
     Route::post('postman/send/request', [PostmanRequestCreateController::class, 'sendPostmanRequestAPI']);
 
     Route::post('postman/requested/history', [PostmanRequestCreateController::class, 'postmanRequestHistoryLog']);
+    Route::get('postman/request/history', [PostmanRequestCreateController::class, 'index_request_hisory']);
     Route::post('postman/response/history', [PostmanRequestCreateController::class, 'postmanResponseHistoryLog']);
+    Route::get('postman/response/history', [PostmanRequestCreateController::class, 'index_response_hisory']);
     Route::post('postman/add/json/version', [PostmanRequestCreateController::class, 'jsonVersion']);
     Route::post('postman/removeuser/permission', [PostmanRequestCreateController::class, 'removeUserPermission']);
     Route::post('postman/remark/history', [PostmanRequestCreateController::class, 'postmanRemarkHistoryLog']);
@@ -3335,6 +3352,8 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/{id}/delete', [ScriptDocumentsController::class, 'destroy']);
     Route::get('script-documents-histories/{id}', [ScriptDocumentsController::class, 'ScriptDocumentHistory'])->name('script-documents.histories');
     Route::get('script-documents-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentComment'])->name('script-documents.comment');
+    Route::get('script-documents/error-logs', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogs'])->name('script-documents.errorlogs');
+    Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
@@ -4065,6 +4084,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 // pages notes started from here
 Route::middleware('auth')->group(function () {
     Route::prefix('page-notes')->group(function () {
+    	Route::post('/category/create', [PageNotesController::class, 'createCategory'])->name('pageNotes.createCategory');
         Route::post('create', [PageNotesController::class, 'create'])->name('createPageNote');
         Route::get('list', [PageNotesController::class, 'list'])->name('listPageNote');
         Route::get('edit', [PageNotesController::class, 'edit'])->name('editPageNote');
@@ -4745,6 +4765,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
 Route::middleware('auth')->prefix('return-exchange')->group(function () {
     Route::get('/', [ReturnExchangeController::class, 'index'])->name('return-exchange.list');
     Route::get('/records', [ReturnExchangeController::class, 'records'])->name('return-exchange.records');
+    Route::post('/statuscolor', [ReturnExchangeController::class, 'statuscolor'])->name('return-exchange.statuscolor');
     Route::get('/model/{id}', [ReturnExchangeController::class, 'getOrders']);
     Route::get('/getProducts/{id}', [ReturnExchangeController::class, 'getProducts']);
     Route::get('/getRefundInfo/{id}', [ReturnExchangeController::class, 'getRefundInfo']);
@@ -5145,6 +5166,11 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::post('sentry-log/display-user-account', [SentryLogController::class, 'displayUserAccountList'])->name('sentry.display-user');
     Route::post('sentry-log/saveuseraccount', [SentryLogController::class, 'saveUserAccount'])->name('sentry.adduser');
     Route::post('sentry-log/refresh_logs', [SentryLogController::class, 'refreshLogs'])->name('sentry.refresh-logs');
+    Route::post('sentry-log/status/create', [SentryLogController::class, 'sentryStatusCreate'])->name('sentry.status.create');
+    Route::post('sentry-log/statuscolor', [SentryLogController::class, 'statuscolor'])->name('sentry.statuscolor');
+    Route::get('sentry-log/countdevtask/{id}', [SentryLogController::class, 'taskCount']);
+    Route::post('sentry-log/updatestatus', [SentryLogController::class, 'updateStatus'])->name('sentry.updatestatus');
+    Route::get('sentry-log/status/histories/{id}', [SentryLogController::class, 'sentryStatusHistories'])->name('sentry.status.histories');
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {

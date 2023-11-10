@@ -111,7 +111,7 @@
                     <input type="hidden" name="issue" id="issue">
                     <div class="form-group">
                         <strong>User:</strong>
-                        <select class="form-control select-multiple" name="assign_to" id="user-select">
+                        <select class="form-control" name="assign_to" id="user-select">
                             <option value="">Select User</option>
                             @foreach($users as $key => $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>

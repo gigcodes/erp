@@ -37,6 +37,12 @@ foreach($data as $prop) {?>
 
 	   	<td><?php echo $prop->last_run; ?></td>
 
+	   	<td>
+	      	<button type="button" data-id="<?php echo $prop->id;  ?>" class="btn script-document-last_output-view" style="padding:1px 0px;">
+    			<i class="fa fa-eye" aria-hidden="true"></i>
+    		</button>
+		</td>
+
 	   	<td><?php echo $prop->status; ?></td>
 
 	     <td>		

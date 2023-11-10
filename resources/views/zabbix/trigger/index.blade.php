@@ -1,6 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .gray-td {
+        background-color: gray;
+        color: #fff;
+    }
+    .orange-td {
+        background-color: orange;
+        color: #fff;
+    }
+    .red-td {
+        background-color: red;
+        color: #fff;
+    }
+</style>
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Zabbix Triggers <span class="count-text"></span></h2>
@@ -68,16 +82,6 @@
                                                 <label>Priority</label>
                                                 <input type="text" class="form-control" name="severity"
                                                        placeholder="Enter priority" id="trigger-priority">
-                                            </div>
-                                            <div class="form-group">
-                                                <label>Templates</label>
-                                                <select id="trigger-template-id" class="form-control input-sm career-store-websites"
-                                                name="template_id" required>
-                                                    <option value="0">Select template</option>
-                                                    @foreach ($templates as $template)
-                                                        <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
-                                                    @endforeach
-                                                </select>
                                             </div>
                                         </div>
                                     </div>
