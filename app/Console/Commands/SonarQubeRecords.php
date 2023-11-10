@@ -56,11 +56,18 @@ class SonarQubeRecords extends Command
             if (isset($responseData['total'])) {
                 $total = (int) $responseData['total'];
 
+                Log::info($total);
+
                 if ($total > 0) {
                     $pageSize = 100;
                     $counter = 1;
 
                     while ($counter <= ceil($total / $pageSize)) {
+
+                        Log::info($counter);
+
+                        /*$url = "api/issues/search?ps=100&p=$counter";
+                        Log::info($url);*/
 
                         $queryParams = [
                             'ps' => $pageSize,
@@ -72,8 +79,10 @@ class SonarQubeRecords extends Command
 
                         $responseDataPage = $responseDatasub->json();
 
-                        if (!empty($responseDataPage)) {
+                        if (!empty($responseDataPage['issues'])) {
                             foreach ($responseDataPage['issues'] as $value) {
+                                
+                                Log::info($value['key']);
 
                                 $input = [
                                     'key' => $value['key'],
@@ -109,7 +118,7 @@ class SonarQubeRecords extends Command
                                 }
                             }
                         }
-                        
+                        $counter++;
                     }
                 } else {
                     echo "No issues found with the specified parameters.\n";
