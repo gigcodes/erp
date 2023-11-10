@@ -298,7 +298,7 @@ Route::post('order/check-return', [\App\Http\Controllers\Api\v1\ProductControlle
 Route::post('order/check-category-is-eligibility', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCategoryIsEligibility']);
 Route::post('wishlist/create', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishList']);
 Route::post('wishlist/remove', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishListRemove']);
-Route::post('github/addtokenhistory', [Github\RepositoryController::class, 'addGithubTokenHistory'])->name('github.addtokenhistory');
+Route::post('github/gettoken', [\App\Http\Controllers\Github\RepositoryController::class, 'addGithubTokenHistory']);
 
 Route::post('magento/order-create', [MagentoCustomerReferenceController::class, 'createOrder']);
 

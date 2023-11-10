@@ -210,7 +210,6 @@ class Trigger implements JsonSerializable
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
                 'event_name' => $this->getEventName(),
-                'templateid' => $this->getTemplateId(),
                 'priority' => $this->getSeverity()
             ]);
         } else {

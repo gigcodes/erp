@@ -76,9 +76,6 @@ class TriggerController extends Controller
             $item->setName($data['name'] ?? '');
             $item->setExpression($data['expression'] ?? '');
             $item->setSeverity($data['severity'] ?? 1);
-            if (!empty($data['template_id']) && $data['template_id'] !== 0) {
-                $item->setTemplateId((int)$data['template_id'] ?? 0);
-            }
 
             $item->save();
         }
