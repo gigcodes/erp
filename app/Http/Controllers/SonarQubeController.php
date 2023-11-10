@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SonarQube;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -51,7 +52,7 @@ class SonarQubeController extends Controller
 
     public function searchIssues(Request $request)
     {
-        $url = env('SONARQUBE_URL') . 'api/issues/search';
+        /*$url = env('SONARQUBE_URL') . 'api/issues/search';
 
         $statuses = $request->query('statuses');
         $types = $request->query('types');
@@ -73,9 +74,13 @@ class SonarQubeController extends Controller
         $response = Http::withBasicAuth($username, $password)
             ->get($url, $queryParams);
 
-        return $responseData = $response->json();
+        $responseData = $response->json();
 
-        return view('sonarCube.index', ['issues' => $responseData]);
+        return view('sonarCube.index', ['issues' => $responseData]);*/
+
+        $issues = SonarQube::orderBy("id", "DESC")->paginate(100);
+
+        return view('sonarCube.index', compact('issues'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function searchUserTokens(Request $request)
