@@ -7,17 +7,11 @@ $i = 1;
 			{{$i}}
 		</td>	
 		<td>
-			{{$VarnishStatsLog->storewebsite->title}}
-		</td>
-		<td>
 			{{$VarnishStatsLog->request_data}}
 		</td>
 		<td>
 			{{$VarnishStatsLog->response_data}}
 		</td>
-		<!-- <td>
-			{{$VarnishStatsLog->user->name}}
-		</td> -->
 		<td>
 			{{$VarnishStatsLog->created_at}}
 		</td>

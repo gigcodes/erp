@@ -52,10 +52,8 @@
 						<thead>
 						<tr>
 							<th>Id</th>
-							<th width="10%">Store Website</th>							
 							<th width="30%">Request Data</th>
 							<th width="30%">Response Data</th>
-							<!-- <th width="10%">Created By</th> -->
 							<th width="10%">Created Date</th>						
 						</tr>
 						</thead>
