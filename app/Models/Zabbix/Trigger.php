@@ -168,6 +168,18 @@ class Trigger implements JsonSerializable
         return $this;
     }
 
+    public function getTemplateName()
+    {
+        return $this->templateName ?? '';
+    }
+
+    public function setTemplateName($tempateName): self
+    {
+        $this->templateName = $tempateName;
+
+        return $this;
+    }
+
     public function getAll($page = 1)
     {
         return array_map(fn ($item) => (new self())->setData($item), $this->zabbix->getAllTriggers($page));
@@ -198,7 +210,6 @@ class Trigger implements JsonSerializable
                 'description' => $this->getName(),
                 'expression' => $this->getExpression(),
                 'event_name' => $this->getEventName(),
-                'templateid' => $this->getTemplateId(),
                 'priority' => $this->getSeverity()
             ]);
         } else {
@@ -236,7 +247,8 @@ class Trigger implements JsonSerializable
             'event_name' => $this->getEventName(),
             'template_id' => $this->getTemplateId(),
             'is_active' => $this->isActive(),
-            'priority' => $this->getSeverity()
+            'priority' => $this->getSeverity(),
+            'template_name' => $this->getTemplateName(),
         ];
     }
 }

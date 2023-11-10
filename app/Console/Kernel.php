@@ -171,6 +171,7 @@ use App\Console\Commands\GetGebnegozionlineProductDetailsWithEmulator;
 use App\Console\Commands\SendReminderToDevelopmentIfTheyHaventReplied;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\SonarQubeRecords;
+use App\Console\Commands\VarnishRecords;
 
 //use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 
@@ -342,6 +343,7 @@ class Kernel extends ConsoleKernel
         ChannelDataSync::class,
         CreateMailBoxes::class,
         SonarQubeRecords::class,
+        VarnishRecords::class,
     ];
 
     /**
@@ -746,6 +748,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('zabbix:problem')->everyFiveMinutes();
         $schedule->command('store:zabbixhostitems')->everyFiveMinutes();
         $schedule->command('insert-sonar-qube')->dailyAt('23:58');
+        $schedule->command('insert-varnish-records')->everyFiveMinutes();
     }
 
     /**`
