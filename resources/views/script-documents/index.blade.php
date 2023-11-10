@@ -427,7 +427,7 @@
 	            dataType: "json",
 	            success: function(response) {
 	               
-                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.data.last_output);
+                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.last_output);
                     $("#script-document-last-output-list").modal("show");
 	         
 	            }

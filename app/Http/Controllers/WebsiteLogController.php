@@ -346,7 +346,11 @@ class WebsiteLogController extends Controller
             $website_id = $request->website_ids;
             $date = $request->date;
 
-            return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type', 'website_id', 'date'));
+            $website_log_statuses = WebsiteLogStatus::get();
+
+            $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
+            return view('website-logs.website-log-view', compact('dataArr', 'search_error', 'search_type', 'website_id', 'date', 'website_log_statuses', 'allUsers'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

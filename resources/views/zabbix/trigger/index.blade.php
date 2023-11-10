@@ -83,16 +83,6 @@
                                                 <input type="text" class="form-control" name="severity"
                                                        placeholder="Enter priority" id="trigger-priority">
                                             </div>
-                                            <div class="form-group">
-                                                <label>Templates</label>
-                                                <select id="trigger-template-id" class="form-control input-sm career-store-websites"
-                                                name="template_id" required>
-                                                    <option value="0">Select template</option>
-                                                    @foreach ($templates as $template)
-                                                        <option value="{{ $template['templateid'] }}">{{ $template['name'] }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
