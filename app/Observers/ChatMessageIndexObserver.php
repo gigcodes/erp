@@ -16,6 +16,8 @@ class ChatMessageIndexObserver
 
     public function updated(ChatMessage $chatMessage): void
     {
-        $x = 1;
+        $message = new Messages;
+
+        $message->indexOne($chatMessage);
     }
 }

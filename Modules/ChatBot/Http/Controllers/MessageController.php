@@ -125,6 +125,8 @@ class MessageController extends Controller
             $body[]['multi_match'] = $queryParam['multi_match'];
         }
 
+        $body['exists'] = ['field' => 'message'];
+
         $response = Elasticsearch::search(
             [
                 'index' => Messages::INDEX_NAME,
@@ -134,7 +136,87 @@ class MessageController extends Controller
                     'query' => [
                         'bool' => [
                             'must' => $body,
+                            'should' => [
+                                ['exists' => ['field' => 'vendor_id']],
+                                ['exists' => ['field' => 'customer_id']],
+                                ['exists' => ['field' => 'user_id']],
+                                ['exists' => ['field' => 'task_id']],
+                                ['exists' => ['field' => 'developer_task_id']],
+                                ['exists' => ['field' => 'bug_id']],
+                            ],
+                            'minimum_should_match' => 1
                         ]
+                    ],
+                    'aggs' => [
+                        'group_by_customer' => [
+                            'terms' => [
+                                'field' => 'customer_id',
+                                'size' => 1,
+                            ],
+                            'aggs' => [
+                                'group_by_user' => [
+                                    'terms' => [
+                                        'field' => 'user_id',
+                                        'size' => 1,
+                                    ],
+                                    'aggs' => [
+                                        'group_by_vendor' => [
+                                            'terms' => [
+                                                'field' => 'vendor_id',
+                                                'size' => 1,
+                                            ],
+                                            'aggs' => [
+                                                'group_by_supplier' => [
+                                                    'terms' => [
+                                                        'field' => 'supplier_id',
+                                                        'size' => 1,
+                                                    ],
+                                                    'aggs' => [
+                                                        'group_by_task' => [
+                                                            'terms' => [
+                                                                'field' => 'task_id',
+                                                                'size' => 1,
+                                                            ],
+                                                            'aggs' => [
+                                                                'group_by_developer_task' => [
+                                                                    'terms' => [
+                                                                        'field' => 'developer_task_id',
+                                                                        'size' => 1,
+                                                                    ],
+                                                                    'aggs' => [
+                                                                        'group_by_bug' => [
+                                                                            'terms' => [
+                                                                                'field' => 'bug_id',
+                                                                                'size' => 1,
+                                                                            ],
+                                                                            'aggs' => [
+                                                                                'group_by_email' => [
+                                                                                    'terms' => [
+                                                                                        'field' => 'email_id',
+                                                                                        'size' => 1,
+                                                                                    ],
+                                                                                    'aggs' => [
+                                                                                        'max_number' => [
+                                                                                            'max' => [
+                                                                                                'field' => 'id',
+                                                                                            ],
+                                                                                        ],
+                                                                                    ],
+                                                                                ],
+                                                                            ],
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                     'sort' => [
                         ['id' => 'desc']

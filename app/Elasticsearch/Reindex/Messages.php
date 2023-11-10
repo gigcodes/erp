@@ -115,7 +115,7 @@ class Messages implements Reindex
         AND task_id IS NULL
         AND developer_task_id IS NULL
         AND email_id IS NULL
-        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id) as lm');
+        AND user_id IS NULL)) AND chat_messages.id = '.$chatMessage->id.' GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id) as lm');
 
         $pendingApprovalMsg = ChatMessage::with('taskUser', 'chatBotReplychat', 'chatBotReplychatlatest')
             ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
