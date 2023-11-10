@@ -28,6 +28,44 @@ class VirtualminDomainController extends Controller
      */
     public function index(Request $request)
     {
+        // API endpoint URL for getting zones
+        $api_url = getenv('CLOUDFLARE_CREATE_DOMAIN_URL');
+
+        // cURL setup
+        $ch = curl_init($api_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'X-Auth-Key: ' . getenv('CLOUDFLARE_AUTH_KEY'),
+            'X-Auth-Email: '.getenv('CLOUDFLARE_EMAIL'), // Use the email associated with your Cloudflare account
+        ]);
+
+        // Execute cURL session
+        $response = curl_exec($ch);
+
+        // Close cURL session
+        curl_close($ch);
+
+        // Decode and display the response
+        $result = json_decode($response, true);
+
+        if ($result && isset($result['success']) && $result['success']) {
+            // Cloudflare API request was successful
+            foreach ($result['result'] as $zone) {
+
+                $domainsDnsRecordsData = VirtualminDomain::where('name', $zone['name'])->first();
+
+                if(!empty($domainsDnsRecordsData)){
+                    $domainsDnsRecordsData->identifier_id = $zone['id'];
+                    $domainsDnsRecordsData->save();
+                } else {
+                    $VirtualminDomainD = new VirtualminDomain();
+                    $VirtualminDomainD->name = $zone['name'];
+                    $VirtualminDomainD->identifier_id = $zone['id'];
+                    $VirtualminDomainD->save();
+                }
+            }
+        } 
+
         $keyword = $request->get('keyword');
         $status = $request->get('status');
 
@@ -162,7 +200,7 @@ class VirtualminDomainController extends Controller
 
             $this->validate($request, [
                 'Virtual_min_domain_id' => 'required',
-                'name' => 'required|alpha',
+                'name' => 'required',
                 'type' => 'required',
                 'ip_address' => 'required',
             ]);
@@ -409,26 +447,6 @@ class VirtualminDomainController extends Controller
             // Find the domain in the local database
             $domain = VirtualminDomain::findOrFail($id);
 
-            $keyword = $request->get('keyword');
-            $dns_type = $request->get('dns_type');
-
-            // data search action
-            $domainsDnsRecords = VirtualminDomainDnsRecords::with('VirtualminDomain')->where('Virtual_min_domain_id', $id)->whereNull('deleted_at')->orderBy('id', 'DESC');
-
-            if (! empty($keyword) || isset($keyword)) {
-                $domainsDnsRecords = $domainsDnsRecords->where('domain_with_dns_name', 'LIKE', '%' . $keyword . '%')->orWhere('content', 'LIKE', '%' . $keyword . '%');
-            }
-
-            if (! empty($dns_type) || isset($dns_type)) {
-                $domainsDnsRecords = $domainsDnsRecords->where('dns_type', $dns_type);
-            }
-
-            if (! empty($proxied) || isset($proxied)) {
-                $domainsDnsRecords = $domainsDnsRecords->where('proxied', $proxied);
-            }
-
-            $domainsDnsRecords = $domainsDnsRecords->paginate(10);
-
             if(!empty($domain)){
 
                 //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
@@ -479,6 +497,72 @@ class VirtualminDomainController extends Controller
 
                     if(!empty($zoneIdentifier)){
 
+                        $apiEndpoint = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL').'/'.$zoneIdentifier.'/dns_records';
+
+                        $ch = curl_init($apiEndpoint);
+
+                        // Set cURL options
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Authorization: Bearer ' . getenv('CLOUDFLARE_TOKEN'),
+                            'Content-Type: application/json',
+                            'X-Auth-Email: ' . getenv('CLOUDFLARE_EMAIL')
+                        ]);
+
+                        // Execute cURL session and get the response
+                        $response = curl_exec($ch);
+
+                        // Check for errors
+                        if (curl_errno($ch)) {
+                            echo 'Curl error: ' . curl_error($ch);
+                        }
+
+                        // Close cURL session
+                        curl_close($ch);
+
+                        // Decode JSON response
+                        $data = json_decode($response, true);
+
+                        if(!empty($data['result'])){
+                            foreach ($data['result'] as $key => $value) {
+
+                                $domainsDnsRecordsData = VirtualminDomainDnsRecords::where('identifier_id', $value['id'])->first();
+                                    
+                                if(empty($domainsDnsRecordsData)){
+                                    
+                                    $domainsDnsRecordsCreate = new VirtualminDomainDnsRecords();
+                                    $domainsDnsRecordsCreate->Virtual_min_domain_id = $id;
+                                    $domainsDnsRecordsCreate->identifier_id = $value['id'];
+
+                                    if($value['type']=='A' || $value['type']=='CNAME'){
+                                        $domainsDnsRecordsCreate->dns_type = 'A';
+                                    } else if($value['type']=='MX'){
+                                        $domainsDnsRecordsCreate['dns_type'] = 'MX';
+                                    } else if($value['type']=='TXT'){
+                                        $domainsDnsRecordsCreate->dns_type = 'TXT';
+                                    }
+                                    
+                                    $domainsDnsRecordsCreate->type = $value['type'];
+                                    $domainsDnsRecordsCreate->priority = !empty($value['priority']) ? $value['priority'] : NULL;
+                                    $domainsDnsRecordsCreate->content = $value['content'];
+                                    $domainsDnsRecordsCreate->name = str_replace('.'.$value['zone_name'], '', $value['name']);
+                                    $domainsDnsRecordsCreate->domain_with_dns_name = $value['name'];
+                                    $domainsDnsRecordsCreate->proxied = $value['proxied'];
+                                    $domainsDnsRecordsCreate->save();
+
+                                    $VirtualminDomainDnsRecordsHistory = new VirtualminDomainDnsRecordsHistory();
+                                    $VirtualminDomainDnsRecordsHistory->Virtual_min_domain_id = $domainsDnsRecordsCreate->id;
+                                    $VirtualminDomainDnsRecordsHistory->user_id = Auth::user()->id;
+                                    $VirtualminDomainDnsRecordsHistory->command = '';
+                                    $VirtualminDomainDnsRecordsHistory->error = null;
+                                    $VirtualminDomainDnsRecordsHistory->output = 'Sync Record';
+                                    $VirtualminDomainDnsRecordsHistory->save();
+                                }
+                            }
+                        }
+
+
                         $url = getenv('CLOUDFLARE_GET_DOMAIN_ZONES_IDENTIFIER_URL').'/'.$zoneIdentifier.'/settings/rocket_loader';
 
                         $ch = curl_init();
@@ -508,6 +592,26 @@ class VirtualminDomainController extends Controller
                     }
                 }
             }
+
+            $keyword = $request->get('keyword');
+            $dns_type = $request->get('dns_type');
+
+            // data search action
+            $domainsDnsRecords = VirtualminDomainDnsRecords::with('VirtualminDomain')->where('Virtual_min_domain_id', $id)->whereNull('deleted_at')->orderBy('id', 'DESC');
+
+            if (! empty($keyword) || isset($keyword)) {
+                $domainsDnsRecords = $domainsDnsRecords->where('domain_with_dns_name', 'LIKE', '%' . $keyword . '%')->orWhere('content', 'LIKE', '%' . $keyword . '%');
+            }
+
+            if (! empty($dns_type) || isset($dns_type)) {
+                $domainsDnsRecords = $domainsDnsRecords->where('dns_type', $dns_type);
+            }
+
+            if (! empty($proxied) || isset($proxied)) {
+                $domainsDnsRecords = $domainsDnsRecords->where('proxied', $proxied);
+            }
+
+            $domainsDnsRecords = $domainsDnsRecords->paginate(10);
 
             return view('virtualmin-domain.managecloud', ['domainsDnsRecords' => $domainsDnsRecords, 'domain' => $domain]);
 
@@ -669,7 +773,7 @@ class VirtualminDomainController extends Controller
 
             $this->validate($request, [
                 'Virtual_min_domain_id' => 'required',
-                'name' => 'required|alpha',
+                'name' => 'required',
                 'type' => 'required',
                 'ip_address' => 'required',
                 'id' => 'required',
@@ -781,7 +885,7 @@ class VirtualminDomainController extends Controller
                                 $domainsDnsRecords->save();
 
                                 $VirtualminDomainDnsRecordsHistory = new VirtualminDomainDnsRecordsHistory();
-                                $VirtualminDomainDnsRecordsHistory->Virtual_min_domain_id = $request->id;
+                                $VirtualminDomainDnsRecordsHistory->Virtual_min_domain_id = $domainsDnsRecords->id;
                                 $VirtualminDomainDnsRecordsHistory->user_id = Auth::user()->id;
                                 $VirtualminDomainDnsRecordsHistory->command = json_encode($parameters);
                                 $VirtualminDomainDnsRecordsHistory->error = $result['error'] ?? null;
@@ -900,7 +1004,7 @@ class VirtualminDomainController extends Controller
                         $ch = curl_init();
                         curl_setopt($ch, CURLOPT_URL, $url);
                         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
 
                         $parameters = [
                             'value' => $request->value,
