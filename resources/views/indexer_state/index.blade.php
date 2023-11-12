@@ -35,7 +35,7 @@ Indexer State
 </style>
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Indexer State <span class="count-text"></span></h2>
+            <h2 class="page-heading">Indexer State <span class="count-text"></span> <button class="btn btn-primary btn-refresh-listing"><span class="glyphicon glyphicon-refresh"></span> Refresh</button></h2>
         </div>
         <br>
         <div class="col-lg-12 pl-5 pr-5">
@@ -97,6 +97,27 @@ Indexer State
             </div>
         </div>
     </div>
+    <div class="modal fade" id="indexer-logs" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><b>Reindex logs</b></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <ul class="logs">
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
 
         $(document).on("click", ".submit_save_reindex", function (e) {
@@ -149,6 +170,31 @@ Indexer State
             $('#indexer-id').val(data.id);
         });
 
+        $(document).on('click', 'a.btn-reindex-logs', function(e) {
+            e.preventDefault();
+            $('#indexer-logs').modal('show');
+
+            let indexerStateId = $(this).attr('data-id');
+            let url = "{{ route('indexer-state.logs') }}/" + indexerStateId;
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (resp) {
+                    let data = resp.data.reverse();
+
+                    $(".logs").empty();
+
+                    for (let i = 0;i<data.length;i++) {
+                        $(".logs").append("<li>" + data[i] + "</li>");
+                    }
+                },
+                error: function (err) {
+                    toastr["error"](err.responseJSON.data);
+                }
+            })
+        });
+
         var restoreForm = function() {
             $('#indexer-cycles').val('');
             $('#indexer-id').val('');
@@ -179,8 +225,17 @@ Indexer State
             e.preventDefault();
 
             let indexerStateId = $(this).attr('data-id');
+            console.log($(this).attr('stop-reindex'));
+            let stopReindex = $(this).attr('stop-reindex') == 1 ? true : false;
+            console.log(stopReindex);
 
             var url = "{{ route('indexer-state.reindex') }}?id=" + indexerStateId;
+
+            if (stopReindex === true) {
+                url = url + '&stop_reindex=1';
+            }
+
+            console.log(url);
 
             let reindexTable = $("#reindex-table");
             $('#loading-image-preview').show();
@@ -206,6 +261,20 @@ Indexer State
                 })
             }, 2000)
             $('#loading-image-preview').hide();
+        })
+
+        $(document).on('click', '.btn-refresh-listing', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{{ route('indexer-state.index') }}",
+                method: 'GET',
+                success: function (resp) {
+                    let reindexTable = $("#reindex-table");
+                    reindexTable.empty();
+                    reindexTable.html(resp.tpl);
+                    toastr["success"]('Content refreshed.');
+                }
+            })
         })
     </script>
 @endsection

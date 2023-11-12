@@ -128,6 +128,32 @@ class IndexerState extends Model
         return $this;
     }
 
+    public function addLog(string $log): self
+    {
+        $logs = $this->getLogs();
+        $logs[] = $log . ' ' . date('Y-m-d H:i:s');
+
+        $this->setLogs($logs);
+        parent::save();
+
+        return $this;
+    }
+
+    public function setProcessId(?int $pId)
+    {
+        $settings = $this->getSettings() ?? [];
+        $settings['processId'] = $pId;
+        $this->setSettings($settings);
+        parent::save();
+    }
+
+    public function getProcessId(): ?int
+    {
+        $settings = $this->getSettings() ?? [];
+        $pId = $settings['processId'] ?? null;
+        return $pId ?: (int)$pId;
+    }
+
     /**
      * skip if running
      * @return bool

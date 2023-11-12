@@ -5773,4 +5773,5 @@ Route::middleware('auth')->group(function () {
     Route::get('indexerstate/reindex', [\App\Http\Controllers\IndexerStateController::class, 'reindex'])->name('indexer-state.reindex');
     Route::post('indexerstate/save', [\App\Http\Controllers\IndexerStateController::class, 'save'])->name('indexer-state.save');
     Route::get('indexerstate/masterslave', [\App\Http\Controllers\IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
+    Route::get('indexerstate/logs/{id?}', [\App\Http\Controllers\IndexerStateController::class, 'logs'])->name('indexer-state.logs');
 });

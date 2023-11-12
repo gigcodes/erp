@@ -23,13 +23,27 @@
                 <span>{{ strtoupper($indexer->getStatus()) }}</span>
             </td>
             <td class="td-logs-{{ $indexer->getId() }}">
-            <a href="#" class="btn btn-xs btn-secondary btn-edit-indexer td-edit-{{ $indexer->getId() }}" data-id="{{ $indexer->getId() }}" data-json='<?=json_encode($indexer)?>'>Logs</a>
+            <a href="#" class="btn btn-xs btn-info btn-reindex-logs td-edit-{{ $indexer->getId() }}" data-id="{{ $indexer->getId() }}">Logs</a>
             </td>
             <td>
                 <a href="#" class="btn btn-xs btn-secondary btn-edit-indexer td-edit-{{ $indexer->getId() }}" data-id="{{ $indexer->getId() }}" data-json='<?=json_encode($indexer)?>'>Edit</a>
             </td>
             <td>
-                <a href="#" class="btn btn-xs btn btn-success btn-reindex-indexer td-edit-{{ $indexer->getId() }}" data-id="{{ $indexer->getId() }}" data-json='<?=json_encode($indexer)?>'>Reindex</a>
+                @if($indexer->getStatus() !== \App\Elasticsearch\Reindex\Interfaces\Reindex::RUNNING)
+                    <a href="#" 
+                        class="btn btn-xs btn btn-success btn-reindex-indexer td-edit-{{ $indexer->getId() }}" 
+                        data-id="{{ $indexer->getId() }}" 
+                        data-json='<?=json_encode($indexer)?>'>
+                        Reindex
+                    </a>
+                @else
+                    <a href="#" 
+                        class="btn btn-xs btn btn-danger btn-reindex-indexer td-edit-{{ $indexer->getId() }}" 
+                        data-id="{{ $indexer->getId() }}"
+                        stop-reindex="1">
+                        Stop reindex
+                    </a>
+                @endif
             </td>
         </tr>
     @endforeach

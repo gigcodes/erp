@@ -24,11 +24,25 @@ class Reindex
                     continue;
                 }
 
+                $indexer->setLogs();
+                $indexer->addLog('Reindex started.');
+
+                try {
+                    $pId = getmypid();
+                    $settings = $indexer->getSettings() ?? [];
+                    $settings['processId'] = $pId;
+                    $indexer->setSettings($settings);
+                } catch (\Exception $e) {
+                    Log::error('Reindex pId error: ' . $e->getMessage());
+                }
+
+
                 $indexer->setStatus(ReindexInterface::RUNNING);
                 $indexer->save();
 
                 $this->createIndexIfNotExist($indexer->getIndex());
                 $this->removeAll($indexer->getIndex());
+                $indexer->addLog(sprintf('Removed all records in index: %s.', $indexer->getIndex()));
 
                 $className = $indexer->getClassName();
 
@@ -38,10 +52,15 @@ class Reindex
                 $class->execute();
 
                 $indexer->setStatus(ReindexInterface::VALID);
+                $indexer->setProcessId(null);
                 $indexer->save();
+
+                $indexer->addLog('Reindex finished.');
             } catch (Throwable $throwable) {
                 $indexer->setStatus(ReindexInterface::INVALIDATE);
                 $indexer->save();
+
+                $indexer->addLog('Reindex error: ' . $throwable->getMessage());
 
                 Log::error('Reindex error: ' . $throwable->getMessage() . ' trace: ' . json_encode($throwable->getTrace()));
             }

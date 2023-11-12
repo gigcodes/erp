@@ -70,6 +70,26 @@ class IndexerStateController extends Controller
                 throw new \Exception(sprintf('Indexer with %s id not found.', $id));
             }
 
+            if (!empty($data['stop_reindex'])) {
+                $message = '';
+                if ($indexerState->getStatus() === Reindex::RUNNING) {
+                    if ($pId = $indexerState->getProcessId()) {
+                        if (posix_kill($pId, SIGKILL)) {
+                            $message = sprintf('Reindex terminated with pId %s. Index is set to invalidate status.', $pId);
+                            $indexerState->setProcessId(null);
+                        } else {
+                            $message = sprintf('Error with terminating process with pId %s.', $pId);
+                        }
+                    }
+                    $indexerState->setStatus(Reindex::INVALIDATE);
+                } else {
+                    throw new Exception('Cannot terminate process, because indexer state not in status \'running\'.');
+                }
+                $indexerState->addLog($message);
+                $indexerState->save();
+                return response()->json(['message' => $message ?: 'Invalidate reindex.', 'code' => 200]);
+            }
+
             if ($indexerState->isSkip()) {
                 throw new \Exception(sprintf('Cannot start again reindex for index: %s', $indexerState->getIndex()));
             }
@@ -130,6 +150,27 @@ class IndexerStateController extends Controller
                 ]
             ]
         );
+    }
+
+    public function logs(Request $request, ?int $id = null)
+    {
+        try {
+            if ($id === null) {
+                throw new \Exception('Id is required param.');
+            }
+
+            /** @var IndexerState $indexerState */
+            $indexerState = IndexerState::find($id);
+
+            if ($indexerState === null) {
+                throw new \Exception(sprintf('Indexer with %s id not found.', $id));
+            }
+
+            return response()->json(['data' => $indexerState->getLogs() ?? []]);
+        }
+        catch (Exception $e) {
+            return response()->json(['data' => $e->getMessage()], 500);
+        }
     }
 
     private function createIndexerStateIfNotExist(): void
