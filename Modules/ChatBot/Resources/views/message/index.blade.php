@@ -595,6 +595,8 @@
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
             var id = $(this).data('id');
+            var page = tr.data('page');
+            console.log(page);
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
             var data_chatbot_id = tr.data('chatbot-id');
@@ -717,8 +719,10 @@
                         thiss.closest(".cls_textarea_subbox").find("textarea").val("");
                         toastr['success']("Message sent successfully", 'success');
 
-                    }).fail(function (errObj) {
+                        getResults("{{ route('chatbot.messages.list') }}?page=" + page);
 
+                    }).fail(function (errObj) {
+                        getResults("{{ route('chatbot.messages.list') }}?page=" + page);
                     });
                 }
             } else {
