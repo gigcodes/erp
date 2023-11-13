@@ -1026,6 +1026,7 @@ class MessageController extends Controller
         AND email_id IS NULL
         AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
 
+        \DB::setDefaultConnection('mysql_read');
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
         })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
@@ -1035,6 +1036,7 @@ class MessageController extends Controller
             ->orderByRaw('cr.id DESC, chat_messages.id DESC')
             ->paginate(20);
         // dd($pendingApprovalMsg);
+        \DB::setDefaultConnection('mysql');
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];

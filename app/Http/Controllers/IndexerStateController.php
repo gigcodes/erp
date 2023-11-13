@@ -135,17 +135,22 @@ class IndexerStateController extends Controller
 
     public function masterSlave(Request $request)
     {
+        \DB::setDefaultConnection('mysql_read');
         $select = User::query()->limit(5)->orderBy('id', 'DESC');
+        $selectHost = $select->getConnection()->getConfig('host');
         $rand = rand(1,55);
+        \DB::setDefaultConnection('mysql');
         $create = User::create(['name'=>'test'.$rand, 'email'=>"test".$rand."@example.com", 'password' => '$2y$10$Sr8Gzf8en1WuxAl0XRB1se3loslJH/kIOt3Dyz6zZ4eqYEae9J5Uq']);
+        $createHost = $create->getConnection()->getConfig('host');
+
         return response()->json(
             [
                 'data' => [
                     'select' => [
-                        'host' => $select->getConnection()->getConfig('host')
+                        'host' => $selectHost
                     ],
                     'insert' => [
-                        'host' => $create->getConnection()->getConfig('host')
+                        'host' => $createHost
                     ]
                 ]
             ]
