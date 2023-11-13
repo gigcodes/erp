@@ -78,7 +78,16 @@ class SonarQubeController extends Controller
 
         return view('sonarCube.index', ['issues' => $responseData]);*/
 
-        $issues = SonarQube::orderBy("id", "DESC")->paginate(100);
+        $search = request('search', '');
+
+        $issues = new SonarQube;
+        if (! empty($search)) {
+            $issues = $issues->where(function ($q) use ($search) {
+                $q->where('severity', 'LIKE', '%' . $search . '%')->orWhere('component', 'LIKE', '%' . $search . '%')->orWhere('project', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('author', 'LIKE', '%' . $search . '%')->orWhere('status', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $issues = $issues->orderBy("id", "DESC")->paginate(100);
 
         return view('sonarCube.index', compact('issues'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
