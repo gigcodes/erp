@@ -12,6 +12,9 @@
     <tbody>
     <?php /** @var \App\Models\IndexerState $indexer */ ?>
     @foreach($indexerStates as $indexer)
+        <?php
+            $statusCssClass = 'index-' . $indexer->getStatus();
+        ?>
         <tr>
             <td class="td-index-{{ $indexer->getId() }}">
                 {{ $indexer->getIndex() }}
@@ -19,7 +22,7 @@
             <td class="td-updated-at-{{ $indexer->getId() }}">
                 {{ (string)$indexer->getUpdatedAt() }}
             </td>
-            <td class="td-status-{{ $indexer->getId() }} {{ $indexer->getStatus() === 'running' ? 'index-running' : ($indexer->getStatus() === 'invalidate' ? 'index-invalidate' : 'index-valid') }}">
+            <td class="td-status-{{ $indexer->getId() }} {{ $statusCssClass }}">
                 <span>{{ strtoupper($indexer->getStatus()) }}</span>
             </td>
             <td class="td-logs-{{ $indexer->getId() }}">

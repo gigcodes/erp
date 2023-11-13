@@ -11,6 +11,7 @@ interface Reindex
     const RUNNING = 'running';
     const INVALIDATE = 'invalidate';
     const VALID = 'valid';
+    const PARTIAL_INVALID = 'partial_invalid';
 
     /**
      * @return void

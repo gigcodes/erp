@@ -233,4 +233,53 @@ class Messages implements Reindex
     {
         return $this->indexerState;
     }
+
+    public function partialReindex(?ChatMessage $model = null)
+    {
+        try {
+            /** @var IndexerState $indexer */
+            $indexer = IndexerState::where('index', 'chatbot_messages')->first();
+            if ($indexer === null) {
+                return;
+            } else {
+                $this->setIndexerState($indexer);
+            }
+
+            $elasticAllow = true;
+
+            try {
+                $elastic = new Elasticsearch();
+                $elastic->connect();
+                $elastic->getConn()->ping();
+            } catch (\Exception $e) {
+                $indexer->setStatus(Reindex::PARTIAL_INVALID);
+                $indexer->addLog($e->getMessage());
+                $indexer->save();
+
+                $elasticAllow = false;
+            }
+
+            if ($indexer->getStatus() === Reindex::PARTIAL_INVALID && $elasticAllow === true) {
+                $this->indexOne($model);
+                foreach ($indexer->getIds() as $id) {
+                    $chatBotMessage = ChatMessage::find($id);
+                    if ($chatBotMessage === null) {
+                        continue;
+                    }
+                    $this->indexOne($chatBotMessage);
+                }
+                $indexer->setStatus(Reindex::VALID);
+                $indexer->addLog('Put in status valid.');
+                $indexer->setIds([]);
+                $indexer->save();
+            } else if ($model && $elasticAllow === false) {
+                $indexer->addId($model->id);
+            } else if ($model && $elasticAllow === true) {
+                $this->indexOne($model);
+            }
+        }
+        catch (\Exception $e) {
+            $e;
+        }
+    }
 }

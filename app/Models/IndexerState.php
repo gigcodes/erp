@@ -21,6 +21,7 @@ class IndexerState extends Model
     const UPDATED_AT = 'updated_at';
     const CREATED_AT = 'created_at';
     const LOGS = 'logs';
+    const IDS = 'ids';
 
     const INDEXER_MAPPING = [
         Messages::INDEX_NAME => Messages::class
@@ -152,6 +153,36 @@ class IndexerState extends Model
         $settings = $this->getSettings() ?? [];
         $pId = $settings['processId'] ?? null;
         return $pId ?: (int)$pId;
+    }
+
+    public function getIds(): ?array
+    {
+        $ids = $this->getAttribute(self::IDS);
+
+        if (!$ids) {
+            return [];
+        }
+
+        $ids = json_decode($ids, true) ?? [];
+        return $ids ?: [];
+    }
+
+    public function setIds(array $ids): self
+    {
+        $this->setAttribute(self::IDS, json_encode($ids));
+
+        return $this;
+    }
+
+    public function addId($id): self
+    {
+        $ids = $this->getIds();
+        $ids[] = $id;
+
+        $this->setIds($ids);
+        parent::save();
+
+        return $this;
     }
 
     /**

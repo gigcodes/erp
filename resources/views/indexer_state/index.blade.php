@@ -32,6 +32,15 @@ Indexer State
     font-size: 15px;
     text-align: center;
     }
+
+    .index-partial_invalid {
+        background-color: #00bfbf;
+        color: white;
+        letter-spacing: 2px;
+        font-weight: bold;
+        font-size: 15px;
+        text-align: center;
+    }
 </style>
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
