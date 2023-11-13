@@ -256,7 +256,18 @@ padding: 3px 2px;
         @else
             <td class="boat-replied expand-row" style="word-break: break-all">
                 <span class="td-mini-container">
-                    {{ strlen($pam->answer) > 15 ? substr($pam->answer, 0, 15).'...' :  $pam->answer }}
+
+                    @if($pam->answer)
+                        {{ strlen($pam->answer) > 15 ? substr($pam->answer, 0, 15).'...' :  $pam->answer }}
+                    @elseif($pam->suggested_replay)
+                        {{ substr( $pam->suggested_replay ,0,15) }}...
+                    @elseif($pam->reply_from)
+                        {{ strlen($pam->reply_from) > 15 ? substr($pam->reply_from, 0, 15).'...' :  '' }}
+                    @else
+                        @if(auth()->user()->id == $pam->user_id)
+                            {{ strlen($pam->message) > 15 ? substr($pam->message, 0, 15).'...' :  '' }}
+                        @endif
+                    @endif
                  </span>
                  <span class="td-full-container hidden">
                      {{ $pam->answer }}
