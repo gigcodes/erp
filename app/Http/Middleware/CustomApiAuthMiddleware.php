@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use App\Models\BearerAccessTokens;
 
 class CustomApiAuthMiddleware extends Middleware
 {
@@ -15,9 +16,10 @@ class CustomApiAuthMiddleware extends Middleware
 
         try {
             $bearerToken = $request->bearerToken();
+            $bearerTokenModel = new BearerAccessTokens();
 
-            if ($bearerAccessToken = \DB::table('bearer_access_tokens')->select('*')->where('token', $bearerToken)->first()) {
-                $user = \App\User::find($bearerAccessToken->user_id);
+            if ($bearerAccessToken = $bearerTokenModel->getByToken($bearerToken)) {
+                $user = $bearerAccessToken->getUser();
 
                 if ($user === null) {
                     throw new \Exception('User not found.');
@@ -25,7 +27,7 @@ class CustomApiAuthMiddleware extends Middleware
 
                 auth()->login($user);
             } else {
-                throw new \Exception('Token not found.');
+                throw new \Exception('Token not found or expired. Generate new token!');
             }
         }
         catch (\Exception $e) {

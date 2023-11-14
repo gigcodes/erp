@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BearerAccessTokens;
+use Auth;
+use Exception;
+use Illuminate\Http\Response;
 
 class LoginController extends Controller
 {
@@ -11,7 +15,7 @@ class LoginController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(private BearerAccessTokens $bearerToken)
     {
         $this->middleware('auth:api', ['except' => ['login', 'refresh']]);
     }
@@ -25,16 +29,15 @@ class LoginController extends Controller
     {
         $credentials = request(['email', 'password']);
 
-        if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (!$token = auth('api')->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
         auth()->attempt($credentials);
 
-        \DB::table('bearer_access_tokens')->insert([
-            'token' => $token,
-            'user_id' => \Auth::user()->id,
-        ]);
+        $this->bearerToken->setToken($token);
+        $this->bearerToken->setUser(Auth::user());
+        $this->bearerToken->save();
 
         return $this->respondWithToken($token);
     }
