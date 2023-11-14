@@ -954,7 +954,6 @@ class MessageController extends Controller
             ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
             ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
-            ->leftJoin('tmp_replies as tmp', 'tmp.chat_message_id', 'chat_messages.id')
             ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
 
         if (! empty($search)) {
@@ -1017,26 +1016,33 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereRaw('chat_messages.id in (select max(chat_messages.id) as latest_message from chat_messages LEFT JOIN chatbot_replies as cr on cr.replied_chat_id = `chat_messages`.`id` where ((customer_id > 0 or vendor_id > 0 or task_id > 0 or developer_task_id > 0 or user_id > 0 or supplier_id > 0 or bug_id > 0 or email_id > 0) OR (customer_id IS NULL
-        AND vendor_id IS NULL
-        AND supplier_id IS NULL
-        AND bug_id IS NULL
-        AND task_id IS NULL
-        AND developer_task_id IS NULL
-        AND email_id IS NULL
-        AND user_id IS NULL)) GROUP BY customer_id,user_id,vendor_id,supplier_id,task_id,developer_task_id, bug_id,email_id)');
-
-        \DB::setDefaultConnection('mysql_read');
+        $currentPage = Paginator::resolveCurrentPage();
+        $select = ['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
+            'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
+            'c.is_auto_simulator as customer_auto_simulator',
+            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'];
         $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
             $q->where('chat_messages.message', '!=', '');
-        })->select(['cr.id as chat_bot_id', 'cr.is_read as chat_read_id', 'chat_messages.*', 'cm1.id as chat_id', 'cr.question',
-            'cm1.message as answer', 'cm1.is_audio as answer_is_audio', 'c.name as customer_name', 'v.name as vendors_name', 's.supplier as supplier_name', 'cr.reply_from', 'sw.title as website_title', 'c.do_not_disturb as customer_do_not_disturb', 'e.name as from_name',
-            'tmp.id as tmp_replies_id', 'tmp.suggested_replay', 'tmp.is_approved', 'tmp.is_reject', 'c.is_auto_simulator as customer_auto_simulator',
-            'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator'])
+        })->select($select)
             ->orderByRaw('cr.id DESC, chat_messages.id DESC')
-            ->paginate(20);
-        // dd($pendingApprovalMsg);
-        \DB::setDefaultConnection('mysql');
+            ->offset(($currentPage - 1) * 20)->limit(20);
+
+        $total = 3000000;
+
+        $messages = $pendingApprovalMsg->select([...$select])->get($select);
+
+        \Log::info('Database messages: ' . json_encode($messages));
+
+        $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
+            'items' => $messages,
+            'total' => $total,
+            'perPage' => 20,
+            'currentPage' => $currentPage,
+            'options' => [
+                'path' => Paginator::resolveCurrentPath(),
+                'pageName' => 'page'
+            ]
+        ]);
 
         $allCategory = ChatbotCategory::all();
         $allCategoryList = [];
@@ -1045,7 +1051,7 @@ class MessageController extends Controller
                 $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
-        $page = $pendingApprovalMsg->currentPage();
+        $page = $currentPage;
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
 
         if ($request->ajax()) {
