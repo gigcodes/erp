@@ -232,8 +232,6 @@ class MessageController extends Controller
             $allItems
         );
 
-        \Log::info('Elasticsearch messages: ' . json_encode($pendingApprovalMsg));
-
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
             'items' => $pendingApprovalMsg,
             'total' => $total,
@@ -1030,8 +1028,6 @@ class MessageController extends Controller
         $total = 3000000;
 
         $messages = $pendingApprovalMsg->select([...$select])->get($select);
-
-        \Log::info('Database messages: ' . json_encode($messages));
 
         $pendingApprovalMsg = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
             'items' => $messages,
