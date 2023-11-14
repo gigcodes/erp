@@ -325,8 +325,8 @@ Route::post('order/sync-transaction', [OrderController::class, 'syncTransaction'
 
 Route::post('updateLog', [UpdateLogController::class, 'store']);
 
+Route::post('login', [Api\v1\Auth\LoginController::class, 'login']);
 Route::middleware('api')->prefix('auth')->group(function ($router) {
-    Route::post('login', [Api\v1\Auth\LoginController::class, 'login']);
     Route::post('logout', [Api\v1\Auth\LoginController::class, 'logout']);
     Route::post('refresh', [Api\v1\Auth\LoginController::class, 'refresh']);
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
