@@ -331,6 +331,10 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
     Route::post('refresh', [Api\v1\Auth\LoginController::class, 'refresh']);
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
 });
+Route::middleware('custom.api.auth')->group(function () {
+    Route::get('/chatbot/messages', [\Modules\ChatBot\Http\Controllers\MessageController::class, 'messagesJson']);
+});
+
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
 

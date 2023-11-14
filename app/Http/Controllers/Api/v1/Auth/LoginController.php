@@ -29,6 +29,13 @@ class LoginController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        auth()->attempt($credentials);
+
+        \DB::table('bearer_access_tokens')->insert([
+            'token' => $token,
+            'user_id' => \Auth::user()->id,
+        ]);
+
         return $this->respondWithToken($token);
     }
 
