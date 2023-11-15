@@ -948,7 +948,6 @@ class MessageController extends Controller
             ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
             ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id')
             ->leftJoin('store_websites as sw', 'sw.id', 'c.store_website_id')
-            ->leftJoin('bug_trackers  as bt', 'bt.id', 'chat_messages.bug_id')
             ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
             ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
             ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
