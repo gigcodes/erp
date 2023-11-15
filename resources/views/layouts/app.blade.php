@@ -3140,6 +3140,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     href="{{route('chatbot.messages.list')}}">Messages</a>
                                             </li>
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item"
+                                                    href="{{route('chatbot.messages.list')}}/elastic">Messages Elasticsearch</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                             </li>
                                             <li class="nav-item dropdown">
@@ -3455,6 +3459,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.builderApiKey') }}">Store Website Builder Key</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('indexer-state.index') }}">Indexer State</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item"
