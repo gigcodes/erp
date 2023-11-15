@@ -178,6 +178,7 @@
 <button class="btn custom-button mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
 <!-- <a href="postman/request/history" class="btn custom-button mr-3" target="_blank">Request History</a> -->
     <a href="postman/response/history" class="btn custom-button mr-3" target="_blank">Response History</a>
+    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#runRequestUrl">Run Request URL</button>
   <div class="col-12">
     <h3>Assign Permission to User</h3>
     <form class="form-inline" id="update_user_permission" action="/postman/user/permission" method="POST">
@@ -1511,6 +1512,7 @@
 @include('postman.postman-api-issue-fix-done-history')
 @include("postman.column-visibility-modal")
 @include("postman.partials.modal-status-color")
+@include("postman.run-request-url-modal")
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -2623,6 +2625,29 @@
             } else {
                 urlInput.addClass("hidden");
             }
+        });
+    });
+
+    $(document).on("click", "#run-request-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $('#loading-image').show();
+        $.ajax({
+            url: "{{route('postman.runrequesturl')}}",
+            type: "post",
+            data: $('#postman-run-request-url').serialize()
+        }).done(function(response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                $('#runRequestUrl').modal('hide');
+                toastr['success']('Postman Request Url run successfully!!!', 'success');
+                location.reload();
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
         });
     });
 </script>
