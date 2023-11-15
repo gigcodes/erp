@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ScriptDocuments;
 use App\Models\ScriptDocumentFiles;
+use App\Models\ScriptsExecutionHistory;
 use App\User;
 use Exception;
 use App\TestCase;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\UploadGoogleDriveScreencast;
 use Illuminate\Support\Facades\Validator;
+use App\DeveloperTask;
+use App\Task;
 
 class ScriptDocumentsController extends Controller
 {
@@ -20,9 +23,17 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
 
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC');
+        $records = $records->groupBy('file')->get();
+        $records_count = $records->count();
+
+        $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
         return view(
             'script-documents.index', [
                 'title' => $title,
+                'records_count' => $records_count,
+                'allUsers' => $allUsers,
             ]
         );
     }
@@ -47,12 +58,17 @@ class ScriptDocumentsController extends Controller
             );
         }
 
-        $records = $records->take(10)->groupBy('file')->get();
+        $records = $records->take(25)->groupBy('file')->get();
         $records_count = $records->count();
 
         $records = $records->map(
             function ($script_document) {
                 $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
+
+                $script_document->last_output_text = '';
+                if(!empty($script_document->last_output)){
+                    $script_document->last_output_text = base64_decode($script_document->last_output);
+                }
                 return $script_document;
             }
         );
@@ -79,7 +95,7 @@ class ScriptDocumentsController extends Controller
                 'description' => 'required',
                 'location' => 'required',
                 'last_run' => 'required',
-                'status' => 'required',
+                'status' => 'required'
             ]
         );
 
@@ -233,9 +249,9 @@ class ScriptDocumentsController extends Controller
     {
         $title = 'Script Documents';
         $page = $_REQUEST['page'];
-        $page = $page * 10;
+        $page = $page * 25;
 
-        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(10);
+        $records = ScriptDocuments::select('*', DB::raw("MAX(id) AS id"))->orderBy('id', 'DESC')->offset($page)->limit(25)->groupBy('file');
 
         if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -258,6 +274,8 @@ class ScriptDocumentsController extends Controller
             }
         );
 
+        $records;
+
         // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
 
         return view(
@@ -271,20 +289,19 @@ class ScriptDocumentsController extends Controller
 
     public function ScriptDocumentHistory($id)
     {   
-        $scriptDocument = ScriptDocuments::findorFail($id);
+        $records = ScriptsExecutionHistory::with('scriptDocument')->where('script_document_id', $id)->orderBy('id', 'DESC')->get();
 
-        $records = [];
-        if(!empty($scriptDocument)){
+        $records = $records->map(
+            function ($script_document) {
+                $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
 
-            $records = ScriptDocuments::where('file',$scriptDocument->file)->where('id', '!=', $id)->orderBy('id', 'DESC')->take(10)->get();
-
-            $records = $records->map(
-                function ($script_document) {
-                    $script_document->created_at_date = \Carbon\Carbon::parse($script_document->created_at)->format('d-m-Y');
-                    return $script_document;
+                $script_document->last_output_text = '';
+                if(!empty($script_document->run_output)){
+                    $script_document->last_output_text = base64_decode($script_document->run_output);
                 }
-            );
-        }
+                return $script_document;
+            }
+        );
 
         return response()->json([
             'status' => true,
@@ -301,8 +318,46 @@ class ScriptDocumentsController extends Controller
         return response()->json([
             'status' => true,
             'data' => $scriptDocument,
-            'message' => 'Comment get successfully',
+            'last_output' => base64_decode(utf8_encode($scriptDocument['last_output'])),
+            'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function taskCount($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+  
+    public function getScriptDocumentErrorLogs(Request $request)
+    {
+
+        $records = ScriptsExecutionHistory::select('*', DB::raw("MAX(id) AS id"))->where('run_status', 'Failed')->orderBy('id', 'DESC');
+        $records = $records->groupBy('script_document_id')->get();
+
+        return response()->json(['code' => 200, 'message' => 'Content render', 'count' => $records->count()]);
+    }
+
+    public function getScriptDocumentErrorLogsList(Request $request)
+    {   
+        $datas = ScriptsExecutionHistory::with('scriptDocument')->select('*', DB::raw("MAX(id) AS id"))->where('run_status', 'Failed')->orderBy('id', 'DESC');
+        $datas = $datas->groupBy('script_document_id')->take(10)->get();
+
+        return response()->json([
+            'tbody' => view('partials.modals.script-document-error-logs-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
     }
 }

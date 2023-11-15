@@ -732,4 +732,12 @@ class LaravelLogController extends Controller
 
         return view('logging.partials.generate-report', compact('logsGroupWise'));
     }
+
+    public function listApiLogsDelete(Request $request)
+    {
+
+        \DB::table('log_requests')->truncate();
+
+        return redirect()->back()->with('success', 'Laravel API Logs successfully deleted');
+    }
 }

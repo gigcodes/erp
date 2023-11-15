@@ -295,8 +295,10 @@ Route::post('product/templates/update/webhook', [ProductTemplatesController::cla
 //check for order cancellation
 Route::post('order/check-cancellation', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCancellation']);
 Route::post('order/check-return', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkReturn']);
+Route::post('order/check-category-is-eligibility', [\App\Http\Controllers\Api\v1\ProductController::class, 'checkCategoryIsEligibility']);
 Route::post('wishlist/create', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishList']);
 Route::post('wishlist/remove', [\App\Http\Controllers\Api\v1\ProductController::class, 'wishListRemove']);
+Route::post('github/gettoken', [\App\Http\Controllers\Github\RepositoryController::class, 'addGithubTokenHistory']);
 
 Route::post('magento/order-create', [MagentoCustomerReferenceController::class, 'createOrder']);
 
@@ -323,8 +325,8 @@ Route::post('order/sync-transaction', [OrderController::class, 'syncTransaction'
 
 Route::post('updateLog', [UpdateLogController::class, 'store']);
 
+Route::post('login', [Api\v1\Auth\LoginController::class, 'login']);
 Route::middleware('api')->prefix('auth')->group(function ($router) {
-    Route::post('login', [Api\v1\Auth\LoginController::class, 'login']);
     Route::post('logout', [Api\v1\Auth\LoginController::class, 'logout']);
     Route::post('refresh', [Api\v1\Auth\LoginController::class, 'refresh']);
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
@@ -336,4 +338,3 @@ Route::post('/github-action', [GitHubActionController::class, 'store']);
 
 Route::post('/magento-problem', [MagentoProblemController::class, 'store']);
 Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'listingApi'])->name('magento_module_listing_careers_listing_api');
-

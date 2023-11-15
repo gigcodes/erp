@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SonarQube;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -51,7 +52,7 @@ class SonarQubeController extends Controller
 
     public function searchIssues(Request $request)
     {
-        $url = env('SONARQUBE_URL') . 'api/issues/search';
+        /*$url = env('SONARQUBE_URL') . 'api/issues/search';
 
         $statuses = $request->query('statuses');
         $types = $request->query('types');
@@ -75,7 +76,20 @@ class SonarQubeController extends Controller
 
         $responseData = $response->json();
 
-        return view('sonarCube.index', ['issues' => $responseData]);
+        return view('sonarCube.index', ['issues' => $responseData]);*/
+
+        $search = request('search', '');
+
+        $issues = new SonarQube;
+        if (! empty($search)) {
+            $issues = $issues->where(function ($q) use ($search) {
+                $q->where('severity', 'LIKE', '%' . $search . '%')->orWhere('component', 'LIKE', '%' . $search . '%')->orWhere('project', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('author', 'LIKE', '%' . $search . '%')->orWhere('status', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $issues = $issues->orderBy("id", "DESC")->paginate(100);
+
+        return view('sonarCube.index', compact('issues'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function searchUserTokens(Request $request)

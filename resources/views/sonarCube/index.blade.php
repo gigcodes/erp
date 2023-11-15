@@ -7,33 +7,15 @@
         <div class="pull">
             <div class="row" style="margin:10px;">
                 <div class="col-6">
-                    <form action="{{ route('project.index') }}" method="get" class="search">
-                        <div class="row">
-                            <div class="col-md-4 pd-sm">
-                                {{-- <input type="text" name="keyword" placeholder="keyword" class="form-control h-100" value="{{ request()->get('keyword') }}"> --}}
+                    <form method="get">
+                        <div class="flex">
+                            <div class="col" style="padding: 0;">
+                                <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-                            <div class="col-md-4">
-                                <?php 
-									// if(request('store_websites_search')){   $store_websites_search = request('store_websites_search'); }
-									// else{ $store_websites_search = []; }
-								?>
-								{{-- <select name="store_websites_search[]" id="store_websites_search" class="form-control select2" multiple>
-									<option value="" @if($store_websites_search=='') selected @endif>-- Select a Store website --</option>
-									@forelse($store_websites as $swId => $swName)
-									<option value="{{ $swId }}" @if(in_array($swId, $store_websites_search)) selected @endif>{!! $swName !!}</option>
-									@empty
-									@endforelse
-								</select> --}}
-                            </div>
-                            
-                            <div class="col-md-4 pd-sm pl-0 mt-2">
-                                 {{-- <button type="submit" class="btn btn-image search">
-                                    <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
-                                <a href="{{ route('project.index') }}" class="btn btn-image" id="">
-                                    <img src="/images/resend2.png" style="cursor: nwse-resize;">
-                                </a> --}}
-                            </div>
+                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                                <img src="/images/search.png" style="cursor: default;">
+                            </button>
+                            <a href="{{route('sonarqube.list.page')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
                         </div>
                     </form>
                 </div>
@@ -73,9 +55,9 @@
                             <th width="5%">close Date</th>
 
                         </tr>
-                        @foreach ($issues['issues'] as $key=>$issue)
+                        @foreach ($issues as $key=>$issue)
                             <tr>
-                                <td>{{ $key+1 }}</td>
+                                <td>{{ $issue['id'] }}</td>
                                 <td>{{ $issue['severity'] }}</td>
                                 <td class="expand-row" style="word-break: break-all">
                                     <span class="td-mini-container">
@@ -120,6 +102,7 @@
                             </tr>
                         @endforeach
                     </table>
+                    {{ $issues->appends(request()->except('page'))->links() }}
                 </div>
             </div>
         </div>

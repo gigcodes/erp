@@ -160,6 +160,8 @@
                         <th style="width: 5%;overflow-wrap: anywhere;">User Name</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Websites</th>
                         <th style="width: 22%;overflow-wrap: anywhere;">Command name</th>
+                        <th style="width: 22%;overflow-wrap: anywhere;">Command</th>
+                        <th style="width: 22%;overflow-wrap: anywhere;">Created Date</th>
                         <th style="width: 10%;overflow-wrap: anywhere;">Action</th>
                     </tr>
                 </thead>
@@ -188,6 +190,8 @@
                             <span class="show-short-command_name-{{$magentoCom->id}}">{{ Str::limit($magentoCom->command_name, 20, '..')}}</span>
                             <span style="word-break:break-all;" class="show-full-command_name-{{$magentoCom->id}} hidden">{{$magentoCom->command_name}}</span>
                         </td>
+                        <td>{{$magentoCom->command_type}}</td>
+                        <td>{{$magentoCom->created_at}}</td>
                         <td>
                             @php 
                                 $isPerCommandRunCheck = $isPermissionCommandRun; 
