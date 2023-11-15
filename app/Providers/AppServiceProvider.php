@@ -79,8 +79,22 @@ class AppServiceProvider extends ServiceProvider
          
         view()->composer('*',function($view) {
         
-            $view->with('assetsmanager', AssetsManager::all());
-            $view->with('magentoCommandListArray', MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray());
+            $view->with('assetsmanager', Facades\Cache::remember(
+                'assets-manager',
+                60*60,
+                fn () => AssetsManager::all())
+            );
+            $view->with('magentoCommandListArray',
+                Facades\Cache::remember(
+                    'magento-commands',
+                    60*60,
+                    fn () => MagentoCommand::whereNotNull('command_type')
+                        ->whereNotNull('command_name')
+                        ->groupBy('command_type')
+                        ->get()
+                        ->pluck('command_type', 'command_name')
+                        ->toArray()
+                ));
         });
     }
 
