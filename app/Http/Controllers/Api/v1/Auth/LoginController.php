@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\BearerAccessTokens;
+use App\User;
 use Auth;
 use Exception;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -17,7 +21,7 @@ class LoginController extends Controller
      */
     public function __construct(private BearerAccessTokens $bearerToken)
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'register']]);
     }
 
     /**
@@ -87,5 +91,46 @@ class LoginController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60,
         ]);
+    }
+
+    public function register()
+    {
+        $data = request()->all();
+
+        try {
+            request()->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', 'min:6'],
+            ]);
+
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
+
+            return response()->json([
+                'message' => sprintf('User successful created. You can generate auth token.'),
+                'data' => [
+                    'email' => $user->email,
+                    'name' => $user->name,
+                ]
+            ]);
+        }
+        catch (ValidationException $e)
+        {
+            return \response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e
+                    ->validator
+                    ->errors()
+                    ->messages()
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        catch (Exception $e)
+        {
+            return \response()->json(['message' => 'Something went wrong.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
