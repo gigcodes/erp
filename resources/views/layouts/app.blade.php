@@ -1147,37 +1147,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <div class="form-group col-md-12">
                                     <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
                                     <div class="dropdown-sin-1">
-                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
-                                            <option value="">--Assets Manager--</option>
-                                            
-                                            <?php
-                            foreach($assetsmanager as $am){
-                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
-                            }
-                          ?>
-                                        </select>
+
                                     </div>
                                 </div>
 
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
                                     {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
-                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="command_type">Command</label>
                                     {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
-                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="working_directory">Working Directory</label>
