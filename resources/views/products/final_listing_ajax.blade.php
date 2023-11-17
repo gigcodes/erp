@@ -24,6 +24,7 @@
             <th style="width:8%">Action</th>
             <th style="width:5%">Status</th>
             <th style="width:5%">User</th>
+            <th style="width:5%">Stock</th>
         </tr>
     </thead>
     <tbody>
@@ -412,6 +413,9 @@
                         <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
                     @endforeach
                 </select>
+            </td>
+            <td>
+                {{ $product->stock ? 'Yes' : 'No' }}
             </td>
         </tr>
     @endforeach
