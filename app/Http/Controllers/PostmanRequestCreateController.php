@@ -33,11 +33,11 @@ use App\StoreViewCodeServerMap;
 
 class PostmanRequestCreateController extends Controller
 {
-    public function PostmanErrorLog($id = '', $type = '', $error = '', $tabName = '')
+    public function PostmanErrorLog($id = '', $type = '', $error = '', $tabName = '', $auth_id_from_job = '')
     {
         try {
             PostmanError::create([
-                'user_id' => \Auth::user()->id,
+                'user_id' => !empty($auth_id_from_job) ? $auth_id_from_job : \Auth::user()->id,
                 'parent_id' => $id,
                 'parent_id_type' => $type,
                 'parent_table' => $tabName,
@@ -45,7 +45,7 @@ class PostmanRequestCreateController extends Controller
             ]);
         } catch (\Exception $e) {
             PostmanError::create([
-                'user_id' => \Auth::user()->id,
+                'user_id' => !empty($auth_id_from_job) ? $auth_id_from_job : \Auth::user()->id,
                 'parent_id' => $id,
                 'parent_id_type' => $type,
                 'parent_table' => $tabName,
@@ -1543,6 +1543,30 @@ class PostmanRequestCreateController extends Controller
         } catch (\Exception $e) {
             $msg = $e->getMessage();
             \Log::error('Postman controller index method error => ' . json_encode($msg));
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function postmanRunRequestUrl(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'run_request_folder_name' => 'required',
+            ]);
+
+            $urls = PostmanMultipleUrl::select('postman_multiple_urls.id')->join('postman_request_creates','postman_request_creates.id','=','postman_multiple_urls.postman_request_create_id')->where('postman_request_creates.folder_name', $request->run_request_folder_name)->pluck('id');
+
+            if(!empty($urls)){
+
+                \App\Jobs\PostmanRequestUrlRunJob::dispatch($urls, Auth::user()->id)->onQueue('postman_request_url_run');
+
+                return response()->json(['code' => 200, 'data' => [], 'message' => 'Postman Request Url run successfully!!!']);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'Url is not available', 'status' => false]);
+            }
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }

@@ -176,7 +176,6 @@ class ZabbixStore extends Command
         curl_close($curl);
         LogRequest::log($startTime, $url, 'GET', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'item_api');
 
-        \Log::error('Fetched data from (item_api): ' . $result);
         $results = json_decode($result);
 
         return $results[0]->result;

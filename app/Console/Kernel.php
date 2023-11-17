@@ -744,6 +744,8 @@ class Kernel extends ConsoleKernel
         //Creating mailboxes from emails table
         //  $schedule->command('email:create-mail-boxes')->everyFiveMinutes();
 
+        $schedule->command('reindex:messages')->dailyAt('00:00');
+
         $schedule->command('store:zabbix')->everyFiveMinutes();
         $schedule->command('zabbix:problem')->everyFiveMinutes();
         $schedule->command('store:zabbixhostitems')->everyFiveMinutes();

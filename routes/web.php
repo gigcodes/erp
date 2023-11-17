@@ -3340,7 +3340,8 @@ Route::middleware('auth')->group(function () {
     Route::post('postman-column-visbility', [PostmanRequestCreateController::class, 'postmanColumnVisbilityUpdate'])->name('postman.column.update');
     Route::post('postman/statuscolor', [PostmanRequestCreateController::class, 'statuscolor'])->name('postman.statuscolor');
     Route::get('postman/countdevtask/{id}', [PostmanRequestCreateController::class, 'taskCount']);
-    
+    Route::post('run-request-url', [PostmanRequestCreateController::class, 'postmanRunRequestUrl'])->name('postman.runrequesturl');
+
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
     Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
@@ -5765,4 +5766,13 @@ Route::middleware('auth')->group(function () {
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
     Route::post('monit-status/command/run', [MonitStatusController::class, 'runCommand'])->name('monit-status.command.run');
     Route::get('monit-api-histories/{id}', [MonitStatusController::class, 'monitApiHistory'])->name('monit-status.api.histories');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('indexerstate/list', [\App\Http\Controllers\IndexerStateController::class, 'index'])->name('indexer-state.index');
+    Route::get('indexerstate/elastic_connection', [\App\Http\Controllers\IndexerStateController::class, 'elasticConnect'])->name('indexer-state.elastic-conn');
+    Route::get('indexerstate/reindex', [\App\Http\Controllers\IndexerStateController::class, 'reindex'])->name('indexer-state.reindex');
+    Route::post('indexerstate/save', [\App\Http\Controllers\IndexerStateController::class, 'save'])->name('indexer-state.save');
+    Route::get('indexerstate/masterslave', [\App\Http\Controllers\IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
+    Route::get('indexerstate/logs/{id?}', [\App\Http\Controllers\IndexerStateController::class, 'logs'])->name('indexer-state.logs');
 });

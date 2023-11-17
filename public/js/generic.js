@@ -747,7 +747,7 @@ var getHtml = function (response, listType = "message-list") {
     }
     li += "</div>";
     fullHtml = fullHtml + '<td style="width:45%">' + li + "</td>";
-    fullHtml = fullHtml + '<td style="width:30%">' + button + "</td>";
+    fullHtml = fullHtml + '<td style="width:30%" class="row-buttons">' + button + "</td>";
     fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + "</td></tr>";
     console.log(fromMsg);
   });
