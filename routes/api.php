@@ -335,6 +335,9 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 Route::middleware('custom.api.auth')->group(function () {
     Route::get('/chatbot/messages', [\Modules\ChatBot\Http\Controllers\MessageController::class, 'messagesJson']);
     Route::get('/email/{email?}', [\App\Http\Controllers\EmailController::class, 'emailJson']);
+    Route::get('/todolist', [\App\Http\Controllers\TodoListController::class, 'indexJson']);
+    Route::post('/todolist/update', [\App\Http\Controllers\TodoListController::class, 'updateJson']);
+    Route::delete('/todolist/delete/{id}', [\App\Http\Controllers\TodoListController::class, 'destroyJson']);
 });
 
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
