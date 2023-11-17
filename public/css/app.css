@@ -10879,6 +10879,27 @@ li.active {
 #chat-list-history .btn {
   padding: 3px 6px !important;
 }
+#chat-list-history .btn-secondary {
+}
+
+#chat-list-history .btn {
+  color: black;
+  border: 1px solid gray;
+  background-color: rgba(0,0,0,0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#chat-list-history .row-buttons {
+  color: black;
+  display: flex;
+  width: 100% !important;
+  height: 100% !important;
+  justify-content: space-between;
+  border: none;
+  border-top: 1px solid #ddd;
+}
 
 /* #chat-list-history .speech-wrapper .bubble.alt .txt p {
     color: white;
