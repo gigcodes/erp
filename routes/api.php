@@ -334,6 +334,7 @@ Route::middleware('api')->prefix('auth')->group(function ($router) {
 });
 Route::middleware('custom.api.auth')->group(function () {
     Route::get('/chatbot/messages', [\Modules\ChatBot\Http\Controllers\MessageController::class, 'messagesJson']);
+    Route::get('/email/{email?}', [\App\Http\Controllers\EmailController::class, 'emailJson']);
 });
 
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
