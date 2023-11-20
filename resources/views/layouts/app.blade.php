@@ -972,7 +972,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{json_encode($userEmail)}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
