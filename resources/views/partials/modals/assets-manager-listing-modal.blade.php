@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="row">
-                            <div class="col-12" id="assets-manager-listing-modal-html">
+                            <div class="col-12" id="assets-manager-listing-modal-html" style="overflow-x: auto;">
 
                             </div>
                         </div>

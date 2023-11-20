@@ -1,8 +1,6 @@
 <table id="assets-manager-table" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
     <thead>
     <tr>
-        <th class="th-sm" style="width:2%">#</th>
-
         @foreach($assetsManagers[0]->getTableFields() as $key => $value)
             <th class="th-sm">{{ $value }}</th>
         @endforeach
