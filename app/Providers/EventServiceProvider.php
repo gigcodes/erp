@@ -18,6 +18,7 @@ use App\Observers\ChatMessageObserver;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\Observers\ScrappedProductCategoryMappingObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use App\Observers\ChatMessageIndexObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -148,6 +149,7 @@ class EventServiceProvider extends ServiceProvider
         Email::observe(EmailObserver::class);
         Media::observe(MediaObserver::class);
         ChatMessage::observe(ChatMessageObserver::class);
+        ChatMessage::observe(ChatMessageIndexObserver::class);
         ChatMessage::observe(TaskObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
