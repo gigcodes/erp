@@ -6,6 +6,7 @@ use App\Setting;
 use App\PageNotes;
 use Carbon\Carbon; //Purpose : Add Setting - DEVTASK-4289
 use Illuminate\Http\Request;
+use App\TodoList;
 
 //use Spatie\Permission\Models\Permission;
 //use Spatie\Permission\Models\Role;
@@ -128,6 +129,10 @@ class PageNotesController extends Controller
             $search = '%' . $request->search . '%';
             $records = $records->where('page_notes.note', 'like', $search);
         }
+
+        if ($request->category_id) {
+            $records = $records->where('page_notes.category_id', $request->category_id);
+        }
         //END - DEVTASK-4289
 
         $records = $records->paginate(Setting::get('pagination'));
@@ -175,13 +180,42 @@ class PageNotesController extends Controller
     }
 
     public function stickyNotesCreate(Request $request)
-    {
-        $pageNotes = new PageNotes;
-        $pageNotes->url = $request->get('page');
-        $pageNotes->note = $request->get('value');
-        $pageNotes->user_id = \Auth::user()->id;
-        $pageNotes->save();
+    {   
+        if(!empty($request['type']) && $request['type']=='todolist'){
+            $todolists = new TodoList();
+            $todolists->user_id = \Auth::user()->id;
+            $todolists->title = $request->get('title');
+            $todolists->subject = $request->get('value');
+            $todolists->status = 'Active';
+            $todolists->save();
 
-        return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
+            return response()->json(['code' => 200, 'message' => 'Todo List Added Successfully.']);
+        } else {
+            $pageNotes = new PageNotes;
+            $pageNotes->url = $request->get('page');
+            $pageNotes->note = $request->get('value');
+            $pageNotes->title = $request->get('title');
+            $pageNotes->user_id = \Auth::user()->id;
+            $pageNotes->save();
+
+            return response()->json(['code' => 200, 'message' => 'Sticky Notes Added Successfully.']);
+        }        
+    }
+
+    public function createCategory(Request $request)
+    {
+        
+        $input = $request->except('_token');
+        $isExist = \App\PageNotesCategories::where('name', $request->name)->first();
+        if (! $isExist) {
+            \App\PageNotesCategories::create([
+                'name' => $request->name,
+                'created_by' => \Auth::user()->id
+            ]);
+
+            return response()->json(['message' => 'Successful'], 200);
+        } else {
+            return response()->json(['message' => 'Fail'], 401);
+        }
     }
 }

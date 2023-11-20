@@ -25,13 +25,23 @@ foreach($data as $prop) {?>
 
 	   	<td><?php echo $prop->category; ?></td>
 
-	   	<td><?php echo $prop->comments; ?></td>
+	   	<td>
+	      	<button type="button" data-id="<?php echo $prop->id;  ?>" class="btn script-document-comment-view" style="padding:1px 0px;">
+    			<i class="fa fa-eye" aria-hidden="true"></i>
+    		</button>
+		</td>
 
 	   	<td><?php echo $prop->author; ?></td>
 
 	   	<td><?php echo $prop->location; ?></td>
 
 	   	<td><?php echo $prop->last_run; ?></td>
+
+	   	<td>
+	      	<button type="button" data-id="<?php echo $prop->id;  ?>" class="btn script-document-last_output-view" style="padding:1px 0px;">
+    			<i class="fa fa-eye" aria-hidden="true"></i>
+    		</button>
+		</td>
 
 	   	<td><?php echo $prop->status; ?></td>
 
@@ -41,9 +51,13 @@ foreach($data as $prop) {?>
 	     			<i class="fa fa-edit" aria-hidden="true"></i>
 				</button>
 				
-				<button type="button" title="Delete" data-id="<?php echo $prop->id;  ?>" class="btn btn-delete-template">
+				<button type="button" title="Delete" data-id="<?php echo $prop->id;  ?>" class="btn btn-delete-template 11">
 					<i class="fa fa-trash" aria-hidden="true"></i>
 				</button>
+
+				<button type="button" data-id="<?php echo $prop->id;  ?>" class="btn script-document-history" style="padding:1px 0px;">
+        			<i class="fa fa-info-circle" aria-hidden="true"></i>
+        		</button>
 		 	</div>
 	     </td>
 	</tr>

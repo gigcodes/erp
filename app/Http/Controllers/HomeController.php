@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Session;
 
 class HomeController extends Controller
 {
@@ -59,5 +60,12 @@ class HomeController extends Controller
         });
 
         return $img->response('png');
+    }
+
+    public function logoutRefresh()
+    {
+        Session::flush();
+
+        return redirect(route('login'));
     }
 }

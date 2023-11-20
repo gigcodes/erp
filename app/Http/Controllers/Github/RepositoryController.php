@@ -44,6 +44,8 @@ use App\Http\Requests\DeleteBranchRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use App\Models\GitPullRequestErrorLog;
+use App\Models\GithubToken;
+use App\Models\GithubTokenHistory;
 
 class RepositoryController extends Controller
 {
@@ -1718,5 +1720,165 @@ class RepositoryController extends Controller
         $prActivities = $prActivities->latest()->paginate(\App\Setting::get('pagination', 25));
 
         return view('github.include.pr-activities-list', compact('prActivities','orgs','repos','users','events','eventHeaders','labelNames','pullNumbers','organizations','repositories','projects','branches'));
+    }
+
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_';
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+
+        return $randomString;
+    }
+
+    public function githubAddToken(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'github_repositories_id' => 'required',
+                'github_type' => 'required',
+                'token_key' => 'required',
+                'expiry_date' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        $repository = GithubRepository::where('id', $data['github_repositories_id'])->first();
+        if (! $repository) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Repository not found',
+                ]
+            );
+        }
+
+
+        $GithubToken = GithubToken::where('github_repositories_id', $data['github_repositories_id'])->first();
+        if (! $GithubToken) {
+            $GithubToken = new GithubToken();
+            $GithubToken->github_repositories_id = $data['github_repositories_id'];
+        }
+        $GithubToken->created_by = auth()->user()->id;
+        $GithubToken->github_type = $data['github_type'];
+        $GithubToken->token_key = $data['token_key'];
+        $GithubToken->expiry_date = $data['expiry_date'];
+        $GithubToken->save();
+        
+        if ($GithubToken) {
+            
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Token updated successfully!',
+                ]
+            );
+        }
+
+        return response()->json(
+            [
+                'code' => 500,
+                'data' => [],
+                'message' => 'Error when creating a token',
+            ]
+        );
+    }
+
+    public function githubTokenHistory($id)
+    {
+        $datas = GithubTokenHistory::with('user', 'githubrepository')
+            ->where('github_repositories_id', $id)
+            ->orderBy('created_at', 'DESC')
+            ->take(10)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getRepositoryDara(Request $request)
+    {
+        $GithubToken = GithubToken::where('github_repositories_id', $request->repo_id)->first();
+        
+        return response()->json([
+            'status' => true,
+            'data' => $GithubToken,
+            'message' => 'repository get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function addGithubTokenHistory(Request $request)
+    {
+        // Validation Part
+        $this->validate(
+            $request, [
+                'github_repositories_id' => 'required',
+                'details' => 'required',
+            ]
+        );
+
+        $data = $request->except('_token');
+
+        $githubToken = GithubToken::where('github_repositories_id', $data['github_repositories_id'])->first();
+        if (! $githubToken) {
+            return response()->json(
+                [
+                    'code' => 404,
+                    'data' => [],
+                    'message' => 'Repository Token not found',
+                ]
+            );
+        } else {
+            if(!empty($githubToken['expiry_date'])){
+                $now = date('Y-m-d');
+                if($githubToken['expiry_date']<$now){
+                    return response()->json(
+                        [
+                            'code' => 404,
+                            'data' => [],
+                            'message' => 'Token or rsa key is expired.',
+                        ]
+                    );
+                }
+            }
+        }
+
+        $GithubTokenHistory = new GithubTokenHistory();
+        $GithubTokenHistory->github_repositories_id = $githubToken['github_repositories_id'];
+        $GithubTokenHistory->run_by = 0;
+        $GithubTokenHistory->github_type = $githubToken['github_type'];
+        $GithubTokenHistory->token_key = $githubToken['token_key'];
+        $GithubTokenHistory->details = $data['details'];
+        $GithubTokenHistory->save();
+        
+        if ($githubToken) {
+            
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => $githubToken,
+                    'message' => 'Token history updated successfully!',
+                ]
+            );
+        }
+
+        return response()->json(
+            [
+                'code' => 500,
+                'data' => [],
+                'message' => 'Error when creating a token',
+            ]
+        );
     }
 }

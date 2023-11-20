@@ -1,10 +1,7 @@
 #!/bin/bash
+. /opt/etc/mysql-creds.conf
 
-
-
-
-
-
+SCRIPT_NAME=`basename $0`
 function HELP {
         echo "-w|--website: website"
         echo "-s|--server: Server ip"
@@ -58,15 +55,12 @@ do
                 ;;
         esac
 done
+
 MNAME="$modulename"
-SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
-
-
-SSHPORT="22480 2112 22"
 
 for portssh in $SSHPORT
 do
-        ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$server 'exit'
+        ssh -p $portssh  -i $SSH_KEY -q root@$server 'exit' &>> ${SCRIPT_NAME}.log
         if [ $? -ne 255 ]
         then
                 PORT=`echo $portssh`
@@ -78,13 +72,12 @@ done
 
 function madd()
 {
-	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; composer require $modulename"
+	ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; composer require $modulename" | tee -a ${SCRIPT_NAME}.log
 
 }
 
 function sync()
 {
-#	echo "ssh -i $SSH_KEY root@$server \"cd $rootdir; bin/magento module:status\""
         input=`ssh -p $PORT -i $SSH_KEY root@$server "cd $rootdir; bin/magento module:status"`
 # Initialize arrays for enabled and disabled modules
 enabled_modules=()
@@ -144,9 +137,9 @@ module_status()
 	cd brands-labels
 	sed -i "s/.*'$MNAME'.*/\t'$MNAME' => $EDF,/" app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php
 
-	git add app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php   &> /dev/null
-	git commit -m 'Deployment config erp'  &> /dev/null
-	git push origin stage  &> /dev/null
+	git add app/design/frontend/LuxuryUnlimited/$project/.deploy/config.php   &> /dev/null | tee -a ${SCRIPT_NAME}.log
+	git commit -m 'Deployment config erp'  &> /dev/null | tee -a ${SCRIPT_NAME}.log
+	git push origin stage  &> /dev/null | tee -a ${SCRIPT_NAME}.log
 	if [ $? -eq 0 ]
 	then
 		echo "{\"status\":\"success\"}"
@@ -197,3 +190,13 @@ case $action in
     ;;
 esac
 
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

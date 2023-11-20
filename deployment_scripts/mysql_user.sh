@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+SCRIPT_NAME=`basename $0`
+
 function Create {
 	check_user=`mysql -h $host -u $user -p"$password" -e "select user from mysql.user where user='$mysql_user'"`
 	if [ -z "$check_user" ]
@@ -161,17 +164,28 @@ fi
 
 if [ "$function" = "create" ]
 then
-	Create
+	Create | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "delete" ]
 then
-	Delete
+	Delete | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "update" ]
 then
-	Update
+	Update | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "revoke" ]
 then
-	Revoke
+	Revoke | tee -a ${SCRIPT_NAME}.log
 elif [ "$function" = "list" ]
-	list
+then
+	list | tee -a ${SCRIPT_NAME}.log
 fi
 
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

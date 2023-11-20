@@ -409,7 +409,7 @@
                 <h4 class="modal-title">List Status</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="{{ route('todolist-color-update') }}" method="POST">
+            <form action="{{ route('todolist-color-updates') }}" method="POST">
                 <?php echo csrf_field(); ?>
                 <div class="form-group col-md-12">
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">

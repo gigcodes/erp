@@ -64,7 +64,7 @@
                                         </select>
                                     </div>
     				            @endif
-                                <div class="col-lg-2 pd-sm">
+                                <div class="col-lg-3 pd-sm">
                                     <b>Enter Search Url: </b>
                                     <input name="docid" list="docid-lists" type="text" class="form-control" placeholder="Search Url" value="{{request()->get('docid')}}" style="width: 100%;"/>
                                     <datalist id="docid-lists">
@@ -72,6 +72,10 @@
                                             <option value="{{$val->docId}}"></option>
                                         @endforeach
                                     </datalist>
+                                </div>
+                                <div class="col-lg-3 pd-sm">
+                                    <b>Enter keyword for search: </b>
+                                    <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
                                 </div>
                                 <div class="col-lg-1 pd-sm">
                                     <div class="form-group">

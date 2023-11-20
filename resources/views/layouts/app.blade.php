@@ -54,7 +54,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
+    @if(Auth::user())
+        @if(Auth::user()->user_timeout!=0)
+            <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
+        @else
+            <meta http-equiv="refresh" content = "28800; url={{ route('logout-refresh') }}">
+        @endif
+    @endif
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
    <style type="text/css">
         /* New Header design CSS */
         #quick-sidebars {
@@ -179,7 +186,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     #database-backup-monitoring .database-alert-badge,
     #website_Off_status .status-alert-badge,
     .permission-alert-badge,
-    #timer-alerts .timer-alert-badge, .description-alert-badge {
+    #timer-alerts .timer-alert-badge, .description-alert-badge,
+    #script-document-logs .script-document-error-badge {
         position: absolute;
         top: -4px;
         border-radius: 50%;
@@ -401,7 +409,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     user '=>['
     authenticated '=>auth()->check(),'
     id '=>auth()->check() ? auth()->user()->id : null,'
-    name '=>auth()->check() ? auth()->user()-> name : null,]])!!}';
+    name '=>auth()->check() ? auth()->user()-> name : null,]], JSON_INVALID_UTF8_IGNORE)!!}';
     </script>
 
 
@@ -964,7 +972,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{json_encode($userEmail)}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -1139,37 +1147,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <div class="form-group col-md-12">
                                     <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
                                     <div class="dropdown-sin-1">
-                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
-                                            <option value="">--Assets Manager--</option>
-                                            
-                                            <?php
-                            foreach($assetsmanager as $am){
-                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
-                            }
-                          ?>
-                                        </select>
+
                                     </div>
                                 </div>
 
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
                                     {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
-                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="command_type">Command</label>
                                     {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
-                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="working_directory">Working Directory</label>
@@ -1369,6 +1359,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                             class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Upload Screencast/File" type="button" data-toggle="modal" data-target="#uploadeScreencastModal" class="quick-icon" style="padding: 0px 1px;" onclick="showCreateScreencastModal()"><span><i
+                                                class="fa fa-file-text fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
                                     <a title="User availability" type="button" data-toggle="modal" data-target="#searchUserSchedule" class="quick-icon" style="padding: 0px 1px;">
                                         <span>
                                             <i class="fa fa-clock-o fa-2x" aria-hidden="true"></i>
@@ -1453,7 +1447,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @php
                                         $permissionCount = \App\PermissionRequest::count();
                                     @endphp
-                                        <a class="quick-icon permission-request" href="#">
+                                        <a title="Permission Request" class="quick-icon permission-request" href="#">
                                             <span><i class="fa fa-reply fa-2x"></i>
                                                 @if($permissionCount)
                                                     <span class="permission-alert-badge"></span>
@@ -1464,23 +1458,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </li>
                                 @endif
                                 <li>
-                                    <a class="notification-button quick-icon" href="#"><span><i
+                                    <a title="Quick User Event Notification" class="notification-button quick-icon" href="#"><span><i
                                                 class="fa fa-bell fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
                                         $description = \App\Meetings\ZoomMeetingParticipant::whereNull('description')->count();
                                     @endphp
-                                    <a class="participant-description quick-icon" href="{{ route('list.all-participants') }}" title="Zoom View All Participants">
+                                    <button type="button" class="btn btn-xs ParticipantsList" title="view Participants" onclick="viewParticipantsIcon()">
                                         <span><i class="fa fa-users fa-2x"></i>
                                             @if($description > 0)
                                                 <span class="description-alert-badge"></span>
                                             @endif                                                                                        
                                         </span>
-                                    </a>
+                                    </button>
                                 </li>
                                 <li>
-                                    <a class="instruction-button quick-icon" href="#"><span><i
+                                    <a title="Quick Instruction" class="instruction-button quick-icon" href="#"><span><i
                                                 class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
@@ -1488,7 +1482,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <i class="fa fa-exclamation-circle fa-2x"></i></i></span></a>
                                 </li>
                                 <li>
-                                    <a class="daily-planner-button quick-icon" target="__blank"
+                                    <a title="Daily Planner" class="daily-planner-button quick-icon" target="__blank"
                                         href="{{ route('dailyplanner.index') }}">
                                         <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1496,7 +1490,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
                                 <li>
-                                    <a id="message-chat-data-box" class="quick-icon">
+                                    <a title="Chat" id="message-chat-data-box" class="quick-icon">
                                         <span class="p1 fa-stack has-badge" id="new_message"
                                             data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                             <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
@@ -1504,13 +1498,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-zoom-meeting quick-icon" data-toggle="modal"
+                                    <a title="Create Meeting" class="create-zoom-meeting quick-icon" data-toggle="modal"
                                         data-target="#quick-zoomModal">
                                         <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="create-easy-task quick-icon" data-toggle="modal"
+                                    <a title="Create Task / Dev Task" class="create-easy-task quick-icon" data-toggle="modal"
                                         data-target="#quick-create-task">
                                         <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                                     </a>
@@ -1533,12 +1527,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <input type="text" id="searchField" placeholder="Search">
-                                </li>
-                                <li>
                                     <a title="Search Command" id="search-command" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-terminal fa-2x" aria-hidden="true"></i></span>
                                     </a>
+                                </li>
+                                <li>
+                                    <a title="Script Document Error Logs" id="script-document-logs" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
+                                        <span class="script-document-error-badge hide"></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <input type="text" id="searchField" placeholder="Search">
                                 </li>
                             </ul>                         
                         </nav>
@@ -3122,6 +3122,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     href="{{route('chatbot.messages.list')}}">Messages</a>
                                             </li>
                                             <li class="nav-item dropdown">
+                                                <a class="dropdown-item"
+                                                    href="{{route('chatbot.messages.list')}}/elastic">Messages Elasticsearch</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('chatbot.messages.logs')}}">Logs</a>
                                             </li>
                                             <li class="nav-item dropdown">
@@ -3437,6 +3441,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.builderApiKey') }}">Store Website Builder Key</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('indexer-state.index') }}">Indexer State</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item"
@@ -4513,6 +4520,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/store-website/admin-password">Admin Password</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -4937,7 +4947,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5078,6 +5088,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <div class="row">
                                         <div class="col-12 pb-3">
                                             <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="task_user_id" id="task_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -5299,8 +5319,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor-server.partials.monitor_status')
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
+        @include('partials.modals.script-document-error-logs-modal')
         @include('partials.modals.magento-cron-error-status-modal')
         @include('partials.modals.magento-commands-modal')
+        @include('partials.modals.last-output')
 
         @include('googledrivescreencast.partials.upload')
         <div id="sticky_note_boxes" class="sticknotes_content">
@@ -5314,6 +5336,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.list-documetation-shortcut-modal')
         @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
+        @include('partials.modals.view-all-participants')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -5383,7 +5406,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
 			@php
-				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
+				$todoLists = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
             $statuses = \App\TodoStatus::get();
 			@endphp
 			<div class="modal-body show-list-records" id="todolist-request">
@@ -5405,7 +5428,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 						<td>
                             <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
                                 @foreach ($statuses as $status )
-                                <option value="{{$status->id}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
+                                <option value="{{$status->name}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
                                 @endforeach
                             </select>
 						</td>
@@ -6015,6 +6038,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
     <script>
         $('#ipusers').select2({width: '20%'});
+        $('#task_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6456,6 +6480,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-task-search-menu", function (e) {
         var keyword = $('.task-search-table').val();
+        var task_user_id = $('#task_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6463,6 +6488,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 term: keyword,
+                selected_user: task_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -7448,14 +7474,32 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var stickyNotesUrl = "{{ route('stickyNotesCreate') }}";
         var stickyNotesPage = "{{ request()->fullUrl() }}";
 
-        var x = `<div class='sticky_notes_container'>
+        var x = `<div class='sticky_notes_container pageNotesModal' style=" padding: 10px; margin: 20px;">
             <div class="icon-check">
             <div class='check-icon' title='Save'><i class='fa fa-check'></i></div>
               <div class='close-icon' title='Close'><i class='fa fa-times'></i></div>
                 </div>
                    Sticky Note
-                    <div class='text_box'>
-                        <textarea maxlength='100' rows='14' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}'></textarea>
+                   <hr>
+                   <div class="text_box-select mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                        Type
+                      </label>
+                      <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" style=" width: 100%;">
+                      <option value="notes">Notes</option>
+                      <option value="todolist">To do List</option>
+                      </select>
+                    </div>
+                    <div class="text_box-text mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="Title">
+                        Title
+                      </label>
+                      <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom-text" type="text" placeholder="Title" style=" width: 100%;">
+                    </div>
+                    
+                    <div class='text_box-textarea mb-4'>
+                        <label>Notes</label></br>
+                        <textarea rows='5' cols='27' class='notes custom-textarea' name='notes' data-url='${stickyNotesUrl}' data-page='${stickyNotesPage}' placeholder="Notes" style=" background: #fff; width:100%"></textarea>
                     </div>
                 </div>`;
 
@@ -7463,37 +7507,58 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             StickyBox();
         });
 
+        
+        var marginVar = 20;
+       
         function StickyBox () {
+
+             marginVar += 20;
+
             $(".sticknotes_content").draggable();
             $('#sticky_note_boxes').append(x);
+
+              var lastStickyNote = $("#sticky_note_boxes .sticky_notes_container:last");
+
+              lastStickyNote.css("margin", marginVar+"px"); 
+
+
                 $(".sticky_notes_container").draggable();
                 $('.close-icon').each(function(){
                     $('.close-icon').click(function() {
                         $(this).closest('.sticky_notes_container').remove();
                     });
                 });
-                $('.check-icon').on('click', function() {
-                    var textareaValue = $(this).parent().siblings('.text_box').find('textarea').val();
-                     var page = $(this).parent().siblings('.text_box').find('textarea').data('page');
+                
+            }
 
-                    $.ajax({
-                        url: '{{ route('stickyNotesCreate') }}',
-                        method: 'POST',
-                        data: {
-                            value: textareaValue,
-                            page: page,
-                            _token: "{{ csrf_token() }}",
-                        },
-                        success: function(response) {
-                        toastr['success'](response.message, 'success');
-                        },
-                        error: function(xhr, status, error) {
-                            console.log('Save Error:', error);
-                        }
-                    });
-                    $(this).closest('.sticky_notes_container').remove();
+            $(document).on("click", ".check-icon", function (event) {
+                event.preventDefault();
+                var textareaValue = $(this).parent().siblings('.text_box-textarea').find('textarea').val();
+                var page = $(this).parent().siblings('.text_box-textarea').find('textarea').data('page');
+
+                var title = $(this).parent().siblings('.text_box-text').find('input').val();
+
+                var type = $(this).parent().siblings('.text_box-select').find('select').val();
+
+                $.ajax({
+                    url: '{{ route('stickyNotesCreate') }}',
+                    method: 'POST',
+                    data: {
+                        value: textareaValue,
+                        page: page,
+                        title: title,
+                        type: type,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                    toastr['success'](response.message, 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Save Error:', error);
+                    }
+                });
+                $(this).closest('.sticky_notes_container').remove();
             });
-        }
 
     //START - Purpose : Open Modal - DEVTASK-4289
     $('.create_notes_btn').on('click', function() {
@@ -7537,6 +7602,80 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     $('.notification-button').on('click', function() {
         $("#quick-user-event-notification-modal").modal("show");
     });
+
+    $('.ParticipantsList').on('click', function() {
+        $("#participants-list-modal").modal("show");
+    });
+    
+    function viewParticipantsIcon(pageNumber = 1) {
+        var button = document.querySelector('.btn.btn-xs.ParticipantsList'); 
+
+            $.ajax({
+                url: "{{route('list.all.participants')}}",
+                type: 'GET',
+                dataType: "json",
+                data: {
+                    page:pageNumber,
+                },
+                beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+            }).done(function(response) {
+                $('#participants-list-modal-html').empty().html(response.html);
+                $('#participants-list-modal').modal('show');
+                renderdomainPagination(response.data);
+                $("#loading-image-preview").hide();
+            }).fail(function(response) {
+                $('.loading-image-preview').show();
+                console.log(response);
+            });
+    }
+
+    function renderdomainPagination(response) {
+        var paginationContainer = $(".pagination-container-participation");
+        var currentPage = response.current_page;
+        var totalPages = response.last_page;
+        var html = "";
+        var maxVisiblePages = 10;
+
+        if (totalPages > 1) {
+            html += "<ul class='pagination'>";
+            if (currentPage > 1) {
+            html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+            }
+            var startPage = 1;
+            var endPage = totalPages;
+
+            if (totalPages > maxVisiblePages) {
+            if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                startPage = totalPages - maxVisiblePages + 1;
+            } else {
+                startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+            }
+
+            if (startPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(1)'>1</a></li>";
+                if (startPage > 2) {
+                html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                }
+            }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+            html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeParticipantsPage(" + i + ")'>" + i + "</a></li>";
+            }
+            html += "</ul>";
+        }
+        paginationContainer.html(html);
+    }
+
+    function changeParticipantsPage(pageNumber) {
+        viewParticipantsIcon(pageNumber);
+    }
+
 
     $('select[name="repeat"]').on('change', function() {
         $(this).val() == 'weekly' ? $('#repeat_on').removeClass('hide') : $('#repeat_on').addClass('hide');
@@ -8089,6 +8228,9 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
+
+        $("#loading-image-preview").show();
+
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8099,6 +8241,7 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
+                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8107,10 +8250,12 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
+                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
+            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });
@@ -9000,6 +9145,7 @@ if (!\Auth::guest()) {
         if (Role) {
             getEventAlerts();
             getTimeEstimationAlerts();
+            getScriptDocumentLogs();
         }
         @endif
     });
@@ -9020,6 +9166,24 @@ if (!\Auth::guest()) {
             }
             if(response.count > 0) {
                 $('.event-alert-badge').removeClass("hide");
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    function getScriptDocumentLogs(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('script-documents.errorlogs')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            if(response.count > 0) {
+                $('.script-document-error-badge').removeClass("hide");
             }
         }).fail(function (response) {
             $('.ajax-loader').hide();
@@ -9156,6 +9320,47 @@ if (!\Auth::guest()) {
         });
     });
 
+
+    $(document).on('click','#script-document-logs',function(e){
+        e.preventDefault();
+        $('#script-document-error-logs-alerts-modal').modal('show');
+        getScriptDocumentErrorLogs(true);
+    });
+
+    function getScriptDocumentErrorLogs(showModal = false) {
+        $.ajax({
+            type: "GET",
+            url: "{{route('script-documents.getScriptDocumentErrorLogsList')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $('#script-document-error-logs-alerts-modal-html').empty().html(response.tbody);
+            if (showModal) {
+                $('#script-document-error-logs-alerts-modal').modal('show');
+            }
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            console.log(response);
+        });
+    }
+
+    $(document).on('click','.script-document-last_output-header-view',function(){
+        id = $(this).data('id');
+        $.ajax({
+            method: "GET",
+            url: `{{ route('script-documents.comment', [""]) }}/` + id,
+            dataType: "json",
+            success: function(response) {
+               
+                $("#script-document-last-output-list-header").find(".script-document-last-output-header-view").html(response.last_output);
+                $("#script-document-last-output-list-header").modal("show");
+         
+            }
+        });
+    });
 
     $(document).on('click','#google-drive-screen-cast',function(e){
         e.preventDefault();

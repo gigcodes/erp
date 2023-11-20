@@ -49,8 +49,16 @@
 					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#admin-passwords"> Admin Passwords</button> -->
 					<a target="_blank" href="/store-website/admin-password" class="btn btn-secondary" data-toggle="modal1" data-target="#store-api-token1"> Admin Passwords</a>&nbsp;
 
-					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>
+					<a target="_blank" href="/store-website/admin-urls" class="btn btn-secondary"> Admin URLs</a>&nbsp;
 					@endif
+
+					<button class="btn btn-secondary" data-toggle="modal" data-target="#magento-media-sync"> Magento Media Sync </button>&nbsp;
+
+					<a target="_blank" href="/store-website/magento-media-sync-logs" class="btn btn-secondary"> Magento Media Sync Logs</a>&nbsp;
+
+					<!-- <button class="btn btn-secondary" data-toggle="modal" data-target="#varnish-front-end"> Varnish </button>&nbsp; -->
+
+					<a target="_blank" href="/store-website/varnish-logs" class="btn btn-secondary"> Varnish Logs</a>&nbsp;
 				</div>
 			</div>
 			<hr style=" width: 100%;">
@@ -412,6 +420,103 @@
 								<div class="col-md-12">
 									<div class="form-group">
 										<button type="submit" class="btn btn-secondary submit_create_tag float-right float-lg-right">Update</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="varnish-front-end" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Varnish Front End</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.varnish-front-end-cron') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+
+										<div class="form-group ">
+                                            <label>Store Website:</label>
+                                            <select class="form-control select select2" name="varnish_store_website_id" placeholder="Store Websites" >
+                                                <option value="">Please select Store website</option>
+                                                @foreach($storeWebsites as $ws)
+                                                	<option value="{{ $ws->id }}">{{ $ws->title }} - {{ $ws->website }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary varnish_front_end_cron float-right float-lg-right">Run</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="magento-media-sync" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><b>Magento Media Sync</b></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">				
+				<div class="row">
+					<div class="col-lg-12">
+						<form action="{{ route('store-website.magento-media-sync') }}" method="post">
+							<?php echo csrf_field(); ?>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="table-responsive mt-3">
+
+										<div class="form-group ">
+                                            <label>Source Website:</label>
+                                            <select class="form-control select select2" name="source_store_website_id" placeholder="Store Websites" >
+                                                <option value="">Please select source website</option>
+                                                @foreach($storeWebsites as $ws)
+                                                	<option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group ">
+                                            <label>Dest Website:</label>
+                                            <select class="form-control select select2" name="dest_store_website_id" placeholder="Store Websites" >
+                                                <option value="">Please select dest website</option>
+                                                @foreach($storeWebsites as $ws)
+                                                	<option value="{{ $ws->id }}">{{ $ws->title }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" class="btn btn-secondary submit_magento_media_sync float-right float-lg-right">Run</button>
 									</div>
 								</div>
 							</div>
@@ -1346,9 +1451,75 @@
         }
     }
 
+
+    $(document).on("click", ".submit_magento_media_sync", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.magento-media-sync') }}";
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				$('#loading-image-preview').hide();
+				
+				$('#magento-media-sync').modal('hide');
+				if (resp.code == 200) {
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+
+				setTimeout(function() {
+                    location.reload();
+                }, 1000);
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#magento-media-sync').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+
+	});
+
     $(document).on("click", ".btn-magento-user-request", function () {
       $("#request-response-"+$(this).attr("data-id")).toggle();
     });
+
+    $(document).on("click", ".varnish_front_end_cron", function(e) {
+		e.preventDefault();
+		var url 		=  "{{ route('store-website.varnish-front-end-cron') }}";
+		var formData 	=	$(this).closest('form').serialize();
+
+		$('#loading-image-preview').show();
+		$.ajax({
+			url 	: 	url,
+			method 	: 	'POST',
+			data 	: 	formData,
+			success : 	function(resp){
+				$('#loading-image-preview').hide();
+				
+				$('#varnish-front-end').modal('hide');
+				if (resp.code == 200) {
+					toastr["success"](resp.message);
+				} else {
+					toastr["error"](resp.message);
+				}
+
+				setTimeout(function() {
+                    location.reload();
+                }, 1000);
+			},
+			error 	: 	function(err){
+				$('#loading-image-preview').hide();
+				$('#varnish-front-end').modal('hide');
+				toastr["error"](err.message);
+			}
+		})
+	});
 </script>
 
 @endsection

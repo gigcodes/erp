@@ -33,10 +33,37 @@
                 </div>
                 <div class="col-4">
                     <div class="pull-right">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#domain-create">Create Domain</button>
                         <a href="{{ route('virtualmin.domains.sync') }}" class="btn btn-primary">Sync Domains</a>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="domain-create" class="modal fade in" role="dialog">
+    <div class="modal-dialog">
+    <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Domain</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <form  method="POST" id="domain-create-form">
+                @csrf
+                @method('POST')
+                <div class="modal-body">
+                    <div class="form-group">
+                        {!! Form::label('name', 'Domain Name', ['class' => 'form-control-label']) !!}
+                        {!! Form::text('name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary domain-save-btn">Create</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -59,7 +86,7 @@
                             <th width="20%">Status</th>
                             <th width="20%">Start Date</th>
                             <th width="20%">Expiry Date</th>
-                            <th width="5%">Action</th>
+                            <th width="7%">Action</th>
                         </tr>
                         @foreach ($domains as $key => $domain)
                             <tr data-id="{{ $domain->id }}">
@@ -113,10 +140,12 @@
                                         <i class="fa fa-trash" style="color: #808080;"></i>
                                     </a>
                                     <button type="button" class="btn btn-xs domain-history"
-                                            data-id="{{ $domain->id }}" title="Domain History" onclick="listdomainhistory()">
-                                            <i class="fa fa-info-circle" style="color: #808080;"></i>
-                                        </button>
-                                        
+                                        data-id="{{ $domain->id }}" title="Domain History" onclick="listdomainhistory()">
+                                        <i class="fa fa-info-circle" style="color: #808080;"></i>
+                                    </button>
+                                    <a href="{{ route('virtualmin.domains.managecloud', ['id' => $domain->id]) }}" class="btn btn-xs" title="Manage Cloud">
+                                        <i class="fa fa-list" style="color: #808080;"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -173,6 +202,30 @@
 <script type="text/javascript">
     jQuery(document).ready(function() {
         applyDateTimePicker(jQuery('.virtualmin-date-time-pickers'));
+    });
+
+    $(document).on("click", ".domain-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{route('virtualmin.domains.create')}}",
+            type: "post",
+            data: $('#domain-create-form').serialize()
+        }).done(function(response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                toastr['success']('Domain  Created successfully!!!', 'success');
+                location.reload();
+            } else if (response.code == '500') {
+                $('#loading-image').hide();
+                toastr['error'](response.message, 'error');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
     });
 
     function applyDateTimePicker(eles) {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /opt/etc/mysql-creds.conf 
+. /opt/etc/mysql-creds.conf 
 
 function HELP {
         echo "-w|--website: website"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_NAME=`basename $0`
+
 function HELP {
 	echo "-f|--function: add/delete/disable"
 	echo "-s|--server: Server IP"
@@ -9,8 +11,6 @@ function HELP {
 	echo "-l|--ltype: login type"
 	echo "-r|--keygen: generate / regenerate new key"
 	echo "-R|--role user role"
-
-
 }
 
 SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
@@ -62,22 +62,24 @@ do
 done
 
 
-		status=success
+status=success
 
 function createuser()
 {
 	ssh -i $SSH_KEY root@$server "adduser $user"
 	if [ "$?" -eq 1 ]
 	then
-		status=fail
+		ssh root@$server "echo '$user:$password' | chpasswd" | tee -a ${SCRIPT_NAME}.log
+	else
+		echo "db" | tee -a ${SCRIPT_NAME}.log
+    status=fail
 	fi
+}	
 	
-}
-
 function listuser()
 {
 
-        ssh -i $SSH_KEY root@$server "awk -F':' '{ print $1}' /etc/passwd"
+  ssh -i $SSH_KEY root@$server "awk -F':' '{ print $1}' /etc/passwd"
 	if [ "$?" -eq 1 ]
 	then
 		status=fail
@@ -86,7 +88,7 @@ function listuser()
 
 function deleteuser()
 {
-        ssh -i $SSH_KEY root@$server "deluser $user "
+  ssh -i $SSH_KEY root@$server "deluser $user "
 	if [ "$?" -eq 1 ]
 	then
 		status=fail
@@ -120,3 +122,15 @@ esac
 
 
 echo "{\"status\":\"$status\"}"
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log
+

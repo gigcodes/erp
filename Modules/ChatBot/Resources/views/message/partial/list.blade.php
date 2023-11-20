@@ -116,6 +116,7 @@ padding: 3px 2px;
         <th width="5%">From</th>
         <th width="15%">Shortcuts</th>
         <th width="auto">Action</th>
+        <th width="auto">Is elastic</th>
 
     </tr>
     </thead>
@@ -123,7 +124,7 @@ padding: 3px 2px;
     <?php if (!empty($pendingApprovalMsg)) {?>
 
     <?php foreach ($pendingApprovalMsg as $index =>$pam) { ?>
-    <tr class="customer-raw-line">
+    <tr class="customer-raw-line pam-{{ $pam->id }}">
 
 
         @php
@@ -145,7 +146,7 @@ padding: 3px 2px;
 
         @endphp
 
-        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}">
+        <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}" data-page="{{ $page }}">
             @if($pam->supplier_id > 0)
                 @if (strlen($pam->supplier_name) > 5)
                <p data-log_message="{{ $pam->supplier_name }}" class="user-inputt p-0 m-0">{{  substr($pam->supplier_name,0,4)   }}..</p>
@@ -233,7 +234,7 @@ padding: 3px 2px;
                     @endif
                 </td>
             @else
-                <td class="user-input" >{{ $pam->question }}
+                <td class="user-input" >{{ substr($pam->question ??$pam->message, 0, 15) }}...
                     @if($pam->chat_read_id == 1)
                         <a href="javascript:;" class="read-message" data-value="0" data-id="{{ $pam->chat_bot_id }}">
                             <i class="fa fa-check-square-o text-dark"></i>
@@ -255,7 +256,18 @@ padding: 3px 2px;
         @else
             <td class="boat-replied expand-row" style="word-break: break-all">
                 <span class="td-mini-container">
-                    {{ strlen($pam->answer) > 15 ? substr($pam->answer, 0, 15).'...' :  $pam->answer }}
+
+                    @if($pam->answer)
+                        {{ strlen($pam->answer) > 15 ? substr($pam->answer, 0, 15).'...' :  $pam->answer }}
+                    @elseif($pam->suggested_replay)
+                        {{ substr( $pam->suggested_replay ,0,15) }}...
+                    @elseif($pam->reply_from)
+                        {{ strlen($pam->reply_from) > 15 ? substr($pam->reply_from, 0, 15).'...' :  '' }}
+                    @else
+                        @if(auth()->user()->id == $pam->user_id)
+                            {{ strlen($pam->message) > 15 ? substr($pam->message, 0, 15).'...' :  '' }}
+                        @endif
+                    @endif
                  </span>
                  <span class="td-full-container hidden">
                      {{ $pam->answer }}
@@ -451,6 +463,9 @@ padding: 3px 2px;
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span> -->
         </div>
+        </td>
+        <td>
+            <?=$isElastic ? 'Yes' : 'No' ?>
         </td>
     </tr>
     <?php }?>
