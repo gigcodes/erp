@@ -8251,6 +8251,7 @@ if (!\Auth::guest()) {
                 }
             }
         }).fail(function(response) {
+            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });
