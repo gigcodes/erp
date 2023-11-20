@@ -1019,8 +1019,8 @@
               dataType: "json",
               success: function(response) {
                  
-                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.last_output);
-                    $("#script-document-last-output-list").modal("show");
+                    $("#user-access-last-output-list").find(".user-access-last-output-view").html(response.last_output);
+                    $("#user-access-last-output-list").modal("show");
            
               }
           });
