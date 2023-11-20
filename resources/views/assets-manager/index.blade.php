@@ -81,8 +81,8 @@
     </div>
 
     @include('partials.flash_messages')
-    @include('partials.models.user-access-request')
-
+    @include('partials.modals.user-access-request')
+    @include('partials.modals.user-access-response')
 
     <div class="mt-3 col-md-12">
       <div class="infinite-scroll" style="overflow-y: auto">
@@ -1012,15 +1012,30 @@
     })
 
     $(document).on('click','.user-access-request-view',function(){
-          id = $(this).data('id');
-      $.ajax({
+        id = $(this).data('id');
+        $.ajax({
               method: "GET",
-              url: `{{ route('script-documents.comment', [""]) }}/` + id,
+              url: `{{ route('assetsmanager.user_access_request', [""]) }}/` + id,
               dataType: "json",
               success: function(response) {
                  
-                    $("#user-access-last-output-list").find(".user-access-last-output-view").html(response.last_output);
-                    $("#user-access-last-output-list").modal("show");
+                    $("#user-access-request-list-header").find(".user-access-request-header-view").html(response.request_data);
+                    $("#user-access-request-list-header").modal("show");
+           
+              }
+          });
+    });
+
+    $(document).on('click','.user-access-response-view',function(){
+        id = $(this).data('id');
+        $.ajax({
+              method: "GET",
+              url: `{{ route('assetsmanager.user_access_request', [""]) }}/` + id,
+              dataType: "json",
+              success: function(response) {
+                 
+                    $("#user-access-response-list-header").find(".user-access-response-header-view").html(response.response_data);
+                    $("#user-access-response-list-header").modal("show");
            
               }
           });

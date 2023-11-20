@@ -1,4 +1,4 @@
-<div id="user-access-request-list-header" class="modal fade" role="dialog" style="z-index: 9999;">
+<div id="user-access-response-list-header" class="modal fade" role="dialog" style="z-index: 9999;">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <div class="col-md-12">
-                    <div class="user-access-request-header-view" style="word-break: break-all;"></div>
+                    <div class="user-access-response-header-view" style="word-break: break-all;"></div>
                 </div>
             </div>
             <div class="modal-footer">

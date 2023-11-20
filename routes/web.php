@@ -2873,6 +2873,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/user-access-delete', [AssetsManagerController::class, 'deleteUserAccess']);
     Route::get('assets-manager/user_accesses', [AssetsManagerController::class, 'assetsManagerUserAccessList'])->name('assets_manager_user_accesses');
     Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
+    Route::get('assets-manager-user-access-request/{id}', [AssetsManagerController::class, 'userAccessRequest'])->name('assetsmanager.user_access_request');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
