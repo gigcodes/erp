@@ -972,7 +972,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{json_encode($userEmail)}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -1147,37 +1147,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <div class="form-group col-md-12">
                                     <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
                                     <div class="dropdown-sin-1">
-                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
-                                            <option value="">--Assets Manager--</option>
-                                            
-                                            <?php
-                            foreach($assetsmanager as $am){
-                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
-                            }
-                          ?>
-                                        </select>
+
                                     </div>
                                 </div>
 
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
                                     {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
-                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="command_type">Command</label>
                                     {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
-                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="working_directory">Working Directory</label>
@@ -4536,6 +4518,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="/store-website/admin-password">Admin Password</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
                                     </li>
                                 </ul>
@@ -5102,7 +5087,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id & Keyword">
                                             @php
                                             $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
                                             @endphp
@@ -5153,7 +5138,17 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id">
+                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id & Keyword">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="quicktask_user_id" id="quicktask_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-dev-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -6054,6 +6049,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
+        $('#quicktask_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6525,6 +6521,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-dev-task-search-menu", function (e) {
         var keyword = $('.dev-task-search-table').val();
+        var quicktask_user_id = $('#quicktask_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6532,6 +6529,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 subject: keyword,
+                selected_user: quicktask_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -8243,6 +8241,9 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
+
+        $("#loading-image-preview").show();
+
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8253,6 +8254,7 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
+                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8261,10 +8263,12 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
+                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
+            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });

@@ -325,12 +325,21 @@ Route::post('order/sync-transaction', [OrderController::class, 'syncTransaction'
 
 Route::post('updateLog', [UpdateLogController::class, 'store']);
 
+Route::post('login', [Api\v1\Auth\LoginController::class, 'login']);
+Route::post('register', [Api\v1\Auth\LoginController::class, 'register']);
 Route::middleware('api')->prefix('auth')->group(function ($router) {
-    Route::post('login', [Api\v1\Auth\LoginController::class, 'login']);
     Route::post('logout', [Api\v1\Auth\LoginController::class, 'logout']);
     Route::post('refresh', [Api\v1\Auth\LoginController::class, 'refresh']);
     Route::post('me', [Api\v1\Auth\LoginController::class, 'me']);
 });
+Route::middleware('custom.api.auth')->group(function () {
+    Route::get('/chatbot/messages', [\Modules\ChatBot\Http\Controllers\MessageController::class, 'messagesJson']);
+    Route::get('/email/{email?}', [\App\Http\Controllers\EmailController::class, 'emailJson']);
+    Route::get('/todolist', [\App\Http\Controllers\TodoListController::class, 'indexJson']);
+    Route::post('/todolist/update', [\App\Http\Controllers\TodoListController::class, 'updateJson']);
+    Route::delete('/todolist/delete/{id}', [\App\Http\Controllers\TodoListController::class, 'destroyJson']);
+});
+
 // Route::get('google/developer-api/crash', [GoogleDeveloperController::class, 'getDeveloperApicrash']);
 Route::post('users/add-system-ip-from-email', [UserController::class, 'addSystemIpFromEmail']);
 
