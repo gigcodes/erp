@@ -8247,6 +8247,7 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
+                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
