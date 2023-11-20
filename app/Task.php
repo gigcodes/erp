@@ -10,6 +10,7 @@ use Auth;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Plank\Mediable\Mediable;
 use App\Hubstaff\HubstaffMember;
 use Illuminate\Support\Facades\DB;
@@ -490,6 +491,7 @@ class Task extends Model
         $paginate = 50;
         $page = $request->get('page', 1);
         $offSet = ($page * $paginate) - $paginate;
+        $cacheKey = 'filtered_task_' . serialize($request->all());
 
         $chatSubQuery = DB::table('chat_messages')
                     ->select(
@@ -583,7 +585,12 @@ class Task extends Model
             ->offset($offSet)
             ->limit($paginate);
 
-            return $qb->get();
+            $cachedData = Cache::remember($cacheKey, 60 * 60 * 4, function () use ($qb) {
+                return $qb->get();
+            });
+
+
+            return $cachedData;
 
         } else if (in_array($type, ['pending_list', 'completed_list', 'statutory_not_completed_list'])) {
             $qb->selectRaw("customers.name AS customer_name")
@@ -662,10 +669,15 @@ class Task extends Model
                 $qb->orderByDesc('tasks.is_flagged');
                 $qb->orderByDesc('message_created_at');
             }
+
             $qb->offset($offSet);
             $qb->limit($paginate);
 
-            return $qb->get();
+            $cachedData = Cache::remember($cacheKey, 60 * 60 * 4, function () use ($qb) {
+                return $qb->get();
+            });
+
+            return $cachedData;
         }
     }
 
