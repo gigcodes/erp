@@ -211,6 +211,14 @@ class EventController extends Controller
         $event->recuring_type = $recurringType;
         $event->save();
 
+        $eventSchedule = new EventSchedule();
+        $eventSchedule->event_id = $event->id;
+        $eventSchedule->schedule_date = $startDate;
+        $eventSchedule->public_email = $emailFrom ?? '';
+        $eventSchedule->public_remark = $description ?? '';
+        $eventSchedule->public_name = $name ?? '';
+        $eventSchedule->save();
+
         // Event Availabilities
         foreach ($request->event_availability as $key => $event_availability) {
             if (isset($event_availability['day']) && $event_availability['day'] == 'on') {

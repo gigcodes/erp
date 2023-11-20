@@ -105,7 +105,7 @@
             if(request('request_name')){   $request_nameArr = request('request_name'); }
             else{ $request_nameArr = []; }
           ?>
-          <select name="request_name[]" class="form-control select2 custom-select" multiple id="request_name">
+          <select name="request_name[]" class="form-control select2" multiple id="request_name">
             <option value="" @if(count($request_nameArr)==0) selected @endif>-- Select Request Name --</option>
             @foreach ($listRequestNames as $key => $reqName)
             <?php
@@ -175,7 +175,10 @@
   <a href="/postman/collection" class="btn custom-button float-right mr-3">Add Collection</a>
   <button type="button" class="btn custom-button float-right mr-3 openmodeladdpostman" data-toggle="modal" data-target="#status-create">Add Status</button>
 <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#postmandatatablecolumnvisibilityList">Column Visiblity</button>
-<button class="btn custom-button" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+<button class="btn custom-button mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+<!-- <a href="postman/request/history" class="btn custom-button mr-3" target="_blank">Request History</a> -->
+    <a href="postman/response/history" class="btn custom-button mr-3" target="_blank">Response History</a>
+    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#runRequestUrl">Run Request URL</button>
   <div class="col-12">
     <h3>Assign Permission to User</h3>
     <form class="form-inline" id="update_user_permission" action="/postman/user/permission" method="POST">
@@ -1024,7 +1027,7 @@
                 </div>
                 <div class="form-group col-md-12 mb-0">
                   <div class="form-group col-md-12">
-                    <label for="request_url">Request Url</label>
+                    <label for="request_url">Request Url <a href="javascript:void(0)" class="btn-show-request-url">Show / Hide</a></label>
                     <div class="form-group add_more_urls_div">
                       <input type="text" name="request_url[]" value="" class="form-control" id="request_url" placeholder="Enter request url">
                     </div>
@@ -1509,6 +1512,7 @@
 @include('postman.postman-api-issue-fix-done-history')
 @include("postman.column-visibility-modal")
 @include("postman.partials.modal-status-color")
+@include("postman.run-request-url-modal")
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
 @section('scripts')
@@ -1675,8 +1679,10 @@
           } else if (key == 'request_url') {
             //form.find('[name="'+key+'[]"]').val(v);
             $('.add_more_urls_div').html('');
+            $('.add_more_urls_div').css('display', 'none');
+            $('.add_more_urls_div').append('<input type="text" id="searchInput" placeholder="Search URL" class="form-control"><br/>');
             $.each(response.postmanUrl, function(i, e) {
-              $('.add_more_urls_div').append('<br/><input type="text" name="request_url[]" value="' + e.request_url + '" class="form-control" id="request_url" placeholder="Enter request url">');
+              $('.add_more_urls_div').append('<input type="text" name="request_url[]" value="' + e.request_url + '" class="form-control urlInput" id="request_url" placeholder="Enter request url">');
             });
           } else if (key == 'folder_name') {
             $("#folder_name").val(v);
@@ -1778,7 +1784,7 @@
       },
       data: $('#multiUrls').serialize()
     }).done(function(response) {
-      if (response.code = '200') {
+      if (response.code == '200') {
         toastr['success']('Postman requested successfully!!!', 'success');
       } else {
         toastr['error'](response.message, 'error');
@@ -2600,6 +2606,49 @@
                 "&embedded=true");
         }
         $('#previewDoc').modal('show');
+    });
+
+    $(document).on("click", ".btn-show-request-url", function () {
+        $(".add_more_urls_div").toggle();
+    });
+
+    $(document).on('input', '#searchInput', function(e) {
+        e.preventDefault();
+        const searchInput = $(this).val();
+        const urlInputs = $(".urlInput");
+
+        urlInputs.each(function() {
+            const urlInput = $(this);
+            const url = urlInput.val();
+            if (url.includes(searchInput)) {
+                urlInput.removeClass("hidden");
+            } else {
+                urlInput.addClass("hidden");
+            }
+        });
+    });
+
+    $(document).on("click", "#run-request-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $('#loading-image').show();
+        $.ajax({
+            url: "{{route('postman.runrequesturl')}}",
+            type: "post",
+            data: $('#postman-run-request-url').serialize()
+        }).done(function(response) {
+            if (response.code == '200') {
+                $('#loading-image').hide();
+                $('#runRequestUrl').modal('hide');
+                toastr['success']('Postman Request Url run successfully!!!', 'success');
+                location.reload();
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
     });
 </script>
 @endsection

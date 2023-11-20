@@ -7,7 +7,6 @@ function HELP {
 	echo "-p|--password: Password"
 }
 SSH_KEY="/opt/BKPSCRIPTS/id_rsa_websites"
-SSHPORT="22480 2112 22"
 args=("$@")
 idx=0
 while [[ $idx -lt $# ]]

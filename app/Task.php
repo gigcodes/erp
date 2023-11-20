@@ -487,6 +487,7 @@ class Task extends Model
     public static function getSearchedTasks($type = '', $request)
     {
         $term = $request->term ?? '';
+        $selected_user = $request->selected_user ?? '';
         $paginate = 50;
         $page = $request->get('page', 1);
         $offSet = ($page * $paginate) - $paginate;
@@ -561,7 +562,9 @@ class Task extends Model
                 });
             }
 
-
+            if ($selected_user != '') {
+                $qb->where('assign_to', $selected_user);                
+            }
 
             if ($request->sort_by == 1) {
                 $qb->orderByDesc('tasks.created_at');
