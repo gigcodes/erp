@@ -5084,7 +5084,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id & Keyword">
                                             @php
                                             $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
                                             @endphp
@@ -5135,7 +5135,17 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id">
+                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id & Keyword">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="quicktask_user_id" id="quicktask_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-dev-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -6036,6 +6046,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
+        $('#quicktask_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6507,6 +6518,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-dev-task-search-menu", function (e) {
         var keyword = $('.dev-task-search-table').val();
+        var quicktask_user_id = $('#quicktask_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6514,6 +6526,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 subject: keyword,
+                selected_user: quicktask_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
