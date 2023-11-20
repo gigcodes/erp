@@ -40,6 +40,9 @@ class MessageController extends Controller
      */
     public function index(Request $request, $isElastic = null)
     {
+        /**
+         * Elastic
+         */
         $elastic = new Elasticsearch();
         $sizeof = $elastic->count(Messages::INDEX_NAME);
 
