@@ -972,7 +972,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{json_encode($userEmail)}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -4516,6 +4516,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/store-website/admin-password">Admin Password</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
@@ -8225,6 +8228,9 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
+
+        $("#loading-image-preview").show();
+
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8235,6 +8241,7 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
+                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8243,10 +8250,12 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
+                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
+            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });
