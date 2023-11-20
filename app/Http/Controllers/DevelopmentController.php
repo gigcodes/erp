@@ -924,7 +924,7 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id, message ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', 'off') == 'on') {
@@ -992,7 +992,12 @@ class DevelopmentController extends Controller
 
         // category filter start count
         $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $issuesGroups = $issuesGroups
+            ->where('developer_tasks.status', 'Planned')
+            ->groupBy('developer_tasks.assigned_to')
+            ->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])
+            ->pluck('total_product', 'assigned_to')
+            ->toArray();
         $userIds = array_values(array_filter(array_keys($issuesGroups)));
         $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
 
@@ -1000,22 +1005,6 @@ class DevelopmentController extends Controller
         if (! empty($issuesGroups) && ! empty($userModel)) {
             foreach ($issuesGroups as $key => $count) {
                 $countPlanned[] = [
-                    'id' => $key,
-                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
-                    'count' => $count,
-                ];
-            }
-        }
-        // category filter start count
-        $issuesGroups = clone $issues;
-        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
-        $userIds = array_values(array_filter(array_keys($issuesGroups)));
-
-        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
-        $countInProgress = [];
-        if (! empty($issuesGroups) && ! empty($userModel)) {
-            foreach ($issuesGroups as $key => $count) {
-                $countInProgress[] = [
                     'id' => $key,
                     'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
                     'count' => $count,
@@ -2241,7 +2230,7 @@ class DevelopmentController extends Controller
         }
 
         $summary = substr($task->task, 0, 200);
-        if ($data['task_type_id'] == 1) {
+        if ($data['task_type_id'] ?? 0 == 1) {
             $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
         } else {
             $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
@@ -2251,7 +2240,7 @@ class DevelopmentController extends Controller
             $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
-            if (env('PRODUCTION', true)) {
+            if (env('PRODUCTION', false)) {
                 $hubstaffTaskId = $this->createHubstaffTask(
                     $taskSummery,
                     $hubstaffUserId,
@@ -2271,7 +2260,7 @@ class DevelopmentController extends Controller
                 $task->hubstaff_task_id = $hubstaffTaskId;
                 $task->project_id = $hubstaff_project_id;
                 $task->hubstaff_project_id = $hubstaff_project_id;
-                $task->summary = $task->task;
+                $task->summary = $task->task ?? 'Bodya';
                 $task->save();
             }
         }
