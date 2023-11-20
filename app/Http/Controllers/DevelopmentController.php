@@ -2230,7 +2230,7 @@ class DevelopmentController extends Controller
         }
 
         $summary = substr($task->task, 0, 200);
-        if ($data['task_type_id'] ?? 0 == 1) {
+        if ($data['task_type_id'] == 1) {
             $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
         } else {
             $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
@@ -2240,7 +2240,7 @@ class DevelopmentController extends Controller
             $this->timeDoctorActions('DEVTASK', $task, $data['time_doctor_project'], $data['time_doctor_account'], $data['assigned_to']);
         } else {
             $hubstaffTaskId = '';
-            if (env('PRODUCTION', false)) {
+            if (env('PRODUCTION', true)) {
                 $hubstaffTaskId = $this->createHubstaffTask(
                     $taskSummery,
                     $hubstaffUserId,
@@ -2260,7 +2260,7 @@ class DevelopmentController extends Controller
                 $task->hubstaff_task_id = $hubstaffTaskId;
                 $task->project_id = $hubstaff_project_id;
                 $task->hubstaff_project_id = $hubstaff_project_id;
-                $task->summary = $task->task ?? 'Bodya';
+                $task->summary = $task->task;
                 $task->save();
             }
         }
