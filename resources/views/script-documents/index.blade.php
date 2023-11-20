@@ -179,7 +179,137 @@
 		</div>
 	</div>
 		
-		
+	<div id="create-quick-task" class="modal fade" role="dialog">
+	    <div class="modal-dialog modal-lg">
+	        <div class="modal-content">
+	            <form action="<?php echo route('task.create.multiple.task.shortscriptdocument'); ?>" method="post">
+	                @csrf
+	                <div class="modal-header">
+	                    <h4 class="modal-title">Create Task</h4>
+	                </div>
+	                <div class="modal-body">
+
+	                    <input class="form-control" value="56" type="hidden" name="category_id" />
+	                    <input class="form-control" value="" type="hidden" name="category_title" id="category_title" />
+	                    <input class="form-control" type="hidden" name="site_id" id="site_id" />
+	                    <div class="form-group">
+	                        <label for="">Subject</label>
+	                        <input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
+	                    </div>
+	                    <div class="form-group">
+	                        <select class="form-control" style="width:100%;" name="task_type" tabindex="-1" aria-hidden="true">
+	                            <option value="0">Other Task</option>
+	                            <option value="4">Developer Task</option>
+	                        </select>
+	                    </div>
+
+	                    <div class="form-group">
+	                        <label for="repository_id">Repository:</label>
+	                        <br>
+	                        <select style="width:100%" class="form-control  " id="repository_id" name="repository_id">
+	                            <option value="">-- select repository --</option>
+	                            @foreach (\App\Github\GithubRepository::all() as $repository)
+	                            <option value="{{ $repository->id }}">{{ $repository->name }}</option>
+	                            @endforeach
+	                        </select>
+	                    </div>
+
+	                    <div class="form-group">
+	                        <label for="">Details</label>
+	                        <input class="form-control text-task-development" type="text" name="task_detail" />
+	                    </div>
+
+	                    <div class="form-group">
+	                        <label for="">Cost</label>
+	                        <input class="form-control" type="text" name="cost" />
+	                    </div>
+
+	                    <div class="form-group">
+	                        <label for="">Assign to</label>
+	                        <select name="task_asssigned_to" class="form-control assign-to select2">
+	                            @foreach ($allUsers as $user)
+	                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+	                            @endforeach
+	                        </select>
+	                    </div>
+
+	                    <div class="form-group">
+	                        <label for="">Create Review Task?</label>
+	                        <div class="form-group">
+	                            <input type="checkbox" name="need_review_task" value="1" />
+	                        </div>
+	                    </div>
+	                    <!-- <div class="form-group">
+	                        <label for="">Websites</label>
+	                        <div class="form-group website-list row">
+	                           
+	                        </div>
+	                    </div> -->
+	                </div>
+	                <div class="modal-footer">
+	                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	                    <button type="submit" class="btn btn-default create-task">Submit</button>
+	                </div>
+	            </form>
+	        </div>
+	    </div>
+	</div>
+
+	<div id="dev_task_statistics" class="modal fade" role="dialog">
+	    <div class="modal-dialog modal-lg">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <h2>Dev Task statistics</h2>
+	                <button type="button" class="close" data-dismiss="modal">×</button>
+	            </div>
+	            <div class="modal-body" id="dev_task_statistics_content">
+	                <div class="table-responsive">
+	                    <table class="table table-bordered table-striped">
+	                        <tbody>
+	                            <tr>
+	                                <th>Task type</th>
+	                                <th>Task Id</th>
+	                                <th>Assigned to</th>
+	                                <th>Description</th>
+	                                <th>Status</th>
+	                                <th>Action</th>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+	<div id="preview-task-image" class="modal fade" role="dialog">
+	    <div class="modal-dialog modal-lg">
+	        <div class="modal-content">
+	            <div class="modal-body">
+	                <div class="col-md-12">
+	                    <table class="table table-bordered" style="table-layout: fixed">
+	                        <thead>
+	                            <tr>
+	                                <th style="width: 5%;">Sl no</th>
+	                                <th style=" width: 30%">Files</th>
+	                                <th style="word-break: break-all; width: 40%">Send to</th>
+	                                <th style="width: 10%">User</th>
+	                                <th style="width: 10%">Created at</th>
+	                                <th style="width: 15%">Action</th>
+	                            </tr>
+	                        </thead>
+	                        <tbody class="task-image-list-view">
+	                        </tbody>
+	                    </table>
+	                </div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
 	<script>
 		@if($errors->any())
 			@php
@@ -427,7 +557,7 @@
 	            dataType: "json",
 	            success: function(response) {
 	               
-                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.data.last_output);
+                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.last_output);
                     $("#script-document-last-output-list").modal("show");
 	         
 	            }
@@ -442,5 +572,336 @@
 			$(full).toggleClass('hidden');
 			$(mini).toggleClass('hidden');
 		});
+
+		function Showactionbtn(id){
+	      $(".action-btn-tr-"+id).toggleClass('d-none')
+	    }
+
+	    $(document).on('click', '.create-quick-task', function() {
+	        var $this = $(this);
+	        site = $(this).data("id");
+	        title = $(this).data("title");
+	        cat_title = $(this).data("category_title");
+	        development = $(this).data("development");
+	        if (!title || title == '') {
+	            toastr["error"]("Please add title first");
+	            return;
+	        }
+
+	        $("#create-quick-task").modal("show");
+
+	        var selValue = $(".save-item-select").val();
+	        if (selValue != "") {
+	            $("#create-quick-task").find(".assign-to option[value=" + selValue + "]").attr('selected',
+	                'selected')
+	            $('.assign-to.select2').select2({
+	                width: "100%"
+	            });
+	        }
+
+	        $("#hidden-task-subject").val(title);
+	        $(".text-task-development").val(development);
+	        $('#site_id').val(site);
+	    });
+
+	    $(document).on("click", ".create-task", function(e) {
+	        e.preventDefault();
+	        var form = $(this).closest("form");
+	        $.ajax({
+	            url: form.attr("action"),
+	            type: 'POST',
+	            headers: {
+	              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	            },
+	            data: form.serialize(),
+	            beforeSend: function() {
+	                $(this).text('Loading...');
+	                $("#loading-image").show();
+	            },
+	            success: function(response) {
+	                $("#loading-image").hide();
+	                if (response.code == 200) {
+	                    form[0].reset();
+	                    toastr['success'](response.message);
+	                    $("#create-quick-task").modal("hide");
+	                } else {
+	                    toastr['error'](response.message);
+	                }
+	            }
+	        }).fail(function(response) {
+	            toastr['error'](response.responseJSON.message);
+	        });
+	    });
+
+	    $(document).on("click", ".count-dev-customer-tasks", function() {
+
+	        var $this = $(this);
+	        // var user_id = $(this).closest("tr").find(".ucfuid").val();
+	        var site_id = $(this).data("id");
+	        var category_id = $(this).data("category");
+	        $("#site-development-category-id").val(category_id);
+	        $.ajax({
+	            type: 'get',
+	            url: 'script-documents/countdevtask/' + site_id,
+	            dataType: "json",
+	            headers: {
+	              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	            },
+	            beforeSend: function() {
+	                $("#loading-image").show();
+	            },
+	            success: function(data) {
+	                $("#dev_task_statistics").modal("show");
+	                var table = `<div class="table-responsive">
+	                    <table class="table table-bordered table-striped">
+	                        <tr>
+	                            <th width="4%">Tsk Typ</th>
+	                            <th width="4%">Tsk Id</th>
+	                            <th width="7%">Asg to</th>
+	                            <th width="12%">Desc</th>
+	                            <th width="12%">Sts</th>
+	                            <th width="33%">Communicate</th>
+	                            <th width="10%">Action</th>
+	                        </tr>`;
+	                for (var i = 0; i < data.taskStatistics.length; i++) {
+	                    var str = data.taskStatistics[i].subject;
+	                    var res = str.substr(0, 100);
+	                    var status = data.taskStatistics[i].status;
+	                    if (typeof status == 'undefined' || typeof status == '' || typeof status ==
+	                        '0') {
+	                        status = 'In progress'
+	                    };
+	                    table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>#' +
+	                        data.taskStatistics[i].id +
+	                        '</td><td class="expand-row-msg" data-name="asgTo" data-id="' + data
+	                        .taskStatistics[i].id + '"><span class="show-short-asgTo-' + data
+	                        .taskStatistics[i].id + '">' + data.taskStatistics[i].assigned_to_name
+	                        .replace(/(.{6})..+/, "$1..") +
+	                        '</span><span style="word-break:break-all;" class="show-full-asgTo-' + data
+	                        .taskStatistics[i].id + ' hidden">' + data.taskStatistics[i]
+	                        .assigned_to_name +
+	                        '</span></td><td class="expand-row-msg" data-name="res" data-id="' + data
+	                        .taskStatistics[i].id + '"><span class="show-short-res-' + data
+	                        .taskStatistics[i].id + '">' + res.replace(/(.{7})..+/, "$1..") +
+	                        '</span><span style="word-break:break-all;" class="show-full-res-' + data
+	                        .taskStatistics[i].id + ' hidden">' + res + '</span></td><td>' + status +
+	                        '</td><td><div class="col-md-10 pl-0 pr-1"><textarea rows="1" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message"></textarea></div><div class="p-0"><button class="btn btn-sm btn-xs send-message" title="Send message" data-taskid="' +
+	                        data.taskStatistics[i].id +
+	                        '"><i class="fa fa-paper-plane"></i></button></div></td><td><button type="button" class="btn btn-xs load-communication-modal load-body-class" data-object="' +
+	                        data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i]
+	                        .id +
+	                        '" title="Load messages" data-dismiss="modal"><i class="fa fa-comments"></i></button>';
+	                    table = table + '<a href="javascript:void(0);" data-task-type="' + data
+	                        .taskStatistics[i].task_type + '" data-id="' + data.taskStatistics[i].id +
+	                        '" class="delete-dev-task-btn btn btn-xs"><i class="fa fa-trash"></i></a>';
+	                    table = table +
+	                        '<button type="button" class="btn btn-xs  preview-img pd-5" data-object="' +
+	                        data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i]
+	                        .id + '" data-dismiss="modal"><i class="fa fa-list"></i></button></td>';
+	                    table = table + '</tr>';
+	                }
+	                table = table + '</table></div>';
+	                $("#loading-image").hide();
+	                $(".modal").css("overflow-x", "hidden");
+	                $(".modal").css("overflow-y", "auto");
+	                $("#dev_task_statistics_content").html(table);
+	            },
+	            error: function(error) {
+	                console.log(error);
+	                $("#loading-image").hide();
+	            }
+	        });
+	    
+
+	    });
+
+	    $(document).on('click', '.send-message', function() {
+	        var thiss = $(this);
+	        var data = new FormData();
+	        var task_id = $(this).data('taskid');
+	        var message = $(this).closest('tr').find('.quick-message-field').val();
+	        var mesArr = $(this).closest('tr').find('.quick-message-field');
+	        $.each(mesArr, function(index, value) {
+	            if ($(value).val()) {
+	                message = $(value).val();
+	            }
+	        });
+
+	        data.append("task_id", task_id);
+	        data.append("message", message);
+	        data.append("status", 1);
+
+	        if (message.length > 0) {
+	            if (!$(thiss).is(':disabled')) {
+	                $.ajax({
+	                    url: '/whatsapp/sendMessage/task',
+	                    type: 'POST',
+	                    "dataType": 'json', // what to expect back from the PHP script, if anything
+	                    "cache": false,
+	                    "contentType": false,
+	                    "processData": false,
+	                    "data": data,
+	                    beforeSend: function() {
+	                        $(thiss).attr('disabled', true);
+	                        $("#loading-image").show();
+	                    }
+	                }).done(function(response) {
+	                    $("#loading-image").hide();
+	                    thiss.closest('tr').find('.quick-message-field').val('');
+
+	                    toastr["success"]("Message successfully send!", "Message")
+	                    // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+	                    //   .done(function( data ) {
+	                    //
+	                    //   }).fail(function(response) {
+	                    //     console.log(response);
+	                    //     alert(response.responseJSON.message);
+	                    //   });
+
+	                    $(thiss).attr('disabled', false);
+	                }).fail(function(errObj) {
+	                    $(thiss).attr('disabled', false);
+
+	                    alert("Could not send message");
+	                    console.log(errObj);
+	                });
+	            }
+	        } else {
+	            alert('Please enter a message first');
+	        }
+	    });
+
+	    $(document).on("click", ".delete-dev-task-btn", function() {
+	        var x = window.confirm("Are you sure you want to delete this ?");
+	        if (!x) {
+	            return;
+	        }
+	        var $this = $(this);
+	        var taskId = $this.data("id");
+	        var tasktype = $this.data("task-type");
+	        if (taskId > 0) {
+	            $.ajax({
+	                beforeSend: function() {
+	                    $("#loading-image").show();
+	                },
+	                type: 'get',
+	                url: "/site-development/deletedevtask",
+	                headers: {
+	                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+	                },
+	                data: {
+	                    id: taskId,
+	                    tasktype: tasktype
+	                },
+	                dataType: "json"
+	            }).done(function(response) {
+	                $("#loading-image").hide();
+	                if (response.code == 200) {
+	                    $this.closest("tr").remove();
+	                }
+	            }).fail(function(response) {
+	                $("#loading-image").hide();
+	                alert('Could not update!!');
+	            });
+	        }
+
+	    });
+
+	    $(document).on('click', '.expand-row-msg', function() {
+	        var name = $(this).data('name');
+	        var id = $(this).data('id');
+	        console.log(name);
+	        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+	        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+	        $(full).toggleClass('hidden');
+	        $(mini).toggleClass('hidden');
+	    });
+
+	    $(document).on('click', '.preview-img', function(e) {
+	        e.preventDefault();
+	        id = $(this).data('id');
+	        if (!id) {
+	            alert("No data found");
+	            return;
+	        }
+	        $.ajax({
+	            url: "/task/preview-img-task/" + id,
+	            type: 'GET',
+	            success: function(response) {
+	                $("#preview-task-image").modal("show");
+	                $(".task-image-list-view").html(response);
+	                initialize_select2()
+	            },
+	            error: function() {}
+	        });
+	    });
+
+	    $(document).on("click", ".send-to-sop-page", function() {
+	        var id = $(this).data("id");
+	        var task_id = $(this).data("media-id");
+
+	        $.ajax({
+	            url: '/task/send-sop',
+	            type: 'POST',
+	            headers: {
+	                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	            },
+	            dataType: "json",
+	            data: {
+	                id: id,
+	                task_id: task_id
+	            },
+	            beforeSend: function() {
+	                $("#loading-image").show();
+	            },
+	            success: function(response) {
+	                $("#loading-image").hide();
+	                if (response.success) {
+	                    toastr["success"](response.message);
+	                } else {
+	                    toastr["error"](response.message);
+	                }
+
+	            },
+	            error: function(error) {
+	                toastr["error"];
+	            }
+
+	        });
+	    });
+
+	    $(document).on('click', '.previewDoc', function() {
+	        $('#previewDocSource').attr('src', '');
+	        var docUrl = $(this).data('docurl');
+	        var type = $(this).data('type');
+	        var type = jQuery.trim(type);
+	        if (type == "image") {
+	            $('#previewDocSource').attr('src', docUrl);
+	        } else {
+	            $('#previewDocSource').attr('src', "https://docs.google.com/gview?url=" + docUrl +
+	                "&embedded=true");
+	        }
+	        $('#previewDoc').modal('show');
+	    });
+
+	    $(document).on("click", ".btn-show-request-url", function () {
+	        $(".add_more_urls_div").toggle();
+	    });
+
+	    $(document).on('input', '#searchInput', function(e) {
+	        e.preventDefault();
+	        const searchInput = $(this).val();
+	        const urlInputs = $(".urlInput");
+
+	        urlInputs.each(function() {
+	            const urlInput = $(this);
+	            const url = urlInput.val();
+	            if (url.includes(searchInput)) {
+	                urlInput.removeClass("hidden");
+	            } else {
+	                urlInput.addClass("hidden");
+	            }
+	        });
+	    });
 	</script>
 @endsection

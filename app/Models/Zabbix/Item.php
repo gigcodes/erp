@@ -9,6 +9,35 @@ use JsonSerializable;
 
 class Item implements JsonSerializable
 {
+    const TYPES = [
+        0 => 'Zabbix agent',
+        2 => 'Zabbix trapper',
+        3 => 'Simple check',
+        5 => 'Zabbix agent',
+        7 => 'Zabbix internal',
+        9 => 'Zabbix agent (active)',
+        10 => 'Web item',
+        11 => 'External check',
+        12 => 'IPMI agent',
+        13 => 'SSH agent',
+        14 => 'TELNET',
+        15 => 'Calculated',
+        16 => 'JMX agent',
+        17 => 'SNMP trap',
+        18 => 'Dependent item',
+        19 => 'HTTP agent',
+        20 => 'SNMP agent',
+        21 => 'Script',
+    ];
+
+    const VALUE_TYPES = [
+        0 => 'numeric float',
+        1 => 'character',
+        2 => 'log',
+        3 => 'numeric unsigned',
+        4 => 'text'
+    ];
+
     /**
      * @var Zabbix
      */
@@ -241,6 +270,25 @@ class Item implements JsonSerializable
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
+    public function getTemplateId(): int
+    {
+        return $this->templateId ?? 0;
+    }
+
+    /**
+     * @param $templateId
+     * @return $this
+     */
+    public function setTemplateId(int $templateId): self
+    {
+        $this->templateId = $templateId;
+
+        return $this;
+    }
+
     public function save()
     {
         if (!$this->getId()) {
@@ -252,7 +300,8 @@ class Item implements JsonSerializable
                 'value_type' => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
-                'units' => $this->getUnits()
+                'units' => $this->getUnits(),
+                'templateids' => $this->getTemplateId()
             ]);
         } else {
             $this->zabbix->updateItem([
@@ -263,7 +312,8 @@ class Item implements JsonSerializable
                 'value_type' => $this->getValueType(),
                 'interfaceid' => $this->getInterfaceid(),
                 'delay' => $this->getDelay(),
-                'units' => $this->getUnits()
+                'units' => $this->getUnits(),
+                'templateids' => $this->getTemplateId()
             ]);
         }
     }
@@ -290,6 +340,7 @@ class Item implements JsonSerializable
         $this->setInterfaceid((int)$data['interfaceid'] ?? 0);
         $this->setHostId((int)$data['hostid'] ?? 0);
         $this->setUnits($data['units'] ?? 0);
+        $this->setTemplateId((int)$data['templateid'] ?? 0);
 
         return $this;
     }
@@ -315,7 +366,8 @@ class Item implements JsonSerializable
             'intarfaceid' => $this->getInterfaceid(),
             'delay' => $this->getDelay(),
             'host_id' => $this->getHostId(),
-            'units' => $this->getUnits()
+            'units' => $this->getUnits(),
+            'templateid' => $this->getTemplateId()
         ];
     }
 }

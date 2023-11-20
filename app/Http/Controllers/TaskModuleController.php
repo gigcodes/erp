@@ -213,252 +213,257 @@ class TaskModuleController extends Controller
             return;
         }
 
-        //task pending backup
+        $usersOrderByName = User::orderBy('name')->get();
+        $data['users'] = $usersOrderByName->toArray();
+        $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
-        // $data['task']['pending'] = DB::select('
-        // SELECT tasks.*
+        // Lead user process starts
+        $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
+        $isTeamLeader = head($model_team);
+        $team_members_array[] = auth()->user()->id;
+        $team_id_array = [];
+        $team_members_array_unique_ids = '';
+        $isTeamLeader = null;
+        if (count($model_team) > 0) $isTeamLeader = $model_team[0];
+        // Lead user process ends
 
-        // FROM (
-        //   SELECT * FROM tasks
-        //   LEFT JOIN (
-        // 	  SELECT
-        // 		  MAX(id) as max_id,
-        // 		  task_id as tk
-        // 	  FROM chat_messages
-        // 	  WHERE chat_messages.status not in(7,8,9)
-        // 	  GROUP BY task_id
-        // 	  ORDER BY chat_messages.created_at DESC
-        //    ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
-        //   LEFT JOIN (
-        // 	  SELECT
-        // 		  id as message_id,
-        // 		  task_id,
-        // 		  message,
-        // 		  status as message_status,
-        // 		  sent as message_type,
-        // 		  created_at as message_created_at,
-        // 		  is_reminder AS message_is_reminder,
-        // 		  user_id AS message_user_id
-        // 	  FROM chat_messages
-        //   ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
-        // ) AS tasks
-        // WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-        // 		   AND (message_id = (
-        // 			 SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
-        // 			 ) OR message_id IS NULL)
-        // ORDER BY is_flagged DESC, message_created_at DESC;
-        // 		 ');
-        //end pending backup
+        $selected_user = $request->input('selected_user');
 
-        // dd($data['task']['pending']);
+        if ($isTeamLeader && !Auth::user()->hasRole('Admin')) {
+            $usrlst = [];
 
-        // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        // $perPage = Setting::get('pagination');
-        // $currentItems = array_slice($data['task']['pending'], $perPage * ($currentPage - 1), $perPage);
-        //
-        // $data['task']['pending'] = new LengthAwarePaginator($currentItems, count($data['task']['pending']), $perPage, $currentPage, [
-        // 	'path'	=> LengthAwarePaginator::resolveCurrentPath()
-        // ]);
+            for ($k = 0; $k < count($model_team); $k++) {
+                $team_id_array[] = $model_team[$k]->id;
+            }
 
-        // dd($data['task']['pending']);
+            $model_user_model = \DB::table('team_user')->whereIn('team_id', $team_id_array)->get()->toArray();
+            for ($m = 0; $m < count($model_user_model); $m++) {
+                $team_members_array[] = $model_user_model[$m]->user_id;
+            }
 
-        // $tasks = Task::all();
-        //
-        // foreach($tasks as $task) {
-        // 	if ($task->assign_to != 0) {
-        // 		$user = $task->assign_to;
-        // 		$task->users()->syncWithoutDetaching($user);
-        // 	}
-        // }
+            foreach ($usersOrderByName as $user) {
+                if (in_array($user->id, $team_members_array)) $usrlst[] = $user;
+            }
 
-        // $data['task']['completed']  = Task::where( 'is_statutory', '=', 0 )
-        //                                     ->whereNotNull( 'is_completed'  )
-        // 									->where( function ($query ) use ($userid) {
-        // 										return $query->orWhere( 'assign_from', '=', $userid )
-        // 										             ->orWhere( 'assign_to', '=', $userid );
-        // 									});
-        // if ($request->category != '') {
-        // 	$data['task']['completed'] = $data['task']['completed']->where('category', $request->category);
-        // }
-        //
-        // if ($request->term != '') {
-        // 	$data['task']['completed'] = $data['task']['completed']->where(function ($query) use ($term) {
-        // 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-        // 					->orWhere('id', 'LIKE', "%$term%")
-        // 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-        // 	});
-        // }
-        //
-        // $data['task']['completed'] = $data['task']['completed']->get()->toArray();
+        } else {
+            $usrlst = $usersOrderByName;
+        }
 
-        //completed task backup
+        $users = Helpers::getUserArray($usrlst);
 
-        // $data['task']['completed'] = DB::select('
-        // SELECT *,
-        //  message_id,
-        // message,
-        // message_status,
-        // message_type,
-        // message_created_At as last_communicated_at
-        // FROM (
-        //   SELECT * FROM tasks
-        //   LEFT JOIN (
-        // 	 SELECT
-        // 		 MAX(id) as max_id,
-        // 		 task_id as tk
-        // 	 FROM chat_messages
-        // 	 WHERE chat_messages.status not in(7,8,9)
-        // 	 GROUP BY task_id
-        // 	 ORDER BY chat_messages.created_at DESC
-        //   ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
-        //  LEFT JOIN (
-        // 	 SELECT
-        // 		 id as message_id,
-        // 		 task_id,
-        // 		 message,
-        // 		 status as message_status,
-        // 		 sent as message_type,
-        // 		 created_at as message_created_At,
-        // 		 is_reminder AS message_is_reminder,
-        // 		 user_id AS message_user_id
-        // 	 FROM chat_messages
-        //  ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
-        // ) AS tasks
-        // WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-        // ORDER BY last_communicated_at DESC;
-        // 		 ');
+        $all_task_categories = TaskCategory::all();
+        $selected_category = $request->category;
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
+        $categories = $approved_categories = $task_categories = [];
+        foreach ($all_task_categories as $category) {
+            if($category->parent_id == 0)
+                $task_categories[] = $category;
 
-        //completed task backup end
+            $categories[$category->id] = $category->title;
 
-        // $satutory_tasks = SatutoryTask::latest()
-        //                                          ->orWhere( 'assign_from', '=', $userid )
-        // 										 ->orWhere( 'assign_to', '=', $userid )->whereNotNull('completion_date')
-        //                                          ->get();
-        //
-        // foreach ($satutory_tasks as $task) {
-        // 	switch ($task->recurring_type) {
-        // 		case 'EveryDay':
-        // 			if (Carbon::parse($task->completion_date)->format('Y-m-d') < date('Y-m-d')) {
-        // 				$task->completion_date = null;
-        // 				$task->save();
-        // 			}
-        // 			break;
-        // 		case 'EveryWeek':
-        // 			if (Carbon::parse($task->completion_date)->addWeek()->format('Y-m-d') < date('Y-m-d')) {
-        // 				$task->completion_date = null;
-        // 				$task->save();
-        // 			}
-        // 			break;
-        // 		case 'EveryMonth':
-        // 			if (Carbon::parse($task->completion_date)->addMonth()->format('Y-m-d') < date('Y-m-d')) {
-        // 				$task->completion_date = null;
-        // 				$task->save();
-        // 			}
-        // 			break;
-        // 		case 'EveryYear':
-        // 			if (Carbon::parse($task->completion_date)->addYear()->format('Y-m-d') < date('Y-m-d')) {
-        // 				$task->completion_date = null;
-        // 				$task->save();
-        // 			}
-        // 			break;
-        // 		default:
-        //
-        // 	}
-        // }
+            if($category->is_approved == 1) {
+                $approved_categories[] = $category->toArray();
+            }
+        }
 
-        // $data['task']['statutory'] = SatutoryTask::latest()->where(function ($query) use ($userid) {
-        // 	$query->where('assign_from', $userid)
-        //  				->orWhere('assign_to', $userid);
-        // });
-        //
-        //
-        // if ($request->category != '') {
-        // 	$data['task']['statutory'] = $data['task']['statutory']->where('category', $request->category);
-        // }
-        //
-        // if ($request->term != '') {
-        // 	$data['task']['statutory'] = $data['task']['statutory']->where(function ($query) use ($term) {
-        // 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-        // 					->orWhere('id', 'LIKE', "%$term%")
-        // 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-        // 	});
-        // }
-        //
-        // $data['task']['statutory'] = $data['task']['statutory']->get()->toArray();
+        $selected_category = $request->category;
 
-        // $data['task']['statutory_completed'] = Task::latest()->where( 'is_statutory', '=', 1 )
-        //                                    ->whereNotNull( 'is_completed'  )
-        //                                    ->where( function ($query ) use ($userid) {
-        // 	                                   return $query->orWhere('assign_from', '=', $userid)
-        // 	                                                ->orWhere('assign_to', '=', $userid);
-        //                                    })
-        //                                    ->get()->toArray();
+        if (Auth::user()->hasRole('Admin')) {
+            if (empty($request->category)) {
+                $selected_category = 1;
+            }
+        }
 
-        // dd($data['task']['statutory_completed']);
+        $task_categories_dropdown = nestable($approved_categories)->attr(
+            [
+                'name' => 'category',
+                'class' => 'form-control input-sm',
+            ]
+        )->selected($selected_category)->renderAsDropdown();
 
-        // foreach ($data['task']['statutory_completed'] as $task) {
-        // 	dump($task->id);
-        // }
-        //
-        // dd('stap');
+        if (! empty($selected_user) && ! Helpers::getadminorsupervisor()) {
+            return response()->json(['user not allowed'], 405);
+        }
 
-        // $data['task']['statutory_today'] = Task::latest()->where( 'is_statutory', '=', 1 )
-        //                                            ->where( 'is_completed', '=',  null  )
-        //                                            ->where( function ($query ) use ($userid) {
-        // 	                                           return $query->orWhere( 'assign_from', '=', $userid )
-        // 	                                                        ->orWhere( 'assign_to', '=', $userid );
-        //                                            });
-        //
-        // if ($request->category != '') {
-        // 	$data['task']['statutory_today'] = $data['task']['statutory_today']->where('category', $request->category);
-        // }
-        //
-        // if ($request->term != '') {
-        // 	$data['task']['statutory_today'] = $data['task']['statutory_today']->where(function ($query) use ($term) {
-        // 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-        // 					->orWhere('id', 'LIKE', "%$term%")
-        // 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-        // 	});
-        // }
-        //
-        //  $data['task']['statutory_today'] = $data['task']['statutory_today']->get()->toArray();
+        $tasks_view = [];
+        $priority = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 
-        //		$data['task']['statutory_completed_ids'] = [];
-        //		foreach ($data['task']['statutory_completed'] as $item)
-        //			$data['task']['statutory_completed_ids'][] =  $item['statutory_id'];
+        $openTask = \App\Task::join('users as u', 'u.id', 'tasks.assign_to')->whereNull('tasks.is_completed')->groupBy('tasks.assign_to')->select(\DB::raw('count(u.id) as total'), 'u.name as person')->pluck('total', 'person');
 
-        // $data['task']['deleted']   = Task::onlyTrashed()
-        //                                 ->where( 'is_statutory', '=', 0 )
-        // 								->where( function ($query ) use ($userid) {
-        // 									return $query->orWhere( 'assign_from', '=', $userid )
-        // 									             ->orWhere( 'assign_to', '=', $userid );
-        // 								});
-        //
-        // if ($request->category != '') {
-        // 	$data['task']['deleted'] = $data['task']['deleted']->where('category', $request->category);
-        // }
-        //
-        // if ($request->term != '') {
-        // 	$data['task']['deleted'] = $data['task']['deleted']->where(function ($query) use ($term) {
-        // 		$query->whereRaw('category IN (SELECT id FROM task_categories WHERE name LIKE "%' . $term . '%") OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")')
-        // 					->orWhere('id', 'LIKE', "%$term%")
-        // 					->orWhere('task_details', 'LIKE', "%$term%")->orWhere('task_subject', 'LIKE', "%$term%");
-        // 	});
-        // }
-        //
-        // $data['task']['deleted'] = $data['task']['deleted']->get()->toArray();
+        if ($request->is_statutory_query == 3) {
+            $title = 'Discussion tasks';
+        } else {
+            $title = 'Task & Activity';
+        }
 
-        //  $tasks_query = Task::where('is_statutory', 0)
-        // 												->where('assign_to', Auth::id());
-        //
-        // $pending_tasks_count = Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->get();
-        // $completed_tasks_count = $tasks_query->whereNull('is_completed')->count();
-        // dd($pending_tasks_count);
+        $task_statuses = TaskStatus::all();
 
-        // $tasks_query = Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
-        //
-        // dd($tasks_query);
-        // $users = Helpers::getUserArray(User::all());
+        if ($request->ajax()) {
+            if ($type == 'pending') {
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            } elseif ($type == 'statutory_not_completed') {
+                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            } elseif ($type == 'completed') {
+                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            } else {
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            }
+        }
+
+        if ($request->is_statutory_query == 3) {
+            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+        } else {
+            $taskStatusData = TaskStatus::get();
+
+            $statuseslist = $taskStatusData->pluck('name', 'id')->toArray();
+            $selectStatusList = $taskStatusData->pluck('id')->toArray();
+            $taskstatus = $taskStatusData;
+
+            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
+        }
+    }
+
+    public function indexModules(Request $request)
+    {
+        if (! $request->input('type') || $request->input('type') == '') {
+            $type = 'pending';
+        } else {
+            $type = $request->input('type');
+        }
+
+        $category = '';
+        if ($request->category != '') {
+            $category = $request->category;
+            if ($request->category == 1) {
+                $category = '';
+            }
+        }
+
+        $term = $request->term ?? '';
+        $data['task'] = [];
+
+        $search_term_suggestions = [];
+        $search_suggestions = [];
+        $assign_from_arr = [0];
+        $special_task_arr = [0];
+        $assign_to_arr = [0];
+        $data['task']['pending'] = [];
+        $data['task']['statutory_not_completed'] = [];
+        $data['task']['completed'] = [];
+
+        if ($type == 'pending') {
+            // Get Pending tasks via model
+            $data['task']['pending'] = Task::getSearchedTasks('pending_list', $request);
+
+
+
+            foreach ($data['task']['pending'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['pending'] as $task) {
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    // $from_user = User::find($task->assign_from);
+                    $from_user = $task->assign_from_username;
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    // $to_user = User::find($task->assign_to);
+                    $to_user = $task->assign_to_username;
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        } elseif ($type == 'completed') {
+            // Get Completed tasks via model
+            $data['task']['completed'] = Task::getSearchedTasks('completed_list', $request);
+
+            foreach ($data['task']['completed'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['completed'] as $task) {
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    $from_user = $task->assign_from_username;
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    $to_user = $task->assign_to_username;
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        } elseif ($type == 'statutory_not_completed') {
+            // Get Statutory tasks via model
+            $data['task']['statutory_not_completed'] = Task::getSearchedTasks('statutory_not_completed_list', $request);
+
+            foreach ($data['task']['statutory_not_completed'] as $task) {
+                array_push($assign_to_arr, $task->assign_to);
+                array_push($assign_from_arr, $task->assign_from);
+                array_push($special_task_arr, $task->id);
+            }
+
+            $user_ids_from = array_unique($assign_from_arr);
+            $user_ids_to = array_unique($assign_to_arr);
+
+            foreach ($data['task']['statutory_not_completed'] as $task) {
+                $search_suggestions[] = '#' . $task->id . ' ' . $task->task_subject . ' ' . $task->task_details;
+                $from_exist = in_array($task->assign_from, $user_ids_from);
+                if ($from_exist) {
+                    $from_user = $task->assign_from_username;
+                    if ($from_user) {
+                        $search_term_suggestions[] = $from_user;
+                    }
+                }
+
+                $to_exist = in_array($task->assign_to, $user_ids_to);
+                if ($to_exist) {
+                    $to_user = $task->assign_to_username;
+                    if ($to_user) {
+                        $search_term_suggestions[] = $to_user;
+                    }
+                }
+                $search_term_suggestions[] = "$task->id";
+                $search_term_suggestions[] = $task->task_subject;
+                $search_term_suggestions[] = $task->task_details;
+            }
+        } else {
+            return;
+        }
 
         $usersOrderByName = User::orderBy('name')->get();
         $data['users'] = $usersOrderByName->toArray();
@@ -575,7 +580,7 @@ class TaskModuleController extends Controller
             $selectStatusList = $taskStatusData->pluck('id')->toArray();
             $taskstatus = $taskStatusData;
 
-            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
+            return view('task-module.show-modules', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
         }
     }
 
@@ -1283,15 +1288,21 @@ class TaskModuleController extends Controller
         } else {
             $userid = $request->input('selected_user');
 
+            $userqueryInner = '';
+
             if ($request->search_master_user_id != '') {
                 $searchMasterUserId = $request->search_master_user_id;
+
+                $userqueryInner .= ' OR master_user_id = ' . $searchMasterUserId;
             }
 
             if ($request->search_second_master_user_id != '') {
                 $searchSecondMasterUserId = $request->search_second_master_user_id;
+
+                $userqueryInner .= ' OR  second_master_user_id = ' . $searchSecondMasterUserId;
             }
 
-            $userquery = ' AND (assign_to = ' . $userid . ' OR master_user_id = ' . $searchMasterUserId . ' OR  second_master_user_id = ' . $searchSecondMasterUserId . ')';
+            $userquery = ' AND (assign_to = ' . $userid . $userqueryInner . ')';
         }
 
         if (! $request->input('type') || $request->input('type') == '') {
@@ -2530,6 +2541,37 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function createMultipleTaskFromScriptDocument(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
     public function createMultipleTaskFromSortcutMagentoProblems(Request $request)
     {
         try {
@@ -2592,6 +2634,37 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function createMultipleTaskFromSortcutSentry(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
     public function createTaskFromSortcut(Request $request)
     {
         // _p(request()->all(), 1);
@@ -2609,7 +2682,7 @@ class TaskModuleController extends Controller
         $taskType = request('task_type');
         $data = $request->except('_token');
 
-        if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
+        if ($taskType == '4' || $taskType == '5' || $taskType == '6' || $taskType == '0') {
             $data = [];
             if (is_array($request->task_asssigned_to)) {
                 $data['assigned_to'] = $request->task_asssigned_to[0];
@@ -3828,17 +3901,25 @@ class TaskModuleController extends Controller
                     $task->save();
                 }
             } else {
-                $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
+                try {
+                    $timeDoctorTaskResponse = $this->timeDoctorActions('TASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
 
-                $log = new TaskHubstaffCreateLog();
-                $log->task_id = $request->id;
-                $log->error_message = $timeDoctorTaskResponse['message'];
-                $log->user_id = Auth::id();
-                $log->save();
+                    $log = new TaskHubstaffCreateLog();
+                    $log->task_id = $request->id;
+                    $log->error_message = $timeDoctorTaskResponse['message'] ?? '';
+                    $log->user_id = Auth::id();
+                    $log->save();
 
-                return response()->json([
-                    'message' => $timeDoctorTaskResponse['message'],
-                ], $timeDoctorTaskResponse['code']);
+                    return response()->json([
+                        'message' => $timeDoctorTaskResponse['message'],
+                    ], $timeDoctorTaskResponse['code']);
+                }
+                catch (\Exception $e) {
+                    return response()->json([
+                        'message' => $e->getMessage(),
+                    ], \Illuminate\Http\Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+
             }
 
             return response()->json(

@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\UploadGoogleDriveScreencast;
 use Illuminate\Support\Facades\Validator;
+use App\DeveloperTask;
+use App\Task;
 
 class ScriptDocumentsController extends Controller
 {
@@ -25,10 +27,13 @@ class ScriptDocumentsController extends Controller
         $records = $records->groupBy('file')->get();
         $records_count = $records->count();
 
+        $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
         return view(
             'script-documents.index', [
                 'title' => $title,
                 'records_count' => $records_count,
+                'allUsers' => $allUsers,
             ]
         );
     }
@@ -313,8 +318,46 @@ class ScriptDocumentsController extends Controller
         return response()->json([
             'status' => true,
             'data' => $scriptDocument,
+            'last_output' => base64_decode(utf8_encode($scriptDocument['last_output'])),
             'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function taskCount($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+  
+    public function getScriptDocumentErrorLogs(Request $request)
+    {
+
+        $records = ScriptsExecutionHistory::select('*', DB::raw("MAX(id) AS id"))->where('run_status', 'Failed')->orderBy('id', 'DESC');
+        $records = $records->groupBy('script_document_id')->get();
+
+        return response()->json(['code' => 200, 'message' => 'Content render', 'count' => $records->count()]);
+    }
+
+    public function getScriptDocumentErrorLogsList(Request $request)
+    {   
+        $datas = ScriptsExecutionHistory::with('scriptDocument')->select('*', DB::raw("MAX(id) AS id"))->where('run_status', 'Failed')->orderBy('id', 'DESC');
+        $datas = $datas->groupBy('script_document_id')->take(10)->get();
+
+        return response()->json([
+            'tbody' => view('partials.modals.script-document-error-logs-modal-html', compact('datas'))->render(),
+            'count' => $datas->count(),
+        ]);
     }
 }

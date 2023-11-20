@@ -105,7 +105,7 @@ class AssetsManagerController extends Controller
 
         $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
         $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
-        $assets = $assets->orderBy('assets_manager.due_date', 'asc')->paginate(25);
+        $assets = $assets->orderBy('assets_manager.id', 'asc')->paginate(25);
         $websites = StoreWebsite::all();
         $plateforms = AssetPlateForm::all();
         $emailAddress = EmailAddress::all();
@@ -700,8 +700,10 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $user_access->username . '</td>';
                     $html .= '<td>' . $user_access->password . '</td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
-                    $html .= '<td>' . $user_access->request_data . '</td>';
-                    $html .= '<td>' . $user_access->response_data . '</td>';
+                    /*$html .= '<td>' . $user_access->request_data . '</td>';*/
+                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-request-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-response-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+                    /*$html .= '<td>' . $user_access->response_data . '</td>';*/
                     $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';
                     $i++;
@@ -827,5 +829,19 @@ class AssetsManagerController extends Controller
 
         // Return the filtered tags as JSON
         echo json_encode($filteredTags);
+    }
+
+    public function userAccessRequest($id)
+    {   
+        $userAccessRequest = AssetManagerUserAccess::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $userAccessRequest,
+            'request_data' => $userAccessRequest['request_data'],
+            'response_data' => $userAccessRequest['response_data'],
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

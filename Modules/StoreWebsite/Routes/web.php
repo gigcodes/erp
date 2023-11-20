@@ -106,6 +106,10 @@ Route::group([
 
     Route::get('magento-media-sync-logs', [StoreWebsiteController::class, 'magentoMediaSyncLogs'])->name('store-website.magentoMediaSyncLogs');
 
+    Route::post('varnish-front-end-cron', [StoreWebsiteController::class, 'varnishFrontendCron'])->name('store-website.varnish-front-end-cron');
+
+    Route::get('varnish-logs', [StoreWebsiteController::class, 'varnishLogs'])->name('store-website.varnish-logs');
+
     Route::group([
         'prefix' => '{id}',
     ], function () {

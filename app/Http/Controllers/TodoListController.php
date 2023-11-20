@@ -7,6 +7,7 @@ use App\Setting;
 use App\TodoList;
 use App\TodoStatus;
 use App\TodoCategory;
+use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Http\Request;
 use App\ToDoListRemarkHistoryLog;
 
@@ -292,5 +293,89 @@ class TodoListController extends Controller
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function indexJson(Request $request)
+    {
+        try {
+            $search_title = request('search_title') ?? '';
+            $search_status = request('search_status') ?? '';
+            $search_date = request('search_date') ?? '';
+            $search_todo_category_id = request('search_todo_category_id') ?? '';
+            $todolists = TodoList::with('username');
+
+            if ($s = $search_title) {
+                $todolists->where('title', 'like', '%' . $s . '%');
+            }
+
+            if ($s = $search_status) {
+                $todolists->where('status', 'like', '%' . $s . '%');
+            }
+
+            if ($s = $search_date) {
+                $todolists->where('todo_date', $s);
+            }
+
+            if ($s = $search_todo_category_id) {
+                $todolists->where('todo_category_id', $s);
+            }
+
+            //$todolists = $todolists->orderBy("todo_lists.todo_date", "desc")->paginate(Setting::get('pagination'));
+            $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
+
+            $statuses = TodoStatus::all()->toArray();
+            $todoCategories = TodoCategory::get();
+            //dd($statuses);
+
+            return response()->json([
+                'items' => (array)$todolists->getIterator(),
+                'page' => $todolists->currentPage(),
+                'total' => $todolists->total()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['code' => 500, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function updateJson(Request $request, TodoList $todoList)
+    {
+        try {
+            $data = $request->all();
+
+            $id = $data['id'] ?? null;
+            unset($data['id']);
+
+            if ($id !== null) {
+                $todolists = TodoList::find($id);
+
+                if ($todolists === null) {
+                    throw new RecordsNotFoundException('Not found.');
+                }
+            } else {
+                $todolists = new TodoList();
+            }
+
+            $todolists->user_id = Auth::user()->id ?? '';
+            $todolists->fill($data);
+
+            $todolists->save();
+            if ($request->remark != $request->old_remark) {
+                $this->createTodolistRemarkHistory($request, $todolists->id);
+            }
+            //return response()->json(["code" => 200, "data" => $todolists, "message" => "Your Todo List has been created!"]);
+            return response()->json(['message' => sprintf('You todolist was successfully updated with id: %s.', $todolists->id)]);
+        }
+        catch (RecordsNotFoundException $foundException) {
+            return response()->json(['message' => $foundException->getMessage()], 404);
+        }
+        catch (\Exception $e) {
+            return response()->json(['message' => 'Something went wrong.'], 500);
+        }
+    }
+
+    public function destroyJson($id)
+    {
+        TodoList::where('id', $id)->delete();
+        return response()->json(['message' => 'Your Todo Task has been deleted successfuly!']);
     }
 }

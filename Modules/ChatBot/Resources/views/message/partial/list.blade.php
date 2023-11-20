@@ -66,6 +66,8 @@
                 <th width="15%">Shortcuts</th>
             @endif
 
+            <th width="auto">Is elastic</th>
+
             @if (!in_array('Action', $dynamicColumnsToShowPostman))
                 <th width="auto">Action</th>
             @endif
@@ -79,8 +81,10 @@
             <th width="25%">Message Box </th>
             <th width="5%">From</th>
             <th width="15%">Shortcuts</th>
+            <th width="auto">Is elastic</th>
             <th width="auto">Action</th>
         @endif
+
     </tr>
     </thead>
     <tbody>
@@ -90,7 +94,7 @@
         <?php 
         foreach ($pendingApprovalMsg as $index =>$pam) { ?>
             @if(!empty($dynamicColumnsToShowPostman))
-                <tr class="customer-raw-line">
+                <tr class="customer-raw-line pam-{{ $pam->id }}">
                 @php
                     $context = 'email';
                     $issueID = null;
@@ -107,7 +111,7 @@
                 @endphp
 
                 @if (!in_array('Name', $dynamicColumnsToShowPostman))
-                    <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}">
+                    <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}" data-page="{{ $page }}">
 
                         @if($pam->supplier_id > 0)
                             @if (strlen($pam->supplier_name) > 5)
@@ -169,7 +173,7 @@
                 <!-- DEVTASK-23479 display message type -->
                 <!-- Purpose : Add question - DEVTASK-4203 -->
 
-                @if (!in_array('Name', $dynamicColumnsToShowPostman))
+                @if (!in_array('User input', $dynamicColumnsToShowPostman))
                     @if($pam->is_audio)
                         <td class="user-input" ><audio controls="" src="{{ \App\Helpers::getAudioUrl($pam->message) }}"></audio></td>
                     @elseif(strlen($pam->question) > 10)
@@ -356,6 +360,10 @@
                     </td>
                 @endif
 
+                <td>
+                    <?=isset($isElastic) ? 'Yes' : 'No' ?>
+                </td>
+
                 @if (!in_array('Action', $dynamicColumnsToShowPostman))
                     <td>
                         <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$pam->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -459,7 +467,7 @@
                     }
                 @endphp
 
-                <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}">
+                <td data-context="{{ $context }}" data-url={{ route('whatsapp.send', ['context' => $context]) }} {{ $pam->taskUser ? 'data-chat-message-reply-id='.$pam->chat_bot_id : '' }}  data-chat-id="{{ $pam->chat_id }}" data-customer-id="{{$pam->customer_id ?? ( $pam->taskUser ? $issueID : '')}}" data-vendor-id="{{$pam->vendor_id}}" data-supplier-id="{{$pam->supplier_id}}" data-chatbot-id="{{$pam->chat_bot_id}}" data-email-id="{{$pam->email_id}}" data-page="{{ $page }}">
 
                     @if($pam->supplier_id > 0)
                         @if (strlen($pam->supplier_name) > 5)
@@ -692,6 +700,9 @@
                   </div>
                 </td>
 
+                <td>
+                    <?=isset($isElastic) ? 'Yes' : 'No' ?>
+                </td>
 
                 <td>
                     <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$pam->id}}')"><i class="fa fa-arrow-down"></i></button>

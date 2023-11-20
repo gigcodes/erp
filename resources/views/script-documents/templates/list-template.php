@@ -66,22 +66,32 @@
 
 			      	<td>{{:prop.status}}</td>
 
-			        <td>		
-					 	<div  class="d-flex">
-							<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
-			        		<i class="fa fa-edit" aria-hidden="true"></i>
-							</button>
-							
-							<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
-								<i class="fa fa-trash" aria-hidden="true"></i>
-							</button>
-
-							<button type="button" data-id="{{>prop.id}}" class="btn script-document-history" style="padding:1px 0px;">
-			        			<i class="fa fa-info-circle" aria-hidden="true"></i>
-			        		</button>
-					 	</div>
-			        </td>
+			      	<td>
+	                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn({{>prop.id}})"><i class="fa fa-arrow-down"></i></button>
+	                </td>
 		      </tr>
+		      <tr class="action-btn-tr-{{>prop.id}} d-none">
+                <td>Action</td>
+                <td colspan="13">
+                	<div  class="d-flex">
+						<button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template">
+		        		<i class="fa fa-edit" aria-hidden="true"></i>
+						</button>
+						
+						<button type="button" title="Delete" data-id="{{>prop.id}}" class="btn btn-delete-template">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+						</button>
+
+						<button type="button" data-id="{{>prop.id}}" class="btn script-document-history">
+		        			<i class="fa fa-info-circle" aria-hidden="true"></i>
+		        		</button>
+
+		        		<button title="create quick task" type="button" class="btn create-quick-task " data-id="{{>prop.id}}"  data-category_title="Postman Page" data-title="{{>prop.file}} - {{>prop.id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+
+                        <button type="button" class="btn count-dev-customer-tasks" title="Show task history" data-id="{{>prop.id}}" data-category="{{>prop.id}}"><i class="fa fa-list"></i></button>
+				 	</div>
+                </td>
+               </tr>
 		    {{/props}}  
 	    </tbody>
 	</table>

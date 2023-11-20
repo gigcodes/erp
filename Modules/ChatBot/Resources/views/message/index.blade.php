@@ -208,8 +208,6 @@
                             </button>
                         </div>
                     </form>
-
-
                     <form method="post" class="pt-3 d-flex align-items-center chatbot-send-field">
                         <?php echo csrf_field(); ?>
                         <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:300px;"]); ?>
@@ -219,7 +217,17 @@
                         </button>
                     </form>
 
+
                     <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#chatbotmessagesdatatablecolumnvisibilityList">Column Visiblity</
+
+                    <div>
+                        @if($isElastic)
+                            <a class="btn btn-xs btn-secondary" href="{{ route('chatbot.messages.list') }}">Switch to Database</a>
+                        @else
+                            <a class="btn btn-xs btn-warning" href="{{ route('chatbot.messages.list') }}/elastic">Switch to Elastic data</a>
+                        @endif
+                    </div>
+
                 </div>
             </div>
 
@@ -402,6 +410,27 @@
             });
         });
 
+        $(document).on("click", ".messages-reindex", function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('chatbot.messages.reindex') }}",
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message, 'error');
+            });
+        });
+
         var getResults = function (href) {
             $.ajax({
                 type: 'GET',
@@ -460,7 +489,9 @@
 
         var isMessagesPage = function()
         {
-            if (window.location.pathname === '/chatbot/messages') {
+            let path = '/chatbot/messages';
+            let pathName = window.location.pathname;
+            if (pathName.indexOf(path) !== -1) {
                 return true;
             }
 
@@ -568,6 +599,8 @@
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
             var id = $(this).data('id');
+            var page = tr.data('page');
+            console.log(page);
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
             var data_chatbot_id = tr.data('chatbot-id');
@@ -690,8 +723,12 @@
                         thiss.closest(".cls_textarea_subbox").find("textarea").val("");
                         toastr['success']("Message sent successfully", 'success');
 
+                        $(".pam-" + id).find(".user-input").each(function() {
+                            console.log(message, id);
+                            $(this).text(message);
+                        });
                     }).fail(function (errObj) {
-
+                        getResults("{{ route('chatbot.messages.list') }}?page=" + page);
                     });
                 }
             } else {
