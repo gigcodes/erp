@@ -700,7 +700,8 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $user_access->username . '</td>';
                     $html .= '<td>' . $user_access->password . '</td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
-                    $html .= '<td>' . $user_access->request_data . '</td>';
+                    /*$html .= '<td>' . $user_access->request_data . '</td>';*/
+                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-request-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
                     $html .= '<td>' . $user_access->response_data . '</td>';
                     $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';

@@ -81,6 +81,7 @@
     </div>
 
     @include('partials.flash_messages')
+    @include('partials.models.user-access-request')
 
 
     <div class="mt-3 col-md-12">
@@ -1009,5 +1010,20 @@
             }
         });
     })
+
+    $(document).on('click','.user-access-request-view',function(){
+          id = $(this).data('id');
+      $.ajax({
+              method: "GET",
+              url: `{{ route('script-documents.comment', [""]) }}/` + id,
+              dataType: "json",
+              success: function(response) {
+                 
+                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.last_output);
+                    $("#script-document-last-output-list").modal("show");
+           
+              }
+          });
+    });
   </script>
 @endsection
