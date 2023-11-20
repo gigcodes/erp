@@ -1012,6 +1012,22 @@ class DevelopmentController extends Controller
             }
         }
 
+        $issuesGroups = clone $issues;
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+
+        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $countInProgress = [];
+        if (! empty($issuesGroups) && ! empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countInProgress[] = [
+                    'id' => $key,
+                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'count' => $count,
+                ];
+            }
+        }
+
         // Sort
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
