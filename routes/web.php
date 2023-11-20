@@ -925,6 +925,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('/crop-references-grid/getSupplier', [CroppedImageReferenceController::class, 'getSupplier']);
     Route::get('crop-referencesx', [CroppedImageReferenceController::class, 'index']);
     Route::get('/crop-references-grid/log-instance', [CroppedImageReferenceController::class, 'loginstance']);
+    Route::post('crop-references-visbility', [CroppedImageReferenceController::class, 'cropColumnVisbilityUpdate'])->name('crop_references.column.update');
 
     Route::get('/magento/status', [MagentoController::class, 'addStatus']);
     Route::post('/magento/status/save', [MagentoController::class, 'saveStatus'])->name('magento.save.status');
@@ -2917,6 +2918,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('assets-manager/user-access-delete', [AssetsManagerController::class, 'deleteUserAccess']);
     Route::get('assets-manager/user_accesses', [AssetsManagerController::class, 'assetsManagerUserAccessList'])->name('assets_manager_user_accesses');
     Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
+    Route::get('assets-manager-user-access-request/{id}', [AssetsManagerController::class, 'userAccessRequest'])->name('assetsmanager.user_access_request');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);

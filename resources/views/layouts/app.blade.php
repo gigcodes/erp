@@ -972,7 +972,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                         {{ $userEmail->to }}
                                                     </span>
                                                 </td>
-                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{$userEmail}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
+                                                <td data-toggle="modal" data-target="#view-quick-email" onclick="openQuickMsg({{json_encode($userEmail)}})" style="cursor: pointer;">{{ substr($userEmail->subject, 0,  15) }} {{strlen($userEmail->subject) > 10 ? '...' : '' }}</td>
                                                 <td>
                                                     <a href="javascript:;" data-id="{{ $userEmail->id }}" data-content="{{$userEmail->message}}" class="menu_editor_copy btn btn-xs p-2" >
                                                         <i class="fa fa-copy"></i>
@@ -1147,37 +1147,19 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <div class="form-group col-md-12">
                                     <label for="assets_manager_id">Assets Manager <span id="am-client-id"></span></label>
                                     <div class="dropdown-sin-1">
-                                        <select name="assets_manager_id" class="assets_manager_id form-control dropdown-mul-1" style="width: 100%;" id="assets_manager_id" required>
-                                            <option value="">--Assets Manager--</option>
-                                            
-                                            <?php
-                            foreach($assetsmanager as $am){
-                                echo '<option value="'.$am->id.'" data-client_id="'.$am->client_id.'">'.$am->name.'</option>';
-                            }
-                          ?>
-                                        </select>
+
                                     </div>
                                 </div>
 
                                 <div class="form-group col-md-12">
                                     <label for="command_name">Command Name</label>
                                     {{-- <input type="text" name="command_name" value="" class="form-control" id="command_name_search" placeholder="Enter Command name"> --}}
-                                    <select name="command_name" class="form-control" id="command_name_search" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comName==request('command_name')) selected @endif value="{{$comName}}">{{$comName}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="command_type">Command</label>
                                     {{-- <input type="text" name="command_type" value="" class="form-control" id="command_type" placeholder="Enter request type"> --}}
-                                    <select name="command_type" class="form-control" id="command_type" style="width: 100%" required>
-                                        <option value="">--Select Command Name--</option>
-                                        @foreach ($magentoCommandListArray as $comName => $comType)
-                                        <option @if($comType==request('command_type')) selected @endif value="{{$comType}}">{{$comType}}</option>
-                                        @endforeach
-                                    </select>
+
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label for="working_directory">Working Directory</label>
@@ -4534,6 +4516,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/store-website/admin-urls">Admin URLs</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/store-website/admin-password">Admin Password</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
@@ -8243,6 +8228,9 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
+
+        $("#loading-image-preview").show();
+
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8253,6 +8241,7 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
+                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8261,10 +8250,12 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
+                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
+            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });

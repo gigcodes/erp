@@ -81,7 +81,8 @@
     </div>
 
     @include('partials.flash_messages')
-
+    @include('partials.modals.user-access-request')
+    @include('partials.modals.user-access-response')
 
     <div class="mt-3 col-md-12">
       <div class="infinite-scroll" style="overflow-y: auto">
@@ -803,13 +804,6 @@
 
       $(".assets-create-modal").on("click", function(){
         $("#assetsCreateModal").modal("show");
-        /*var createPermission = "<? /*userCan('assets-manager-create'); ?>";
-        if(createPermission){
-          $("#assetsCreateModal").modal("show");
-        }else{
-          $(".unauthorised").removeClass("hidden");
-          $(".unauthorised").html("<p> Unauthorised permission</p>")
-        }*/
       });
 
       $("#asset_user_name").select2({
@@ -1036,5 +1030,35 @@
             }
         });
     })
+
+    $(document).on('click','.user-access-request-view',function(){
+        id = $(this).data('id');
+        $.ajax({
+              method: "GET",
+              url: `{{ route('assetsmanager.user_access_request', [""]) }}/` + id,
+              dataType: "json",
+              success: function(response) {
+                 
+                    $("#user-access-request-list-header").find(".user-access-request-header-view").html(response.request_data);
+                    $("#user-access-request-list-header").modal("show");
+           
+              }
+          });
+    });
+
+    $(document).on('click','.user-access-response-view',function(){
+        id = $(this).data('id');
+        $.ajax({
+              method: "GET",
+              url: `{{ route('assetsmanager.user_access_request', [""]) }}/` + id,
+              dataType: "json",
+              success: function(response) {
+                 
+                    $("#user-access-response-list-header").find(".user-access-response-header-view").html(response.response_data);
+                    $("#user-access-response-list-header").modal("show");
+           
+              }
+          });
+    });
   </script>
 @endsection
