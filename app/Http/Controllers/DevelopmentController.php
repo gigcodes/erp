@@ -1107,6 +1107,12 @@ class DevelopmentController extends Controller
                 }
             });
         }
+
+        if ($request->input('selected_user') != '') {
+            $userid = $request->input('selected_user');
+            $issues = $issues->where('developer_tasks.assigned_to', $userid);
+        }
+        
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         if ($request->get('last_communicated', 'off') == 'on') {
