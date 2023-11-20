@@ -8225,6 +8225,9 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
+
+        $("#loading-image-preview").show();
+
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8235,6 +8238,7 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
+                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8243,10 +8247,12 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
+                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
+            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });
