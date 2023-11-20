@@ -952,9 +952,15 @@ class MessageController extends Controller
             ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id')
             ->leftJoin('store_websites as sw', 'sw.id', 'c.store_website_id')
             ->leftJoin('chatbot_replies as cr', 'cr.replied_chat_id', 'chat_messages.id')
-            ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id')
-            ->leftJoin('emails as e', 'e.id', 'chat_messages.email_id')
-            ->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
+            ->leftJoin('chat_messages as cm1', 'cm1.id', 'cr.chat_id');
+
+        if (request('message_type') == 'email') {
+            $pendingApprovalMsg->rightJoin('emails as e', 'e.id', 'chat_messages.email_id');
+        } else {
+            $pendingApprovalMsg->leftJoin('emails as e', 'e.id', 'chat_messages.email_id');
+        }
+
+        $pendingApprovalMsg->groupBy(['chat_messages.customer_id', 'chat_messages.vendor_id', 'chat_messages.user_id', 'chat_messages.task_id', 'chat_messages.developer_task_id', 'chat_messages.bug_id', 'chat_messages.email_id']); //Purpose : Add task_id - DEVTASK-4203
 
         if (! empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -982,9 +988,6 @@ class MessageController extends Controller
 
         if (request('message_type') != null) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) {
-                if (request('message_type') == 'email') {
-                    $q->where('chat_messages.is_email', '>', 0);
-                }
                 if (request('message_type') == 'task') {
                     $q->orWhere('chat_messages.task_id', '>', 0);
                 }
