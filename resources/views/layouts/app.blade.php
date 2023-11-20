@@ -1538,6 +1538,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
+                                    <a title="Assets Manager" id="assets-manager-listing" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-table fa-2x" aria-hidden="true"></i></span>
+                                        <span class="script-document-error-badge hide"></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
                             </ul>                         
@@ -5317,6 +5323,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('partials.modals.script-document-error-logs-modal')
+        @include('partials.modals.assets-manager-listing-modal')
         @include('partials.modals.magento-cron-error-status-modal')
         @include('partials.modals.magento-commands-modal')
         @include('partials.modals.last-output')
@@ -9318,6 +9325,12 @@ if (!\Auth::guest()) {
         getScriptDocumentErrorLogs(true);
     });
 
+    $(document).on('click','#assets-manager-listing',function(e){
+        e.preventDefault();
+        $('#assets-manager-listing-modal').modal('show');
+        getAssetsManager();
+    });
+
     function getScriptDocumentErrorLogs(showModal = false) {
         $.ajax({
             type: "GET",
@@ -9335,6 +9348,23 @@ if (!\Auth::guest()) {
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
+        });
+    }
+
+    function getAssetsManager() {
+        $.ajax({
+            type: "GET",
+            url: "{{route('assetsManager.loadTable')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $("#assets-manager-listing-modal-html").empty().html(response.tpl);
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            $("#assets-manager-listing-modal-html").empty().html(response.tpl);
         });
     }
 

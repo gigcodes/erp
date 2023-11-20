@@ -86,4 +86,10 @@ class AssetsManager extends Model
             'One time' => 'One time',
         ];
     }
+
+    public function getTableFields()
+    {
+        return ['name', 'capacity', 'asset_type', 'start_date', 'amount', 'provider_name', 'location', 'currency', 'usage', 'user_name', 'assigned_to', 'ip', 'ip_name', 'folder_name', 'website_id', 'created_by', 'link', 'ip', 'client_id', 'account_username', 'account_password', 'monit_api_url', 'monit_api_username'];
+
+    }
 }

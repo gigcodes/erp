@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetsManager;
 use App\Setting;
 use App\StoreWebsite;
 use App\GoogleTranslate;
@@ -237,6 +238,25 @@ class ApiResponseMessageController extends Controller
             'store_website_id' => $request->store_website_id,
             'key' => $request->key,
             'lang_name' => $request->lang_name,
+        ]);
+    }
+
+    public function indexJson(Request $request)
+    {
+        $assetsManager = AssetsManager::query()->orderBy('id', 'DESC')->get();
+
+        return response()->json([
+            'items' => (array)$assetsManager->getIterator()
+        ]);
+    }
+
+    public function loadTable(Request $request)
+    {
+        $assetsManagers = AssetsManager::query()->orderBy('id', 'DESC')->get();
+        return response()->json([
+            'tpl' => (string)view('partials.modals.assets-manager-listing', [
+                'assetsManagers' => $assetsManagers
+            ])
         ]);
     }
 }
