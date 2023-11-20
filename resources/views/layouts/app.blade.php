@@ -5326,7 +5326,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('partials.modals.script-document-error-logs-modal')
-        @include('partials.modals.assets-manager-listing-modal')
+        <div id="ajax-assets-manager-listing-modal">
+
+        </div>
         @include('partials.modals.magento-cron-error-status-modal')
         @include('partials.modals.magento-commands-modal')
         @include('partials.modals.last-output')
@@ -9336,7 +9338,6 @@ if (!\Auth::guest()) {
 
     $(document).on('click','#assets-manager-listing',function(e){
         e.preventDefault();
-        $('#assets-manager-listing-modal').modal('show');
         getAssetsManager();
     });
 
@@ -9370,10 +9371,12 @@ if (!\Auth::guest()) {
             }
         }).done(function (response) {
             $('.ajax-loader').hide();
-            $("#assets-manager-listing-modal-html").empty().html(response.tpl);
+            $("#ajax-assets-manager-listing-modal").empty().html(response.tpl);
+            $("#assetsEditModal").modal('show');
         }).fail(function (response) {
             $('.ajax-loader').hide();
-            $("#assets-manager-listing-modal-html").empty().html(response.tpl);
+            $("#ajax-assets-manager-listing-modal").empty().html(response.tpl);
+            $("#assetsEditModal").modal('show');
         });
     }
 

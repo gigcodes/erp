@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\AssetPlateForm;
 use App\AssetsManager;
+use App\EmailAddress;
 use App\Setting;
 use App\StoreWebsite;
 use App\GoogleTranslate;
+use App\User;
 use App\WebsiteStoreView;
 use App\ApiResponseMessage;
 use Illuminate\Http\Request;
@@ -253,9 +256,24 @@ class ApiResponseMessageController extends Controller
     public function loadTable(Request $request)
     {
         $assetsManagers = AssetsManager::query()->orderBy('id', 'DESC')->get();
+        $websites = StoreWebsite::all();
+        $plateforms = AssetPlateForm::all();
+        $emailAddress = EmailAddress::all();
+        $whatsappCon = \DB::table('whatsapp_configs')->get();
+        $assets_category = \DB::table('assets_category')->get();
+        $assets = AssetsManager::query()->orderBy('id', 'DESC')->get();
+
+        $users = User::get()->toArray();
         return response()->json([
-            'tpl' => (string)view('partials.modals.assets-manager-listing', [
-                'assetsManagers' => $assetsManagers
+            'tpl' => (string)view('partials.modals.assets-manager-listing-modal', [
+                'assetsManagers' => $assetsManagers,
+                'websites' => $websites,
+                'plateforms' => $plateforms,
+                'emailAddress' => $emailAddress,
+                'whatsappCon' => $whatsappCon,
+                'assets_category' => $assets_category,
+                'assets' => $assets,
+                'users' => $users
             ])
         ]);
     }
