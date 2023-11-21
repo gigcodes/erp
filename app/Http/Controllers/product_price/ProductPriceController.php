@@ -119,7 +119,7 @@ class ProductPriceController extends Controller
 
         $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
 
-        $products = $products->skip($skip * Setting::get('pagination'))->limit('25')->get();
+        $products = $products->skip($skip * 25)->limit(25)->get();
         //$products = $products->limit(100)->get();
         $product_list = [];
         if (count($products)) {
@@ -480,7 +480,7 @@ class ProductPriceController extends Controller
                 $brands->orderBy('cs.name', $request->order);
             }
         }
-        $numcount = $brands->count();
+        $numcount = 5000;
         $brands = $brands
             ->skip($skip * Setting::get('pagination'))
         ->limit(Setting::get('pagination') ?? 10)
