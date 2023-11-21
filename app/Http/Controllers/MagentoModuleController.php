@@ -841,7 +841,7 @@ class MagentoModuleController extends Controller
     {   
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
-        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('created_at', 'DESC');
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('id', 'DESC');
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
             $magento_modules = $magento_modules->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
@@ -851,7 +851,7 @@ class MagentoModuleController extends Controller
             $magento_modules = $magento_modules->whereDate('magento_module_logs.created_at', "=", $request->selected_date);
         }
 
-        $magento_modules = $magento_modules->orderBy('magento_module_logs.id', 'asc')->paginate(10);
+        $magento_modules = $magento_modules->paginate(10);
 
         $magento_modules_count = MagentoModuleLogs::count();
 
