@@ -3,23 +3,61 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Sonar Cube</h2>
+        <h2 class="page-heading">Sonar Cube ({{$issues->total()}})</h2>
         <div class="pull">
             <div class="row" style="margin:10px;">
-                <div class="col-6">
+                <div class="col-12">
                     <form method="get">
-                        <div class="flex">
-                            <div class="col" style="padding: 0;">
+                        <div class="row">
+                            <div class="col-md-3">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-                                <img src="/images/search.png" style="cursor: default;">
-                            </button>
-                            <a href="{{route('sonarqube.list.page')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+                            <div class="col-md-2">
+                                <label for="severity">Severity </label>
+                                <select class="form-control select2", multiple name="severity[]" id="severity">
+                                    @foreach($issuesFilterSeverity as $k=>$v)
+                                        <option value="{{$k}}"
+                                        @if(is_array(request('severity')) && in_array($k, request('severity')))
+                                            selected	
+                                        @endif
+                                        >{{$v}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="author">Author </label>
+                                <select class="form-control select2", multiple name="author[]" id="author">
+                                    @foreach($issuesFilterAuthor as $k=>$v)
+                                        <option value="{{$k}}"
+                                        @if(is_array(request('author')) && in_array($k, request('author')))
+                                            selected	
+                                        @endif
+                                        >{{$v}}</option>
+                                    @endforeach                                   
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="project">Project </label>
+                                <select class="form-control select2", multiple name="project[]" id="project">
+                                    @foreach($issuesFilterProject as $k=>$v)
+                                        <option value="{{$k}}"
+                                        @if(is_array(request('project')) && in_array($k, request('project')))
+                                            selected	
+                                        @endif
+                                        >{{$v}}</option>
+                                    @endforeach   
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                                    <img src="/images/search.png" style="cursor: default;">
+                                </button>
+                                <a href="{{route('sonarqube.list.page')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+                            </div>
                         </div>
                     </form>
                 </div>
-                <div class="col-6">
+                <div class="col-12">
                     <div class="pull-right">
                         <button type="button" class="btn btn-secondary" onclick="listuserprojects()"> Sonar project deatils </button>
                         <button type="button" class="btn btn-secondary" onclick="listprojects()">list the projects </button>
@@ -191,7 +229,12 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+
 <script type="text/javascript">
+    
+$('select.select2').select2();
 
 $(document).on('click', '.expand-row', function () {
     var selection = window.getSelection();
