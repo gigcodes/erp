@@ -217,6 +217,11 @@ class TaskModuleController extends Controller
         $data['users'] = $usersOrderByName->toArray();
         $data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
+        // foreach ($data['task']['pending'] as $task) {
+        // }
+
+        // $category = '';
+
         // Lead user process starts
         $model_team = \DB::table('teams')->where('user_id', auth()->user()->id)->get()->toArray();
         $isTeamLeader = head($model_team);
