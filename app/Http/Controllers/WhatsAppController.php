@@ -2590,7 +2590,12 @@ class WhatsAppController extends FindByNumberController
                     $params['is_audio'] = $request->get('is_audio', 0);
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
-                    $userId = $issue->assigned_to;
+                    $userId = 0;
+
+                    if ($issue->assigned_to !== null) {
+                        $userId = $issue->assigned_to;
+                    }
+
                     if ($sendTo == 'to_master') {
                         if ($issue->master_user_id) {
                             $userId = $issue->master_user_id;
