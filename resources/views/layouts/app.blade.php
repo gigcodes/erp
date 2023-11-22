@@ -4524,6 +4524,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/virtualmin/domains">Virtualmin Domains</a>
+                                    </li>
                                 </ul>
                             </li>
 
