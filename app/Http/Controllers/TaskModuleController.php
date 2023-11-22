@@ -2686,8 +2686,9 @@ class TaskModuleController extends Controller
         $assignedUserId = 0;
         $taskType = request('task_type');
         $data = $request->except('_token');
+        $quick_task = request('quick_task');
 
-        if ($taskType == '4' || $taskType == '5' || $taskType == '6' || $taskType == '0') {
+        if ($taskType == '4' || $taskType == '5' || $taskType == '6' || ($taskType == '0' && $quick_task == '1')) {
             $data = [];
             if (is_array($request->task_asssigned_to)) {
                 $data['assigned_to'] = $request->task_asssigned_to[0];
