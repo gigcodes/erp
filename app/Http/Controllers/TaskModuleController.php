@@ -2687,7 +2687,7 @@ class TaskModuleController extends Controller
         $taskType = request('task_type');
         $data = $request->except('_token');
 
-        if ($taskType == '4' || $taskType == '5' || $taskType == '6' || $taskType == '0') {
+        if ($taskType == '4' || $taskType == '5' || $taskType == '6') {
             $data = [];
             if (is_array($request->task_asssigned_to)) {
                 $data['assigned_to'] = $request->task_asssigned_to[0];
