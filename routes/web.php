@@ -1465,6 +1465,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('project/search', [SonarqubeController::class, 'searchProject'])->name('sonarqube.list.Project');
         Route::get('issues/search', [SonarqubeController::class, 'searchIssues'])->name('sonarqube.list.page');
         Route::get('user_tokens/search', [SonarqubeController::class, 'searchUserTokens'])->name('sonarqube.user.projects');
+        Route::get('countdevtask/{id}', [SonarqubeController::class, 'taskCount']);
     });
 
     //plesk
@@ -1888,6 +1889,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/deletedevtask', [TaskModuleController::class, 'deletedevtask'])->name('task.delete.task');
     Route::get('task/preview-img-task/{id}', [TaskModuleController::class, 'previewTaskImage'])->name('task.preview-img');
     Route::post('task/send-sop', [TaskModuleController::class, 'SendTaskSOP'])->name('task.sendSop');
+    Route::post('task/create-multiple-task-from-shortcutsonar', [TaskModuleController::class, 'createMultipleTaskFromSortcutSonar'])->name('task.create.multiple.task.shortcutsonar');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
