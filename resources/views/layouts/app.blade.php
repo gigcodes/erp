@@ -45,7 +45,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
-    <script src="https://erp.theluxuryunlimited.com/js/pages/site.js?v=2023112310" defer></script>
+    <script src="{{siteJs('site.js')}}" defer></script>
     <script>var BASE_URL = "{{config('app.url')}}";</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
