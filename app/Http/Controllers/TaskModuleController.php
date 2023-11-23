@@ -4349,6 +4349,20 @@ class TaskModuleController extends Controller
             );
         }
         $task->assign_to = $request->get('user_id');
+
+        /*$user_avaibility = UserAvaibility::where('user_id', $request->get('user_id'))->orderBy('id', 'desc')->first();
+
+        $tasksDetails = Task::where('assign_to', $request->get('user_id'))->orderBy('due_date', 'DESC')->first();
+        $devtasksDetails = DeveloperTask::where('assigned_to', $request->get('user_id'))->orderBy('estimate_date', 'DESC')->first();
+
+        if($tasksDetails->due_date>$devtasksDetails->estimate_date){
+            $task->start_date = date('Y-m-d H:i:00', strtotime($tasksDetails->due_date . ' + 1 minutes'));
+            $task->due_date = date('Y-m-d H:i:00', strtotime($tasksDetails->due_date . ' + 2 minutes'));    
+        } else {
+            $task->start_date = date('Y-m-d H:i:00', strtotime($devtasksDetails->estimate_date . ' + 1 minutes'));
+            $task->due_date = date('Y-m-d H:i:00', strtotime($devtasksDetails->estimate_date . ' + 2 minutes'));
+        }*/
+
         $task->save();
         //    $task->users()->attach([$request->input('assign_to') => ['type' => User::class]]);
 
@@ -4650,6 +4664,9 @@ class TaskModuleController extends Controller
                     if ($oldValue == $newValue) {
                         return respJson(400, 'No change in time slot.');
                     }
+                    
+                    $single->status = 'Planned';
+                    $single->manually_assign = 1;
                     $single->start_date = $newValue;
                     $single->estimate_date = date('Y-m-d H:i:00', strtotime($single->start_date . " +$single->estimate_minutes minute"));
 
@@ -4667,6 +4684,8 @@ class TaskModuleController extends Controller
                     if (empty($single->approximate) || $single->approximate == null || $single->approximate == '' || $single->approximate == 0) {
                         throw new Exception('Update your estimate time first.');
                     }
+
+                    $single->manually_assign = 1;
                     $oldValue = $single->start_date;
 
                     $single->start_date = $newValue;

@@ -2790,6 +2790,19 @@ class DevelopmentController extends Controller
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
 
+        /*$user_avaibility = UserAvaibility::where('user_id', $request->get('assigned_to'))->orderBy('id', 'desc')->first();
+
+        $tasksDetails = Task::where('assign_to', $request->get('assigned_to'))->orderBy('due_date', 'DESC')->first();
+        $devtasksDetails = DeveloperTask::where('assigned_to', $request->get('assigned_to'))->orderBy('estimate_date', 'DESC')->first();
+
+        if($tasksDetails->due_date>$devtasksDetails->estimate_date){
+            $issue->start_date = date('Y-m-d H:i:00', strtotime($tasksDetails->due_date . ' + 1 minutes'));
+            $issue->estimate_date = date('Y-m-d H:i:00', strtotime($tasksDetails->due_date . ' + 2 minutes'));    
+        } else {
+            $issue->start_date = date('Y-m-d H:i:00', strtotime($devtasksDetails->estimate_date . ' + 1 minutes'));
+            $issue->estimate_date = date('Y-m-d H:i:00', strtotime($devtasksDetails->estimate_date . ' + 2 minutes'));
+        }*/
+
         $user = User::find($request->get('assigned_to'));
 
         if (! $user) {
