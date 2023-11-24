@@ -2403,7 +2403,7 @@ class UserManagementController extends Controller
                                         $ut_arrayManually = [];
                                         
                                         
-                                        if (isset($slot['userTasks'])) {
+                                        if (!empty($slot['userTasks'])) {
                                             foreach ($slot['userTasks'] as $ut) {
 
                                                 if($ut['manually_assign']==1){
