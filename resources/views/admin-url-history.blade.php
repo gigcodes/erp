@@ -10,15 +10,14 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th width="10%">No</th>
-                                <th width="30%">Store Website</th>
-                                <th width="30%">Admin Url</th>
-                                <!-- <th width="30%">Store Directory</th>
-                                <th width="30%">Server Ip</th> -->
-                                <th width="30%">Request Data</th>
-                                <th width="30%">Response Data</th>
-                                <th width="20%">Created BY</th>
-                                <th width="30%">Created Date</th>
+                                <th>No</th>
+                                <th>Store Website</th>
+                                <th>Admin Url</th>
+                                <th>Request Data</th>
+                                <th>Response Data</th>
+                                <th>Created BY</th>
+                                <th>Created Date</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody class="api-token-list-view">

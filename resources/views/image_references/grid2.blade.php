@@ -84,6 +84,8 @@
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
                  <button class="btn btn-secondary btn-instances-manage">Instances</button>
+                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cropdatatablecolumnvisibilityList">Column Visiblity</button>
+                 <a target="_blank" href="{{route('crop-references.logs')}}" class="btn btn-secondary"> Image Crop Logs History</a>
 
                  <select class="form-control-sm form-control bg-secondary text-light" name="reject_cropping" id="reason-select">
                     <option value="0">Select...</option>
@@ -245,9 +247,9 @@
     </div>
 
 </div>
- @include('partials.modals.task-module')
- @include('partials.modals.large-image-modal')
-   
+@include('partials.modals.task-module')
+@include('partials.modals.large-image-modal')
+@include("image_references.partials.column-visibility-modal")
 @endsection
 
 @section('scripts')
@@ -286,18 +288,30 @@
                     data:params
                 },
                 columns: [
-                    {data: 'id', name: 'id'},
-                    {data: 'product_id', name: 'product_id'},
-                    {data: 'product.product_category.title', name: 'product.product_category.title'},
-                    {data: 'product.supplier', name: 'product.supplier'},
-                    {data: 'product.brands.name', name: 'product.brands.name'},
-                    {data: 'store_website', name: 'store_website',orderable: false,searchable: false},
-                    {data: 'original_image', name: 'original_image',orderable: false,searchable: false},
-                    {data: 'cropped_image', name: 'cropped_image',orderable: false,searchable: false},
-                    {data: 'speed', name: 'speed',orderable: false,searchable: false},
-                    {data: 'date', name: 'date',orderable: false,searchable: false},
-                    {data: 'action', name: 'action',orderable: false,searchable: false},
-                    {data: 'issue', name: 'issue',orderable: false,searchable: false},
+                    {data: 'id', name: 'id', 'visible' : @if(in_array('ID', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'product_id', name: 'product_id', 'visible' : @if(in_array('Pro. Id', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'product.product_category.title', name: 'product.product_category.title', 'visible' : @if(in_array('Category', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'product.supplier', name: 'product.supplier', 'visible' : @if(in_array('Supplier', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'product.brands.name', name: 'product.brands.name', 'visible' : @if(in_array('Brand', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {
+                        data: 'store_website',
+                        name: 'store_website',
+                        render: function(data, type, row, meta) {                           
+                            let datas =
+                                `<div class="data-content">
+                                        ${data == null ? '' : `<div class="expand-row module-text"><div class="flex items-center justify-left td-mini-container">${setStringLength(data, 18)}</div><div class="flex items-center justify-left td-full-container hidden">${data}</div></div>`}
+                                </div>`;
+
+                            return `<div class="flex flex-center-block" style="position: relative;">${datas}</div>`;
+                        }
+                    },
+                    
+                    {data: 'original_image', name: 'original_image',orderable: false,searchable: false, 'visible' : @if(in_array('Original Image', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'cropped_image', name: 'cropped_image',orderable: false,searchable: false, 'visible' : @if(in_array('Cropped Image', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'speed', name: 'speed',orderable: false,searchable: false, 'visible' : @if(in_array('Time', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'date', name: 'date',orderable: false,searchable: false, 'visible' : @if(in_array('Date', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'action', name: 'action',orderable: false,searchable: false, 'visible' : @if(in_array('Action', $dynamicColumnsToShowCrop)) false @else true @endif},
+                    {data: 'issue', name: 'issue',orderable: false,searchable: false, 'visible' : @if(in_array('Issue', $dynamicColumnsToShowCrop)) false @else true @endif},
                 ],
                 drawCallback: function() {
                     var api = this.api();
@@ -712,6 +726,14 @@
 			});
 		}
 	});
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.td-mini-container').toggleClass('hidden');
+            $(this).find('.td-full-container').toggleClass('hidden');
+        }
+    });
 	//End load more functionality
     </script>
 

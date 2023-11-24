@@ -896,7 +896,15 @@ class ProjectController extends Controller
         $selectedIdsString = $request->input('selectedIds');
         $projectIds = explode(',', $selectedIdsString);
         $responseResults = [];
-
+        $metapackage_branch = "";
+        
+        if($request->metapackage_branch == 'master' &&  $request->repository == 353671452)
+        {
+            $metapackage_branch = "master";
+        } else {
+            $metapackage_branch = "";
+        }
+        
         foreach ($projectIds as $projectId) {
             $project = Project::find($projectId);
             $job_name = $project->job_name;
@@ -960,7 +968,7 @@ class ProjectController extends Controller
 
                     try {
                         $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
-                        $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
+                        $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity, 'metapackage_branch' => $metapackage_branch ]);
                         if ($launchJobStatus) {
                             $job = $jenkins->getJob($jobName);
 

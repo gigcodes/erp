@@ -196,6 +196,12 @@ class MagentoCareersController extends Controller
             $career->where('title', 'like', "%{$data['title']}%");
         }
 
+        if (isset($data['order_by']) && $data['order_by'] == 1) {
+            $career->orderBy('created_at', 'asc');
+        } else {
+            $career->orderBy('created_at', 'desc');
+        }
+
         /** @var Career $career */
         $career = $career->get();
 

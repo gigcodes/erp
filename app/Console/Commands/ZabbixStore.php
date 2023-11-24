@@ -104,17 +104,26 @@ class ZabbixStore extends Command
 
         $results = json_decode($result);
 
-        if (isset($results[0]->result)) {
-            return $results[0]->result;
-        } else {
-            \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
+        if (!isset($results[0])){
+            \Log::channel('general')->info("Response error: " . Carbon::now(). " " . json_encode($results));
+            return 0;
+        }
 
+        try {
+            if (isset($results[0]->result)) {
+                return $results[0]->result;
+            } else {
+                \Log::channel('general')->info(Carbon::now() . $results[0]->error->data);
+                return 0;
+            }
+        } catch (\Exception|\Throwable $e) {
             return 0;
         }
     }
 
     public function host_api($auth_key)
     {
+        \Log::error('Start fetching items from Zabbix API (host_api)');
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';
@@ -136,6 +145,7 @@ class ZabbixStore extends Command
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         LogRequest::log($startTime, $url, 'GET', json_encode($datas), $result, $httpcode, \App\Console\Commands\ZabbixStore::class, 'host_api');
+        \Log::error('Fetched data from (host_api): ' . $result);
         $results = json_decode($result);
 
         return $results[0]->result;
@@ -143,6 +153,7 @@ class ZabbixStore extends Command
 
     public function item_api($auth_key, $hostid)
     {
+        \Log::error('Start fetching items from Zabbix API (item_api)');
         //Get API ENDPOINT response
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = env('ZABBIX_HOST') . '/api_jsonrpc.php';

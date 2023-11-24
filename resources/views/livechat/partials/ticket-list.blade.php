@@ -69,6 +69,9 @@
         </div>
     </td>
     <td>
+        <button type="button" class="btn btn-primary modal-show-images" data-json='<?=json_encode($ticket->getImages())?>'>Images</button>
+    </td>
+    <td>
         <input type="date" class="form-control" onchange="changeDate(this,{{$ticket->id}})" id="date_{{ $ticket->id }}" value="{{($ticket->resolution_date)?date('Y-m-d',strtotime($ticket->resolution_date)):''}}" name="resolution_date" placeholder="Resolution date"/>
     </td>
     <td>
@@ -190,11 +193,57 @@
 </tr>
 @endforeach
 
+<div class="modal fade" id="modal-show-images" role="dialog">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><b>Images</b></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row w-100">
+                        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel_img">
+                            <div class="carousel-inner" id="images-carousel">
+                                <div class="carousel-item active">
+                                    <img class="d-block w-100" src="..." alt="First slide">
+                                </div>
+                                <div class="carousel-item">
+                                    <img class="d-block w-100" src="..." alt="Second slide">
+                                </div>
+                                <div class="carousel-item">
+                                    <img class="d-block w-100" src="..." alt="Third slide">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div id="pagination-container">
     <!-- Pagination links will be dynamically loaded here -->
 </div>
 
 <script type="text/javascript" src="/js/simulator.js"></script>
+<style>
+    #images-carousel > img {
+        margin: 5px;
+    }
+</style>
 <script>
     var csrftoken = "{{ csrf_token() }}";
+    $(document).on("click", ".modal-show-images", function (e) {
+        e.preventDefault();
+        $('#modal-show-images').modal('show');
+        var array = JSON.parse($(this).attr('data-json'));
+        $("#images-carousel").empty();
+        for (var i = 0;i<array.length;i++) {
+            var active = i === 0 ? 'active' : '';
+            console.log(active);
+            $("#images-carousel").append('<img class="d-block w-100" src="' + array[i].file_path + '" alt="'+i+'">');
+        }
+    });
 </script>

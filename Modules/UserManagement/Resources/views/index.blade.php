@@ -196,6 +196,8 @@
                         <button type="button" class="btn btn-lg" title="View Planned Users With Availabilities" onclick="funPlannedUserAndAvailabilityList()" style="padding-top: 0px;" >
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </button>
+
+                        <a href="{{ route('user-management.database-logs') }}" class="btn btn-lg" title="logs History" style=" padding-left: 0px;"><i class="fa fa-list" aria-hidden="true"></i></a>
                         @endif
                     </div>
                 </div>

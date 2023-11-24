@@ -747,7 +747,7 @@ var getHtml = function (response, listType = "message-list") {
     }
     li += "</div>";
     fullHtml = fullHtml + '<td style="width:45%">' + li + "</td>";
-    fullHtml = fullHtml + '<td style="width:30%">' + button + "</td>";
+    fullHtml = fullHtml + '<td style="width:30%" class="row-buttons">' + button + "</td>";
     fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + "</td></tr>";
     console.log(fromMsg);
   });
@@ -855,6 +855,16 @@ $(document).on("click", ".load-communication-modal", function () {
           }
         });
       }
+
+      $('.modal-body').find('p').each(function() {
+        var currentText = $(this).html();
+
+        var urlRegex = /(https?:\/\/[^\s]+)/g;
+        var newText = currentText.replace(urlRegex, function(url) {
+          return '<a href="' + url + '" target="_blank">' + url + '</a>';
+        });
+        $(this).html(newText);
+      });
     })
     .fail(function (response) {
       //$(thiss).text('Load More');

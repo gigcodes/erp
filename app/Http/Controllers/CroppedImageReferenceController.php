@@ -12,6 +12,8 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
+use App\Models\DataTableColumn;
+use App\CropImageGetRequest;
 
 class CroppedImageReferenceController extends Controller
 {
@@ -412,7 +414,15 @@ class CroppedImageReferenceController extends Controller
         $pendingCategoryProduct = Product::where('status_id', StatusHelper::$attributeRejectCategory)->where('stock', '>=', 1)->count();
         \Log::info('crop_reference_grid_page_pending_category_product_end: ' . date('Y-m-d H:i:s'));
 
-        return view('image_references.grid2', compact('pendingProduct', 'pendingCategoryProduct'));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'crop-references-grid')->first();
+
+        $dynamicColumnsToShowCrop = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowCrop = json_decode($hideColumns, true);
+        }
+
+        return view('image_references.grid2', compact('pendingProduct', 'pendingCategoryProduct', 'dynamicColumnsToShowCrop'));
     }
 
     public function cropStats(Request $request)
@@ -575,5 +585,37 @@ class CroppedImageReferenceController extends Controller
         } else {
             return response()->json(['code' => 500, 'message' => 'No instance id found']);
         }
+    }
+
+    public function cropColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','crop-references-grid')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'crop-references-grid';
+            $column->column_name = json_encode($request->column_crop); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'crop-references-grid';
+            $column->column_name = json_encode($request->column_crop); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function cropReferencesLogs(Request $request)
+    {
+        $title = 'Crop Image Logs';
+
+        $CropImageGetRequest = CropImageGetRequest::orderBy('id', 'DESC');
+
+        $CropImageGetRequest = $CropImageGetRequest->paginate(25);
+
+        return view('image_references.index-crop-image-logs', compact('title', 'CropImageGetRequest'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 }

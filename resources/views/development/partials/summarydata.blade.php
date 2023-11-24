@@ -32,7 +32,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             @endforeach
         </select>
     </td>
-    <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
+    <!-- <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td> -->
     <td>
         <label for="" style="font-size: 12px;margin-top:10px;"><strong>Assigned To </strong></label>
         <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
@@ -47,6 +47,8 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 @endif
             @endforeach
         </select>
+    </td>
+    <td>
         <label for="" style="font-size: 12px;margin-top:10px;"><strong>Lead</strong></label>
         <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
             <option value="">Select...</option>

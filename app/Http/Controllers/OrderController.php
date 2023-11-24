@@ -84,6 +84,8 @@ use App\Library\DHL\CreateShipmentRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
+use App\Models\OrderStatusMagentoRequestResponseLog;
 
 class OrderController extends Controller
 {
@@ -228,8 +230,11 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $term = $request->input('term');
+        $advance_detail = $request->input('advance_detail');
+        $balance_amount = $request->input('balance_amount');
         $order_status = $request->status ?? [''];
         $date = $request->date ?? '';
+        $estimated_delivery_date = $request->estimated_delivery_date ?? '';
         $brandList = \App\Brand::all()->pluck('name', 'id')->toArray();
         $brandIds = array_filter($request->get('brand_id', []));
         $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
@@ -316,8 +321,20 @@ class OrderController extends Controller
             $orders = $orders->where('order_date', $date);
         }
 
+        if ($estimated_delivery_date != '') {
+            $orders = $orders->where('estimated_delivery_date', $estimated_delivery_date);
+        }
+
         if ($store_site = $request->store_website_id) {
             $orders = $orders->whereIn('swo.website_id', $store_site);
+        }
+
+        if ($advance_detail != '') {
+            $orders = $orders->where('advance_detail', "<=", $advance_detail);
+        }
+
+        if ($balance_amount != '') {
+            $orders = $orders->where('balance_amount', "<=", $balance_amount);
         }
 
         $statusFilterList = clone $orders;
@@ -379,8 +396,17 @@ class OrderController extends Controller
 
         $store_site = $request->store_website_id;
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'orders-listing')->first();
+
+        $dynamicColumnsToShowPostman = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPostman = json_decode($hideColumns, true);
+        }
+
         //return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList'));
+        return view('orders.index', compact('orders_array', 'users', 'term', 'orderby', 'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'quickreply', 'fromdatadefault', 'duty_shipping', 'orderStatusList', 'dynamicColumnsToShowPostman', 'estimated_delivery_date', 'advance_detail', 'balance_amount'));
+
     }
 
     public function orderPreviewSentMails(Request $request)
@@ -2969,7 +2995,7 @@ class OrderController extends Controller
                         $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
-                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '');
+                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '', '');
                             $this->createEmailSendJourneyLog($id, 'Magento Order update status with ' . $statuss->status, Order::class, 'outgoing', '0', $request->from_mail, $request->to_mail, 'Magento replay', $request->message, '', '', $storeWebsiteOrder->website_id);
                             /**
                              *check if response has error
@@ -4314,7 +4340,7 @@ class OrderController extends Controller
                                     $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                                     if ($magento_status) {
                                         $magentoHelper = new MagentoHelperv2;
-                                        $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '');
+                                        $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, '', '');
                                     }
                                 }
                             }
@@ -4814,6 +4840,7 @@ class OrderController extends Controller
         $id = $request->get('id');
         $order_product_item_id = $request->order_product_item_id;
         $status = $request->get('status');
+        $order_status_id = $request->get('order_status_id');
         $message = $request->get('message');
         $sendmessage = $request->get('sendmessage');
         $order_via = $request->order_via;
@@ -4821,7 +4848,21 @@ class OrderController extends Controller
             $order = \App\Order::where('id', $id)->first();
             $order_product = \App\OrderProduct::where('id', $order_product_item_id)->first();
             $statuss = OrderStatus::where('id', $status)->first();
+            $order_statuss = OrderStatus::where('id', $order_status_id)->first();
+
+            $order_statuss_name = 'Status not assigned';
+            if(!empty($order_statuss)){
+                $order_statuss_name = $order_statuss->status;
+            }
             if ($order) {
+
+                // $storeWebsiteOrder = StoreWebsiteOrder::where('order_id', $order->id)->first();
+                // $website = StoreWebsite::find($storeWebsiteOrder->website_id);
+                // $store_order_status = Store_order_status::where('order_status_id', $status)->where('store_website_id', $storeWebsiteOrder->website_id)->first();
+                // $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+                // $magentoHelper = new MagentoHelperv2;
+                // return $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product, $order_statuss_name);
+
                 $order_product->delivery_status = $request->status;
                 if ($request->status == '10') {
                     $order_product->delivery_date = date('Y-m-d H:s:i');
@@ -4948,7 +4989,7 @@ class OrderController extends Controller
                         $magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
                         if ($magento_status) {
                             $magentoHelper = new MagentoHelperv2;
-                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product);
+                            $result = $magentoHelper->changeOrderStatus($order, $website, $magento_status->value, $order_product, $order_statuss_name);
                             $this->createEmailSendJourneyLog($id, 'Magento Order Product Item update status with ' . $statuss->status, Order::class, 'outgoing', '0', $request->from_mail, $request->to_mail, 'Magento replay', $request->message, '', '', $storeWebsiteOrder->website_id);
                             /**
                              *check if response has error
@@ -5522,5 +5563,45 @@ class OrderController extends Controller
         $orderstatus->save();
 
         return response()->json(['code' => 200, 'orderstatus' => $orderstatus,'message' => 'Color Code has been Updated Succeesfully!']);
+    }
+
+    public function ordersColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','orders-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'orders-listing';
+            $column->column_name = json_encode($request->column_orders); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'orders-listing';
+            $column->column_name = json_encode($request->column_orders); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function orderChangeStatusHistory(Request $request)
+    {   
+        $order_id = $request->order_id;
+        $order_product_id = $request->product_item_id;
+
+        $datas = OrderStatusMagentoRequestResponseLog::with('user', 'order')
+            ->where('order_id', $order_id)
+            ->where('order_product_id', $order_product_id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

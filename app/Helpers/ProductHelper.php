@@ -1022,6 +1022,7 @@ class ProductHelper extends Model
     {
         return Product::select('*')
             ->whereNotNull(['name', 'short_description'])
+            ->where('stock', '>', '0')
             ->status($status)
             ->groupBy('brand', 'category')
             ->limit($limit)

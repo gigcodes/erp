@@ -359,6 +359,72 @@
                                 @endif
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api URL:</strong>
+                                <input type="text" name="monit_api_url" class="form-control" value="{{ old('monit_api_url') }}">
+
+                                @if ($errors->has('monit_api_url'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_url')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Username:</strong>
+                                <input type="text" name="monit_api_username" class="form-control" value="{{ old('monit_api_username') }}">
+
+                                @if ($errors->has('monit_api_username'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_username')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Password:</strong>
+                                <input type="text" name="monit_api_password" class="form-control" value="{{ old('monit_api_password') }}">
+
+                                @if ($errors->has('monit_api_password'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Ip:</strong>
+                                <input type="text" name="vnc_ip" class="form-control" value="{{ old('vnc_ip') }}">
+
+                                @if ($errors->has('vnc_ip'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_ip')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Port:</strong>
+                                <input type="text" name="vnc_port" class="form-control" value="{{ old('vnc_port') }}">
+
+                                @if ($errors->has('vnc_port'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_port')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Password:</strong>
+                                <input type="text" name="vnc_password" class="form-control" value="{{ old('vnc_password') }}">
+
+                                @if ($errors->has('vnc_password'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -504,9 +570,9 @@
                             <div class="form-group">
                                 <strong>User Name:</strong>
                                 <button type="button" class="btn btn-xs show-user-history-btn" title="Show User History" ><i class="fa fa-info-circle"></i></button>
-                                {{-- <input type="text" name="user_name"  id="user_name"  class="form-control" value="{{ old('user_name') }}"> --}}
-
+                                
                                 <input type="hidden" name="old_user_name"  id="old_user_name"  class="form-control" value="{{ old('old_user_name') }}">
+
 
                                 <select class="form-control select2" name="user_name" id="user_name">
                                     <option value="">Select</option>
@@ -524,8 +590,8 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <strong>Password:</strong>
-                                <input type="text" name="password" class="form-control" value="{{ old('password') }}" id="password" required>
-                                <input type="hidden" name="old_password" class="form-control" value="{{ old('old_password') }}" id="old_password">
+                                <input type="text" name="password" class="form-control password-assets-manager" value="{{ old('password') }}" id="password" required>
+                                <input type="hidden" name="old_password" class="form-control oldpassword-assets-manager" value="{{ old('old_password') }}" id="old_password">
 
                                 @if ($errors->has('password'))
                                     <div class="alert alert-danger">{{$errors->first('password')}}</div>
@@ -835,6 +901,72 @@
 
                                 @if ($errors->has('account_password'))
                                     <div class="alert alert-danger">{{$errors->first('account_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api URL:</strong>
+                                <input type="text" name="monit_api_url" id="monit_api_url" class="form-control" value="{{ old('monit_api_url') }}" >
+
+                                @if ($errors->has('monit_api_url'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_url')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Username:</strong>
+                                <input type="text" name="monit_api_username" id="monit_api_username" class="form-control" value="{{ old('monit_api_username') }}">
+
+                                @if ($errors->has('monit_api_username'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_username')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>Monit Api Password:</strong>
+                                <input type="text" name="monit_api_password" id="monit_api_password" class="form-control" value="{{ old('monit_api_password') }}">
+
+                                @if ($errors->has('monit_api_password'))
+                                    <div class="alert alert-danger">{{$errors->first('monit_api_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Ip:</strong>
+                                <input type="text" name="vnc_ip" id="vnc_ip" class="form-control" value="{{ old('vnc_ip') }}">
+
+                                @if ($errors->has('vnc_ip'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_ip')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Port:</strong>
+                                <input type="text" name="vnc_port" id="vnc_port" class="form-control" value="{{ old('vnc_port') }}">
+
+                                @if ($errors->has('vnc_port'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_port')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Password:</strong>
+                                <input type="text" name="vnc_password" id="vnc_password" class="form-control" value="{{ old('vnc_password') }}">
+
+                                @if ($errors->has('vnc_password'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_password')}}</div>
                                 @endif
                             </div>
                         </div>

@@ -28,6 +28,10 @@
         .quick-edit-color {
             transition: 1s ease-in-out;
         }
+        span.multiselect-native-select {
+            display: none;
+            width: 100%;
+        }
         /*thead th {*/
         /*    font-size: 0.6em;*/
         /*    padding: 1px !important;*/
@@ -934,7 +938,8 @@
             $('.dropify').dropify();
             // $(".select-multiple").multiselect();
             $(".select-multiple").select2({
-                minimumResultsForSearch: -1
+                minimumResultsForSearch: -1,
+                width: '100%'
             });
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
         });
