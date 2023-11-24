@@ -2903,6 +2903,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('api-response/message-translate-approve', [ApiResponseMessageController::class, 'messageTranslateApprove'])->name('api-response-message.messageTranslateApprove');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
+    Route::get('assets-manager/list', [ApiResponseMessageController::class, 'indexJson'])->name('assetsManager.list');
+    Route::get('assets-manager/loadTable', [ApiResponseMessageController::class, 'loadTable'])->name('assetsManager.loadTable');
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
