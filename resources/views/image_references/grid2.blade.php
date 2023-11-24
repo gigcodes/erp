@@ -85,6 +85,7 @@
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
                  <button class="btn btn-secondary btn-instances-manage">Instances</button>
                  <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#cropdatatablecolumnvisibilityList">Column Visiblity</button>
+                 <a target="_blank" href="{{route('crop-references.logs')}}" class="btn btn-secondary"> Image Crop Logs History</a>
 
                  <select class="form-control-sm form-control bg-secondary text-light" name="reject_cropping" id="reason-select">
                     <option value="0">Select...</option>
