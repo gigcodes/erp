@@ -72,6 +72,7 @@ class Kernel extends HttpKernel
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'optimizeImages' => \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
         'affiliates' => AffiliateMiddleware::class,
+        'custom.api.auth' => \App\Http\Middleware\CustomApiAuthMiddleware::class
     ];
 
     /**

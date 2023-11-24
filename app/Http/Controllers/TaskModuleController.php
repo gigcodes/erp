@@ -2670,6 +2670,37 @@ class TaskModuleController extends Controller
         }
     }
 
+    public function createMultipleTaskFromSortcutSonar(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
     public function createTaskFromSortcut(Request $request)
     {
         // _p(request()->all(), 1);
@@ -2686,8 +2717,9 @@ class TaskModuleController extends Controller
         $assignedUserId = 0;
         $taskType = request('task_type');
         $data = $request->except('_token');
+        $quick_task = request('quick_task');
 
-        if ($taskType == '4' || $taskType == '5' || $taskType == '6' || $taskType == '0') {
+        if ($taskType == '4' || $taskType == '5' || $taskType == '6' || ($taskType == '0' && $quick_task == '1')) {
             $data = [];
             if (is_array($request->task_asssigned_to)) {
                 $data['assigned_to'] = $request->task_asssigned_to[0];

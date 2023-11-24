@@ -151,14 +151,14 @@ class VendorController extends Controller
                 $query->where('phone', 'LIKE', '%' . request('phone') . '%');
             }
             $status = request('status');
-            if ($status != null && ! request('with_archived')) {
+            if ($status != null && !request('with_archived')) {
                 $query = $query->where(function ($q) use ($status) {
                     $q->orWhere('status', $status);
                 });
                 // $query->orWhere('status', $status);
             }
 
-            if (request('updated_by') != null && ! request('with_archived')) {
+            if (request('updated_by') != null && !request('with_archived')) {
                 $query = $query->where(function ($q) {
                     $q->orWhere('updated_by', request('updated_by'));
                 });
@@ -176,7 +176,7 @@ class VendorController extends Controller
                 $query->where('email', 'like', '%' . request('email') . '%');
             }
 
-            if (request('communication_history') != null && ! request('with_archived')) {
+            if (request('communication_history') != null && !request('with_archived')) {
                 $communication_history = request('communication_history');
                 $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
             }
@@ -260,7 +260,7 @@ class VendorController extends Controller
                 $currentPage = 1;
             }
 
-            if (! is_numeric($perPage)) {
+            if (!is_numeric($perPage)) {
                 $perPage = 2;
             }
 
@@ -342,7 +342,7 @@ class VendorController extends Controller
 
         return response()->json($search);
     }
-    
+
     public function vendorSearchPhone()
     {
         $term = request()->get('q', null);
@@ -369,7 +369,7 @@ class VendorController extends Controller
                 'cc' => $vendor->cc,
                 'bcc' => $vendor->bcc,
                 'created_at' => $vendor->created_at,
-                'attachment' => ! empty($additional_data->attachment) ? $additional_data->attachment : '',
+                'attachment' => !empty($additional_data->attachment) ? $additional_data->attachment : '',
                 'inout' => $vendor->email != $vendor->from ? 'out' : 'in',
             ];
         }
@@ -419,7 +419,7 @@ class VendorController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
+        $rules =  [
             'category_id' => 'sometimes|nullable|numeric',
             'name' => 'required|string|max:255',
             'address' => 'sometimes|nullable|string',
@@ -441,7 +441,28 @@ class VendorController extends Controller
             'country' => 'sometimes|nullable|max:255',
             'ifsc_code' => 'sometimes|nullable|max:255',
             'remark' => 'sometimes|nullable|max:255',
-        ]);
+        ];
+        $vendorCount = !empty($request['vendor_name']) ? count($request['vendor_name']) : 0;
+        $vendorRules = $vendorData = [];
+        $inputs = $request->all();
+        if ($vendorCount !== "") {
+            $vendorRules = [
+                "vendor_name"    => "sometimes|array",
+                "vendor_name.*"  => "sometimes|string|max:255",
+                "vendor_email"    => "sometimes|array",
+                "vendor_email.*"  => "sometimes|nullable|email",
+                "vendor_gmail"    => "sometimes|array",
+                "vendor_gmail.*"  => "sometimes|nullable|email",
+            ];
+            for ($i = 0; $i < $vendorCount; $i++) {
+                $vendorData[$i]['category_id'] = $request["category_id"];
+                $vendorData[$i]['name'] = $request['vendor_name'][$i];
+                $vendorData[$i]['email'] = $request['vendor_email'][$i];
+                $vendorData[$i]['gmail'] = $request['vendor_gmail'][$i];
+            }
+        }
+        $rules = array_merge($rules, $vendorRules);
+        $this->validate($request, $rules);
 
         $source = $request->get('source', '');
         $data = $request->except(['_token', 'create_user']);
@@ -462,56 +483,75 @@ class VendorController extends Controller
             $data['default_phone'] = $data['phone'];
         }
 
-        if (! empty($source)) {
+        if (!empty($source)) {
             $data['status'] = 0;
         }
+        $mainVendorData[0] = $data;
+        $existArray = [];
+        $sourceStatus = $validateStatus = false;
+        $inputsData = array_merge($mainVendorData, $vendorData);
+        foreach ($inputsData as $key => $data) {
+            Vendor::create($data);
 
-        Vendor::create($data);
-
-        if ($request->create_user == 'on') {
-            if ($request->email != null) {
-                $userEmail = User::where('email', $request->email)->first();
-            } else {
-                $userEmail = null;
-            }
-            $userPhone = User::where('phone', $request->phone)->first();
-            if ($userEmail == null) {
-                $user = new User;
-                $user->name = str_replace(' ', '_', $request->name);
-                if ($request->email == null) {
-                    $email = str_replace(' ', '_', $request->name) . '@solo.com';
+            if ($request->create_user == 'on') {
+                if ($data['email'] != null) {
+                    $userEmail = User::where('email', $data['email'])->first();
                 } else {
-                    // $email = explode('@', $request->email);
-                    // $email = $email[0] . '@solo.com';
-                    $email = $request->email;
+                    $userEmail = null;
                 }
-                $password = Str::random(10);
-                $user->email = $email;
-                $user->gmail = $data['gmail'];
-                $user->password = Hash::make($password);
-                $user->phone = $request->phone;
-
-                // check the default whatsapp no and store it
-                $whpno = \DB::table('whatsapp_configs')
-                    ->select('*')
-                    ->whereRaw('find_in_set(4,default_for)')
-                    ->first();
-                if ($whpno) {
-                    $user->whatsapp_number = $whpno->number;
+                if ($key == 0) {
+                    $userPhone = User::where('phone', $data['phone'])->first();
                 }
+                if ($userEmail == null) {
+                    $user = new User;
+                    $user->name = str_replace(' ', '_', $data['name']);
+                    if ($data['email'] == null) {
+                        $email = str_replace(' ', '_', $data['name']) . '@solo.com';
+                    } else {
+                        // $email = explode('@', $data['email']);
+                        // $email = $email[0] . '@solo.com';
+                        $email = $data['email'];
+                    }
+                    $password = Str::random(10);
+                    $user->email = $email;
+                    $user->gmail = $data['gmail'];
+                    $user->password = Hash::make($password);
+                    $user->phone = !empty($data['phone']) ? $data['phone'] : null;
 
-                $user->save();
-                $role = Role::where('name', 'Developer')->first();
-                $user->roles()->sync($role->id);
-                $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
-                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($request->phone, $user->whatsapp_number, $message);
-            } else {
-                if (! empty($source)) {
-                    return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+                    // check the default whatsapp no and store it
+                    $whpno = \DB::table('whatsapp_configs')
+                        ->select('*')
+                        ->whereRaw('find_in_set(4,default_for)')
+                        ->first();
+                    if ($whpno) {
+                        $user->whatsapp_number = $whpno->number;
+                    }
+
+                    $user->save();
+                    $role = Role::where('name', 'Developer')->first();
+                    $user->roles()->sync($role->id);
+                    $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
+                    if ($key == 0) {
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($data['phone'], $user->whatsapp_number, $message);
+                    }
+                } else {
+                    if (!empty($source)) {
+                        $sourceStatus = true;
+                    }
+                    $validateStatus = true;
+                    $existArray[] = $data['name'];
                 }
-
-                return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
             }
+        }
+        if ($sourceStatus) {
+            return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+        }
+        $existArrayString = '';
+        if ($validateStatus) {
+            if (!empty($existArray)) {
+                $existArrayString = '(' . implode(",", $existArray) . ')';
+            }
+            return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User ' . $existArrayString . ', Email or Phone Already Exist');
         }
 
         $isInvitedOnGithub = false;
@@ -526,7 +566,7 @@ class VendorController extends Controller
             $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
         }
 
-        if (! empty($source)) {
+        if (!empty($source)) {
             return redirect()->back()->withSuccess('You have successfully saved a vendor!');
         }
 
@@ -885,7 +925,7 @@ class VendorController extends Controller
                 $bcc = array_values(array_filter($request->bcc));
             }
 
-            if (is_array($emails) && ! empty($emails)) {
+            if (is_array($emails) && !empty($emails)) {
                 $to = array_shift($emails);
                 $cc = array_merge($emails, $cc);
 
@@ -1091,7 +1131,7 @@ class VendorController extends Controller
         $reply = $request->get('reply');
         $autoReply = [];
         // add reply from here
-        if (! empty($reply)) {
+        if (!empty($reply)) {
             $autoReply = \App\Reply::updateOrCreate(
                 ['reply' => $reply, 'model' => 'Vendor', 'category_id' => 1],
                 ['reply' => $reply]
@@ -1157,7 +1197,7 @@ class VendorController extends Controller
         $email = $request->get('email');
         $organizationId = $request->get('organizationId');
 
-        if (! empty($email) && strlen($organizationId) > 0) {
+        if (!empty($email) && strlen($organizationId) > 0) {
             if ($this->sendGithubInvitaion($email, $organizationId)) {
                 return response()->json(
                     ['message' => 'Invitation sent to ' . $email]
@@ -1353,9 +1393,9 @@ class VendorController extends Controller
         $vendorId = $request->get('vendor_id');
         $statusId = $request->get('status');
 
-        if (! empty($vendorId)) {
+        if (!empty($vendorId)) {
             $vendor = \App\Vendor::find($vendorId);
-            if (! empty($vendor)) {
+            if (!empty($vendor)) {
                 $vendor->status = ($statusId == 'false') ? 0 : 1;
                 $vendor->save();
             }
@@ -1402,7 +1442,7 @@ class VendorController extends Controller
 
     public function editVendor(Request $request)
     {
-        if (! $request->vendor_id || $request->vendor_id == '' || ! $request->column || $request->column == '' || ! $request->value || $request->value == '') {
+        if (!$request->vendor_id || $request->vendor_id == '' || !$request->column || $request->column == '' || !$request->value || $request->value == '') {
             return response()->json(['message' => 'Incomplete data'], 500);
         }
         $vendor = Vendor::find($request->vendor_id);
@@ -1419,7 +1459,7 @@ class VendorController extends Controller
             return response()->json(['message' => 'Incomplete data'], 500);
         }
         $vendorStatus = VendorStatusDetail::where('vendor_id', $request->vendor_id)->first();
-        if (! $vendorStatus) {
+        if (!$vendorStatus) {
             $vendorStatus = new VendorStatusDetail();
         }
         $vendorStatus->vendor_id = $request->vendor_id;

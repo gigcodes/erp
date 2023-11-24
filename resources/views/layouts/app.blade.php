@@ -4529,6 +4529,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/virtualmin/domains">Virtualmin Domains</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -5093,7 +5096,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id">
+                                            <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id & Keyword">
                                             @php
                                             $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
                                             @endphp
@@ -5144,7 +5147,17 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id">
+                                            <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id & Keyword">
+                                            @php
+                                            $userLists = App\User::where('is_active', 1)->orderBy('name','asc')->get();
+                                            @endphp
+                                            <select class="form-control col-md-2 ml-3 ipusersSelect" name="quicktask_user_id" id="quicktask_user_id">
+                                                <option value="">Select user</option>
+                                                    @foreach ($userLists as $user)
+                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                                    @endforeach
+                                                <option value="other">Other</option>
+                                            </select>
                                             <button type="button" class="btn btn-secondary btn-dev-task-search-menu" ><i class="fa fa-search"></i></button>
                                         </div>
                                         <div class="col-12">
@@ -5346,6 +5359,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
         @include('partials.modals.view-all-participants')
+        @include('partials.modals.list-code-shortcode-title')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -6048,6 +6062,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
+        $('#quicktask_user_id').select2({width: '20%'});
         //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
@@ -6519,6 +6534,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on("click", ".btn-dev-task-search-menu", function (e) {
         var keyword = $('.dev-task-search-table').val();
+        var quicktask_user_id = $('#quicktask_user_id').val();
         var selectedValues = [];
 
         $.ajax({
@@ -6526,6 +6542,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             type: 'GET',
             data: {
                 subject: keyword,
+                selected_user: quicktask_user_id,
             },
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -8237,9 +8254,6 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
-
-        $("#loading-image-preview").show();
-
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8250,7 +8264,6 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
-                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8259,12 +8272,10 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
-                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
-            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });
@@ -9061,10 +9072,14 @@ if (!\Auth::guest()) {
             } else {
             html += "<td>-</td>"; 
             }
-            html += "<td>" + shortnote.title + "</td>";
+            /*html += "<td>" + shortnote.title + "</td>";
             html += "<td>" + shortnote.code + "</td>";
             html += "<td>" + shortnote.description + "</td>"; 
-            html += "<td>" + shortnote.solution + "</td>"; 
+            html += "<td>" + shortnote.solution + "</td>"; */
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="title" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';            
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="code" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="description" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="solution" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
             html += "<td>" + shortnote.user_detail.name + "</td>";
             if (shortnote.supplier_detail !== null) {
             html += "<td>" + shortnote.supplier_detail.supplier + "</td>"; 
@@ -9088,6 +9103,8 @@ if (!\Auth::guest()) {
           $("#loading-image").hide();
         });
       }
+
+
 
       function renderShortcutNotesPagination(data) {
           var codePagination = $(".pagination-container-short-cut-notes-alerts");
@@ -9747,6 +9764,36 @@ if (!\Auth::guest()) {
             $('.ajax-loader').hide();
         });
      });
+
+    $(document).on('click','.list-code-shortcut-title-view',function(){
+        id = $(this).data('id');
+        type = $(this).data('type');
+        $.ajax({
+              method: "GET",
+              url: `{{ route('code.get.Shortcut.data', [""]) }}/` + id,
+              dataType: "json",
+              success: function(response) {
+
+                    if(type=='title'){
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Title');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.title);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    } else if(type=='code'){    
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Code');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.code);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    } else if(type=='description'){ 
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Description');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.description);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    } else if(type=='solution'){
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Solution');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.solution);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    }
+              }
+          });
+    });
     
     </script>
     @if ($message = Session::get('actSuccess'))
