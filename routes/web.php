@@ -554,6 +554,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
     Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
+    Route::post('magento_modules/listing-careers/filter', [\App\Http\Controllers\MagentoCareersController::class, 'getCareerByFilter'])->name('magento_module_listing_careers_by_filter');
+    Route::post('magento_modules/listing-careers/getCareerRecord', [\App\Http\Controllers\MagentoCareersController::class, 'getCareerRecord'])->name('fetchedCareerRecords');
     Route::post('magento_modules/listing-careers/create_or_edit', [\App\Http\Controllers\MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
     Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
     Route::get('magento_modules_logs/{id}', [MagentoModuleController::class, 'magentoModuleListLogsDetails'])->name('magento_module_listing_logs_details');
@@ -926,6 +928,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('crop-referencesx', [CroppedImageReferenceController::class, 'index']);
     Route::get('/crop-references-grid/log-instance', [CroppedImageReferenceController::class, 'loginstance']);
     Route::post('crop-references-visbility', [CroppedImageReferenceController::class, 'cropColumnVisbilityUpdate'])->name('crop_references.column.update');
+    Route::get('crop-references-log-history', [CroppedImageReferenceController::class, 'cropReferencesLogs'])->name('crop-references.logs');
 
     Route::get('/magento/status', [MagentoController::class, 'addStatus']);
     Route::post('/magento/status/save', [MagentoController::class, 'saveStatus'])->name('magento.save.status');
@@ -1465,6 +1468,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('project/search', [SonarqubeController::class, 'searchProject'])->name('sonarqube.list.Project');
         Route::get('issues/search', [SonarqubeController::class, 'searchIssues'])->name('sonarqube.list.page');
         Route::get('user_tokens/search', [SonarqubeController::class, 'searchUserTokens'])->name('sonarqube.user.projects');
+        Route::get('countdevtask/{id}', [SonarqubeController::class, 'taskCount']);
     });
 
     //plesk
@@ -1890,6 +1894,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/deletedevtask', [TaskModuleController::class, 'deletedevtask'])->name('task.delete.task');
     Route::get('task/preview-img-task/{id}', [TaskModuleController::class, 'previewTaskImage'])->name('task.preview-img');
     Route::post('task/send-sop', [TaskModuleController::class, 'SendTaskSOP'])->name('task.sendSop');
+    Route::post('task/create-multiple-task-from-shortcutsonar', [TaskModuleController::class, 'createMultipleTaskFromSortcutSonar'])->name('task.create.multiple.task.shortcutsonar');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
 
@@ -2385,6 +2390,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/change-user', [DevelopmentController::class, 'changeUserStore'])->name('development.changeuser.store');
 
     Route::get('development/summarylist', [DevelopmentController::class, 'summaryList'])->name('development.summarylist');
+    Route::get('development/summary_list', [DevelopmentController::class, 'summaryListDev'])->name('development.summary_list');
     Route::post('development/statuscolor', [DevelopmentController::class, 'statuscolor'])->name('development.statuscolor');
     Route::get('development/flagtask', [DevelopmentController::class, 'flagtask'])->name('development.flagtask');
     Route::post('development/gettasktimemessage', [DevelopmentController::class, 'gettasktimemessage'])->name('development.gettasktimemessage');
@@ -2901,6 +2907,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('api-response/message-translate-approve', [ApiResponseMessageController::class, 'messageTranslateApprove'])->name('api-response-message.messageTranslateApprove');
     Route::post('/api-response-message-update', [ApiResponseMessageController::class, 'update'])->name('api-response-message.updateResponse');
     Route::get('/api-response-message-dalete/{id}', [ApiResponseMessageController::class, 'destroy'])->name('api-response-message.responseDelete');
+    Route::get('assets-manager/list', [ApiResponseMessageController::class, 'indexJson'])->name('assetsManager.list');
+    Route::get('assets-manager/loadTable', [ApiResponseMessageController::class, 'loadTable'])->name('assetsManager.loadTable');
 
     Route::resource('assets-manager', AssetsManagerController::class);
     Route::post('assets-manager/add-note/{id}', [AssetsManagerController::class, 'addNote']);
@@ -2921,6 +2929,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('assets-manager/user_accesses', [AssetsManagerController::class, 'assetsManagerUserAccessList'])->name('assets_manager_user_accesses');
     Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
     Route::get('assets-manager-user-access-request/{id}', [AssetsManagerController::class, 'userAccessRequest'])->name('assetsmanager.user_access_request');
+    Route::post('assets-manager-column-visbility', [AssetsManagerController::class, 'asColumnVisbilityUpdate'])->name('assetsmanager.column.update');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
@@ -2970,6 +2979,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::delete('/folder/delete', [CodeShortcutController::class, 'shortcutDeleteFolder']);
         Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
         Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
+    	Route::get('code-shortcut-title/{id}', [CodeShortcutController::class, 'getListCodeShortCut'])->name('code.get.Shortcut.data');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
