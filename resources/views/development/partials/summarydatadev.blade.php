@@ -12,27 +12,11 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             </a>
             <span class="ml-2"> {{ $issue->id }}</span>
         </div>
-
-
         <div>
             <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="{{asset('/images/attach.png')}}" alt="" style="cursor: default;"></a>
             <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="{{asset('/images/archive.png')}}" alt="" style="cursor: default;"></a>
         </div>
     </td>
-    <td>
-        <select name="module" class="form-control task-module" data-id="{{$issue->id}}">
-            <option value=''>Select Module..</option>
-            @foreach($modules as $module)
-
-                @if( isset($issue->module_id) && (int) $issue->module_id == $module->id )
-                    <option value="{{$module->id}}" selected>{{$module->name}}</option>
-                @else
-                    <option value="{{$module->id}}">{{$module->name}}</option>
-                @endif
-            @endforeach
-        </select>
-    </td>
-    <!-- <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td> -->
     <td>
         <label for="" style="font-size: 12px;margin-top:10px;"><strong>Assigned To </strong></label>
         <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
@@ -41,20 +25,6 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             <?php $assignedId = isset($issue->assignedUser->id) ? $issue->assignedUser->id : 0; ?>
             @foreach($users as $id => $name)
                 @if( $assignedId == $id )
-                    <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                    <option value="{{$id}}">{{ $name }}</option>
-                @endif
-            @endforeach
-        </select>
-    </td>
-    <td>
-        <label for="" style="font-size: 12px;margin-top:10px;"><strong>Lead</strong></label>
-        <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
-            <option value="">Select...</option>
-            <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
-            @foreach($users as $id=>$name)
-                @if( $masterUser == $id )
                     <option value="{{$id}}" selected>{{ $name }}</option>
                 @else
                     <option value="{{$id}}">{{ $name }}</option>
@@ -85,22 +55,6 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             </span>
         </div>
     </td>
-    <td class="send-to-str">
-        <?php echo Form::select(
-            "send_message_" . $issue->id, [
-            "to_developer" => "Send To Developer",
-            "to_master" => "Send To Master Developer",
-            "to_team_lead" => "Send To Team Lead",
-            "to_tester" => "Send To Tester"
-        ], null, [
-                "class" => "form-control send-message-number",
-                "style" => "width:100% !important;display: inline;"
-            ]
-        ); ?>
-
-    </td>
-
-
     <td>
         @if($issue->is_resolved)
             <strong>Done</strong>
@@ -138,20 +92,6 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             </div>
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
         </div>
-    </td>
-    <td>
-        <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
-        @if ($issue->is_flagged == 1)
-            <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
-        @else
-            <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
-        @endif
-        <button type="button" class="btn btn-xs show-status-history p-1" title="Show Status History" data-id="{{$issue->id}}">
-            <i class="fa fa-info-circle"></i>
-        </button>
-        <button class="btn btn-xs mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
-            <i class="fa fa-key" aria-hidden="true"></i>
-        </button>
     </td>
 </tr>
 <script>

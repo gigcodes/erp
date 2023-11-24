@@ -1538,6 +1538,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
+                                    <a title="Assets Manager" id="assets-manager-listing" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-table fa-2x" aria-hidden="true"></i></span>
+                                        <span class="script-document-error-badge hide"></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
                             </ul>                         
@@ -4523,6 +4529,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/magento/magento_command">Magento Crons</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/virtualmin/domains">Virtualmin Domains</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -5330,6 +5339,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('monitor.partials.jenkins_build_status')
         @include('partials.modals.google-drive-screen-cast-modal')
         @include('partials.modals.script-document-error-logs-modal')
+        <div id="ajax-assets-manager-listing-modal">
+
+        </div>
         @include('partials.modals.magento-cron-error-status-modal')
         @include('partials.modals.magento-commands-modal')
         @include('partials.modals.last-output')
@@ -5347,6 +5359,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.documentation-create-modal')
         @include('partials.modals.add-vochuers-modal')
         @include('partials.modals.view-all-participants')
+        @include('partials.modals.list-code-shortcode-title')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -8241,9 +8254,6 @@ if (!\Auth::guest()) {
     });
 
     $(document).on("click", ".save-task-window", function(e) {
-
-        $("#loading-image-preview").show();
-
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -8254,7 +8264,6 @@ if (!\Auth::guest()) {
                 $(this).text('Loading...');
             },
             success: function(response) {
-                $("#loading-image-preview").hide();
                 if (response.code == 200) {
                     form[0].reset();
                     toastr['success'](response.message);
@@ -8263,12 +8272,10 @@ if (!\Auth::guest()) {
                     $("#auto-reply-popup-form").trigger('reset');
                     location.reload();
                 } else {
-                    $("#loading-image-preview").hide();
                     toastr['error'](response.message);
                 }
             }
         }).fail(function(response) {
-            $("#loading-image-preview").hide();
             toastr['error'](response.responseJSON.message);
         });
     });
@@ -9065,10 +9072,14 @@ if (!\Auth::guest()) {
             } else {
             html += "<td>-</td>"; 
             }
-            html += "<td>" + shortnote.title + "</td>";
+            /*html += "<td>" + shortnote.title + "</td>";
             html += "<td>" + shortnote.code + "</td>";
             html += "<td>" + shortnote.description + "</td>"; 
-            html += "<td>" + shortnote.solution + "</td>"; 
+            html += "<td>" + shortnote.solution + "</td>"; */
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="title" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';            
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="code" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="description" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+            html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="solution" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
             html += "<td>" + shortnote.user_detail.name + "</td>";
             if (shortnote.supplier_detail !== null) {
             html += "<td>" + shortnote.supplier_detail.supplier + "</td>"; 
@@ -9092,6 +9103,8 @@ if (!\Auth::guest()) {
           $("#loading-image").hide();
         });
       }
+
+
 
       function renderShortcutNotesPagination(data) {
           var codePagination = $(".pagination-container-short-cut-notes-alerts");
@@ -9340,6 +9353,11 @@ if (!\Auth::guest()) {
         getScriptDocumentErrorLogs(true);
     });
 
+    $(document).on('click','#assets-manager-listing',function(e){
+        e.preventDefault();
+        getAssetsManager();
+    });
+
     function getScriptDocumentErrorLogs(showModal = false) {
         $.ajax({
             type: "GET",
@@ -9357,6 +9375,25 @@ if (!\Auth::guest()) {
         }).fail(function (response) {
             $('.ajax-loader').hide();
             console.log(response);
+        });
+    }
+
+    function getAssetsManager() {
+        $.ajax({
+            type: "GET",
+            url: "{{route('assetsManager.loadTable')}}",
+            dataType:"json",
+            beforeSend:function(data){
+                $('.ajax-loader').show();
+            }
+        }).done(function (response) {
+            $('.ajax-loader').hide();
+            $("#ajax-assets-manager-listing-modal").empty().html(response.tpl);
+            $("#assetsEditModal").modal('show');
+        }).fail(function (response) {
+            $('.ajax-loader').hide();
+            $("#ajax-assets-manager-listing-modal").empty().html(response.tpl);
+            $("#assetsEditModal").modal('show');
         });
     }
 
@@ -9727,6 +9764,36 @@ if (!\Auth::guest()) {
             $('.ajax-loader').hide();
         });
      });
+
+    $(document).on('click','.list-code-shortcut-title-view',function(){
+        id = $(this).data('id');
+        type = $(this).data('type');
+        $.ajax({
+              method: "GET",
+              url: `{{ route('code.get.Shortcut.data', [""]) }}/` + id,
+              dataType: "json",
+              success: function(response) {
+
+                    if(type=='title'){
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Title');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.title);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    } else if(type=='code'){    
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Code');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.code);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    } else if(type=='description'){ 
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Description');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.description);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    } else if(type=='solution'){
+                        $("#list-code-shortcode-title-list-header").find(".modal-title").html('Solution');
+                        $("#list-code-shortcode-title-list-header").find(".list-code-shortcode-title-header-view").html(response.solution);
+                        $("#list-code-shortcode-title-list-header").modal("show");
+                    }
+              }
+          });
+    });
     
     </script>
     @if ($message = Session::get('actSuccess'))

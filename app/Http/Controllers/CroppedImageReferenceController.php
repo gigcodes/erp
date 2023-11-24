@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Helpers\StatusHelper;
 use App\CroppedImageReference;
 use App\Models\DataTableColumn;
+use App\CropImageGetRequest;
 
 class CroppedImageReferenceController extends Controller
 {
@@ -605,5 +606,16 @@ class CroppedImageReferenceController extends Controller
         }
 
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function cropReferencesLogs(Request $request)
+    {
+        $title = 'Crop Image Logs';
+
+        $CropImageGetRequest = CropImageGetRequest::orderBy('id', 'DESC');
+
+        $CropImageGetRequest = $CropImageGetRequest->paginate(25);
+
+        return view('image_references.index-crop-image-logs', compact('title', 'CropImageGetRequest'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 }
