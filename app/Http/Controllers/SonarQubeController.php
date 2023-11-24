@@ -85,17 +85,34 @@ class SonarQubeController extends Controller
         $search = request('search', '');
 
         $issues = new SonarQube;
+
         if (! empty($search)) {
             $issues = $issues->where(function ($q) use ($search) {
                 $q->where('severity', 'LIKE', '%' . $search . '%')->orWhere('component', 'LIKE', '%' . $search . '%')->orWhere('project', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('author', 'LIKE', '%' . $search . '%')->orWhere('status', 'LIKE', '%' . $search . '%');
             });
         }
-
+        
+        if(isset($request->severity) && count($request->severity) > 0){
+            $issues = $issues->whereIn('severity', $request->severity);          
+        }
+        if(isset($request->author) && count($request->author) > 0){
+            $issues = $issues->whereIn('author', $request->author);
+        }
+        if(isset($request->project) && count($request->project) > 0){
+            $issues = $issues->whereIn('project', $request->project);
+        }
+        
         $issues = $issues->orderBy("id", "DESC")->paginate(100);
 
+        //Filter Dropdown properties - S
+        $issuesFilterSeverity = SonarQube::getFilterSeverity();
+        $issuesFilterAuthor = SonarQube::getFilterAuthor();
+        $issuesFilterProject = SonarQube::getFilterProject();
+        //Filter Dropdown properties - E
+        
         $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
-
-        return view('sonarCube.index', compact('issues', 'allUsers'))->with('i', ($request->input('page', 1) - 1) * 10);
+      
+        return view('sonarCube.index', compact('issues', 'allUsers', 'issuesFilterSeverity', 'issuesFilterAuthor', 'issuesFilterProject'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     public function searchUserTokens(Request $request)
