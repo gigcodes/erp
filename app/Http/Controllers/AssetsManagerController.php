@@ -21,6 +21,7 @@ use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
 use App\Models\AssetManagerUserAccess;
+use App\Models\DataTableColumn;
 
 class AssetsManagerController extends Controller
 {
@@ -98,8 +99,10 @@ class AssetsManagerController extends Controller
         if (! empty($user_ids)) {
             $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
         }
-        if (!empty($ip_ids) && (count($ip_ids)>0) && (!in_array(null, $ip_ids))) {
-            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
+
+        $ip_idss = array_filter($ip_ids, fn ($ip_ids) => !is_null($ip_ids));
+        if (!empty($ip_idss) && (count($ip_idss)>0) && (!in_array(null, $ip_idss))) {
+            $assets = $assets->whereIn('assets_manager.ip', $ip_idss);
         }
         $assets = $assets->orderBy("id", "ASC");
 
@@ -115,8 +118,38 @@ class AssetsManagerController extends Controller
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
         $users = User::get()->toArray();
         //dd($users);
-        return view('assets-manager.index', compact('assets', 'assets_category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'asset-manager')->first();
+
+        $dynamicColumnsToShowAM = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowAM = json_decode($hideColumns, true);
+        }
+
+        return view('assets-manager.index', compact('assets', 'assets_category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress', 'dynamicColumnsToShowAM'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
+    public function asColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','asset-manager')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'asset-manager';
+            $column->column_name = json_encode($request->column_assetsmanager); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'asset-manager';
+            $column->column_name = json_encode($request->column_assetsmanager); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     /**
@@ -700,8 +733,10 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $user_access->username . '</td>';
                     $html .= '<td>' . $user_access->password . '</td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
-                    $html .= '<td>' . $user_access->request_data . '</td>';
-                    $html .= '<td>' . $user_access->response_data . '</td>';
+                    /*$html .= '<td>' . $user_access->request_data . '</td>';*/
+                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-request-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-response-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+                    /*$html .= '<td>' . $user_access->response_data . '</td>';*/
                     $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';
                     $i++;
@@ -827,5 +862,19 @@ class AssetsManagerController extends Controller
 
         // Return the filtered tags as JSON
         echo json_encode($filteredTags);
+    }
+
+    public function userAccessRequest($id)
+    {   
+        $userAccessRequest = AssetManagerUserAccess::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $userAccessRequest,
+            'request_data' => $userAccessRequest['request_data'],
+            'response_data' => $userAccessRequest['response_data'],
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

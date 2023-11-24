@@ -124,7 +124,7 @@ padding: 3px 2px;
     <?php if (!empty($pendingApprovalMsg)) {?>
 
     <?php foreach ($pendingApprovalMsg as $index =>$pam) { ?>
-    <tr class="customer-raw-line">
+    <tr class="customer-raw-line pam-{{ $pam->id }}">
 
 
         @php
@@ -181,7 +181,7 @@ padding: 3px 2px;
         <td>
             @if($pam->message_type!='')
                 {{ucfirst($pam->message_type)}}
-            @elseif ($pam->is_email>0)
+            @elseif ($pam->email_id>0)
                 {{'Email'}}
             @elseif ($pam->task_id>0)
                 {{'Task'}}
