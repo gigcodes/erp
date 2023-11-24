@@ -2579,5 +2579,40 @@ class ScrapController extends Controller
                 'response' => 'Log File Not Found',
             ], 200);
         }
+
+    }
+
+
+    public function showProductStat(Request $request) {
+        $brands = Brand::whereNull('deleted_at')->get();
+        $products = [];
+        $suppliers = DB::table('scraped_products')->selectRaw('DISTINCT(`website`)')->pluck('website');
+
+        foreach ($suppliers as $supplier) {
+            foreach ($brands as $brand) {
+                $products[$supplier][$brand->name] = ScrapedProducts::where('website', $supplier)
+                    ->where('brand_id', $brand->id);
+                if ($request->has('start_date') && $request->has('end_date')) {
+                    $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->whereBetween('created_at', [$request->get('start_date'), $request->get('end_date')]);
+                }
+
+                $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->count();
+            }
+        }
+
+//        foreach ($suppliers as $supplier) {
+//            $products = DB::table('scraped_products')
+//                ->groupBy(['website', 'brand_id'])
+//                ->selectRaw('COUNT(*), brand_id, website')
+////                ->where('website', $supplier)
+//                ->get()
+//            ;
+////        }
+
+//        dd($products);
+
+        return view('scrap.scraped_product_data', compact('products', 'request'));
+
+
     }
 }

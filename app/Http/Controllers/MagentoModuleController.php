@@ -202,10 +202,10 @@ class MagentoModuleController extends Controller
 
 
         $items = MagentoModule::with(['lastRemark'])
-                ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+                ->leftjoin('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
                 ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
                 ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
-                ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
+                ->leftjoin('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
                 ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
                 ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
                 ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
@@ -841,7 +841,7 @@ class MagentoModuleController extends Controller
     {   
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
-        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('created_at', 'DESC');
+        $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('id', 'DESC');
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
             $magento_modules = $magento_modules->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
@@ -851,7 +851,7 @@ class MagentoModuleController extends Controller
             $magento_modules = $magento_modules->whereDate('magento_module_logs.created_at', "=", $request->selected_date);
         }
 
-        $magento_modules = $magento_modules->orderBy('magento_module_logs.id', 'asc')->paginate(10);
+        $magento_modules = $magento_modules->paginate(10);
 
         $magento_modules_count = MagentoModuleLogs::count();
 

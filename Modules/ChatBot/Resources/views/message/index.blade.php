@@ -719,8 +719,10 @@
                         thiss.closest(".cls_textarea_subbox").find("textarea").val("");
                         toastr['success']("Message sent successfully", 'success');
 
-                        getResults("{{ route('chatbot.messages.list') }}?page=" + page);
-
+                        $(".pam-" + id).find(".user-input").each(function() {
+                            console.log(message, id);
+                            $(this).text(message);
+                        });
                     }).fail(function (errObj) {
                         getResults("{{ route('chatbot.messages.list') }}?page=" + page);
                     });
