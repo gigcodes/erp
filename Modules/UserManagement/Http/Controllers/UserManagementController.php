@@ -2319,6 +2319,7 @@ class UserManagementController extends Controller
                                     'status2' => $task->status2,
                                     'mins' => $task->est_minutes,
                                     'manually_assign' => $task->manually_assign,
+                                    'slotTaskRemarks' => $task->slotTaskRemarks,
                                 ];
                             }
                         }
@@ -2336,6 +2337,7 @@ class UserManagementController extends Controller
                                     'status2' => $task->status2,
                                     'mins' => $task->est_minutes,
                                     'manually_assign' => $task->manually_assign,
+                                    'slotTaskRemarks' => $task->slotTaskRemarks,
                                 ];
                             }
                         }
@@ -2397,6 +2399,8 @@ class UserManagementController extends Controller
                                     ];
 
                                     $displayManually = [];
+                                    $displayText = [];
+                                    $displayTextManually = [];
 
                                     if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != 'PAST') {
                                         $ut_array = [];
@@ -2408,10 +2412,19 @@ class UserManagementController extends Controller
 
                                                 if($ut['manually_assign']==1){
                                                     array_push($ut_arrayManually, $ut['typeId']);
+
+                                                    if ($ut['slotTaskRemarks'] !== null) {
+                                                        array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                    }
                                                 } else {
                                                     array_push($ut_array, $ut['typeId']);
 
+                                                    if ($ut['slotTaskRemarks'] !== null) {
+                                                        array_push($displayText, $ut['slotTaskRemarks']);
+                                                    }
                                                 }
+
+                                                
                                                 // foreach ($ut as $t) {
                                                 //     dd($ut);
                                                 // }
@@ -2515,9 +2528,20 @@ class UserManagementController extends Controller
 
                                     //$divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div><div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . '</div>';
 
-                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div>';
+                                    $displayTextString = '';
+                                    if(!empty($displayText)){
+                                        $displayTextString = implode(", ", $displayText);
+                                    }
+
+                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . ' - '.$displayTextString.'</div>';
                                     if(!empty($displayManually)){
-                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . '</div>';
+
+                                        $displayTextManuallyString = '';
+                                        if(!empty($displayTextManually)){
+                                            $displayTextManuallyString = implode(", ", $displayTextManually);
+                                        }
+
+                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . ' - '.$displayTextManuallyString.'</div>';
                                     }
 
                                     $divSlots[] = $divSlotsVar;
@@ -2731,6 +2755,7 @@ class UserManagementController extends Controller
                     'T' AS type, 
                     assign_to AS assigned_to, 
                     manually_assign, 
+                    slotTaskRemarks, 
                     task_subject AS title, 
                     start_date AS st_date, 
                     due_date AS en_date, 
@@ -2762,6 +2787,7 @@ class UserManagementController extends Controller
                     'DT' AS type, 
                     assigned_to AS assigned_to, 
                     manually_assign, 
+                    slotTaskRemarks, 
                     subject AS title, 
                     start_date AS st_date, 
                     estimate_date AS en_date, 

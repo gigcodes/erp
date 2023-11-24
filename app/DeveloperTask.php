@@ -107,6 +107,7 @@ class DeveloperTask extends Model
         'team_lead_time_doctor_task_id',
         'tester_time_doctor_task_id',
         'manually_assign',
+        'slotTaskRemarks',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';

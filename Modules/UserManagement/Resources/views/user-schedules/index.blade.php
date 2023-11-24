@@ -137,6 +137,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Remark</label>
+                        <div class="form-group">
+                            <textarea id="slotTaskRemarks" name="slotTaskRemarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="funSlotAssignSubmit('{!! route('task.slot.assign') !!}')">Save</button>
@@ -207,6 +215,7 @@
                 type: 'POST',
                 data: {
                     taskId: jQuery('#slotTaskId').val(),
+                    slotTaskRemarks: jQuery('#slotTaskRemarks').val(),
                     userId: jQuery(currSlotAssignee).attr('data-user_id'),
                     date: jQuery(currSlotAssignee).attr('data-date'),
                     slot: jQuery(currSlotAssignee).attr('data-slot'),

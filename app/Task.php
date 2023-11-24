@@ -97,6 +97,7 @@ class Task extends Model
         'time_doctor_task_id',
         'lead_time_doctor_task_id',
         'manually_assign',
+        'slotTaskRemarks',
     ];
 
     const TASK_TYPES = [

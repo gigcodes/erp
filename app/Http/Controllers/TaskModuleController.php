@@ -5101,6 +5101,7 @@ class TaskModuleController extends Controller
                         return respJson(400, 'No change in time slot.');
                     }
                     
+                    $single->slotTaskRemarks = request('slotTaskRemarks');
                     $single->status = 'Planned';
                     $single->manually_assign = 1;
                     $single->start_date = $newValue;
@@ -5121,6 +5122,7 @@ class TaskModuleController extends Controller
                         throw new Exception('Update your estimate time first.');
                     }
 
+                    $single->slotTaskRemarks = request('slotTaskRemarks');
                     $single->manually_assign = 1;
                     $oldValue = $single->start_date;
 
