@@ -34,4 +34,14 @@ class SonarQube extends Model
         'messageFormattings',
         'codeVariants',
     ];
+
+    public static function getFilterSeverity(){
+       return SonarQube::select('severity')->where('severity', '!=', '')->groupBy('severity')->pluck('severity', 'severity');
+    }
+    public static function getFilterAuthor(){
+        return SonarQube::select('author')->where('author', '!=', '')->groupBy('author')->pluck('author', 'author');
+    }    
+    public static function getFilterProject(){
+        return SonarQube::select('project')->where('project', '!=', '')->groupBy('project')->pluck('project', 'project');
+    }        
 }

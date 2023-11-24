@@ -65,7 +65,7 @@
 						?>
 						<tr class="trrow">
 							<td width="10%" class="expand-row">
-								{{$magento_module->magento_module_id}}
+								{{$magento_module->id}}
 							</td>
 							<td width="10%" class="expand-row">
 								{{$magento_module->module}}

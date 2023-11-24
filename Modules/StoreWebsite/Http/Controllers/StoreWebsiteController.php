@@ -3020,7 +3020,7 @@ class StoreWebsiteController extends Controller
 
         $VarnishStatsLogs = VarnishStatsLogs::orderBy('id', 'DESC');
 
-        $VarnishStatsLogs = $VarnishStatsLogs->paginate(1);
+        $VarnishStatsLogs = $VarnishStatsLogs->paginate(25);
 
         return view('storewebsite::index-varnish-logs', compact('title', 'VarnishStatsLogs'))->with('i', ($request->input('page', 1) - 1) * 10);
     }

@@ -17,7 +17,12 @@
                 <tr>
                     {{-- <td>{{$loop->iteration}}</td> --}}
                     <td>DEVTASK-{{$task->task_id}}</td>
-                    <td>{{$task->task}}</td>
+                    <!-- <td>{{$task->task}}</td> -->
+                    @if (strlen($task->task) > 25)
+                        <td style="word-break: break-word;" data-log_message="{!!$task->task !!}" class="task-task_details">{{ substr($task->task,0,25) }}...</td>
+                    @else
+                        <td style="word-break: break-word;">{!!$task->task !!}</td>
+                    @endif
                     <td>{{$task->user->name}}</td>
                     <td>{{$task->estimate_minutes}}</td>
                     <td>{{$task->start_date}}</td>
@@ -41,7 +46,12 @@
                 <tr>
                     {{-- <td>{{$loop->iteration}}</td> --}}
                     <td>TASK-{{$task->task_id}}</td>
-                    <td>{{ substr($task->task_details, 0,  25) }} {{strlen($task->task_details) > 25 ? '...' : '' }}</td>
+                    <!-- <td>{{ substr($task->task_details, 0,  25) }} {{strlen($task->task_details) > 25 ? '...' : '' }}</td> -->
+                    @if (strlen($task->task_details) > 25)
+                        <td style="word-break: break-word;" data-log_message="{!!$task->task_details !!}" class="task-task_details">{{ substr($task->task_details,0,25) }}...</td>
+                    @else
+                        <td style="word-break: break-word;">{!!$task->task_details !!}</td>
+                    @endif
                     <td>{{$task->user->name}}</td>
                     <td>{{$task->approximate}}</td>
                     <td>{{$task->start_date}}</td>
@@ -64,3 +74,30 @@
         </tbody>
     </table>
 </div>
+
+<!--Log Messages Modal -->
+<div id="taskDetailsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task Details</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="word-break: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).on('click','.task-task_details',function(){
+        $('#taskDetailsModal').modal('show');
+        $('#taskDetailsModal p').text($(this).data('log_message'));
+    })
+</script>
