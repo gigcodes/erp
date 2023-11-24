@@ -99,8 +99,10 @@ class AssetsManagerController extends Controller
         if (! empty($user_ids)) {
             $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
         }
-        if (!empty($ip_ids) && (count($ip_ids)>0) && (!in_array(null, $ip_ids))) {
-            $assets = $assets->whereIn('assets_manager.ip', $ip_ids);
+
+        $ip_idss = array_filter($ip_ids, fn ($ip_ids) => !is_null($ip_ids));
+        if (!empty($ip_idss) && (count($ip_idss)>0) && (!in_array(null, $ip_idss))) {
+            $assets = $assets->whereIn('assets_manager.ip', $ip_idss);
         }
         $assets = $assets->orderBy("id", "ASC");
 
