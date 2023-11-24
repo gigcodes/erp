@@ -1788,8 +1788,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
 
         Route::get('dropdown-user-wise', [TaskModuleController::class, 'dropdownUserWise'])->name('task.dropdown-user-wise');
+        Route::get('dropdown-slot-wise', [TaskModuleController::class, 'dropdownSlotWise'])->name('task.dropdown-slot-wise');
         Route::prefix('slot')->group(function () {
             Route::post('assign', [TaskModuleController::class, 'slotAssign'])->name('task.slot.assign');
+            Route::post('move', [TaskModuleController::class, 'slotMove'])->name('task.slot.move');
         });
 
         Route::get('task-modules', [TaskModuleController::class, 'indexModules'])->name('task.task-modules');

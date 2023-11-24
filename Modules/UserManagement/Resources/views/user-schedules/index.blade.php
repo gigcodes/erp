@@ -137,9 +137,43 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Remark</label>
+                        <div class="form-group">
+                            <textarea id="slotTaskRemarks" name="slotTaskRemarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="funSlotAssignSubmit('{!! route('task.slot.assign') !!}')">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalSlotMoveAssign" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task: Move To Slots</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>Slots:</label>
+                        <div class="form-group">
+                            <select id="slotMoveTaskId" name="slotMoveTaskId" class="form-control select2">
+                                <option value="">- Select -</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="funSlotMoveSubmit('{!! route('task.slot.move') !!}')">Save</button>
             </div>
         </div>
     </div>
@@ -172,6 +206,32 @@
     var dtblListUserSchedule = null;
     var urlTaskDropdown = "{!! route('task.dropdown-user-wise') !!}";
 
+    var urlTaskMoveDropdown = "{!! route('task.dropdown-slot-wise') !!}";
+
+    function funSlotMoveModal(ele) {
+        currSlotAssignee = ele;
+
+        siteLoader(1);
+        jQuery.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: urlTaskMoveDropdown,
+            type: 'GET',
+            data: {
+                userId: jQuery(currSlotAssignee).attr('data-user_id'),
+            }
+        }).done(function(res) {
+            jQuery('#slotMoveTaskId').html(res.list ? '<option value="">- Select -</option>' + res.list : '<option value="">No records found.</option>')
+            jQuery('#modalSlotMoveAssign').modal('show');
+            applySelect2(jQuery('#slotMoveTaskId'));
+            siteLoader(0);
+        }).fail(function(err) {
+            siteErrorAlert(err);
+            siteLoader(0);
+        });
+    }
+
     function funSlotAssignModal(ele) {
         currSlotAssignee = ele;
 
@@ -196,6 +256,36 @@
         });
     }
 
+    function funSlotMoveSubmit(url) {
+        if (jQuery('#slotMoveTaskId').val()) {
+            siteLoader(1);
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: url,
+                type: 'POST',
+                data: {
+                    taskTime: jQuery('#slotMoveTaskId').val(),
+                    userId: jQuery(currSlotAssignee).attr('data-user_id'),
+                    date: jQuery(currSlotAssignee).attr('data-date'),
+                    slot: jQuery(currSlotAssignee).attr('data-slot'),
+                    tasks: jQuery(currSlotAssignee).attr('data-tasks'),
+                    dev_tasks: jQuery(currSlotAssignee).attr('data-dev_tasks'),
+                }
+            }).done(function(response) {
+                jQuery('#modalSlotMoveAssign').modal('hide');
+                siteLoader(0);
+                dtblListUserSchedule.draw(false);
+            }).fail(function(err) {
+                siteErrorAlert(err);
+                siteLoader(0);
+            });
+        } else {
+            siteErrorAlert("Please select slot.");
+        }
+    }
+
     function funSlotAssignSubmit(url) {
         if (jQuery('#slotTaskId').val()) {
             siteLoader(1);
@@ -207,6 +297,7 @@
                 type: 'POST',
                 data: {
                     taskId: jQuery('#slotTaskId').val(),
+                    slotTaskRemarks: jQuery('#slotTaskRemarks').val(),
                     userId: jQuery(currSlotAssignee).attr('data-user_id'),
                     date: jQuery(currSlotAssignee).attr('data-date'),
                     slot: jQuery(currSlotAssignee).attr('data-slot'),

@@ -2318,6 +2318,9 @@ class UserManagementController extends Controller
                                     'status' => $task->status,
                                     'status2' => $task->status2,
                                     'mins' => $task->est_minutes,
+                                    'manually_assign' => $task->manually_assign,
+                                    'slotTaskRemarks' => $task->slotTaskRemarks,
+                                    'task_type' => 'tasks',
                                 ];
                             }
                         }
@@ -2334,6 +2337,9 @@ class UserManagementController extends Controller
                                     'status' => $task->status,
                                     'status2' => $task->status2,
                                     'mins' => $task->est_minutes,
+                                    'manually_assign' => $task->manually_assign,
+                                    'slotTaskRemarks' => $task->slotTaskRemarks,
+                                    'task_type' => 'dev_tasks',
                                 ];
                             }
                         }
@@ -2387,11 +2393,49 @@ class UserManagementController extends Controller
                                         ' - ',
                                         date('H:i', strtotime($slot['en'])),
                                     ];
+
+                                    $displayManually = [
+                                        date('H:i', strtotime($slot['st'])),
+                                        ' - ',
+                                        date('H:i', strtotime($slot['en'])),
+                                    ];
+
+                                    $displayManually = [];
+                                    $displayText = [];
+                                    $displayTextManually = [];
+                                    $displayManuallyMove = [];
+                                    $taskArray = [];
+                                    $devtaskArray = [];
+
                                     if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != 'PAST') {
                                         $ut_array = [];
-                                        if (isset($slot['userTasks'])) {
+                                        $ut_arrayManually = [];
+                                        
+                                        
+                                        if (!empty($slot['userTasks'])) {
                                             foreach ($slot['userTasks'] as $ut) {
-                                                array_push($ut_array, $ut['typeId']);
+
+                                                if($ut['manually_assign']==1){
+                                                    array_push($ut_arrayManually, $ut['typeId']);
+
+                                                    if ($ut['slotTaskRemarks'] !== null) {
+                                                        array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                    }
+                                                } else {
+                                                    array_push($ut_array, $ut['typeId']);
+
+                                                    if ($ut['slotTaskRemarks'] !== null) {
+                                                        array_push($displayText, $ut['slotTaskRemarks']);
+                                                    }
+                                                }
+
+                                                if($ut['task_type']=='tasks'){
+                                                    $taskArray[] = $ut['id'];
+                                                } else {
+                                                    $devtaskArray[] = $ut['id'];
+                                                }
+
+                                                array_push($displayManuallyMove, $ut['typeId']);
                                                 // foreach ($ut as $t) {
                                                 //     dd($ut);
                                                 // }
@@ -2410,24 +2454,43 @@ class UserManagementController extends Controller
                                                 $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
                                             }
                                             $title = implode(PHP_EOL, $title);
+                                        }
+
+                                        $developerTaskIDManually = $ut_arrayManually;
+                                        if (! empty($developerTaskIDManually)) {
+                                            $displayManually[] = ' (' . implode(', ', $developerTaskIDManually) . ')';
+
+                                            $title = [];
+                                            foreach ($slot['taskIds'] as $taskId => $taskRow) {
+                                                $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                            }
+                                            $title = implode(PHP_EOL, $title);
+                                        }
+
+                                        if ($slot['type'] == 'SMALL-LUNCH') {
+                                            $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
+
+                                        } elseif ($slot['type'] == 'LUNCH-START') {
+                                            $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
+
+                                        } elseif ($slot['type'] == 'LUNCH-END') {
+                                            $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
+
                                         } else {
                                             $class = 'text-secondary';
                                             $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
-                                        }
-                                        if ($slot['type'] == 'SMALL-LUNCH') {
-                                            $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
-                                        } elseif ($slot['type'] == 'LUNCH-START') {
-                                            $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
-                                        } elseif ($slot['type'] == 'LUNCH-END') {
-                                            $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
+
                                         }
                                         // $title
                                         $display = implode('', $display);
+
+                                        $displayManually = implode('', $displayManually);
                                     } elseif (in_array($slot['slot_type'], ['PAST', 'LUNCH'])) {
                                         $title = 'Not Available';
                                         $class = 'text-secondary';
                                         $display[] = ' (' . $slot['slot_type'] . ')';
                                         $display = '<s>' . implode('', $display) . '</s>';
+
                                     }
                                     // elseif ($slot['type'] == "SMALL-LUNCH") {
                                     //     $title = 'LUNCH';
@@ -2440,6 +2503,7 @@ class UserManagementController extends Controller
                                         $class = 'text-secondary';
                                         $display[] = ' (LUNCH)';
                                         $display = '<s>' . implode('', $display) . '</s>';
+
                                     }
                                     // elseif ($slot['type'] == "LUNCH-START") {
                                     //     dd($slot);
@@ -2455,7 +2519,30 @@ class UserManagementController extends Controller
                                     //     $display = '<s>'.implode('', $display).'</s>';
                                     // }
 
-                                    $divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div>';
+                                    //$divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div><div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . '</div>';
+
+                                    $displayTextString = '';
+                                    if(!empty($displayText)){
+                                        $displayTextString = implode(", ", $displayText);
+                                    }
+
+                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . ' - '.$displayTextString.'</div>';
+                                    if(!empty($displayManually)){
+
+                                        $displayTextManuallyString = '';
+                                        if(!empty($displayTextManually)){
+                                            $displayTextManuallyString = implode(", ", $displayTextManually);
+                                        }
+
+                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . ' - '.$displayTextManuallyString.'</div>';
+                                    }
+
+                                    if(!empty($displayManuallyMove)){
+                                        $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '">MOVE</a>';    
+                                    }
+
+                                    $divSlots[] = $divSlotsVar;
+                                    
                                 }
                                 /*
                                 $data[] = [
@@ -2664,6 +2751,8 @@ class UserManagementController extends Controller
                     id, 
                     'T' AS type, 
                     assign_to AS assigned_to, 
+                    manually_assign, 
+                    slotTaskRemarks, 
                     task_subject AS title, 
                     start_date AS st_date, 
                     due_date AS en_date, 
@@ -2694,6 +2783,8 @@ class UserManagementController extends Controller
                     id, 
                     'DT' AS type, 
                     assigned_to AS assigned_to, 
+                    manually_assign, 
+                    slotTaskRemarks, 
                     subject AS title, 
                     start_date AS st_date, 
                     estimate_date AS en_date, 
