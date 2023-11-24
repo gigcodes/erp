@@ -9,6 +9,7 @@
             <div class="modal-body">
                 <form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
                     <?php echo csrf_field(); ?>
+                    <input type="hidden" name="quick_task" value="1">
                     <div class="form-group">
                         <label for="task_type">Task Type</label>
                         <?php echo Form::select("task_type",\App\Task::TASK_TYPES,null,["class" => "form-control select2-vendor type-on-change","style" => "width:100%;"]); ?>
