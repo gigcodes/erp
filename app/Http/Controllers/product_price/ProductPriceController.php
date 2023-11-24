@@ -13,10 +13,13 @@ use App\ProductUpdateLog;
 use App\SimplyDutyCountry;
 use App\SimplyDutySegment;
 use App\Jobs\PushToMagento;
+use Illuminate\Container\Container;
 use Illuminate\Http\Request;
 use App\Loggers\LogListMagento;
 use App\CategorySegmentDiscount;
 use App\SimplyDutyCountryHistory;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -116,7 +119,7 @@ class ProductPriceController extends Controller
 
         $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
 
-        $products = $products->skip($skip * Setting::get('pagination'))->limit('25')->get();
+        $products = $products->skip($skip * 25)->limit(25)->get();
         //$products = $products->limit(100)->get();
         $product_list = [];
         if (count($products)) {
@@ -264,35 +267,19 @@ class ProductPriceController extends Controller
 
         $products = $products->whereNull('products.deleted_at');
 
-        /*
+        $page = Paginator::resolveCurrentPage('page');
 
-          if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
-              $suppliers_list = implode(',', $filter_data['supplier']);
-              $products       = $products->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
-          }
+        $products = Container::getInstance()->makeWith(LengthAwarePaginator::class, [
+            'items' => $products->offset(($page - 1) * 20)->limit(20)->get(),
+            'total' => 5000000,
+            'perPage' => 20,
+            'currentPage' => $page,
+            'options' => [
+                'path' => Paginator::resolveCurrentPath(),
+                'pageName' => 'page'
+            ]
+        ]);
 
-          if (isset($filter_data['brand_names']) && is_array($filter_data['brand_names']) && $filter_data['brand_names'][0] != null) {
-              $products = $products->whereIn('brand_id', $filter_data['brand_names']);
-          }
-
-
-
-          if (isset($filter_data['term'])) {
-              $term  = $filter_data['term'];
-              $products = $products->where(function ($q) use ($term) {
-                  $q->where('products.name', 'LIKE', "%$term%")
-                      ->orWhere('products.sku', 'LIKE', "%$term%")
-                      ->orWhere('c.title', 'LIKE', "%$term%")
-                      ->orWhere('b.name', 'LIKE', "%$term%")
-                      ->orWhere('products.id', 'LIKE', "%$term%");
-              });
-          }
-
-          // $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
-
-         /*   $products = $products->skip($skip * Setting::get('pagination'))
-          ->limit(Setting::get('pagination'))->get();*/
-        $products = $products->paginate(50);
         $product_list = [];
         foreach ($products as $p) {
             if (count($products)) {
@@ -493,7 +480,7 @@ class ProductPriceController extends Controller
                 $brands->orderBy('cs.name', $request->order);
             }
         }
-        $numcount = $brands->count();
+        $numcount = 5000;
         $brands = $brands
             ->skip($skip * Setting::get('pagination'))
         ->limit(Setting::get('pagination') ?? 10)

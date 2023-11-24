@@ -1651,18 +1651,64 @@
         });
     });
 
-    $('#createVendorForm').submit(function(e){
+    let itemCount = 1;
+
+    function addVendor() {
+        itemCount++;
+        const newItem = `<div class="vendor-detail">
+            <div class="col-md-12">
+                <h4>Vendor ${itemCount}</h4>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="text" name="vendor_name[]" class="form-control" placeholder="Name:" value="{{ old('name${itemCount}') }}" required>
+                    @if ($errors->has('name${itemCount}'))
+                    <div class="alert alert-danger">{{$errors->first('name${itemCount}')}}</div>
+                    @endif
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="email" name="vendor_email[]" class="form-control" placeholder="Email:" value="{{ old('email${itemCount}') }}"> @if ($errors->has('email${itemCount}'))
+                    <div class="alert alert-danger">{{$errors->first('email${itemCount}')}}</div>
+                    @endif
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="email" name="vendor_gmail[]" class="form-control" placeholder="Gmail:" value="{{ old('gmail${itemCount}') }}"> @if ($errors->has('gmail${itemCount}'))
+                    <div class="alert alert-danger">{{$errors->first('gmail${itemCount}')}}</div>
+                    @endif
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group text-right">
+                    <button type="button" class="remove-btn btn btn-danger" title="Add Vendor"><i class="fa fa-minus"></i></button>
+                </div>
+            </div>
+        </div>`;
+        $('.add-vendor-div').append(newItem);
+        $("#vendor_count").val(itemCount);
+    }
+
+    $(document).on('click', '.remove-btn', function() {
+      $(this).closest('.vendor-detail').remove();
+      //itemCount--;
+      $("#vendor_count").val(itemCount);
+    });
+
+    $('#createVendorForm').submit(function(e) {
         e.preventDefault();
 
         var checkedUserGithub = $("input[name='create_user_github']").prop('checked');
 
-        if(checkedUserGithub){
+        if (checkedUserGithub) {
             $('#submit_form_input_id').val('createVendorForm');
             $('#submit_organization_input_id').val('vendor_organization_id');
             $('#submit_organization_action_type').val('');
 
             $('#viewOrganizationModal').modal('show');
-        }else{
+        } else {
             $('#createVendorForm').unbind().submit();
         }
     });
