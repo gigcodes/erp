@@ -41,6 +41,7 @@ use App\UserFeedbackCategorySopHistory;
 use App\Hubstaff\HubstaffPaymentAccount;
 use App\UserFeedbackCategorySopHistoryComment;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
+use App\Models\UserDatabaseLog;
 
 class UserManagementController extends Controller
 {
@@ -1641,6 +1642,13 @@ class UserManagementController extends Controller
                     'user_id' => $id,
                 ]);
 
+                \App\Models\UserDatabaseLog::create([
+                    'user_id' => $id,
+                    'request_data' => $cmd,
+                    'response_data' => json_encode($allOutput),
+                    'updated_by' => Auth::id(),
+                ]);
+
                 $params = [];
                 $params['user_id'] = $user->id;
                 $params['message'] = 'We have created user with username : ' . $username . ' and password : ' . $password . ' , you can sing in here https://erp.theluxuryunlimited.com/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/phpMyAdmin/.';
@@ -1734,6 +1742,13 @@ class UserManagementController extends Controller
             $result = exec($cmd, $allOutput);
             \Log::info(print_r($allOutput, true));
 
+            \App\Models\UserDatabaseLog::create([
+                'user_id' => $user->id,
+                'request_data' => $cmd,
+                'response_data' => json_encode($allOutput),
+                'updated_by' => Auth::id(),
+            ]);
+
             $params = [];
             $params['user_id'] = $user->id;
             $params['message'] = 'Your request for given table (' . implode(',', $tables) . ')  has been approved , please verify at your end.';
@@ -1795,6 +1810,13 @@ class UserManagementController extends Controller
                 $dbtables->delete();
             }
             $database->delete();
+
+            \App\Models\UserDatabaseLog::create([
+                'user_id' => $id,
+                'request_data' => $cmd,
+                'response_data' => json_encode($allOutput),
+                'updated_by' => Auth::id(),
+            ]);
 
             return response()->json(['code' => 200, 'message' => 'Database access has been removed']);
         }
@@ -2884,5 +2906,16 @@ class UserManagementController extends Controller
         $userAccessLists = $userAccessLists->with('user')->latest()->paginate(25);
 
         return view('user-management.user-access-list', compact('userAccessLists'));
+    }
+
+    public function databaseLogs(Request $request)
+    {
+        $title = 'Database Logs | User management';
+
+        $UserDatabaseLog = UserDatabaseLog::orderBy('id', 'DESC');
+
+        $UserDatabaseLog = $UserDatabaseLog->paginate(25);
+
+        return view('user-management.index-database-logs', compact('title', 'UserDatabaseLog'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 }

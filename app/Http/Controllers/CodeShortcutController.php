@@ -223,4 +223,20 @@ class CodeShortcutController extends Controller
 
         return redirect()->route('code-shortcuts')->withSuccess('data Removed succesfully!');
     }
+
+    public function getListCodeShortCut($id)
+    {   
+        $CodeShortcut = CodeShortcut::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $CodeShortcut,
+            'title' => $CodeShortcut['title'],
+            'code' => $CodeShortcut['code'],
+            'description' => $CodeShortcut['description'],
+            'solution' => $CodeShortcut['solution'],
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }
