@@ -42,9 +42,20 @@ class ManageModulesController extends Controller
     {
         $post = $request->all();
 
-        $validator = Validator::make($post, [
-            'name' => 'required',
-        ]);
+        $id = $request->get('id', 0);
+
+        $records = DeveloperModule::find($id);
+
+        if (! $records) {
+            $records = new DeveloperModule;
+            $validator = Validator::make($post, [            
+                'name' => 'required|min:1|unique:developer_modules,name,NULL,id,deleted_at,NULL'
+            ]);            
+        } else {
+            $validator = Validator::make($post, [            
+                'name' => 'required|unique:developer_modules,name,'.$records->id.',id',
+            ]);
+        }
 
         if ($validator->fails()) {
             $outputString = '';
@@ -56,14 +67,6 @@ class ManageModulesController extends Controller
             }
 
             return response()->json(['code' => 500, 'error' => $outputString]);
-        }
-
-        $id = $request->get('id', 0);
-
-        $records = DeveloperModule::find($id);
-
-        if (! $records) {
-            $records = new DeveloperModule;
         }
 
         $records->fill($post);
@@ -205,5 +208,30 @@ class ManageModulesController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => [], 'messages' => 'Module has been merged successfully']);
+    }
+
+    public function removeDeveloperModules()
+    {
+        $modules = DeveloperModule::groupBy('name')->orderBy('id', 'ASC')->get();
+
+        $DeveloperModule = [];
+        if(!empty($modules)){
+            foreach ($modules as $key => $value) {
+                $otherModules = [];
+                $otherModules = DeveloperModule::where('name', $value['name'])->where('id', '!=', $value['id'])->pluck('id')->toArray();
+
+                if(!empty($otherModules)){
+                    $DeveloperModule[$key] = $value;
+                    $DeveloperModule[$key]['other_modules'] = $otherModules;
+
+                    $allMergeModule = \App\DeveloperTask::whereIn('module_id', $otherModules)->update(['module_id' => $value['id']]);
+
+                    \App\DeveloperModule::whereIn('id', $otherModules)->delete();
+
+                }
+            }
+        }
+
+        return $DeveloperModule;
     }
 }

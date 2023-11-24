@@ -2587,7 +2587,8 @@ class DevelopmentController extends Controller
     public function moduleStore(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|min:3',
+            //'name' => 'required|string|min:3',
+            'name' => 'required|min:1|unique:developer_modules,name,NULL,id,deleted_at,NULL'
         ]);
         $data = $request->except('_token');
         DeveloperModule::create($data);
