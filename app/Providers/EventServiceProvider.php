@@ -6,9 +6,8 @@ use App\Brand;
 use App\Email;
 use App\Category;
 use App\ChatMessage;
-use App\Observers\TaskObserver;
+use App\Observers\ChatMessageIndexObserver;
 use App\ScrapedProducts;
-use App\Task;
 use Plank\Mediable\Media;
 use App\Observers\BrandObserver;
 use App\Observers\EmailObserver;
@@ -18,7 +17,6 @@ use App\Observers\ChatMessageObserver;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\Observers\ScrappedProductCategoryMappingObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use App\Observers\ChatMessageIndexObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -150,7 +148,6 @@ class EventServiceProvider extends ServiceProvider
         Media::observe(MediaObserver::class);
         ChatMessage::observe(ChatMessageObserver::class);
         ChatMessage::observe(ChatMessageIndexObserver::class);
-        ChatMessage::observe(TaskObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
 
