@@ -4414,6 +4414,293 @@ class TaskModuleController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function dropdownSlotWise()
+    {
+        try {
+
+            $options = $this->userSchedulesLoadDataDropDown(request('userId'));
+
+            $return = [];
+            if (count($options)) {
+                foreach ($options as $k => $v) {
+                    $return[] = '<option value="' . $v . '">' . $v . '</option>';
+                }
+            }
+
+            return response()->json(
+                [
+                    'list' => $return ? implode('', $return) : null,
+                ]
+            );
+        } catch(\Throwable $th) {
+            return respException($th);
+        }
+    }
+
+    public function userSchedulesLoadDataDropDown($user_id)
+    {
+        $usertemp = 0;
+        $count = 0;
+        $data = [];
+
+        $isPrint = ! request()->ajax();
+
+        // _p(hourlySlots('2022-08-10 10:10:00', '2022-08-10 15:15:00', '12:05:00'));
+        // exit;
+
+        $stDate = $start_date = date('Y-m-d');
+        $enDate = $start_date = date('Y-m-d', strtotime(' + 5 days'));;
+
+        if ($stDate && $enDate) {
+            $filterDates = dateRangeArr($stDate, $enDate);
+            $filterDatesNew = [];
+            foreach ($filterDates as $row) {
+                $filterDatesNew[$row['date']] = $row;
+            }
+
+            $q = User::query();
+            $q->leftJoin('user_avaibilities as ua', 'ua.user_id', '=', 'users.id');
+            $q->where('users.is_task_planned', 1);
+            $q->where('ua.is_latest', 1);
+            if (! isAdmin()) {
+                $q->where('users.id', loginId());
+            }
+            if ($srch = request('srchUser')) {
+                $q->where('users.id', $srch);
+            }
+            if (request('is_active')) {
+                $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
+            }
+            $q->select([
+                'users.id',
+                'users.name',
+                \DB::raw('ua.id AS uaId'),
+                \DB::raw('ua.date AS uaDays'),
+                \DB::raw('ua.from AS uaFrom'),
+                \DB::raw('ua.to AS uaTo'),
+                \DB::raw('ua.start_time AS uaStTime'),
+                \DB::raw('ua.end_time AS uaEnTime'),
+                \DB::raw('ua.lunch_time AS uaLunchTime'),
+                \DB::raw('ua.lunch_time_from AS lunch_time_from'),
+                \DB::raw('ua.lunch_time_to AS lunch_time_to'),
+            ]);
+            $users = $q->get();
+            $count = $users->count();
+
+            // _p( getHourlySlots('2022-08-11 22:05:00', '2022-08-12 02:45:00') );
+            // exit;
+
+            if ($count) {
+                $filterDatesOnly = array_column($filterDates, 'date');
+
+                $userIds = [];
+
+                // _p($users->toArray(), 1);
+
+                // Prepare user's data
+                $userArr = [];
+                foreach ($users as $single) {
+                    $userIds[] = $single->id;
+                    if ($single->uaId) {
+                        $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
+                        $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
+                        $single->uaLunchTime = $single->uaLunchTime ? date('H:i:00', strtotime($single->uaLunchTime)) : '';
+
+                        $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
+                        $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
+                        $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime, $single);
+
+                        $userArr[] = [
+                            'id' => $single->id,
+                            'name' => $single->name,
+                            'uaLunchTime' => $single->uaLunchTime ? substr($single->uaLunchTime, 0, 5) : '',
+                            'uaId' => $single->uaId,
+                            'uaDays' => $single->uaDays,
+                            'availableDays' => $single->uaDays,
+                            'availableDates' => $availableDates,
+                            'availableSlots' => $availableSlots,
+                        ];
+                    } else {
+                        $userArr[] = [
+                            'id' => $single->id,
+                            'name' => $single->name,
+                            'uaLunchTime' => null,
+                            'uaId' => null,
+                            'uaDays' => [],
+                            'availableDays' => [],
+                            'availableDates' => [],
+                            'availableSlots' => [],
+                        ];
+                    }
+                }
+
+                // Get Tasks & Developer Tasks -- Arrange with End time & Mins
+                $tasksArr = [];
+                if ($userIds) {
+                    $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
+                        'userIds' => $userIds,
+                    ]);
+                    $tasksPlanned = $this->typeWiseTasks('PLANNED', [
+                        'userIds' => $userIds,
+                    ]);
+
+                    if ($tasksInProgress) {
+                        foreach ($tasksInProgress as $task) {
+                            $task->st_date = date('Y-m-d H:i:00', strtotime($task->st_date));
+
+                            if (! isset($task->en_date)) {
+                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+                            }
+                            // if ($task->en_date <= date('Y-m-d H:i:s')) {
+                            //     $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
+                            //     $task->est_minutes = 60;
+                            // } else {
+                            //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
+                            // }
+
+                            $tasksArr[$task->assigned_to][$task->status2][] = [
+                                'id' => $task->id,
+                                'typeId' => $task->type . '-' . $task->id,
+                                'stDate' => $task->st_date,
+                                'enDate' => $task->en_date,
+                                'status' => $task->status,
+                                'status2' => $task->status2,
+                                'mins' => $task->est_minutes,
+                                'manually_assign' => $task->manually_assign,
+                            ];
+                        }
+                    }
+                    if ($tasksPlanned) {
+                        foreach ($tasksPlanned as $task) {
+                            $task->est_minutes = 20;
+                            $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
+                            $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+                            $tasksArr[$task->assigned_to][$task->status2][] = [
+                                'id' => $task->id,
+                                'typeId' => $task->type . '-' . $task->id,
+                                'stDate' => $task->st_date,
+                                'enDate' => $task->en_date,
+                                'status' => $task->status,
+                                'status2' => $task->status2,
+                                'mins' => $task->est_minutes,
+                                'manually_assign' => $task->manually_assign,
+                            ];
+                        }
+                    }
+                }
+                if ($isPrint) {
+                    _p($tasksArr);
+                }
+                // dd($tasksArr);
+
+                // Arrange tasks on users slots
+                foreach ($userArr as $k1 => $user) {
+                    $userTasksArr = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
+                    if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
+                        foreach ($user['availableSlots'] as $date => $slots) {
+                            foreach ($slots as $k2 => $slot) {
+                                if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
+                                    $res = $this->slotIncreaseAndShift($slot, $userTasksArr);
+                                    // dd($res, $userTasks);
+
+                                    $userTasks = $res['userTasks'] ?? [];
+                                    $slot['taskIds'] = $res['taskIds'] ?? [];
+                                    $slot['userTasks'] = $res['userTasks'] ?? [];
+                                }
+                                // else if ($slotRow['type'] == 'LUNCH') {
+                                //     // $userTasks = $this->slotIncreaseAndShift($userTasks, $slotKey);
+                                // }
+                                $slots[$k2] = $slot;
+                            }
+
+                            $user['availableSlots'][$date] = $slots;
+                        }
+                    }
+                    $userArr[$k1] = $user;
+                }
+
+                if ($isPrint) {
+                    _p($userArr);
+                }
+
+                // Arange for datatable
+                foreach ($userArr as $user) {
+                    if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
+                        foreach ($user['availableSlots'] as $date => $slots) {
+                            $divSlots = [];
+                            // dd($slots);
+                            foreach ($slots as $slot) {
+                                $title = '';
+                                $class = '';
+                                $display = [
+                                    date('H:i', strtotime($slot['st'])),
+                                    ' - ',
+                                    date('H:i', strtotime($slot['en'])),
+                                ];
+
+
+                                if (in_array($slot['type'], ['AVL']) && $slot['slot_type'] != 'PAST') {
+                                    $ut_array = [];
+                                    $ut_arrayManually = [];
+                                    
+                                    
+                                    if (!empty($slot['userTasks'])) {
+                                        foreach ($slot['userTasks'] as $ut) {
+
+                                            if($ut['manually_assign']==1){
+                                                array_push($ut_arrayManually, $ut['typeId']);
+                                            } else {
+                                                array_push($ut_array, $ut['typeId']);
+                                            }
+                                        }
+                                    }
+                                    
+                                    $developerTaskID = $ut_array;
+                                    if (! empty($developerTaskID)) {
+                                        $display[] = ' (' . implode(', ', $developerTaskID) . ')';
+
+                                        $title = [];
+                                        foreach ($slot['taskIds'] as $taskId => $taskRow) {
+                                            $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                        }
+                                        $title = implode(PHP_EOL, $title);
+                                    }
+
+                                    $class = 'text-secondary';
+
+                                    // $title
+                                    $display = implode('', $display);
+
+                                    $divSlots[] = $display;
+                                }
+                                
+                            }
+
+
+                            for ($p = 0; $p < 13; $p++) {
+
+                                $varid = 'slots' . $p;
+                                if (isset($divSlots[$p])) {
+
+
+                                    $str = str_replace('(AVL)', '<br>(AVL)', $divSlots[$p]);
+                                    $str = str_replace('(LUNCH)', '<br>(LUNCH)', $divSlots[$p]);
+                                    $str = str_replace('(PAST)', '<br>(PAST)', $divSlots[$p]);
+
+                                    $data[] = $date. ' ('.$str.')';
+                                } 
+                            }
+
+                            $usertemp = $usertemp + 1;
+                        }
+                    }
+                }
+            }
+
+            return $data;
+        }
+    }
+
     public function userSchedulesLoadData($user_id)
     {
         $usertemp = 0;
@@ -5079,6 +5366,64 @@ class TaskModuleController extends Controller
             );
         } catch(\Throwable $th) {
             return respException($th);
+        }
+    }
+
+    public function slotMove()
+    {
+        try {
+            // $newValue = request('date').' '.substr(request('slot'), 0, 2).':00:00';
+
+            if(!empty(request('tasks'))){
+                $tasks = explode(",",request('tasks'));
+            }
+
+            if(!empty(request('dev_tasks'))){
+                $dev_tasks = explode(",",request('dev_tasks'));
+            }
+
+            $phrase  = request('taskTime');
+            $healthy = ["(", ")"];
+            $yummy   = ["", ""];
+
+            $newPhrase = str_replace($healthy, $yummy, $phrase);
+
+            $taskTime = explode(" ", $newPhrase);
+
+            if(!empty($tasks)){
+                foreach ($tasks as $key => $value) {
+
+                    $task = Task::find($value);
+
+                    if ($task) {
+
+                        $task->start_date = $taskTime[0].' '.$taskTime[1];
+                        $task->due_date = $taskTime[0].' '.$taskTime[2];
+
+                        $task->save();
+                    }
+                }
+            }
+
+            if(!empty($dev_tasks)){
+                foreach ($dev_tasks as $key => $value) {
+
+                    $task = DeveloperTask::find($value);
+
+                    if ($task) {
+
+                        $task->start_date = $taskTime[0].' '.$taskTime[1];
+                        $task->estimate_date = $taskTime[0].' '.$taskTime[3];
+
+                        $task->save();
+                    }
+                }
+            }
+
+            return respJson(200, 'Time slot updated successfully.');
+
+        } catch(\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
         }
     }
 
