@@ -21,6 +21,7 @@ use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
 use App\Models\AssetManagerUserAccess;
+use App\Models\DataTableColumn;
 
 class AssetsManagerController extends Controller
 {
@@ -115,8 +116,38 @@ class AssetsManagerController extends Controller
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
         $users = User::get()->toArray();
         //dd($users);
-        return view('assets-manager.index', compact('assets', 'assets_category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress'))
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'asset-manager')->first();
+
+        $dynamicColumnsToShowAM = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowAM = json_decode($hideColumns, true);
+        }
+
+        return view('assets-manager.index', compact('assets', 'assets_category', 'cashflows', 'users', 'websites', 'plateforms', 'whatsappCon', 'emailAddress', 'dynamicColumnsToShowAM'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
+    public function asColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','asset-manager')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'asset-manager';
+            $column->column_name = json_encode($request->column_assetsmanager); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'asset-manager';
+            $column->column_name = json_encode($request->column_assetsmanager); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     /**
