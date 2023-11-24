@@ -554,6 +554,8 @@ Route::middleware('auth')->group(function () {
     Route::post('magento_modules/verified-status-update', [MagentoModuleController::class, 'verifiedStatusUpdate'])->name('magento_module.verified-status-update');
     Route::get('magento_modules/listing', [MagentoModuleController::class, 'magentoModuleList'])->name('magento_module_listing');
     Route::get('magento_modules/listing-careers', [\App\Http\Controllers\MagentoCareersController::class, 'index'])->name('magento_module_listing_careers');
+    Route::post('magento_modules/listing-careers/filter', [\App\Http\Controllers\MagentoCareersController::class, 'getCareerByFilter'])->name('magento_module_listing_careers_by_filter');
+    Route::post('magento_modules/listing-careers/getCareerRecord', [\App\Http\Controllers\MagentoCareersController::class, 'getCareerRecord'])->name('fetchedCareerRecords');
     Route::post('magento_modules/listing-careers/create_or_edit', [\App\Http\Controllers\MagentoCareersController::class, 'createOrEdit'])->name('magento_module_listing_careers_create');
     Route::get('magento_modules/listing_logs', [MagentoModuleController::class, 'magentoModuleListLogs'])->name('magento_module_listing_logs');
     Route::get('magento_modules_logs/{id}', [MagentoModuleController::class, 'magentoModuleListLogsDetails'])->name('magento_module_listing_logs_details');
