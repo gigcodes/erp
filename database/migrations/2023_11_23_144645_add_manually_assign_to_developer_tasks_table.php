@@ -14,7 +14,7 @@ class AddManuallyAssignToDeveloperTasksTable extends Migration
     public function up()
     {
         Schema::table('developer_tasks', function (Blueprint $table) {
-            $table->string('manually_assign')->after('parent_review_task_id')->nullable();
+            $table->string('manually_assign')->nullable();
         });
     }
 
