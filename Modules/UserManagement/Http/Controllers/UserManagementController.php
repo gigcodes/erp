@@ -2368,7 +2368,7 @@ class UserManagementController extends Controller
                         if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
                             foreach ($user['availableSlots'] as $date => $slots) {
                                 foreach ($slots as $k2 => $slot) {
-                                    if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
+                                    if ($slot['type'] == 'PAST' || $slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
                                         $res = $this->slotIncreaseAndShift($slot, $userTasksArr);
                                         // dd($res, $userTasks);
 
@@ -2420,7 +2420,7 @@ class UserManagementController extends Controller
                                     $taskArray = [];
                                     $devtaskArray = [];
 
-                                    if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != 'PAST') {
+                                    if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END', 'PAST'])) {
                                         $ut_array = [];
                                         $ut_arrayManually = [];
                                         
@@ -2500,13 +2500,32 @@ class UserManagementController extends Controller
                                         $display = implode('', $display);
 
                                         $displayManually = implode('', $displayManually);
-                                    } elseif (in_array($slot['slot_type'], ['PAST', 'LUNCH'])) {
+                                    } elseif (in_array($slot['slot_type'], ['LUNCH'])) {
                                         $title = 'Not Available';
                                         $class = 'text-secondary';
                                         $display[] = ' (' . $slot['slot_type'] . ')';
                                         $display = '<s>' . implode('', $display) . '</s>';
 
-                                    }
+                                    } /*elseif (in_array($slot['slot_type'], ['PAST'])) {
+
+                                        $todaydate = date("Y-m-d");
+                                        $taskdate = date("Y-m-d", strtotime($slot['st']));
+
+                                        if($todaydate==$taskdate){
+                                            $title = 'Not Available';
+                                            $class = 'text-secondary';
+                                            $display[] = '<s> (' . $slot['slot_type'] . ')</s>';
+
+                                            $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+
+                                            $display = implode('', $display);
+                                        } else {
+                                            $title = 'Not Available';
+                                            $class = 'text-secondary';
+                                            $display[] = ' (' . $slot['slot_type'] . ')';
+                                            $display = '<s>' . implode('', $display) . '</s>';
+                                        }
+                                    }*/
                                     // elseif ($slot['type'] == "SMALL-LUNCH") {
                                     //     $title = 'LUNCH';
                                     //     $class = 'text-secondary';
@@ -2553,7 +2572,9 @@ class UserManagementController extends Controller
                                     }
 
                                     if(!empty($displayManuallyMove)){
-                                        $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '">MOVE</a>';    
+                                        if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
+                                            $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '">MOVE</a>';    
+                                        }
                                     }
 
                                     $divSlots[] = $divSlotsVar;
@@ -2716,13 +2737,16 @@ class UserManagementController extends Controller
 
         if(!empty($task_status_value)){
 
-            foreach ($task_status_value as $key => $value) {
-                $varTask_status = strtoupper(str_replace(" ", "_", $value));
-                $vardevTask_status = strtoupper(str_replace(" ", "_", $value));
+            $task_status_value_array = array_filter($task_status_value, fn ($ip_ids) => !is_null($task_status_value));
+            if (!in_array(null, $task_status_value_array)) {
+                foreach ($task_status_value as $key => $value) {
+                    $varTask_status = strtoupper(str_replace(" ", "_", $value));
+                    $vardevTask_status = strtoupper(str_replace(" ", "_", $value));
 
-                $taskStatuses[] = Task::TASK_STATUS_FILTER[$varTask_status];
-                $taskStatuses[] = DeveloperTask::DEV_TASK_STATUS_FILTER[$vardevTask_status];
-            }
+                    $taskStatuses[] = Task::TASK_STATUS_FILTER[$varTask_status];
+                    $taskStatuses[] = DeveloperTask::DEV_TASK_STATUS_FILTER[$vardevTask_status];
+                }
+            }            
         }
 
         // start_date IS NOT NULL AND approximate > 0
@@ -2768,7 +2792,6 @@ class UserManagementController extends Controller
                 WHERE 
                 1
                 AND deleted_at IS NULL
-                AND due_date >= NOW()
                 AND due_date IS NOT NULL
                 AND assign_to IN (" . implode(',', $userIds) . ")";
 
@@ -2811,7 +2834,6 @@ class UserManagementController extends Controller
                 FROM developer_tasks
                 WHERE 1
                 AND deleted_at IS NULL
-                AND estimate_date >= NOW()
                 AND estimate_date IS NOT NULL
                 AND assigned_to IN (" . implode(',', $userIds) . ")";
 
