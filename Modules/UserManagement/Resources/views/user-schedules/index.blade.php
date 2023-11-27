@@ -68,7 +68,7 @@
                                         <div class="col-md-2">
                                             <div class="form-group">
                                                 <label for="form-label">Status</label>
-                                                {{ Form::select("task_status", $statusList, request('task_status'), ["class" => "form-control"]) }}
+                                                {{ Form::select("task_status[]", $statusList, request('task_status'), ["class" => "form-control select2", "multiple" => true]) }}
                                                 <?php //echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
                                             </div>
                                         </div>
@@ -342,7 +342,8 @@
                 type: 'POST',
                 url: "{{ $urlLoadData }}",
                 data: function(d) {
-                    return siteDatatableMergeSearch(d, '#frm-search-crud');
+                    //return siteDatatableMergeSearch(d, '#frm-search-crud');
+                    return $("#frm-search-crud").serialize()
                 },
                 dataSrc: function(json) {
                     return json.data;

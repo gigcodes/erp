@@ -86,7 +86,7 @@ function siteDatatableRefresh(tableId) {
 function siteDatatableMergeSearch(d, formId) {
   var extra = {};
   if (jQuery(formId).length) {
-    var temp = jQuery(formId).serializeArray();
+    var temp = jQuery(formId).serialize();
     for (var i in temp) extra[temp[i].name] = temp[i].value;
   }
   return Object.assign(d, extra);

@@ -2294,6 +2294,7 @@ class UserManagementController extends Controller
                         $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
                             'userIds' => $userIds,
                         ],request('task_status'));
+                        
                         $tasksPlanned = $this->typeWiseTasks('PLANNED', [
                             'userIds' => $userIds,
                         ],request('task_status'));
@@ -2440,11 +2441,13 @@ class UserManagementController extends Controller
                                                         array_push($displayText, $ut['slotTaskRemarks']);
                                                     }
                                                 }
+                                               
+                                                $position = strpos($ut['typeId'], "DT-");
 
-                                                if($ut['task_type']=='tasks'){
-                                                    $taskArray[] = $ut['id'];
-                                                } else {
+                                                if ($position !== false) {
                                                     $devtaskArray[] = $ut['id'];
+                                                } else {
+                                                    $taskArray[] = $ut['id'];
                                                 }
 
                                                 array_push($displayManuallyMove, $ut['typeId']);
@@ -2538,7 +2541,7 @@ class UserManagementController extends Controller
                                         $displayTextString = implode(", ", $displayText);
                                     }
 
-                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . ' - '.$displayTextString.'</div>';
+                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" style="color:green !important" >' . $display . ' - '.$displayTextString.'</div>';
                                     if(!empty($displayManually)){
 
                                         $displayTextManuallyString = '';
@@ -2546,7 +2549,7 @@ class UserManagementController extends Controller
                                             $displayTextManuallyString = implode(", ", $displayTextManually);
                                         }
 
-                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . ' - '.$displayTextManuallyString.'</div>';
+                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" style="color:blue !important" title="' . $title . '" >' . $displayManually . ' - '.$displayTextManuallyString.'</div>';
                                     }
 
                                     if(!empty($displayManuallyMove)){
@@ -2711,19 +2714,15 @@ class UserManagementController extends Controller
             ];
         }*/
 
-         if(!empty($task_status_value)){
+        if(!empty($task_status_value)){
 
-            $varTask_status = strtoupper(str_replace(" ", "_", $task_status_value));
-            $vardevTask_status = strtoupper(str_replace(" ", "_", $task_status_value));
+            foreach ($task_status_value as $key => $value) {
+                $varTask_status = strtoupper(str_replace(" ", "_", $value));
+                $vardevTask_status = strtoupper(str_replace(" ", "_", $value));
 
-            $taskStatuses = [
-                Task::TASK_STATUS_FILTER[$varTask_status],
-            ];
-           
-            $devTaskStatuses = [
-                DeveloperTask::DEV_TASK_STATUS_FILTER[$vardevTask_status],
-            ];
-
+                $taskStatuses[] = Task::TASK_STATUS_FILTER[$varTask_status];
+                $taskStatuses[] = DeveloperTask::DEV_TASK_STATUS_FILTER[$vardevTask_status];
+            }
         }
 
         // start_date IS NOT NULL AND approximate > 0
