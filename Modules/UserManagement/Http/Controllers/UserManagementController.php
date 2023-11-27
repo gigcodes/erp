@@ -2310,7 +2310,7 @@ class UserManagementController extends Controller
                                 //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
                                 // }
 
-                                $tasksArr[$task->assigned_to]['IN_PROGRESS'][] = [
+                                $tasksArr[$task->assigned_to][$task->status2][] = [
                                     'id' => $task->id,
                                     'typeId' => $task->type . '-' . $task->id,
                                     'stDate' => $task->st_date,
@@ -2329,7 +2329,7 @@ class UserManagementController extends Controller
                                 $task->est_minutes = 20;
                                 $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
                                 $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
-                                $tasksArr[$task->assigned_to]['PLANNED'][] = [
+                                $tasksArr[$task->assigned_to][$task->status2][] = [
                                     'id' => $task->id,
                                     'typeId' => $task->type . '-' . $task->id,
                                     'stDate' => $task->st_date,
