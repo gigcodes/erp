@@ -5081,7 +5081,13 @@ class DevelopmentController extends Controller
 
         if ($issue = DeveloperTask::find(request('issue_id'))) {
             $old = $issue->estimate_minutes;
+            $start_date = $issue->start_date;
+            $estimate_date = $issue->estimate_date;
+            
             $issue->estimate_minutes = $new;
+            $issue->start_date = $start_date;
+            $issue->estimate_date = $estimate_date;
+
             $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
             $issue->save();
             // _p($issue->toArray(), 1);

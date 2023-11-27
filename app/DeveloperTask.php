@@ -146,6 +146,27 @@ class DeveloperTask extends Model
 
     const DEV_TASK_STATUS_APPROVED = 'Approved';
 
+    const DEV_TASK_STATUS_FILTER = [
+        'DONE' => 'Done',
+        'DISCUSSING' => 'Discussing',
+        'IN_PROGRESS' => 'In Progress',
+        'ISSUE' => 'Issue',
+        'PLANNED' => 'Planned',
+        'DISCUSS_WITH_LEAD' => 'Discuss with Lead',
+        'NOTE' => 'Note',
+        'LEAD_RESPONSE_NEEDED' => 'Lead Response Needed',
+        'ERRORS_IN_TASK' => 'Errors in Task',
+        'IN_REVIEW' => 'In Review',
+        'PRIORITY' => 'Priority',
+        'HIGH_PRIORITY' => 'High Priority',
+        'REVIEW_ESTIMATED_TIME' => 'Review Estimated Time',
+        'USER_COMPLETE' => 'User Complete',
+        'USER_ESTIMATED' => 'User Estimated',
+        'DECLINE' => 'Decline',
+        'REOPEN' => 'Reopen',
+        'APPROVED' => 'Approved'      
+    ];
+
     public function user()
     {
         return $this->belongsTo(\App\User::class);

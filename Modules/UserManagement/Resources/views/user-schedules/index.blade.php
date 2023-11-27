@@ -65,6 +65,13 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="form-label">Status</label>
+                                                {{ Form::select("task_status", $statusList, request('task_status'), ["class" => "form-control"]) }}
+                                                <?php //echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
