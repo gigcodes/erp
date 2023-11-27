@@ -2175,7 +2175,7 @@ class UserManagementController extends Controller
     // User Schedules
     public function userSchedulesIndex()
     {
-        $statusList = \DB::table('task_statuses')->select('name', 'id')->get()->toArray();
+        $statusList = \DB::table('task_statuses')->pluck('name', 'name')->prepend('Please select', '');
 
         return view('usermanagement::user-schedules.index', [
             'title' => 'User Schedules',
@@ -2291,10 +2291,10 @@ class UserManagementController extends Controller
                     if ($userIds) {
                         $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
                             'userIds' => $userIds,
-                        ]);
+                        ],request('task_status'));
                         $tasksPlanned = $this->typeWiseTasks('PLANNED', [
                             'userIds' => $userIds,
-                        ]);
+                        ],request('task_status'));
 
                         if ($tasksInProgress) {
                             foreach ($tasksInProgress as $task) {
@@ -2718,13 +2718,13 @@ class UserManagementController extends Controller
         ];
     }
 
-    public function typeWiseTasks($type, $wh = [])
+    public function typeWiseTasks($type, $wh = [], $task_status_value)
     {
         $userIds = $wh['userIds'] ?? [0];
         $taskStatuses = [0];
         $devTaskStatuses = ['none'];
 
-        if ($type == 'IN_PROGRESS') {
+        /*if ($type == 'IN_PROGRESS') {
             $taskStatuses = [
                 Task::TASK_STATUS_IN_PROGRESS,
             ];
@@ -2738,6 +2738,21 @@ class UserManagementController extends Controller
             $devTaskStatuses = [
                 DeveloperTask::DEV_TASK_STATUS_PLANNED,
             ];
+        }*/
+
+         if(!empty($task_status_value)){
+
+            $varTask_status = strtoupper(str_replace(" ", "_", $task_status_value));
+            $vardevTask_status = strtoupper(str_replace(" ", "_", $task_status_value));
+
+            $taskStatuses = [
+                Task::TASK_STATUS_FILTER[$varTask_status],
+            ];
+           
+            $devTaskStatuses = [
+                DeveloperTask::DEV_TASK_STATUS_FILTER[$vardevTask_status],
+            ];
+
         }
 
         // start_date IS NOT NULL AND approximate > 0

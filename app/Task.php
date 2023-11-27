@@ -105,6 +105,29 @@ class Task extends Model
         'Regular Task',
     ];
 
+    const TASK_STATUS_FILTER = [
+        'DONE' => 1,
+        'DISCUSSING' => 2,
+        'IN_PROGRESS' => 3,
+        'ISSUE' => 4,
+        'PLANNED' => 5,
+        'DISCUSS_WITH_LEAD' => 6,
+        'NOTE' => 7,
+        'LEAD_RESPONSE_NEEDED' => 8,
+        'ERRORS_IN_TASK' => 9,
+        'IN_REVIEW' => 10,
+        'PRIORITY' => 11,
+        'PRIORITY_2' => 12,
+        'HIGH_PRIORITY' => 13,
+        'REVIEW_ESTIMATED_TIME' => 14,
+        'USER_COMPLETE' => 15,
+        'USER_COMPLETE_2' => 16,
+        'USER_ESTIMATED' => 17,
+        'DECLINE' => 18,
+        'REOPEN' => 19,
+        'APPROVED' => 20
+    ];
+
     const TASK_STATUS_DONE = 1;
 
     const TASK_STATUS_DISCUSSING = 2;
