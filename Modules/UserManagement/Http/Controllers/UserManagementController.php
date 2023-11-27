@@ -2721,8 +2721,8 @@ class UserManagementController extends Controller
     public function typeWiseTasks($type, $wh = [], $task_status_value)
     {
         $userIds = $wh['userIds'] ?? [0];
-        $taskStatuses = [0];
-        $devTaskStatuses = ['none'];
+        $taskStatuses = [];
+        $devTaskStatuses = [];
 
         /*if ($type == 'IN_PROGRESS') {
             $taskStatuses = [
@@ -2783,15 +2783,13 @@ class UserManagementController extends Controller
                     tasks 
                 WHERE 
                 1
-                AND (
-                    ( status = '" . Task::TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
-                    OR 
-                    ( status != '" . Task::TASK_STATUS_IN_PROGRESS . "' )
-                )
                 AND deleted_at IS NULL
-                AND assign_to IN (" . implode(',', $userIds) . ") 
-                AND status IN ('" . implode("','", $taskStatuses) . "') 
-            )
+                AND assign_to IN (" . implode(',', $userIds) . ")";
+
+                if(!empty($taskStatuses)){
+                    $sql .="AND status IN ('" . implode("','", $taskStatuses) . "') ";
+                }
+            $sql .=")
             UNION
             (
                 SELECT 
@@ -2813,15 +2811,13 @@ class UserManagementController extends Controller
                     ) AS status2
                 FROM developer_tasks
                 WHERE 1
-                AND (
-                    ( status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
-                    OR 
-                    ( status != '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' )
-                )
                 AND deleted_at IS NULL
-                AND assigned_to IN (" . implode(',', $userIds) . ")
-                AND status IN ('" . implode("','", $devTaskStatuses) . "')
-            )
+                AND assigned_to IN (" . implode(',', $userIds) . ")";
+
+                if(!empty($devTaskStatuses)){
+                    $sql .="AND status IN ('" . implode("','", $devTaskStatuses) . "') ";
+                }
+        $sql .=")
         ) AS listdata
         ORDER BY listdata.st_date ASC";
 

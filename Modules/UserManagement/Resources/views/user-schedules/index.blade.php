@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="col-lg-12">
-            <table id="listUserSchedule" class="table table-bordered" style="font-size:10px;" style="width:100%">
+            <table id="listUserSchedule" class="table table-bordered" style="width:100%">
                 <thead>
 					<tr>
                         <th data-data="name" data-name="name" width="10%" data-sortable="false"></th>
@@ -189,13 +189,13 @@
 
 @push('styles')
 <style>
-    .div-slot {
+   /* .div-slot {
         display: inline-block;
         padding: 4px;
         border: 1px solid #ddd;
         border-radius: 10px;
         margin: 2px;
-    }
+    }*/
 </style>
 @endpush
 
