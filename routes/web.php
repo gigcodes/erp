@@ -2774,6 +2774,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::get('records', [ManageModulesController::class, 'records'])->name('manage-modules.records');
         Route::post('save', [ManageModulesController::class, 'save'])->name('manage-modules.save');
         Route::post('merge-module', [ManageModulesController::class, 'mergeModule'])->name('manage-modules.merge-module');
+        Route::get('remove-module', [ManageModulesController::class, 'removeDeveloperModules'])->name('manage-modules.remove-module');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', [ManageModulesController::class, 'edit'])->name('manage-modules.edit');
             Route::get('delete', [ManageModulesController::class, 'delete'])->name('manage-modules.delete');
