@@ -2336,7 +2336,7 @@ class UserManagementController extends Controller
                                 if(!in_array($task->id, $usertasksArr)){
 
                                     $usertasksArr[] = $task->id;
-                                    
+
                                     $task->est_minutes = 20;
                                     $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
                                     $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
@@ -2769,6 +2769,8 @@ class UserManagementController extends Controller
                 WHERE 
                 1
                 AND deleted_at IS NULL
+                AND due_date >= NOW()
+                AND due_date IS NOT NULL
                 AND assign_to IN (" . implode(',', $userIds) . ")";
 
                 if(!empty($taskStatuses)){
@@ -2810,6 +2812,8 @@ class UserManagementController extends Controller
                 FROM developer_tasks
                 WHERE 1
                 AND deleted_at IS NULL
+                AND estimate_date >= NOW()
+                AND estimate_date IS NOT NULL
                 AND assigned_to IN (" . implode(',', $userIds) . ")";
 
                 if(!empty($devTaskStatuses)){
