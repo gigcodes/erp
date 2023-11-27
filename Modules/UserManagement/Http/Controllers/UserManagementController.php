@@ -2288,6 +2288,8 @@ class UserManagementController extends Controller
 
                     // Get Tasks & Developer Tasks -- Arrange with End time & Mins
                     $tasksArr = [];
+                    $usertasksArr = [];
+                    $userdevtasksArr = [];
                     if ($userIds) {
                         $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
                             'userIds' => $userIds,
@@ -2310,37 +2312,47 @@ class UserManagementController extends Controller
                                 //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
                                 // }
 
-                                $tasksArr[$task->assigned_to][$task->status2][] = [
-                                    'id' => $task->id,
-                                    'typeId' => $task->type . '-' . $task->id,
-                                    'stDate' => $task->st_date,
-                                    'enDate' => $task->en_date,
-                                    'status' => $task->status,
-                                    'status2' => $task->status2,
-                                    'mins' => $task->est_minutes,
-                                    'manually_assign' => $task->manually_assign,
-                                    'slotTaskRemarks' => $task->slotTaskRemarks,
-                                    'task_type' => 'tasks',
-                                ];
+                                if(!in_array($task->id, $usertasksArr)){
+
+                                    $usertasksArr[] = $task->id;
+                                    $tasksArr[$task->assigned_to][$task->status2][] = [
+                                        'id' => $task->id,
+                                        'typeId' => $task->type . '-' . $task->id,
+                                        'stDate' => $task->st_date,
+                                        'enDate' => $task->en_date,
+                                        'status' => $task->status,
+                                        'status2' => $task->status2,
+                                        'mins' => $task->est_minutes,
+                                        'manually_assign' => $task->manually_assign,
+                                        'slotTaskRemarks' => $task->slotTaskRemarks,
+                                        'task_type' => 'tasks',
+                                    ];
+                                }
                             }
                         }
                         if ($tasksPlanned) {
                             foreach ($tasksPlanned as $task) {
-                                $task->est_minutes = 20;
-                                $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
-                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
-                                $tasksArr[$task->assigned_to][$task->status2][] = [
-                                    'id' => $task->id,
-                                    'typeId' => $task->type . '-' . $task->id,
-                                    'stDate' => $task->st_date,
-                                    'enDate' => $task->en_date,
-                                    'status' => $task->status,
-                                    'status2' => $task->status2,
-                                    'mins' => $task->est_minutes,
-                                    'manually_assign' => $task->manually_assign,
-                                    'slotTaskRemarks' => $task->slotTaskRemarks,
-                                    'task_type' => 'dev_tasks',
-                                ];
+
+                                if(!in_array($task->id, $usertasksArr)){
+
+                                    $usertasksArr[] = $task->id;
+                                    
+                                    $task->est_minutes = 20;
+                                    $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
+                                    $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+                                    $tasksArr[$task->assigned_to][$task->status2][] = [
+                                        'id' => $task->id,
+                                        'typeId' => $task->type . '-' . $task->id,
+                                        'stDate' => $task->st_date,
+                                        'enDate' => $task->en_date,
+                                        'status' => $task->status,
+                                        'status2' => $task->status2,
+                                        'mins' => $task->est_minutes,
+                                        'manually_assign' => $task->manually_assign,
+                                        'slotTaskRemarks' => $task->slotTaskRemarks,
+                                        'task_type' => 'dev_tasks',
+                                    ];
+                                }
                             }
                         }
                     }
@@ -2617,56 +2629,40 @@ class UserManagementController extends Controller
         // IN_PROGRESS, PLANNED
         $checkDates = 0;
 
+        $taskStatus = DeveloperTask::DEV_TASK_STATUS_FILTER;
+
         $taskIds = [];
         $userTasks = [];
 
         if ($tasks) {
-            if ($list = ($tasks['IN_PROGRESS'] ?? [])) {
-                foreach ($list as $k => $task) {
-                    $SlotStart = Carbon::parse($slot['st']);
-                    $SlotEnd = Carbon::parse($slot['en']);
-                    $TaskStart = Carbon::parse($task['stDate']);
-                    $TaskEnd = Carbon::parse($task['enDate']);
 
-                    if (
-                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
-                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
-                    ) {
-                        array_push($userTasks, $task);
-                    } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
-                        array_push($userTasks, $task);
+            foreach ($taskStatus as $key => $value) {
+
+                if($key!='DONE' && $key!='USER_COMPLETE'){
+                    if ($list = ($tasks[$key] ?? [])) {
+                        foreach ($list as $k => $task) {
+                            $SlotStart = Carbon::parse($slot['st']);
+                            $SlotEnd = Carbon::parse($slot['en']);
+                            $TaskStart = Carbon::parse($task['stDate']);
+                            $TaskEnd = Carbon::parse($task['enDate']);
+
+                            if (
+                                ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                                ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                            ) {
+                                array_push($userTasks, $task);
+                            } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                                array_push($userTasks, $task);
+                            }
+                        }
+                        $list = array_values($list);
+                        $tasks[$key] = $list;
                     }
-
-                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                    //         $taskMins = $task['mins'];
-                    //         $slotMins = $slot['mins'];
-
-                    //         if ($taskMins >= $slotMins) {
-                    //             $slot['mins'] = 0;
-                    //             $task['mins'] -= $slotMins;
-                    //             $taskIds[$task['typeId']] = $task;
-                    //         } else {
-                    //             $task['mins'] = 0;
-                    //             $slot['mins'] -= $taskMins;
-                    //             $taskIds[$task['typeId']] = $task;
-                    //         }
-
-                    //         $list[$k] = $task;
-                    //         if ($task['mins'] <= 0) {
-                    //             unset($list[$k]);
-                    //         }
-                    //         if ($slot['mins'] <= 0) {
-                    //             break;
-                    //         }
-                    //     }
-                    // }
                 }
-                $list = array_values($list);
-                $tasks['IN_PROGRESS'] = $list;
             }
+            
 
-            if ($list = ($tasks['PLANNED'] ?? [])) {
+            /*if ($list = ($tasks['PLANNED'] ?? [])) {
                 foreach ($list as $k => $task) {
                     $SlotStart = Carbon::parse($slot['st']);
                     $SlotEnd = Carbon::parse($slot['en']);
@@ -2681,35 +2677,10 @@ class UserManagementController extends Controller
                     } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
                         array_push($userTasks, $task);
                     }
-
-                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
-                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
-                    //         $taskMins = $task['mins'];
-                    //         $slotMins = $slot['mins'];
-
-                    //         if ($taskMins >= $slotMins) {
-                    //             $slot['mins'] = 0;
-                    //             $task['mins'] -= $slotMins;
-                    //             $taskIds[$task['typeId']] = $task;
-                    //         } else {
-                    //             $task['mins'] = 0;
-                    //             $slot['mins'] -= $taskMins;
-                    //             $taskIds[$task['typeId']] = $task;
-                    //         }
-
-                    //         $list[$k] = $task;
-                    //         if ($task['mins'] <= 0) {
-                    //             unset($list[$k]);
-                    //         }
-                    //         if ($slot['mins'] <= 0) {
-                    //             break;
-                    //         }
-                    //     }
-                    // }
                 }
                 $list = array_values($list);
                 $tasks['PLANNED'] = $list;
-            }
+            }*/
         }
         // print_r($userTasks);
         return [
@@ -2777,6 +2748,20 @@ class UserManagementController extends Controller
                         CASE
                             WHEN status = '" . Task::TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
                             WHEN status = '" . Task::TASK_STATUS_PLANNED . "' THEN 'PLANNED'
+                            WHEN status = '" . Task::TASK_STATUS_DISCUSSING . "' THEN 'DISCUSSING'
+                            WHEN status = '" . Task::TASK_STATUS_ISSUE . "' THEN 'ISSUE'
+                            WHEN status = '" . Task::TASK_STATUS_DISCUSS_WITH_LEAD . "' THEN 'DISCUSS_WITH_LEAD'
+                            WHEN status = '" . Task::TASK_STATUS_NOTE . "' THEN 'NOTE'
+                            WHEN status = '" . Task::TASK_STATUS_LEAD_RESPONSE_NEEDED . "' THEN 'LEAD_RESPONSE_NEEDED'
+                            WHEN status = '" . Task::TASK_STATUS_ERRORS_IN_TASK . "' THEN 'ERRORS_IN_TASK'
+                            WHEN status = '" . Task::TASK_STATUS_IN_REVIEW . "' THEN 'IN_REVIEW'
+                            WHEN status = '" . Task::TASK_STATUS_PRIORITY . "' THEN 'PRIORITY'
+                            WHEN status = '" . Task::TASK_STATUS_HIGH_PRIORITY . "' THEN 'HIGH_PRIORITY'
+                            WHEN status = '" . Task::TASK_STATUS_REVIEW_ESTIMATED_TIME . "' THEN 'REVIEW_ESTIMATED_TIME'
+                            WHEN status = '" . Task::TASK_STATUS_USER_ESTIMATED . "' THEN 'USER_ESTIMATED'
+                            WHEN status = '" . Task::TASK_STATUS_DECLINE . "' THEN 'DECLINE'
+                            WHEN status = '" . Task::TASK_STATUS_REOPEN . "' THEN 'REOPEN'
+                            WHEN status = '" . Task::TASK_STATUS_APPROVED . "' THEN 'APPROVED'
                         END
                     ) AS status2
                 FROM 
@@ -2807,6 +2792,19 @@ class UserManagementController extends Controller
                         CASE
                             WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
                             WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_PLANNED . "' THEN 'PLANNED'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_DISCUSSING . "' THEN 'DISCUSSING'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_DISCUSS_WITH_LEAD . "' THEN 'DISCUSS_WITH_LEAD'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_NOTE . "' THEN 'NOTE'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_LEAD_RESPONSE_NEEDED . "' THEN 'LEAD_RESPONSE_NEEDED'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_ERRORS_IN_TASK . "' THEN 'ERRORS_IN_TASK'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_IN_REVIEW . "' THEN 'IN_REVIEW'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_PRIORITY . "' THEN 'PRIORITY'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_HIGH_PRIORITY . "' THEN 'HIGH_PRIORITY'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_REVIEW_ESTIMATED_TIME . "' THEN 'REVIEW_ESTIMATED_TIME'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED . "' THEN 'USER_ESTIMATED'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_DECLINE . "' THEN 'DECLINE'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_REOPEN . "' THEN 'REOPEN'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_APPROVED . "' THEN 'APPROVED'
                         END
                     ) AS status2
                 FROM developer_tasks
