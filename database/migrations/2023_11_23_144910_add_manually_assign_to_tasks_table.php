@@ -14,7 +14,7 @@ class AddManuallyAssignToTasksTable extends Migration
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->string('manually_assign')->after('description')->nullable();
+            $table->string('manually_assign')->nullable();
         });
     }
 
