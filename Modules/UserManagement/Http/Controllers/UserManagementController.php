@@ -2310,7 +2310,7 @@ class UserManagementController extends Controller
                                 //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
                                 // }
 
-                                $tasksArr[$task->assigned_to][$task->status2][] = [
+                                $tasksArr[$task->assigned_to]['IN_PROGRESS'][] = [
                                     'id' => $task->id,
                                     'typeId' => $task->type . '-' . $task->id,
                                     'stDate' => $task->st_date,
@@ -2329,7 +2329,7 @@ class UserManagementController extends Controller
                                 $task->est_minutes = 20;
                                 $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
                                 $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
-                                $tasksArr[$task->assigned_to][$task->status2][] = [
+                                $tasksArr[$task->assigned_to]['PLANNED'][] = [
                                     'id' => $task->id,
                                     'typeId' => $task->type . '-' . $task->id,
                                     'stDate' => $task->st_date,
@@ -2721,8 +2721,8 @@ class UserManagementController extends Controller
     public function typeWiseTasks($type, $wh = [], $task_status_value)
     {
         $userIds = $wh['userIds'] ?? [0];
-        $taskStatuses = [0];
-        $devTaskStatuses = ['none'];
+        $taskStatuses = [];
+        $devTaskStatuses = [];
 
         /*if ($type == 'IN_PROGRESS') {
             $taskStatuses = [
@@ -2783,15 +2783,13 @@ class UserManagementController extends Controller
                     tasks 
                 WHERE 
                 1
-                AND (
-                    ( status = '" . Task::TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
-                    OR 
-                    ( status != '" . Task::TASK_STATUS_IN_PROGRESS . "' )
-                )
                 AND deleted_at IS NULL
-                AND assign_to IN (" . implode(',', $userIds) . ") 
-                AND status IN ('" . implode("','", $taskStatuses) . "') 
-            )
+                AND assign_to IN (" . implode(',', $userIds) . ")";
+
+                if(!empty($taskStatuses)){
+                    $sql .="AND status IN ('" . implode("','", $taskStatuses) . "') ";
+                }
+            $sql .=")
             UNION
             (
                 SELECT 
@@ -2813,15 +2811,13 @@ class UserManagementController extends Controller
                     ) AS status2
                 FROM developer_tasks
                 WHERE 1
-                AND (
-                    ( status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
-                    OR 
-                    ( status != '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' )
-                )
                 AND deleted_at IS NULL
-                AND assigned_to IN (" . implode(',', $userIds) . ")
-                AND status IN ('" . implode("','", $devTaskStatuses) . "')
-            )
+                AND assigned_to IN (" . implode(',', $userIds) . ")";
+
+                if(!empty($devTaskStatuses)){
+                    $sql .="AND status IN ('" . implode("','", $devTaskStatuses) . "') ";
+                }
+        $sql .=")
         ) AS listdata
         ORDER BY listdata.st_date ASC";
 
