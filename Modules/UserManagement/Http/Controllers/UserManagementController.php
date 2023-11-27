@@ -2424,78 +2424,168 @@ class UserManagementController extends Controller
                                         $ut_array = [];
                                         $ut_arrayManually = [];
                                         
-                                        
-                                        if (!empty($slot['userTasks'])) {
-                                            foreach ($slot['userTasks'] as $ut) {
+                                        /*if($slot['type']=='PAST'){
 
-                                                if($ut['manually_assign']==1){
-                                                    array_push($ut_arrayManually, $ut['typeId']);
+                                            $todaydate = date("Y-m-d");
+                                            $pastdate = date("Y-m-d", strtotime(" -1 day"));
+                                            $slotdate = date("Y-m-d", strtotime($slot['st']));
 
-                                                    if ($ut['slotTaskRemarks'] !== null) {
-                                                        array_push($displayTextManually, $ut['slotTaskRemarks']);
-                                                    }
-                                                } else {
-                                                    array_push($ut_array, $ut['typeId']);
+                                            if($todaydate==$slotdate || $pastdate==$slotdate){
+                                                
+                                                if (!empty($slot['userTasks'])) {
+                                                    foreach ($slot['userTasks'] as $ut) {
 
-                                                    if ($ut['slotTaskRemarks'] !== null) {
-                                                        array_push($displayText, $ut['slotTaskRemarks']);
+                                                        if($ut['manually_assign']==1){
+                                                            array_push($ut_arrayManually, $ut['typeId']);
+
+                                                            if ($ut['slotTaskRemarks'] !== null) {
+                                                                array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                            }
+                                                        } else {
+                                                            array_push($ut_array, $ut['typeId']);
+
+                                                            if ($ut['slotTaskRemarks'] !== null) {
+                                                                array_push($displayText, $ut['slotTaskRemarks']);
+                                                            }
+                                                        }
+                                                       
+                                                        $position = strpos($ut['typeId'], "DT-");
+
+                                                        if ($position !== false) {
+                                                            $devtaskArray[] = $ut['id'];
+                                                        } else {
+                                                            $taskArray[] = $ut['id'];
+                                                        }
+
+                                                        array_push($displayManuallyMove, $ut['typeId']);
+                                                        // foreach ($ut as $t) {
+                                                        //     dd($ut);
+                                                        // }
                                                     }
                                                 }
-                                               
-                                                $position = strpos($ut['typeId'], "DT-");
-
-                                                if ($position !== false) {
-                                                    $devtaskArray[] = $ut['id'];
-                                                } else {
-                                                    $taskArray[] = $ut['id'];
-                                                }
-
-                                                array_push($displayManuallyMove, $ut['typeId']);
-                                                // foreach ($ut as $t) {
-                                                //     dd($ut);
+                                                // $generalTaskID = [];
+                                                // if (isset($slot['taskIds'])) {
+                                                //     $generalTaskID = array_keys($slot['taskIds']);
                                                 // }
+                                                $developerTaskID = $ut_array;
+                                                if (! empty($developerTaskID)) {
+                                                    $display[] = ' (' . implode(', ', $developerTaskID) . ')';
+
+                                                    $title = [];
+                                                    foreach ($slot['taskIds'] as $taskId => $taskRow) {
+                                                        $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                                    }
+                                                    $title = implode(PHP_EOL, $title);
+                                                }
+
+                                                $developerTaskIDManually = $ut_arrayManually;
+                                                if (! empty($developerTaskIDManually)) {
+                                                    $displayManually[] = ' (' . implode(', ', $developerTaskIDManually) . ')';
+
+                                                    $title = [];
+                                                    foreach ($slot['taskIds'] as $taskId => $taskRow) {
+                                                        $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                                    }
+                                                    $title = implode(PHP_EOL, $title);
+                                                }
+
+                                                if ($slot['type'] == 'SMALL-LUNCH') {
+                                                    $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
+
+                                                } elseif ($slot['type'] == 'LUNCH-START') {
+                                                    $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
+
+                                                } elseif ($slot['type'] == 'LUNCH-END') {
+                                                    $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
+
+                                                } else {
+                                                    $class = 'text-secondary';
+                                                    $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+
+                                                }
+
+                                            } else {
+                                                $title = 'Not Available';
+                                                $class = 'text-secondary';
+                                                $display[] = ' (' . $slot['slot_type'] . ')';
+                                                $display = '<s>' . implode('', $display) . '</s>';
                                             }
-                                        }
-                                        // $generalTaskID = [];
-                                        // if (isset($slot['taskIds'])) {
-                                        //     $generalTaskID = array_keys($slot['taskIds']);
-                                        // }
-                                        $developerTaskID = $ut_array;
-                                        if (! empty($developerTaskID)) {
-                                            $display[] = ' (' . implode(', ', $developerTaskID) . ')';
 
-                                            $title = [];
-                                            foreach ($slot['taskIds'] as $taskId => $taskRow) {
-                                                $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                        } else{*/
+                                        
+                                            if (!empty($slot['userTasks'])) {
+                                                foreach ($slot['userTasks'] as $ut) {
+
+                                                    if($ut['manually_assign']==1){
+                                                        array_push($ut_arrayManually, $ut['typeId']);
+
+                                                        if ($ut['slotTaskRemarks'] !== null) {
+                                                            array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                        }
+                                                    } else {
+                                                        array_push($ut_array, $ut['typeId']);
+
+                                                        if ($ut['slotTaskRemarks'] !== null) {
+                                                            array_push($displayText, $ut['slotTaskRemarks']);
+                                                        }
+                                                    }
+                                                   
+                                                    $position = strpos($ut['typeId'], "DT-");
+
+                                                    if ($position !== false) {
+                                                        $devtaskArray[] = $ut['id'];
+                                                    } else {
+                                                        $taskArray[] = $ut['id'];
+                                                    }
+
+                                                    array_push($displayManuallyMove, $ut['typeId']);
+                                                    // foreach ($ut as $t) {
+                                                    //     dd($ut);
+                                                    // }
+                                                }
                                             }
-                                            $title = implode(PHP_EOL, $title);
-                                        }
+                                            // $generalTaskID = [];
+                                            // if (isset($slot['taskIds'])) {
+                                            //     $generalTaskID = array_keys($slot['taskIds']);
+                                            // }
+                                            $developerTaskID = $ut_array;
+                                            if (! empty($developerTaskID)) {
+                                                $display[] = '</br><span style="color:green !important"> (' . implode(', ', $developerTaskID) . ') </span>';
 
-                                        $developerTaskIDManually = $ut_arrayManually;
-                                        if (! empty($developerTaskIDManually)) {
-                                            $displayManually[] = ' (' . implode(', ', $developerTaskIDManually) . ')';
-
-                                            $title = [];
-                                            foreach ($slot['taskIds'] as $taskId => $taskRow) {
-                                                $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                                $title = [];
+                                                foreach ($slot['taskIds'] as $taskId => $taskRow) {
+                                                    $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                                }
+                                                $title = implode(PHP_EOL, $title);
                                             }
-                                            $title = implode(PHP_EOL, $title);
-                                        }
 
-                                        if ($slot['type'] == 'SMALL-LUNCH') {
-                                            $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
+                                            $developerTaskIDManually = $ut_arrayManually;
+                                            if (! empty($developerTaskIDManually)) {
+                                                $displayManually[] = ' (' . implode(', ', $developerTaskIDManually) . ')';
 
-                                        } elseif ($slot['type'] == 'LUNCH-START') {
-                                            $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
+                                                $title = [];
+                                                foreach ($slot['taskIds'] as $taskId => $taskRow) {
+                                                    $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
+                                                }
+                                                $title = implode(PHP_EOL, $title);
+                                            }
 
-                                        } elseif ($slot['type'] == 'LUNCH-END') {
-                                            $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
+                                            if ($slot['type'] == 'SMALL-LUNCH') {
+                                                $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
 
-                                        } else {
-                                            $class = 'text-secondary';
-                                            $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" >(AVL)</a>';
+                                            } elseif ($slot['type'] == 'LUNCH-START') {
+                                                $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
 
-                                        }
+                                            } elseif ($slot['type'] == 'LUNCH-END') {
+                                                $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
+
+                                            } else {
+                                                $class = 'text-secondary';
+                                                $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" ><i class="fa fa-plus" aria-hidden="true"></i></a>';
+
+                                            }
+                                        //}
+
                                         // $title
                                         $display = implode('', $display);
 
@@ -2560,7 +2650,7 @@ class UserManagementController extends Controller
                                         $displayTextString = implode(", ", $displayText);
                                     }
 
-                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" style="color:green !important" >' . $display . ' - '.$displayTextString.'</div>';
+                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . ' - '.$displayTextString.'</div>';
                                     if(!empty($displayManually)){
 
                                         $displayTextManuallyString = '';
@@ -2573,7 +2663,7 @@ class UserManagementController extends Controller
 
                                     if(!empty($displayManuallyMove)){
                                         if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
-                                            $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '">MOVE</a>';    
+                                            $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '"><i class="fa fa-arrows" aria-hidden="true"></i></a>';    
                                         }
                                     }
 
