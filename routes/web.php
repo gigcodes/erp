@@ -2774,6 +2774,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
             Route::get('edit', [ManageModulesController::class, 'edit'])->name('manage-modules.edit');
             Route::get('delete', [ManageModulesController::class, 'delete'])->name('manage-modules.delete');
         });
+        Route::get('countdevtask/{id}/{search_keyword}', [ManageModulesController::class, 'taskCount']);
     });
 
     Route::prefix('manage-task-category')->group(function () {

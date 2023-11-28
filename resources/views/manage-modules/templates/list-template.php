@@ -22,6 +22,7 @@
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
 			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
+			        	|<button type="button" data-id="{{>prop.id}}" class="btn count-dev-customer-tasks" title="Show task history"><i class="fa fa-info-circle" aria-hidden="true"></i></button>
 			        </td>
 			      </tr>
 			    {{/props}}  
