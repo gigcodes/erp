@@ -206,6 +206,65 @@
         </div>
     </div>
 </div>
+
+<div id="modalPastSlotAssign" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Note</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>You cannot edit the records which are more than one day in the past - pls. Contact admin</p>
+            </div>
+            <div class="modal-footer">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="estimateTimeModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Estimate Time</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body estimateTimeModelBody">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="remarksNoteModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Remarks</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body remarksNoteModelBody">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endpush
 
 @push('styles')
@@ -258,6 +317,11 @@
             siteErrorAlert(err);
             siteLoader(0);
         });
+    }
+
+    function funPastSlotAssignModal(ele) {
+        currSlotAssignee = ele;
+        jQuery('#modalPastSlotAssign').modal('show');
     }
 
     function funSlotAssignModal(ele) {
@@ -388,6 +452,20 @@
         var estimateTime = $(this).data("id");
         
         $('.estimateTimeText').text(estimateTime);
+    });
+
+    $(document).on('click', '.estimate_minutes_class', function() {
+        $('#estimateTimeModel').modal('toggle');
+        $(".estimateTimeModelBody").html("");
+        var time = $(this).data('time')+' Minutes';
+        $(".estimateTimeModelBody").html(time);
+    });
+
+    $(document).on('click', '.slotTaskRemarks_class', function() {
+        $('#remarksNoteModel').modal('toggle');
+        $(".remarksNoteModelBody").html("");
+        var remarks = $(this).data('remarks');
+        $(".remarksNoteModelBody").html(remarks);
     });
 </script>
 @endpush
