@@ -175,6 +175,30 @@
                         <th width="10%">Account password</th>
                     @endif
 
+                    @if (!in_array('Monit Api URL', $dynamicColumnsToShowAM))
+                        <th width="10%">Monit Api URL</th>
+                    @endif
+
+                    @if (!in_array('Monit Api Username', $dynamicColumnsToShowAM))
+                        <th width="10%">Monit Api Username</th>
+                    @endif
+
+                    @if (!in_array('Monit Api Password', $dynamicColumnsToShowAM))
+                        <th width="10%">Monit Api Password</th>
+                    @endif
+
+                    @if (!in_array('VNC Ip', $dynamicColumnsToShowAM))
+                        <th width="10%">VNC Ip</th>
+                    @endif
+
+                    @if (!in_array('VNC Port', $dynamicColumnsToShowAM))
+                        <th width="10%">VNC Port</th>
+                    @endif
+
+                    @if (!in_array('VNC Password', $dynamicColumnsToShowAM))
+                        <th width="10%">VNC Password</th>
+                    @endif
+
                     @if (!in_array('Created By', $dynamicColumnsToShowAM))
                         <th width="5%">Created By</th>
                     @endif
@@ -203,6 +227,12 @@
                     <th width="10%">IP Name</th>
                     <th width="10%">Account Name</th>
                     <th width="10%">Account password</th>
+                    <th width="10%">Monit Api URL</th>
+                    <th width="10%">Monit Api Username</th>
+                    <th width="10%">Monit Api Password</th>
+                    <th width="10%">VNC Ip</th>
+                    <th width="10%">VNC Port</th>
+                    <th width="10%">VNC Password</th>
                     <th width="5%">Created By</th>
                     <th width="5%">Action</th>
               @endif
@@ -325,6 +355,30 @@
                             <td>{{ $asset->account_password }}</td>
                         @endif
 
+                        @if (!in_array('Monit Api URL', $dynamicColumnsToShowAM))
+                            <td>{{ $asset->monit_api_url }}</td>
+                        @endif
+
+                        @if (!in_array('Monit Api Username', $dynamicColumnsToShowAM))
+                            <td>{{ $asset->monit_api_username }}</td>
+                        @endif
+
+                        @if (!in_array('Monit Api Password', $dynamicColumnsToShowAM))
+                            <td>{{ $asset->monit_api_password }}</td>
+                        @endif
+
+                        @if (!in_array('VNC Ip', $dynamicColumnsToShowAM))
+                            <td>{{ $asset->vnc_ip }}</td>
+                        @endif
+
+                        @if (!in_array('VNC Port', $dynamicColumnsToShowAM))
+                            <td>{{ $asset->vnc_port }}</td>
+                        @endif
+
+                        @if (!in_array('VNC Password', $dynamicColumnsToShowAM))
+                            <td>{{ $asset->vnc_password }}</td>
+                        @endif
+                        
                         @if (!in_array('Created By', $dynamicColumnsToShowAM))
                             <td>{{ $asset->user?->name }}</td>
                         @endif
@@ -433,6 +487,12 @@
                         </td>
                         <td>{{ $asset->account_username }}</td>
                         <td>{{ $asset->account_password }}</td>
+                        <td>{{ $asset->monit_api_url }}</td>
+                        <td>{{ $asset->monit_api_username }}</td>
+                        <td>{{ $asset->monit_api_password }}</td>
+                        <td>{{ $asset->vnc_ip }}</td>
+                        <td>{{ $asset->vnc_port }}</td>
+                        <td>{{ $asset->vnc_password }}</td>
                         <td>{{ $asset->user?->name }}</td>
                         <td>
                         <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$asset->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -1325,6 +1385,26 @@
            
               }
           });
+    });
+
+    function generatePassword(length) {
+        var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}:?><,./;'[]\|-=";
+        var password = "";
+        for (var i = 0; i < length; i++) {
+          var randomChar = Math.floor(Math.random() * charset.length);
+          password += charset.substring(randomChar, randomChar + 1);
+        }
+        return password;
+    }
+
+    $( ".generatepasswordadd" ).bind( "click", function() {
+        var newPassword = generatePassword(8);
+        $(".password-assets-manager-add").val(newPassword);
+    });
+
+    $( ".generatepasswordedit" ).bind( "click", function() {
+        var newPassword = generatePassword(8);
+        $(".password-assets-manager").val(newPassword);
     });
   </script>
 @endsection
