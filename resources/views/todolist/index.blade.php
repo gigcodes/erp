@@ -104,7 +104,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Todo list ({{count($todolists)}})</h2>
+            <h2 class="page-heading">Todo list ({{$todolists_count}})</h2>
         </div>
     </div>
 
@@ -112,14 +112,14 @@
         <table class="table table-bordered" id="todolist-table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Subject</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Remark</th>
-                    <th>Actions</th>
+                    <th width="4%">#</th>
+                    <th width="20%">Title</th>
+                    <th width="10%">Subject</th>
+                    <th width="15%">Category</th>
+                    <th width="10%">Status</th>
+                    <th width="5%">Date</th>
+                    <th width="22%">Remark</th>
+                    <th width="9%">Actions</th>
                 </tr>
 
                 {{-- <tr>

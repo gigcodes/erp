@@ -43,6 +43,8 @@ class TodoListController extends Controller
                 $todolists->where('todo_category_id', $s);
             }
 
+            $todolists_count = $todolists->count();
+
             //$todolists = $todolists->orderBy("todo_lists.todo_date", "desc")->paginate(Setting::get('pagination'));
             $todolists = $todolists->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->paginate(Setting::get('pagination'));
 
@@ -51,12 +53,12 @@ class TodoListController extends Controller
             //dd($statuses);
             if ($request->ajax()) {
                 return response()->json([
-                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories','statuses'))->render(),
+                    'tbody' => view('todolist.data', compact('todolists', 'search_title', 'statuses', 'search_todo_category_id', 'todoCategories','statuses', 'todolists_count'))->render(),
                     'links' => (string) $todolists->render(),
                 ], 200);
             }
 
-            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories','statuses'));
+            return view('todolist.index', compact('todolists', 'search_title', 'search_status', 'search_date', 'statuses', 'search_todo_category_id', 'todoCategories','statuses', 'todolists_count'));
         } catch (\Exception $e) {
             return response()->json(['code' => 500, 'message' => $e->getMessage()]);
         }
