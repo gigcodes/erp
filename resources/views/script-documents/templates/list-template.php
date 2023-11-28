@@ -86,7 +86,7 @@
 		        			<i class="fa fa-info-circle" aria-hidden="true"></i>
 		        		</button>
 
-		        		<button title="create quick task" type="button" class="btn create-quick-task " data-id="{{>prop.id}}"  data-category_title="Postman Page" data-title="{{>prop.file}} - {{>prop.id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
+		        		<button title="create quick task" type="button" class="btn create-quick-task " data-id="{{>prop.id}}"  data-category_title="Script Document Page" data-title="{{>prop.file}} - {{>prop.id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
 
                         <button type="button" class="btn count-dev-customer-tasks" title="Show task history" data-id="{{>prop.id}}" data-category="{{>prop.id}}"><i class="fa fa-list"></i></button>
 				 	</div>
