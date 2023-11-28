@@ -72,6 +72,16 @@
                                                 <?php //echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
                                             </div>
                                         </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="form-label">Task Type</label>
+                                                <select class="form-control select2" name="task_type_filter">
+                                                    <option value=""></option>
+                                                    <option value="2">Planned</option>
+                                                    <option value="1">Actual</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -90,16 +100,13 @@
 					<tr>
                         <th data-data="name" data-name="name" width="10%" data-sortable="false"></th>
                         <th data-data="date" data-name="date" width="6%" data-sortable="false"></th>
-						
-                        <th  colspan="12" style="text-align: center;">Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
-						
-						
+                        <th width="81%" colspan="9" style="text-align: center;">Hourly Slots [T-? = Task] [DT-? = Dev Task]</th>
                     </tr>
                     <tr>
                         <th data-data="name" data-name="name" width="10%" data-sortable="false">User Name</th>
                         <th data-data="date" data-name="date" width="6%" data-sortable="false">Date</th>
-						<?php for($i=0;$i<13;$i++) { ?>
-                        <th data-data="slots<?php echo $i; ?>" data-name="slots<?php echo $i; ?>" width="5%"   data-sortable="false" style="text-align: center;">Slots <?php echo $i; ?></th>
+						<?php for($i=0;$i<9;$i++) { ?>
+                            <th width="9%" data-data="slots<?php echo $i; ?>" data-name="slots<?php echo $i; ?>" width="5%"   data-sortable="false" style="text-align: center;">Slots <?php echo $i; ?></th>
 						<?php } ?>
 						
                     </tr>
@@ -108,6 +115,20 @@
 				
 				</tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="getEstimateTime" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Estimate Time</h3>
+                <button class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="estimateTimeText"></p>
+            </div>
         </div>
     </div>
 </div>
@@ -361,6 +382,12 @@
             },
             order: [],
         });
+    });
+
+    $(document).on("click", ".getEstimateTimeClass", function(href) {
+        var estimateTime = $(this).data("id");
+        
+        $('.estimateTimeText').text(estimateTime);
     });
 </script>
 @endpush
