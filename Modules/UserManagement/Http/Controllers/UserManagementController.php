@@ -42,6 +42,7 @@ use App\Hubstaff\HubstaffPaymentAccount;
 use App\UserFeedbackCategorySopHistoryComment;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 use App\Models\UserDatabaseLog;
+use App\Models\UserScheduleRequest;
 
 class UserManagementController extends Controller
 {
@@ -2793,7 +2794,15 @@ class UserManagementController extends Controller
                                 */
 
                                 $data[$usertemp]['name'] = $user['name'];
-                                $data[$usertemp]['date'] = $date;
+
+                                $pastdatesend = date("Y-m-d", strtotime(" -1 day"));
+                                
+                                $dateContent = $date;
+                                if($pastdatesend > $date){
+                                    $dateContent .= '</br><a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" id="send-request-date" title="Send Request To Edit Task"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>';
+                                }
+                                $data[$usertemp]['date'] = $dateContent;
+
                                 for ($p = 0; $p < 9; $p++) {
                                     $varid = 'slots' . $p;
                                     if (isset($divSlots[$p])) {

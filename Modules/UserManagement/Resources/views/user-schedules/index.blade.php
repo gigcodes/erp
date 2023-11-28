@@ -467,5 +467,14 @@
         var remarks = $(this).data('remarks');
         $(".remarksNoteModelBody").html(remarks);
     });
+
+    $(document).on("click", "#send-request-date", function (e) {
+        e.preventDefault();
+        if (confirm("Are you sure you want to add task on this date?")) {
+            alert('Yes');
+        } else {
+            alert('No');
+        }
+    });
 </script>
 @endpush
