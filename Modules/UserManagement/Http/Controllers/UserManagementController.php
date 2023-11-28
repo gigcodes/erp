@@ -2440,26 +2440,27 @@ class UserManagementController extends Controller
 
                                                         if($ut['manually_assign']==1){
 
-                                                            $slotTaskRemarks = '';
+                                                            $taskContentButton = '';
                                                             if ($ut['slotTaskRemarks'] !== null) {
-                                                                $slotTaskRemarks = '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'" style="margin-right: 5px;"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
                                                             }
 
-                                                            $estimate_minutes = '';
                                                             if ($ut['estimate_minutes'] !== null) {
-                                                                $estimate_minutes = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
 
-                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$estimate_minutes.''.$slotTaskRemarks);
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$taskContentButton);
 
                                                         } else {
 
-                                                            $estimate_minutes = '';
+                                                            $taskContentButton = '';
                                                             if ($ut['estimate_minutes'] !== null) {
-                                                                $estimate_minutes = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
 
-                                                            array_push($ut_array, $ut['typeId'].' - '.$estimate_minutes);
+                                                            array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                         }
                                                        
                                                         $position = strpos($ut['typeId'], "DT-");
@@ -2523,26 +2524,27 @@ class UserManagementController extends Controller
 
                                                         if($ut['manually_assign']==1){
 
-                                                            $slotTaskRemarks = '';
+                                                            $taskContentButton = '';
                                                             if ($ut['slotTaskRemarks'] !== null) {
-                                                                $slotTaskRemarks = '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'" style="margin-right: 5px;"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
                                                             }
 
-                                                            $estimate_minutes = '';
                                                             if ($ut['estimate_minutes'] !== null) {
-                                                                $estimate_minutes = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
 
-                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$estimate_minutes.''.$slotTaskRemarks);
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$taskContentButton);
 
                                                         } else {
 
-                                                            $estimate_minutes = '';
+                                                            $taskContentButton = '';
                                                             if ($ut['estimate_minutes'] !== null) {
-                                                                $estimate_minutes = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
 
-                                                            array_push($ut_array, $ut['typeId'].' - '.$estimate_minutes);
+                                                            array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                         }
                                                        
                                                         $position = strpos($ut['typeId'], "DT-");
@@ -2612,26 +2614,27 @@ class UserManagementController extends Controller
 
                                                     if($ut['manually_assign']==1){
 
-                                                        $slotTaskRemarks = '';
+                                                        $taskContentButton = '';
                                                         if ($ut['slotTaskRemarks'] !== null) {
-                                                            $slotTaskRemarks = '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
+                                                            $taskContentButton .= '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'" style="margin-right: 5px;"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
                                                         }
 
-                                                        $estimate_minutes = '';
                                                         if ($ut['estimate_minutes'] !== null) {
-                                                            $estimate_minutes = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                            $taskContentButton .= '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                         }
 
-                                                        array_push($ut_arrayManually, $ut['typeId'].' - '.$estimate_minutes.''.$slotTaskRemarks);
+                                                        $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                        array_push($ut_arrayManually, $ut['typeId'].' - '.$taskContentButton);
 
                                                     } else {
 
-                                                        $estimate_minutes = '';
+                                                        $taskContentButton = '';
                                                         if ($ut['estimate_minutes'] !== null) {
-                                                            $estimate_minutes = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                            $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                         }
 
-                                                        array_push($ut_array, $ut['typeId'].' - '.$estimate_minutes);
+                                                        array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                     }
                                                    
                                                     $position = strpos($ut['typeId'], "DT-");
