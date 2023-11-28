@@ -2457,8 +2457,10 @@ class UserManagementController extends Controller
 
                                                             $taskContentButton = '';
                                                             if ($ut['estimate_minutes'] !== null) {
-                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
+
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
 
                                                             array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                         }
@@ -2541,8 +2543,10 @@ class UserManagementController extends Controller
 
                                                             $taskContentButton = '';
                                                             if ($ut['estimate_minutes'] !== null) {
-                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
+
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
 
                                                             array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                         }
@@ -2631,8 +2635,10 @@ class UserManagementController extends Controller
 
                                                         $taskContentButton = '';
                                                         if ($ut['estimate_minutes'] !== null) {
-                                                            $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                            $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                         }
+
+                                                        $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
 
                                                         array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                     }
