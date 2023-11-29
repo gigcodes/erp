@@ -1876,6 +1876,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-task-from-shortcut', [TaskModuleController::class, 'createTaskFromSortcut'])->name('task.create.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcut', [TaskModuleController::class, 'createMultipleTaskFromSortcut'])->name('task.create.multiple.task.shortcut');
     Route::post('task/create-multiple-task-from-shortcutpostman', [TaskModuleController::class, 'createMultipleTaskFromSortcutPostman'])->name('task.create.multiple.task.shortcutpostman');
+    Route::post('task/create-multiple-task-from-shortcutuserschedules', [TaskModuleController::class, 'createMultipleTaskFromSortcutUserSchedules'])->name('task.create.multiple.task.shortcutuserschedules');
     Route::post('task/create-multiple-task-from-shortscriptdocument', [TaskModuleController::class, 'createMultipleTaskFromScriptDocument'])->name('task.create.multiple.task.shortscriptdocument');
     Route::post('task/create-multiple-task-from-shortcutsentry', [TaskModuleController::class, 'createMultipleTaskFromSortcutSentry'])->name('task.create.multiple.task.shortcutsentry');
     Route::post('task/create-multiple-task-from-shortcutmagentoproblems', [TaskModuleController::class, 'createMultipleTaskFromSortcutMagentoProblems'])->name('task.create.multiple.task.shortcutmagentoproblems');
