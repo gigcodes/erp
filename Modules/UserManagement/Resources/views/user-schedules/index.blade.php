@@ -3,11 +3,16 @@
 @section('favicon', 'user-management.png')
 @section('large_content')
 @include('partials.flash_messages')
+@include("partials.modals.user-schedules-modal-status-color")
 <style>
 .div-slot {
 	min-width: 75px;
 	padding: 3px !important;
 }
+.greenClass{background-color: {{$status[0]['color']}};height: 100px;}
+.yellowClass{ background-color: {{$status[1]['color']}};height: 100px; }
+.orangeClass{ background: {{$status[2]['color']}}; height: 100px; }
+.table-bordered > tbody > tr > td{height: 100px;}
 </style>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;background-color:rgba(255,255,255,0.6);"></div>
 <div class="row">
@@ -26,6 +31,7 @@
                             <i class="fa fa-arrow-down"></i>
                             Filter Records
                         </a>
+                        <button class="btn custom-button" style="float:right;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     </h4>
                 </div>
                 <div id="collapseSearch" class="collapse">
@@ -206,6 +212,65 @@
         </div>
     </div>
 </div>
+
+<div id="modalPastSlotAssign" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Note</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>You cannot edit the records which are more than one day in the past - pls. Contact admin</p>
+            </div>
+            <div class="modal-footer">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="estimateTimeModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Estimate Time</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body estimateTimeModelBody">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="remarksNoteModel" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+        <div class="modal-content ">
+            <div id="add-mail-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Remarks</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body remarksNoteModelBody">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endpush
 
 @push('styles')
@@ -258,6 +323,11 @@
             siteErrorAlert(err);
             siteLoader(0);
         });
+    }
+
+    function funPastSlotAssignModal(ele) {
+        currSlotAssignee = ele;
+        jQuery('#modalPastSlotAssign').modal('show');
     }
 
     function funSlotAssignModal(ele) {
@@ -388,6 +458,96 @@
         var estimateTime = $(this).data("id");
         
         $('.estimateTimeText').text(estimateTime);
+    });
+
+    $(document).on('click', '.estimate_minutes_class', function() {
+        $('#estimateTimeModel').modal('toggle');
+        $(".estimateTimeModelBody").html("");
+        var time = $(this).data('time')+' Minutes';
+        $(".estimateTimeModelBody").html(time);
+    });
+
+    $(document).on('click', '.slotTaskRemarks_class', function() {
+        $('#remarksNoteModel').modal('toggle');
+        $(".remarksNoteModelBody").html("");
+        var remarks = $(this).data('remarks');
+        $(".remarksNoteModelBody").html(remarks);
+    });
+
+    $(document).on("click", "#send-request-date", function (e) {
+        e.preventDefault();
+
+        if($(this).data('requested')==''){
+            if (confirm("Are you sure you want to add task on this date?")) {
+
+                var request_date = $(this).data('date');
+                var user_id = $(this).data('user_id');
+
+                $("#loading-image").show();
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    type: "POST",
+                    url: "/user-management/user-schedules/add-new-request",
+                    data: {
+                        user_id: user_id,
+                        request_date: request_date
+                    },
+                    success: function(response) {
+                        toastr["success"]("Your request has been sent to the admin!", "Message");
+                        $("#loading-image").hide();
+                        siteDatatableSearch('#listUserSchedule');
+                    }
+                });
+            } else {
+                toastr["error"]("Your request not sent to the admin!", "Message");
+            }
+        } else if($(this).data('requested')=='requested'){
+            toastr["error"]("Your request has already been sent to the admin user.", "Message");
+        } else if($(this).data('requested')=='accepted'){
+            toastr["error"]("Your request has been accepted to the admin user. You can add task to this date.", "Message");
+        } else if($(this).data('requested')=='denied'){
+            toastr["error"]("Your request has been denied to the admin user.", "Message");
+        }
+    });
+
+    $(document).on("click", ".send-request-date-admin", function (e) {
+        e.preventDefault();
+
+        var request_date = $(this).data('date');
+        var user_id = $(this).data('user_id');
+        var request_status = $(this).data('status');
+
+        if(request_status=='accepted'){
+            var messagevar = 'Are you sure you want to accept this request?'
+        } else {
+            var messagevar = 'Are you sure you want to denied this request?'
+        }
+
+        if (confirm(messagevar)) {
+
+            $("#loading-image").show();
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "POST",
+                url: "/user-management/user-schedules/update-request",
+                data: {
+                    user_id: user_id,
+                    request_date: request_date,
+                    request_status: request_status,
+                },
+                success: function(response) {
+                    toastr["success"]("Request status updated!", "Message");
+                    $("#loading-image").hide();
+                    siteDatatableSearch('#listUserSchedule');
+                }
+            });
+        } else {
+            toastr["error"]("Request status not updated!", "Message");
+        }
     });
 </script>
 @endpush

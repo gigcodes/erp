@@ -42,6 +42,8 @@ use App\Hubstaff\HubstaffPaymentAccount;
 use App\UserFeedbackCategorySopHistoryComment;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 use App\Models\UserDatabaseLog;
+use App\Models\UserScheduleRequest;
+use App\Models\UserScheduleStatus;
 
 class UserManagementController extends Controller
 {
@@ -111,6 +113,19 @@ class UserManagementController extends Controller
         $userLists = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
 
         return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers', 'userLists'));
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = UserScheduleStatus::find($key);
+            $bugstatus->color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function getUserList(Request $request)
@@ -2177,17 +2192,43 @@ class UserManagementController extends Controller
     {
         $statusList = \DB::table('task_statuses')->pluck('name', 'name')->prepend('Please select', '');
 
+        $status = UserScheduleStatus::all();
+
         return view('usermanagement::user-schedules.index', [
             'title' => 'User Schedules',
             'urlLoadData' => route('user-management.user-schedules.load-data'),
             'statusList' => $statusList,
-
+            'status' => $status,
             'listUsers' => User::dropdown([
                 'is_active' => 1,
             ]),
 
         ]);
     }
+
+    public function addNewRequest(Request $request)
+    {
+        $UserScheduleRequest = new UserScheduleRequest;
+        $UserScheduleRequest->user_id = $request->user_id;
+        $UserScheduleRequest->request_date = $request->request_date;
+        $UserScheduleRequest->request_status = 'requested';
+        $UserScheduleRequest->save();
+
+        return $UserScheduleRequest;
+    }
+
+    public function updateRequest(Request $request)
+    {   
+        $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $request->user_id)->where('request_date', '=', $request->request_date)->orderBy('id', 'DESC')->first();
+
+        $UserScheduleRequested->request_status = $request->request_status;
+        $UserScheduleRequested->updated_by = Auth::id();
+        $UserScheduleRequested->update();
+
+        return $UserScheduleRequested;
+    }
+
+    
 
     public function userSchedulesLoadData()
     {
@@ -2421,6 +2462,10 @@ class UserManagementController extends Controller
                                     $displayManuallyMove = [];
                                     $taskArray = [];
                                     $devtaskArray = [];
+                                    $plusIconArray = [];
+                                    $avaibilityGreenTask =[];
+                                    $avaibilityYellowTask =[];
+                                    $avaibilityOrangeTask =[];
 
                                     if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END', 'PAST'])) {
                                         $ut_array = [];
@@ -2433,22 +2478,35 @@ class UserManagementController extends Controller
                                             $slotdate = date("Y-m-d", strtotime($slot['st']));
 
                                             if($todaydate==$slotdate || $pastdate==$slotdate){
-                                                
+
                                                 if (!empty($slot['userTasks'])) {
                                                     foreach ($slot['userTasks'] as $ut) {
 
                                                         if($ut['manually_assign']==1){
-                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$ut['estimate_minutes'].' mins');
 
+                                                            $taskContentButton = '';
                                                             if ($ut['slotTaskRemarks'] !== null) {
-                                                                array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'" style="margin-right: 5px;"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
                                                             }
+
+                                                            if ($ut['estimate_minutes'] !== null) {
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                            }
+
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$taskContentButton);
+
                                                         } else {
-                                                            array_push($ut_array, $ut['typeId'].' - '.$ut['estimate_minutes'].' mins');
 
-                                                            if ($ut['slotTaskRemarks'] !== null) {
-                                                                array_push($displayText, $ut['slotTaskRemarks']);
+                                                            $taskContentButton = '';
+                                                            if ($ut['estimate_minutes'] !== null) {
+                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
+
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                            array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                         }
                                                        
                                                         $position = strpos($ut['typeId'], "DT-");
@@ -2464,6 +2522,15 @@ class UserManagementController extends Controller
                                                         //     dd($ut);
                                                         // }
                                                     }
+                                                } else {
+                                                
+                                                    if($todaydate==$slotdate){
+                                                        $avaibilityYellowTask[] = $slot['st'];
+                                                    }
+
+                                                    if($pastdate==$slotdate){
+                                                        $avaibilityOrangeTask[] = $slot['st'];
+                                                    }
                                                 }
                                                 // $generalTaskID = [];
                                                 // if (isset($slot['taskIds'])) {
@@ -2471,9 +2538,7 @@ class UserManagementController extends Controller
                                                 // }
                                                 $developerTaskID = $ut_array;
                                                 if (! empty($developerTaskID)) {
-                                                    /*$display[] = '</br><a class="getEstimateTimeClass" style="color:green !important" data-toggle="modal" data-id="'.$ut['estimate_minutes'].'" href="#getEstimateTime"> (' . implode(', ', $developerTaskID) . ') </a>';*/
-
-                                                    $display[] = '</br>(' . implode(', ', $developerTaskID) . ')';
+                                                    $display[] = '</br><span style="color:green !important">' . implode(', </br>', $developerTaskID) . '</span>';
 
                                                     $title = [];
                                                     foreach ($slot['taskIds'] as $taskId => $taskRow) {
@@ -2484,9 +2549,7 @@ class UserManagementController extends Controller
 
                                                 $developerTaskIDManually = $ut_arrayManually;
                                                 if (! empty($developerTaskIDManually)) {
-                                                    //$displayManually[] = '<a class="getEstimateTimeClass" data-toggle="modal" data-id="'.$ut['estimate_minutes'].'" href="#getEstimateTime"> (' . implode(', ', $developerTaskIDManually) . ')</a>';
-
-                                                    $displayManually[] = '(' . implode(', ', $developerTaskIDManually) . ')';
+                                                    $displayManually[] = implode('</br>', $developerTaskIDManually);
 
                                                     $title = [];
                                                     foreach ($slot['taskIds'] as $taskId => $taskRow) {
@@ -2506,8 +2569,8 @@ class UserManagementController extends Controller
 
                                                 } else {
                                                     $class = 'text-secondary';
-                                                    $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" ><i class="fa fa-plus" aria-hidden="true"></i></a>';
-
+                                                    $display[] = '';
+                                                    $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" ><i class="fa fa-plus" aria-hidden="true"></i></a>';
                                                 }
                                             }  else {
 
@@ -2515,17 +2578,30 @@ class UserManagementController extends Controller
                                                     foreach ($slot['userTasks'] as $ut) {
 
                                                         if($ut['manually_assign']==1){
-                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$ut['estimate_minutes'].' mins');
 
+                                                            $taskContentButton = '';
                                                             if ($ut['slotTaskRemarks'] !== null) {
-                                                                array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'" style="margin-right: 5px;"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
                                                             }
+
+                                                            if ($ut['estimate_minutes'] !== null) {
+                                                                $taskContentButton .= '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                            }
+
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                            array_push($ut_arrayManually, $ut['typeId'].' - '.$taskContentButton);
+
                                                         } else {
-                                                            array_push($ut_array, $ut['typeId'].' - '.$ut['estimate_minutes'].' mins');
 
-                                                            if ($ut['slotTaskRemarks'] !== null) {
-                                                                array_push($displayText, $ut['slotTaskRemarks']);
+                                                            $taskContentButton = '';
+                                                            if ($ut['estimate_minutes'] !== null) {
+                                                                $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                             }
+
+                                                            $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                            array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                         }
                                                        
                                                         $position = strpos($ut['typeId'], "DT-");
@@ -2541,6 +2617,8 @@ class UserManagementController extends Controller
                                                         //     dd($ut);
                                                         // }
                                                     }
+                                                } else {
+                                                    $avaibilityOrangeTask[] = $slot['st'];
                                                 }
                                                 // $generalTaskID = [];
                                                 // if (isset($slot['taskIds'])) {
@@ -2548,9 +2626,7 @@ class UserManagementController extends Controller
                                                 // }
                                                 $developerTaskID = $ut_array;
                                                 if (! empty($developerTaskID)) {
-                                                    //$display[] = '</br><a class="getEstimateTimeClass" style="color:green !important" data-toggle="modal" data-id="'.$ut['estimate_minutes'].'" href="#getEstimateTime"> (' . implode(', ', $developerTaskID) . ') </a>';
-
-                                                    $display[] = '</br>(' . implode(', ', $developerTaskID) . ')';
+                                                    $display[] = '</br><span style="color:green !important">' . implode(', </br>', $developerTaskID) . '</span>';
 
                                                     $title = [];
                                                     foreach ($slot['taskIds'] as $taskId => $taskRow) {
@@ -2561,9 +2637,8 @@ class UserManagementController extends Controller
 
                                                 $developerTaskIDManually = $ut_arrayManually;
                                                 if (! empty($developerTaskIDManually)) {
-                                                    //$displayManually[] = '<a class="getEstimateTimeClass" data-toggle="modal" data-id="'.$ut['estimate_minutes'].'" href="#getEstimateTime"> (' . implode(', ', $developerTaskIDManually) . ')</a>';
 
-                                                    $displayManually[] = '(' . implode(', ', $developerTaskIDManually) . ')';
+                                                    $displayManually[] = implode('</br>', $developerTaskIDManually);
 
                                                     $title = [];
                                                     foreach ($slot['taskIds'] as $taskId => $taskRow) {
@@ -2571,25 +2646,66 @@ class UserManagementController extends Controller
                                                     }
                                                     $title = implode(PHP_EOL, $title);
                                                 }
+
+                                                if ($slot['type'] == 'SMALL-LUNCH') {
+                                                    $display[] = '<br>Lunch time (' . date('H:i', strtotime($slot['lunch_time']['from'])) . '-' . date('H:i', strtotime($slot['lunch_time']['to'])) . ')';
+
+                                                } elseif ($slot['type'] == 'LUNCH-START') {
+                                                    $display[] = '<br>Lunch start at: ' . date('H:i', strtotime($slot['lunch_time']['from']));
+
+                                                } elseif ($slot['type'] == 'LUNCH-END') {
+                                                    $display[] = '<br>Lunch end at: ' . date('H:i', strtotime($slot['lunch_time']['to']));
+
+                                                } else {
+                                                    $class = 'text-secondary';
+
+                                                    $display[] = '<s> (' . $slot['slot_type'] . ')</s>';
+
+                                                    if (!Auth::user()->isAdmin()) {
+                                                        $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $user['id'])->where('request_date', '=', $date)->orderBy('id', 'DESC')->first();
+
+                                                        if(!empty($UserScheduleRequested)){
+
+                                                            if($UserScheduleRequested->request_status=='accepted'){
+                                                                $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);"><i class="fa fa-plus" aria-hidden="true"></i></a>';            
+                                                            }
+                                                        }
+                                                    } else {
+                                                        $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" ><i class="fa fa-plus" aria-hidden="true"></i></a>';    
+                                                    }
+                                                }
                                             }
 
                                         } else{
-                                        
+
                                             if (!empty($slot['userTasks'])) {
                                                 foreach ($slot['userTasks'] as $ut) {
 
                                                     if($ut['manually_assign']==1){
-                                                        array_push($ut_arrayManually, $ut['typeId'].' - '.$ut['estimate_minutes'].' mins');
 
+                                                        $taskContentButton = '';
                                                         if ($ut['slotTaskRemarks'] !== null) {
-                                                            array_push($displayTextManually, $ut['slotTaskRemarks']);
+                                                            $taskContentButton .= '<a href="javascript:void(0)" class="slotTaskRemarks_class" data-remarks="'.$ut['slotTaskRemarks'].'" style="margin-right: 5px;"><i class="fa fa-commenting" aria-hidden="true"></i></a>';
                                                         }
+
+                                                        if ($ut['estimate_minutes'] !== null) {
+                                                            $taskContentButton .= '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
+                                                        }
+
+                                                        $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                        array_push($ut_arrayManually, $ut['typeId'].' - '.$taskContentButton);
+
                                                     } else {
-                                                        array_push($ut_array, $ut['typeId'].' - '.$ut['estimate_minutes'].' mins');
 
-                                                        if ($ut['slotTaskRemarks'] !== null) {
-                                                            array_push($displayText, $ut['slotTaskRemarks']);
+                                                        $taskContentButton = '';
+                                                        if ($ut['estimate_minutes'] !== null) {
+                                                            $taskContentButton = '<a href="javascript:void(0)" class="estimate_minutes_class" data-time="'.$ut['estimate_minutes'].'" style="color: green;margin-right: 5px;"><i class="fa fa-clock-o" aria-hidden="true"></i></a>';
                                                         }
+
+                                                        $taskContentButton .= '<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="developer_task" data-id="'.$ut['id'].'" title="Load messages" style="display: contents;"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>';
+
+                                                        array_push($ut_array, $ut['typeId'].' - '.$taskContentButton);
                                                     }
                                                    
                                                     $position = strpos($ut['typeId'], "DT-");
@@ -2605,6 +2721,10 @@ class UserManagementController extends Controller
                                                     //     dd($ut);
                                                     // }
                                                 }
+                                            } else {
+                                                if (in_array($slot['type'], ['AVL'])) {
+                                                    $avaibilityGreenTask[] = $slot['st'];
+                                                }
                                             }
                                             // $generalTaskID = [];
                                             // if (isset($slot['taskIds'])) {
@@ -2612,9 +2732,7 @@ class UserManagementController extends Controller
                                             // }
                                             $developerTaskID = $ut_array;
                                             if (! empty($developerTaskID)) {
-                                                //$display[] = '</br><a class="getEstimateTimeClass" style="color:green !important" data-toggle="modal" data-id="'.$ut['estimate_minutes'].'" href="#getEstimateTime"> (' . implode(', ', $developerTaskID) . ') </a>';
-
-                                                $display[] = '</br>(' . implode(', ', $developerTaskID) . ')';
+                                                $display[] = '</br><span style="color:green !important">' . implode(', </br>', $developerTaskID) . '</span>';
 
                                                 $title = [];
                                                 foreach ($slot['taskIds'] as $taskId => $taskRow) {
@@ -2625,15 +2743,13 @@ class UserManagementController extends Controller
 
                                             $developerTaskIDManually = $ut_arrayManually;
                                             if (! empty($developerTaskIDManually)) {
-                                                //$displayManually[] = '<a class="getEstimateTimeClass" data-toggle="modal" data-id="'.$ut['estimate_minutes'].'" href="#getEstimateTime"> (' . implode(', ', $developerTaskIDManually) . ')</a>';
-
-                                                $displayManually[] = '(' . implode(', ', $developerTaskIDManually) . ')';
+                                                $displayManually[] = implode('</br>', $developerTaskIDManually);
 
                                                 $title = [];
                                                 foreach ($slot['taskIds'] as $taskId => $taskRow) {
                                                     $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
                                                 }
-                                                $title = implode(PHP_EOL, $title);
+                                                $title = implode(PHP_EOL, $title);                                                
                                             }
 
                                             if ($slot['type'] == 'SMALL-LUNCH') {
@@ -2649,7 +2765,8 @@ class UserManagementController extends Controller
 
                                             } else {
                                                 $class = 'text-secondary';
-                                                $display[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" title="Add Task"><i class="fa fa-plus" aria-hidden="true"></i></a>';
+                                                $display[] = '';
+                                                $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" title="Add Task"><i class="fa fa-plus" aria-hidden="true"></i></a>';
 
                                             }
                                         }
@@ -2658,12 +2775,15 @@ class UserManagementController extends Controller
                                         $display = implode('', $display);
 
                                         $displayManually = implode('', $displayManually);
+
+                                        $plusIcon = implode('', $plusIconArray);
+
                                     } elseif (in_array($slot['slot_type'], ['LUNCH'])) {
                                         $title = 'Not Available';
                                         $class = 'text-secondary';
                                         $display[] = ' (' . $slot['slot_type'] . ')';
                                         $display = '<s>' . implode('', $display) . '</s>';
-
+                                        $plusIcon = '';
                                     } /*elseif (in_array($slot['slot_type'], ['PAST'])) {
 
                                         $todaydate = date("Y-m-d");
@@ -2695,7 +2815,7 @@ class UserManagementController extends Controller
                                         $class = 'text-secondary';
                                         $display[] = ' (LUNCH)';
                                         $display = '<s>' . implode('', $display) . '</s>';
-
+                                        $plusIcon = '';
                                     }
                                     // elseif ($slot['type'] == "LUNCH-START") {
                                     //     dd($slot);
@@ -2713,27 +2833,55 @@ class UserManagementController extends Controller
 
                                     //$divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div><div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . '</div>';
 
-                                    $displayTextString = '';
-                                    if(!empty($displayText)){
-                                        $displayTextString = implode(", ", $displayText);
+                                    /*$green = '';
+                                    $yellow = '';
+                                    $orange = '';
+                                    if(!empty($avaibilityGreenTask)){
+                                        $green = 'green';
                                     }
 
-                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . ' - '.$displayTextString.'</div>';
+                                    if(!empty($avaibilityYellowTask)){
+                                        $yellow = 'yellow';
+                                    }
+
+                                    if(!empty($avaibilityOrangeTask)){
+                                        $orange = 'orange';
+                                    }*/
+
+                                    $colorVar = '';                                    
+                                    if(!empty($avaibilityGreenTask)){
+                                        $colorVar = 'greenClass';
+                                    }
+
+                                    if(!empty($avaibilityYellowTask)){
+                                        $colorVar = 'yellowClass';
+                                    }
+
+                                    if(!empty($avaibilityOrangeTask)){
+                                        $colorVar = 'orangeClass';
+                                    }
+
+                                    $divSlotsVar = '<div class="'.$colorVar.'">';
+                                    
+                                    //$divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display .' '.$green.' '.$yellow.' '.$orange.'</div>';
+
+                                    $divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display .'</div>';
+
                                     if(!empty($displayManually)){
+                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" style="color:blue !important" title="' . $title . '" >' . $displayManually .'</div>';
+                                    }
 
-                                        $displayTextManuallyString = '';
-                                        if(!empty($displayTextManually)){
-                                            $displayTextManuallyString = implode(", ", $displayTextManually);
-                                        }
-
-                                        $divSlotsVar .= '<div class="div-slot ' . $class . '" style="color:blue !important" title="' . $title . '" >' . $displayManually . ' - '.$displayTextManuallyString.'</div>';
+                                    $divSlotsVar .= '<div class="icon-div">';
+                                    if(!empty($plusIcon)){
+                                        $divSlotsVar .= $plusIcon;
                                     }
 
                                     if(!empty($displayManuallyMove)){
                                         if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
-                                            $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '" title="Move Task"><i class="fa fa-arrows" aria-hidden="true"></i></a>';    
+                                            $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '" title="Move Task"><i class="fa fa-exchange" aria-hidden="true"></i></a>';    
                                         }
                                     }
+                                    $divSlotsVar .= '</div></div>';
 
                                     $divSlots[] = $divSlotsVar;
                                     
@@ -2747,7 +2895,42 @@ class UserManagementController extends Controller
                                 */
 
                                 $data[$usertemp]['name'] = $user['name'];
-                                $data[$usertemp]['date'] = $date;
+
+                                $pastdatesend = date("Y-m-d", strtotime(" -1 day"));
+                                
+                                $dateContent = $date;
+                                if($pastdatesend > $date){
+
+                                    $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $user['id'])->where('request_date', '=', $date)->orderBy('id', 'DESC')->first();
+
+                                    $requested = '';
+                                    if(!empty($UserScheduleRequested)){
+                                        $requested = $UserScheduleRequested->request_status;
+                                    }
+
+                                    if (!Auth::user()->isAdmin()) {
+                                        $dateContent .= '</br><a style="padding: 2px;" class="btn btn-primary" href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-requested="' . $requested . '" id="send-request-date" title="Send Request To Edit Task"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>';
+
+                                        if($requested=='accepted'){
+                                            $dateContent .= '</br><span style="color:green"> Request '.$requested.'. You can add task to the slot.</span>';
+                                        }
+                                    } else {
+
+                                        if(!empty($requested)){
+                                            $dateContent .= '</br><a style="padding: 0px;" class="btn btn-success send-request-date-admin" href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-requested="' . $requested . '" data-status="accepted" class="" title="Accepet Request To Edit Task"><i class="fa fa-check" aria-hidden="true"></i></a>';
+
+                                            $dateContent .= '<a style="padding: 0px 2px; margin-left: 5px;" class="btn btn-danger send-request-date-admin" href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-requested="' . $requested . '" data-status="denied" title="Denied Request To Edit Task"><i class="fa fa-times" aria-hidden="true"></i></a>';
+
+                                            if($requested=='accepted'){
+                                                $dateContent .= '</br><span style="color:green"> Request '.$requested.'.</span>';
+                                            } else if($requested=='denied'){
+                                                $dateContent .= '</br><span  style="color:red"> Request '.$requested.'.</span>';
+                                            }                                            
+                                        }
+                                    }
+                                }
+                                $data[$usertemp]['date'] = $dateContent;
+
                                 for ($p = 0; $p < 9; $p++) {
                                     $varid = 'slots' . $p;
                                     if (isset($divSlots[$p])) {
