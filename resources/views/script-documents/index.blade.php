@@ -508,7 +508,10 @@
 						}
 
 						if(v.last_output_text!=null){
-							html += "<td>" + v.last_output_text + "</td>";
+							//html += "<td>" + v.last_output_text + "</td>";
+
+							html += '<td><button type="button" data-id="'+v.id+'" class="btn script-document-history-last_output-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+
 						} else {
 							html += "<td></td>";
 						}
@@ -554,6 +557,21 @@
 			$.ajax({
 	            method: "GET",
 	            url: `{{ route('script-documents.comment', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+	               
+                    $("#script-document-last-output-list").find(".script-document-last-output-view").html(response.last_output);
+                    $("#script-document-last-output-list").modal("show");
+	         
+	            }
+	        });
+		});
+
+		$(document).on('click','.script-document-history-last_output-view',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('script-documents.histroy_comment', [""]) }}/` + id,
 	            dataType: "json",
 	            success: function(response) {
 	               

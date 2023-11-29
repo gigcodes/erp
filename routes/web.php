@@ -3371,6 +3371,7 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/{id}/delete', [ScriptDocumentsController::class, 'destroy']);
     Route::get('script-documents-histories/{id}', [ScriptDocumentsController::class, 'ScriptDocumentHistory'])->name('script-documents.histories');
     Route::get('script-documents-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentComment'])->name('script-documents.comment');
+    Route::get('script-documents-histroy-comment/{id}', [ScriptDocumentsController::class, 'ScriptDocumentCommentHistory'])->name('script-documents.histroy_comment');
     Route::get('script-documents/countdevtask/{id}', [ScriptDocumentsController::class, 'taskCount']);
     Route::get('script-documents/error-logs', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogs'])->name('script-documents.errorlogs');
     Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');

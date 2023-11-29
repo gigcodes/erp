@@ -324,6 +324,19 @@ class ScriptDocumentsController extends Controller
         ], 200);
     }
 
+    public function ScriptDocumentCommentHistory($id)
+    {   
+        $scriptDocument = ScriptsExecutionHistory::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $scriptDocument,
+            'last_output' => base64_decode(utf8_encode($scriptDocument['run_output'])),
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function taskCount($site_developement_id)
     {
         $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
