@@ -56,8 +56,8 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <strong>Password:</strong>
-                                <input type="text" name="password" class="form-control" value="{{ old('password') }}" >
-
+                                <input type="text" name="password" class="form-control password-assets-manager-add" value="{{ old('password') }}" >
+                                <a href="javascript:void(0);" class="generatepasswordadd">Generate Password</a>
                                 @if ($errors->has('password'))
                                     <div class="alert alert-danger">{{$errors->first('password')}}</div>
                                 @endif
@@ -592,7 +592,7 @@
                                 <strong>Password:</strong>
                                 <input type="text" name="password" class="form-control password-assets-manager" value="{{ old('password') }}" id="password" required>
                                 <input type="hidden" name="old_password" class="form-control oldpassword-assets-manager" value="{{ old('old_password') }}" id="old_password">
-
+                                <a href="javascript:void(0);" class="generatepasswordedit">Generate Password</a>
                                 @if ($errors->has('password'))
                                     <div class="alert alert-danger">{{$errors->first('password')}}</div>
                                 @endif

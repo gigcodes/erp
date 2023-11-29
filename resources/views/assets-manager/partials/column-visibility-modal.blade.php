@@ -136,6 +136,43 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Monit Api URL</td>
+                                <td>
+                                    <input type="checkbox" value="Monit Api URL" id="Monit_Api_URL" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('Monit Api URL', $dynamicColumnsToShowAM)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monit Api Username</td>
+                                <td>
+                                    <input type="checkbox" value="Monit Api Username" id="Monit_Api_Username" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('Monit Api Username', $dynamicColumnsToShowAM)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monit Api Password</td>
+                                <td>
+                                    <input type="checkbox" value="Monit Api Password" id="Monit_Api_Password" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('Monit Api Password', $dynamicColumnsToShowAM)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>VNC Ip</td>
+                                <td>
+                                    <input type="checkbox" value="VNC Ip" id="VNC_Ip" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('VNC Ip', $dynamicColumnsToShowAM)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>VNC Port</td>
+                                <td>
+                                    <input type="checkbox" value="VNC Port" id="VNC_Port" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('VNC Port', $dynamicColumnsToShowAM)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>VNC Password</td>
+                                <td>
+                                    <input type="checkbox" value="VNC Password" id="VNC_Password" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('VNC Password', $dynamicColumnsToShowAM)) checked @endif>
+                                </td>
+                            </tr>
+                            
+                            <tr>
                                 <td>Created By</td>
                                 <td>
                                     <input type="checkbox" value="Created By" id="Created_By" name="column_assetsmanager[]" @if (!empty($dynamicColumnsToShowAM) && in_array('Created By', $dynamicColumnsToShowAM)) checked @endif>
