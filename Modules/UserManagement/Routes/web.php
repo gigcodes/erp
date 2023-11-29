@@ -103,6 +103,8 @@ Route::group([
         Route::post('/add-new-request', [UserManagementController::class, 'addNewRequest'])->name('user-management.add-new-request');
         Route::post('/update-request', [UserManagementController::class, 'updateRequest'])->name('user-management.update-request');
         Route::post('/statuscolor', [UserManagementController::class, 'statuscolor'])->name('user-management.statuscolor');
+        Route::get('/countdevtask/{id}', [UserManagementController::class, 'taskCount']);
+        Route::get('/countdevtaskadmin/{id}', [UserManagementController::class, 'taskCountAdmin']);
     });
 
     Route::group([
