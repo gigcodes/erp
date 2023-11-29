@@ -5236,6 +5236,7 @@ Route::post('gtmetrixAccount/store', [StoreGTMetrixAccountController::class, 'st
 Route::get('gtmetrixcategoryWeb', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'CategoryWiseWebsiteReport'])->name('gtm.cetegory.web');
 
 Route::get('product-pricing', [product_price\ProductPriceController::class, 'index'])->name('product.pricing');
+Route::get('product-autocomplete', [product_price\ProductPriceController::class, 'getProductAutocomplete'])->name('product.autocomplete');
 Route::post('store-website-product-prices/approve', [product_price\ProductPriceController::class, 'approve']);
 Route::get('store-website-product-prices', [product_price\ProductPriceController::class, 'store_website_product_prices'])->name('store-website-product-prices');
 Route::get('store-website-product-prices/history', [product_price\ProductPriceController::class, 'storewebsiteproductpriceshistory']);

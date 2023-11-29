@@ -41,116 +41,121 @@ class ProductPriceController extends Controller
         $filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
 
-        $products = \App\StoreWebsite::where('store_websites.is_published', 1)
-            ->crossJoin('products')
-            ->crossJoin('simply_duty_countries')
-            ->leftJoin('brands as b', function ($q) {
-                $q->on('b.id', 'products.brand');
-            })
-            ->leftJoin('categories as c', function ($q) {
-                $q->on('c.id', 'products.category');
-            })
-            ->leftJoin('category_segments as cs', function ($q) {
-                $q->on('c.category_segment_id', 'cs.id');
-            })
-            ->leftJoin('scraped_products as sp', function ($q) {
-                $q->on('sp.product_id', 'products.id');
-            })
-            ->Join('product_suppliers as psu', function ($q) {
-                $q->on('psu.product_id', 'products.id');
-            })
-            ->select(DB::raw('
-                products.id as pid, 
-                products.name as product_name,
-                b.name as brand_name,
-                b.id as brand_id,
-                cs.name as category_segment,
-                b.brand_segment as brand_segment,
-                c.title as category_name,
-                products.category,
-                products.supplier,
-                products.sku,
-                products.size,
-                products.color,
-                products.suggested_color,
-                products.composition,
-                products.size_eu,
-                products.stock,
-                psu.size_system,
-                status_id,
-                sub_status_id,
-                products.created_at,
-                products.id as pid,
-                simply_duty_countries.country_code as product_country_code,
-                simply_duty_countries.country_name as product_country_name,
-                store_websites.id as store_websites_id,
-                store_websites.website as product_website,
-                products.brand'
-            ));
-        $products = $products->whereNull('products.deleted_at');
+        if(!empty($request->selectedId)){
 
-        if (isset($filter_data['country_code'])) {
-            $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']);
-        }
+            $products = \App\StoreWebsite::where('store_websites.is_published', 1)
+                ->crossJoin('products')
+                ->crossJoin('simply_duty_countries')
+                ->leftJoin('brands as b', function ($q) {
+                    $q->on('b.id', 'products.brand');
+                })
+                ->leftJoin('categories as c', function ($q) {
+                    $q->on('c.id', 'products.category');
+                })
+                ->leftJoin('category_segments as cs', function ($q) {
+                    $q->on('c.category_segment_id', 'cs.id');
+                })
+                ->leftJoin('scraped_products as sp', function ($q) {
+                    $q->on('sp.product_id', 'products.id');
+                })
+                ->Join('product_suppliers as psu', function ($q) {
+                    $q->on('psu.product_id', 'products.id');
+                })
+                ->select(DB::raw('
+                    products.id as pid, 
+                    products.name as product_name,
+                    b.name as brand_name,
+                    b.id as brand_id,
+                    cs.name as category_segment,
+                    b.brand_segment as brand_segment,
+                    c.title as category_name,
+                    products.category,
+                    products.supplier,
+                    products.sku,
+                    products.size,
+                    products.color,
+                    products.suggested_color,
+                    products.composition,
+                    products.size_eu,
+                    products.stock,
+                    psu.size_system,
+                    status_id,
+                    sub_status_id,
+                    products.created_at,
+                    products.id as pid,
+                    simply_duty_countries.country_code as product_country_code,
+                    simply_duty_countries.country_name as product_country_name,
+                    store_websites.id as store_websites_id,
+                    store_websites.website as product_website,
+                    products.brand'
+                ));
+            $products = $products->whereNull('products.deleted_at');
 
-        if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
-            $suppliers_list = implode(',', $filter_data['supplier']);
-            $products = $products->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
-        }
+            if (isset($filter_data['country_code'])) {
+                $products = $products->where('simply_duty_countries.country_code', $filter_data['country_code']);
+            }
 
-        if (isset($filter_data['brand_names']) && is_array($filter_data['brand_names']) && $filter_data['brand_names'][0] != null) {
-            $products = $products->whereIn('brand_id', $filter_data['brand_names']);
-        }
+            if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
+                $suppliers_list = implode(',', $filter_data['supplier']);
+                $products = $products->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
+            }
 
-        if (isset($filter_data['websites']) && is_array($filter_data['websites']) && $filter_data['websites'][0] != null) {
-            $products = $products->whereIn('store_websites.id', $filter_data['websites']);
-        }
+            if (isset($filter_data['brand_names']) && is_array($filter_data['brand_names']) && $filter_data['brand_names'][0] != null) {
+                $products = $products->whereIn('brand_id', $filter_data['brand_names']);
+            }
 
-        if (isset($filter_data['term'])) {
-            $term = $filter_data['term'];
-            $products = $products->where(function ($q) use ($term) {
-                $q->where('products.name', 'LIKE', "%$term%")
-                    ->orWhere('products.sku', 'LIKE', "%$term%")
-                    ->orWhere('c.title', 'LIKE', "%$term%")
-                    ->orWhere('b.name', 'LIKE', "%$term%")
-                    ->orWhere('products.id', 'LIKE', "%$term%");
-            });
-        }
+            if (isset($filter_data['websites']) && is_array($filter_data['websites']) && $filter_data['websites'][0] != null) {
+                $products = $products->whereIn('store_websites.id', $filter_data['websites']);
+            }
 
-        $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
+            if (isset($filter_data['term'])) {
+                $term = $filter_data['term'];
+                $products = $products->where(function ($q) use ($term) {
+                    $q->where('products.name', 'LIKE', "%$term%")
+                        ->orWhere('products.sku', 'LIKE', "%$term%")
+                        ->orWhere('c.title', 'LIKE', "%$term%")
+                        ->orWhere('b.name', 'LIKE', "%$term%")
+                        ->orWhere('products.id', 'LIKE', "%$term%");
+                });
+            }
 
-        $products = $products->skip($skip * 25)->limit(25)->get();
-        //$products = $products->limit(100)->get();
-        $product_list = [];
-        if (count($products)) {
-            foreach ($products as $p) {
-                $product = Product::find($p->pid);
-                $dutyPrice = $product->getDuty($p->product_country_code);
-                $category_segment = $p->category_segment != null ? $p->category_segment : $p->brand_segment;
-                $price = $product->getPrice($p->store_websites_id, $p->product_country_code, null, true, $dutyPrice, null, null, null, isset($product->suppliers_info) ? $product->suppliers_info[0]->price : 0, $category_segment);
-                $ivaPercentage = \App\Product::IVA_PERCENTAGE;
-                $productPrice = number_format($price['original_price'], 2, '.', '');
-                $product_list[] = [
-                    'storeWebsitesID' => $p->store_websites_id,
-                    'getPrice' => $price,
-                    'id' => $product->id,
-                    'sku' => $product->sku,
-                    'brand' => isset($p->brand_name) ? $p->brand_name : '-',
-                    'brand_id' => isset($p->brand) ? $p->brand : '0',
-                    'segment' => $category_segment,
-                    'website' => $p->product_website,
-                    'eur_price' => $productPrice,
-                    'seg_discount' => (float) $price['segment_discount'],
-                    'segment_discount_per' => (float) $price['segment_discount_per'],
-                    'iva' => \App\Product::IVA_PERCENTAGE . '%',
-                    'net_price' => $productPrice - (float) $price['segment_discount'] - ($productPrice) * (\App\Product::IVA_PERCENTAGE) / 100,
-                    'add_duty' => $product->getDuty($p->product_country_code) . '%',
-                    'add_profit' => number_format($price['promotion'], 2, '.', ''),
-                    'add_profit_per' => (float) $price['promotion_per'],
-                    'final_price' => number_format($price['total'], 2, '.', ''),
-                    'country_code' => $p->product_country_code,
-                    'country_name' => $p->product_country_name,
-                ];
+            $products = $products->where('products.id', $request->selectedId);
+
+            $products = $products->orderby('products.id', 'desc'); // FOR LATEST PRODUCT
+
+            $products = $products->skip($skip * 25)->limit(25)->get();
+            //$products = $products->limit(100)->get();
+            $product_list = [];
+            if (count($products)) {
+                foreach ($products as $p) {
+                    $product = Product::find($p->pid);
+                    $dutyPrice = $product->getDuty($p->product_country_code);
+                    $category_segment = $p->category_segment != null ? $p->category_segment : $p->brand_segment;
+                    $price = $product->getPrice($p->store_websites_id, $p->product_country_code, null, true, $dutyPrice, null, null, null, isset($product->suppliers_info) ? $product->suppliers_info[0]->price : 0, $category_segment);
+                    $ivaPercentage = \App\Product::IVA_PERCENTAGE;
+                    $productPrice = number_format($price['original_price'], 2, '.', '');
+                    $product_list[] = [
+                        'storeWebsitesID' => $p->store_websites_id,
+                        'getPrice' => $price,
+                        'id' => $product->id,
+                        'sku' => $product->sku,
+                        'brand' => isset($p->brand_name) ? $p->brand_name : '-',
+                        'brand_id' => isset($p->brand) ? $p->brand : '0',
+                        'segment' => $category_segment,
+                        'website' => $p->product_website,
+                        'eur_price' => $productPrice,
+                        'seg_discount' => (float) $price['segment_discount'],
+                        'segment_discount_per' => (float) $price['segment_discount_per'],
+                        'iva' => \App\Product::IVA_PERCENTAGE . '%',
+                        'net_price' => $productPrice - (float) $price['segment_discount'] - ($productPrice) * (\App\Product::IVA_PERCENTAGE) / 100,
+                        'add_duty' => $product->getDuty($p->product_country_code) . '%',
+                        'add_profit' => number_format($price['promotion'], 2, '.', ''),
+                        'add_profit_per' => (float) $price['promotion_per'],
+                        'final_price' => number_format($price['total'], 2, '.', ''),
+                        'country_code' => $p->product_country_code,
+                        'country_name' => $p->product_country_name,
+                    ];
+                }
             }
         }
         $countryGroups = SimplyDutyCountry::getSelectList();
@@ -1092,5 +1097,17 @@ class ProductPriceController extends Controller
             $dataDropdown = Product::where('sku', 'LIKE', "%".$request['term']."%")->pluck('sku', 'id')->toArray();
             echo json_encode($dataDropdown);
         }
+    }
+
+    public function getProductAutocomplete(Request $request)
+    {
+        $input = $_GET['term'];
+
+        $products = [];
+        if(!empty($input)){
+            $products = Product::where('name', 'like', '%'.$input.'%')->pluck('name', 'id');
+        }
+
+        return response()->json($products);
     }
 }

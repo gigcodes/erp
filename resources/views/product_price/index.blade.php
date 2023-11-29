@@ -64,7 +64,8 @@
         <div class="pull-left cls_filter_box">
             <form class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
-                    <input type="text" name="term" value="{{ request('term') }}" class="form-control" placeholder="Enter Product Or SKU">
+                    <input type="text" name="term" id="searchInput" value="{{ request('term') }}" class="form-control" placeholder="Enter Product Or SKU">
+                    <input type="hidden" id="selectedId" name="selectedId" value="{{ request('selectedId') }}">
                 </div>
                 <div class="form-group mr-3">
                     <select name="country_code" class="form-control globalSelect2">
@@ -626,8 +627,49 @@
             }
         });
 	}
-	
-	
+   
+    $(document).ready(function($) {
+    	$("#searchInput").autocomplete({
+            /*source: function (request, response) {
+                $.ajax({
+                    url: "{{ route('product.autocomplete') }}",
+                    dataType: 'json',
+                    data: {
+                        term: request.term
+                    },
+                    success: function (data) {
+                        response(data); // Populate autocomplete suggestions
+                    }
+                });
+            },
+            minLength: 2*/
+
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('product.autocomplete') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function (data) {
+                        var transformedData = Object.keys(data).map(function(key) {
+                            return {
+                                label: data[key],
+                                value: data[key],
+                                id: key
+                            };
+                        });
+                        response(transformedData); // Populate autocomplete suggestions with label, value, and id
+                    }
+                });
+            },
+            minLength: 2, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                $('#selectedId').val(ui.item.id);
+            }
+        });
+    })
 </script>
 
 @endsection
