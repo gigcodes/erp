@@ -43,6 +43,7 @@ use App\UserFeedbackCategorySopHistoryComment;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 use App\Models\UserDatabaseLog;
 use App\Models\UserScheduleRequest;
+use App\Models\UserScheduleStatus;
 
 class UserManagementController extends Controller
 {
@@ -112,6 +113,19 @@ class UserManagementController extends Controller
         $userLists = User::orderBy('name')->where('is_active', 1)->pluck('name', 'id');
 
         return view('usermanagement::index', compact('title', 'permissionRequest', 'statusList', 'usersystemips', 'userlist', 'whatsapp', 'servers', 'userLists'));
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = UserScheduleStatus::find($key);
+            $bugstatus->color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function getUserList(Request $request)
@@ -2178,17 +2192,43 @@ class UserManagementController extends Controller
     {
         $statusList = \DB::table('task_statuses')->pluck('name', 'name')->prepend('Please select', '');
 
+        $status = UserScheduleStatus::all();
+
         return view('usermanagement::user-schedules.index', [
             'title' => 'User Schedules',
             'urlLoadData' => route('user-management.user-schedules.load-data'),
             'statusList' => $statusList,
-
+            'status' => $status,
             'listUsers' => User::dropdown([
                 'is_active' => 1,
             ]),
 
         ]);
     }
+
+    public function addNewRequest(Request $request)
+    {
+        $UserScheduleRequest = new UserScheduleRequest;
+        $UserScheduleRequest->user_id = $request->user_id;
+        $UserScheduleRequest->request_date = $request->request_date;
+        $UserScheduleRequest->request_status = 'requested';
+        $UserScheduleRequest->save();
+
+        return $UserScheduleRequest;
+    }
+
+    public function updateRequest(Request $request)
+    {   
+        $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $request->user_id)->where('request_date', '=', $request->request_date)->orderBy('id', 'DESC')->first();
+
+        $UserScheduleRequested->request_status = $request->request_status;
+        $UserScheduleRequested->updated_by = Auth::id();
+        $UserScheduleRequested->update();
+
+        return $UserScheduleRequested;
+    }
+
+    
 
     public function userSchedulesLoadData()
     {
@@ -2423,6 +2463,9 @@ class UserManagementController extends Controller
                                     $taskArray = [];
                                     $devtaskArray = [];
                                     $plusIconArray = [];
+                                    $avaibilityGreenTask =[];
+                                    $avaibilityYellowTask =[];
+                                    $avaibilityOrangeTask =[];
 
                                     if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END', 'PAST'])) {
                                         $ut_array = [];
@@ -2435,7 +2478,7 @@ class UserManagementController extends Controller
                                             $slotdate = date("Y-m-d", strtotime($slot['st']));
 
                                             if($todaydate==$slotdate || $pastdate==$slotdate){
-                                                
+
                                                 if (!empty($slot['userTasks'])) {
                                                     foreach ($slot['userTasks'] as $ut) {
 
@@ -2478,6 +2521,15 @@ class UserManagementController extends Controller
                                                         // foreach ($ut as $t) {
                                                         //     dd($ut);
                                                         // }
+                                                    }
+                                                } else {
+                                                
+                                                    if($todaydate==$slotdate){
+                                                        $avaibilityYellowTask[] = $slot['st'];
+                                                    }
+
+                                                    if($pastdate==$slotdate){
+                                                        $avaibilityOrangeTask[] = $slot['st'];
                                                     }
                                                 }
                                                 // $generalTaskID = [];
@@ -2565,6 +2617,8 @@ class UserManagementController extends Controller
                                                         //     dd($ut);
                                                         // }
                                                     }
+                                                } else {
+                                                    $avaibilityOrangeTask[] = $slot['st'];
                                                 }
                                                 // $generalTaskID = [];
                                                 // if (isset($slot['taskIds'])) {
@@ -2607,13 +2661,23 @@ class UserManagementController extends Controller
 
                                                     $display[] = '<s> (' . $slot['slot_type'] . ')</s>';
 
-                                                    $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funPastSlotAssignModal(this);" style="color:gray;"><i class="fa fa-plus" aria-hidden="true"></i></a>';
+                                                    if (!Auth::user()->isAdmin()) {
+                                                        $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $user['id'])->where('request_date', '=', $date)->orderBy('id', 'DESC')->first();
 
+                                                        if(!empty($UserScheduleRequested)){
+
+                                                            if($UserScheduleRequested->request_status=='accepted'){
+                                                                $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);"><i class="fa fa-plus" aria-hidden="true"></i></a>';            
+                                                            }
+                                                        }
+                                                    } else {
+                                                        $plusIconArray[] = ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotAssignModal(this);" ><i class="fa fa-plus" aria-hidden="true"></i></a>';    
+                                                    }
                                                 }
                                             }
 
                                         } else{
-                                        
+
                                             if (!empty($slot['userTasks'])) {
                                                 foreach ($slot['userTasks'] as $ut) {
 
@@ -2657,6 +2721,10 @@ class UserManagementController extends Controller
                                                     //     dd($ut);
                                                     // }
                                                 }
+                                            } else {
+                                                if (in_array($slot['type'], ['AVL'])) {
+                                                    $avaibilityGreenTask[] = $slot['st'];
+                                                }
                                             }
                                             // $generalTaskID = [];
                                             // if (isset($slot['taskIds'])) {
@@ -2681,7 +2749,7 @@ class UserManagementController extends Controller
                                                 foreach ($slot['taskIds'] as $taskId => $taskRow) {
                                                     $title[] = $taskId . ' - (' . $taskRow['status2'] . ')';
                                                 }
-                                                $title = implode(PHP_EOL, $title);
+                                                $title = implode(PHP_EOL, $title);                                                
                                             }
 
                                             if ($slot['type'] == 'SMALL-LUNCH') {
@@ -2765,7 +2833,40 @@ class UserManagementController extends Controller
 
                                     //$divSlots[] = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display . '</div><div class="div-slot ' . $class . '" title="' . $title . '" >' . $displayManually . '</div>';
 
-                                    $divSlotsVar = '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display .'</div>';
+                                    /*$green = '';
+                                    $yellow = '';
+                                    $orange = '';
+                                    if(!empty($avaibilityGreenTask)){
+                                        $green = 'green';
+                                    }
+
+                                    if(!empty($avaibilityYellowTask)){
+                                        $yellow = 'yellow';
+                                    }
+
+                                    if(!empty($avaibilityOrangeTask)){
+                                        $orange = 'orange';
+                                    }*/
+
+                                    $colorVar = '';                                    
+                                    if(!empty($avaibilityGreenTask)){
+                                        $colorVar = 'greenClass';
+                                    }
+
+                                    if(!empty($avaibilityYellowTask)){
+                                        $colorVar = 'yellowClass';
+                                    }
+
+                                    if(!empty($avaibilityOrangeTask)){
+                                        $colorVar = 'orangeClass';
+                                    }
+
+                                    $divSlotsVar = '<div class="'.$colorVar.'">';
+                                    
+                                    //$divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display .' '.$green.' '.$yellow.' '.$orange.'</div>';
+
+                                    $divSlotsVar .= '<div class="div-slot ' . $class . '" title="' . $title . '" >' . $display .'</div>';
+
                                     if(!empty($displayManually)){
                                         $divSlotsVar .= '<div class="div-slot ' . $class . '" style="color:blue !important" title="' . $title . '" >' . $displayManually .'</div>';
                                     }
@@ -2780,7 +2881,7 @@ class UserManagementController extends Controller
                                             $divSlotsVar .= ' <a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-slot="' . date('H:i', strtotime($slot['new_st'] ?? $slot['st'])) . '" onclick="funSlotMoveModal(this);" data-tasks="' . implode(", ", $taskArray) . '" data-dev_tasks="' . implode(", ", $devtaskArray) . '" title="Move Task"><i class="fa fa-exchange" aria-hidden="true"></i></a>';    
                                         }
                                     }
-                                    $divSlotsVar .= '</div>';
+                                    $divSlotsVar .= '</div></div>';
 
                                     $divSlots[] = $divSlotsVar;
                                     
@@ -2799,7 +2900,34 @@ class UserManagementController extends Controller
                                 
                                 $dateContent = $date;
                                 if($pastdatesend > $date){
-                                    $dateContent .= '</br><a href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" id="send-request-date" title="Send Request To Edit Task"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>';
+
+                                    $UserScheduleRequested = UserScheduleRequest::where('user_id', '=', $user['id'])->where('request_date', '=', $date)->orderBy('id', 'DESC')->first();
+
+                                    $requested = '';
+                                    if(!empty($UserScheduleRequested)){
+                                        $requested = $UserScheduleRequested->request_status;
+                                    }
+
+                                    if (!Auth::user()->isAdmin()) {
+                                        $dateContent .= '</br><a style="padding: 2px;" class="btn btn-primary" href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-requested="' . $requested . '" id="send-request-date" title="Send Request To Edit Task"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>';
+
+                                        if($requested=='accepted'){
+                                            $dateContent .= '</br><span style="color:green"> Request '.$requested.'. You can add task to the slot.</span>';
+                                        }
+                                    } else {
+
+                                        if(!empty($requested)){
+                                            $dateContent .= '</br><a style="padding: 0px;" class="btn btn-success send-request-date-admin" href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-requested="' . $requested . '" data-status="accepted" class="" title="Accepet Request To Edit Task"><i class="fa fa-check" aria-hidden="true"></i></a>';
+
+                                            $dateContent .= '<a style="padding: 0px 2px; margin-left: 5px;" class="btn btn-danger send-request-date-admin" href="javascript:void(0);" data-user_id="' . $user['id'] . '" data-date="' . $date . '" data-requested="' . $requested . '" data-status="denied" title="Denied Request To Edit Task"><i class="fa fa-times" aria-hidden="true"></i></a>';
+
+                                            if($requested=='accepted'){
+                                                $dateContent .= '</br><span style="color:green"> Request '.$requested.'.</span>';
+                                            } else if($requested=='denied'){
+                                                $dateContent .= '</br><span  style="color:red"> Request '.$requested.'.</span>';
+                                            }                                            
+                                        }
+                                    }
                                 }
                                 $data[$usertemp]['date'] = $dateContent;
 
