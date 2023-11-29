@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\DeveloperModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Task;
+use DB;
 
 class ManageModulesController extends Controller
 {
@@ -31,9 +33,15 @@ class ManageModulesController extends Controller
             });
         }
 
-        $records = $records->groupBy('developer_modules.id');
+        /*$records = $records->groupBy('developer_modules.id');
 
-        $records = $records->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])->get();
+        $records = $records->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])->get();*/
+
+        $records = $records->whereNull('dt.deleted_at') // Adding condition for deleted_at being null
+            ->groupBy('developer_modules.id')
+            ->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])
+            ->get();
+
 
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
@@ -233,5 +241,36 @@ class ManageModulesController extends Controller
         }
 
         return $DeveloperModule;
+    }
+
+    public function taskCount($module_id, $search_keyword = '')
+    {
+        $taskStatistics['Devtask'] = \App\DeveloperTask::where('module_id', $module_id)->select();
+
+        $query = \App\DeveloperTask::leftjoin('users', 'users.id', 'developer_tasks.assigned_to')->where('module_id', $module_id)->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+
+        if(!empty($search_keyword)){
+            if($search_keyword!='search'){
+                $query = $query->where(function ($q) use ($search_keyword) {
+                    $q->where('developer_tasks.id', 'LIKE', "%$search_keyword%");
+                    $q->orWhere('users.name', 'LIKE', "%$search_keyword%");
+                    $q->orWhere('developer_tasks.status', 'LIKE', "%$search_keyword%");
+                    $q->orWhere('developer_tasks.task', 'LIKE', "%$search_keyword%");
+                });
+            }
+        }
+
+        $taskStatistics = $query->get();
+        /*//print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);*/
+
+        $merged = $taskStatistics;
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
 }
