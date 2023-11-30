@@ -41,6 +41,7 @@ class ProductPriceController extends Controller
         $filter_data = $request->input();
         $skip = empty($request->page) ? 0 : $request->page;
 
+        $product_list = [];
         if(!empty($request->selectedId)){
 
             $products = \App\StoreWebsite::where('store_websites.is_published', 1)
