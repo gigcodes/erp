@@ -2194,16 +2194,55 @@ class UserManagementController extends Controller
 
         $status = UserScheduleStatus::all();
 
+        $userType = 0; //user
+        if (Auth::user()->isAdmin()) {
+            $userType = 1; //admin
+        }
+
+        $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
+
         return view('usermanagement::user-schedules.index', [
             'title' => 'User Schedules',
             'urlLoadData' => route('user-management.user-schedules.load-data'),
             'statusList' => $statusList,
+            'userType' => $userType,
+            'allUsers' => $allUsers,
             'status' => $status,
             'listUsers' => User::dropdown([
                 'is_active' => 1,
             ]),
 
         ]);
+    }
+
+    public function taskCount($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
+    }
+
+    public function taskCountAdmin($site_developement_id)
+    {
+        $taskStatistics['Devtask'] = DeveloperTask::where('subject', 'LIKE', '%User Schedules Page - %')->where('status', '!=', 'Done')->select();
+
+        $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('subject', 'LIKE', '%User Schedules Page - %')->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+        
+        $merged = $taskStatistics;
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
 
     public function addNewRequest(Request $request)
