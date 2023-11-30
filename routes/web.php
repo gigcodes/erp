@@ -2662,6 +2662,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     // Vendor Module
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');
+    Route::post('vendors/storeshortcut', [VendorController::class, 'storeshortcut'])->name('vendors.storeshortcut');
     Route::post('vendors/reply/add', [VendorController::class, 'addReply'])->name('vendors.reply.add');
     Route::get('vendors/reply/delete', [VendorController::class, 'deleteReply'])->name('vendors.reply.delete');
     Route::post('vendors/send/emailBulk', [VendorController::class, 'sendEmailBulk'])->name('vendors.email.send.bulk');
@@ -2678,11 +2679,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::put('vendors/{vendor}/payments/{vendor_payment}', [VendorPaymentController::class, 'update'])->name('vendors.payments.update');
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', [VendorPaymentController::class, 'destroy'])->name('vendors.payments.destroy');
     Route::resource('vendors', VendorController::class);
+    Route::post('vendors/statuscolor', [VendorController::class, 'statuscolor'])->name('vendors.statuscolor');
     Route::post('vendors/update-status', [VendorController::class, 'updateStatus'])->name('vendor.status.update');
     Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
     Route::post('vendors/update-meeting-description', [VendorController::class, 'updateMeetingDescription'])->name('vendor.meeting.update');
     Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
     Route::post('vendors/sync-meetings-recordings', [VendorController::class, 'syncMeetingsRecordings'])->name('vendor.meetings.recordings.sync');
+    Route::post('vendors/column-visbility', [VendorController::class, 'columnVisbilityUpdate'])->name('vendors.column.update');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');

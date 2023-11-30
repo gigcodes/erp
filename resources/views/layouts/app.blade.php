@@ -1545,6 +1545,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa fa-user-plus fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
                             </ul>                         
@@ -5361,6 +5366,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         @include('partials.modals.add-vochuers-modal')
         @include('partials.modals.view-all-participants')
         @include('partials.modals.list-code-shortcode-title')
+        @include('vendors.partials.vendor-shortcut-modals')
 
         <div id="menu-file-upload-area-section" class="modal fade" role="dialog">
             <div class="modal-dialog">

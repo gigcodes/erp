@@ -254,10 +254,15 @@
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
         @endif
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newPositionModal">Create Positions</a>
+
+        <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+        <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorsdatatablecolumnvisibilityList">Column Visiblity</button>
     </div>
 </div>
 
 @include('partials.flash_messages')
+@include("vendors.partials.modal-status-color")
+@include("vendors.partials.column-visibility-modal")
 
 <div class="row">
     <div class="col-md-12">
@@ -301,15 +306,58 @@
         <table class="table table-bordered" id="vendor-table" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
-                    <th width="5%">WhatsApp</th>
-                    <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
-                    <th width="7%">Status</th>
-                    <th width="6%">Name</th>
-                    <th width="4%">Phone</th>
-                    <th width="5%">Email</th>
-                    <th width="21%">Communication</th>
-                    <th width="16%">Action</th>
+                    @if(!empty($dynamicColumnsToShowVendors))
+                        @if (!in_array('ID', $dynamicColumnsToShowVendors))
+                            <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                        @endif
+
+                        @if (!in_array('WhatsApp', $dynamicColumnsToShowVendors))
+                            <th width="5%">WhatsApp</th>
+                        @endif
+
+                        @if (!in_array('Category', $dynamicColumnsToShowVendors))
+                            <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                        @endif
+
+                        @if (!in_array('Status', $dynamicColumnsToShowVendors))
+                            <th width="7%">Status</th>
+                        @endif
+
+                        @if (!in_array('Name', $dynamicColumnsToShowVendors))
+                            <th width="6%">Name</th>
+                        @endif
+
+                        @if (!in_array('Phone', $dynamicColumnsToShowVendors))
+                            <th width="4%">Phone</th>
+                        @endif
+
+                        @if (!in_array('Email', $dynamicColumnsToShowVendors))
+                            <th width="5%">Email</th>
+                        @endif
+
+                        @if (!in_array('Communication', $dynamicColumnsToShowVendors))
+                            <th width="21%">Communication</th>
+                        @endif
+
+                        @if (!in_array('Remarks', $dynamicColumnsToShowVendors))
+                            <th width="8%">Remarks</th>
+                        @endif
+
+                        @if (!in_array('Action', $dynamicColumnsToShowVendors))
+                            <th width="3%">Action</th>
+                        @endif
+                    @else
+                        <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                        <th width="5%">WhatsApp</th>
+                        <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                        <th width="7%">Status</th>
+                        <th width="6%">Name</th>
+                        <th width="4%">Phone</th>
+                        <th width="5%">Email</th>
+                        <th width="21%">Communication</th>
+                        <th width="8%">Remarks</th>
+                        <th width="3%">Action</th>
+                    @endif
                 </tr>
             </thead>
 
@@ -1712,5 +1760,8 @@
             $('#createVendorForm').unbind().submit();
         }
     });
+    function Showactionbtn(id){
+      $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
 </script>
 @endsection

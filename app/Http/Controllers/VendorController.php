@@ -35,6 +35,7 @@ use App\VendorStatusHistory as VSHM;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class VendorController extends Controller
 {
@@ -228,6 +229,7 @@ class VendorController extends Controller
                     vendors.reminder_last_reply,
                     vendors.status,
                     vendors.whatsapp_number,
+                    vendors.remark,
                     category_name,
                   chat_messages.message_id
                   FROM vendors
@@ -292,16 +294,28 @@ class VendorController extends Controller
 
         $whatsapp = DB::select('SELECT number FROM whatsapp_configs WHERE status = 1 '); // and provider="Chat-API"
 
+        $status = VendorStatus::all();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-listing')->first();
+
+        $dynamicColumnsToShowVendors = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
+        }
+
         return view('vendors.index', [
             'vendors' => $vendors,
             'vendor_categories' => $vendor_categories,
             'term' => $term,
             'orderby' => $orderby,
             'users' => $users,
+            'status' => $status,
             'replies' => $replies,
             'updatedProducts' => $updatedProducts,
             'totalVendor' => $totalVendor,
             'statusList' => $statusList,
+            'dynamicColumnsToShowVendors' => $dynamicColumnsToShowVendors,
             'whatsapp' => $whatsapp,
         ]);
     }
@@ -1558,5 +1572,180 @@ class VendorController extends Controller
         \Artisan::call('zoom:meetings-sync');
 
         return redirect()->back();
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $status_vendor = VendorStatus::find($key);
+            $status_vendor->color = $value;
+            $status_vendor->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function storeshortcut(Request $request)
+    {
+        $rules =  [
+            'category_id' => 'sometimes|nullable|numeric',
+            'name' => 'required|string|max:255',
+            //'phone' => 'required|nullable|numeric',
+            'email' => 'sometimes|nullable|email',
+            'gmail' => 'sometimes|nullable|email',
+            'website' => 'sometimes|nullable',
+        ];
+        $vendorCount = !empty($request['vendor_name']) ? count($request['vendor_name']) : 0;
+        $vendorRules = $vendorData = [];
+        $inputs = $request->all();
+        if ($vendorCount !== "") {
+            $vendorRules = [
+                "vendor_name"    => "sometimes|array",
+                "vendor_name.*"  => "sometimes|string|max:255",
+                "vendor_email"    => "sometimes|array",
+                "vendor_email.*"  => "sometimes|nullable|email",
+                "vendor_gmail"    => "sometimes|array",
+                "vendor_gmail.*"  => "sometimes|nullable|email",
+            ];
+            for ($i = 0; $i < $vendorCount; $i++) {
+                $vendorData[$i]['category_id'] = $request["category_id"];
+                $vendorData[$i]['name'] = $request['vendor_name'][$i];
+                $vendorData[$i]['email'] = $request['vendor_email'][$i];
+                $vendorData[$i]['gmail'] = $request['vendor_gmail'][$i];
+            }
+        }
+        $rules = array_merge($rules, $vendorRules);
+        $this->validate($request, $rules);
+
+        $source = $request->get('source', '');
+        $data = $request->except(['_token', 'create_user']);
+
+        if (empty($data['whatsapp_number'])) {
+            //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+            //get default whatsapp number for vendor from whatsapp config
+            $task_info = DB::table('whatsapp_configs')
+                ->select('*')
+                ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
+                ->first();
+            if (isset($task_info->number) && $task_info->number != null) {
+                $data['whatsapp_number'] = $task_info->number;
+            }
+        }
+
+        if (empty($data['default_phone'])) {
+            $data['default_phone'] = $data['phone'];
+        }
+
+        if (!empty($source)) {
+            $data['status'] = 0;
+        }
+        $mainVendorData[0] = $data;
+        $existArray = [];
+        $sourceStatus = $validateStatus = false;
+        $inputsData = array_merge($mainVendorData, $vendorData);
+        foreach ($inputsData as $key => $data) {
+            Vendor::create($data);
+
+            if ($request->create_user == 'on') {
+                if ($data['email'] != null) {
+                    $userEmail = User::where('email', $data['email'])->first();
+                } else {
+                    $userEmail = null;
+                }
+                if ($key == 0) {
+                    $userPhone = User::where('phone', $data['phone'])->first();
+                }
+                if ($userEmail == null) {
+                    $user = new User;
+                    $user->name = str_replace(' ', '_', $data['name']);
+                    if ($data['email'] == null) {
+                        $email = str_replace(' ', '_', $data['name']) . '@solo.com';
+                    } else {
+                        // $email = explode('@', $data['email']);
+                        // $email = $email[0] . '@solo.com';
+                        $email = $data['email'];
+                    }
+                    $password = Str::random(10);
+                    $user->email = $email;
+                    $user->gmail = $data['gmail'];
+                    $user->password = Hash::make($password);
+                    $user->phone = !empty($data['phone']) ? $data['phone'] : null;
+
+                    // check the default whatsapp no and store it
+                    $whpno = \DB::table('whatsapp_configs')
+                        ->select('*')
+                        ->whereRaw('find_in_set(4,default_for)')
+                        ->first();
+                    if ($whpno) {
+                        $user->whatsapp_number = $whpno->number;
+                    }
+
+                    $user->save();
+                    $role = Role::where('name', 'Developer')->first();
+                    $user->roles()->sync($role->id);
+                    $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.theluxuryunlimited.com/ username: ' . $email . ' password:  ' . $password . '';
+                    if ($key == 0) {
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($data['phone'], $user->whatsapp_number, $message);
+                    }
+                } else {
+                    if (!empty($source)) {
+                        $sourceStatus = true;
+                    }
+                    $validateStatus = true;
+                    $existArray[] = $data['name'];
+                }
+            }
+        }
+        if ($sourceStatus) {
+            return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+        }
+        $existArrayString = '';
+        if ($validateStatus) {
+            if (!empty($existArray)) {
+                $existArrayString = '(' . implode(",", $existArray) . ')';
+            }
+            return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User ' . $existArrayString . ', Email or Phone Already Exist');
+        }
+
+        $isInvitedOnGithub = false;
+        if ($request->create_user_github == 'on' && isset($request->email) && isset($request->organization_id)) {
+            //has requested for github invitation
+            $isInvitedOnGithub = $this->sendGithubInvitaion($request->email, $request->organization_id);
+        }
+
+        $isInvitedOnHubstaff = false;
+        if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
+            //has requested hubstaff invitation
+            $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
+        }
+
+        if (!empty($source)) {
+            return redirect()->back()->withSuccess('You have successfully saved a vendor!');
+        }
+
+        return back()->with('success', 'You have successfully saved a vendor!');
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'vendors-listing';
+            $column->column_name = json_encode($request->column_vendors); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'vendors-listing';
+            $column->column_name = json_encode($request->column_vendors); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 }
