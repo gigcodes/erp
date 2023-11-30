@@ -27,7 +27,14 @@
 <div class = "row m-0">
     <div class="pl-3 pr-3 margin-tb">
         <div class="pull-left cls_filter_box">
+
             <form id="form1" class="form-inline filter_form" action="" method="GET">
+
+                <div class="form-group mr-3">
+                    <input type="text" name="term" value="{{ request('term') }}" id="searchInput" class="form-control" placeholder="Enter Product Or SKU">
+                    <input type="hidden" id="selectedId" name="selectedId" value="{{ request('selectedId') }}">
+                </div>
+
                 <div class="form-group mr-3">
                     <select class="form-control globalSelect2" data-placeholder="Select Category" name="id" id="categoryForGenericPrices">
                     <option value="">Select Category</option>       
@@ -164,7 +171,7 @@ function showgenerice() {
 }
 
     var isLoading = false;
-    var page = 1;
+    var page = 0;
     $(document).ready(function () {
         
         $(window).scroll(function() {
@@ -444,6 +451,34 @@ $(document).on('click', '.UpdateProduct', function () {
     });
 });
 
+$(document).ready(function($) {
+    $("#searchInput").autocomplete({
+        source: function(request, response) {
+            // Send an AJAX request to the server-side script
+            $.ajax({
+                url: '{{ route('product.generic_autocomplete') }}',
+                dataType: 'json',
+                data: {
+                    term: request.term // Pass user input as 'term' parameter
+                },
+                success: function (data) {
+                    var transformedData = Object.keys(data).map(function(key) {
+                        return {
+                            label: data[key],
+                            value: data[key],
+                            id: key
+                        };
+                    });
+                    response(transformedData); // Populate autocomplete suggestions with label, value, and id
+                }
+            });
+        },
+        minLength: 2, // Minimum characters before showing suggestions
+        select: function(event, ui) {
+            $('#selectedId').val(ui.item.id);
+        }
+    });
+})
 </script>
 
 @endsection

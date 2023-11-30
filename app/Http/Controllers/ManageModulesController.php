@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\DeveloperModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Task;
+use DB;
 
 class ManageModulesController extends Controller
 {
@@ -31,9 +33,15 @@ class ManageModulesController extends Controller
             });
         }
 
-        $records = $records->groupBy('developer_modules.id');
+        /*$records = $records->groupBy('developer_modules.id');
 
-        $records = $records->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])->get();
+        $records = $records->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])->get();*/
+
+        $records = $records->whereNull('dt.deleted_at') // Adding condition for deleted_at being null
+            ->groupBy('developer_modules.id')
+            ->select(['developer_modules.*', \DB::raw('count(dt.id) as total_task')])
+            ->get();
+
 
         return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
@@ -42,9 +50,20 @@ class ManageModulesController extends Controller
     {
         $post = $request->all();
 
-        $validator = Validator::make($post, [
-            'name' => 'required',
-        ]);
+        $id = $request->get('id', 0);
+
+        $records = DeveloperModule::find($id);
+
+        if (! $records) {
+            $records = new DeveloperModule;
+            $validator = Validator::make($post, [            
+                'name' => 'required|min:1|unique:developer_modules,name,NULL,id,deleted_at,NULL'
+            ]);            
+        } else {
+            $validator = Validator::make($post, [            
+                'name' => 'required|unique:developer_modules,name,'.$records->id.',id',
+            ]);
+        }
 
         if ($validator->fails()) {
             $outputString = '';
@@ -56,14 +75,6 @@ class ManageModulesController extends Controller
             }
 
             return response()->json(['code' => 500, 'error' => $outputString]);
-        }
-
-        $id = $request->get('id', 0);
-
-        $records = DeveloperModule::find($id);
-
-        if (! $records) {
-            $records = new DeveloperModule;
         }
 
         $records->fill($post);
@@ -205,5 +216,61 @@ class ManageModulesController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => [], 'messages' => 'Module has been merged successfully']);
+    }
+
+    public function removeDeveloperModules()
+    {
+        $modules = DeveloperModule::groupBy('name')->orderBy('id', 'ASC')->get();
+
+        $DeveloperModule = [];
+        if(!empty($modules)){
+            foreach ($modules as $key => $value) {
+                $otherModules = [];
+                $otherModules = DeveloperModule::where('name', $value['name'])->where('id', '!=', $value['id'])->pluck('id')->toArray();
+
+                if(!empty($otherModules)){
+                    $DeveloperModule[$key] = $value;
+                    $DeveloperModule[$key]['other_modules'] = $otherModules;
+
+                    $allMergeModule = \App\DeveloperTask::whereIn('module_id', $otherModules)->update(['module_id' => $value['id']]);
+
+                    \App\DeveloperModule::whereIn('id', $otherModules)->delete();
+
+                }
+            }
+        }
+
+        return $DeveloperModule;
+    }
+
+    public function taskCount($module_id, $search_keyword = '')
+    {
+        $taskStatistics['Devtask'] = \App\DeveloperTask::where('module_id', $module_id)->select();
+
+        $query = \App\DeveloperTask::leftjoin('users', 'users.id', 'developer_tasks.assigned_to')->where('module_id', $module_id)->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+
+        if(!empty($search_keyword)){
+            if($search_keyword!='search'){
+                $query = $query->where(function ($q) use ($search_keyword) {
+                    $q->where('developer_tasks.id', 'LIKE', "%$search_keyword%");
+                    $q->orWhere('users.name', 'LIKE', "%$search_keyword%");
+                    $q->orWhere('developer_tasks.status', 'LIKE', "%$search_keyword%");
+                    $q->orWhere('developer_tasks.task', 'LIKE', "%$search_keyword%");
+                });
+            }
+        }
+
+        $taskStatistics = $query->get();
+        /*//print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);*/
+
+        $merged = $taskStatistics;
+
+        return response()->json(['code' => 200, 'taskStatistics' => $merged]);
     }
 }

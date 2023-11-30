@@ -57,6 +57,7 @@ use App\Models\DeveloperTaskStatusChecklist;
 use App\Models\DeveloperTaskStatusChecklistRemarks;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
+use App\UserAvaibility;
 
 class DevelopmentController extends Controller
 {
@@ -1082,6 +1083,223 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function summaryListDev(Request $request)
+    {
+        //$request->request->add(["order" => $request->get("order","communication_desc")]);
+        // Load issues
+        $type = $request->tasktype ? $request->tasktype : 'all';
+
+        $title = 'Task List';
+
+        $issues = DeveloperTask::with('timeSpent');
+        if ($type == 'issue') {
+            $issues = $issues->where('developer_tasks.task_type_id', '3');
+        }
+        if ($type == 'devtask') {
+            $issues = $issues->where('developer_tasks.task_type_id', '1');
+        }
+        if ((int) $request->get('submitted_by') > 0) {
+            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
+        }
+        if ((int) $request->get('responsible_user') > 0) {
+            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
+        }
+
+        if ((int) $request->get('corrected_by') > 0) {
+            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
+        }
+
+        if ((int) $request->get('assigned_to') > 0) {
+            $issues = $issues->whereIn('developer_tasks.assigned_to', $request->get('assigned_to'));
+        }
+        if ((int) $request->get('lead') > 0) {
+            $issues = $issues->whereIn('developer_tasks.master_user_id', $request->get('lead'));
+        }
+        if ($request->get('module')) {
+            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
+        }
+        if (! empty($request->get('task_status', []))) {
+            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
+        } else {
+            $issues = $issues->where('developer_tasks.status', 'In Progress');
+        }
+
+        $whereCondition = '';
+        if ($request->get('subject') != '') {
+            $subject = explode(',', $request->get('subject'));
+            foreach ($subject as $termSubject) {
+                $whereCondition .= ' and message like  "%' . $request->get('subject') . '%"';
+            }
+            $issues = $issues->where(function ($query) use ($subject) {
+                $query->whereIn('developer_tasks.id', $subject)
+                ->orWhere(function ($query) use ($subject) {
+                    foreach ($subject as $termSubject) {
+                        $query->orWhere('subject', 'like', "%$termSubject%")->orWhere('task', 'like', "%$termSubject%")->orWhere('chat_messages.message', 'LIKE', "%$termSubject%");
+                    }
+                });
+            });
+        }
+        // if ($request->get('language') != '') {
+        //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
+        // }
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+
+        if ($request->get('last_communicated', 'off') == 'on') {
+            $issues = $issues->orderBy('chat_messages.id', 'desc');
+        }
+        if ($request->get('unread_messages', 'off') == 'unread') {
+            $issues = $issues->where('chat_messages.sent_to_user_id', Auth::user()->id);
+        }
+
+        $issues = $issues->select('developer_tasks.*', 'chat_messages.message', 'chat_messages.sent_to_user_id');
+
+        // Set variables with modules and users
+        $modules = DeveloperModule::orderBy('name')->get();
+
+        $users = Helpers::getUserArray(User::orderBy('name')->get());
+
+        // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
+
+        $statusList = \DB::table('task_statuses')->select('name')->orderBy('name')->pluck('name', 'name')->toArray();
+
+        $statusList = array_merge([
+            '' => 'Select Status',
+        ], $statusList);
+
+        // Hide resolved
+        /*if ((int)$request->show_resolved !== 1) {
+            $issues = $issues->where('is_resolved', 0);
+        }*/
+        if (! auth()->user()->isReviwerLikeAdmin()) {
+            // $issues = $issues->where(function ($q) {
+            //     $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
+            // });
+
+            $issues = $issues->where(function ($query) {
+                $query->where('developer_tasks.assigned_to', auth()->user()->id)
+                    ->orWhere('developer_tasks.master_user_id', auth()->user()->id);
+            });
+        }
+
+        /*$issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->whereIn('developer_tasks.status', ['Planned', 'In Progress'])->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to", "developer_tasks.status"])->pluck("total_product", "assigned_to", "status")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
+
+        $countPlanned = [];
+        $countInProgress = [];
+        if (!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                if ($count->status == 'Planned') {
+                    $countPlanned[] = [
+                        "id" => $key,
+                        "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                } else {
+                    $countInProgress[] = [
+                        "id" => $key,
+                        "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                }
+
+            }
+        }*/
+
+        // category filter start count
+        $issuesGroups = clone $issues;
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+
+        $countPlanned = [];
+        if (! empty($issuesGroups) && ! empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countPlanned[] = [
+                    'id' => $key,
+                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'count' => $count,
+                ];
+            }
+        }
+        // category filter start count
+        $issuesGroups = clone $issues;
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy('developer_tasks.assigned_to')->select([\DB::raw('count(developer_tasks.id) as total_product'), 'developer_tasks.assigned_to'])->pluck('total_product', 'assigned_to')->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+
+        $userModel = \App\User::whereIn('id', $userIds)->pluck('name', 'id')->toArray();
+        $countInProgress = [];
+        if (! empty($issuesGroups) && ! empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countInProgress[] = [
+                    'id' => $key,
+                    'name' => ! empty($userModel[$key]) ? $userModel[$key] : 'N/A',
+                    'count' => $count,
+                ];
+            }
+        }
+
+        // Sort
+        if ($request->order == 'priority') {
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+        } elseif ($request->order == 'latest_task_first') {
+            $issues = $issues->orderBy('developer_tasks.id', 'DESC');
+        } else {
+            $issues = $issues->orderBy('chat_messages.id', 'desc');
+        }
+
+        $issues = $issues->with('communications');
+
+        // return $issues = $issues->limit(20)->get();
+        $issues = $issues->paginate(Setting::get('pagination'));
+        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
+        // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
+
+        //Get all searchable user list
+        $userslist = null;
+        if ((int) $request->get('assigned_to') > 0) {
+            $userslist = User::whereIn('id', $request->get('assigned_to'))->get();
+        }
+
+        $time_doctor_projects = \App\TimeDoctor\TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name')->get()->toArray();
+
+        if (request()->ajax()) {
+            return view('development.partials.summarydatas', [
+                'issues' => $issues,
+                'users' => $users,
+                'modules' => $modules,
+                'request' => $request,
+                'title' => $title,
+                'type' => $type,
+                'priority' => $priority,
+                'countPlanned' => $countPlanned,
+                'countInProgress' => $countInProgress,
+                'statusList' => $statusList,
+                'userslist' => $userslist,
+                // 'languages' => $languages
+            ]);
+        }
+
+        return view('development.summarylistdev', [
+            'issues' => $issues,
+            'users' => $users,
+            'modules' => $modules,
+            'request' => $request,
+            'title' => $title,
+            'type' => $type,
+            'priority' => $priority,
+            'countPlanned' => $countPlanned,
+            'countInProgress' => $countInProgress,
+            'statusList' => $statusList,
+            'userslist' => $userslist,
+            'time_doctor_projects' => $time_doctor_projects,
+            // 'languages' => $languages
+        ]);
+    }
+
     public function searchDevTask(Request $request)
     {
         $id = $request->id;
@@ -2018,6 +2236,12 @@ class DevelopmentController extends Controller
         $data['priority'] = 0;
         $data['hubstaff_task_id'] = 0;
         $data['repository_id'] = request('repository_id');
+
+        $slotAvailable = $this->userSchedulesLoadData($request->get('assigned_to'));
+        $data['status'] = 'Planned';
+        $data['start_date'] = $slotAvailable['st'];
+        $data['estimate_date'] = $slotAvailable['en'];
+
         $task = $this->developerTaskCreate($data);
 
         if (request('need_review_task')) {
@@ -2370,7 +2594,8 @@ class DevelopmentController extends Controller
     public function moduleStore(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|string|min:3',
+            //'name' => 'required|string|min:3',
+            'name' => 'required|min:1|unique:developer_modules,name,NULL,id,deleted_at,NULL'
         ]);
         $data = $request->except('_token');
         DeveloperModule::create($data);
@@ -2790,6 +3015,12 @@ class DevelopmentController extends Controller
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
 
+        $slotAvailable = $this->userSchedulesLoadData($request->get('assigned_to'));
+
+        $issue->status = 'Planned';
+        $issue->start_date = $slotAvailable['st'];
+        $issue->estimate_date = $slotAvailable['en'];
+
         $user = User::find($request->get('assigned_to'));
 
         if (! $user) {
@@ -2860,6 +3091,448 @@ class DevelopmentController extends Controller
         return response()->json([
             'status' => 'success',
         ]);
+    }
+
+    public function userSchedulesLoadData($user_id)
+    {
+        $usertemp = 0;
+        $count = 0;
+        $data = [];
+
+        $isPrint = ! request()->ajax();
+
+        // _p(hourlySlots('2022-08-10 10:10:00', '2022-08-10 15:15:00', '12:05:00'));
+        // exit;
+
+        $stDate = $start_date = date('Y-m-d');
+        $enDate = $start_date = date('Y-m-d', strtotime(' + 30 days'));;
+        if ($stDate && $enDate) {
+            $filterDates = dateRangeArr($stDate, $enDate);
+            $filterDatesNew = [];
+            foreach ($filterDates as $row) {
+                $filterDatesNew[$row['date']] = $row;
+            }
+
+            $q = User::query();
+            $q->leftJoin('user_avaibilities as ua', 'ua.user_id', '=', 'users.id');
+            $q->where('users.is_task_planned', 1);
+            $q->where('ua.is_latest', 1);
+            if (! isAdmin()) {
+                $q->where('users.id', loginId());
+            }
+            
+            $q->where('users.id', $user_id);
+            
+            if (request('is_active')) {
+                $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
+            }
+            $q->select([
+                'users.id',
+                'users.name',
+                \DB::raw('ua.id AS uaId'),
+                \DB::raw('ua.date AS uaDays'),
+                \DB::raw('ua.from AS uaFrom'),
+                \DB::raw('ua.to AS uaTo'),
+                \DB::raw('ua.start_time AS uaStTime'),
+                \DB::raw('ua.end_time AS uaEnTime'),
+                \DB::raw('ua.lunch_time AS uaLunchTime'),
+                \DB::raw('ua.lunch_time_from AS lunch_time_from'),
+                \DB::raw('ua.lunch_time_to AS lunch_time_to'),
+            ]);
+            $users = $q->get();
+            $count = $users->count();
+
+            // _p( getHourlySlots('2022-08-11 22:05:00', '2022-08-12 02:45:00') );
+            // exit;
+
+            if ($count) {
+                $filterDatesOnly = array_column($filterDates, 'date');
+
+                $userIds = [];
+
+                // _p($users->toArray(), 1);
+
+                // Prepare user's data
+                $userArr = [];
+                foreach ($users as $single) {
+                    $userIds[] = $single->id;
+                    if ($single->uaId) {
+                        $single->uaStTime = date('H:i:00', strtotime($single->uaStTime));
+                        $single->uaEnTime = date('H:i:00', strtotime($single->uaEnTime));
+                        $single->uaLunchTime = $single->uaLunchTime ? date('H:i:00', strtotime($single->uaLunchTime)) : '';
+
+                        $single->uaDays = $single->uaDays ? explode(',', str_replace(' ', '', $single->uaDays)) : [];
+                        $availableDates = UserAvaibility::getAvailableDates($single->uaFrom, $single->uaTo, $single->uaDays, $filterDatesOnly);
+                        $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $single->uaStTime, $single->uaEnTime, $single->uaLunchTime, $single);
+
+                        $userArr[] = [
+                            'id' => $single->id,
+                            'name' => $single->name,
+                            'uaLunchTime' => $single->uaLunchTime ? substr($single->uaLunchTime, 0, 5) : '',
+                            'uaId' => $single->uaId,
+                            'uaDays' => $single->uaDays,
+                            'availableDays' => $single->uaDays,
+                            'availableDates' => $availableDates,
+                            'availableSlots' => $availableSlots,
+                        ];
+                    } else {
+                        $userArr[] = [
+                            'id' => $single->id,
+                            'name' => $single->name,
+                            'uaLunchTime' => null,
+                            'uaId' => null,
+                            'uaDays' => [],
+                            'availableDays' => [],
+                            'availableDates' => [],
+                            'availableSlots' => [],
+                        ];
+                    }
+                }
+
+                // Get Tasks & Developer Tasks -- Arrange with End time & Mins
+                $tasksArr = [];
+                if ($userIds) {
+                    $tasksInProgress = $this->typeWiseTasks('IN_PROGRESS', [
+                        'userIds' => $userIds,
+                    ]);
+                    $tasksPlanned = $this->typeWiseTasks('PLANNED', [
+                        'userIds' => $userIds,
+                    ]);
+
+                    if ($tasksInProgress) {
+                        foreach ($tasksInProgress as $task) {
+                            $task->st_date = date('Y-m-d H:i:00', strtotime($task->st_date));
+
+                            if (! isset($task->en_date)) {
+                                $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+                            }
+                            // if ($task->en_date <= date('Y-m-d H:i:s')) {
+                            //     $task->en_date = date('Y-m-d H:i:00', strtotime('+1 hour'));
+                            //     $task->est_minutes = 60;
+                            // } else {
+                            //     // $task->est_minutes = ceil((strtotime($task->en_date) - $task->st_date) / 60);
+                            // }
+
+                            $tasksArr[$task->assigned_to][$task->status2][] = [
+                                'id' => $task->id,
+                                'typeId' => $task->type . '-' . $task->id,
+                                'stDate' => $task->st_date,
+                                'enDate' => $task->en_date,
+                                'status' => $task->status,
+                                'status2' => $task->status2,
+                                'mins' => $task->est_minutes,
+                                'manually_assign' => $task->manually_assign,
+                            ];
+                        }
+                    }
+                    if ($tasksPlanned) {
+                        foreach ($tasksPlanned as $task) {
+                            $task->est_minutes = 20;
+                            $task->st_date = $task->st_date ?: date('Y-m-d H:i:00');
+                            $task->en_date = date('Y-m-d H:i:00', strtotime($task->st_date . ' + ' . $task->est_minutes . 'minutes'));
+                            $tasksArr[$task->assigned_to][$task->status2][] = [
+                                'id' => $task->id,
+                                'typeId' => $task->type . '-' . $task->id,
+                                'stDate' => $task->st_date,
+                                'enDate' => $task->en_date,
+                                'status' => $task->status,
+                                'status2' => $task->status2,
+                                'mins' => $task->est_minutes,
+                                'manually_assign' => $task->manually_assign,
+                            ];
+                        }
+                    }
+                }
+                if ($isPrint) {
+                    _p($tasksArr);
+                }
+                // dd($tasksArr);
+
+                // Arrange tasks on users slots
+                foreach ($userArr as $k1 => $user) {
+                    $userTasksArr = isset($tasksArr[$user['id']]) && count($tasksArr[$user['id']]) ? $tasksArr[$user['id']] : [];
+                    if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
+                        foreach ($user['availableSlots'] as $date => $slots) {
+                            foreach ($slots as $k2 => $slot) {
+                                if ($slot['type'] == 'AVL' || $slot['slot_type'] == 'AVL') {
+                                    $res = $this->slotIncreaseAndShift($slot, $userTasksArr);
+                                    // dd($res, $userTasks);
+
+                                    $userTasks = $res['userTasks'] ?? [];
+                                    $slot['taskIds'] = $res['taskIds'] ?? [];
+                                    $slot['userTasks'] = $res['userTasks'] ?? [];
+                                }
+                                // else if ($slotRow['type'] == 'LUNCH') {
+                                //     // $userTasks = $this->slotIncreaseAndShift($userTasks, $slotKey);
+                                // }
+                                $slots[$k2] = $slot;
+                            }
+
+                            $user['availableSlots'][$date] = $slots;
+                        }
+                    }
+                    $userArr[$k1] = $user;
+                }
+
+                if ($isPrint) {
+                    _p($userArr);
+                }
+
+                // Arange for datatable
+                foreach ($userArr as $user) {
+                    if ($user['uaId'] && isset($user['availableSlots']) && count($user['availableSlots'])) {
+                        foreach ($user['availableSlots'] as $date => $slots) {
+                            $divSlots = [];
+                            // dd($slots);
+                            foreach ($slots as $slot) {
+                                $title = '';
+                                $class = '';
+                                $display = [
+                                    date('H:i', strtotime($slot['st'])),
+                                    ' - ',
+                                    date('H:i', strtotime($slot['en'])),
+                                ];
+
+                                $displayManually = [
+                                    date('H:i', strtotime($slot['st'])),
+                                    ' - ',
+                                    date('H:i', strtotime($slot['en'])),
+                                ];
+
+                                $displayManually = [];
+
+                                if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != 'PAST') {
+                                    $ut_array = [];
+                                    $ut_arrayManually = [];
+                                    
+                                    
+                                    if (!empty($slot['userTasks'])) {
+                                        foreach ($slot['userTasks'] as $ut) {
+
+                                            if($ut['manually_assign']==1){
+                                                array_push($ut_arrayManually, $ut['typeId']);
+                                            } else {
+                                                array_push($ut_array, $ut['typeId']);
+
+                                            }
+                                            // foreach ($ut as $t) {
+                                            //     dd($ut);
+                                            // }
+                                        }
+                                    } else {
+                                        if($slot['type']=='AVL'){
+                                            return $slot;
+                                        }
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function typeWiseTasks($type, $wh = [])
+    {
+        $userIds = $wh['userIds'] ?? [0];
+        $taskStatuses = [0];
+        $devTaskStatuses = ['none'];
+
+        if ($type == 'IN_PROGRESS') {
+            $taskStatuses = [
+                Task::TASK_STATUS_IN_PROGRESS,
+            ];
+            $devTaskStatuses = [
+                DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS,
+            ];
+        } elseif ($type == 'PLANNED') {
+            $taskStatuses = [
+                Task::TASK_STATUS_PLANNED,
+            ];
+            $devTaskStatuses = [
+                DeveloperTask::DEV_TASK_STATUS_PLANNED,
+            ];
+        }
+
+        // start_date IS NOT NULL AND approximate > 0
+        // start_date IS NOT NULL AND estimate_minutes > 0
+
+        $sql = "SELECT
+            listdata.*
+            FROM (
+            (
+                SELECT 
+                    id, 
+                    'T' AS type, 
+                    assign_to AS assigned_to, 
+                    manually_assign, 
+                    task_subject AS title, 
+                    start_date AS st_date, 
+                    due_date AS en_date, 
+                    COALESCE(approximate, 0) AS est_minutes, 
+                    status,
+                    (
+                        CASE
+                            WHEN status = '" . Task::TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
+                            WHEN status = '" . Task::TASK_STATUS_PLANNED . "' THEN 'PLANNED'
+                        END
+                    ) AS status2
+                FROM 
+                    tasks 
+                WHERE 
+                1
+                AND (
+                    ( status = '" . Task::TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
+                    OR 
+                    ( status != '" . Task::TASK_STATUS_IN_PROGRESS . "' )
+                )
+                AND deleted_at IS NULL
+                AND assign_to IN (" . implode(',', $userIds) . ") 
+                AND status IN ('" . implode("','", $taskStatuses) . "') 
+            )
+            UNION
+            (
+                SELECT 
+                    id, 
+                    'DT' AS type, 
+                    assigned_to AS assigned_to, 
+                    manually_assign, 
+                    subject AS title, 
+                    start_date AS st_date, 
+                    estimate_date AS en_date, 
+                    COALESCE(estimate_minutes, 0) AS est_minutes, 
+                    status,
+                    (
+                        CASE
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' THEN 'IN_PROGRESS'
+                            WHEN status = '" . DeveloperTask::DEV_TASK_STATUS_PLANNED . "' THEN 'PLANNED'
+                        END
+                    ) AS status2
+                FROM developer_tasks
+                WHERE 1
+                AND (
+                    ( status = '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' AND start_date IS NOT NULL )
+                    OR 
+                    ( status != '" . DeveloperTask::DEV_TASK_STATUS_IN_PROGRESS . "' )
+                )
+                AND deleted_at IS NULL
+                AND assigned_to IN (" . implode(',', $userIds) . ")
+                AND status IN ('" . implode("','", $devTaskStatuses) . "')
+            )
+        ) AS listdata
+        ORDER BY listdata.st_date ASC";
+
+        $tasks = \DB::select($sql, []);
+
+        return $tasks;
+    }
+
+    public function slotIncreaseAndShift($slot, $tasks)
+    {
+        // IN_PROGRESS, PLANNED
+        $checkDates = 0;
+
+        $taskIds = [];
+        $userTasks = [];
+
+        if ($tasks) {
+            if ($list = ($tasks['IN_PROGRESS'] ?? [])) {
+                foreach ($list as $k => $task) {
+                    $SlotStart = Carbon::parse($slot['st']);
+                    $SlotEnd = Carbon::parse($slot['en']);
+                    $TaskStart = Carbon::parse($task['stDate']);
+                    $TaskEnd = Carbon::parse($task['enDate']);
+
+                    if (
+                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                    ) {
+                        array_push($userTasks, $task);
+                    } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                        array_push($userTasks, $task);
+                    }
+
+                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
+                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
+                    //         $taskMins = $task['mins'];
+                    //         $slotMins = $slot['mins'];
+
+                    //         if ($taskMins >= $slotMins) {
+                    //             $slot['mins'] = 0;
+                    //             $task['mins'] -= $slotMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         } else {
+                    //             $task['mins'] = 0;
+                    //             $slot['mins'] -= $taskMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         }
+
+                    //         $list[$k] = $task;
+                    //         if ($task['mins'] <= 0) {
+                    //             unset($list[$k]);
+                    //         }
+                    //         if ($slot['mins'] <= 0) {
+                    //             break;
+                    //         }
+                    //     }
+                    // }
+                }
+                $list = array_values($list);
+                $tasks['IN_PROGRESS'] = $list;
+            }
+
+            if ($list = ($tasks['PLANNED'] ?? [])) {
+                foreach ($list as $k => $task) {
+                    $SlotStart = Carbon::parse($slot['st']);
+                    $SlotEnd = Carbon::parse($slot['en']);
+                    $TaskStart = Carbon::parse($task['stDate']);
+                    $TaskEnd = Carbon::parse($task['enDate']);
+
+                    if (
+                        ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                        ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                    ) {
+                        array_push($userTasks, $task);
+                    } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                        array_push($userTasks, $task);
+                    }
+
+                    // if ($slot['mins'] > 0 && $task['mins'] > 0) {
+                    //     if ($task['stDate'] <= $slot['en']) { // $task['stDate'] <= $slot['st'] &&
+                    //         $taskMins = $task['mins'];
+                    //         $slotMins = $slot['mins'];
+
+                    //         if ($taskMins >= $slotMins) {
+                    //             $slot['mins'] = 0;
+                    //             $task['mins'] -= $slotMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         } else {
+                    //             $task['mins'] = 0;
+                    //             $slot['mins'] -= $taskMins;
+                    //             $taskIds[$task['typeId']] = $task;
+                    //         }
+
+                    //         $list[$k] = $task;
+                    //         if ($task['mins'] <= 0) {
+                    //             unset($list[$k]);
+                    //         }
+                    //         if ($slot['mins'] <= 0) {
+                    //             break;
+                    //         }
+                    //     }
+                    // }
+                }
+                $list = array_values($list);
+                $tasks['PLANNED'] = $list;
+            }
+        }
+        // print_r($userTasks);
+        return [
+            'taskIds' => $taskIds ?? [],
+            'userTasks' => $userTasks ?? [],
+        ];
     }
 
     public function assignMasterUser(Request $request)
@@ -4408,7 +5081,13 @@ class DevelopmentController extends Controller
 
         if ($issue = DeveloperTask::find(request('issue_id'))) {
             $old = $issue->estimate_minutes;
+            $start_date = $issue->start_date;
+            $estimate_date = $issue->estimate_date;
+            
             $issue->estimate_minutes = $new;
+            $issue->start_date = $start_date;
+            $issue->estimate_date = $estimate_date;
+
             $issue->status = DeveloperTask::DEV_TASK_STATUS_USER_ESTIMATED;
             $issue->save();
             // _p($issue->toArray(), 1);

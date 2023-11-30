@@ -100,6 +100,11 @@ Route::group([
     Route::group(['prefix' => 'user-schedules'], function () {
         Route::get('index', [UserManagementController::class, 'userSchedulesIndex'])->name('user-management.user-schedules.index');
         Route::any('load-data', [UserManagementController::class, 'userSchedulesLoadData'])->name('user-management.user-schedules.load-data');
+        Route::post('/add-new-request', [UserManagementController::class, 'addNewRequest'])->name('user-management.add-new-request');
+        Route::post('/update-request', [UserManagementController::class, 'updateRequest'])->name('user-management.update-request');
+        Route::post('/statuscolor', [UserManagementController::class, 'statuscolor'])->name('user-management.statuscolor');
+        Route::get('/countdevtask/{id}', [UserManagementController::class, 'taskCount']);
+        Route::get('/countdevtaskadmin/{id}', [UserManagementController::class, 'taskCountAdmin']);
     });
 
     Route::group([

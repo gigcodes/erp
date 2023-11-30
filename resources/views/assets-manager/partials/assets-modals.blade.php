@@ -56,8 +56,8 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <strong>Password:</strong>
-                                <input type="text" name="password" class="form-control" value="{{ old('password') }}" >
-
+                                <input type="text" name="password" class="form-control password-assets-manager-add" value="{{ old('password') }}" >
+                                <a href="javascript:void(0);" class="generatepasswordadd">Generate Password</a>
                                 @if ($errors->has('password'))
                                     <div class="alert alert-danger">{{$errors->first('password')}}</div>
                                 @endif
@@ -392,6 +392,39 @@
                                 @endif
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Ip:</strong>
+                                <input type="text" name="vnc_ip" class="form-control" value="{{ old('vnc_ip') }}">
+
+                                @if ($errors->has('vnc_ip'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_ip')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Port:</strong>
+                                <input type="text" name="vnc_port" class="form-control" value="{{ old('vnc_port') }}">
+
+                                @if ($errors->has('vnc_port'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_port')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Password:</strong>
+                                <input type="text" name="vnc_password" class="form-control" value="{{ old('vnc_password') }}">
+
+                                @if ($errors->has('vnc_password'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -559,7 +592,7 @@
                                 <strong>Password:</strong>
                                 <input type="text" name="password" class="form-control password-assets-manager" value="{{ old('password') }}" id="password" required>
                                 <input type="hidden" name="old_password" class="form-control oldpassword-assets-manager" value="{{ old('old_password') }}" id="old_password">
-
+                                <a href="javascript:void(0);" class="generatepasswordedit">Generate Password</a>
                                 @if ($errors->has('password'))
                                     <div class="alert alert-danger">{{$errors->first('password')}}</div>
                                 @endif
@@ -901,6 +934,39 @@
 
                                 @if ($errors->has('monit_api_password'))
                                     <div class="alert alert-danger">{{$errors->first('monit_api_password')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Ip:</strong>
+                                <input type="text" name="vnc_ip" id="vnc_ip" class="form-control" value="{{ old('vnc_ip') }}">
+
+                                @if ($errors->has('vnc_ip'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_ip')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Port:</strong>
+                                <input type="text" name="vnc_port" id="vnc_port" class="form-control" value="{{ old('vnc_port') }}">
+
+                                @if ($errors->has('vnc_port'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_port')}}</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <strong>VNC Password:</strong>
+                                <input type="text" name="vnc_password" id="vnc_password" class="form-control" value="{{ old('vnc_password') }}">
+
+                                @if ($errors->has('vnc_password'))
+                                    <div class="alert alert-danger">{{$errors->first('vnc_password')}}</div>
                                 @endif
                             </div>
                         </div>

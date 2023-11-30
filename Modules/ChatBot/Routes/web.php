@@ -126,8 +126,13 @@ Route::group([
     });
 
     Route::group(['prefix' => 'messages'], function () {
+
+        Route::post('chatbot-messages-column-visbility', [MessageController::class, 'chatbotMessagesColumnVisbilityUpdate'])->name('chatbot.messages.column.update');
+        Route::get('/', [MessageController::class, 'index'])->name('chatbot.messages.list');
+
         Route::get('/{isElastic?}', [MessageController::class, 'index'])->name('chatbot.messages.list');
         Route::get('/reindex', [MessageController::class, 'reindex'])->name('chatbot.messages.reindex');
+
         Route::get('/today', [MessageController::class, 'todayMessages'])->name('chatbot.messages.today-list');
         Route::get('/today-check-new', [MessageController::class, 'todayMessagesCheck'])->name('chatbot.messages.todayMessagesCheck');
         Route::get('/stop-reminder', [MessageController::class, 'stopReminder'])->name('chatbot.messages.stopReminder');

@@ -216,6 +216,10 @@
                             <i class="glyphicon glyphicon-send"></i>
                         </button>
                     </form>
+
+
+                    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#chatbotmessagesdatatablecolumnvisibilityList">Column Visiblity</
+
                     <div>
                         @if($isElastic)
                             <a class="btn btn-xs btn-secondary" href="{{ route('chatbot.messages.list') }}">Switch to Database</a>
@@ -223,17 +227,16 @@
                             <a class="btn btn-xs btn-warning" href="{{ route('chatbot.messages.list') }}/elastic">Switch to Elastic data</a>
                         @endif
                     </div>
+
                 </div>
             </div>
 
         </div>
     </div>
 
-    <div class="row m-0">
-        <div class="col-md-12 pl-3 pr-3">
-            <div class="table-responsive-lg" id="page-view-result">
-                @include("chatbot::message.partial.list")
-            </div>
+    <div class="col-md-12 pl-3 pr-3">
+        <div class="table-responsive-lg" id="page-view-result">
+            @include("chatbot::message.partial.list")
         </div>
     </div>
 
@@ -302,6 +305,7 @@
         </div>
     </div>
     @include("partials.customer-new-ticket")
+    @include("chatbot::message.partial.column-visibility-modal")
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
     </div>

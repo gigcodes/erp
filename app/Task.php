@@ -10,7 +10,6 @@ use Auth;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Plank\Mediable\Mediable;
 use App\Hubstaff\HubstaffMember;
 use Illuminate\Support\Facades\DB;
@@ -96,11 +95,36 @@ class Task extends Model
         'parent_review_task_id',
         'time_doctor_task_id',
         'lead_time_doctor_task_id',
+        'manually_assign',
+        'slotTaskRemarks',
     ];
 
     const TASK_TYPES = [
         'Developer Task',
         'Regular Task',
+    ];
+
+    const TASK_STATUS_FILTER = [
+        'DONE' => 1,
+        'DISCUSSING' => 2,
+        'IN_PROGRESS' => 3,
+        'ISSUE' => 4,
+        'PLANNED' => 5,
+        'DISCUSS_WITH_LEAD' => 6,
+        'NOTE' => 7,
+        'LEAD_RESPONSE_NEEDED' => 8,
+        'ERRORS_IN_TASK' => 9,
+        'IN_REVIEW' => 10,
+        'PRIORITY' => 11,
+        'PRIORITY_2' => 12,
+        'HIGH_PRIORITY' => 13,
+        'REVIEW_ESTIMATED_TIME' => 14,
+        'USER_COMPLETE' => 15,
+        'USER_COMPLETE_2' => 16,
+        'USER_ESTIMATED' => 17,
+        'DECLINE' => 18,
+        'REOPEN' => 19,
+        'APPROVED' => 20
     ];
 
     const TASK_STATUS_DONE = 1;
@@ -491,7 +515,6 @@ class Task extends Model
         $paginate = 50;
         $page = $request->get('page', 1);
         $offSet = ($page * $paginate) - $paginate;
-        $cacheKey = 'filtered_task_' . serialize($request->all());
 
         $chatSubQuery = DB::table('chat_messages')
                     ->select(
@@ -585,12 +608,7 @@ class Task extends Model
             ->offset($offSet)
             ->limit($paginate);
 
-            $cachedData = Cache::remember($cacheKey, 60 * 60 * 4, function () use ($qb) {
-                return $qb->get();
-            });
-
-
-            return $cachedData;
+            return $qb->get();
 
         } else if (in_array($type, ['pending_list', 'completed_list', 'statutory_not_completed_list'])) {
             $qb->selectRaw("customers.name AS customer_name")
@@ -669,15 +687,10 @@ class Task extends Model
                 $qb->orderByDesc('tasks.is_flagged');
                 $qb->orderByDesc('message_created_at');
             }
-
             $qb->offset($offSet);
             $qb->limit($paginate);
 
-            $cachedData = Cache::remember($cacheKey, 60 * 60 * 4, function () use ($qb) {
-                return $qb->get();
-            });
-
-            return $cachedData;
+            return $qb->get();
         }
     }
 
