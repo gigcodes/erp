@@ -1108,7 +1108,7 @@ class ProductPriceController extends Controller
 
         $products = [];
         if(!empty($input)){
-            $products = Product::where('name', 'like', '%'.$input.'%')->pluck('name', 'id');
+            $products = Product::where('id', 'like', '%'.$input.'%')->orWhere('sku', 'like', '%'.$input.'%')->pluck('sku', 'id');
         }
 
         return response()->json($products);
