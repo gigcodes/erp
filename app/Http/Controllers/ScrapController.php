@@ -2582,19 +2582,26 @@ class ScrapController extends Controller
     }
 
     public function showProductStat(Request $request) {
-        $brands = Brand::whereNull('deleted_at')->get();
+
         $products = [];
-        $suppliers = DB::table('scraped_products')->selectRaw('DISTINCT(`website`)')->pluck('website');
+        $brands_list = Brand::whereNull('deleted_at')->pluck('name', 'id');
 
-        foreach ($suppliers as $supplier) {
-            foreach ($brands as $brand) {
-                $products[$supplier][$brand->name] = ScrapedProducts::where('website', $supplier)
-                    ->where('brand_id', $brand->id);
-                if ($request->has('start_date') && $request->has('end_date')) {
-                    $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->whereBetween('created_at', [$request->get('start_date'), $request->get('end_date')]);
+        if(!empty($request->has('brands'))){
+            $brands = Brand::whereNull('deleted_at')->whereIn('id', $request->get('brands'))->get();
+            $suppliers = DB::table('scraped_products')->selectRaw('DISTINCT(`website`)')->pluck('website');
+
+            foreach ($suppliers as $supplier) {
+                foreach ($brands as $brand) {
+                    $products[$supplier][$brand->name] = ScrapedProducts::where('website', $supplier)
+                        ->where('brand_id', $brand->id);
+                    if (!empty($request->get('start_date')) && !empty($request->get('end_date'))) {
+                        if ($request->get('start_date')!= null && $request->get('end_date') != null) {
+                            $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->whereBetween('created_at', [$request->get('start_date'), $request->get('end_date')]);
+                        }
+                    }
+
+                    $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->count();
                 }
-
-                $products[$supplier][$brand->name] = $products[$supplier][$brand->name]->count();
             }
         }
 
@@ -2609,7 +2616,7 @@ class ScrapController extends Controller
 
 //        dd($products);
 
-        return view('scrap.scraped_product_data', compact('products', 'request'));
+        return view('scrap.scraped_product_data', compact('products', 'request', 'brands_list'));
 
 
     }

@@ -7,22 +7,42 @@
 
 @section('large_content')
     <div class="row">
-        <div class="col-md-offset-5 col-md-2">
+        <div class="col-md-12">
             <br>
             <form action="{{ action([\App\Http\Controllers\ScrapController::class, 'showProductStat']) }}" method="get">
-                <div class="form-group">
-                    <label for="start_date">Start Date</label>
-                    <input value="{{$request->get('start_date')}}" type="text" name="start_date" id="start_date" class="form-control date-type">
-                </div>
-                <div class="form-group">
-                    <label for="end_date">End Date</label>
-                    <input value="{{$request->get('end_date')}}" type="text" name="end_date" id="end_date" class="form-control date-type">
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-primary btn-block">Filter</button>
+                <div class="row">
+
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="start_date">Select Brand</label>
+                            {!! Form::select('brands[]',$brands_list, request("brands",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2 globalSelect2', 'multiple' => true]) !!}
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="start_date">Start Date</label>
+                            <input value="{{$request->get('start_date')}}" type="text" name="start_date" id="start_date" class="form-control date-type">
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="end_date">End Date</label>
+                            <input value="{{$request->get('end_date')}}" type="text" name="end_date" id="end_date" class="form-control date-type">
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <label for="end_date">&nbsp</label>
+                            <button class="btn btn-primary btn-block">Filter</button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
+        </br>
+
         <div class="col-md-12">
             <table class="table table-striped table-responsive">
                 @foreach($products as $key=>$product)
