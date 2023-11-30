@@ -28,6 +28,18 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
+                  <select class="form-control" name="type" placeholder="Type:">
+                    <option value="">Select a Type</option>
+                    <option value="Freelancer">Freelancer</option>
+                    <option value="Agency">Agency</option>
+                  </select>
+                  @if ($errors->has('type'))
+                  <div class="alert alert-danger">{{$errors->first('type')}}</div>
+                  @endif
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
                   <input type="text" name="name" class="form-control" placeholder="Name:" value="{{ old('name') }}" required>
                   @if ($errors->has('name'))
                   <div class="alert alert-danger">{{$errors->first('name')}}</div>
