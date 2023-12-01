@@ -167,6 +167,8 @@ class EmailController extends Controller
         if (isset($seen)) {
             if ($seen != 'both') {
                 $query = $query->where('seen', $seen);
+            } else if ($seen == 'both' && $type == 'outgoing') {
+                $query = $query->where('emails.status', 'outgoing');
             }
         }
 
@@ -181,7 +183,7 @@ class EmailController extends Controller
         $query = $query->select('emails.*', 'chat_messages.customer_id', 'chat_messages.supplier_id', 'chat_messages.vendor_id', 'c.is_auto_simulator as customer_auto_simulator',
             'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
         if ($admin == 1) {
-            $query = $query->orderByDesc('emails.created_at');
+            $query = $query->orderByDesc('emails.id');
             $emails = $query->paginate(30)->appends(request()->except(['page']));
         } else {
             if (count($usernames) > 0) {
@@ -197,11 +199,12 @@ class EmailController extends Controller
                     }
                 });
 
-                $query = $query->orderByDesc('emails.created_at');
+                $query = $query->orderByDesc('emails.id');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
             } else {
                 $emails = (new Email())->newQuery();
                 $emails = $emails->whereNull('id');
+                $emails = $emails->orderByDesc('emails.id');
                 $emails = $emails->paginate(30)->appends(request()->except(['page']));
             }
         }
@@ -560,10 +563,10 @@ class EmailController extends Controller
             : $replyPrefix . $request->subject;
         $dateCreated = $email->created_at->format('D, d M Y');
         $timeCreated = $email->created_at->format('H:i');
-        $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
+        $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->to}> wrote:";
         $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
 
-        $emailAddress = $email->from;
+        $emailAddress = $email->to;
         $emailPattern = '/<([^>]+)>/';
         $matches = [];
         if (preg_match($emailPattern, $emailAddress, $matches)) {
@@ -576,8 +579,8 @@ class EmailController extends Controller
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
-            'from' => $emailFrom,
-            'to' => $request->receiver_email,
+            'from' => $email->to,
+            'to' => $email->from,
             'subject' => $subject,
             'message' => $message_to_store,
             'template' => 'reply-email',
@@ -590,7 +593,7 @@ class EmailController extends Controller
         \App\EmailLog::create([
             'email_id' => $email->id,
             'email_log' => 'Email reply initiated',
-            'to' => $request->receiver_email,
+            'to' => $email->from,
         ]);
         //$replyemails = (new ReplyToEmail($email, $request->message))->build();
         \App\Jobs\SendEmail::dispatch($emailsLog)->onQueue('send_email');
@@ -1555,6 +1558,12 @@ class EmailController extends Controller
     {
         $id = $request->id;
         $emailData = Email::find($id);
+        if($emailData->seen==1){
+            $emailData->seen = 0;        
+        } else {
+            $emailData->seen = 1;        
+        }
+        $emailData->save();
 
         return view('emails.frame-view', compact('emailData'));
     }
