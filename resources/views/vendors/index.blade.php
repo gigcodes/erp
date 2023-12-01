@@ -229,6 +229,24 @@
                 <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
                     <?php echo Form::select("flt_vendor_status", [null => 'Select Status'] + $statusList, '', ["class" => "form-control"]); ?>
                 </div>
+                <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
+                    <?php echo Form::select("type", [
+                        "" => "- Type -",
+                        "Agency" => "Agency",
+                        "Freelancer" => "Freelancer"
+                    ], request('type'), ["class" => "form-control"]) ?>
+                </div>
+                <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-2">
+                <?php
+                    $frameworkVer = \App\Models\VendorFrameworks::all();
+                    ?>
+                    <select name="framework" value="" class="form-control" id="framework">
+                      <option value="">Select framework</option>
+                      @foreach ($frameworkVer as $fVer)
+                        <option value="{{$fVer->id}}" <?php if (request('framework') == $fVer->id) echo "selected"; ?>>{{$fVer->name}}</option>
+                      @endforeach
+                    </select>
+                </div>
                 <div class="form-group col-md-1 cls_filter_checkbox p-0 mr-2">
                     <div class="form-check form-check-inline">
                         <input type="checkbox" class="form-check-input" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
@@ -343,6 +361,14 @@
                             <th width="8%">Remarks</th>
                         @endif
 
+                        @if (!in_array('Type', $dynamicColumnsToShowVendors))
+                            <th width="8%">Type</th>
+                        @endif
+
+                        @if (!in_array('Framework', $dynamicColumnsToShowVendors))
+                            <th width="8%">Framework</th>
+                        @endif
+
                         @if (!in_array('Action', $dynamicColumnsToShowVendors))
                             <th width="3%">Action</th>
                         @endif
@@ -356,6 +382,8 @@
                         <th width="5%">Email</th>
                         <th width="21%">Communication</th>
                         <th width="8%">Remarks</th>
+                        <th width="8%">Type</th>
+                        <th width="8%">Framework</th>
                         <th width="3%">Action</th>
                     @endif
                 </tr>
@@ -386,6 +414,7 @@
 @include('vendors.partials.add-status')
 @include('vendors.partials.add-position')
 @include('github.include.organization-list')
+@include('vendors.partials.remark-history')
 
 <div id="reminderModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -878,6 +907,8 @@
 
         $('#vendorEditModal form').attr('action', url);
         $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
+        $('#vendor_type option[value="' + vendor.type + '"]').attr('selected', true);
+        $('#framework_update option[value="' + vendor.framework + '"]').attr('selected', true);
         $('#vendorEditModal #vendor_name').val(vendor.name);
         $('#vendorEditModal #vendor_address').val(vendor.address);
         $('#vendorEditModal #vendor_phone').val(vendor.phone);
@@ -1763,5 +1794,71 @@
     function Showactionbtn(id){
       $(".action-btn-tr-"+id).toggleClass('d-none')
     }
+
+    $(document).on("click", ".vendors-addframework", function(e) {
+        e.preventDefault();
+        var frameworkName = $('#frameworkName').val();
+        $.ajax({
+          url: "vendors/add/framwork",
+          type: "post",
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          data: {
+            framework_name: frameworkName
+          }
+        }).done(function(response) {
+          if (response.code = '200') {
+            $('#framework').append(`<option value='${response.data.id}'> ${response.data.name} </option>`);
+            $('#framework_update').append(`<option value='${response.data.id}'> ${response.data.name} </option>`);
+            toastr['success']('Framework Added successfully!!!', 'success');
+          } else {
+            toastr['error'](response.message, 'error');
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+          toastr['error'](errObj.message, 'error');
+        });
+      });
+
+    $(document).on('click', '.remarks-message', function() {
+        var thiss = $(this);
+        var data = new FormData();
+        var vendor_id = $(this).data('vendorid');
+
+        var message = $("#remarks_" + vendor_id).val();
+        data.append("vendor_id", vendor_id);
+        data.append("remarks", message);
+        data.append("_token", "{{ csrf_token() }}");
+
+        if (message.length > 0) {
+            if (!$(thiss).is(':disabled')) {
+                $.ajax({
+                    url: "{{ route('vendor.remark.history.post') }}",
+                    type: 'POST',
+                    "dataType": 'json', // what to expect back from the PHP script, if anything
+                    "cache": false,
+                    "contentType": false,
+                    "processData": false,
+                    "data": data,
+                    beforeSend: function() {
+                        $(thiss).attr('disabled', true);
+                    }
+                }).done(function(response) {
+                    toastr['success']('Remarks Added successfully!!!', 'success');
+
+                    $("#remarks_" + vendor_id).val('');
+
+                }).fail(function(errObj) {
+                    $(thiss).attr('disabled', false);
+
+                    alert("Could not send remarks");
+                    console.log(errObj);
+                });
+            }
+        } else {
+            alert('Please enter a remarks first');
+        }
+    });
 </script>
 @endsection

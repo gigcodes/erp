@@ -160,10 +160,31 @@
         @endif
 
         @if (!in_array('Remarks', $dynamicColumnsToShowVendors))
-            <td class="expand-row-msg Website-task" data-name="remark" data-id="{{$vendor->id}}">
-                <span class="show-short-remark-{{$vendor->id}}">{{ Str::limit($vendor->remark, 10, '..')}}</span>
-                <span style="word-break:break-all;" class="show-full-remark-{{$vendor->id}} hidden">{{$vendor->remark}}</span>
+            <td>
+                <div class="row">
+                    <div class="col-md-11 form-inline cls_remove_rightpadding">
+                        <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
+                            
+                            <textarea rows="1" class="form-control mr-1" id="remarks_{{ $vendor->id }}" name="remarks" placeholder="Message"></textarea>
+                     
+                            <button class="btn btn-sm btn-xs remarks-message mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
+
+                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-remarks-history" title="Show Status History" data-id="{{$vendor->id}}">
+                                <i class="fa fa-info-circle i-vendor-remarks-history"></i>
+                            </button>
+                            
+                        </div>
+                    </div>
+                </div>                
             </td>
+        @endif
+
+        @if (!in_array('Type', $dynamicColumnsToShowVendors))
+            <td>{{ $vendor->type }}</td>
+        @endif
+
+        @if (!in_array('Framework', $dynamicColumnsToShowVendors))
+            <td>{{ $vendor->framework_name }}</td>
         @endif
 
         @if (!in_array('Action', $dynamicColumnsToShowVendors))
@@ -354,6 +375,10 @@
             <span style="word-break:break-all;" class="show-full-remark-{{$vendor->id}} hidden">{{$vendor->remark}}</span>
         </td>
 
+        <td>{{ $vendor->type }}</td>
+
+        <td>{{ $vendor->framework_name }}</td>
+
         <td>
             <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$vendor->id}}')"><i class="fa fa-arrow-down"></i></button>
         </td>
@@ -439,33 +464,57 @@
     }
 
     $(document).on('click', '.show-status-history', function() {
-            var data = $(this).data('history');
-            var issueId = $(this).data('id');
-            $('#status_history_modal table tbody').html('');
-            $.ajax({
-                url: "{{ route('vendor.status.history.get') }}",
-                data: {id: issueId},
-                success: function (data) {
-                    if(data.data.length > 0) {
-                        $.each(data.data, function(i, item) {
-                            if(item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            }
-                            else {
-                                var checked = ''; 
-                            }
-                            $('#status_history_modal table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+item['status']+'</td>\
-                                    <td>'+item['user']['name']+'</td>\
-                                </tr>'
-                            );
-                        });
-                    }
+        var data = $(this).data('history');
+        var issueId = $(this).data('id');
+        $('#status_history_modal table tbody').html('');
+        $.ajax({
+            url: "{{ route('vendor.status.history.get') }}",
+            data: {id: issueId},
+            success: function (data) {
+                if(data.data.length > 0) {
+                    $.each(data.data, function(i, item) {
+                        if(item['is_approved'] == 1) {
+                            var checked = 'checked';
+                        }
+                        else {
+                            var checked = ''; 
+                        }
+                        $('#status_history_modal table tbody').append(
+                            '<tr>\
+                                <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                <td>'+item['status']+'</td>\
+                                <td>'+item['user']['name']+'</td>\
+                            </tr>'
+                        );
+                    });
                 }
-            });
-            $('#status_history_modal').modal('show');
+            }
         });
+        $('#status_history_modal').modal('show');
+    });
+
+    $(document).on('click', '.show-remarks-history', function() {
+        var data = $(this).data('history');
+        var issueId = $(this).data('id');
+        $('#remark_history_modal table tbody').html('');
+        $.ajax({
+            url: "{{ route('vendor.remark.history.get') }}",
+            data: {id: issueId},
+            success: function (data) {
+                if(data.data.length > 0) {
+                    $.each(data.data, function(i, item) {
+                        $('#remark_history_modal table tbody').append(
+                            '<tr>\
+                                <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                <td>'+item['remarks']+'</td>\
+                                <td>'+item['user']['name']+'</td>\
+                            </tr>'
+                        );
+                    });
+                }
+            }
+        });
+        $('#remark_history_modal').modal('show');
+    });
 </script>
    

@@ -33,6 +33,22 @@
                   @endif
                 </div>
               </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="body_framework" class="label-btn">Frameworks
+                      <button type="button" class="add-framework" data-toggle="modal" data-target="#addFramewrokShortcutModel">Add Framework</button>
+                    </label>
+                    <?php
+                    $frameworkVer = \App\Models\VendorFrameworks::all();
+                    ?>
+                    <select name="framework" value="" class="form-control" id="framework_s">
+                      <option value="">Select framework</option>
+                      @foreach ($frameworkVer as $fVer)
+                        <option value="{{$fVer->id}}">{{$fVer->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <input type="text" name="name" class="form-control" placeholder="Name:" value="{{ old('name') }}" required>
@@ -92,3 +108,62 @@
     </div>
   </div>
 </div>
+<div id="addFramewrokShortcutModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Framework</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="postmanform" method="post">
+              @csrf
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="frameworkName">Name</label>
+                  <input type="text" name="frameworksName" required value="" class="form-control" id="frameworksName" placeholder="Enter framework Name">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary vendors-addframeworks">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(document).on("click", ".vendors-addframeworks", function(e) {
+      e.preventDefault();
+      var frameworksName = $('#frameworksName').val();
+      $.ajax({
+        url: "vendors/add/framwork",
+        type: "post",
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+          framework_name: frameworksName
+        }
+      }).done(function(response) {
+        if (response.code = '200') {
+          $('#framework_s').append(`<option value='${response.data.id}'> ${response.data.name} </option>`);
+          toastr['success']('Framework Added successfully!!!', 'success');
+        } else {
+          toastr['error'](response.message, 'error');
+        }
+      }).fail(function(errObj) {
+        $('#loading-image').hide();
+        toastr['error'](errObj.message, 'error');
+      });
+    });
+</script>
