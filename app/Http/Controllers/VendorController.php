@@ -36,6 +36,8 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
+use App\Models\VendorFrameworks;
+use App\Models\VendorRemarksHistory;
 
 class VendorController extends Controller
 {
@@ -102,7 +104,7 @@ class VendorController extends Controller
             $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
         }
         //getting request
-        if (
+        /*if (
             $request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
             $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null || $request->whatsapp_number != null || $request->flt_vendor_status != null
         ) {
@@ -200,7 +202,7 @@ class VendorController extends Controller
                 $totalVendor = $query->orderby('name', 'asc')->count();
                 $vendors = $query->orderby('name', 'asc')->paginate($pagination);
             }
-        } else {
+        } else {*/
             $updatedByWhere = '';
             if ($isAdmin) {
                 $permittedCategories = '';
@@ -216,8 +218,62 @@ class VendorController extends Controller
                 }
                 $updatedByWhere = ' and vendors.email="' . Auth::user()->email . '"';
             }
-            $vendors = DB::select('
-                  SELECT *,
+
+            $whereCondition = [];
+            if (request('term') != null) {
+                $whereCondition[] = 'name LIKE "%' . $request->term . '%"';                
+            }
+
+            //if email is not null
+            if (request('email') != null) {
+                $whereCondition[] = 'email LIKE "%' . $request->email . '%"';
+            }
+
+            if (request('whatsapp_number') != null) {
+                $whereCondition[] = 'whatsapp_number LIKE "%' . $request->whatsapp_number . '%"';
+            }
+
+            //if phone is not null
+            if (request('phone') != null) {
+                $whereCondition[] = 'phone LIKE "%' . $request->phone . '%"';
+            }
+
+            $status = request('status');
+            if ($status != null && !request('with_archived')) {
+                $whereCondition[] = 'status = "' . $status . '"';
+            }
+
+            if (request('updated_by') != null && !request('with_archived')) {
+                $whereCondition[] = 'updated_by = "' . $request->updated_by . '"';
+            }
+
+            //if category is not nyll
+            if (request('category') != null) {
+                $whereCondition[] = 'category_id = "' . $request->category . '"';
+            }
+            
+            if (request('category') != null) {
+                $whereCondition[] = 'category_id = "' . $request->category . '"';
+            }
+
+            if (request('type') != null) {
+                $whereCondition[] = 'type = "' . $request->type . '"';
+            }
+
+            if (request('framework') != null) {
+                $whereCondition[] = 'framework = "' . $request->framework . '"';
+            }
+
+            if (request('communication_history') != null && !request('with_archived')) {
+                $communication_history = request('communication_history');
+                $whereCondition[] = 'vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message LIKE "%' . $communication_history . '%"';                
+            }
+
+            if ($request->flt_vendor_status != null) {
+                $whereCondition[] = 'vendor_status LIKE "%' . $request->flt_vendor_status . '%"';
+            }
+
+            $vendorsQuery = 'SELECT *,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
                   (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
@@ -230,10 +286,13 @@ class VendorController extends Controller
                     vendors.status,
                     vendors.whatsapp_number,
                     vendors.remark,
+                    vendors.type,
+                    vendors.framework,
                     category_name,
-                  chat_messages.message_id
+                  chat_messages.message_id,
+                  vf.name as framework_name
                   FROM vendors
-
+                  LEFT JOIN vendor_frameworks AS vf ON vendors.framework = vf.id
                   LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
                   ON vendors.id = chat_messages.vendor_id
 
@@ -241,17 +300,16 @@ class VendorController extends Controller
                   ON vendors.category_id = vendor_categories.id WHERE ' . $whereArchived . $updatedByWhere . '
                   )
 
-                  AS vendors
+                  AS vendors ';
 
-                  WHERE (name LIKE "%' . $term . '%" OR
-                  phone LIKE "%' . $term . '%" OR
-                  email LIKE "%' . $term . '%" OR
-                  address LIKE "%' . $term . '%" OR
-                  social_handle LIKE "%' . $term . '%" OR
-                  category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' . $permittedCategories . '
-                  ORDER BY ' . $sortByClause . ' message_created_at DESC;
-              ');
+                  if(!empty($whereCondition)){
+                        $vendorsQuery .= 'WHERE ( '.implode(' AND ', $whereCondition).') ' . $permittedCategories . ' ORDER BY ' . $sortByClause . ' message_created_at DESC';  
+                  } else {
+                        $vendorsQuery .= 'WHERE 1 '.$permittedCategories . ' ORDER BY ' . $sortByClause . ' message_created_at DESC';
+                  }
+
+
+            $vendors = DB::select($vendorsQuery);
 
             $totalVendor = count($vendors);
 
@@ -271,7 +329,7 @@ class VendorController extends Controller
             $vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
                 'path' => LengthAwarePaginator::resolveCurrentPath(),
             ]);
-        }
+        //}
 
         $vendor_categories = VendorCategory::all();
 
@@ -1747,5 +1805,49 @@ class VendorController extends Controller
         }
 
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function framworkAdd(Request $request)
+    {
+        try {
+            $framework = VendorFrameworks::create(
+                [
+                    'user_id' => \Auth::user()->id,
+                    'name' => $request->framework_name,
+                ]
+            );
+            $framework = VendorFrameworks::where('id', $framework->id)->first();
+
+            return response()->json(['code' => 200, 'data' => $framework, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function vendorRemarkHistory(Request $request)
+    {
+        $data = VendorRemarksHistory::with(['user' => function ($query) {}])->where('vendor_id', $request->id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(['code' => 200, 'data' => $data, 'message' => 'Message sent successfully']);
+    }
+
+    public function vendorRemarkPostHistory(Request $request)
+    {
+        try {
+            $remarks = VendorRemarksHistory::create(
+                [
+                    'user_id' => \Auth::user()->id,
+                    'remarks' => $request->remarks,
+                    'vendor_id' => $request->vendor_id,
+                ]
+            );
+            $remarks = VendorFrameworks::where('id', $remarks->id)->first();
+
+            return response()->json(['code' => 200, 'data' => $remarks, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }

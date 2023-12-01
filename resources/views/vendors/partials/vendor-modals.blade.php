@@ -38,6 +38,22 @@
                   @endif
                 </div>
               </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="body_framework" class="label-btn">Frameworks
+                      <button type="button" class="add-framework" data-toggle="modal" data-target="#addFramewrokModel">Add Framework</button>
+                    </label>
+                    <?php
+                    $frameworkVer = \App\Models\VendorFrameworks::all();
+                    ?>
+                    <select name="framework" value="" class="form-control" id="framework">
+                      <option value="">Select framework</option>
+                      @foreach ($frameworkVer as $fVer)
+                        <option value="{{$fVer->id}}">{{$fVer->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <input type="text" name="name" class="form-control" placeholder="Name:" value="{{ old('name') }}" required>
@@ -274,6 +290,34 @@
               </div>
             </div>
             <div class="col-md-6">
+                <div class="form-group">
+                  <select class="form-control" name="type" placeholder="Type:" id="vendor_type">
+                    <option value="">Select a Type</option>
+                    <option value="Freelancer" {{ old('type')=="Freelancer" ? 'selected' : '' }}>Freelancer</option>
+                    <option value="Agency" {{ old('type')=="Agency" ? 'selected' : '' }}>Agency</option>
+                  </select>
+                  @if ($errors->has('type'))
+                  <div class="alert alert-danger">{{$errors->first('type')}}</div>
+                  @endif
+                </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="body_framework" class="label-btn">Frameworks
+                      <button type="button" class="add-framework" data-toggle="modal" data-target="#addFramewrokModel">Add Framework</button>
+                    </label>
+                    <?php
+                    $frameworkVer = \App\Models\VendorFrameworks::all();
+                    ?>
+                    <select name="framework" value="" class="form-control" id="framework_update">
+                      <option value="">Select framework</option>
+                      @foreach ($frameworkVer as $fVer)
+                        <option value="{{$fVer->id}}" {{ $fVer->id == old('framework') ? 'selected' : '' }}>{{$fVer->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+            <div class="col-md-6">
               <div class="form-group">
                 <input type="text" name="name" class="form-control" value="{{ old('name') }}" required id="vendor_name" placeholder="Name:">@if ($errors->has('name'))
                 <div class="alert alert-danger">{{$errors->first('name')}}</div>
@@ -433,5 +477,38 @@
       </form>
     </div>
 
+  </div>
+</div>
+<div id="addFramewrokModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Framework</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="postmanform" method="post">
+              @csrf
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="frameworkName">Name</label>
+                  <input type="text" name="frameworkName" required value="" class="form-control" id="frameworkName" placeholder="Enter framework Name">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary vendors-addframework">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVendorFrameworksTable extends Migration
+class CreateVendorRemarksHistoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,15 @@ class CreateVendorFrameworksTable extends Migration
      */
     public function up()
     {
-        Schema::create('vendor_frameworks', function (Blueprint $table) {
+        Schema::create('vendor_remarks_histories', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->default(0);
-            $table->text('name')->nullable();
+            $table->integer('vendor_id')->nullable();
+            $table->integer('user_id')->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
@@ -28,6 +29,6 @@ class CreateVendorFrameworksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vendor_frameworks');
+        Schema::dropIfExists('vendor_remarks_histories');
     }
 }
