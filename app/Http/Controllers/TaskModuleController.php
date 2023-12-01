@@ -4421,8 +4421,10 @@ class TaskModuleController extends Controller
 
         $slotAvailable = $this->userSchedulesLoadData($request->get('user_id'));
 
-        $task->start_date = $slotAvailable['st'];
-        $task->due_date = $slotAvailable['en'];
+        if(!empty($slotAvailable)){
+            $task->start_date = $slotAvailable['st'];
+            $task->due_date = $slotAvailable['en'];
+        }
 
         $task->save();
 
