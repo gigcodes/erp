@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVendorFrameworksTable extends Migration
+class AddUserIdToVendorFrameworksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,8 @@ class CreateVendorFrameworksTable extends Migration
      */
     public function up()
     {
-        Schema::create('vendor_frameworks', function (Blueprint $table) {
-            $table->id();
-            $table->text('name')->nullable();
-            $table->timestamps();
+        Schema::table('vendor_frameworks', function (Blueprint $table) {
+            $table->integer('user_id')->after('id')->default(0);
         });
     }
 
@@ -27,6 +25,8 @@ class CreateVendorFrameworksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vendor_frameworks');
+        Schema::table('vendor_frameworks', function (Blueprint $table) {
+            //
+        });
     }
 }
