@@ -15,7 +15,7 @@ class CreateVendorFrameworksTable extends Migration
     {
         Schema::create('vendor_frameworks', function (Blueprint $table) {
             $table->id();
-            $table->text('user_id')->nullable();
+            $table->integer('user_id')->default(0);
             $table->text('name')->nullable();
             $table->timestamps();
         });
