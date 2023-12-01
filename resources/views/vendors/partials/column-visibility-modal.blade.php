@@ -82,6 +82,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Created Date</td>
+                                <td>
+                                    <input type="checkbox" value="Created Date" id="Created_Date" name="column_vendors[]" @if (!empty($dynamicColumnsToShowVendors) && in_array('Created Date', $dynamicColumnsToShowVendors)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Action</td>
                                 <td>
                                     <input type="checkbox" value="Action" id="Action" name="column_vendors[]" @if (!empty($dynamicColumnsToShowVendors) && in_array('Action', $dynamicColumnsToShowVendors)) checked @endif>

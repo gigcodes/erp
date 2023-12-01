@@ -369,6 +369,10 @@
                             <th width="8%">Framework</th>
                         @endif
 
+                        @if (!in_array('Created Date', $dynamicColumnsToShowVendors))
+                            <th width="8%">Created Date</th>
+                        @endif
+
                         @if (!in_array('Action', $dynamicColumnsToShowVendors))
                             <th width="3%">Action</th>
                         @endif
@@ -384,6 +388,7 @@
                         <th width="8%">Remarks</th>
                         <th width="8%">Type</th>
                         <th width="8%">Framework</th>
+                        <th width="8%">Created Date</th>
                         <th width="3%">Action</th>
                     @endif
                 </tr>

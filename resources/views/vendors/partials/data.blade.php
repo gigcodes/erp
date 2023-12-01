@@ -187,6 +187,10 @@
             <td>{{ $vendor->framework_name }}</td>
         @endif
 
+        @if (!in_array('Created Date', $dynamicColumnsToShowVendors))
+            <td>{{ $vendor->created_at }}</td>
+        @endif
+
         @if (!in_array('Action', $dynamicColumnsToShowVendors))
             <td>
                 <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$vendor->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -370,14 +374,29 @@
             
         </td>
 
-        <td class="expand-row-msg Website-task" data-name="remark" data-id="{{$vendor->id}}">
-            <span class="show-short-remark-{{$vendor->id}}">{{ Str::limit($vendor->remark, 10, '..')}}</span>
-            <span style="word-break:break-all;" class="show-full-remark-{{$vendor->id}} hidden">{{$vendor->remark}}</span>
+        <td>
+            <div class="row">
+                <div class="col-md-11 form-inline cls_remove_rightpadding">
+                    <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
+                        
+                        <textarea rows="1" class="form-control mr-1" id="remarks_{{ $vendor->id }}" name="remarks" placeholder="Message"></textarea>
+                 
+                        <button class="btn btn-sm btn-xs remarks-message mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
+
+                        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-remarks-history" title="Show Status History" data-id="{{$vendor->id}}">
+                            <i class="fa fa-info-circle i-vendor-remarks-history"></i>
+                        </button>
+                        
+                    </div>
+                </div>
+            </div>                
         </td>
 
         <td>{{ $vendor->type }}</td>
 
         <td>{{ $vendor->framework_name }}</td>
+
+        <td>{{ $vendor->created_at }}</td>
 
         <td>
             <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$vendor->id}}')"><i class="fa fa-arrow-down"></i></button>
