@@ -120,6 +120,7 @@
             @include('googledrivescreencast.partials.update-file-permissions')
             </tbody>
         </table>
+        {{ $data->appends(request()->except('page'))->links() }}
     </div>
 
 <div id="showFullMessageModel" class="modal fade" role="dialog">

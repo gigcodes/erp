@@ -3441,6 +3441,6 @@ class UserManagementController extends Controller
 
         $UserDatabaseLog = $UserDatabaseLog->paginate(25);
 
-        return view('user-management.index-database-logs', compact('title', 'UserDatabaseLog'))->with('i', ($request->input('page', 1) - 1) * 10);
+        return view('user-management.index-database-logs', compact('title', 'UserDatabaseLog'))->with('i', ($request->input('page', 1) - 1) * 25);
     }
 }

@@ -79,10 +79,12 @@ class GoogleScreencastController extends Controller
         if (empty($request->input('name')) && empty($request->input('docid')) && empty($request->input('task_id')) && ! Auth::user()->isAdmin()) {
             $data->whereIn('developer_task_id', $taskIds)->orWhere('user_id', Auth::id())->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.read)")->orWhereRaw("find_in_set('" . Auth::user()->gmail . "',google_drive_screencast_upload.write)");
         }
-        $data = $data->get();
+        //$data = $data->get();
+
+        $data = $data->paginate(25);
 
         return view('googledrivescreencast.index', compact('data', 'tasks', 'users', 'generalTask'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+            ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
     /**
@@ -106,7 +108,7 @@ class GoogleScreencastController extends Controller
         if ($isAdmin) {
             $validationRules['task_id'] = ['sometimes'];
         } else {
-            $validationRules['task_id'] = ['required'];
+            $validationRules['task_id'] = ['sometimes'];
         }
 
         $data = $this->validate($request, $validationRules);
