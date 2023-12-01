@@ -78,7 +78,13 @@
                     <span style="word-break:break-all;" class="show-full-queue-{{$item->id}} hidden">@if($item->queue) {{ '#'.$item->queue_id.'('.$item->queue.')'}} @else - @endif</span>
                   </td>
                   <td>{{$item->tried}}</td>
-                  <td style="padding: 1px 7px">
+                  <td>
+                      <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$item->id}}')"><i class="fa fa-arrow-down"></i></button>
+                    </td>
+                </tr>
+          <tr class="action-btn-tr-{{$item->id}} d-none">
+            <td class="font-weight-bold">Action</td>
+            <td colspan="20" class="cls-actions">
                     <span style="display:flex;">
                         <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-none-border update_modal" data-id="{{ $item}}" title="Update Product"><i class="fa fa-edit"></i></button>
                         <button class="btn btn-xs btn-none-border show_error_logs" data-id="{{ $item->log_list_magento_id}}" data-website="{{ $item->store_website_id}}" title="Magento product push error logs"><i class="fa fa-eye"></i></button>

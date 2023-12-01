@@ -207,7 +207,7 @@
               <th width="3%;">Size</th>
               <th width="5%;">Queue</th>
               <th width="2%">Try</th>
-              <th width="13.5%">Action</th>
+              <th width="3%">Action</th>
 
             </thead>
             <tbody class="infinite-scroll-pending-inner">
@@ -672,6 +672,9 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
+        function Showactionbtn(id){
+            $(".action-btn-tr-"+id).toggleClass('d-none')
+        }
         $("#select_date").datepicker({
       	  	format: 'yyyy-mm-dd'
       	});
@@ -808,7 +811,9 @@
     .done(function(result) {
       $('#pushJourneyHorizontal').modal('show');
       $('.push_journey_horizontal_logs').html(result);
-    });
+    });function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
 
   });
 
