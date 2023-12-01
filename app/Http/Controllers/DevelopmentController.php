@@ -3017,9 +3017,11 @@ class DevelopmentController extends Controller
 
         $slotAvailable = $this->userSchedulesLoadData($request->get('assigned_to'));
 
-        $issue->status = 'Planned';
-        $issue->start_date = $slotAvailable['st'];
-        $issue->estimate_date = $slotAvailable['en'];
+        if(!empty($slotAvailable)){
+            $issue->status = 'Planned';
+            $issue->start_date = $slotAvailable['st'];
+            $issue->estimate_date = $slotAvailable['en'];
+        }
 
         $user = User::find($request->get('assigned_to'));
 
