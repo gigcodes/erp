@@ -30,7 +30,15 @@
                                                {{ $product['brandSegment'] }}
                                             </span>
                                </td>
-                               <td>{{ $product['product'] }}</td>
+                               <td class="expand-row" style="word-break: break-all">
+                                    <span class="td-mini-container">
+                                                {{ strlen( $product['product']) > 15 ? substr( $product['product'], 0, 15).'...' :  $product['product'] }}
+                                     </span>
+
+                                   <span class="td-full-container hidden">
+                                               {{ $product['product'] }}
+                                            </span>
+                               </td>
                              
                                <td class="expand-row" style="word-break: break-all">
 
