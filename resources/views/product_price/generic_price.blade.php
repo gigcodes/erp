@@ -114,34 +114,34 @@
                    <table class="table table-bordered table-striped" id="product-price" style="table-layout: fixed">
                        <thead>
                        <tr>
-                           <th style="width: 7%">Category
+                           <th style="width: 4%">Category
                             <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="category" data-order="asc" aria-hidden="true"></i>
                             <i class="fa fa-arrow-down shortTable cursor-pointer"data-input="category" data-order="desc" aria-hidden="true"></i>
                            </th>
-                           <th style="width: 7%">website 
+                           <th style="width: 4%">website 
                             <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="website" data-order="asc" aria-hidden="true"></i>
                             <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="website" data-order="desc" aria-hidden="true"></i>
                            </th>
-                           <th style="width: 7%">Brand segment
+                           <th style="width: 5%">Brand segment
                              <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="bsegment" data-order="asc" aria-hidden="true"></i>
                             <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="bsegment" data-order="desc" aria-hidden="true"></i>
                            </th>
-                           <th style="width: 4%;word-break: break-all">Product</th>
+                           <th style="width: 5%;word-break: break-all">Product</th>
                            <th style="width: 5%">Country segment
                             <i class="fa fa-arrow-up shortTable cursor-pointer" data-input="csegment" data-order="asc" aria-hidden="true"></i>
                             <i class="fa fa-arrow-down shortTable cursor-pointer" data-input="csegment" data-order="desc" aria-hidden="true"></i>
                            </th>
                            <th style="width: 2%">Price</th>
                            @foreach($category_segments as $category_segment)
-                              <th width="3%"> Category Segment {{ $category_segment->name }}</th>
+                              <th width="4%"> Category Segment {{ $category_segment->name }}</th>
                            @endforeach
-                           <th style="width: 5%">Add Duty </th>
-                           <th style="width: 5%">Add Profit </th>
+                           <th style="width: 6%">Add Duty </th>
+                           <th style="width: 6%">Add Profit </th>
                            <th style="width: 3%">less_IVA </th>
-                           <th style="width: 3%">Cost A</th>
-                           <th style="width: 3%">Cost B </th>
-                           <th style="width: 3%">Final Price A</th>
-                           <th style="width: 3%">Final Price B</th>
+                           <th style="width: 2%">Cost A</th>
+                           <th style="width: 2%">Cost B </th>
+                           <th style="width: 2%">Final Price A</th>
+                           <th style="width: 2%">Final Price B</th>
                            <th style="width: 3%">Update</th>
                        </tr>
                        </thead>
