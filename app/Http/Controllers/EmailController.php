@@ -30,6 +30,7 @@ use App\Models\EmailStatusChangeHistory;
 use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\Models\EmailBox;
 
 class EmailController extends Controller
 {
@@ -218,11 +219,11 @@ class EmailController extends Controller
         //Get All Status
         $email_status = DB::table('email_status');
 
-        if (! empty($request->type) && $request->type == 'outgoing') {
+        /*if (! empty($request->type) && $request->type == 'outgoing') {
             $email_status = $email_status->where('type', 'sent');
         } else {
             $email_status = $email_status->where('type', '!=', 'sent');
-        }
+        }*/
 
         $email_status = $email_status->get(['id', 'email_status']);
 
@@ -232,11 +233,11 @@ class EmailController extends Controller
         //Get All Category
         $email_categories = DB::table('email_category');
 
-        if (! empty($request->type) && $request->type == 'outgoing') {
+        /*if (! empty($request->type) && $request->type == 'outgoing') {
             $email_categories = $email_categories->where('type', 'sent');
         } else {
             $email_categories = $email_categories->where('type', '!=', 'sent');
-        }
+        }*/
 
         $email_categories = $email_categories->get(['id', 'category_name']);
 
@@ -1656,18 +1657,70 @@ class EmailController extends Controller
         return $html;
     }
 
-    public function getCategoryMappings()
+    public function getCategoryMappings(Request $request)
     {
-        $userEmails = Email::where('type', 'incoming')
-            ->where('email_category_id', '>', 0)
+        $term = $request->term ?? '';
+        $sender = $request->sender ?? '';
+        $receiver = $request->receiver ?? '';
+        $status = $request->status ?? '';
+        $category = $request->category ?? '';
+        $mailbox = $request->mail_box ?? '';
+        $email_model_type = $request->email_model_type ?? '';
+        $email_box_id = $request->email_box_id ?? '';
+
+
+        //where('type', 'incoming')
+        $userEmails = Email::where('email_category_id', '>', 0)
             ->orderBy('created_at', 'desc')
-            ->groupBy('from')
-            ->paginate(10);
+            ->groupBy('from');
+
+        if ($term) {
+            $userEmails = $userEmails->where(function ($userEmails) use ($term) {
+                $userEmails->where('from', 'like', '%' . $term . '%')
+                    ->orWhere('to', 'like', '%' . $term . '%')
+                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('message', 'like', '%' . $term . '%');
+            });
+        }
+
+        if ($sender) {
+            $sender = explode(',', $request->sender);
+            $userEmails = $userEmails->where(function ($userEmails) use ($sender) {
+                $userEmails->whereIn('from', $sender);
+            });
+        }
+
+        if ($receiver) {
+            $receiver = explode(',', $request->receiver);
+            $userEmails = $userEmails->where(function ($userEmails) use ($receiver) {
+                $userEmails->whereIn('to', $receiver);
+            });
+        }
+        
+        if ($category) {
+            $category = explode(',', $request->category);
+            $userEmails = $userEmails->where(function ($userEmails) use ($category) {
+                $userEmails->whereIn('email_category_id', $category);
+            });
+        }
+
+        if ($email_box_id) {
+            $emailBoxIds = explode(',', $email_box_id);
+
+            $userEmails = $userEmails->where(function ($userEmails) use ($emailBoxIds) {
+                $userEmails->whereIn('email_box_id', $emailBoxIds);
+            });
+        }
+
+        $userEmails = $userEmails->paginate(10)->appends(request()->except(['page']));
 
         //Get All Category
         $email_categories = DB::table('email_category')->get();
 
-        return view('emails.category.mappings', compact('userEmails', 'email_categories'));
+        $emailModelTypes = Email::emailModelTypeList();
+
+        $emailBoxes = EmailBox::select('id', 'box_name')->get();
+        return view('emails.category.mappings', compact('userEmails', 'email_categories', 'emailModelTypes', 'emailBoxes'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
     // DEVTASK - 23369

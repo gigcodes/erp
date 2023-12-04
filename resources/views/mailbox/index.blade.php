@@ -36,7 +36,7 @@
 </div>
 <div class="row">
   <div class="col-md-12 p-0">
-    <h2 class="page-heading">Mailbox (<span id="email_list_count_id">{{$totalEmail}}</span>)</h2>
+    <h2 class="page-heading">Mailbox</h2>
   </div>
 </div>
 @if ($message = Session::get('success'))
@@ -51,53 +51,6 @@
 @endif
 <div class="row">
   <div class="col-lg-12 margin-tb">
-    <!-- <div class="pull-right mt-3">
-      <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#statusModel">Create Status</button>
-      <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#getCronEmailModal">Cron Email</button>
-      <button type="button" class="btn  custom-button" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
-      <a href="{{ route('syncroniseEmail')}}" class="btn custom-button">Synchronise Emails</a>
-    </div>
-    <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
-      <select class="form-control" name="" id="bluck_status" onchange="bulkAction(this,'status');">
-        <option value="">Change Status</option>
-        <?php
-          foreach ($email_status as $status) { ?>
-        <option value="<?php echo $status->id;?>" <?php if($status->id == Request::get('status')) echo "selected"; ?>><?php echo $status->email_status;?></option>
-        <?php } 
-          ?>
-      </select>
-    </div>
-    <div class="pull-left mt-3" style="margin-bottom:10px;margin-right:5px;">
-      <button type="button" class="btn custom-button bulk-dlt" onclick="bulkAction(this,'delete');">Bulk Delete</button>
-    </div> -->
-
-    <div class="row">
-      <div class="col-md-3"></div>
-      <div class="col-md-5 col-sm-5">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item <?php echo (request('type') == 'incoming' && request('seen') == '1') ? 'active' : '' ?>" >
-            <!-- Purpose : Add Turnary -  DEVTASK-18283 -->
-            <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
-          </li>
-          <li class="nav-item <?php echo ((request('type') == 'incoming' && request('seen') == '0') || empty(request('type'))) ? 'active' : '' ?>">
-            <a class="nav-link" id="unread-tab" data-toggle="tab" href="#unread" role="tab" aria-controls="unread" aria-selected="false" onclick="load_data('incoming',0)">Unread</a>
-          </li>
-          <li class="nav-item <?php echo (request('type') == 'outgoing' && request('seen') == 'both') ? 'active' : '' ?>">
-            <!-- Purpose : Add Turnary -  DEVTASK-18283 -->
-            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#sent" role="tab" aria-controls="sent" aria-selected="false" onclick="load_data('outgoing','both')">Sent</a>
-          </li>
-          <li class="nav-item <?php echo (request('type') == 'bin' && request('seen') == 'both') ? 'active' : '' ?>">
-            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('bin','both')">Trash</a>
-          </li>
-          <li class="nav-item <?php echo (request('type') == 'draft' && request('seen') == 'both') ? 'active' : '' ?>">
-            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('draft','both')">Draft</a>
-          </li>
-          <li class="nav-item <?php echo (request('type') == 'pre-send' && request('seen') == 'both') ? 'active' : '' ?>">
-            <a class="nav-link" id="sent-tab" data-toggle="tab" href="#bin" role="tab" aria-controls="bin" aria-selected="false" onclick="load_data('pre-send','both')">Queue</a>
-          </li>
-        </ul>
-      </div>
-    </div>
   </div>
   <div class="col-md-12">
     <div class="tab-content" id="myTabContent">
@@ -119,14 +72,6 @@
             value="<?php if(Request::get('term')) echo Request::get('term'); ?>"
             placeholder="Search by Keyword">
         </div>
-        <!--div class="form-group ml-3">
-          <div class='input-group date' id='email-datetime'>
-            <input type='text' class="form-control" id="date" name="date" value="{{ isset($date) ? $date : '' }}" />
-            <span class="input-group-addon">
-            <i class="fa fa-calendar" aria-hidden="true"></i>
-            </span>
-          </div>
-          </div-->
         <div class="form-group px-2">
           <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple data-email-sender-dropdown>
             <option value="">Select Sender</option>
@@ -135,16 +80,6 @@
         <div class="form-group px-2">
           <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple data-email-receiver-dropdown>
             <option value="">Select Receiver</option>
-          </select>
-        </div>
-        <div class="form-group px-2">
-          <select class="form-control email_status_select" name="status" id="email_status" style="width: 208px !important;" multiple>
-            <option value="">Select Status</option>
-            <?php
-              foreach ($email_status as $status) { ?>
-            <option value="<?php echo $status->id;?>" <?php if($status->id == Request::get('status')) echo "selected"; ?>><?php echo $status->email_status;?></option>
-            <?php } 
-              ?>
           </select>
         </div>
         <div class="form-group px-2">
@@ -164,16 +99,28 @@
             @endforeach
           </select>
         </div>
-        <div class="form-group px-2 mt-4">
+        <div class="form-group px-2">
           <select class="form-control email_box_select" name="email_box_id" id="email_box_id" multiple>
             @foreach($emailBoxes as $emailBox)
               <option value="{{ $emailBox['id'] }}">{{$emailBox['box_name']}}</option>
             @endforeach
           </select>
         </div>
+        <div class="form-group px-2">
+          <select class="form-control" name="email_type" id="email_type">
+            <option value="">Select Type</option>
+            <option value="Read" <?php if('Read' == Request::get('email_type')) echo "selected"; ?>>Read</option>
+            <option value="Unread" <?php if('Unread' == Request::get('email_type')) echo "selected"; ?>>Unread</option>
+            <option value="Sent" <?php if('Sent' == Request::get('email_type')) echo "selected"; ?>>Sent</option>
+            <option value="Trash" <?php if('Trash' == Request::get('email_type')) echo "selected"; ?>>Trash</option>
+            <option value="Draft" <?php if('Draft' == Request::get('email_type')) echo "selected"; ?>>Draft</option>
+            <option value="Queue" <?php if('Queue' == Request::get('email_type')) echo "selected"; ?>>Queue</option>
+          </select>
+        </div>
+        
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
-        <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
+        <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
@@ -909,21 +856,15 @@
   
   function get_data(){
     var term = $("#term").val();
-    var date = $("#date").val();
-    var type = $("#type").val();
-    var seen = $("#seen").val();
     var sender_name = $("#sender").val();
     var sender = sender_name.toString();
     var receiver_name = $("#receiver").val();
     var receiver = receiver_name.toString();
-    var status_name = $("#email_status").val();
-    var status = status_name.toString();
     var category_name = $("#category").val();
     var category = category_name.toString();
-    var mail_box_name = $("#mail_box").val();
-    var mail_box = mail_box_name.toString();
     var email_model_type = $('#email_model_type').val().toString();
     var email_box_id = $('#email_box_id').val().toString();
+    var email_type = $('#email_type').val().toString();
   
    console.log(window.url);
       $.ajax({
@@ -931,16 +872,12 @@
         type: 'get',
         data:{
               term:term,
-              date:date,
-              type:type,
-              seen:seen,
-  sender:sender,
-  receiver:receiver,
-  status:status,
-  category:category,
-              mail_box : mail_box,
+              sender:sender,
+              receiver:receiver,
+              category:category,
               email_model_type : email_model_type,
-              email_box_id : email_box_id
+              email_box_id : email_box_id,
+              email_type : email_type
           },
           beforeSend: function () {
               $("#loading-image").show();

@@ -4540,6 +4540,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/virtualmin/domains">Virtualmin Domains</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/mailbox">Mailbox</a>
+                                    </li>
                                 </ul>
                             </li>
 
