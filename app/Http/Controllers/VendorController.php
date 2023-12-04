@@ -558,6 +558,9 @@ class VendorController extends Controller
         if (!empty($source)) {
             $data['status'] = 0;
         }
+        if(!empty($request["framework"])){
+            $data['framework'] = implode(",", $request['framework']);
+        }
         $mainVendorData[0] = $data;
         $existArray = [];
         $sourceStatus = $validateStatus = false;
@@ -748,6 +751,10 @@ class VendorController extends Controller
         ]);
 
         $data = $request->except('_token');
+
+        if(!empty($request["framework"])){
+            $data['framework'] = implode(",", $request['framework']);
+        }
 
         Vendor::find($id)->update($data);
 

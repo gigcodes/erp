@@ -910,10 +910,17 @@
         var vendor = $(this).data('vendor');
         var url = "{{ url('vendors') }}/" + vendor.id;
 
+        var myString = vendor.framework;
+        var myArray = myString.split(',');
+
+        $.each(myArray, function(index, value) {
+            $('#framework_update option[value="' + value + '"]').attr('selected', true);
+        });
+
         $('#vendorEditModal form').attr('action', url);
         $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
         $('#vendor_type option[value="' + vendor.type + '"]').attr('selected', true);
-        $('#framework_update option[value="' + vendor.framework + '"]').attr('selected', true);
+        
         $('#vendorEditModal #vendor_name').val(vendor.name);
         $('#vendorEditModal #vendor_address').val(vendor.address);
         $('#vendorEditModal #vendor_phone').val(vendor.phone);
