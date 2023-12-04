@@ -42,42 +42,28 @@ class CreateMailBoxes extends Command
     public function handle()
     {
 
-        $emails = Email::where('created_at', '<=', Carbon::now()->subHours(72)->format('Y-m-d H:i:s'))
-            // ->where('type', 'incoming')
-            ->orderBy('created_at', 'asc')
-            ->whereNull('email_box_id')
+        $userEmails = Email::where('email_category_id', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->groupBy('from')
             ->get();
 
-        foreach ($emails as $email) {
-            try {
-                if (! empty($email->from)) {
-                    $emailArr = str_split($email->from, 1);
-                    $fromEmails = [];
+        if(!empty($userEmails)){
+            foreach ($userEmails as $key => $value) {
+                try {
+                    $userEmailsIds = Email::where('from', $value->from)->where('id', "!=", $value->id)->pluck('id');
 
-                    if ($emailArr[0] == '[') {
-                        $fromEmails = json_decode($email->from, true);
-                    } else {
-                        $fromEmails[] = $email->from;
+                    if(!empty($userEmailsIds)){
+                    Email::whereIn('id', $userEmailsIds) // Update users with IDs 1, 2, and 3
+                    ->update([
+                            'email_category_id' => $value->email_category_id,
+                        ]);
                     }
-
-                    foreach ($fromEmails as $fromEmail) {
-                        $emailArr = explode('@', $fromEmail);
-
-                        if (isset($emailArr[1])) {
-                            $emailBox = EmailBox::updateOrCreate(
-                                ['box_name' => $emailArr[1]],
-                            );
-
-                            $email->email_box_id = $emailBox->id;
-                            $email->save();
-                        }
-                    }
+                } catch(\Exception $e) {
+                    //
                 }
-            } catch(\Exception $e) {
-                //
             }
         }
-        
+
         $emails = Email::where('created_at', '<=', Carbon::now()->subHours(72)->format('Y-m-d H:i:s'))
             // ->where('type', 'incoming')
             ->orderBy('created_at', 'asc')

@@ -138,11 +138,6 @@
           </select>
         </div>
         <div class="form-group px-2">
-          <select class="form-control mail_box_select" name="mail_box" id="mail_box" style="width: 208px !important;" multiple data-email-mailbox-dropdown>
-            <option value="">Select Mailbox</option>
-          </select>
-        </div>
-        <div class="form-group px-2">
           <select class="form-control email_status_select" name="status" id="email_status" style="width: 208px !important;" multiple>
             <option value="">Select Status</option>
             <?php
@@ -162,7 +157,7 @@
               ?>
           </select>
         </div>
-        <div class="form-group px-2 mt-4">
+        <div class="form-group px-2">
           <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
             @foreach($emailModelTypes as $m => $module)
             <option value="{{$m}}">{{$module}}</option>
