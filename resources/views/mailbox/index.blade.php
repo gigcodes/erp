@@ -194,8 +194,8 @@
         <th width="5%">Receiver</th>
         <th width="4%">Model <br> Type</th>
         <th width="4%">Mail <br> Type</th>
-        <th width="5%">Subject</th>
-        <th width="14%">Body</th>
+        <th width="5%">Subject & Body</th>
+        <!-- <th width="14%">Body</th> -->
         <th width="8%">Status</th>
         <th width="1%">Draft</th>
         <th width="6%">Error <br> Message</th>
