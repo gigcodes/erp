@@ -2238,12 +2238,9 @@ class DevelopmentController extends Controller
         $data['repository_id'] = request('repository_id');
 
         $slotAvailable = $this->userSchedulesLoadData($request->get('assigned_to'));
-
-        if(!empty($slotAvailable)){
-            $data['status'] = 'Planned';
-            $data['start_date'] = $slotAvailable['st'];
-            $data['estimate_date'] = $slotAvailable['en'];
-        }
+        $data['status'] = 'Planned';
+        $data['start_date'] = $slotAvailable['st'];
+        $data['estimate_date'] = $slotAvailable['en'];
 
         $task = $this->developerTaskCreate($data);
 
