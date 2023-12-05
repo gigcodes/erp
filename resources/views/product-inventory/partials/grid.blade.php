@@ -22,8 +22,10 @@
             <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
           </a>      
           <div class="card-body">
+            <p class="card-text">SKU : <span id="skuValue">{{ $product->sku }}</span> &nbsp;
+              <span class="glyphicon glyphicon-duplicate" style="cursor: copy" aria-hidden="true" onclick="copySKU()"></span>
+            </p>
             <a href="{{ route( 'products.show', $product->id ) }}">
-              <p class="card-text">SKU : {{ $product->sku }}</p>
               <p class="card-text">Id : {{ $product->id }}</p>
               <p class="card-text">Size : {{ $product->size }}</p>
               @if($isAdmin)
@@ -70,3 +72,26 @@
     <?php } ?>
     </div>
 <?php } ?>
+<script>
+  function copySKU() {
+      // Get the SKU value
+      var skuValue = document.getElementById("skuValue").innerText;
+
+      // Create a textarea element to hold the SKU value
+      var textarea = document.createElement("textarea");
+      textarea.value = skuValue;
+
+      // Append the textarea to the body
+      document.body.appendChild(textarea);
+
+      // Select the text in the textarea
+      textarea.select();
+
+      // Copy the text to the clipboard
+      document.execCommand("copy");
+
+      // Remove the textarea
+      document.body.removeChild(textarea);
+
+  }
+</script>

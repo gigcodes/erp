@@ -76,10 +76,13 @@
         	<form action="?" method="GET" class="form-inline align-items-start w-100">
             <div class="w-100 custom-form">
         		<div class="d-flex flex-wrap">
-                <div class="form-group mb-3 col-md-3 col-12">
-            			<input name="term" type="text" class="form-control w-100" id="product-search" value="{{ request('term','') }}" placeholder="sku,brand,category,status,stage">
-            		</div>
-        		    <div class="form-group mb-3 col-md-3 col-12">
+                <div class="form-group mb-3 col-md-3 col-12">      
+                        {!! Form::select('sku[]',[], request("sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control w-100', 'id' => 'product-skus', 'multiple' => true]) !!}
+            	</div>
+                {{-- <div class="form-group mr-pd col-md-2">
+                    {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+                </div> --}}
+        		<div class="form-group mb-3 col-md-3 col-12">
                   {!! $category_selection !!}
                 </div>
                 <div class="form-group mb-3 col-md-3 col-12">
@@ -145,6 +148,8 @@
                 </div>
         	</form>
         </div>
+       
+        
         <div class="col-lg-12 margin-tb">
 	        <div class="productGrid " id="productGrid">
         		<div class="infinite-scroll-products" style="padding-bottom: 60px">
@@ -172,6 +177,55 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 {{--  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>--}}
   <script>
+ 
+        $(document).ready(function () {
+            $('#product-skus').select2({
+            tags: true, // Allow the user to add new tags (SKUs)
+            ajax: {
+                url: '/product-inventory/search/sku', // Your autosuggest route
+                dataType: 'json',
+                delay: 500,
+                data: function (params) {
+                    return {
+                        term: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    var results = data.map(function (item) {
+                        return { id: item, text: item };
+                    });
+
+                    return {
+                        results: results
+                    };
+                },
+                cache: true
+            },
+        });
+
+        function getUrlParameterArray(name) {
+            // Use regular expression to get all values of the parameter from the URL
+            var regex = new RegExp('[?&]' + name + '=([^&#]*)', 'g');
+            var results = [];
+            var match;
+
+            // Loop through all occurrences of the parameter
+            while (match = regex.exec(window.location.search)) {
+                results.push(decodeURIComponent(match[1].replace(/\+/g, ' ')));
+            }
+
+            return results.length > 0 ? results : null;
+        }
+
+        var skuArray = getUrlParameterArray('sku%5B%5D');
+
+        // Append selected values to the Select2 dropdown
+        skuArray.forEach(function (value) {
+            var option = new Option(value, value, true, true);
+            $('#product-skus').append(option).trigger('change');
+        })
+
+        });
 
         var isLoadingProducts = false;
     	var loadCount = $('.container-grow').find('.card-body').length;

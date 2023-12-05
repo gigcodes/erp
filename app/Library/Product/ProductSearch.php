@@ -131,6 +131,11 @@ class ProductSearch
                         $products = $products->whereIn('location', $value);
                         break;
 
+                    case 'sku':
+                        //dd($value);
+                        $products = $products->whereIn('sku', $value);
+                        break;
+
                     case 'type':
 
                         if (count($value) > 1) {
