@@ -829,7 +829,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento/export', [Logging\LogListMagentoController::class, 'export'])->name('list.magento.logging.export');
-
+    Route::post('list-magento-column-visbility', [Logging\LogListMagentoController::class, 'listmagentoColumnVisbilityUpdate'])->name('list.magento.column.update');
     Route::get('list-magento', [Logging\LogListMagentoController::class, 'index'])->name('list.magento.logging');
     Route::get('list-magento/error-reporting', [Logging\LogListMagentoController::class, 'errorReporting'])->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', [Logging\LogListMagentoController::class, 'productInformation'])->name('list.magento.product-information');

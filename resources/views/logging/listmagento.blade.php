@@ -73,6 +73,8 @@
 
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Export_popup">Export</button>
 
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#listmagentodatatablecolumnvisibilityList">Column Visiblity</button>
+
       </div>
       </h2>
   </div>
@@ -186,29 +188,118 @@
         <div class="table-responsive table-horizontal-scroll">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th width="4%">ID</th>
-              <th width="4%">SKU</th>
-              <th width="5%">Brand</th>
-              <th width="6%">Category</th>
-              <th width="5%">Price</th>
-              <th width="6%">Message</th>
-              <th width="4%">D&T</th>
-              <th width="6%">Website</th>
-              <th width="5%">Status</th>
-              <th width="5%">Lang Id</th>
-              <th width="6%">Sync Sts</th>
-              <th width="6%">Job Start</th>
-              <th width="6%">Job End</th>
-              <th width="3%">Total</th>
-              <th width="4%;">Success</th>
-              <th width="4%">Failure</th>
-              <th width="3%;">User</th>
-              <th width="3%;">Time</th>
-              <th width="3%;">Size</th>
-              <th width="5%;">Queue</th>
-              <th width="2%">Try</th>
-              <th width="3%">Action</th>
+                @if(!empty($dynamicColumnsToShowListmagento))
+                    @if (!in_array('ID', $dynamicColumnsToShowListmagento))
+                        <th width="4%">ID</th>
+                    @endif
 
+                    @if (!in_array('SKU', $dynamicColumnsToShowListmagento))
+                        <th width="5%">SKU</th>
+                    @endif
+
+                    @if (!in_array('Brand', $dynamicColumnsToShowListmagento))
+                        <th width="5%">Brand</th>
+                    @endif
+
+                    @if (!in_array('Category', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Category</th>
+                    @endif
+
+                    @if (!in_array('Price', $dynamicColumnsToShowListmagento))
+                        <th width="4%">Price</th>
+                    @endif
+
+                    @if (!in_array('Message', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Message</th>
+                    @endif
+
+                    @if (!in_array('D&T', $dynamicColumnsToShowListmagento))
+                        <th width="6%">D&T</th>
+                    @endif
+
+                    @if (!in_array('Website', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Website</th>
+                    @endif
+
+                    @if (!in_array('Status', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Status</th>
+                    @endif
+
+                    @if (!in_array('Lang Id', $dynamicColumnsToShowListmagento))
+                        <th width="4%">Lang Id</th>
+                    @endif
+
+                    @if (!in_array('Sync Sts', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Sync Sts</th>
+                    @endif
+
+                    @if (!in_array('Job Start', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Job Start</th>
+                    @endif
+
+                    @if (!in_array('Job End', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Job End</th>
+                    @endif
+
+                    @if (!in_array('Total', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Total</th>
+                    @endif
+
+                    @if (!in_array('Success', $dynamicColumnsToShowListmagento))
+                        <th width="4%;">Success</th>
+                    @endif
+
+                    @if (!in_array('Failure', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Failure</th>
+                    @endif
+
+                    @if (!in_array('User', $dynamicColumnsToShowListmagento))
+                        <th width="6%;">User</th>
+                    @endif
+
+                    @if (!in_array('Time', $dynamicColumnsToShowListmagento))
+                        <th width="3%;">Time</th>
+                    @endif
+
+                    @if (!in_array('Size', $dynamicColumnsToShowListmagento))
+                        <th width="2%;">Size</th>
+                    @endif
+
+                    @if (!in_array('Queue', $dynamicColumnsToShowListmagento))
+                        <th width="5%;">Queue</th>
+                    @endif
+
+                    @if (!in_array('Try', $dynamicColumnsToShowListmagento))
+                        <th width="2%">Try</th>
+                    @endif
+
+                    @if (!in_array('Action', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Action</th>
+                    @endif
+                @else 
+                    <th width="4%">ID</th>
+                    <th width="5%">SKU</th>
+                    <th width="5%">Brand</th>
+                    <th width="6%">Category</th>
+                    <th width="4%">Price</th>
+                    <th width="6%">Message</th>
+                    <th width="6%">D&T</th>
+                    <th width="6%">Website</th>
+                    <th width="3%">Status</th>
+                    <th width="4%">Lang Id</th>
+                    <th width="6%">Sync Sts</th>
+                    <th width="6%">Job Start</th>
+                    <th width="6%">Job End</th>
+                    <th width="3%">Total</th>
+                    <th width="4%;">Success</th>
+                    <th width="3%">Failure</th>
+                    <th width="6%;">User</th>
+                    <th width="3%;">Time</th>
+                    <th width="2%;">Size</th>
+                    <th width="5%;">Queue</th>
+                    <th width="2%">Try</th>
+                    <th width="3%">Action</th>
+                @endif
             </thead>
             <tbody class="infinite-scroll-pending-inner">
 				@include("logging.partials.magento_product_data")
@@ -221,6 +312,7 @@
      </div>
 
 @include("logging.partials.modal-sync-status-color")
+@include("logging.partials.column-visibility-modal")
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
