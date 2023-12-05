@@ -1003,11 +1003,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </button>
                 </div>
                 <div class="modal-body">
+                    @include('emails.shortcuts')
                     <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
-                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
+                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="10" placeholder="Reply..."></textarea>
                     </br>
-                    <p><strong>Message Body : </strong><span id="quickemailSubject"></span></p>
+                    <p><strong>Message Body : </strong> - <span id="quickemailDate"></span> <span id="quickemailSubject"></span></p>
                     <input type="hidden" id="receiver_email">
+                    <input type="hidden" id="sender_email_address">
                     <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
 
@@ -6477,6 +6479,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $('#formattedContent').html(formattedHTML);
         }
 
+        $('#sender_email_address').val(userEmail.from);
         $('#receiver_email').val(userEmail.to);
         $('#reply_email_id').val(userEmail.id);
 
@@ -6493,7 +6496,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             return formattedContent;
         }
         $('#quickemailSubject').html(userEmail.subject);
+        $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
         $('#iframe').attr('src', userEmaillUrl);
+
+        var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
+        var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
+
+        $("#reply-message").val(senderName)
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+            $("#reply-message").val(senderName+'\n\n'+response)
+        }).fail(function(errObj) {
+        })        
     }
 
     $(document).on('click', '.submit-reply-email', function (e) {

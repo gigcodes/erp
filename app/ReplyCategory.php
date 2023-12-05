@@ -13,7 +13,7 @@ class ReplyCategory extends Model
 
     public function approval_leads()
     {
-        return $this->hasMany(\App\Reply::class, 'category_id')->where('model', 'Approval Lead')->orderby('reply');
+        return $this->hasMany(\App\Reply::class, 'category_id')->where('model', 'Approval Lead')->orderBy('reply', 'ASC');
     }
 
     public function internal_leads()
