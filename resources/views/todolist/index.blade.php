@@ -118,7 +118,7 @@
                     <th width="15%">Category</th>
                     <th width="10%">Status</th>
                     <th width="5%">Date</th>
-                    <th width="22%">Remark</th>
+                    <th width="15%">Remark</th>
                     <th width="9%">Actions</th>
                 </tr>
 
@@ -569,7 +569,7 @@
                                 "</td><td>" + value.remark + "</td><td>" + value.created_at + "</td><tr>";
                         });
                         console.log(detials);
-                        $('#data').html(detials);
+                        $('#getRemarkHistory #data').html(detials);
                         $("#getRemarkHistory").modal('show');
                     }
                 },
@@ -741,6 +741,44 @@
             });
         }
 
+        $(document).on('click', '.remarks-message', function() {
+            var thiss = $(this);
+            var data = new FormData();
+            var todo_list_id = $(this).data('todolistid');
 
+            var message = $("#remarks_" + todo_list_id).val();
+            data.append("todo_list_id", todo_list_id);
+            data.append("remarks", message);
+            data.append("_token", "{{ csrf_token() }}");
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: "{{ route('todolist.remark.history.post') }}",
+                        type: 'POST',
+                        "dataType": 'json', // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function() {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function(response) {
+                        toastr['success']('Remarks Added successfully!!!', 'success');
+
+                        $("#remarks_" + vendor_id).val('');
+
+                    }).fail(function(errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send remarks");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a remarks first');
+            }
+        });
     </script>
 @endsection

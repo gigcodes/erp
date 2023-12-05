@@ -46,6 +46,7 @@ class MailBoxController extends Controller
         $mailbox = $request->mail_box ?? '';
         $email_model_type = $request->email_model_type ?? '';
         $email_box_id = $request->email_box_id ?? '';
+        $email_type = $request->email_type ?? '';
 
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
@@ -67,19 +68,9 @@ class MailBoxController extends Controller
             });
         }
 
-        if (empty($category)) {
-            $query = $query->whereHas('category', function ($q) {
-                $q->whereIn('priority', ['HIGH', 'UNDEFINED']);
-            })
-            ->orWhere('email_category_id', '<=', 0);
-        }
-
         //START - Purpose : Add Email - DEVTASK-18283
         if ($email != '' && $receiver == '') {
             $receiver = $email;
-            $from = 'order_data';
-            $seen = 'both';
-            $type = 'outgoing';
         }
         //END - DEVTASK-18283
 
@@ -95,20 +86,15 @@ class MailBoxController extends Controller
             $query = $query->where(function ($query) use ($type) {
                 $query->where('type', $type)->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
             });
-        } else {
-            $query = $query->where(function ($query) use ($type) {
-                $query->where('type', $type)->orWhere('type', 'open')->orWhere('type', 'delivered')->orWhere('type', 'processed');
-            })->where('status', '<>', 'bin')->where('is_draft', '<>', 1)->where('status', '<>', 'pre-send');
         }
+
         if ($email_model_type) {
             $model_type = explode(',', $email_model_type);
             $query = $query->where(function ($query) use ($model_type) {
                 $query->whereIn('model_type', $model_type);
             });
         }
-        if ($date) {
-            $query = $query->whereDate('created_at', $date);
-        }
+        
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
                 $query->where('from', 'like', '%' . $term . '%')
@@ -118,53 +104,45 @@ class MailBoxController extends Controller
             });
         }
 
-        if (! $term) {
-            if ($sender) {
-                $sender = explode(',', $request->sender);
-                $query = $query->where(function ($query) use ($sender) {
-                    $query->whereIn('from', $sender);
-                });
-            }
-            if ($receiver) {
-                $receiver = explode(',', $request->receiver);
-                $query = $query->where(function ($query) use ($receiver) {
-                    $query->whereIn('to', $receiver);
-                });
-            }
-            if ($status) {
-                $status = explode(',', $request->status);
-                $query = $query->where(function ($query) use ($status) {
-                    $query->whereIn('status', $status);
-                });
-            }
-            if ($category) {
-                $category = explode(',', $request->category);
-                $query = $query->where(function ($query) use ($category) {
-                    $query->whereIn('email_category_id', $category);
-                });
-            }
-        }
-
-        if (! empty($mailbox)) {
-            $mailbox = explode(',', $request->mail_box);
-            $query = $query->where(function ($query) use ($mailbox) {
-                $query->orWhere('to', $mailbox);
+        if ($sender) {
+            $sender = explode(',', $request->sender);
+            $query = $query->where(function ($query) use ($sender) {
+                $query->whereIn('from', $sender);
             });
         }
 
-        if (isset($seen)) {
-            if ($seen != 'both') {
-                $query = $query->where('seen', $seen);
-            }
+        if ($receiver) {
+            $receiver = explode(',', $request->receiver);
+            $query = $query->where(function ($query) use ($receiver) {
+                $query->whereIn('to', $receiver);
+            });
+        }
+        
+        if ($category) {
+            $category = explode(',', $request->category);
+            $query = $query->where(function ($query) use ($category) {
+                $query->whereIn('email_category_id', $category);
+            });
         }
 
-        // If it isn't trash query remove email with status trashed
-        if (! $trash_query) {
-            $query = $query->where(function ($query) use ($type) {
-                $isDraft = ($type == 'draft') ? 1 : 0;
+        $query->where('email_category_id', '>', 0);
 
-                return $query->where('status', '<>', 'bin')->orWhereNull('status')->where('is_draft', $isDraft);
-            });
+        if (!empty($email_type)) {
+            if($email_type=='Read') {
+                $query = $query->where('type', 'incoming');
+                $query = $query->where('seen', 1);
+            } else if($email_type=='Unread') {
+                $query = $query->where('type', 'incoming');
+                $query = $query->where('seen', 0);
+            } else if($email_type=='Sent') {
+                $query = $query->where('type', 'outgoing');
+            } else if($email_type=='Trash') {
+                $query = $query->where('status', 'bin');
+            } else if($email_type=='Draft') {
+                $query = $query->where('is_draft', 1)->where('status', '<>', 'pre-send');
+            } else if($email_type=='Queue') {
+                $query = $query->where('status', 'pre-send');
+            }
         }
 
         if ($email_box_id) {
@@ -172,10 +150,6 @@ class MailBoxController extends Controller
 
             $query = $query->where(function ($query) use ($emailBoxIds) {
                 $query->whereIn('email_box_id', $emailBoxIds);
-            });
-        } else {
-            $query = $query->where(function ($query) {
-                $query->whereNotNull('email_box_id');
             });
         }
 

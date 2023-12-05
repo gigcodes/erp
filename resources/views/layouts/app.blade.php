@@ -1005,7 +1005,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 <div class="modal-body">
                     <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
                     <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
-                    <p><strong>Message : </strong><span id="quickemailSubject"></span></p>
+                    </br>
+                    <p><strong>Message Body : </strong><span id="quickemailSubject"></span></p>
                     <input type="hidden" id="receiver_email">
                     <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
@@ -1013,7 +1014,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <div class="col-md-12">
                             <iframe src="" id="eFrame" scrolling="no" style="width:100%;" frameborder="0" onload="autoIframe('eFrame');"></iframe>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer" style=" width: 100%; display: inline-block;">
+                            <label style=" float: left;"><span>Unread :</span> <input type="checkbox" id="unreadEmail" value="" style=" height: 13px;"></label>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                             <button type="button" class="btn btn-default submit-reply-email">Reply</button>
                         </div>
@@ -4538,6 +4540,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/virtualmin/domains">Virtualmin Domains</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/mailbox">Mailbox</a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -6428,9 +6433,42 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         }
     });
 
+    $(document).ready(function(){
+        $('#unreadEmail').change(function(){
+
+            var userEmaillUrl = '/email/email-frame/'+$(this).val();
+
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: userEmaillUrl,
+                type: 'get',
+            }).done( function(response) {
+            }).fail(function(errObj) {
+            });
+        });
+    });
+
     function openQuickMsg(userEmail) {
+
+        $('#unreadEmail').prop('checked', false);
+
         $('#iframe').attr('src', "");
         var userEmaillUrl = '/email/email-frame/'+userEmail.id;
+
+        $('#unreadEmail').val(userEmail.id);
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+        }).fail(function(errObj) {
+        });
+
         var isHTML = isHTMLContent(userEmail.message);
         if (isHTML) {
             $('#formattedContent').html(userEmail.message);
@@ -6450,7 +6488,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             var decodedContent = $('<textarea/>').html(rawContent).text();
             var formattedContent = decodedContent.replace(/\n/g, '<br>');
             formattedContent = formattedContent.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
-            formattedContent = '<div>' + formattedContent + '</div>';
+            formattedContent = '<div class="form-control" style=" height: auto;">' + formattedContent + '</div>';
 
             return formattedContent;
         }

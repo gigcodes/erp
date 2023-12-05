@@ -158,7 +158,7 @@
               ?>
           </select>
         </div>
-        <div class="form-group px-2 mt-4">
+        <div class="form-group px-2">
           <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
             @foreach($emailModelTypes as $m => $module)
             <option value="{{$m}}">{{$module}}</option>
@@ -167,7 +167,7 @@
         </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="" />
-        <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
+        <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
@@ -181,19 +181,19 @@
   <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
     <thead>
       <tr>
-        <th width="1%">Bulk <br> Action</th>
-        <th width="5%">Date</th>
-        <th width="5%">Sender</th>
-        <th width="5%">Receiver</th>
-        <th width="4%">Model <br> Type</th>
-        <th width="4%">Mail <br> Type</th>
+        <th width="1%">#</th>
+        <th width="6%">Date</th>
+        <th width="4%">Sender</th>
+        <th width="4%">Receiver</th>
+        <th width="4%">Model Type</th>
+        <th width="3%">Mail Type</th>
         <th width="5%">Subject & Body</th>
         {{-- <th width="14%">Body</th> --}}
-        <th width="8%">Status</th>
+        <th width="6%">Status</th>
         <th width="1%">Draft</th>
-        <th width="6%">Error <br> Message</th>
-        <th width="8%">Category</th>
-        <th width="8%">Action</th>
+        <th width="8%">Error Message</th>
+        <th width="6%">Category</th>
+        <th width="2%">Action</th>
       </tr>
     </thead>
     <tbody>
