@@ -1,3 +1,6 @@
+<style type="text/css">
+#vendorShortcutCreateModal .select2-container {width: 100% !important;}
+</style>
 <div id="vendorShortcutCreateModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
@@ -41,7 +44,7 @@
                     <?php
                     $frameworkVer = \App\Models\VendorFrameworks::all();
                     ?>
-                    <select name="framework[]" value="" class="form-control" id="framework_s" multiple>
+                    <select name="framework[]" value="" class="form-control select-multiple-s selectpicker" id="framework_s" multiple>
                       @foreach ($frameworkVer as $fVer)
                         <option value="{{$fVer->id}}">{{$fVer->name}}</option>
                       @endforeach

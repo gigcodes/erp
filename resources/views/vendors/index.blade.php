@@ -143,6 +143,7 @@
         top: 17px;
         right: 10px;
     }
+    #vendorCreateModal .select2-container, #vendorEditModal .select2-container {width: 100% !important;}
 </style>
 @endsection
 
@@ -915,6 +916,7 @@
 
         $.each(myArray, function(index, value) {
             $('#framework_update option[value="' + value + '"]').attr('selected', true);
+            $('#framework_update option[value="' + value + '"]').prop('selected', true);
         });
 
         $('#vendorEditModal form').attr('action', url);
@@ -1436,7 +1438,7 @@
 
         });
 
-        $(".select2-quick-reply").select2({
+        $(".select2-quick-reply, .select-multiple-f").select2({
             tags: true
         });
 

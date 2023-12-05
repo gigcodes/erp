@@ -9839,6 +9839,10 @@ if (!\Auth::guest()) {
               }
           });
     });
+
+    $(".select-multiple-s").select2({
+      tags: true
+  });
     
     </script>
     @if ($message = Session::get('actSuccess'))
