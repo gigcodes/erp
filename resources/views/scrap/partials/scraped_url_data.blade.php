@@ -61,7 +61,7 @@
 
     @if(in_array('color',$response['columns']))
     <td class="expand-row table-hover-cell Website-task">
-        @if(!is_array($log->properties))
+        @if(is_array($log->properties))
         <span class="td-mini-container Website-task">
             {{ isset($log->properties['color'])?strlen($log->properties['color']) > 5 ? substr( $log->properties['color'] , 0, 5).'...' :  $log->properties['color']:'' }}
         </span>
