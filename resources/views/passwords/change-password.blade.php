@@ -5,23 +5,53 @@
     <style src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css"></style>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
 @endsection
+<style type="text/css">
+    #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+        .select2{
+            width: 100% !important;
+        }
+</style>
 @section('content')
-    
+<div id="myDiv">
+    <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+</div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Passwords Manager</h2>
+            <h2 class="page-heading">Passwords Manager (<span id="passwords_count">{{ $users->total() }}</span>)</h2>
             <div class="pull-left">
-
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ Form::open(array('url' => route('password.change'), 'method' => 'post')) }}
+                                <input type="hidden" name="users" id="userIds">
+                                <button type="submit" class="btn btn-secondary"> Generate password </button>
+                            {{ Form::close() }}
+                        </div>
+                        <div class="col-md-3">
+                            {!! Form::select('username[]',[], request("username",[]), ['data-placeholder' => 'Search Username','class' => 'form-control w-100', 'id' => 'username', 'multiple' => true]) !!}
+                        </div>
+                        <div class="col-md-3">
+                            {!! Form::select('email[]',[], request("email",[]), ['data-placeholder' => 'Search Email','class' => 'form-control w-100', 'id' => 'email', 'multiple' => true]) !!}
+                        </div>
+                        <div class="col-md-1">
+                           <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#passwordCreateModal">+</button>
             </div>
-            <div>
-                {{ Form::open(array('url' => route('password.change'), 'method' => 'post')) }}
-                    <input type="hidden" name="users" id="userIds">
-                    <button type="submit" class="btn btn-secondary"> Generate password </button>
-                {{ Form::close() }}
-            </div>
+            
         </div>
     </div>
 
@@ -32,7 +62,8 @@
               <table class="table table-bordered" id="passwords-table">
                 <thead>
                   <tr>
-                    <th>#ID</th>
+                    <th>#</th>
+                    <th>ID</th>
                     <th>Username</th>
                     <th>Email</th>
                     <th>Send WhatsApp</th>
@@ -40,23 +71,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                    @foreach($users as $user)
-                      <tr>
-                            <td > <input type="checkbox" class="checkbox_ch" id="u{{ $user->id }}" name="userIds[]" value="{{ $user->id }}"></td>
-                            <td><label for="u{{ $user->id }}"> {{ $user->name }} </label></td>
-                            <td><label for="u{{ $user->id }}" > {{ $user->email }}</label></td>
-                            <td>Send WhatsApp</td>
-                            <td>
-                                <button class="btn btn-xs btn-none-border show_password_history" data-id="{{ $user->id }}" data-email="{{ $user->email }}" title="Password Email History"><i class="fa fa-eye"></i></button>
-                                <button class="btn btn-xs btn-none-border send_password_email" data-id="{{ $user->id }}" data-email="{{ $user->email }}" title="Send Email" data-toggle="modal" data-target="#passwordSendEmailModal"><i class="fa fa-envelope"></i></button>
-                            </td>
-                      </tr>
-                    @endforeach
+                    @include('passwords.partials.change-password')
                 </tbody>
               </table>
             </div>
         </div>
-
+        {!! $users->render() !!}
        {{-- <div class="col-xs-5">
             <h3>Select Users To Change Password</h3>
             <select name="from[]" id="keepRenderingSort" class="form-control" size="8" multiple="multiple">
@@ -168,9 +188,121 @@
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript">
 
-        $(document).ready( function () {
-            $('#passwords-table').DataTable();
+$(document).ready(function () {
+            $('#username').select2({
+            tags: true, // Allow the user to add new tags (SKUs)
+            ajax: {
+                url: '/search/username', // Your autosuggest route
+                dataType: 'json',
+                delay: 500,
+                data: function (params) {
+                    return {
+                        term: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    var results = data.map(function (item) {
+                        return { id: item, text: item };
+                    });
+                    return {
+                        results: results
+                    };
+                },
+                cache: true
+            },
         });
+
+        $('#email').select2({
+            tags: true, // Allow the user to add new tags (SKUs)
+            ajax: {
+                url: '/search/email', // Your autosuggest route
+                dataType: 'json',
+                delay: 500,
+                data: function (params) {
+                    return {
+                        term: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    var results = data.map(function (item) {
+                        return { id: item, text: item };
+                    });
+                    return {
+                        results: results
+                    };
+                },
+                cache: true
+            },
+        });
+    });   
+    function submitSearch(){
+            src = "{{route('password.manage')}}";
+            username = $('#username').val();
+            var jsonSelectedUsernames = JSON.stringify(username);
+
+            email = $('#email').val();
+            var jsonSelectedEmails = JSON.stringify(email);
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    username : jsonSelectedUsernames,
+                    email : jsonSelectedEmails,
+                },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+
+            }).done(function (data) {
+                $("#loading-image").hide();
+                $("#passwords-table tbody").empty().html(data.tbody);
+                $("#passwords_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+            
+        }
+
+        function resetSearch(){
+        src = "{{route('password.manage')}}"
+        blank = ''
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {               
+               blank : blank, 
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            $('#username').val(null).trigger('change');
+            $('#email').val(null).trigger('change');
+            $("#passwords-table tbody").empty().html(data.tbody);
+            $("#passwords_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    }
+
+        // $(document).ready( function () {
+        //     $('#passwords-table').DataTable();
+        // });
 
          $('.checkbox_ch').change(function(){
              var values = $('input[name="userIds[]"]:checked').map(function(){return $(this).val();}).get();

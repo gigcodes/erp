@@ -2567,6 +2567,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('passwords/change', [PasswordController::class, 'changePasswords'])->name('passwords.change');
     Route::post('password/store', [PasswordController::class, 'store'])->name('password.store');
     Route::get('password/passwordManager', [PasswordController::class, 'manage'])->name('password.manage');
+    Route::get('/search/username', [PasswordController::class, 'autoSuggestUsername']);
+    Route::get('/search/email', [PasswordController::class, 'autoSuggestEmail']);
     Route::post('password/change', [PasswordController::class, 'changePassword'])->name('password.change');
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
