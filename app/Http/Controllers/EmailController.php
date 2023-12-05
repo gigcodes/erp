@@ -772,10 +772,14 @@ class EmailController extends Controller
         $status = $request->input('status');
 
         $email = Email::find($email_id);
-        $email->status = $status;
-        $email->email_category_id = $category;
 
-        $email->update();
+        if(!empty($email)){
+            Email::where('from', $email->from)->update(['status' => $status, 'email_category_id' => $category]);
+        }
+
+        /*$email->status = $status;
+        $email->email_category_id = $category;
+        $email->update();*/
 
         session()->flash('success', 'Data updated successfully');
 
