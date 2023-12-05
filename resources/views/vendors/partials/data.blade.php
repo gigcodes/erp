@@ -10,6 +10,17 @@
     if ($status_color == null) {
         $status_color = new stdClass();
     }
+
+    $vendor_frameworks = [];
+    $vendor_frameworksv = '';
+    if(!empty($vendor->framework)){
+
+        $vendor_frameworks = \App\Models\VendorFrameworks::whereIn('id', explode(",",$vendor->framework))->pluck('name', 'id');
+
+        $vendor_frameworksv = collect($vendor_frameworks)->implode(', ');
+
+    }
+
 @endphp
 @if(!empty($dynamicColumnsToShowVendors))
     <tr style="background-color: {{$status_color->color ?? ""}}!important;">
@@ -184,7 +195,7 @@
         @endif
 
         @if (!in_array('Framework', $dynamicColumnsToShowVendors))
-            <td>{{ $vendor->framework_name }}</td>
+            <td>{{ $vendor_frameworksv }}</td>
         @endif
 
         @if (!in_array('Created Date', $dynamicColumnsToShowVendors))
@@ -394,7 +405,7 @@
 
         <td>{{ $vendor->type }}</td>
 
-        <td>{{ $vendor->framework_name }}</td>
+        <td>{{ $vendor_frameworksv }}</td>
 
         <td>{{ $vendor->created_at }}</td>
 
