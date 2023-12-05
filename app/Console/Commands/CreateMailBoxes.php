@@ -41,6 +41,29 @@ class CreateMailBoxes extends Command
      */
     public function handle()
     {
+
+        $userEmails = Email::where('email_category_id', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->groupBy('from')
+            ->get();
+
+        if(!empty($userEmails)){
+            foreach ($userEmails as $key => $value) {
+                try {
+                    $userEmailsIds = Email::where('from', $value->from)->where('id', "!=", $value->id)->pluck('id');
+
+                    if(!empty($userEmailsIds)){
+                    Email::whereIn('id', $userEmailsIds) // Update users with IDs 1, 2, and 3
+                    ->update([
+                            'email_category_id' => $value->email_category_id,
+                        ]);
+                    }
+                } catch(\Exception $e) {
+                    //
+                }
+            }
+        }
+
         $emails = Email::where('created_at', '<=', Carbon::now()->subHours(72)->format('Y-m-d H:i:s'))
             // ->where('type', 'incoming')
             ->orderBy('created_at', 'asc')

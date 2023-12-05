@@ -380,4 +380,23 @@ class TodoListController extends Controller
         TodoList::where('id', $id)->delete();
         return response()->json(['message' => 'Your Todo Task has been deleted successfuly!']);
     }
+
+    public function remarkPostHistory(Request $request)
+    {
+        try {
+            $remarks = ToDoListRemarkHistoryLog::create(
+                [
+                    'user_id' => Auth::user()->id,
+                    'remark' => $request->remarks,
+                    'todo_list_id' => $request->todo_list_id,
+                ]
+            );
+            $remarks = ToDoListRemarkHistoryLog::where('id', $remarks->id)->first();
+
+            return response()->json(['code' => 200, 'data' => $remarks, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 }

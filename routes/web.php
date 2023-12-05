@@ -5533,6 +5533,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/category/update', [TodoListController::class, 'todoCategoryUpdate'])->name('todolist.category.update');
     Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-updates');
     Route::delete('/{id}/destroy', [TodoListController::class, 'destroy'])->name('todolist.destroy');
+    Route::post('/remark/historypost', [TodoListController::class, 'remarkPostHistory'])->name('todolist.remark.history.post');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {

@@ -49,6 +49,57 @@
   <p>{{ $message }}</p>
 </div>
 @endif
+
+<div class="row">
+  <div class="col-12 mb-3 mt-4">
+    <div class="pull-left">
+      <form class="form-inline" >
+        <div class="form-group ">
+          <input id="term" name="term" type="text" class="form-control"
+            value="<?php if(Request::get('term')) echo Request::get('term'); ?>"
+            placeholder="Search by Keyword">
+        </div>
+        <div class="form-group px-2">
+          <select class="form-control sender_select" name="sender" id="sender" style="width: 208px !important;" multiple data-email-sender-dropdown>
+            <option value="">Select Sender</option>
+          </select>
+        </div>
+        <div class="form-group px-2">
+          <select class="form-control receiver_select" name="receiver" id="receiver" style="width: 208px !important;" multiple data-email-receiver-dropdown>
+            <option value="">Select Receiver</option>
+          </select>
+        </div>
+        <div class="form-group px-2">
+          <select class="form-control select_category" name="category" id="category" multiple>
+            <option value="">Select Category</option>
+            <?php
+              foreach ($email_categories as $category) { ?>
+            <option value="<?php echo $category->id;?>" <?php if($category->id == Request::get('category')) echo "selected"; ?>><?php echo $category->category_name;?></option>
+            <?php } 
+              ?>
+          </select>
+        </div>
+        <div class="form-group px-2">
+          <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
+            @foreach($emailModelTypes as $m => $module)
+            <option value="{{$m}}">{{$module}}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="form-group px-2">
+          <select class="form-control email_box_select" name="email_box_id" id="email_box_id" multiple>
+            @foreach($emailBoxes as $emailBox)
+              <option value="{{ $emailBox['id'] }}">{{$emailBox['box_name']}}</option>
+            @endforeach
+          </select>
+        </div>
+        <input type='hidden' class="form-control" id="type" name="type" value="" />
+        <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="table-responsive mt-3" style="margin-top:20px;">
   <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
     <thead>
@@ -239,6 +290,31 @@
           }
         })
       }
+  });
+
+  $('.model_type_select').select2({
+      placeholder:"Select Model Type",
+  });
+  $('.sender_select').select2({
+      placeholder:"Select sender",
+  });
+  $('.receiver_select').select2({
+      placeholder:"Select Receiver",
+  });
+  $('.select_category').select2({
+      placeholder:"Select Category",
+  });
+
+  $('.email_box_select').select2({
+      placeholder:"Select Mailbox",
+  });
+
+  $('.select2-search__field').css('width', '100%')
+
+  $(document).on('click', '[data-reply-add-receiver-btn]', function (){
+    $('.reply-row-receiver-items').remove();
+    
+    $('#addReceiverReplyModal').modal('show');
   });
 </script>
 @endsection
