@@ -1620,6 +1620,20 @@ class EmailController extends Controller
         return view('emails.frame-view', compact('emailData'));
     }
 
+    public function viewEmailFrameInfo(Request $request)
+    {   
+        $id = $request->id;
+        $emailData = Email::find($id);
+
+        $sender_email = $emailData->to;
+        $emailAddresses = EmailAddress::where('from_address', $sender_email)->orderBy('id', 'ASC')->first();
+            
+        $emailContent = '';
+        if(!empty($emailAddresses)){
+            return view('emails.content-view', compact('emailAddresses'));
+        }
+    }
+
     public function getEmailFilterOptions(Request $request)
     {
         $user = Auth::user();

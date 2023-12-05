@@ -11,7 +11,7 @@
                         <option value="">Select Category</option>
 
                         @php
-                        $reply_categories = \App\ReplyCategory::select('id', 'name')->with('approval_leads')->orderby('id', 'DESC')->get();
+                        $reply_categories = \App\ReplyCategory::select('id', 'name')->with('approval_leads')->orderby('name', 'ASC')->get();
                         @endphp
 
                         @foreach($reply_categories as $category)

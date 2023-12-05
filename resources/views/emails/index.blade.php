@@ -2301,6 +2301,23 @@
             },
             changeQuickComment : function (ele) {
                 ele.closest('#view-quick-email').find('#reply-message').val(ele.val());
+
+                var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
+                var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
+
+                $("#reply-message").val(senderName)
+
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: userEmaillUrl,
+                    type: 'get',
+                }).done( function(response) {
+                    $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+                }).fail(function(errObj) {
+                })
+                
             },
             leadsChart : function () {
                 var params = {
