@@ -1003,6 +1003,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </button>
                 </div>
                 <div class="modal-body">
+                    @include('emails.shortcuts')
                     <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
                     <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
                     </br>

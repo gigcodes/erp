@@ -1702,6 +1702,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
 
     Route::resource('email', EmailController::class);
+    Route::post('email/statuscolor', [EmailController::class, 'statuscolor'])->name('email.statuscolor');
+    Route::post('email-column-visbility', [EmailController::class, 'emailsColumnVisbilityUpdate'])->name('email.column.update');
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
