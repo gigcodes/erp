@@ -1007,7 +1007,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
                     <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
                     </br>
-                    <p><strong>Message Body : </strong><span id="quickemailSubject"></span></p>
+                    <p><strong>Message Body : </strong> - <span id="quickemailDate"></span> <span id="quickemailSubject"></span></p>
                     <input type="hidden" id="receiver_email">
                     <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
@@ -6494,6 +6494,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             return formattedContent;
         }
         $('#quickemailSubject').html(userEmail.subject);
+        $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
         $('#iframe').attr('src', userEmaillUrl);
     }
 

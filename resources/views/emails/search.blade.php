@@ -13,8 +13,6 @@
                     @if($email->status != 'bin')
                         <input name="selector[]" id="ad_Checkbox_{{ $email->id }}" class="ads_Checkbox" type="checkbox" value="{{ $email->id }}" style="margin: 0px; height: auto;" />
                     @endif
-
-                    {{ $email->id }}
                 </td>
             @endif
 
@@ -210,7 +208,6 @@
             <td>@if($email->status != 'bin')
                 <input name="selector[]" id="ad_Checkbox_{{ $email->id }}" class="ads_Checkbox" type="checkbox" value="{{ $email->id }}" style="margin: 0px; height: auto;" />
             @endif
-            {{ $email->id }}
             </td>
 
             <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
