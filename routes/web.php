@@ -473,6 +473,8 @@ Route::get('criteria/get/{id}', [PositionController::class, 'list'])->name('get.
 
 Route::get('vendors/create-cv/{id}', [VendorResumeController::class, 'create'])->name('vendors.create.cv');
 Route::post('vendors/cv/store', [VendorResumeController::class, 'store'])->name('vendor.cv.store');
+Route::get('vendors/create-cv', [VendorResumeController::class, 'create'])->name('vendor.create.cv');
+Route::post('vendors/cv/storeCVWithoutLogin', [VendorResumeController::class, 'storeCVWithoutLogin'])->name('vendor.storeCVWithoutLogin');
 
 Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
