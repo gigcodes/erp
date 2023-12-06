@@ -1005,7 +1005,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 <div class="modal-body">
                     @include('emails.shortcuts')
                     <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
-                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="10" placeholder="Reply..."></textarea>
+                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="10"></textarea>
                     </br>
                     <p><strong>Message Body : </strong> - <span id="quickemailDate"></span> <span id="quickemailSubject"></span></p>
                     <input type="hidden" id="receiver_email">
@@ -6073,6 +6073,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+        <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></scrip
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
@@ -6502,7 +6503,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
         var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
 
-        $("#reply-message").val(senderName)
+        //$("#reply-message").val(senderName);
+        addContentToEditor(senderName);
 
         $.ajax({
             headers: {
@@ -6511,10 +6513,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             url: userEmaillUrl,
             type: 'get',
         }).done( function(response) {
-            $("#reply-message").val(senderName+'\n\n'+response)
+            //$("#reply-message").val(senderName+'\n\n'+response);
+            addContentToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
         }).fail(function(errObj) {
         })        
     }
+
+    function addContentToEditor(newContent) {
+        // Get the TinyMCE editor instance by ID
+        var editor = tinymce.get('reply-message');
+
+        if (editor) {
+          // Add content to the editor
+          editor.setContent(newContent);
+        } else {
+          console.error('Editor instance not found.');
+        }
+      }
 
     $(document).on('click', '.submit-reply-email', function (e) {
         e.preventDefault();
@@ -9863,6 +9878,11 @@ if (!\Auth::guest()) {
     $(".select-multiple-s").select2({
       tags: true
   });
+
+    tinymce.init({
+        selector: '#view-quick-email #reply-message',
+        menubar: false
+    });
     
     </script>
     @if ($message = Session::get('actSuccess'))
