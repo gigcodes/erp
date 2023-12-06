@@ -678,7 +678,7 @@
                             <thead>
                             <tr>
                                 <th width="4%">ID</th>
-                                <th width="7%">Date</th>
+                                <th width="4%">Date</th>
                                 <th width="4%" class="category">Category</th>
                                 <th width="4%">Task Subject</th>
                                 <th width="10%">Assign To</th>
@@ -961,14 +961,14 @@
                                             </div>
                                         </td>
                                         <td class="p-2">
-                                            <div class="dropdown dropleft">
+                                            <!-- <div class="dropdown dropleft">
                                                 <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     Actions
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$task->id}}">
                                                     <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">Task Information: Update</a>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$task->id}}')"><i class="fa fa-arrow-down"></i></button>
                                         </td>
                                     </tr>
@@ -1027,6 +1027,9 @@
                                                         <i class="fa fa-list" aria-hidden="true"></i>
                                                     </button>
 
+                                                    <a title="Task Information: Update" class="btn btn-image mt-2" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{$task->id}}')">
+                                                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </td>

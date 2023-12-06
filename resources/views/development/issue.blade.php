@@ -1815,6 +1815,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             }, 2500);
         })
     });
+
+    function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
 </script>
 @endsection
 @push('scripts')

@@ -272,7 +272,7 @@
                         <th style="width:10%">Estimated Time</th>
                         <th style="width:10%">Estimated Start Datetime</th>
                         <th style="width:10%">Estimated End Datetime</th>
-                        <th width="10%">Actions</th>
+                        <th width="5%">Actions</th>
                     @else
                         <th style="width:12%;">ID</th>
                         <th style="width:5%;">Module</th>
@@ -289,7 +289,7 @@
                         <th style="width:10%">Estimated Time</th>
                         <th style="width:10%">Estimated Start Datetime</th>
                         <th style="width:10%">Estimated End Datetime</th>
-                        <th style="width:7%;">Actions</th>
+                        <th style="width:5%;">Actions</th>
                     @endif
                 </tr>
                 </thead>

@@ -232,25 +232,33 @@
     </td>
 
     <td>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>
+    </td>
+</tr>
+<tr class="action-btn-tr-{{$issue->id}} d-none">
+    <td class="font-weight-bold">Action</td>
+    <td colspan="15">
         <button class="btn btn-image set-remark" data-task_id="{{ $issue->id }}" data-task_type="Dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
-        <div class="dropdown dropleft">
+
+        <a title="Task Information: Update" class="btn btn-sm btn-image" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{ $issue->id }}')"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+
+        <button class="btn btn-sm btn-image create-task-document" title="Create document" data-id="{{$issue->id}}">
+            <i class="fa fa-file-text" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-sm btn-image show-created-task-document" title="Show created document" data-id="{{$issue->id}}">
+            <i class="fa fa-list" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-sm btn-image add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+            <i class="fa fa-key" aria-hidden="true"></i>
+        </button>
+        <!-- <div class="dropdown dropleft">
             <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$issue->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Actions
             </a>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink{{$issue->id}}">
                 <a class="dropdown-item" href="javascript:void(0);" onclick="funTaskInformationModal(this, '{{ $issue->id }}')">Task Information: Update</a>
             </div>
-
-            <button class="btn btn-sm mt-2 create-task-document" title="Create document" data-id="{{$issue->id}}">
-                <i class="fa fa-file-text" aria-hidden="true"></i>
-            </button>
-            <button class="btn btn-sm mt-2 show-created-task-document" title="Show created document" data-id="{{$issue->id}}">
-                <i class="fa fa-list" aria-hidden="true"></i>
-            </button>
-            <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
-                <i class="fa fa-key" aria-hidden="true"></i>
-            </button>
-        </div>
+        </div> -->
     </td>
 </tr>
 

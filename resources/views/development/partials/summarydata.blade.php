@@ -140,6 +140,12 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         </div>
     </td>
     <td>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>
+    </td>
+</tr>
+<tr class="action-btn-tr-{{$issue->id}} d-none">
+    <td class="font-weight-bold">Action</td>
+    <td colspan="11">    
         <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         @if ($issue->is_flagged == 1)
             <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
@@ -191,4 +197,8 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             console.log(response);
         });
     });
+
+    function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
 </script>
