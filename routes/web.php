@@ -473,6 +473,8 @@ Route::get('criteria/get/{id}', [PositionController::class, 'list'])->name('get.
 
 Route::get('vendors/create-cv/{id}', [VendorResumeController::class, 'create'])->name('vendors.create.cv');
 Route::post('vendors/cv/store', [VendorResumeController::class, 'store'])->name('vendor.cv.store');
+Route::get('vendors/create-cv', [VendorResumeController::class, 'create'])->name('vendor.create.cv');
+Route::post('vendors/cv/storeCVWithoutLogin', [VendorResumeController::class, 'storeCVWithoutLogin'])->name('vendor.storeCVWithoutLogin');
 
 Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
@@ -829,7 +831,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento/export', [Logging\LogListMagentoController::class, 'export'])->name('list.magento.logging.export');
-
+    Route::post('list-magento-column-visbility', [Logging\LogListMagentoController::class, 'listmagentoColumnVisbilityUpdate'])->name('list.magento.column.update');
     Route::get('list-magento', [Logging\LogListMagentoController::class, 'index'])->name('list.magento.logging');
     Route::get('list-magento/error-reporting', [Logging\LogListMagentoController::class, 'errorReporting'])->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', [Logging\LogListMagentoController::class, 'productInformation'])->name('list.magento.product-information');
