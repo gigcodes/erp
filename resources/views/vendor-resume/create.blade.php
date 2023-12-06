@@ -13,7 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/js/bootstrap-datepicker.min.js"></script>
 <main class="container p-5">
     @include('partials.flash_messages')
-        <form action="{{route('vendor.cv.store')}}" id="vandor-cv-form" method="POST" enctype="multipart/form-data">
+        <form action="{{(!Auth::user()) ? route('vendor.storeCVWithoutLogin') : route('vendor.cv.store')}}" id="vandor-cv-form" method="POST" enctype="multipart/form-data">
         @csrf        
         <input type="hidden" value="{{ $vendor_id }}" class="hidden-vendor-id" name="vendor_id">
         <div class="row">
