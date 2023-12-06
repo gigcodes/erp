@@ -831,7 +831,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
 
     // Route::post('filter/list/api/logs','LaravelLogController@apiLogs')->name('api-filter-logs')
     Route::get('list-magento/export', [Logging\LogListMagentoController::class, 'export'])->name('list.magento.logging.export');
-
+    Route::post('list-magento-column-visbility', [Logging\LogListMagentoController::class, 'listmagentoColumnVisbilityUpdate'])->name('list.magento.column.update');
     Route::get('list-magento', [Logging\LogListMagentoController::class, 'index'])->name('list.magento.logging');
     Route::get('list-magento/error-reporting', [Logging\LogListMagentoController::class, 'errorReporting'])->name('list.magento.error-reporting');
     Route::get('list-magento/product-information', [Logging\LogListMagentoController::class, 'productInformation'])->name('list.magento.product-information');
@@ -1704,6 +1704,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('email/{id}/get-file-status', [EmailController::class, 'getFileStatus']);
 
     Route::resource('email', EmailController::class);
+    Route::post('email/statuscolor', [EmailController::class, 'statuscolor'])->name('email.statuscolor');
+    Route::post('email-column-visbility', [EmailController::class, 'emailsColumnVisbilityUpdate'])->name('email.column.update');
     Route::get('email/events/{originId}', [EmailController::class, 'getEmailEvents']);
     Route::get('sendgrid/email/events', [EmailController::class, 'getAllEmailEvents']);
     Route::get('sendgrid/email/events/journey', [EmailController::class, 'getAllEmailEventsJourney'])->name('email.event.journey');
@@ -1737,6 +1739,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email-remark', [EmailController::class, 'getRemark'])->name('email.getremark');
     Route::post('email-remark', [EmailController::class, 'addRemark'])->name('email.addRemark');
     Route::get('email/email-frame/{id}', [EmailController::class, 'viewEmailFrame']);
+    Route::get('email/email-frame-info/{id}', [EmailController::class, 'viewEmailFrameInfo']);
     Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
     Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
 
