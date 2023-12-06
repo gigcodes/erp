@@ -955,7 +955,7 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <strong>Start Date:</strong>
+                            <strong>End Date:</strong>
                             <input type="datetime-local" name="end_date" id="end_date" class="form-control end_date" value="" required>
                         </div>
                     </div>
