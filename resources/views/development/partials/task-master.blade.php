@@ -10,22 +10,93 @@
 <div style="overflow-x:auto;">
 <table class="table table-bordered table-striped">
     <tr>
-        <th style="width:12%;">ID</th>
-        <th style="width:5%;">Module</th>
-        <th style="width:5%;">Date</th>
-        <th style="width:8%;">Subject</th>
-        <th style="width:20%;">Communication</th>
-        <th style="width:10%;">Est Completion Time</th>
-        <th style="width:10%;">Est Completion Date</th>
-        <th style="width:9%;">Tracked Time</th>
-        <th style="width:13%;">Developers</th>
-        <th style="width:10%;">Status</th>
-        <th style="width:5%;">Cost</th>
-        <th style="width:7%;">Milestone</th>
-        <th style="width:10%">Estimated Time</th>
-        <th style="width:10%">Estimated Start Datetime</th>
-        <th style="width:10%">Estimated End Datetime</th>
-        <th style="width:7%;">Actions</th>
+        @if(!empty($dynamicColumnsToShowDl))
+            @if (!in_array('ID', $dynamicColumnsToShowDl))
+                <th style="width:12%;">ID</th>
+            @endif
+
+            @if (!in_array('Module', $dynamicColumnsToShowDl))
+                <th style="width:5%;">Module</th>
+            @endif
+
+            @if (!in_array('Date', $dynamicColumnsToShowDl))
+                <th style="width:5%;">Date</th>
+            @endif
+
+            @if (!in_array('Subject', $dynamicColumnsToShowDl))
+                <th style="width:8%;">Subject</th>
+            @endif
+
+            @if (!in_array('Communication', $dynamicColumnsToShowDl))
+                <th style="width:20%;">Communication</th>
+            @endif
+            
+            @if (!in_array('Est Completion Time', $dynamicColumnsToShowDl))
+                <th style="width:10%;">Est Completion Time</th>
+            @endif
+
+            @if (!in_array('Est Completion Date', $dynamicColumnsToShowDl))
+                <th style="width:10%;">Est Completion Date</th>
+            @endif
+
+            @if (!in_array('Tracked Time', $dynamicColumnsToShowDl))
+                <th style="width:9%;">Tracked Time</th>
+            @endif
+
+            @if (!in_array('Developers', $dynamicColumnsToShowDl))
+                <th style="width:13%;">Developers</th>
+            @endif
+
+            @if (!in_array('Status', $dynamicColumnsToShowDl))
+                <th style="width:10%;">Status</th>
+            @endif
+
+            @if (!in_array('Cost', $dynamicColumnsToShowDl))
+                <th style="width:5%;">Cost</th>
+            @endif
+
+            @if (!in_array('Milestone', $dynamicColumnsToShowDl))
+                <th style="width:7%;">Milestone</th>
+            @endif
+
+            @if (!in_array('Estimated Time', $dynamicColumnsToShowDl))
+                <th style="width:10%">Estimated Time</th>
+            @endif
+
+            @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowDl))
+                <th style="width:10%">Estimated Start Datetime</th>
+            @endif
+
+            @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowDl))
+                <th style="width:10%">Estimated End Datetime</th>
+            @endif
+
+            @if (!in_array('Shortcuts', $dynamicColumnsToShowDl))
+                <th width="5%">Shortcuts</th>
+            @endif
+
+            @if (!in_array('Actions', $dynamicColumnsToShowDl))
+                <th style="width:7%;">Actions</th>
+            @endif
+        @else
+            <th style="width:12%;">ID</th>
+            <th style="width:5%;">Module</th>
+            <th style="width:5%;">Date</th>
+            <th style="width:8%;">Subject</th>
+            <th style="width:20%;">Communication</th>
+            <th style="width:10%;">Est Completion Time</th>
+            <th style="width:10%;">Est Completion Date</th>
+            <th style="width:9%;">Tracked Time</th>
+            <th style="width:13%;">Developers</th>
+            <th style="width:10%;">Status</th>
+            <th style="width:5%;">Cost</th>
+            <th style="width:7%;">Milestone</th>
+            <th style="width:10%">Estimated Time</th>
+            <th style="width:10%">Estimated Start Datetime</th>
+            <th style="width:10%">Estimated End Datetime</th>
+            <th width="5%">Shortcuts</th>
+            <th style="width:7%;">Actions</th>
+        @endif
     </tr>
     <?php
     $isReviwerLikeAdmin = auth()->user()->isReviwerLikeAdmin();
@@ -127,6 +198,7 @@
 </div>
 </div>
 @include("development.partials.add-docs-permission")
+@include("development.partials.column-visibility-list-modal")
 
 <script>
     $(document).ready(function () {

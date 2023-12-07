@@ -1858,6 +1858,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/{id}', [TaskModuleController::class, 'show'])->name('task.module.show');
 
     Route::resource('task', TaskModuleController::class);
+    Route::post('task-column-visbility', [TaskModuleController::class, 'taskColumnVisbilityUpdate'])->name('task.column.update');
 
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
     Route::post('task/time/history/approve/sendMessage', [TaskModuleController::class, 'sendReviseMessage'])->name('task.time.history.approve.sendMessage');
@@ -2394,6 +2395,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/change-user', [DevelopmentController::class, 'changeUser'])->name('development.issue.change_user');
     Route::post('development/change-user', [DevelopmentController::class, 'changeUserStore'])->name('development.changeuser.store');
 
+    Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
+    Route::post('dl-column-visbility', [DevelopmentController::class, 'dlColumnVisbilityUpdate'])->name('dl.column.update');
     Route::get('development/summarylist', [DevelopmentController::class, 'summaryList'])->name('development.summarylist');
     Route::get('development/summary_list', [DevelopmentController::class, 'summaryListDev'])->name('development.summary_list');
     Route::post('development/statuscolor', [DevelopmentController::class, 'statuscolor'])->name('development.statuscolor');

@@ -58,6 +58,7 @@ use App\Models\DeveloperTaskStatusChecklistRemarks;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DeveloperTasks\DeveloperTasksHistoryApprovals;
 use App\UserAvaibility;
+use App\Models\DataTableColumn;
 
 class DevelopmentController extends Controller
 {
@@ -637,8 +638,16 @@ class DevelopmentController extends Controller
         }
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-list')->first();
+
+        $dynamicColumnsToShowDl = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowDl = json_decode($hideColumns, true);
+        }
+
         if (request()->ajax()) {
-            return view('development.partials.load-more', compact('issues', 'users', 'modules', 'request', 'title', 'type', 'countPlanned', 'countInProgress', 'statusList', 'priority'));
+            return view('development.partials.load-more', compact('issues', 'users', 'modules', 'request', 'title', 'type', 'countPlanned', 'countInProgress', 'statusList', 'priority', 'dynamicColumnsToShowDl'));
         }
 
         return view('development.issue', [
@@ -654,8 +663,51 @@ class DevelopmentController extends Controller
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
             'respositories' => $respositories,
+            'dynamicColumnsToShowDl' => $dynamicColumnsToShowDl,
             // 'languages' => $languages
         ]);
+    }
+
+    public function dlColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','development-list')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'development-list';
+            $column->column_name = json_encode($request->column_dl); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'development-list';
+            $column->column_name = json_encode($request->column_dl); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function dsColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','development-summarylist')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'development-summarylist';
+            $column->column_name = json_encode($request->column_ds); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'development-summarylist';
+            $column->column_name = json_encode($request->column_ds); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function scrappingTaskIndex(Request $request)
@@ -1049,6 +1101,14 @@ class DevelopmentController extends Controller
 
         $time_doctor_projects = \App\TimeDoctor\TimeDoctorProject::select('time_doctor_project_id', 'time_doctor_project_name')->get()->toArray();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-summarylist')->first();
+
+        $dynamicColumnsToShowDs = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowDs = json_decode($hideColumns, true);
+        }
+
         if (request()->ajax()) {
             return view('development.partials.summarydatas', [
                 'issues' => $issues,
@@ -1062,6 +1122,7 @@ class DevelopmentController extends Controller
                 'countInProgress' => $countInProgress,
                 'statusList' => $statusList,
                 'userslist' => $userslist,
+                'dynamicColumnsToShowDs' => $dynamicColumnsToShowDs,
                 // 'languages' => $languages
             ]);
         }
@@ -1079,6 +1140,7 @@ class DevelopmentController extends Controller
             'statusList' => $statusList,
             'userslist' => $userslist,
             'time_doctor_projects' => $time_doctor_projects,
+            'dynamicColumnsToShowDs' => $dynamicColumnsToShowDs,
             // 'languages' => $languages
         ]);
     }

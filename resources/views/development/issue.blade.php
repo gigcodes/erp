@@ -97,6 +97,8 @@ $priorities = [
         @include("development.partials.task-issue-search")
         <div class="pull-right mt-4">
 
+            <button class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#dlcolumnvisibilityList"> Column Visiblity</button>
+
             <a class="btn btn-secondary" href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}" role="link"> Download Tasks </a>
 
             <a class="btn btn-secondary" data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
