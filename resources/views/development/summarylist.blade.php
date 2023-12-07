@@ -169,6 +169,8 @@
         <a href="javascript:" class="btn custom-button mt-3" style="height: 35px;" id="newTaskModalBtn">Add New Dev Task </a>
     @endif
 
+    <button class="btn custom-button mt-3" style="color:white;" data-toggle="modal" data-target="#dscolumnvisibilityList"> Column Visiblity</button>
+
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
@@ -262,17 +264,67 @@
                 <thead>
                 <tr>
                     @if (Auth::user()->isAdmin())
-                        <th width="8%">ID</th>
-                        <th width="12%">MODULE</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Lead</th>
-                        <th width="15%">Communication</th>
-                        <th width="10%">Send To</th>
-                        <th width="10%">Status</th>
-                        <th style="width:10%">Estimated Time</th>
-                        <th style="width:10%">Estimated Start Datetime</th>
-                        <th style="width:10%">Estimated End Datetime</th>
-                        <th width="10%">Actions</th>
+                        @if(!empty($dynamicColumnsToShowDs))
+                            @if (!in_array('ID', $dynamicColumnsToShowDs))
+                                <th width="8%">ID</th>
+                            @endif
+
+                            @if (!in_array('MODULE', $dynamicColumnsToShowDs))
+                                <th width="12%">MODULE</th>
+                            @endif
+
+                            @if (!in_array('Assigned To', $dynamicColumnsToShowDs))
+                                <th width="13%">Assigned To</th>
+                            @endif
+
+                            @if (!in_array('Lead', $dynamicColumnsToShowDs))
+                                <th width="13%">Lead</th>
+                            @endif
+
+                            @if (!in_array('Communication', $dynamicColumnsToShowDs))
+                                <th width="15%">Communication</th>
+                            @endif
+
+                            @if (!in_array('Send To', $dynamicColumnsToShowDs))
+                                <th width="10%">Send To</th>
+                            @endif
+
+                            @if (!in_array('Status', $dynamicColumnsToShowDs))
+                                <th width="10%">Status</th>
+                            @endif
+
+                            @if (!in_array('Estimated Time', $dynamicColumnsToShowDs))
+                                <th style="width:10%">Estimated Time</th>
+                            @endif
+
+                            @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowDs))
+                                <th style="width:10%">Estimated Start Datetime</th>
+                            @endif
+
+                            @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowDs))
+                                <th style="width:10%">Estimated End Datetime</th>
+                            @endif
+
+                            @if (!in_array('Shortcuts', $dynamicColumnsToShowDs))
+                                <th width="5%">Shortcuts</th>
+                            @endif
+                            @if (!in_array('Actions', $dynamicColumnsToShowDs))
+                                <th width="5%">Actions</th>
+                            @endif
+                        @else
+                            <th width="8%">ID</th>
+                            <th width="12%">MODULE</th>
+                            <th width="13%">Assigned To</th>
+                            <th width="13%">Lead</th>
+                            <th width="15%">Communication</th>
+                            <th width="10%">Send To</th>
+                            <th width="10%">Status</th>
+                            <th style="width:10%">Estimated Time</th>
+                            <th style="width:10%">Estimated Start Datetime</th>
+                            <th style="width:10%">Estimated End Datetime</th>
+                            <th width="5%">Shortcuts</th>
+                            <th width="5%">Actions</th>
+                        @endif
                     @else
                         <th style="width:12%;">ID</th>
                         <th style="width:5%;">Module</th>
@@ -289,7 +341,7 @@
                         <th style="width:10%">Estimated Time</th>
                         <th style="width:10%">Estimated Start Datetime</th>
                         <th style="width:10%">Estimated End Datetime</th>
-                        <th style="width:7%;">Actions</th>
+                        <th style="width:5%;">Actions</th>
                     @endif
                 </tr>
                 </thead>
@@ -309,7 +361,7 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.modal-summary-task-color")
-
+    @include("development.partials.column-visibility-modal")
 
     <div id="python-action-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
