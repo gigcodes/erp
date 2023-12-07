@@ -2794,3 +2794,10 @@ button.show-task-history {
     max-width: 1500px !important;
   }
 }
+
+@media (min-width: 992px) {
+   #modalTaskInformationUpdates .modal-dialog {
+    width: 100% !important;
+    max-width: 1500px !important;
+  }
+}
