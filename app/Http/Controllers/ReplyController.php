@@ -46,7 +46,9 @@ class ReplyController extends Controller
 
         $replies = $replies->paginate(Setting::get('pagination'));
 
-        return view('reply.index', compact('replies', 'reply_categories'))
+        $reply_main_categories = ReplyCategory::where('parent_id', 0)->get();
+
+        return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories'))
         ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -120,6 +122,21 @@ class ReplyController extends Controller
         $category->save();
 
         return redirect()->route('reply.index')->with('success', 'You have successfully created category');
+    }
+
+    public function subcategoryStore(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|string',
+            'parent_id' => 'required',
+        ]);
+
+        $category = new ReplyCategory;
+        $category->name = $request->name;
+        $category->parent_id = $request->parent_id;
+        $category->save();
+
+        return redirect()->route('reply.index')->with('success', 'You have successfully created sub category');
     }
 
     /**
