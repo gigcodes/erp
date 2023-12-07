@@ -1274,6 +1274,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('reply/category/setDefault', [ReplyController::class, 'categorySetDefault'])->name('reply.category.setDefault');
     Route::post('reply/chatbot/questions', [ReplyController::class, 'chatBotQuestionT'])->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', [ReplyController::class, 'categoryStore'])->name('reply.category.store');
+    Route::post('reply/subcategory/store', [ReplyController::class, 'subcategoryStore'])->name('reply.subcategory.store');
     Route::get('reply-list', [ReplyController::class, 'replyList'])->name('reply.replyList');
     Route::post('reply-list/delete', [ReplyController::class, 'replyListDelete'])->name('reply.replyList.delete');
     Route::post('reply-list/update', [ReplyController::class, 'replyUpdate'])->name('reply.replyUpdate');
@@ -1859,6 +1860,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('task/{id}', [TaskModuleController::class, 'show'])->name('task.module.show');
 
     Route::resource('task', TaskModuleController::class);
+    Route::post('task-column-visbility', [TaskModuleController::class, 'taskColumnVisbilityUpdate'])->name('task.column.update');
 
     //START - Purpose : add Route for Remind, Revise Message - DEVTASK-4354
     Route::post('task/time/history/approve/sendMessage', [TaskModuleController::class, 'sendReviseMessage'])->name('task.time.history.approve.sendMessage');
@@ -2395,6 +2397,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/change-user', [DevelopmentController::class, 'changeUser'])->name('development.issue.change_user');
     Route::post('development/change-user', [DevelopmentController::class, 'changeUserStore'])->name('development.changeuser.store');
 
+    Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
+    Route::post('dl-column-visbility', [DevelopmentController::class, 'dlColumnVisbilityUpdate'])->name('dl.column.update');
     Route::get('development/summarylist', [DevelopmentController::class, 'summaryList'])->name('development.summarylist');
     Route::get('development/summary_list', [DevelopmentController::class, 'summaryListDev'])->name('development.summary_list');
     Route::post('development/statuscolor', [DevelopmentController::class, 'statuscolor'])->name('development.statuscolor');
