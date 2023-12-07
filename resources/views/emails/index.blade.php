@@ -2306,7 +2306,7 @@
                 var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
 
                 //$("#reply-message").val(senderName)
-                addContentToEditor(senderName);
+                addTextToEditor(senderName);
 
                 $.ajax({
                     headers: {
@@ -2316,7 +2316,7 @@
                     type: 'get',
                 }).done( function(response) {
                     //$("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
-                  addContentToEditor('<p>'+senderName+'</p><p>'+ele.val()+'</p><p>'+response+'</p>');
+                  addTextToEditor('<p>'+senderName+'</p><p>'+ele.val()+'</p><p>'+response+'</p>');
                 }).fail(function(errObj) {
                 })
                 
