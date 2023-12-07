@@ -144,7 +144,7 @@ table tr td {
     background: #fff;
     color: #757575;
 }
-
+.select2-container--default .select2-results__group{display: inline-block !important;}
 </style>
 @endsection
 <?php /*print_r($developer_module); */?>

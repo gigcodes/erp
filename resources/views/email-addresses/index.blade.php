@@ -970,7 +970,7 @@
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="">Type</label>
-                            <select name="ack_status" class="form-control" name="ack_status">
+                            <select name="ack_status" class="form-control" id="ack_status">
                                 <option value="">--Select Status--</option>
                                 <option value="1">Auto</option>
                                 <option value="2">Manual</option>
@@ -1045,6 +1045,13 @@
     });
 
     $(document).on("click", ".create-acknowledgement", function(e) {
+
+        var ack_message = tinymce.get('ack_message').getContent();
+        var start_date = $('#start_date').val();
+        var end_date = $('#end_date').val();
+        var email_addresses_id = $('#email_addresses_id').val();
+        var ack_status = $('#ack_status').val();
+
         e.preventDefault();
         var form = $(this).closest("form");
         $.ajax({
@@ -1053,7 +1060,13 @@
             headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            data: form.serialize(),
+            data: {
+                ack_message : ack_message,
+                start_date : start_date,
+                end_date : end_date,
+                email_addresses_id : email_addresses_id,
+                ack_status : ack_status,
+            },
             beforeSend: function() {
                 $(this).text('Loading...');
                 $("#loading-image").show();
@@ -1069,6 +1082,7 @@
                 }
             }
         }).fail(function(response) {
+            $("#loading-image").hide();
             toastr['error'](response.responseJSON.message);
         });
     });

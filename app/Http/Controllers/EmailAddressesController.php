@@ -131,37 +131,27 @@ class EmailAddressesController extends Controller
 
     public function createAcknowledgement(Request $request)
     {
-        try {
+        
 
-            $validator = Validator::make($request->all(), [
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
-                'ack_status' => 'required',
-                'ack_message' => 'required',
-            ], [
-                'end_date.after_or_equal' => 'The end date must be after or equal to the start date.',
-            ]);
+        $this->validate($request, [
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'ack_status' => 'required',
+            'ack_message' => 'required',
+        ]);
 
-            $input = $request->all();
-            $input['added_by'] = Auth::user()->id;
+        $input = $request->all();
+        $input['added_by'] = Auth::user()->id;
 
-            $messageModel = EMailAcknowledgement::create($input);
+        $messageModel = EMailAcknowledgement::create($input);
 
-            return response()->json(
-                [
-                    'code' => 200,
-                    'data' => [],
-                    'message' => 'Your email acknowledgement has been created!',
-                ]
-            );
-        } catch(\Exception $e) {
-            return response()->json(
-                [
-                    'code' => 500,
-                    'message' => $e->getMessage(),
-                ]
-            );
-        }
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Your email acknowledgement has been created!',
+            ]
+        );
     }
 
     public function acknowledgementCount($email_addresses_id)
