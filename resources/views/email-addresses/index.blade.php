@@ -1108,15 +1108,17 @@
                     };
                     table = table + '<tr><td>' + data.EMailAcknowledgement[i].start_date + '</td><td>' +
                         data.EMailAcknowledgement[i].end_date +
-                        '</td><td class="expand-row-msg" data-name="asgTo" data-id="' + data
-                        .EMailAcknowledgement[i].id + '"><span class="show-short-asgTo-' + data
-                        .EMailAcknowledgement[i].id + '">' + data.EMailAcknowledgement[i].ack_message
-                        .replace(/(.{6})..+/, "$1..") +
-                        '</span><span style="word-break:break-all;" class="show-full-asgTo-' + data
-                        .EMailAcknowledgement[i].id + ' hidden">' + data.EMailAcknowledgement[i]
-                        .ack_message +
-                        '</span></td><td>' + ack_status +'</td><td>' + data.EMailAcknowledgement[i]
+                        '</td>';
+
+                    if(data.EMailAcknowledgement[i].ack_message!=null){
+                        table = table + '<td>' + data.EMailAcknowledgement[i].ack_message +'</td>';
+                    } else {
+                        table = table + '<td>--</td>';
+                    }
+
+                    table = table + '<td>' + ack_status +'</td><td>' + data.EMailAcknowledgement[i]
                         .created_at +'</td>';
+
                     table = table + '</tr>';
                 }
                 table = table + '</table></div>';
