@@ -110,7 +110,9 @@
         </div>
     </div>
 </div>
-
+<style type="text/css">
+#modalTaskHistories th{font-size: 14px !important;}
+</style>
 <div id="modalTaskHistories" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -122,9 +124,9 @@
                 </div>
                 <div class="modal-body"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)">Save</button>
-                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)">History</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)" title="Save"><i class="fa fa-bookmark" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)" title="History"><i class="fa fa-list" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" title="Close"><i class="fa fa-window-close" aria-hidden="true"></i></button>
                 </div>
             </form>
         </div>
@@ -153,7 +155,7 @@
     }
 
     function funTaskInformationModal(ele, taskId) {
-        //siteLoader(1);
+        siteLoader(1);
         currTaskInformationTaskId = taskId;
         let mdl = funGetTaskInformationModal();
         jQuery.ajax({
@@ -166,7 +168,7 @@
                 id: taskId,
             },
         }).done(function(res) {
-            //siteLoader(0);
+            siteLoader(0);
             if (res.data) {
                 mdl.find('input[name="start_date"]').val(res.data.task_start_date); //start_date
                 mdl.find('input[name="due_date"]').val(res.data.task_new_due_date); //due_date
@@ -184,7 +186,7 @@
                 siteErrorAlert(res);
             }
         }).fail(function(err) {
-            //siteLoader(0);
+            siteLoader(0);
             siteErrorAlert(err);
         });
     }
