@@ -175,7 +175,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         @endif
 
         @if (!in_array('Shortcuts', $dynamicColumnsToShowDs))
-        <td>-dsls-</td>
+        <td id="shortcutsIds">
+            @include('development.partials.shortcutsds')
+        </td>
         @endif
 
         @if (!in_array('Actions', $dynamicColumnsToShowDs))
@@ -348,7 +350,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             {{$issue->estimate_date}}
         @endif
     </td>
-    <td>-dsls-</td>
+    <td id="shortcutsIds">
+        @include('development.partials.shortcutsds')
+    </td>
     <td>
         <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>
     </td>

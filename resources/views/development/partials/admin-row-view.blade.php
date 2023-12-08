@@ -283,7 +283,7 @@
         @endif
 
         @if (!in_array('Shortcuts', $dynamicColumnsToShowDl))
-            <td>-dls-</td>
+            <td id="shortcutsIds">@include('development.partials.shortcutsdl')</td>
         @endif
 
         @if (!in_array('Actions', $dynamicColumnsToShowDl))
@@ -560,7 +560,7 @@
                 {{$issue->estimate_date}}
             @endif
         </td>
-        <td>-dls-</td>
+        <td id="shortcutsIds">@include('development.partials.shortcutsdl')</td>
         <td>
             <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>
         </td>

@@ -8,7 +8,7 @@
     }
 </style>
 <div style="overflow-x:auto;">
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" id="task_Tables">
     <tr>
         @if(!empty($dynamicColumnsToShowDl))
             @if (!in_array('ID', $dynamicColumnsToShowDl))
@@ -72,7 +72,7 @@
             @endif
 
             @if (!in_array('Shortcuts', $dynamicColumnsToShowDl))
-                <th width="5%">Shortcuts</th>
+                <th width="20%">Shortcuts</th>
             @endif
 
             @if (!in_array('Actions', $dynamicColumnsToShowDl))
@@ -94,7 +94,7 @@
             <th style="width:10%">Estimated Time</th>
             <th style="width:10%">Estimated Start Datetime</th>
             <th style="width:10%">Estimated End Datetime</th>
-            <th width="5%">Shortcuts</th>
+            <th width="20%">Shortcuts</th>
             <th style="width:7%;">Actions</th>
         @endif
     </tr>

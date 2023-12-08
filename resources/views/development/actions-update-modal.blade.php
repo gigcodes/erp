@@ -187,7 +187,7 @@
     }
 
     function funTaskInformationModal(ele, taskId) {
-        siteLoader(1);
+       // siteLoader(1);
         currTaskInformationTaskId = taskId;
         let mdl = funGetTaskInformationModal();
         jQuery.ajax({
@@ -200,7 +200,7 @@
                 id: taskId,
             },
         }).done(function(res) {
-            siteLoader(0);
+            //siteLoader(0);
             if (res.data) {
                 mdl.find('input[name="start_date"]').val(res.data.start_date);
                 mdl.find('input[name="estimate_date"]').val(res.data.estimate_date);
@@ -224,7 +224,7 @@
                 siteErrorAlert(res);
             }
         }).fail(function(err) {
-            siteLoader(0);
+            //siteLoader(0);
             siteErrorAlert(err);
         });
     }
@@ -350,7 +350,7 @@
 
     function funTaskHistories(type) {
         if (type == 'start_date' || type == 'estimate_date' || type == 'cost') {
-            siteLoader(1);
+            //siteLoader(1);
             let mdl = jQuery('#modalTaskHistories');
             mdl.find('input[name="type"]').val(type);
 
@@ -379,10 +379,10 @@
             }).done(function(response) {
                 mdl.find('.modal-body').html(response.data);
                 mdl.modal('show');
-                siteLoader(0);
+                //siteLoader(0);
             }).fail(function(err) {
                 siteLoader(0);
-                siteErrorAlert(err);
+                //siteErrorAlert(err);
             });
         }
     }
