@@ -12,10 +12,10 @@
                 ?>
 
                 <style type="text/css">
-                   .popupModalInfo .col-md-3, .popupModalInfo .col-md-2{ border: 1px solid #eee;    border-radius: 10px;    margin: 10px 10px;}
+                   .popupModalInfo .col-md-4, .popupModalInfo .col-md-3{ border: 1px solid #eee;    border-radius: 10px;    margin: 10px 10px;}
                 </style>
                 <div class="row popupModalInfo">
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Estimated Time: [In Minutes]</label>
@@ -37,10 +37,11 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                   
 
-                    <?php if (isAdmin()) { ?>
-                        <div class="col-md-3">
+                        <?php 
+                        if (isAdmin()) { ?>
+                            <hr>
                             <div class="row">
                                 <div class="col-md-12">
                                     <label>Lead Estimated Time: [In Minutes]</label>
@@ -62,10 +63,11 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php } ?>
+                        <?php 
+                        } ?>
+                    </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Estimated Start Datetime:</label>
@@ -84,9 +86,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-md-2">
+                        <hr>
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Estimated End Datetime: [Due Date]</label>
@@ -106,8 +106,8 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-md-2">
+                    
+                    <div class="col-md-3">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Cost:</label>
@@ -123,19 +123,17 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <hr />
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Actual Start Time:</label>
+                                <div class="form-group cls-actual_start_date"></div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Actual End Time:</label>
+                                <div class="form-group cls-actual_end_date"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -11,10 +11,10 @@
                 $cls_2 = 'col-md-4';
                 ?>
                 <style type="text/css">
-                   .popupModalInfo .col-md-3, .popupModalInfo .col-md-2{ border: 1px solid #eee;    border-radius: 10px;    margin: 10px 10px;}
+                   .popupModalInfo .col-md-4, .popupModalInfo .col-md-3{ border: 1px solid #eee;    border-radius: 10px;    margin: 10px 10px;}
                 </style>
                 <div class="row popupModalInfo">
-                    <div class="col-md-3">                
+                    <div class="col-md-4">                
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Estimated Time: [In Minutes]</label>
@@ -23,7 +23,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label>Remark1:</label>
+                                <label>Remark:</label>
                                 <div class="form-group">
                                     <textarea class="form-control" name="remark" rows="2"></textarea>
                                 </div>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Estimated Start Datetime:</label>
@@ -55,9 +55,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="col-md-3">
+                        <hr>
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Estimated End Datetime: [Due Date]</label>
@@ -77,7 +75,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Cost:</label>
@@ -92,19 +90,17 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <hr />
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
+                    
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Actual Start Time:</label>
+                                <div class="form-group cls-actual_start_date"></div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Actual End Time:</label>
+                                <div class="form-group cls-actual_end_date"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

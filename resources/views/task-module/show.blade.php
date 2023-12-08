@@ -1058,7 +1058,7 @@
 
                                             @if (!in_array('Shortcuts', $dynamicColumnsToShowTask))
                                             <td>
-                                                @include('task-module.partials.shortcuts')
+                                                <!-- @include('task-module.partials.shortcuts') -->
                                             </td>
                                             @endif
 
@@ -1403,7 +1403,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @include('task-module.partials.shortcuts')
+                                                <!-- @include('task-module.partials.shortcuts') -->
                                             </td>
                                             <td class="p-2">
                                                 <!-- <div class="dropdown dropleft">
