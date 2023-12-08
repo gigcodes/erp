@@ -1743,6 +1743,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/email-frame-info/{id}', [EmailController::class, 'viewEmailFrameInfo']);
     Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
     Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
+    Route::get('email/email-replise/{id}', [EmailController::class, 'getEmailreplies']);
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
