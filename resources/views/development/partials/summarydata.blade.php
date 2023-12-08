@@ -42,8 +42,6 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
 
         @if (!in_array('Assigned To', $dynamicColumnsToShowDs))
         <td>
-            <label for="" style="font-size: 12px;margin-top:10px;"><strong>Assigned To </strong></label>
-            <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
             <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
                 <option value="">Select...</option>
                 <?php $assignedId = isset($issue->assignedUser->id) ? $issue->assignedUser->id : 0; ?>
@@ -60,7 +58,6 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
 
         @if (!in_array('Lead', $dynamicColumnsToShowDs))
         <td>
-            <label for="" style="font-size: 12px;margin-top:10px;"><strong>Lead</strong></label>
             <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
                 <option value="">Select...</option>
                 <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
@@ -78,8 +75,8 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         @if (!in_array('Communication', $dynamicColumnsToShowDs))
         <td class="communication-td">
             <!-- class="expand-row" -->
-            <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:75%;display:inline;"/>
-
+            <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"/>
+            </br>
             <button style="display: inline-block;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message" data-id="{{$issue->id}}"><img src="{{asset('/images/filled-sent.png')}}"/></button>
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
             <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
@@ -153,14 +150,10 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+            <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                 {{$issue->start_date}}
-            @endif
-        </td>
-        @endif
+            @endif -->
 
-        @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowDs))
-        <td class="p-2">
             <div class="form-group">
                 <div class='input-group date cls-start-due-date'>
                     <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
@@ -168,9 +161,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+            <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                 {{$issue->estimate_date}}
-            @endif
+            @endif -->
         </td>
         @endif
 
@@ -189,7 +182,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
 @if (!in_array('Actions', $dynamicColumnsToShowDs))
 <tr class="action-btn-tr-{{$issue->id}} d-none">
     <td class="font-weight-bold">Action</td>
-    <td colspan="11">    
+    <td>    
         <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         @if ($issue->is_flagged == 1)
             <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
@@ -238,9 +231,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         </select>
     </td>
     <!-- <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td> -->
-    <td>
-        <label for="" style="font-size: 12px;margin-top:10px;"><strong>Assigned To </strong></label>
-        <!--   <label for="" style="font-size: 12px;">Assigned To :</label>-->
+    <td>        
         <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             <?php $assignedId = isset($issue->assignedUser->id) ? $issue->assignedUser->id : 0; ?>
@@ -254,7 +245,6 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         </select>
     </td>
     <td>
-        <label for="" style="font-size: 12px;margin-top:10px;"><strong>Lead</strong></label>
         <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
@@ -269,8 +259,8 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
     </td>
     <td class="communication-td">
         <!-- class="expand-row" -->
-        <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:75%;display:inline;"/>
-
+        <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"/>
+        </br>
         <button style="display: inline-block;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message" data-id="{{$issue->id}}"><img src="{{asset('/images/filled-sent.png')}}"/></button>
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
         <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
@@ -334,11 +324,10 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             </div>
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
         </div>
-        @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+        <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
             {{$issue->start_date}}
-        @endif
-    </td>
-    <td class="p-2">
+        @endif -->
+
         <div class="form-group">
             <div class='input-group date cls-start-due-date'>
                 <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
@@ -346,9 +335,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             </div>
             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
         </div>
-        @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+        <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
             {{$issue->estimate_date}}
-        @endif
+        @endif -->
     </td>
     <td id="shortcutsIds">
         @include('development.partials.shortcutsds')
@@ -359,7 +348,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
 </tr>
 <tr class="action-btn-tr-{{$issue->id}} d-none">
     <td class="font-weight-bold">Action</td>
-    <td colspan="11">    
+    <td>    
         <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
         @if ($issue->is_flagged == 1)
             <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>

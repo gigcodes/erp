@@ -266,19 +266,19 @@
                     @if (Auth::user()->isAdmin())
                         @if(!empty($dynamicColumnsToShowDs))
                             @if (!in_array('ID', $dynamicColumnsToShowDs))
-                                <th width="8%">ID</th>
+                                <th width="4%">ID</th>
                             @endif
 
                             @if (!in_array('MODULE', $dynamicColumnsToShowDs))
-                                <th width="12%">MODULE</th>
+                                <th width="6%">MODULE</th>
                             @endif
 
                             @if (!in_array('Assigned To', $dynamicColumnsToShowDs))
-                                <th width="13%">Assigned To</th>
+                                <th width="8%">Assigned To</th>
                             @endif
 
                             @if (!in_array('Lead', $dynamicColumnsToShowDs))
-                                <th width="13%">Lead</th>
+                                <th width="8%">Lead</th>
                             @endif
 
                             @if (!in_array('Communication', $dynamicColumnsToShowDs))
@@ -286,43 +286,38 @@
                             @endif
 
                             @if (!in_array('Send To', $dynamicColumnsToShowDs))
-                                <th width="10%">Send To</th>
+                                <th width="8%">Send To</th>
                             @endif
 
                             @if (!in_array('Status', $dynamicColumnsToShowDs))
-                                <th width="10%">Status</th>
+                                <th width="8%">Status</th>
                             @endif
 
                             @if (!in_array('Estimated Time', $dynamicColumnsToShowDs))
-                                <th style="width:10%">Estimated Time</th>
+                                <th width="7%">Estimated Time</th>
                             @endif
 
                             @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowDs))
-                                <th style="width:10%">Estimated Start Datetime</th>
-                            @endif
-
-                            @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowDs))
-                                <th style="width:10%">Estimated End Datetime</th>
+                                <th width="10%">Estimated Datetime</th>
                             @endif
 
                             @if (!in_array('Shortcuts', $dynamicColumnsToShowDs))
-                                <th width="20%">Shortcuts</th>
+                                <th width="25%">Shortcuts</th>
                             @endif
                             @if (!in_array('Actions', $dynamicColumnsToShowDs))
                                 <th width="5%">Actions</th>
                             @endif
                         @else
-                            <th width="8%">ID</th>
-                            <th width="12%">MODULE</th>
-                            <th width="13%">Assigned To</th>
-                            <th width="13%">Lead</th>
+                            <th width="4%">ID</th>
+                            <th width="6%">MODULE</th>
+                            <th width="8%">Assigned To</th>
+                            <th width="8%">Lead</th>
                             <th width="15%">Communication</th>
-                            <th width="10%">Send To</th>
-                            <th width="10%">Status</th>
-                            <th style="width:10%">Estimated Time</th>
-                            <th style="width:10%">Estimated Start Datetime</th>
-                            <th style="width:10%">Estimated End Datetime</th>
-                            <th width="20%">Shortcuts</th>
+                            <th width="8%">Send To</th>
+                            <th width="5%">Status</th>
+                            <th width="7%">Estimated Time</th>
+                            <th width="10%">Estimated Datetime</th>
+                            <th width="25%">Shortcuts</th>
                             <th width="5%">Actions</th>
                         @endif
                     @else

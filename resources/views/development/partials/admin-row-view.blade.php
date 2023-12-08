@@ -2,16 +2,17 @@
     <tr style="color:grey;">
         @if (!in_array('ID', $dynamicColumnsToShowDl))
             <td>
-                    {{ $issue->id }}
+                    {{ $issue->id }}</br>
                     @if($issue->is_resolved==0)
                     <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
                     @endif
                 <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $issue->id }}" value="">
                 <!-- <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
                 </a> -->
+                </br>
                 <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
                         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
-
+                            
                                 <a href="javascript:;" data-toggle="modal" data-target="#developmentReminderModal" class='pd-5 development-set-reminder' data-id="{{ $issue->id }}" data-frequency="{{ !empty($issue->reminder_message) ? $issue->frequency : '60' }}" data-reminder_message="{{ !empty($issue->reminder_message) ? $issue->reminder_message : 'Plz update' }}" data-reminder_from="{{ $issue->reminder_from }}" data-reminder_last_reply="{{ $issue->reminder_last_reply }}">
                                     <i class="fa fa-bell @if(!empty($issue->reminder_message) && $issue->frequency > 0) {{ 'green-notification'  }} @else {{ 'red-notification' }} @endif" aria-hidden="true"></i>
                                 </a>
@@ -261,14 +262,10 @@
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                     {{$issue->start_date}}
-                @endif
-            </td>
-        @endif
+                @endif -->
 
-        @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowDl))
-            <td class="p-2">
                 <div class="form-group">
                     <div class='input-group date cls-start-due-date'>
                         <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
@@ -276,9 +273,9 @@
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                     {{$issue->estimate_date}}
-                @endif
+                @endif -->
             </td>
         @endif
 
@@ -324,13 +321,13 @@
 @else
     <tr style="color:grey;">
         <td>
-                {{ $issue->id }}
+                {{ $issue->id }}</br>
                 @if($issue->is_resolved==0)
                 <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
                 @endif
             <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $issue->id }}" value="">
             <!-- <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
-            </a> -->
+            </a> --></br>
             <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
                     <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
 
@@ -544,11 +541,10 @@
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+            <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                 {{$issue->start_date}}
-            @endif
-        </td>
-        <td class="p-2">
+            @endif -->
+
             <div class="form-group">
                 <div class='input-group date cls-start-due-date'>
                     <input type="text" class="form-control" name="estimate_date{{$issue->id}}" value="{{$issue->estimate_date}}" autocomplete="off" />
@@ -556,10 +552,11 @@
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+            <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                 {{$issue->estimate_date}}
-            @endif
+            @endif -->
         </td>
+       
         <td id="shortcutsIds">@include('development.partials.shortcutsdl')</td>
         <td>
             <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>

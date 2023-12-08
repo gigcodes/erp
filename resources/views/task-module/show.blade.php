@@ -716,12 +716,12 @@
                                     @endif
 
                                     @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowTask))
-                                        <th width="6%">Estimated Start Datetime</th>
+                                        <th width="6%">Estimated Datetime</th>
                                     @endif
 
-                                    @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowTask))
+                                    <!-- @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowTask))
                                         <th width="6%">Estimated End Datetime</th>
-                                    @endif
+                                    @endif -->
 
                                     @if (!in_array('Shortcuts', $dynamicColumnsToShowTask))
                                         <th width="20%">Shortcuts</th>
@@ -742,8 +742,8 @@
                                     <th width="5%">Tracked time</th>
                                     <th class="communication_th">Communication</th>
                                     <th width="6%">Estimated Time</th>
-                                    <th width="6%">Estimated Start Datetime</th>
-                                    <th width="6%">Estimated End Datetime</th>
+                                    <th width="6%">Estimated Datetime</th>
+                                    <!-- <th width="6%">Estimated End Datetime</th> -->
                                     <th width="20%">Shortcuts</th>
                                     <th width="2%">
                                         <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
@@ -804,15 +804,7 @@
                                             @endif
 
                                             @if (!in_array('Subject', $dynamicColumnsToShowTask))
-                                            <td class="expand-row" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
-                                        <span class="td-mini-container">
-                                            {{ $task->task_subject ? substr($task->task_subject, 0, 15) . (strlen($task->task_subject) > 15 ? '...' : '') : 'Task Details' }}
-                                        </span>
-                                                <span class="td-full-container hidden">
-                                            <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
-                                            {{ $task->task_details }}
-                                        </span>
-                                            </td>
+                                            <td>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</td>
                                             @endif
                                             
                                             @if (!in_array('Assign To', $dynamicColumnsToShowTask))
@@ -968,29 +960,30 @@
                                                                 @if (isset($task->is_audio) && $task->is_audio)
                                                                     <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                 @else
-                                                                <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
-                                                                    <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-                                                                    <?php
-                                                                        if (!empty($task->message) && !empty($task->task_subject)) {
-                                                                            $pos = strpos($task->message, $task->task_subject);
-                                                                            $length = strlen($task->task_subject);
-                                                                            if ($pos) {
-                                                                                $start = $pos + $length + 1;
+                                                                    {{ $task->message }}
+                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                                        <?php
+                                                                            if (!empty($task->message) && !empty($task->task_subject)) {
+                                                                                $pos = strpos($task->message, $task->task_subject);
+                                                                                $length = strlen($task->task_subject);
+                                                                                if ($pos) {
+                                                                                    $start = $pos + $length + 1;
+                                                                                } else {
+                                                                                    $start = 0;
+                                                                                }
                                                                             } else {
                                                                                 $start = 0;
                                                                             }
-                                                                        } else {
-                                                                            $start = 0;
-                                                                        }
-                                                                        ?>
-                                                                    {{substr($task->message, $start,28)}}
-                                                                    </span>
-                                                                </div>
-                                                                <div class="expand-row-msg" data-id="{{$task->id}}">
-                                                                    <span class="td-full-container-{{$task->id}} hidden">
-                                                                    {{ $task->message }}
-                                                                    </span>
-                                                                </div>
+                                                                            ?>
+                                                                        {{substr($task->message, $start,28)}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-full-container-{{$task->id}} hidden">
+                                                                        {{ $task->message }}
+                                                                        </span>
+                                                                    </div> -->
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1035,14 +1028,10 @@
                                                     </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                     {{$single->task_start_date}}
-                                                @endif
-                                            </td>
-                                            @endif
+                                                @endif -->
 
-                                            @if (!in_array('Estimated End Datetime', $dynamicColumnsToShowTask))
-                                            <td class="p-2">
                                                 <div class="form-group d-flex">
                                                     <div class='input-group date cls-start-due-date'>
                                                         <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->task_new_due_date}}" autocomplete="off" />
@@ -1050,11 +1039,13 @@
                                                     </div>
                                                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                     {{$single->task_new_due_date}}
-                                                @endif
+                                                @endif -->
                                             </td>
                                             @endif
+
+                                            
 
                                             @if (!in_array('Shortcuts', $dynamicColumnsToShowTask))
                                             <td id="shortcutsIds">
@@ -1079,7 +1070,7 @@
                                         @if (!in_array('ICON', $dynamicColumnsToShowTask))
                                         <tr class="action-btn-tr-{{$task->id}} d-none">
                                             <td class="font-weight-bold">Action</td>
-                                            <td colspan="11">
+                                            <td colspan="5">
                                                 <div>
                                                     <div class="row cls_action_box" style="margin:0px;">
                                                         @if(auth()->user()->isAdmin())
@@ -1172,15 +1163,7 @@
                                         </span>
                                                 @endif
                                             </td>
-                                            <td class="expand-row" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
-                                        <span class="td-mini-container">
-                                            {{ $task->task_subject ? substr($task->task_subject, 0, 15) . (strlen($task->task_subject) > 15 ? '...' : '') : 'Task Details' }}
-                                        </span>
-                                                <span class="td-full-container hidden">
-                                            <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
-                                            {{ $task->task_details }}
-                                        </span>
-                                            </td>
+                                            <td>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</td>
                                         
                                             <td class="table-hover-cell p-2">
                                             @php
@@ -1325,29 +1308,30 @@
                                                                 @if (isset($task->is_audio) && $task->is_audio)
                                                                     <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                 @else
-                                                                <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
-                                                                    <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-                                                                    <?php
-                                                                        if (!empty($task->message) && !empty($task->task_subject)) {
-                                                                            $pos = strpos($task->message, $task->task_subject);
-                                                                            $length = strlen($task->task_subject);
-                                                                            if ($pos) {
-                                                                                $start = $pos + $length + 1;
+                                                                    {{ $task->message }}
+                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                                        <?php
+                                                                            if (!empty($task->message) && !empty($task->task_subject)) {
+                                                                                $pos = strpos($task->message, $task->task_subject);
+                                                                                $length = strlen($task->task_subject);
+                                                                                if ($pos) {
+                                                                                    $start = $pos + $length + 1;
+                                                                                } else {
+                                                                                    $start = 0;
+                                                                                }
                                                                             } else {
                                                                                 $start = 0;
                                                                             }
-                                                                        } else {
-                                                                            $start = 0;
-                                                                        }
-                                                                        ?>
-                                                                    {{substr($task->message, $start,28)}}
-                                                                    </span>
-                                                                </div>
-                                                                <div class="expand-row-msg" data-id="{{$task->id}}">
-                                                                    <span class="td-full-container-{{$task->id}} hidden">
-                                                                    {{ $task->message }}
-                                                                    </span>
-                                                                </div>
+                                                                            ?>
+                                                                        {{substr($task->message, $start,28)}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-full-container-{{$task->id}} hidden">
+                                                                        {{ $task->message }}
+                                                                        </span>
+                                                                    </div> -->
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1386,11 +1370,10 @@
                                                     </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                     {{$single->task_start_date}}
-                                                @endif
-                                            </td>
-                                            <td class="p-2">
+                                                @endif -->
+
                                                 <div class="form-group d-flex">
                                                     <div class='input-group date cls-start-due-date'>
                                                         <input type="text" class="form-control" name="due_dates{{$task->id}}" value="{{$single->task_new_due_date}}" autocomplete="off" />
@@ -1398,9 +1381,9 @@
                                                     </div>
                                                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                     {{$single->task_new_due_date}}
-                                                @endif
+                                                @endif -->
                                             </td>
                                             <td id="shortcutsIds">
                                                 @include('task-module.partials.shortcuts')
@@ -1419,7 +1402,7 @@
                                         </tr>
                                         <tr class="action-btn-tr-{{$task->id}} d-none">
                                             <td class="font-weight-bold">Action</td>
-                                            <td colspan="11">
+                                            <td colspan="5">
                                                 <div>
                                                     <div class="row cls_action_box" style="margin:0px;">
                                                         @if(auth()->user()->isAdmin())
@@ -2377,98 +2360,6 @@
                     }
                 });
             });
-            function funTaskInformationUpdatesTime(type,id) {
-                if (type == 'start_date') {
-                    if (confirm('Are you sure, do you want to update?')) {
-                        siteLoader(1);
-                        let mdl = funGetTaskInformationModal();
-                        jQuery.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                            },
-                            url: "{{ route('task.update.start-date') }}",
-                            type: 'POST',
-                            data: {
-                                task_id: id,
-                                value: $('input[name="start_dates'+id+'"]').val(),
-                            }
-                        }).done(function(res) {
-                            siteLoader(0);
-                            siteSuccessAlert(res);
-                        }).fail(function(err) {
-                            siteLoader(0);
-                            siteErrorAlert(err);
-                        });
-                    }
-                } else if (type == 'due_date') {
-                    if (confirm('Are you sure, do you want to update?')) {
-                        siteLoader(1);
-                        let mdl = funGetTaskInformationModal();
-                        jQuery.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                            },
-                            url: "{{ route('task.update.due-date') }}",
-                            type: 'POST',
-                            data: {
-                                task_id: id,
-                                value: $('input[name="due_dates'+id+'"]').val(),
-                            }
-                        }).done(function(res) {
-                            siteLoader(0);
-                            siteSuccessAlert(res);
-                        }).fail(function(err) {
-                            siteLoader(0);
-                            siteErrorAlert(err);
-                        });
-                    }
-                } else if (type == 'cost') {
-                    if (confirm('Are you sure, do you want to update?')) {
-                        siteLoader(1);
-                        let mdl = funGetTaskInformationModal();
-                        jQuery.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                            },
-                            url: "{{ route('task.update.cost') }}",
-                            type: 'POST',
-                            data: {
-                                task_id: id,
-                                cost: mdl.find('input[name="cost"]').val(),
-                            }
-                        }).done(function(res) {
-                            siteLoader(0);
-                            siteSuccessAlert(res);
-                        }).fail(function(err) {
-                            siteLoader(0);
-                            siteErrorAlert(err);
-                        });
-                    }
-                } else if (type == 'approximate') {
-                    if (confirm('Are you sure, do you want to update?')) {
-                        siteLoader(1);
-                        let mdl = funGetTaskInformationModal();
-                        jQuery.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                            },
-                            url: "{{ route('task.update.approximate') }}",
-                            type: 'POST',
-                            data: {
-                                task_id: id,
-                                approximate: $('input[name="approximates'+id+'"]').val(),
-                                remark: mdl.find('textarea[name="remark"]').val(),
-                            }
-                        }).done(function(res) {
-                            siteLoader(0);
-                            siteSuccessAlert(res);
-                        }).fail(function(err) {
-                            siteLoader(0);
-                            siteErrorAlert(err);
-                        });
-                    }
-                }
-            }
 
             function getPriorityTaskList(id) {
                 console.log('id', id)
@@ -4534,5 +4425,98 @@ $(document).on('change', '.quickCommentEmail', function () {
 $(document).on('change', '.quickSubCategory', function () {
     siteHelpers.changeQuickSubCategory($(this));
 });
+
+function funTaskInformationUpdatesTime(type,id) {
+    if (type == 'start_date') {
+        if (confirm('Are you sure, do you want to update?')) {
+            siteLoader(1);
+            let mdl = funGetTaskInformationModal();
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('task.update.start-date') }}",
+                type: 'POST',
+                data: {
+                    task_id: id,
+                    value: $('input[name="start_dates'+id+'"]').val(),
+                }
+            }).done(function(res) {
+                siteLoader(0);
+                siteSuccessAlert(res);
+            }).fail(function(err) {
+                siteLoader(0);
+                siteErrorAlert(err);
+            });
+        }
+    } else if (type == 'due_date') {
+        if (confirm('Are you sure, do you want to update?')) {
+            siteLoader(1);
+            let mdl = funGetTaskInformationModal();
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('task.update.due-date') }}",
+                type: 'POST',
+                data: {
+                    task_id: id,
+                    value: $('input[name="due_dates'+id+'"]').val(),
+                }
+            }).done(function(res) {
+                siteLoader(0);
+                siteSuccessAlert(res);
+            }).fail(function(err) {
+                siteLoader(0);
+                siteErrorAlert(err);
+            });
+        }
+    } else if (type == 'cost') {
+        if (confirm('Are you sure, do you want to update?')) {
+            siteLoader(1);
+            let mdl = funGetTaskInformationModal();
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('task.update.cost') }}",
+                type: 'POST',
+                data: {
+                    task_id: id,
+                    cost: mdl.find('input[name="cost"]').val(),
+                }
+            }).done(function(res) {
+                siteLoader(0);
+                siteSuccessAlert(res);
+            }).fail(function(err) {
+                siteLoader(0);
+                siteErrorAlert(err);
+            });
+        }
+    } else if (type == 'approximate') {
+        if (confirm('Are you sure, do you want to update?')) {
+            siteLoader(1);
+            let mdl = funGetTaskInformationModal();
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('task.update.approximate') }}",
+                type: 'POST',
+                data: {
+                    task_id: id,
+                    approximate: $('input[name="approximates'+id+'"]').val(),
+                    remark: mdl.find('textarea[name="remark"]').val(),
+                }
+            }).done(function(res) {
+                siteLoader(0);
+                siteSuccessAlert(res);
+            }).fail(function(err) {
+                siteLoader(0);
+                siteErrorAlert(err);
+            });
+        }
+    }
+}
 </script>
 @endsection
