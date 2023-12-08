@@ -29,7 +29,7 @@
             </div>
             <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
                 <div style="float: left; width: 86%">
-                    <select name="quickComment" class="form-control quickCommentEmail">
+                    <select name="quickComment" class="form-control quickCommentEmail" data-id="{{$task->id}}">
                         <option value="">Quick Reply</option>
                     </select>
                 </div>
@@ -64,7 +64,7 @@ var siteHelpers = {
         $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
     },
     deleteQuickCategory : function(ele) {
-        var quickCategory = ele.closest("#view-quick-email").find(".quickCategory");
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
         if (quickCategory.val() == "") {
             alert("Please Select Category!!");
             return false;
@@ -84,7 +84,7 @@ var siteHelpers = {
         siteHelpers.sendAjax(params,"pageReload");
     },
     deleteQuickComment : function(ele) {
-        var quickComment = ele.closest("#view-quick-email").find(".quickCommentEmail");
+        var quickComment = ele.closest("#shortcutsIds").find(".quickCommentEmail");
         if (quickComment.val() == "") {
             alert("Please Select Quick Comment!!");
             return false;
@@ -107,7 +107,7 @@ var siteHelpers = {
     },
     quickCommentAdd : function(ele) {
         var textBox = ele.closest("div").find(".quick_comment");
-        var quickCategory = ele.closest("#view-quick-email").find(".quickCategory");
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
         if (textBox.val() == "") {
             alert("Please Enter New Quick Comment!!");
             return false;
@@ -139,13 +139,13 @@ var siteHelpers = {
     changeQuickCategory : function (ele) {
         if (ele.val() != "") {
             var replies = JSON.parse(ele.val());
-            ele.closest("#view-quick-email").find('.quickCommentEmail').empty();
-            ele.closest("#view-quick-email").find('.quickCommentEmail').append($('<option>', {
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
                 value: '',
                 text: 'Quick Reply'
             }));
             replies.forEach(function (reply) {
-                ele.closest("#view-quick-email").find('.quickCommentEmail').append($('<option>', {
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
                     value: reply.reply,
                     text: reply.reply,
                     'data-id': reply.id
@@ -154,7 +154,7 @@ var siteHelpers = {
         }
     },
     changeQuickComment : function (ele) {
-        ele.closest('#view-quick-email').find('#reply-message').val(ele.val());
+        $('#getMsg'+ele.attr('data-id')).val(ele.val());
 
         var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
         var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';

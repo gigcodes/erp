@@ -675,7 +675,7 @@
                         <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
                     </div>
                     <div class="col-12">
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm table-bordered" id="task_Tables">
                             <thead>
                             <tr>
                                 @if(!empty($dynamicColumnsToShowTask))
@@ -1057,7 +1057,7 @@
                                             @endif
 
                                             @if (!in_array('Shortcuts', $dynamicColumnsToShowTask))
-                                            <td>
+                                            <td id="shortcutsIds">
                                                 <!-- @include('task-module.partials.shortcuts') -->
                                             </td>
                                             @endif
@@ -1402,7 +1402,7 @@
                                                     {{$single->task_new_due_date}}
                                                 @endif
                                             </td>
-                                            <td>
+                                            <td id="shortcutsIds">
                                                 <!-- @include('task-module.partials.shortcuts') -->
                                             </td>
                                             <td class="p-2">

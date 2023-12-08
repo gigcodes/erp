@@ -32,8 +32,8 @@
                             <div class="col-md-12">
                                 <label>Actions</label>
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_minutes')">Update</button>
-                                    <button type="button" class="btn btn-default show-time-history">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_minutes')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default show-time-history"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -58,8 +58,8 @@
                                 <div class="col-md-12">
                                     <label>Actions</label>
                                     <div class="form-group">
-                                        <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('lead_estimate_time')">Update</button>
-                                        <button type="button" class="btn btn-default show-lead-time-history">History</button>
+                                        <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('lead_estimate_time')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                        <button type="button" class="btn btn-default show-lead-time-history"><i class="fa fa-list" aria-hidden="true"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -81,8 +81,8 @@
                             <div class="col-md-12">
                                 <label>Actions</label>
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')">Update</button>
-                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -100,8 +100,8 @@
                             <div class="col-md-12">
                                 <label>Actions</label>
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_date')">Update</button>
-                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('estimate_date')">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_date')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('estimate_date')"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -118,8 +118,8 @@
                             <div class="col-md-12">
                                 <label>Actions</label>
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')">Update</button>
-                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>

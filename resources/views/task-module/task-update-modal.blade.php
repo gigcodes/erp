@@ -30,8 +30,8 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('approximate')">Update</button>
-                                    <button type="button" class="btn btn-default show-time-history">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('approximate')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default show-time-history"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -50,8 +50,8 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')">Update</button>
-                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -68,8 +68,8 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('due_date')">Update</button>
-                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('due_date')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('due_date')"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -85,8 +85,8 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')">Update</button>
-                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')"><i class="fa fa-list" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </div>
