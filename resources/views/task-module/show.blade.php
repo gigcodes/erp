@@ -680,7 +680,7 @@
                             <tr>
                                 @if(!empty($dynamicColumnsToShowTask))
                                     @if (!in_array('ID', $dynamicColumnsToShowTask))
-                                        <th width="4%">ID</th>
+                                        <th width="2%">ID</th>
                                     @endif
 
                                     @if (!in_array('Date', $dynamicColumnsToShowTask))
@@ -724,17 +724,16 @@
                                     @endif
 
                                     @if (!in_array('Shortcuts', $dynamicColumnsToShowTask))
-                                        <th width="5%">Shortcuts</th>
+                                        <th width="20%">Shortcuts</th>
                                     @endif
 
                                     @if (!in_array('ICON', $dynamicColumnsToShowTask))
-                                        <th width="6%">
-                                            ICON &nbsp;
+                                        <th width="2%">                                            
                                             <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                         </th>
                                     @endif
                                 @else
-                                    <th width="4%">ID</th>
+                                    <th width="2%">ID</th>
                                     <th width="4%">Date</th>
                                     <th width="4%" class="category">Category</th>
                                     <th width="4%">Task Subject</th>
@@ -745,9 +744,8 @@
                                     <th width="6%">Estimated Time</th>
                                     <th width="6%">Estimated Start Datetime</th>
                                     <th width="6%">Estimated End Datetime</th>
-                                    <th width="5%">Shortcuts</th>
-                                    <th width="6%">
-                                        ICON &nbsp;
+                                    <th width="20%">Shortcuts</th>
+                                    <th width="2%">
                                         <label><input type="checkbox" class="show-finished-task" name="show_finished" value="on"> Finished</label>
                                     </th>
                                 @endif
@@ -771,7 +769,7 @@
                                                 @if(auth()->user()->isAdmin())
                                                     <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>
                                                 @endif
-                                                <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value="">
+                                                <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value=""></br>
                                                 {{ $task->id }}
                                             </td>
                                             @endif
@@ -1059,7 +1057,9 @@
                                             @endif
 
                                             @if (!in_array('Shortcuts', $dynamicColumnsToShowTask))
-                                            <td>--ts-</td>
+                                            <td>
+                                                @include('task-module.partials.shortcuts')
+                                            </td>
                                             @endif
 
                                             @if (!in_array('ICON', $dynamicColumnsToShowTask))
@@ -1146,7 +1146,7 @@
                                                 @if(auth()->user()->isAdmin())
                                                     <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>
                                                 @endif
-                                                <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value="">
+                                                <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value=""></br>
                                                 {{ $task->id }}
                                             </td>
                                             <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
@@ -1402,7 +1402,9 @@
                                                     {{$single->task_new_due_date}}
                                                 @endif
                                             </td>
-                                            <td>--ts-</td>
+                                            <td>
+                                                @include('task-module.partials.shortcuts')
+                                            </td>
                                             <td class="p-2">
                                                 <!-- <div class="dropdown dropleft">
                                                     <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$task->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
