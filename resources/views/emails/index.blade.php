@@ -2305,7 +2305,8 @@
                 var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
                 var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
 
-                $("#reply-message").val(senderName)
+                //$("#reply-message").val(senderName)
+                addTextToEditor(senderName);
 
                 $.ajax({
                     headers: {
@@ -2314,7 +2315,8 @@
                     url: userEmaillUrl,
                     type: 'get',
                 }).done( function(response) {
-                    $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+                    //$("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+                  addTextToEditor('<p>'+senderName+'</p><p>'+ele.val()+'</p><p>'+response+'</p>');
                 }).fail(function(errObj) {
                 })
                 
