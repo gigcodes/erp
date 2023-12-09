@@ -121,11 +121,11 @@ table tr td {
                     <div class="form-group col-md-3">
                         <div class="row">
                             <div class="col-md-6">
-                                <label for="filter_start_date">Start Date</label>
+                                <label for="filter_start_date">Created Date From</label>
                                 <input type="date" name="filter_start_date" id="filter_start_date" value="{{ @$_REQUEST['filter_start_date'] }}" class="form-control input-sm" placeholder="Select Start Date">
                             </div>
                             <div class="col-md-6">
-                                <label for="filter_end_date">End Date</label>
+                                <label for="filter_end_date">Created Date To</label>
                                 <input type="date" name="filter_end_date" id="filter_end_date" value="{{ @$_REQUEST['filter_end_date'] }}" class="form-control input-sm" placeholder="Select End Date">
                             </div>    
                         </div>    
