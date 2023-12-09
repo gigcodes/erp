@@ -38,6 +38,8 @@ use App\Mails\Manual\PurchaseExport;
 use App\Imports\CustomerNumberImport;
 use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
+use App\Models\DataTableColumn;
+
 
 class PurchaseProductController extends Controller
 {
@@ -207,6 +209,7 @@ class PurchaseProductController extends Controller
         $inventoryStatusQuery = InventoryStatus::query();
         $inventoryStatus = $inventoryStatusQuery->pluck('name', 'id');
         //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
+
         return view('purchase-product.index', compact('orders_array', 'users', 'orderby',
             'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id'));
     }
@@ -697,7 +700,15 @@ class PurchaseProductController extends Controller
 
             $purchaseStatuses = PurchaseStatus::pluck('name', 'id')->all();
 
-            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses'));
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchaseproductorders-listing')->first();
+
+            $dynamicColumnsToShowPurchaseproductorders = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowPurchaseproductorders = json_decode($hideColumns, true);
+            }
+
+            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses', 'dynamicColumnsToShowPurchaseproductorders'));
         } catch (\Exception $e) {
         }
     }
@@ -1718,4 +1729,27 @@ class PurchaseProductController extends Controller
         ]);
     }
     //END - DEVTASK-19941
+
+    //#DEVTASK-24127 - S
+    public function purchaseproductordersColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','purchaseproductorders-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'purchaseproductorders-listing'; //table : purchase_product_orders
+            $column->column_name = json_encode($request->column_purchaseproductorders); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'purchaseproductorders-listing';
+            $column->column_name = json_encode($request->column_purchaseproductorders); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'Column visiblity added Successfully!');
+    }
+    //#DEVTASK-24127 - E
 }

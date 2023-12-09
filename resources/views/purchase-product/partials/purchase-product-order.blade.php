@@ -74,6 +74,7 @@ table tr td {
         <img src="{{ asset('/images/loading2.gif') }}">
         </div>
     </div>
+    @include('partials.flash_messages')
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
@@ -107,6 +108,13 @@ table tr td {
                 </form>
             </div>
         </div>
+        <div class="col-12" style="padding:0px;">
+            <div class="col-md-12">
+                <ul class="nav nav-tabs">
+                    <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#purchaseproductorderscolumnvisibilityList"> Column Visiblity</button></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
 
@@ -117,135 +125,339 @@ table tr td {
                     <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
                         <thead>
                             <tr>
-                                <th width="1.5%">#</th>
-                                <th width="3%">Order Id</th>
-                                <!-- <th width="8%">Product</th>
-                                <th width="8%">SKU</th>
-                                <th width="8%">Brand</th> -->
-                                <th width="6%">Supplier</th>
-                                <th width="2%">MRP</th>
-                                <th width="3%">Dis Prc</th>
-                                <th width="3%">Spc Prc</th>
-                                <th width="5%">Invoice No</th>
-                                <th width="9%">Paym Details</th>
-                                <th width="6%">Cost Details</th>
-                                <th width="4%">Land cost</th>
-                                <th width="6%">Status</th>
-                                <th width="6%">Purchase Status</th>
-                                <th width="4%">Crea Date</th>
-                                <th width="5%">Action</th>
+                                @if(!empty($dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="1.5%">#</th>
+                                    
+                                    @if (!in_array('Order Id', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="3%">Order Id</th>
+                                    @endif
+
+                                    <!-- <th width="8%">Product</th>
+                                    <th width="8%">SKU</th>
+                                    <th width="8%">Brand</th> -->
+                                    @if (!in_array('Supplier', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="6%">Supplier</th>
+                                    @endif
+
+                                    @if (!in_array('MRP', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="2%">MRP</th>
+                                    @endif
+
+                                    @if (!in_array('Dis Prc', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="3%">Dis Prc</th>
+                                    @endif
+
+                                    @if (!in_array('Spc Prc', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="3%">Spc Prc</th>
+                                    @endif
+
+                                    @if (!in_array('Invoice No', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="5%">Invoice No</th>
+                                    @endif
+
+                                    @if (!in_array('Paym Details', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="9%">Paym Details</th>
+                                    @endif
+
+                                    @if (!in_array('Cost Details', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="6%">Cost Details</th>
+                                    @endif
+
+                                    @if (!in_array('Land cost', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="4%">Land cost</th>
+                                    @endif
+
+                                    @if (!in_array('Status', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="6%">Status</th>
+                                    @endif
+
+                                    @if (!in_array('Purchase Status', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="6%">Purchase Status</th>
+                                     @endif
+
+                                    @if (!in_array('Create Date', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="4%">Create Date</th>
+                                    @endif
+
+                                    @if (!in_array('Action', $dynamicColumnsToShowPurchaseproductorders))
+                                    <th width="5%">Action</th>
+                                    @endif
+                                @else
+                                    <th width="1.5%">#</th>
+                                    <th width="3%">Order Id</th>
+                                    <!-- <th width="8%">Product</th>
+                                    <th width="8%">SKU</th>
+                                    <th width="8%">Brand</th> -->
+                                    <th width="6%">Supplier</th>
+                                    <th width="2%">MRP</th>
+                                    <th width="3%">Dis Prc</th>
+                                    <th width="3%">Spc Prc</th>
+                                    <th width="5%">Invoice No</th>
+                                    <th width="9%">Paym Details</th>
+                                    <th width="6%">Cost Details</th>
+                                    <th width="4%">Land cost</th>
+                                    <th width="6%">Status</th>
+                                    <th width="6%">Purchase Status</th>
+                                    <th width="4%">Create Date</th>
+                                    <th width="5%">Action</th>
+                                @endif    
 
                             </tr>
                         </thead>
 
                         <tbody>
                         @foreach($purchar_product_order as $key => $value)
-                            <tr class="row_{{$value->pur_pro_id}}">
-                                <td>{{$key+1}}</td>
-                                <td>{{$value->order_id}}</td>
-                                <!-- <td>{{$value->name}}</td>
-                                <td>{{$value->sku}}</td>
-                                <td>{{$value->brand_name}}</td> -->
-                                <td>{{$value->supplier}}</td>
-                                <td class="mrp_amount">
-                                    {{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}
-                                    <!-- <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
-                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                    <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i> -->
-                                </td>
-                                <td class="discount_amount">
-                                    {{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}
-                                    <!-- <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
-                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                    <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i> -->
-                                </td>
-                                <td class="special_price_amount">
-                                @php
-                                $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
-                                $special_amt = ($value->special_price ?? $value->price_special ?? 0);
+                            @if(!empty($dynamicColumnsToShowPurchaseproductorders))
+                                <tr class="row_{{$value->pur_pro_id}}">
+                                    <td>{{$key+1}}</td>
 
-                                $final_special_amt = $special_amt - $discount_amt;
+                                    @if (!in_array('Order Id', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>{{$value->order_id}}</td>
+                                    @endif
+                                    
+                                    <!-- <td>{{$value->name}}</td>
+                                    <td>{{$value->sku}}</td>
+                                    <td>{{$value->brand_name}}</td> -->
 
-                                @endphp
-                                {{ ($final_special_amt > 0 ? $final_special_amt : 0) }}
-                                    <!-- <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
-                                    <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
-                                    <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
-                                </td>
-                                
-                                
-                                <td >
-                                    <div class="add-invoice">
-                                        <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control  invoice_no" value="{{ $value->invoice ?? '' }}"style="width:50%;">
-                                        <button style="display: inline;width:5%; display:flex;" class="btn btn-sm add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
-                                        <i class="fa fa-info-circle view_log color-gray" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"></i>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="currency-box">
-                                        <input type="text" name="payment_currency" placeholder="Currency" class="form-control  payment_currency" {{ $value->payment_currency ?? '' }}">
-                                        <input type="text" name="payment_amount" placeholder="Amount" class="form-control  payment_amount"style="margin-left:5px;" value="{{ $value->payment_amount ?? '' }}">
-                                        <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;" value="{{ $value->payment_mode ?? '' }}">
-                                        <button style="display: inline;width: 5%;" class="btn btn-sm add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
-                                        <i class="fa fa-info-circle view_log p-0" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="margin-left:8px;"></i>
-                                        <i class="fa fa-money view_flows p-0 color-gray" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="margin-left:8px;"></i>
-                                     </div>
-                                </td>
-                                <td>
-                                    <div class="shiping">
-                                        <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control  shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
-                                        <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control  duty_cost" style="margin-left:5px;" value="{{ $value->duty_cost ?? '' }}">
-                                        <button style="display: inline;width:5%;" class="btn btn-sm add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px;"></button>
-                                        <i class="fa fa-info-circle view_log color-gray" style="" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
-                                   </div>
-                                </td>
-                                <td class="landed_cost">
+                                    @if (!in_array('Supplier', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>{{$value->supplier}}</td>
+                                    @endif
+                                    
+                                    @if (!in_array('MRP', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td class="mrp_amount">
+                                        {{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}
+                                        <!-- <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
+                                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                        <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i> -->
+                                    </td>
+                                    @endif
+                                    
+                                    @if (!in_array('Dis Prc', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td class="discount_amount">
+                                        {{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}
+                                        <!-- <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
+                                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                        <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i> -->
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Spc Prc', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td class="special_price_amount">
                                     @php
-                                    $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
+                                    $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
+                                    $special_amt = ($value->special_price ?? $value->price_special ?? 0);
+
+                                    $final_special_amt = $special_amt - $discount_amt;
+
                                     @endphp
-                                    {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
-                                    {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
-                                </td>
-                                <td>
-                                    <div class="select">
-                                        <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
-                                            <option value="">Select</option>
-                                            <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
-                                            <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
-                                            <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
-                                            <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
-                                        </select>
-                                        <i class="fa fa-info-circle view_log color-gray" style="" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
-                                   </div>
-                                </td>
-                                <td>
-                                    <div class="select">
-                                        <select class="form-control change_purchase_status" name="purchase_status" id="purchase_status" data-id="{{$value->pur_pro_id}}">
-                                            <option value="">Select Purchase Status</option>
-                                            @foreach ($purchaseStatuses as $id => $purchaseStatus)
-                                                <option value="{{ $id }}" {{$value->purchase_status_id == $id ? 'selected' : ''}}>{{ $purchaseStatus }}</option>
-                                            @endforeach
-                                        </select>
-                                   </div>
-                                </td>
-                                @php
-                                $date = explode(" ",$value->created_at_date)
-                                @endphp
-                                <td>{{$date[0]}}</td>
-                                <td>
-                                @php
-                                $order_products_order_id = $value->order_products_order_id;
-                                $vowels = array("[", "]");
-                                $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
-                                @endphp
-                                    <i class="fa fa-list-ul view_full_order color-gray" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
+                                    {{ ($final_special_amt > 0 ? $final_special_amt : 0) }}
+                                        <!-- <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
+                                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                        <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
+                                    </td>
+                                    @endif
 
-                                    <i class="fa fa-upload upload_data_btn pl-2 pr-2 color-gray" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
+                                    @if (!in_array('Invoice No', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td >
+                                        <div class="add-invoice">
+                                            <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control  invoice_no" value="{{ $value->invoice ?? '' }}"style="width:50%;">
+                                            <button style="display: inline;width:5%; display:flex;" class="btn btn-sm add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
+                                            <i class="fa fa-info-circle view_log color-gray" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"></i>
+                                        </div>
+                                    </td>
+                                    @endif
 
-                                    <a type="button" class="btn btn-xs load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt="" width="16px"></a>
-                                </td>
+                                    @if (!in_array('Paym Details', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>
+                                        <div class="currency-box">
+                                            <input type="text" name="payment_currency" placeholder="Currency" class="form-control  payment_currency" {{ $value->payment_currency ?? '' }}">
+                                            <input type="text" name="payment_amount" placeholder="Amount" class="form-control  payment_amount"style="margin-left:5px;" value="{{ $value->payment_amount ?? '' }}">
+                                            <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;" value="{{ $value->payment_mode ?? '' }}">
+                                            <button style="display: inline;width: 5%;" class="btn btn-sm add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
+                                            <i class="fa fa-info-circle view_log p-0" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="margin-left:8px;"></i>
+                                            <i class="fa fa-money view_flows p-0 color-gray" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="margin-left:8px;"></i>
+                                        </div>
+                                    </td>
+                                    @endif
 
-                            </tr>
+                                    @if (!in_array('Cost Details', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>
+                                        <div class="shiping">
+                                            <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control  shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
+                                            <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control  duty_cost" style="margin-left:5px;" value="{{ $value->duty_cost ?? '' }}">
+                                            <button style="display: inline;width:5%;" class="btn btn-sm add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px;"></button>
+                                            <i class="fa fa-info-circle view_log color-gray" style="" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
+                                    </div>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Land cost', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td class="landed_cost">
+                                        @php
+                                        $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
+                                        @endphp
+                                        {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
+                                        {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Status', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>
+                                        <div class="select">
+                                            <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
+                                                <option value="">Select</option>
+                                                <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
+                                                <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
+                                                <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
+                                                <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
+                                            </select>
+                                            <i class="fa fa-info-circle view_log color-gray" style="" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
+                                    </div>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Purchase Status', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>
+                                        <div class="select">
+                                            <select class="form-control change_purchase_status" name="purchase_status" id="purchase_status" data-id="{{$value->pur_pro_id}}">
+                                                <option value="">Select Purchase Status</option>
+                                                @foreach ($purchaseStatuses as $id => $purchaseStatus)
+                                                    <option value="{{ $id }}" {{$value->purchase_status_id == $id ? 'selected' : ''}}>{{ $purchaseStatus }}</option>
+                                                @endforeach
+                                            </select>
+                                    </div>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Create Date', $dynamicColumnsToShowPurchaseproductorders))
+                                    @php
+                                    $date = explode(" ",$value->created_at_date)
+                                    @endphp
+                                    <td>{{$date[0]}}</td>
+                                    @endif
+
+                                    <td>
+                                    @php
+                                    $order_products_order_id = $value->order_products_order_id;
+                                    $vowels = array("[", "]");
+                                    $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
+                                    @endphp
+                                        <i class="fa fa-list-ul view_full_order color-gray" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
+
+                                        <i class="fa fa-upload upload_data_btn pl-2 pr-2 color-gray" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
+
+                                        <a type="button" class="btn btn-xs load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt="" width="16px"></a>
+                                    </td>
+
+                                </tr>
+                            @else
+                                <tr class="row_{{$value->pur_pro_id}}">
+                                    <td>{{$key+1}}</td>
+                                    <td>{{$value->order_id}}</td>
+                                    <!-- <td>{{$value->name}}</td>
+                                    <td>{{$value->sku}}</td>
+                                    <td>{{$value->brand_name}}</td> -->
+                                    <td>{{$value->supplier}}</td>
+                                    <td class="mrp_amount">
+                                        {{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}
+                                        <!-- <input type="text" name="product_mrp" placeholder="MRP" class="form-control mb-3 product_mrp" value="{{ ($value->mrp_price > 0 ? $value->mrp_price : 0) ?? ( $value->mrp > 0 ? $value->mrp : 0 ) ?? '' }}">
+                                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_mrp" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                        <i class="fa fa-info-circle view_log" title="MRP Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="MRP"></i> -->
+                                    </td>
+                                    <td class="discount_amount">
+                                        {{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}
+                                        <!-- <input type="text" name="product_discount_price" placeholder="Discounted Price" class="form-control mb-3 product_discount_price" value="{{ ($value->discount_price > 0 ? $value->discount_price : 0 ) ?? ($value->price_discounted > 0 ? $value->price_discounted : 0 ) ?? '' }}">
+                                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_discount_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                        <i class="fa fa-info-circle view_log" title="Discounted Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Discounted Price"></i> -->
+                                    </td>
+                                    <td class="special_price_amount">
+                                    @php
+                                    $discount_amt = ( $value->discount_price ?? $value->price_discounted ?? 0 );
+                                    $special_amt = ($value->special_price ?? $value->price_special ?? 0);
+
+                                    $final_special_amt = $special_amt - $discount_amt;
+
+                                    @endphp
+                                    {{ ($final_special_amt > 0 ? $final_special_amt : 0) }}
+                                        <!-- <input type="text" name="product_special_price" placeholder="Special Price" class="form-control mb-3 product_special_price" value="{{ ($final_special_amt > 0 ? $final_special_amt : 0) }}">
+                                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image add_special_price" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png"></button>
+                                        <i class="fa fa-info-circle view_log" title="Special Price Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Special Price"></i> -->
+                                    </td>
+                                    
+                                    
+                                    <td >
+                                        <div class="add-invoice">
+                                            <input type="text" name="invoice_no" placeholder="Add Invoice No." class="form-control  invoice_no" value="{{ $value->invoice ?? '' }}"style="width:50%;">
+                                            <button style="display: inline;width:5%; display:flex;" class="btn btn-sm add_invoice" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
+                                            <i class="fa fa-info-circle view_log color-gray" title="Invoice Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Invoice"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="currency-box">
+                                            <input type="text" name="payment_currency" placeholder="Currency" class="form-control  payment_currency" {{ $value->payment_currency ?? '' }}">
+                                            <input type="text" name="payment_amount" placeholder="Amount" class="form-control  payment_amount"style="margin-left:5px;" value="{{ $value->payment_amount ?? '' }}">
+                                            <input type="text" name="payment_mode" placeholder="Mode" class="form-control  payment_mode" style="margin-left:5px;" value="{{ $value->payment_mode ?? '' }}">
+                                            <button style="display: inline;width: 5%;" class="btn btn-sm add_payment_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px"></button>
+                                            <i class="fa fa-info-circle view_log p-0" title="Payment Details Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Payment Details" style="margin-left:8px;"></i>
+                                            <i class="fa fa-money view_flows p-0 color-gray" title="Cash Flows" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cash Flows" style="margin-left:8px;"></i>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="shiping">
+                                            <input type="text" name="shipping_cost" placeholder="Shipping Costs" class="form-control  shipping_cost" value="{{ $value->shipping_cost ?? '' }}">
+                                            <input type="text" name="duty_cost" placeholder="Duty Costs" class="form-control  duty_cost" style="margin-left:5px;" value="{{ $value->duty_cost ?? '' }}">
+                                            <button style="display: inline;width:5%;" class="btn btn-sm add_cost_details" data-id="{{$value->pur_pro_id}}"><img src="/images/filled-sent.png" width="16px;"></button>
+                                            <i class="fa fa-info-circle view_log color-gray" style="" title="Cost Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Cost"></i>
+                                    </div>
+                                    </td>
+                                    <td class="landed_cost">
+                                        @php
+                                        $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;
+                                        @endphp
+                                        {{-- ( {{$value->mrp_price ?? $value->mrp ?? 0}} - {{$value->price_discounted}} / 1.22 ) + {{$value->shipping_cost ?? 0}}  + {{$value->duty_cost ?? 0}}  --}}
+                                        {{ round($purchase_price + $value->shipping_cost + $value->duty_cost,2) }}
+                                    </td>
+                                    <td>
+                                        <div class="select">
+                                            <select class="form-control change_status" name="status" id="status" data-id="{{$value->pur_pro_id}}">
+                                                <option value="">Select</option>
+                                                <option {{$value->purchase_status == 'pending' ? 'selected' : ''}} value="pending">Pending</option>
+                                                <option {{$value->purchase_status == 'complete' ? 'selected' : ''}} value="complete">Complete</option>
+                                                <option {{$value->purchase_status == 'in_stock' ? 'selected' : ''}} value="in_stock">In Stock</option>
+                                                <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
+                                            </select>
+                                            <i class="fa fa-info-circle view_log color-gray" style="" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
+                                    </div>
+                                    </td>
+                                    <td>
+                                        <div class="select">
+                                            <select class="form-control change_purchase_status" name="purchase_status" id="purchase_status" data-id="{{$value->pur_pro_id}}">
+                                                <option value="">Select Purchase Status</option>
+                                                @foreach ($purchaseStatuses as $id => $purchaseStatus)
+                                                    <option value="{{ $id }}" {{$value->purchase_status_id == $id ? 'selected' : ''}}>{{ $purchaseStatus }}</option>
+                                                @endforeach
+                                            </select>
+                                    </div>
+                                    </td>
+                                    @php
+                                    $date = explode(" ",$value->created_at_date)
+                                    @endphp
+                                    <td>{{$date[0]}}</td>
+                                    <td>
+                                    @php
+                                    $order_products_order_id = $value->order_products_order_id;
+                                    $vowels = array("[", "]");
+                                    $onlyconsonants = str_replace($vowels, "", $order_products_order_id);
+                                    @endphp
+                                        <i class="fa fa-list-ul view_full_order color-gray" data-id="{{$value->pur_pro_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" data-order-id="{{$value->order_pro_order_id}}" aria-hidden="true"></i>
+
+                                        <i class="fa fa-upload upload_data_btn pl-2 pr-2 color-gray" data-order-id="{{$value->order_id}}" data-pro-order-id="{{$onlyconsonants}}" data-supplier-id="{{$value->supplier_id}}" aria-hidden="true"></i>
+
+                                        <a type="button" class="btn btn-xs load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt="" width="16px"></a>
+                                    </td>
+
+                                </tr>
+                            @endif    
                         @endforeach
                         </tbody>
                     </table>
@@ -400,6 +612,7 @@ table tr td {
             </div>
         </div>
     </div>
+    @include("purchase-product.partials.column-visibility-modal")
 
 @endsection
 @section('scripts')
