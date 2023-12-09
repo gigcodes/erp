@@ -695,6 +695,27 @@ class PurchaseProductController extends Controller
                 $suppliers_all = Supplier::where('id', $request->supplier_id)->first();
             }
 
+            if ($request->status && $request->status !="all") {
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.status', $request->status);
+            }
+
+            if ($request->filter_purchase_status && $request->filter_purchase_status !="all") {
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.purchase_status_id', $request->filter_purchase_status);
+            }
+
+            // date range filter on created_at date
+            if ($request->filter_start_date && $request->filter_start_date !="" &&
+                $request->filter_end_date && $request->filter_end_date !="" ) {
+                $purchar_product_order = $purchar_product_order->whereBetween('purchase_product_orders.created_at', [$request->filter_start_date, $request->filter_end_date]);                
+            }elseif($request->filter_start_date && $request->filter_start_date !="" && 
+                    (!$request->filter_end_date || $request->filter_end_date =="")){
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.created_at', '>=', $request->filter_start_date);                                
+            }elseif($request->filter_end_date && $request->filter_end_date !="" && 
+                    (!$request->filter_start_date || $request->filter_end_date =="")){
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.created_at', '<=', $request->filter_end_date);                                
+            }
+                
+
             $purchar_product_order = $purchar_product_order->select('purchase_product_orders.*', 'purchase_product_orders.status as purchase_status', 'suppliers.*', 'suppliers.id as supplier_id', 'purchase_product_orders.id as pur_pro_id', 'purchase_product_orders.created_at as created_at_date');
             $purchar_product_order = $purchar_product_order->orderBy('purchase_product_orders.id', 'DESC')->paginate(Setting::get('pagination'));
 

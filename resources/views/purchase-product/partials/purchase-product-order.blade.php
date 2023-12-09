@@ -97,9 +97,41 @@ table tr td {
 
                         @endif
                         <option ></option>
-
                         </select>
                     </div>
+                    <div class="form-group col-md-3 pd-3">
+                        <select class="form-control status globalSelect2" name="status" id="status" data-placeholder="Select Status" >
+                            <option value="all">Select Status</option>
+                            <option {{(@$_REQUEST['status'] == 'pending') ? 'selected' : ''}} value="pending">Pending</option>
+                            <option {{(@$_REQUEST['status'] == 'complete') ? 'selected' : ''}} value="complete">Complete</option>
+                            <option {{(@$_REQUEST['status'] == 'in_stock') ? 'selected' : ''}} value="in_stock">In Stock</option>
+                            <option {{(@$_REQUEST['status'] == 'out_stock') ? 'selected' : ''}} value="out_stock">Out Stock</option>
+                        </select>                       
+                    </div>
+
+                    <div class="form-group col-md-3 pd-3">
+                        <select class="form-control purchase_status globalSelect2" name="filter_purchase_status" id="filter_purchase_status">
+                            <option value="all">Select Purchase Status</option>
+                            @foreach ($purchaseStatuses as $id => $purchaseStatus)
+                                <option value="{{ $id }}" {{@$_REQUEST['filter_purchase_status'] == $id ? 'selected' : ''}}>{{ $purchaseStatus }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="filter_start_date">Start Date</label>
+                                <input type="date" name="filter_start_date" id="filter_start_date" value="{{ @$_REQUEST['filter_start_date'] }}" class="form-control input-sm" placeholder="Select Start Date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="filter_end_date">End Date</label>
+                                <input type="date" name="filter_end_date" id="filter_end_date" value="{{ @$_REQUEST['filter_end_date'] }}" class="form-control input-sm" placeholder="Select End Date">
+                            </div>    
+                        </div>    
+                    </div>
+                   
+
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
 
@@ -163,7 +195,7 @@ table tr td {
                                     <th width="6%">Cost Details</th>
                                     @endif
 
-                                    @if (!in_array('Land cost', $dynamicColumnsToShowPurchaseproductorders))
+                                    @if (!in_array('Land Cost', $dynamicColumnsToShowPurchaseproductorders))
                                     <th width="4%">Land cost</th>
                                     @endif
 
@@ -291,7 +323,7 @@ table tr td {
                                     </td>
                                     @endif
 
-                                    @if (!in_array('Land cost', $dynamicColumnsToShowPurchaseproductorders))
+                                    @if (!in_array('Land Cost', $dynamicColumnsToShowPurchaseproductorders))
                                     <td class="landed_cost">
                                         @php
                                         $purchase_price = $value->mrp_price - $value->discount_price  / 1.22;

@@ -18,6 +18,10 @@ $columns_array = [
         'name' => 'Dis Prc'
     ],
     [
+        'id' => 'Spc_Prc',
+        'name' => 'Spc Prc'
+    ],
+    [
         'id' => 'Invoice_No',
         'name' => 'Invoice No'
     ],
