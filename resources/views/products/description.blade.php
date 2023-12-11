@@ -118,14 +118,15 @@
                     <th width="5%">Title</th>
                     <th width="6%">Description</th>
                     <th width="6%">Color</th>
-                    <th width="8%">Size</th>
+                    <th width="3%">Size</th>
                     <th width="5%">Category</th>
                     <th width="6%">Composition</th>
                     <th width="4%">Price</th>
                     <th width="6%">Size System</th>
                     <th width="5%">Discount</th>
                     <th width="6%">Dimensions</th>
-                    <th width="5%">Functions</th>
+                    <th width="10%">Date Time</th>
+                    <th width="5%">Functions</th>                    
                 </tr>
                 @foreach($products as $product)
                     <tr>
@@ -167,6 +168,9 @@
                         </td>
                         <td>
                             {{isset($product->product) ? $product->product->lmeasurement.",".$product->product->hmeasurement.",".$product->product->dmeasurement : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->last_started_at) ? $product->last_started_at : "-"}}
                         </td>
                         <td>
                             <button style="padding: 1px" data-id="{{ $product->scraper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">

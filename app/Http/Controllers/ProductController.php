@@ -4185,7 +4185,7 @@ class ProductController extends Controller
     public function productDescription(Request $request)
     {
         $query = ProductSupplier::with('supplier', 'product')
-        ->select(['product_suppliers.*', 'scrapers.id as scraper_id'])
+        ->select(['product_suppliers.*', 'scrapers.id as scraper_id', 'scrapers.last_started_at as last_started_at'])
         ->join('scrapers', 'scrapers.supplier_id', 'product_suppliers.supplier_id');
         if ($request->get('product_id') != '') {
             $products = $query->where('product_id', $request->get('product_id'));
@@ -4234,7 +4234,7 @@ class ProductController extends Controller
 
         $products_count = $query->count();
         $products = $query->orderBy('product_id', 'DESC')->paginate(50);
-
+       // dd($products);
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
     }
