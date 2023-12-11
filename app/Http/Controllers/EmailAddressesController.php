@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\User;
 use App\Email;
 use Carbon\Carbon;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\DB;
 use Webklex\PHPIMAP\ClientManager;
 use Maatwebsite\Excel\Facades\Excel;
 use EmailReplyParser\Parser\EmailParser;
+use App\Models\EMailAcknowledgement;
+use Illuminate\Support\Facades\Validator;
 
 class EmailAddressesController extends Controller
 {
@@ -124,6 +127,39 @@ class EmailAddressesController extends Controller
                 'runHistoriesCount' => $runHistoriesCount,
             ]);
         }
+    }
+
+    public function createAcknowledgement(Request $request)
+    {
+        
+
+        $this->validate($request, [
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'ack_status' => 'required',
+            'ack_message' => 'required',
+        ]);
+
+        $input = $request->all();
+        $input['added_by'] = Auth::user()->id;
+
+        $messageModel = EMailAcknowledgement::create($input);
+
+        return response()->json(
+            [
+                'code' => 200,
+                'data' => [],
+                'message' => 'Your email acknowledgement has been created!',
+            ]
+        );
+    }
+
+    public function acknowledgementCount($email_addresses_id)
+    {
+    
+        $EMailAcknowledgement = EMailAcknowledgement::where('email_addresses_id', $email_addresses_id)->orderBy('id', 'DESC')->take(5)->get();
+
+        return response()->json(['code' => 200, 'EMailAcknowledgement' => $EMailAcknowledgement]);
     }
 
     public function runHistoriesTruncate()

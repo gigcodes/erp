@@ -2876,6 +2876,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email-addresses/run-histories-truncate', [EmailAddressesController::class, 'runHistoriesTruncate'])->name('email-addresses.run-histories-truncate');
     Route::get('email-addresses/run-job/lists', [EmailAddressesController::class, 'listEmailRunLogs'])->name('email-addresses.run-histories-listing');
     Route::resource('email-addresses', EmailAddressesController::class);
+    Route::post('email-addresses/create-acknowledgement', [EmailAddressesController::class, 'createAcknowledgement'])->name('email-addresses.create.acknowledgement');
+    Route::get('email-addresses/countemailacknowledgement/{id}', [EmailAddressesController::class, 'acknowledgementCount']);
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
