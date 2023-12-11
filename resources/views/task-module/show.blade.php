@@ -960,7 +960,7 @@
                                                                     <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
 
                                                                     <input type="hidden" name="is_audio" id="is_audio_{{$task->id}}" value="0" >
-                                                                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
+                                                                    <!-- <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button> -->
                                                                 </div>
                                                                 @if (isset($task->message))
                                                                     <div style="max-width: 30px;">
@@ -979,30 +979,29 @@
                                                                     @if (isset($task->is_audio) && $task->is_audio)
                                                                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                     @else
-                                                                        {{ $task->message }}
-                                                                        <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
-                                                                            <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-                                                                            <?php
-                                                                                if (!empty($task->message) && !empty($task->task_subject)) {
-                                                                                    $pos = strpos($task->message, $task->task_subject);
-                                                                                    $length = strlen($task->task_subject);
-                                                                                    if ($pos) {
-                                                                                        $start = $pos + $length + 1;
-                                                                                    } else {
-                                                                                        $start = 0;
-                                                                                    }
+                                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                                        <?php
+                                                                            if (!empty($task->message) && !empty($task->task_subject)) {
+                                                                                $pos = strpos($task->message, $task->task_subject);
+                                                                                $length = strlen($task->task_subject);
+                                                                                if ($pos) {
+                                                                                    $start = $pos + $length + 1;
                                                                                 } else {
                                                                                     $start = 0;
                                                                                 }
-                                                                                ?>
-                                                                            {{substr($task->message, $start,28)}}
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="expand-row-msg" data-id="{{$task->id}}">
-                                                                            <span class="td-full-container-{{$task->id}} hidden">
-                                                                            {{ $task->message }}
-                                                                            </span>
-                                                                        </div> -->
+                                                                            } else {
+                                                                                $start = 0;
+                                                                            }
+                                                                            ?>
+                                                                        {{substr($task->message, $start,28)}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-full-container-{{$task->id}} hidden">
+                                                                        {{ $task->message }}
+                                                                        </span>
+                                                                    </div>
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1308,7 +1307,7 @@
                                                                     <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
 
                                                                     <input type="hidden" name="is_audio" id="is_audio_{{$task->id}}" value="0" >
-                                                                    <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
+                                                                    <!-- <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button> -->
                                                                 </div>
                                                                 @if (isset($task->message))
                                                                     <div style="max-width: 30px;">
@@ -1327,30 +1326,29 @@
                                                                     @if (isset($task->is_audio) && $task->is_audio)
                                                                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                     @else
-                                                                        {{ $task->message }}
-                                                                        <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
-                                                                            <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-                                                                            <?php
-                                                                                if (!empty($task->message) && !empty($task->task_subject)) {
-                                                                                    $pos = strpos($task->message, $task->task_subject);
-                                                                                    $length = strlen($task->task_subject);
-                                                                                    if ($pos) {
-                                                                                        $start = $pos + $length + 1;
-                                                                                    } else {
-                                                                                        $start = 0;
-                                                                                    }
+                                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                                        <?php
+                                                                            if (!empty($task->message) && !empty($task->task_subject)) {
+                                                                                $pos = strpos($task->message, $task->task_subject);
+                                                                                $length = strlen($task->task_subject);
+                                                                                if ($pos) {
+                                                                                    $start = $pos + $length + 1;
                                                                                 } else {
                                                                                     $start = 0;
                                                                                 }
-                                                                                ?>
-                                                                            {{substr($task->message, $start,28)}}
-                                                                            </span>
-                                                                        </div>
-                                                                        <div class="expand-row-msg" data-id="{{$task->id}}">
-                                                                            <span class="td-full-container-{{$task->id}} hidden">
-                                                                            {{ $task->message }}
-                                                                            </span>
-                                                                        </div> -->
+                                                                            } else {
+                                                                                $start = 0;
+                                                                            }
+                                                                            ?>
+                                                                        {{substr($task->message, $start,28)}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                                        <span class="td-full-container-{{$task->id}} hidden">
+                                                                        {{ $task->message }}
+                                                                        </span>
+                                                                    </div>
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1640,7 +1638,7 @@
                                                                 <button id="send-message_{{ $task->id }}" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button>
 
                                                                 <input type="hidden" name="is_audio" id="is_audio_{{$task->id}}" value="0" >
-                                                                <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button>
+                                                                <!-- <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image btn-trigger-rvn-modal" data-id="{{$task->id}}" data-tid="{{$task->id}}" data-load-type="text" data-all="1" title="Record & Send Voice Message"><img src="{{asset('images/record-voice-message.png')}}" alt=""></button> -->
                                                             </div>
                                                             @if (isset($task->message))
                                                                 <div style="max-width: 30px;">
@@ -1659,30 +1657,29 @@
                                                                 @if (isset($task->is_audio) && $task->is_audio)
                                                                     <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                 @else
-                                                                    {{ $task->message }}
-                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
-                                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
-                                                                        <?php
-                                                                            if (!empty($task->message) && !empty($task->task_subject)) {
-                                                                                $pos = strpos($task->message, $task->task_subject);
-                                                                                $length = strlen($task->task_subject);
-                                                                                if ($pos) {
-                                                                                    $start = $pos + $length + 1;
-                                                                                } else {
-                                                                                    $start = 0;
-                                                                                }
+                                                                <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                    <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                                    <?php
+                                                                        if (!empty($task->message) && !empty($task->task_subject)) {
+                                                                            $pos = strpos($task->message, $task->task_subject);
+                                                                            $length = strlen($task->task_subject);
+                                                                            if ($pos) {
+                                                                                $start = $pos + $length + 1;
                                                                             } else {
                                                                                 $start = 0;
                                                                             }
-                                                                            ?>
-                                                                        {{substr($task->message, $start,28)}}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="expand-row-msg" data-id="{{$task->id}}">
-                                                                        <span class="td-full-container-{{$task->id}} hidden">
-                                                                        {{ $task->message }}
-                                                                        </span>
-                                                                    </div> -->
+                                                                        } else {
+                                                                            $start = 0;
+                                                                        }
+                                                                        ?>
+                                                                    {{substr($task->message, $start,28)}}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                                    <span class="td-full-container-{{$task->id}} hidden">
+                                                                    {{ $task->message }}
+                                                                    </span>
+                                                                </div>
                                                                 @endif
                                                             </div>
                                                         @endif

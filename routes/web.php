@@ -2366,6 +2366,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/task/get-document', [DevelopmentController::class, 'getDocument']);
     Route::get('development/task/export-task', [DevelopmentController::class, 'exportTask']);
     Route::get('development/task/search/', [DevelopmentController::class, 'searchDevTask'])->name('devtask.module.search');
+    Route::post('development/add/scrapper', [DevelopmentController::class, 'addScrapper'])->name('development.add-scrapper');
+    Route::get('development/countscrapper/{id}', [DevelopmentController::class, 'taskScrapper']);
+    Route::post('development/updatescrapperdata', [DevelopmentController::class, 'UpdateScrapper'])->name('development.updatescrapperdata');
+    Route::post('development/updatescrapperremarksdata', [DevelopmentController::class, 'UpdateScrapperRemarks'])->name('development.updatescrapperremarksdata');
 
     Route::resource('task-types', TaskTypesController::class);
 
