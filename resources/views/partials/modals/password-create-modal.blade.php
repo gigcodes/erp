@@ -39,8 +39,8 @@
             </div>
 
             <div class="form-group">
-              <strong>Password:</strong>
-              <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
+              <strong>Password:</strong> <a href="javascript:void(0);" class="generatepasswordadd" style=" float: right;">Generate Password</a>
+              <input type="text" name="password" class="form-control password-add" value="{{ old('password') }}" required>
 
               @if ($errors->has('password'))
                 <div class="alert alert-danger">{{$errors->first('password')}}</div>
