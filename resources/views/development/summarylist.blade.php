@@ -169,7 +169,9 @@
         <a href="javascript:" class="btn custom-button mt-3" style="height: 35px;" id="newTaskModalBtn">Add New Dev Task </a>
     @endif
 
-    <button class="btn custom-button mt-3" style="color:white;" data-toggle="modal" data-target="#dscolumnvisibilityList"> Column Visiblity</button>
+    @if (Auth::user()->isAdmin())
+        <button class="btn custom-button mt-3" style="color:white;" data-toggle="modal" data-target="#dscolumnvisibilityList"> Column Visiblity</button>
+    @endif
 
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
@@ -321,22 +323,16 @@
                             <th width="5%">Actions</th>
                         @endif
                     @else
-                        <th style="width:12%;">ID</th>
-                        <th style="width:5%;">Module</th>
-                        <th style="width:5%;">Date</th>
-                        <th style="width:8%;">Subject</th>
-                        <th style="width:20%;">Communication</th>
-                        <th style="width:10%;">Est Completion Time</th>
-                        <th style="width:10%;">Est Completion Date</th>
-                        <th style="width:9%;">Tracked Time</th>
-                        <th style="width:13%;">Developers</th>
-                        <th style="width:10%;">Status</th>
-                        <th style="width:5%;">Cost</th>
-                        <th style="width:7%;">Milestone</th>
-                        <th style="width:10%">Estimated Time</th>
-                        <th style="width:10%">Estimated Start Datetime</th>
-                        <th style="width:10%">Estimated End Datetime</th>
-                        <th style="width:5%;">Actions</th>
+                        <th width="4%">ID</th>
+                        <th width="6%">MODULE</th>
+                        <th width="8%">Assigned To</th>
+                        <th width="8%">Lead</th>
+                        <th width="15%">Communication</th>
+                        <th width="8%">Send To</th>
+                        <th width="5%">Status</th>
+                        <th width="7%">Estimated Time</th>
+                        <th width="10%">Estimated Datetime</th>
+                        <th width="5%">Actions</th>
                     @endif
                 </tr>
                 </thead>
