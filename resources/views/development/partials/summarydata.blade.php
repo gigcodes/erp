@@ -183,7 +183,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         @if (!in_array('Actions', $dynamicColumnsToShowDs))
             <tr class="action-btn-tr-{{$issue->id}} d-none">
                 <td class="font-weight-bold">Action</td>
-                <td>    
+                <td colspan="15">    
                     <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
                     @if ($issue->is_flagged == 1)
                         <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
@@ -196,6 +196,11 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                     <button class="btn btn-xs mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-key" aria-hidden="true"></i>
                     </button>
+
+                    <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
                 </td>
             </tr>
         @endif
@@ -349,7 +354,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
         </tr>
         <tr class="action-btn-tr-{{$issue->id}} d-none">
             <td class="font-weight-bold">Action</td>
-            <td>    
+            <td colspan="15">    
                 <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
                 @if ($issue->is_flagged == 1)
                     <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
@@ -362,6 +367,11 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 <button class="btn btn-xs mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                     <i class="fa fa-key" aria-hidden="true"></i>
                 </button>
+
+                <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
             </td>
         </tr>
     @endif
@@ -512,7 +522,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
     </tr>
     <tr class="action-btn-tr-{{$issue->id}} d-none">
         <td class="font-weight-bold">Action</td>
-        <td>    
+        <td colspan="15">    
             <button class="btn btn-image set-remark p-1" data-task_id="{{ $issue->id }}" data-task_type="Quick-dev-task"><i class="fa fa-comment" aria-hidden="true"></i></button>
             @if ($issue->is_flagged == 1)
                 <button type="button" class="btn btn-image flag-task p-1" data-id="{{ $issue->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
@@ -525,6 +535,11 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             <button class="btn btn-xs mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                 <i class="fa fa-key" aria-hidden="true"></i>
             </button>
+
+            <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+            <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
         </td>
     </tr>
 @endif

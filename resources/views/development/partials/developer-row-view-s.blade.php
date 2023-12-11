@@ -397,6 +397,11 @@
                     <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-key" aria-hidden="true"></i>
                     </button>
+
+                    <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
                 </div>
             </td>
         </tr>
@@ -776,6 +781,11 @@
                     <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-key" aria-hidden="true"></i>
                     </button>
+
+                    <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </button>
+                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
                 </div>
             </td>
         </tr>
@@ -1154,6 +1164,11 @@
                 <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                     <i class="fa fa-key" aria-hidden="true"></i>
                 </button>
+
+                <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
             </div>
         </td>
     </tr>

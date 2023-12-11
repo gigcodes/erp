@@ -353,6 +353,20 @@
     @include("partials.plain-modal")
     @include("development.partials.modal-summary-task-color")
     @include("development.partials.column-visibility-modal")
+    @include("development.partials.add-scrapper")
+
+    <div id="dev_scrapper_statistics" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="p-0 m-0">Scrapper Statistics</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body" id="dev_scrapper_statistics_content">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="python-action-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -2247,6 +2261,329 @@ $(document).on('change', '.quickCommentEmail', function () {
 });
 $(document).on('change', '.quickSubCategory', function () {
     siteHelpers.changeQuickSubCategory($(this));
+});
+
+$(".add-scrapper").click(function (e) { 
+    e.preventDefault();
+    let task_id = $(this).data("task_id")
+    let task_type = $(this).data("task_type")
+    $("#addScrapperModel").find('input[name=task_id]').val(task_id);
+    $("#addScrapperModel").find('input[name=task_type]').val(task_type);
+    $("#addScrapperModel").modal("show");
+});
+
+$(document).on("click", ".create-scrapper", function(e) {
+    e.preventDefault();
+    var form = $(this).closest("form");
+    $.ajax({
+        url: form.attr("action"),
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: form.serialize(),
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                form[0].reset();
+                toastr['success'](response.message);
+                $("#create-quick-task").modal("hide");
+            } else {
+                toastr['error'](response.message);
+            }
+        }
+    }).fail(function(response) {
+        $('#loading-image').hide();
+        toastr['error'](response.responseJSON.message);
+    });
+});
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+$(document).on("click", ".count-dev-scrapper", function() {
+
+    var $this = $(this);
+    var task_id = $(this).data("id");
+    $.ajax({
+        type: 'get',
+        url: '/development/countscrapper/' + task_id,
+        dataType: "json",
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        },
+        success: function(data) {
+
+            $("#dev_scrapper_statistics").modal("show");
+            var table = `<div class="table-responsive">
+                <table class="table table-bordered table-striped table-scrapper" style="font-size:14px;">`;
+                table = table + '<tr>';
+                table = table + '<th width="10%">Column Name</th>';
+                table = table + '<th width="30%">Values</th>';
+                table = table + '<th width="15%">Status</th>';
+                table = table + '<th width="45%">Remarks</th>';
+                table = table + '</tr>';
+            if(data.values!=''){
+                $.each(data.values, function(key, value) {
+                    table = table + '<tr>';
+                    table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
+                    table = table + '</th>';
+
+                    if(key=='properties'){
+                        if(data.values.properties!=''){
+                            table = table + '<td><table class="table table-bordered table-striped">';
+                            $.each(data.values.properties, function(key, value) {
+                                table = table + '<tr>';
+                                    table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
+;
+                                    table = table + '</th>';
+                                    table = table + '<td>'+value;
+                                    table = table + '</td>';
+                                table = table + '</tr>';
+
+                            });
+                            table = table + '</table></td>';
+
+                            var approveValue = '';
+                            var unapproveValue = '';
+                            for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
+
+                                if(data.ScrapperValuesHistory[i].column_name==key){
+
+                                    StatusValue = data.ScrapperValuesHistory[i].status;
+
+                                    if(StatusValue=='Approve'){
+                                        approveValue = 'selected';
+                                    }
+
+                                    if(StatusValue=='Unapprove'){
+                                        unapproveValue = 'selected';
+                                    }
+
+                                }                            
+                            }
+
+                            table = table + '<td>';
+                                table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                table = table + '<option>Select Status</option>';
+                                table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                table = table + '</select>';
+                            table = table + '</td>';
+
+                            var remarksValue = '';
+                            for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
+
+                                if(data.ScrapperValuesRemarksHistory[i].column_name==key){
+
+                                    remarksValue = data.ScrapperValuesRemarksHistory[i].remarks;
+
+                                }                            
+                            }
+
+                            table = table + '<td>';
+                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+
+                            table = table + '<button class="btn btn-sm btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></button>';
+
+                            table = table + '</td>';
+                        }
+                    } else if(key=='images'){
+                        if(data.values.images!=''){
+                            table = table + '<td><table class="table table-bordered table-striped">';
+                            table = table + '<tr><td>';
+                            $.each(data.values.images, function(key, value) {
+                                table = table + '<img src="'+value+'" width="50px" style="cursor: default;margin-right: 10px;">';
+                            });
+                            table = table + '</td></tr>';
+                            table = table + '</table></td>';
+
+                            var approveValue = '';
+                            var unapproveValue = '';
+                            for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
+
+                                if(data.ScrapperValuesHistory[i].column_name==key){
+
+                                    StatusValue = data.ScrapperValuesHistory[i].status;
+
+                                    if(StatusValue=='Approve'){
+                                        approveValue = 'selected';
+                                    }
+
+                                    if(StatusValue=='Unapprove'){
+                                        unapproveValue = 'selected';
+                                    }
+
+                                }                            
+                            }
+
+                            table = table + '<td>';
+                                table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                table = table + '<option>--Select Status--</option>';
+                                table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                table = table + '</select>';
+                            table = table + '</td>';
+
+                            var remarksValue = '';
+                            for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
+
+                                if(data.ScrapperValuesRemarksHistory[i].column_name==key){
+
+                                    remarksValue = data.ScrapperValuesRemarksHistory[i].remarks;
+
+                                }                            
+                            }
+
+                            table = table + '<td>';
+                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+
+                            table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+
+                            table = table + '</td>';
+                        }
+                    } else {
+                        table = table + '<td>'+value;
+                        table = table + '</td>';
+
+                        var approveValue = '';
+                        var unapproveValue = '';
+                        for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
+
+                            if(data.ScrapperValuesHistory[i].column_name==key){
+
+                                StatusValue = data.ScrapperValuesHistory[i].status;
+
+                                if(StatusValue=='Approve'){
+                                    approveValue = 'selected';
+                                }
+
+                                if(StatusValue=='Unapprove'){
+                                    unapproveValue = 'selected';
+                                }
+
+                            }                            
+                        }
+
+                        table = table + '<td>';
+                            table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                            table = table + '<option>--Select Status--</option>';
+                            table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                            table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                            table = table + '</select>';
+                        table = table + '</td>';
+
+                        var remarksValue = '';
+                        for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
+
+                            if(data.ScrapperValuesRemarksHistory[i].column_name==key){
+
+                                remarksValue = data.ScrapperValuesRemarksHistory[i].remarks;
+
+                            }                            
+                        }
+
+                        table = table + '<td>';
+                        table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea> ';
+
+                        table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+
+                        table = table + '</td>';
+                    }
+                    table = table + '</tr>';
+                });
+            }
+
+            table = table + '</table></div>';
+            $("#loading-image").hide();
+            $(".modal").css("overflow-x", "hidden");
+            $(".modal").css("overflow-y", "auto");
+            $("#dev_scrapper_statistics_content").html(table);
+        },
+        error: function(error) {
+            console.log(error);
+            $("#loading-image").hide();
+        }
+    });
+});
+
+$(document).on("change", ".add-scrapper-status", function(e) {
+
+    let task_id = $(this).data("taskid");
+    let column_name = $(this).data("value");
+    var status = $(this).val();
+
+    $.ajax({
+        url: "{{route('development.updatescrapperdata')}}",
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'column_name' :column_name,
+            'status' :status,
+        },
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message);
+            } else {
+                toastr['error'](response.message);
+            }
+        }
+    }).fail(function(response) {
+        $('#loading-image').hide();
+        toastr['error'](response.responseJSON.message);
+    });
+    
+});
+
+$(document).on("click", ".add-scrapper-remarks", function() {
+
+    let task_id = $(this).data("taskid");
+    let column_name = $(this).data("value");
+    var remarks = $('#remarks_values_'+task_id+'_'+column_name).val();
+    
+    $.ajax({
+        url: "{{route('development.updatescrapperremarksdata')}}",
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'column_name' :column_name,
+            'remarks' :remarks,
+        },
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message);
+            } else {
+                toastr['error'](response.message);
+            }
+        }
+    }).fail(function(response) {
+        $('#loading-image').hide();
+        toastr['error'](response.responseJSON.message);
+    });
 });
 </script>
 @endsection
