@@ -5471,6 +5471,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('tasklist/{id}', [TaskCategoriesController::class, 'delete']);
     Route::delete('tasksubject/{id}', [TaskCategoriesController::class, 'destroy']);
     Route::resource('zabbix', ZabbixController::class)->except(['show']);
+    Route::get('/search/hosts', [ZabbixController::class, 'autoSuggestHosts']);
     Route::resource('checklist', CheckListController::class);
     Route::get('checklist/view/{id}', [CheckListController::class, 'view'])->name('checklist.view');
     Route::post('checklist/subjects', [CheckListController::class, 'subjects'])->name('checklist.subjects');
