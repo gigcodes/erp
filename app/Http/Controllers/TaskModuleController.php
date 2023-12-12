@@ -5883,4 +5883,92 @@ class TaskModuleController extends Controller
             return response()->json(['code' => 200]);
         }
     }
+
+    public function newapproveTimeHistory(Request $request)
+    {
+        if (Auth::user()->isAdmin) {
+            if (! $request->approve_time || $request->approve_time == '' || ! $request->developer_task_id || $request->developer_task_id == '') {
+                return response()->json(
+                    [
+                        'message' => 'Select one time first',
+                    ], 500
+                );
+            }
+            DeveloperTaskHistory::where('developer_task_id', $request->developer_task_id)->where('attribute', 'estimation_minute')->where('model', \App\Task::class)->update(['is_approved' => 0]);
+            $history = DeveloperTaskHistory::find($request->approve_time);
+            $history->is_approved = 1;
+            $history->save();
+
+            $task = Task::find($request->developer_task_id);
+            $task->status = Task::TASK_STATUS_APPROVED;
+            $task->save();
+
+            $time = $history->new_value !== null ? $history->new_value : $history->old_value;
+            $msg = 'TIME APPROVED FOR TASK ' . '#DEVTASK-' . $task->id . '-' . $task->subject . ' - ' . $time . ' MINS';
+
+            $user = User::find($request->user_id);
+            $admin = Auth::user();
+            $master_user = User::find($task->master_user_id);
+
+            if ($user) {
+                if ($admin->phone) {
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $admin->phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $request->developer_task_id,
+                        ]
+                    );
+                } elseif ($user->phone) {
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $user->phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $request->developer_task_id,
+                        ]
+                    );
+                } elseif ($master_user && $master_user->phone) {
+                    $chat = ChatMessage::create(
+                        [
+                            'number' => $master_user->phone,
+                            'user_id' => $user->id,
+                            'customer_id' => $user->id,
+                            'message' => $msg,
+                            'status' => 0,
+                            'developer_task_id' => $request->developer_task_id,
+                        ]
+                    );
+                }
+                if (isset($chat)) {
+                    if ($admin->phone) {
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($admin->phone, $admin->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if ($user->phone) {
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                    if ($master_user && $master_user->phone) {
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($master_user->phone, $master_user->whatsapp_number, $msg, false, $chat->id);
+                    }
+                }
+            }
+
+            return response()->json(
+                [
+                    'message' => 'Success',
+                ], 200
+            );
+        }
+
+        return response()->json(
+            [
+                'message' => 'Only admin can approve',
+            ], 500
+        );
+    }
 }

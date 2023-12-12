@@ -1032,6 +1032,17 @@
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                         </div>
                                                     </div>
+
+                                                    <?php 
+                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+
+                                                    @if(!empty($time_history))
+                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                                 </td>
                                                 @endif
 
@@ -1377,6 +1388,17 @@
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                         </div>
                                                     </div>
+
+                                                    <?php 
+                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+
+                                                    @if(!empty($time_history))
+                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                                 </td>
                                                 @php
                                                     $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -1709,6 +1731,17 @@
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
                                                 </div>
+
+                                                <?php 
+                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+
+                                                    @if(!empty($time_history))
+                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                             </td>
                                             @php
                                                 $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -4866,5 +4899,32 @@ function funTaskInformationUpdatesTime(type,id) {
         }
     }
 }
+
+$(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+    if (confirm('Are you sure, do you want to approve this task?')) {
+        event.preventDefault();
+        let type = $(this).data('type');
+        let task_id = $(this).data('task');
+        let history_id = $(this).data('id');
+        $.ajax({
+            url: "/task/time/history/approve",
+            type: "POST",
+            data: {
+                _token: "{{csrf_token()}}",
+                approve_time: history_id,
+                developer_task_id: task_id,
+                user_id: 0
+            },
+            success: function (response) {
+                toastr["success"]("Successfully approved", "success");
+                $("#showLatestEstimateTime").modal("hide");
+                window.location.reload();
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            },
+        });
+    }
+});
 </script>
 @endsection

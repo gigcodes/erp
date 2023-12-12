@@ -1873,6 +1873,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('task/update/priority-no', [TaskModuleController::class, 'updatePriorityNo'])->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', [TaskModuleController::class, 'approveTimeHistory'])->name('task.time.history.approve');
+    Route::post('task/time/history/newapprove', [TaskModuleController::class, 'newapproveTimeHistory'])->name('task.time.history.newapprove');
 
     Route::get('task/time/tracked/history', [TaskModuleController::class, 'getTrackedHistory'])->name('task.time.tracked.history');
     Route::post('task/create/hubstaff_task', [TaskModuleController::class, 'createHubstaffManualTask'])->name('task.create.hubstaff_task');
