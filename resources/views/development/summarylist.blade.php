@@ -173,6 +173,8 @@
         <button class="btn custom-button mt-3" style="color:white;" data-toggle="modal" data-target="#dscolumnvisibilityList"> Column Visiblity</button>
     @endif
 
+    <a class="btn custom-button mt-3" href="{{ route('development.scrapper.index') }}" role="link"> Scrapper Verification Data </a>
+
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>

@@ -97,6 +97,8 @@ $priorities = [
         @include("development.partials.task-issue-search")
         <div class="pull-right mt-4">
 
+            <a class="btn btn-secondary" href="{{ route('development.scrapper.index') }}" role="link"> Scrapper Verification Data </a>
+
             @if (Auth::user()->isAdmin())
                 <button class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#dlcolumnvisibilityList"> Column Visiblity</button>
             @endif

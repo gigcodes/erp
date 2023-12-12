@@ -5813,4 +5813,114 @@ class DevelopmentController extends Controller
             ]
         );
     }
+
+    public function devScrappingTaskIndex(Request $request)
+    {
+        $title = 'Scrapper Verification Data';
+
+        $records = ScrapperValues::with('tasks')
+        ->select('task_id', 'id', 'scrapper_values', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        ->groupBy('task_id')
+        ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
+        ->paginate(50);
+
+        return view('development.scrapperlist', [
+            'records' => $records,
+        ]);
+    }
+
+    public function developmentScrapperData($id)
+    {   
+        $ScrapperValues = ScrapperValues::findorFail($id);
+
+        $properties = [];
+        $jsonString = $ScrapperValues['scrapper_values'];
+        $phpArray = json_decode($jsonString, true);
+        if(!empty($phpArray)){
+            if(!empty($phpArray)){
+                foreach ($phpArray as $key_json => $value_json) {
+                    if($key_json=='properties'){
+                        $properties[] = $value_json;         
+                    }
+                }
+            }           
+        }       
+
+        $html = '';
+        if(!empty($properties)){
+
+            $html = '<table class="table table-bordered table-striped">
+                    <tbody class="text-center task_queue_list">';
+            foreach ($properties as $key => $value) {
+                $keys = array_keys($value);
+
+                if(!empty($keys)){
+                    foreach ($keys as $key_k => $value_k) {
+                        $html .= '<tr>';
+                        $html .= '<th>'.ucwords(str_replace("_", " ", $value_k)).'</th>';
+
+                        if(gettype($value[$value_k])=='array'){
+                            $html .= '<td>'.implode(", ", $value[$value_k]).'</td>';
+                        } else {
+                            $html .= '<td>'.$value[$value_k].'</td>';
+                        }
+                        $html .= '</tr>';        
+                    }
+                }                
+            }
+
+            $html .= '</tbody>';
+            $html .= '</table>';
+        }
+
+        return response()->json([
+            'status' => true,
+            'html' => $html,
+            'message' => 'Data get successfully',
+        ], 200);
+    }
+
+    public function developmentScrapperImagesData($id)
+    {   
+        $ScrapperValues = ScrapperValues::findorFail($id);
+
+        $images = [];
+        $jsonString = $ScrapperValues['scrapper_values'];
+        $phpArray = json_decode($jsonString, true);
+        if(!empty($phpArray)){
+            if(!empty($phpArray)){
+                foreach ($phpArray as $key_json => $value_json) {
+                    if($key_json=='images'){
+                        $images[] = $value_json;         
+                    }
+                }
+            }           
+        }       
+
+        $html = '';
+        if(!empty($images)){
+
+            $html = '<div class="row">
+                    <div class="col-lg-12">';
+            foreach ($images as $key => $value) {
+
+                if(!empty($value)){
+                    foreach ($value as $key_k => $value_k) {
+                        $html .= '<div class="col-lg-1">';
+                            $html .= '<img src="'.$value_k.'">';
+                        $html .= '</div>';        
+                    }
+                }                
+            }
+
+            $html .= '</div>';
+            $html .= '</div>';
+        }
+
+        return response()->json([
+            'status' => true,
+            'html' => $html,
+            'message' => 'Data get successfully',
+        ], 200);
+    }
 }
