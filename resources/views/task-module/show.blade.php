@@ -4917,7 +4917,6 @@ $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (
             },
             success: function (response) {
                 toastr["success"]("Successfully approved", "success");
-                $("#showLatestEstimateTime").modal("hide");
                 window.location.reload();
             },
             error: function (error) {
