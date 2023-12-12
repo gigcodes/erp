@@ -979,7 +979,7 @@
                                                                     @if (isset($task->is_audio) && $task->is_audio)
                                                                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                     @else
-                                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                         <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                         <?php
                                                                             if (!empty($task->message) && !empty($task->task_subject)) {
@@ -1001,7 +1001,8 @@
                                                                         <span class="td-full-container-{{$task->id}} hidden">
                                                                         {{ $task->message }}
                                                                         </span>
-                                                                    </div>
+                                                                    </div> -->
+                                                                    <span style="word-break:break-word;">{{ $task->message }}</span>
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1046,9 +1047,9 @@
                                                         </div>
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                         {{$single->task_start_date}}
-                                                    @endif -->
+                                                    @endif
 
                                                     <div class="form-group d-flex">
                                                         <div class='input-group date cls-start-due-date'>
@@ -1057,9 +1058,9 @@
                                                         </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                         {{$single->task_new_due_date}}
-                                                    @endif -->
+                                                    @endif
                                                 </td>
                                                 @endif
 
@@ -1326,7 +1327,7 @@
                                                                     @if (isset($task->is_audio) && $task->is_audio)
                                                                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                     @else
-                                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                         <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                         <?php
                                                                             if (!empty($task->message) && !empty($task->task_subject)) {
@@ -1348,7 +1349,8 @@
                                                                         <span class="td-full-container-{{$task->id}} hidden">
                                                                         {{ $task->message }}
                                                                         </span>
-                                                                    </div>
+                                                                    </div> -->
+                                                                    <span style="word-break:break-word;">{{ $task->message }}</span>
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1387,9 +1389,9 @@
                                                         </div>
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                         {{$single->task_start_date}}
-                                                    @endif -->
+                                                    @endif
 
                                                     <div class="form-group d-flex">
                                                         <div class='input-group date cls-start-due-date'>
@@ -1398,9 +1400,9 @@
                                                         </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                         {{$single->task_new_due_date}}
-                                                    @endif -->
+                                                    @endif
                                                 </td>
                                                 <td id="shortcutsIds">
                                                     @include('task-module.partials.shortcuts')
@@ -1657,7 +1659,7 @@
                                                                 @if (isset($task->is_audio) && $task->is_audio)
                                                                     <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                 @else
-                                                                <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                     <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                     <?php
                                                                         if (!empty($task->message) && !empty($task->task_subject)) {
@@ -1679,7 +1681,8 @@
                                                                     <span class="td-full-container-{{$task->id}} hidden">
                                                                     {{ $task->message }}
                                                                     </span>
-                                                                </div>
+                                                                </div> -->
+                                                                <span style="word-break:break-word;">{{ $task->message }}</span>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1718,9 +1721,9 @@
                                                     </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                     {{$single->task_start_date}}
-                                                @endif -->
+                                                @endif
 
                                                 <div class="form-group d-flex">
                                                     <div class='input-group date cls-start-due-date'>
@@ -1729,9 +1732,9 @@
                                                     </div>
                                                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                     {{$single->task_new_due_date}}
-                                                @endif -->
+                                                @endif
                                             </td>
                                             <td class="p-2">
                                                 <!-- <div class="dropdown dropleft">

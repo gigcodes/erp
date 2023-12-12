@@ -87,7 +87,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 </span>
                 <div class="expand-row-msg" data-id="{{$issue->id}}">
                     <span class="td-full-container-{{$issue->id}} hidden">
-                        {{ $issue->message }}
+                        <span style="word-break:break-word;">{{ $issue->message }}</span>
                         <br>
                         <div class="td-full-container">
                             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
@@ -151,9 +151,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                     {{$issue->start_date}}
-                @endif -->
+                @endif
 
                 <div class="form-group">
                     <div class='input-group date cls-start-due-date'>
@@ -162,9 +162,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                     {{$issue->estimate_date}}
-                @endif -->
+                @endif
             </td>
             @endif
 
@@ -276,7 +276,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 </span>
                 <div class="expand-row-msg" data-id="{{$issue->id}}">
                     <span class="td-full-container-{{$issue->id}} hidden">
-                        {{ $issue->message }}
+                        <span style="word-break:break-word;">{{ $issue->message }}</span>
                         <br>
                         <div class="td-full-container">
                             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
@@ -330,9 +330,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                     {{$issue->start_date}}
-                @endif -->
+                @endif
 
                 <div class="form-group">
                     <div class='input-group date cls-start-due-date'>
@@ -341,9 +341,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                     {{$issue->estimate_date}}
-                @endif -->
+                @endif
             </td>
             <td id="shortcutsIds">
                 @include('development.partials.shortcutsds')
@@ -447,7 +447,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             </span>
             <div class="expand-row-msg" data-id="{{$issue->id}}">
                 <span class="td-full-container-{{$issue->id}} hidden">
-                    {{ $issue->message }}
+                    <span style="word-break:break-word;">{{ $issue->message }}</span>
                     <br>
                     <div class="td-full-container">
                         <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
@@ -501,9 +501,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+            @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                 {{$issue->start_date}}
-            @endif -->
+            @endif
 
             <div class="form-group">
                 <div class='input-group date cls-start-due-date'>
@@ -512,9 +512,9 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+            @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                 {{$issue->estimate_date}}
-            @endif -->
+            @endif
         </td>
         <td>
             <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>

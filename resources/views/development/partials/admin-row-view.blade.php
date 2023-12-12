@@ -263,9 +263,9 @@
                         </div>
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
-                    <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                    @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                         {{$issue->start_date}}
-                    @endif -->
+                    @endif
 
                     <div class="form-group">
                         <div class='input-group date cls-start-due-date'>
@@ -274,9 +274,9 @@
                         </div>
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
-                    <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                    @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                         {{$issue->estimate_date}}
-                    @endif -->
+                    @endif
                 </td>
             @endif
 
@@ -546,9 +546,9 @@
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                     {{$issue->start_date}}
-                @endif -->
+                @endif
 
                 <div class="form-group">
                     <div class='input-group date cls-start-due-date'>
@@ -557,9 +557,9 @@
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                     {{$issue->estimate_date}}
-                @endif -->
+                @endif
             </td>
            
             <td id="shortcutsIds">@include('development.partials.shortcutsdl')</td>
@@ -821,9 +821,9 @@
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+            @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                 {{$issue->start_date}}
-            @endif -->
+            @endif
 
             <div class="form-group">
                 <div class='input-group date cls-start-due-date'>
@@ -832,9 +832,9 @@
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+            @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                 {{$issue->estimate_date}}
-            @endif -->
+            @endif
         </td>
        
         <td>
