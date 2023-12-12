@@ -1,7 +1,7 @@
 @if (Auth::user()->isAdmin())
-    @if(!empty($dynamicColumnsToShowDl))
+    @if(!empty($dynamicColumnsToShowDs))
         <tr style="color:grey;">
-            @if (!in_array('ID', $dynamicColumnsToShowDl))
+            @if (!in_array('ID', $dynamicColumnsToShowDs))
                 <td>
                         {{ $issue->id }}
                         @if ($issue->is_resolved == 0)
@@ -25,20 +25,20 @@
                 </td>
             @endif
 
-            @if (!in_array('Module', $dynamicColumnsToShowDl))
+            @if (!in_array('Module', $dynamicColumnsToShowDs))
             <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a>
             </td>
             @endif
             
-            @if (!in_array('Date', $dynamicColumnsToShowDl))
+            @if (!in_array('Date', $dynamicColumnsToShowDs))
             <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
             @endif
 
-            @if (!in_array('Subject', $dynamicColumnsToShowDl))
+            @if (!in_array('Subject', $dynamicColumnsToShowDs))
             <td>{{ $issue->subject }}</td>
             @endif
 
-            @if (!in_array('Communication', $dynamicColumnsToShowDl))
+            @if (!in_array('Communication', $dynamicColumnsToShowDs))
             <td class="expand-row">
                 <!--span style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end = '...') }}</span>
                 @if ($issue->getMedia(config('constants.media_tags'))->first())
@@ -101,7 +101,7 @@
             </td>
             @endif
 
-            @if (!in_array('Est Completion Time', $dynamicColumnsToShowDl))
+            @if (!in_array('Est Completion Time', $dynamicColumnsToShowDs))
             <td data-id="{{ $issue->id }}">
                 <div class="form-group">
                     <div class='input-group'>                
@@ -155,7 +155,7 @@
             </td>
             @endif
 
-            @if (!in_array('Est Completion Date', $dynamicColumnsToShowDl))
+            @if (!in_array('Est Completion Date', $dynamicColumnsToShowDs))
             <td data-id="{{ $issue->id }}">
                 <div class="form-group">
                     <div class='input-group'>
@@ -203,7 +203,7 @@
             </td>
             @endif
 
-            @if (!in_array('Tracked Time', $dynamicColumnsToShowDl))
+            @if (!in_array('Tracked Time', $dynamicColumnsToShowDs))
             <td>
                 @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
                 Developer : {{ formatDuration($issue->timeSpent->tracked) }}
@@ -247,7 +247,7 @@
             </td>
             @endif
 
-            @if (!in_array('Developers', $dynamicColumnsToShowDl))
+            @if (!in_array('Developers', $dynamicColumnsToShowDs))
             <td>
                 <label for="" style="font-size: 12px;">Assigned To :</label>
                 @if (isset($userID) && $issue->team_lead_id == $userID)
@@ -290,7 +290,7 @@
             </td>
             @endif
 
-            @if (!in_array('Status', $dynamicColumnsToShowDl))
+            @if (!in_array('Status', $dynamicColumnsToShowDs))
             <td>
                 @if ($issue->is_resolved)
                 <strong>Done</strong>
@@ -306,13 +306,13 @@
             </td>
             @endif
 
-            @if (!in_array('Cost', $dynamicColumnsToShowDl))
+            @if (!in_array('Cost', $dynamicColumnsToShowDs))
             <td>
                 {{ $issue->cost ?: 0 }}
             </td>
             @endif
 
-            @if (!in_array('Milestone', $dynamicColumnsToShowDl))
+            @if (!in_array('Milestone', $dynamicColumnsToShowDs))
             <td>
                 @if ($issue->is_milestone)
                 <p style="margin-bottom:0px;">Milestone : @if ($issue->is_milestone)
@@ -330,7 +330,7 @@
             </td>
             @endif
 
-            @if (!in_array('Estimated Time', $dynamicColumnsToShowDl))
+            @if (!in_array('Estimated Time', $dynamicColumnsToShowDs))
             <td class="p-2">
                 <div style="margin-bottom:10px;width: 100%;">
                     <div class="form-group">
@@ -341,7 +341,7 @@
             </td>
             @endif
 
-            @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowDl))
+            @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowDs))
             <td class="p-2">
                 <div class="form-group">
                     <div class='input-group date cls-start-due-date'>
@@ -361,18 +361,18 @@
             </td>
             @endif
 
-            @if (!in_array('Shortcuts', $dynamicColumnsToShowDl))
+            @if (!in_array('Shortcuts', $dynamicColumnsToShowDs))
             <td id="shortcutsIds">@include('development.partials.shortcutsdl')</td>
             @endif
 
-            @if (!in_array('Actions', $dynamicColumnsToShowDl))
+            @if (!in_array('Actions', $dynamicColumnsToShowDs))
             <td>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="Showactionbtn('{{$issue->id}}')"><i class="fa fa-arrow-down"></i></button>
             </td>
             @endif
         </tr>
 
-        @if (!in_array('Actions', $dynamicColumnsToShowDl))
+        @if (!in_array('Actions', $dynamicColumnsToShowDs))
         <tr class="action-btn-tr-{{$issue->id}} d-none">
             <td class="font-weight-bold">Action</td>
             <td colspan="15">
@@ -397,6 +397,7 @@
                     <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-key" aria-hidden="true"></i>
                     </button>
+
                     <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>
@@ -780,6 +781,7 @@
                     <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-key" aria-hidden="true"></i>
                     </button>
+
                     <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>
@@ -1162,6 +1164,11 @@
                 <button class="btn btn-sm mt-2 add-document-permission" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                     <i class="fa fa-key" aria-hidden="true"></i>
                 </button>
+
+                <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
             </div>
         </td>
     </tr>

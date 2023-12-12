@@ -1638,6 +1638,14 @@ class EmailController extends Controller
         }
     }
 
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
+    }
+
     public function getEmailFilterOptions(Request $request)
     {
         $user = Auth::user();

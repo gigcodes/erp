@@ -82,6 +82,10 @@ class ReplyController extends Controller
         ]);
 
         $data = $request->except('_token', '_method');
+
+        if(!empty($data['sub_category_id'])){
+            $data['category_id'] = $data['sub_category_id'];    
+        }
         $data['reply'] = trim($data['reply']);
         $reply->create($data);
 
