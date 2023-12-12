@@ -948,7 +948,7 @@
                                                 </td>
                                                 @endif
 
-                                                @if (!in_array('Communication', $dynamicColumnsToShowTask))                                
+                                                @if (!in_array('Communication', $dynamicColumnsToShowTask))                           
                                                 <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                                     @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                         <div style="margin-bottom:10px;width: 100%;">
@@ -979,7 +979,7 @@
                                                                     @if (isset($task->is_audio) && $task->is_audio)
                                                                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                     @else
-                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                         <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                         <?php
                                                                             if (!empty($task->message) && !empty($task->task_subject)) {
@@ -994,15 +994,15 @@
                                                                                 $start = 0;
                                                                             }
                                                                             ?>
-                                                                        {{substr($task->message, $start,28)}}
+                                                                        {{substr($task->message, $start,100)}}
                                                                         </span>
                                                                     </div>
                                                                     <div class="expand-row-msg" data-id="{{$task->id}}">
                                                                         <span class="td-full-container-{{$task->id}} hidden">
                                                                         {{ $task->message }}
                                                                         </span>
-                                                                    </div> -->
-                                                                    <span style="word-break:break-word;">{{ $task->message }}</span>
+                                                                    </div>
+                                                                    <!-- <span style="word-break:break-word;">{{ $task->message }}</span> -->
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1338,7 +1338,7 @@
                                                                     @if (isset($task->is_audio) && $task->is_audio)
                                                                         <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                     @else
-                                                                    <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                         <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                         <?php
                                                                             if (!empty($task->message) && !empty($task->task_subject)) {
@@ -1353,15 +1353,15 @@
                                                                                 $start = 0;
                                                                             }
                                                                             ?>
-                                                                        {{substr($task->message, $start,28)}}
+                                                                        {{substr($task->message, $start,100)}}
                                                                         </span>
                                                                     </div>
                                                                     <div class="expand-row-msg" data-id="{{$task->id}}">
                                                                         <span class="td-full-container-{{$task->id}} hidden">
                                                                         {{ $task->message }}
                                                                         </span>
-                                                                    </div> -->
-                                                                    <span style="word-break:break-word;">{{ $task->message }}</span>
+                                                                    </div>
+                                                                    <!-- <span style="word-break:break-word;">{{ $task->message }}</span> -->
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1681,7 +1681,7 @@
                                                                 @if (isset($task->is_audio) && $task->is_audio)
                                                                     <audio controls="" src="{{ \App\Helpers::getAudioUrl($task->message) }}"></audio>
                                                                 @else
-                                                                <!-- <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                                <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
                                                                     <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                                     <?php
                                                                         if (!empty($task->message) && !empty($task->task_subject)) {
@@ -1696,15 +1696,15 @@
                                                                             $start = 0;
                                                                         }
                                                                         ?>
-                                                                    {{substr($task->message, $start,28)}}
+                                                                    {{substr($task->message, $start,100)}}
                                                                     </span>
                                                                 </div>
                                                                 <div class="expand-row-msg" data-id="{{$task->id}}">
                                                                     <span class="td-full-container-{{$task->id}} hidden">
                                                                     {{ $task->message }}
                                                                     </span>
-                                                                </div> -->
-                                                                <span style="word-break:break-word;">{{ $task->message }}</span>
+                                                                </div>
+                                                                <!-- <span style="word-break:break-word;">{{ $task->message }}</span> -->
                                                                 @endif
                                                             </div>
                                                         @endif

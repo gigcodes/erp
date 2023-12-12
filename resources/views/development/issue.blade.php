@@ -2074,6 +2074,32 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         $(document).on('change', '.quickSubCategory', function () {
             siteHelpers.changeQuickSubCategory($(this));
         });
+
+        $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+            if (confirm('Are you sure, do you want to approve this task?')) {
+                event.preventDefault();
+                let type = $(this).data('type');
+                let task_id = $(this).data('task');
+                let history_id = $(this).data('id');
+                $.ajax({
+                    url: "/development/time/history/approve",
+                    type: "POST",
+                    data: {
+                        _token: "{{csrf_token()}}",
+                        approve_time: history_id,
+                        developer_task_id: task_id,
+                        user_id: 0
+                    },
+                    success: function (response) {
+                        toastr["success"]("Successfully approved", "success");
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        toastr["error"](error.responseJSON.message);
+                    },
+                });
+            }
+        });
         </script>
 @endsection
 @push('scripts')
