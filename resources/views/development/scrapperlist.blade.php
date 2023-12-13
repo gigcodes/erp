@@ -43,60 +43,34 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="row">
-                <div class="col-lg-12 margin-tb pr-0">
-                    <h2 class="page-heading">Scrapper Verification Data <button type="button" class="btn custom-button float-right ml-10" data-toggle="modal" data-target="#scrapperdatatablecolumnvisibilityList">Column Visiblity</button></h2>
-                    <div class="pull-left cls_filter_box">
-                        {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
-
-                            <div class="form-group ml-3 cls_filter_inputbox">
-                                {{Form::text('keywords', @$inputs['keywords'], array('class'=>'form-control', 'placeholder'=>'Enter Keywords'))}}
-                            </div>
-
-                            <div class="form-group  cls_filter_inputbox">
-                                <button type="submit" class="btn custom-button ml-3" style="width:100px">Search</button>
-                            </div>
-
-                            <div class="form-group  cls_filter_inputbox">
-                                <button type="button" class="btn custom-button ml-3 reset" style="width:100px">Reset</button>
-                            </div>
-                            
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-12  pl-5 tablescrapper">
+    <div class="mt-3 col-md-12 tablescrapper">
     	<div class="infinite-scroll" style="overflow-y: auto">
-		    <table class="table table-bordered table-striped">
+		    <table class="table table-bordered table-striped" style="width: 150%; max-width:initial">
                 <thead>
                     <tr>
                         @if(!empty($dynamicColumnsToShowscrapper))
                             @if (!in_array('Id', $dynamicColumnsToShowscrapper))
-                                <th width="3%">Id</th>
+                                <th width="5%">Id</th>
                             @endif
 
                             @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
-                                <th width="8%">Task Id</th>
+                                <th width="6%">Task Id</th>
                             @endif
 
                             @if (!in_array('Scrapper', $dynamicColumnsToShowscrapper))
-                                <th width="8%">Scrapper</th>
+                                <th width="5%">Scrapper</th>
                             @endif
 
                             @if (!in_array('Title', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Title</th>
+                                <th width="5%">Title</th>
                             @endif
 
                             @if (!in_array('Website', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Website</th>
+                                <th width="5%">Website</th>
                             @endif
 
                             @if (!in_array('Sku', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Sku</th>
+                                <th width="5%">Sku</th>
                             @endif
 
                             @if (!in_array('Url', $dynamicColumnsToShowscrapper))
@@ -111,8 +85,28 @@
                                 <th width="5%">Description</th>
                             @endif
 
-                            @if (!in_array('Properties', $dynamicColumnsToShowscrapper))
-                                <th width="5%">Properties</th>
+                            @if (!in_array('Dimension', $dynamicColumnsToShowscrapper))
+                                <th width="5%">Dimension</th>
+                            @endif
+
+                            @if (!in_array('Sizes', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Sizes</th>
+                            @endif
+
+                            @if (!in_array('Material Used', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Material Used</th>
+                            @endif
+
+                            @if (!in_array('Category', $dynamicColumnsToShowscrapper))
+                                <th width="5%">Category</th>
+                            @endif
+
+                            @if (!in_array('Color', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Color</th>
+                            @endif
+
+                            @if (!in_array('Country', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Country</th>
                             @endif
 
                             @if (!in_array('Currency', $dynamicColumnsToShowscrapper))
@@ -140,36 +134,45 @@
                             @endif
 
                             @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
-                                <th width="3%">Brand</th>
+                                <th width="9%">Brand Value</th>
                             @endif
 
                             @if (!in_array('Is Sale', $dynamicColumnsToShowscrapper))
-                                <th width="3%">Is Sale</th>
+                                <th width="5%">Is Sale</th>
                             @endif
 
                             @if (!in_array('Date', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Date</th>
+                                <th width="7%">Created Date</th>
+                            @endif
+                            @if (!in_array('Action', $dynamicColumnsToShowscrapper))
+                                <th width="5%">Action</th>
                             @endif
                         @else 
-                            <th width="3%">Id</th>
-                            <th width="8%">Task Id</th>
-                            <th width="6%">Scrapper</th>
-                            <th width="7%">Title</th>
-                            <th width="7%">Website</th>
-                            <th width="7%">Sku</th>
+                            <th width="5%">Id</th>
+                            <th width="6%">Task Id</th>
+                            <th width="5%">Scrapper</th>
+                            <th width="5%">Title</th>
+                            <th width="5%">Website</th>
+                            <th width="5%">Sku</th>
                             <th width="5%">Url</th>
                             <th width="4%">Images</th>
                             <th width="5%">Description</th>
-                            <th width="5%">Properties</th>
+                            <th width="5%">Dimension</th>
+                            <th width="7%">Sizes</th>
+                            <th width="7%">Material Used</th>
+                            <th width="5%">Category</th>
+                            <th width="7%">Color</th>
+                            <th width="5%">Country</th>
                             <th width="5%">Currency</th>
                             <th width="4%">Size System</th>
                             <th width="3%">Price</th>
                             <th width="5%">Discounted Price</th>
                             <th width="5%">Discounted Percentage</th>
                             <th width="3%">B2b Price</th>
-                            <th width="3%">Brand</th>
-                            <th width="3%">Is Sale</th>
-                            <th width="7%">Date</th> 
+                            <th width="9%">Brand Value</th>
+                            <th width="5%">Is Sale</th>
+                            <th width="7%">Created Date</th> 
+                            <th width="5%">Action</th>
                         @endif
                     </tr>
                 </thead>
@@ -191,13 +194,13 @@
                         $ScrapperValuesHistory = App\Models\ScrapperValuesHistory::where('task_id', $record['task_id'])->get();
                         $ScrapperValuesRemarksHistory = App\Models\ScrapperValuesRemarksHistory::where('task_id', $record['task_id'])->get();
 
-                        $columnArray = ['title', 'website', 'sku', 'url', 'images', 'description', 'properties', 'currency', 'size_system', 'price', 'discounted_price', 'discounted_percentage', 'b2b_price', 'brand', 'is_sale'];
+                        $columnArray = ['title', 'website', 'sku', 'url', 'images', 'description', 'dimension', 'sizes', 'material_used', 'category', 'color', 'country', 'currency', 'size_system', 'price', 'discounted_price', 'discounted_percentage', 'b2b_price', 'brand', 'is_sale'];
 
-                        $titleRecord= $websiteRecord= $skuRecord= $urlRecord= $imagesRecord= $descriptionRecord= $propertiesRecord= $currencyRecord= $size_systemRecord= $priceRecord= $discounted_priceRecord= $discounted_percentageRecord= $b2b_priceRecord= $brandRecord= $is_saleRecord= [];
+                        $titleRecord= $websiteRecord= $skuRecord= $urlRecord= $imagesRecord= $descriptionRecord= $dimensionRecord= $sizesRecord= $material_usedRecord= $categoryRecord= $colorRecord= $currencyRecord= $countryRecord= $size_systemRecord= $priceRecord= $discounted_priceRecord= $discounted_percentageRecord= $b2b_priceRecord= $brandRecord= $is_saleRecord= [];
 
-                        $titleVar= $websiteVar= $skuVar= $urlVar= $imagesVar= $descriptionVar= $propertiesVar= $currencyVar= $size_systemVar= $priceVar= $discounted_priceVar= $discounted_percentageVar= $b2b_priceVar= $brandVar= $is_saleVar= 'btn-default';
+                        $titleVar= $websiteVar= $skuVar= $urlVar= $imagesVar= $descriptionVar= $dimensionVar= $sizesVar= $material_usedVar= $categoryVar= $colorVar= $currencyVar= $countryVar= $size_systemVar= $priceVar= $discounted_priceVar= $discounted_percentageVar= $b2b_priceVar= $brandVar= $is_saleVar= 'btn-default';
 
-                        $titleIcon= $websiteIcon= $skuIcon= $urlIcon= $imagesIcon= $descriptionIcon= $propertiesIcon= $currencyIcon= $size_systemIcon= $priceIcon= $discounted_priceIcon= $discounted_percentageIcon= $b2b_priceIcon= $brandIcon= $is_saleIcon= 'fa fa-check';
+                        $titleIcon= $websiteIcon= $skuIcon= $urlIcon= $imagesIcon= $descriptionIcon= $dimensionIcon= $sizesIcon= $material_usedIcon= $categoryIcon= $colorIcon= $currencyIcon= $countryIcon= $size_systemIcon= $priceIcon= $discounted_priceIcon= $discounted_percentageIcon= $b2b_priceIcon= $brandIcon= $is_saleIcon= 'fa fa-check';
 
                         foreach ($ScrapperValuesHistory as $data) {
                             if (in_array($data['column_name'],$columnArray)) {
@@ -222,11 +225,14 @@
                         @if(!empty($dynamicColumnsToShowscrapper))
                             <tr>
                                 @if (!in_array('Id', $dynamicColumnsToShowscrapper))
-                                    <td>{{ $record['id'] }}</td>
+                                    <td>{{ $record['max_id'] }}</td>
                                 @endif
 
                                 @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
-                                    <td>#DEVTASK-{{ $record['task_id'] }}</td>
+                                    <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
+                                        <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-task_id-{{$i}} hidden">#DEVTASK-{{ $record['task_id'] }}</span>
+                                    </td>
                                 @endif
 
                                 @if (!in_array('Scrapper', $dynamicColumnsToShowscrapper))
@@ -302,7 +308,7 @@
 
                                 @if (!in_array('Images', $dynamicColumnsToShowscrapper))
                                     <td>
-                                        <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
+                                        <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
                                             <i class="fa fa-eye" aria-hidden="true"></i>
                                         </button>
 
@@ -321,14 +327,116 @@
                                     </td>
                                 @endif
 
-                                @if (!in_array('Properties', $dynamicColumnsToShowscrapper))
-                                    <td>
-                                        <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
-                                            <i class="fa fa-eye" aria-hidden="true"></i>
-                                        </button>
+                                @if (!in_array('Dimension', $dynamicColumnsToShowscrapper))
+                                    <td class="expand-row-msg" data-name="dimension" data-id="{{$i}}">
+                                        @if(!empty($returnData['properties']))
+                                            @if(!empty($returnData['properties']['dimension']))
+                                                @if(is_array($returnData['properties']['dimension'])) 
+                                                    <span class="show-short-dimension-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['dimension']), 10, '...')}}</span>
+                                                    <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ implode("," , $returnData['properties']['dimension']) }}</span>
+                                                @else
+                                                    <span class="show-short-dimension-{{$i}}">{{ Str::limit($returnData['properties']['dimension'], 10, '...')}}</span>
+                                                    <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ $returnData['properties']['dimension'] }}</span>
+                                                @endif
+                                            @endif
+                                        @endif
 
-                                        @include('development.partials.dynamic-column', ['columnname' => 'properties', 'taskss_id' => $record['task_id']])
+                                        <!-- <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
+                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                        </button> -->
+
+                                        @include('development.partials.dynamic-column', ['columnname' => 'dimension', 'taskss_id' => $record['task_id']])
                                     </td>
+                                @endif
+
+                                @if (!in_array('Sizes', $dynamicColumnsToShowscrapper))
+                                <td class="expand-row-msg" data-name="sizes" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['sizes']))
+                                            @if(is_array($returnData['properties']['sizes'])) 
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['sizes']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ implode("," , $returnData['properties']['sizes']) }}</span>
+                                            @else
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit($returnData['properties']['sizes'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ $returnData['properties']['sizes'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'sizes', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Material Used', $dynamicColumnsToShowscrapper))
+                                <td class="expand-row-msg" data-name="material_used" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['material_used']))
+                                            @if(is_array($returnData['properties']['material_used'])) 
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['material_used']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ implode("," , $returnData['properties']['material_used']) }}</span>
+                                            @else
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'material_used', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Category', $dynamicColumnsToShowscrapper))
+                                <td class="expand-row-msg" data-name="category" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['category']))
+                                            @if(is_array($returnData['properties']['category'])) 
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['category']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ implode("," , $returnData['properties']['category']) }}</span>
+                                            @else
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit($returnData['properties']['category'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ $returnData['properties']['category']}}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'category', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Color', $dynamicColumnsToShowscrapper))
+                                <td class="expand-row-msg" data-name="color" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['color']))
+                                            @if(is_array($returnData['properties']['color'])) 
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['color']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ implode("," , $returnData['properties']['color']) }}</span>
+                                            @else
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit($returnData['properties']['color'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ $returnData['properties']['color'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'color', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Country', $dynamicColumnsToShowscrapper))
+                                <td class="expand-row-msg" data-name="country" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['country']))
+                                            @if(is_array($returnData['properties']['country'])) 
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['country']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ implode("," , $returnData['properties']['country']) }}</span>
+                                            @else
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit($returnData['properties']['country'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ $returnData['properties']['country'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'country', 'taskss_id' => $record['task_id']])
+                                </td>
                                 @endif
 
                                 @if (!in_array('Currency', $dynamicColumnsToShowscrapper))
@@ -383,8 +491,11 @@
                                 @endif
 
                                 @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
-                                    <td>
-                                        @if(!empty($returnData['brand'])) {{ $returnData['brand'] }} @endif
+                                    <td class="expand-row-msg" data-name="brand" data-id="{{$i}}">
+                                        @if(!empty($returnData['brand']))
+                                            <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 5, '...')}}</span>
+                                            <span style="word-break:break-all;" class="show-full-brand-{{$i}} hidden">{{ $returnData['brand'] }}</span>
+                                        @endif
 
                                         @include('development.partials.dynamic-column', ['columnname' => 'brand', 'taskss_id' => $record['task_id']])
                                     </td>
@@ -399,13 +510,22 @@
                                 @endif
 
                                 @if (!in_array('Date', $dynamicColumnsToShowscrapper))
-                                    <td>{{ $record['created_at'] }}</td>
+                                    <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
+                                        <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 5, '...')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
+                                    </td>
+                                @endif
+                                @if (!in_array('Action', $dynamicColumnsToShowscrapper))
+                                    <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
                                 @endif
                             </tr>
                         @else  
                             <tr>
-								<td>{{ $record['id'] }}</td>
-                                <td>#DEVTASK-{{ $record['task_id'] }}</td>
+								<td>{{ $record['max_id'] }}</td>
+                                <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
+                                    <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-task_id-{{$i}} hidden">#DEVTASK-{{ $record['task_id'] }}</span>
+                                </td>
                                 <td class="expand-row-msg" data-name="subject" data-id="{{$i}}">
                                     @if(!empty($record['tasks']['subject']))
                                         <span class="show-short-subject-{{$i}}">{{ Str::limit($record['tasks']['subject'], 10, '...')}}</span>
@@ -445,7 +565,7 @@
                                     @include('development.partials.dynamic-column', ['columnname' => 'url', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td>
-                                    <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
+                                    <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                     </button>
 
@@ -457,14 +577,100 @@
                                         <span style="word-break:break-all;" class="show-full-description-{{$i}} hidden">{{ $returnData['description'] }}</span>
                                     @endif
 
-                                    @include('development.partials.dynamic-column', ['columnname' => 'description', 'taskss_id' => $record['task_id']])
+                                    @include('development.partials.dynamic-column', ['columnname' => 'description', 'taskss_id' => $record['task_id']]) 
                                 </td>
-                                <td>
-                                    <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
+                                <td class="expand-row-msg" data-name="dimension" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['dimension']))
+                                            @if(is_array($returnData['properties']['dimension'])) 
+                                                <span class="show-short-dimension-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['dimension']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ implode("," , $returnData['properties']['dimension']) }}</span>
+                                            @else
+                                                <span class="show-short-dimension-{{$i}}">{{ Str::limit($returnData['properties']['dimension'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ $returnData['properties']['dimension'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+                                    <!-- <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
                                         <i class="fa fa-eye" aria-hidden="true"></i>
-                                    </button>
+                                    </button> -->
 
-                                    @include('development.partials.dynamic-column', ['columnname' => 'properties', 'taskss_id' => $record['task_id']])
+                                    @include('development.partials.dynamic-column', ['columnname' => 'dimension', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td class="expand-row-msg" data-name="sizes" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['sizes']))
+                                            @if(is_array($returnData['properties']['sizes'])) 
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['sizes']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ implode("," , $returnData['properties']['sizes']) }}</span>
+                                            @else
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit($returnData['properties']['sizes'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ $returnData['properties']['sizes'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'sizes', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td class="expand-row-msg" data-name="material_used" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['material_used']))
+                                            @if(is_array($returnData['properties']['material_used'])) 
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['material_used']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ implode("," , $returnData['properties']['material_used']) }}</span>
+                                            @else
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'material_used', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td class="expand-row-msg" data-name="category" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['category']))
+                                            @if(is_array($returnData['properties']['category'])) 
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['category']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ implode("," , $returnData['properties']['category']) }}</span>
+                                            @else
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit($returnData['properties']['category'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ $returnData['properties']['category'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'category', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td class="expand-row-msg" data-name="color" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['color']))
+                                            @if(is_array($returnData['properties']['color'])) 
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['color']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ implode("," , $returnData['properties']['color']) }}</span>
+                                            @else
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit($returnData['properties']['color'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ $returnData['properties']['color'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'color', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td class="expand-row-msg" data-name="country" data-id="{{$i}}">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['country']))
+                                            @if(is_array($returnData['properties']['country'])) 
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['country']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ implode("," , $returnData['properties']['country']) }}</span>
+                                            @else
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit($returnData['properties']['country'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ $returnData['properties']['country'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'country', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td>
                                     @if(!empty($returnData['currency'])) {{ $returnData['currency'] }} @endif
@@ -499,8 +705,11 @@
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'b2b_price', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
-                                    @if(!empty($returnData['brand'])) {{ $returnData['brand'] }} @endif
+                                <td class="expand-row-msg" data-name="brand" data-id="{{$i}}">
+                                    @if(!empty($returnData['brand']))
+                                        <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 5, '...')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-brand-{{$i}} hidden">{{ $returnData['brand'] }}</span>
+                                    @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'brand', 'taskss_id' => $record['task_id']])
                                 </td>
@@ -509,7 +718,11 @@
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'is_sale', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>{{ $record['created_at'] }}</td>
+                                <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
+                                    <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 5, '...')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
+                                </td>
+                                <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
 							</tr>
                         @endif
                     @endforeach
@@ -525,10 +738,10 @@
     <div id="update-scrapper-status-modal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
-                <form action="<?php echo route('development.updatescrapperdata'); ?>" method="post">
+                <form action="<?php echo route('development.updatescrapperdata'); ?>" method="post" id="update-scrapper-status-modal-form">
                     @csrf
                     <div class="modal-header">
-                        <h4 class="modal-title text-left">Update Status</h4>
+                        <h4 class="modal-title text-left">Update Status & Remarks</h4>
                     </div>
                     <div class="modal-body">
 
@@ -536,12 +749,17 @@
                         <input class="form-control" type="hidden" name="column_name" id="scrapper_title" />
                     
                         <div class="form-group">
-                            <select class="form-control" name="status">
+                            <select class="form-control" name="status" onchange="changeStatus(this.value)" id="status_div_id">
                                 <option>--Select Status--</option>
                                 <option value="Approve">Approve</option>
                                 <option value="Unapprove">Unapprove</option>
                             </select>
                         </div>
+
+                        <div class="form-group" id="remarks_div" style="display:none;">
+                            <textarea class="form-control" name="remarks" id="remarks_div_id" placeholder="Enter Remarks" s></textarea>
+                        </div>
+                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -595,6 +813,7 @@
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script>
 $(document).on('click', '.expand-row-msg', function () {
     var name = $(this).data('name');
@@ -636,10 +855,59 @@ $(document).on('click','.scrapper-images',function(){
 });
 
 $(document).on('click', '.update-scrapper-status', function() {
+
+    //$('#update-scrapper-status-modal-form')[0].reset();
+
+    $('#update-scrapper-status-modal #remarks_div').css('display', 'none');
+    $('#update-scrapper-status-modal #remarks_div_id').val('');
+    //$('#status_div_id option[value=""]').attr("selected", "selected");
+
+    $('#status_div_id').prop('selectedIndex', 0);
+
+
     var $this = $(this);
     column_name = $(this).data("column_name");
     task_id = $(this).data("task_id");
-    
+
+    $.ajax({
+        url: "{{route('development.getscrapperdata')}}",
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'column_name' :column_name
+        },
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+
+            if(response.ScrapperValuesHistory.id!=''){
+                if(response.ScrapperValuesHistory.status=='Unapprove'){
+
+                    $('#update-scrapper-status-modal #remarks_div').css('display', '');
+                    
+                    if(response.ScrapperValuesRemarksHistory.id!=''){
+                        $('#update-scrapper-status-modal #remarks_div_id').val(response.ScrapperValuesRemarksHistory.remarks);
+                    }
+
+                    //$('#status_div_id option[value="Unapprove"]').attr("selected", "selected");
+                    $('#status_div_id').prop('selectedIndex', 2);
+                } else {
+                    //$('#status_div_id option[value="Approve"]').attr("selected", "selected");
+                    $('#status_div_id').prop('selectedIndex', 1);
+                }
+            }
+        }
+    }).fail(function(response) {
+        $("#loading-image").hide();
+        toastr['error'](response.responseJSON.message);
+    });
+
     $("#update-scrapper-status-modal").modal("show");
     $("#update-scrapper-status-modal #scrapper_task_id").val(task_id);
     $('#update-scrapper-status-modal #scrapper_title').val(column_name);
@@ -723,5 +991,14 @@ $(document).on('click', '.view-scrapper-remarks', function() {
     $("#view-scrapper-remarks-modal #view-remarks-data").text(remarks);
 });
 
+function changeStatus(value){
+
+    if(value=='Unapprove'){
+        $('#update-scrapper-status-modal #remarks_div').css('display', '');
+    } else {
+        $('#update-scrapper-status-modal #remarks_div').css('display', 'none');
+    }
+    
+}
 </script>
 @endsection
