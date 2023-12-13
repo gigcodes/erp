@@ -54,23 +54,23 @@
                             @endif
 
                             @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
-                                <th width="10%">Task Id</th>
+                                <th width="6%">Task Id</th>
                             @endif
 
                             @if (!in_array('Scrapper', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Scrapper</th>
+                                <th width="5%">Scrapper</th>
                             @endif
 
                             @if (!in_array('Title', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Title</th>
+                                <th width="5%">Title</th>
                             @endif
 
                             @if (!in_array('Website', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Website</th>
+                                <th width="5%">Website</th>
                             @endif
 
                             @if (!in_array('Sku', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Sku</th>
+                                <th width="5%">Sku</th>
                             @endif
 
                             @if (!in_array('Url', $dynamicColumnsToShowscrapper))
@@ -82,7 +82,7 @@
                             @endif
 
                             @if (!in_array('Description', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Description</th>
+                                <th width="5%">Description</th>
                             @endif
 
                             @if (!in_array('Dimension', $dynamicColumnsToShowscrapper))
@@ -98,7 +98,7 @@
                             @endif
 
                             @if (!in_array('Category', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Category</th>
+                                <th width="5%">Category</th>
                             @endif
 
                             @if (!in_array('Color', $dynamicColumnsToShowscrapper))
@@ -134,7 +134,7 @@
                             @endif
 
                             @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
-                                <th width="10%">Brand</th>
+                                <th width="9%">Brand Value</th>
                             @endif
 
                             @if (!in_array('Is Sale', $dynamicColumnsToShowscrapper))
@@ -142,25 +142,25 @@
                             @endif
 
                             @if (!in_array('Date', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Date</th>
+                                <th width="7%">Created Date</th>
                             @endif
                             @if (!in_array('Action', $dynamicColumnsToShowscrapper))
                                 <th width="5%">Action</th>
                             @endif
                         @else 
                             <th width="5%">Id</th>
-                            <th width="10%">Task Id</th>
-                            <th width="7%">Scrapper</th>
-                            <th width="7%">Title</th>
-                            <th width="7%">Website</th>
-                            <th width="7%">Sku</th>
+                            <th width="6%">Task Id</th>
+                            <th width="5%">Scrapper</th>
+                            <th width="5%">Title</th>
+                            <th width="5%">Website</th>
+                            <th width="5%">Sku</th>
                             <th width="5%">Url</th>
                             <th width="4%">Images</th>
-                            <th width="7%">Description</th>
+                            <th width="5%">Description</th>
                             <th width="5%">Dimension</th>
                             <th width="7%">Sizes</th>
                             <th width="7%">Material Used</th>
-                            <th width="7%">Category</th>
+                            <th width="5%">Category</th>
                             <th width="7%">Color</th>
                             <th width="5%">Country</th>
                             <th width="5%">Currency</th>
@@ -169,9 +169,9 @@
                             <th width="5%">Discounted Price</th>
                             <th width="5%">Discounted Percentage</th>
                             <th width="3%">B2b Price</th>
-                            <th width="10%">Brand</th>
+                            <th width="9%">Brand Value</th>
                             <th width="5%">Is Sale</th>
-                            <th width="7%">Date</th> 
+                            <th width="7%">Created Date</th> 
                             <th width="5%">Action</th>
                         @endif
                     </tr>
@@ -229,7 +229,10 @@
                                 @endif
 
                                 @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
-                                    <td>#DEVTASK-{{ $record['task_id'] }}</td>
+                                    <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
+                                        <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-task_id-{{$i}} hidden">#DEVTASK-{{ $record['task_id'] }}</span>
+                                    </td>
                                 @endif
 
                                 @if (!in_array('Scrapper', $dynamicColumnsToShowscrapper))
@@ -507,7 +510,10 @@
                                 @endif
 
                                 @if (!in_array('Date', $dynamicColumnsToShowscrapper))
-                                    <td>{{ $record['created_at'] }}</td>
+                                    <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
+                                        <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 10, '...')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
+                                    </td>
                                 @endif
                                 @if (!in_array('Action', $dynamicColumnsToShowscrapper))
                                     <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
@@ -516,7 +522,10 @@
                         @else  
                             <tr>
 								<td>{{ $record['max_id'] }}</td>
-                                <td>#DEVTASK-{{ $record['task_id'] }}</td>
+                                <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
+                                    <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-task_id-{{$i}} hidden">#DEVTASK-{{ $record['task_id'] }}</span>
+                                </td>
                                 <td class="expand-row-msg" data-name="subject" data-id="{{$i}}">
                                     @if(!empty($record['tasks']['subject']))
                                         <span class="show-short-subject-{{$i}}">{{ Str::limit($record['tasks']['subject'], 10, '...')}}</span>
@@ -709,7 +718,10 @@
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'is_sale', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>{{ $record['created_at'] }}</td>
+                                <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
+                                    <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 10, '...')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
+                                </td>
                                 <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
 							</tr>
                         @endif
