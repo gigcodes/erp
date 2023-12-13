@@ -493,7 +493,7 @@
                                 @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
                                     <td class="expand-row-msg" data-name="brand" data-id="{{$i}}">
                                         @if(!empty($returnData['brand']))
-                                            <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 10, '...')}}</span>
+                                            <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 5, '...')}}</span>
                                             <span style="word-break:break-all;" class="show-full-brand-{{$i}} hidden">{{ $returnData['brand'] }}</span>
                                         @endif
 
@@ -511,7 +511,7 @@
 
                                 @if (!in_array('Date', $dynamicColumnsToShowscrapper))
                                     <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
-                                        <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 10, '...')}}</span>
+                                        <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 5, '...')}}</span>
                                         <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
                                     </td>
                                 @endif
@@ -707,7 +707,7 @@
                                 </td>
                                 <td class="expand-row-msg" data-name="brand" data-id="{{$i}}">
                                     @if(!empty($returnData['brand']))
-                                        <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 10, '...')}}</span>
+                                        <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 5, '...')}}</span>
                                         <span style="word-break:break-all;" class="show-full-brand-{{$i}} hidden">{{ $returnData['brand'] }}</span>
                                     @endif
 
@@ -719,7 +719,7 @@
                                     @include('development.partials.dynamic-column', ['columnname' => 'is_sale', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td class="expand-row-msg" data-name="created_at" data-id="{{$i}}">
-                                    <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 10, '...')}}</span>
+                                    <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 5, '...')}}</span>
                                     <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
                                 </td>
                                 <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
