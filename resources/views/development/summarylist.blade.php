@@ -361,10 +361,23 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="p-0 m-0">Scrapper Statistics</h4>
+                    <h4 class="p-0 m-0">Scrapper Statistics <a href="javascript:void(0)" id="scrapper-history"><i class="fa fa-list" aria-hidden="true"></i></a></h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <div class="modal-body" id="dev_scrapper_statistics_content">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dev_scrapper_statistics_history" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="p-0 m-0">Scrapper Statistics History</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body" id="dev_scrapper_statistics_history_content">
                 </div>
             </div>
         </div>
@@ -2312,6 +2325,9 @@ $(document).on("click", ".count-dev-scrapper", function() {
 
     var $this = $(this);
     var task_id = $(this).data("id");
+
+    $('#scrapper-history').attr('data-id', task_id);
+
     $.ajax({
         type: 'get',
         url: '/development/countscrapper/' + task_id,
@@ -2334,6 +2350,9 @@ $(document).on("click", ".count-dev-scrapper", function() {
                 table = table + '<th width="45%">Remarks</th>';
                 table = table + '</tr>';
             if(data.values!=''){
+
+                $('#scrapper-history').attr('data-scrapperid', data.id);
+
                 $.each(data.values, function(key, value) {
                     table = table + '<tr>';
                     table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
@@ -2392,9 +2411,11 @@ $(document).on("click", ".count-dev-scrapper", function() {
                             }
 
                             table = table + '<td>';
-                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+                            if(unapproveValue=='selected'){
+                                table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
 
-                            table = table + '<button class="btn btn-sm btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></button>';
+                                table = table + '<button class="btn btn-sm btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></button>';
+                            }
 
                             table = table + '</td>';
                         }
@@ -2446,9 +2467,11 @@ $(document).on("click", ".count-dev-scrapper", function() {
                             }
 
                             table = table + '<td>';
-                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+                            if(unapproveValue=='selected'){
+                                table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
 
-                            table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                                table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                            }
 
                             table = table + '</td>';
                         }
@@ -2494,9 +2517,11 @@ $(document).on("click", ".count-dev-scrapper", function() {
                         }
 
                         table = table + '<td>';
-                        table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea> ';
+                        if(unapproveValue=='selected'){
+                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea> ';
 
-                        table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                            table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                        }
 
                         table = table + '</td>';
                     }
@@ -2539,6 +2564,7 @@ $(document).on("change", ".add-scrapper-status", function(e) {
             $("#loading-image").show();
         },
         success: function(response) {
+            $('.count-dev-scrapper_'+task_id).trigger('click');
             $("#loading-image").hide();
             if (response.code == 200) {
                 toastr['success'](response.message);
@@ -2586,6 +2612,32 @@ $(document).on("click", ".add-scrapper-remarks", function() {
         $('#loading-image').hide();
         toastr['error'](response.responseJSON.message);
     });
+});
+
+$(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+    if (confirm('Are you sure, do you want to approve this task?')) {
+        event.preventDefault();
+        let type = $(this).data('type');
+        let task_id = $(this).data('task');
+        let history_id = $(this).data('id');
+        $.ajax({
+            url: "/development/time/history/approve",
+            type: "POST",
+            data: {
+                _token: "{{csrf_token()}}",
+                approve_time: history_id,
+                developer_task_id: task_id,
+                user_id: 0
+            },
+            success: function (response) {
+                toastr["success"]("Successfully approved", "success");
+                window.location.reload();
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            },
+        });
+    }
 });
 </script>
 @endsection

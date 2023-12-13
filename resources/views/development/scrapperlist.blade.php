@@ -69,22 +69,22 @@
             </div>
         </div>
     </div>
-    <div class="col-md-12  pl-5 tablescrapper">
+    <div class="mt-3 col-md-12 tablescrapper">
     	<div class="infinite-scroll" style="overflow-y: auto">
 		    <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         @if(!empty($dynamicColumnsToShowscrapper))
                             @if (!in_array('Id', $dynamicColumnsToShowscrapper))
-                                <th width="3%">Id</th>
+                                <th width="5%">Id</th>
                             @endif
 
                             @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
-                                <th width="8%">Task Id</th>
+                                <th width="10%">Task Id</th>
                             @endif
 
                             @if (!in_array('Scrapper', $dynamicColumnsToShowscrapper))
-                                <th width="8%">Scrapper</th>
+                                <th width="10%">Scrapper</th>
                             @endif
 
                             @if (!in_array('Title', $dynamicColumnsToShowscrapper))
@@ -140,20 +140,20 @@
                             @endif
 
                             @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
-                                <th width="3%">Brand</th>
+                                <th width="5%">Brand</th>
                             @endif
 
                             @if (!in_array('Is Sale', $dynamicColumnsToShowscrapper))
-                                <th width="3%">Is Sale</th>
+                                <th width="5%">Is Sale</th>
                             @endif
 
                             @if (!in_array('Date', $dynamicColumnsToShowscrapper))
-                                <th width="7%">Date</th>
+                                <th width="10%">Date</th>
                             @endif
                         @else 
-                            <th width="3%">Id</th>
-                            <th width="8%">Task Id</th>
-                            <th width="6%">Scrapper</th>
+                            <th width="5%">Id</th>
+                            <th width="10%">Task Id</th>
+                            <th width="10%">Scrapper</th>
                             <th width="7%">Title</th>
                             <th width="7%">Website</th>
                             <th width="7%">Sku</th>
@@ -167,9 +167,9 @@
                             <th width="5%">Discounted Price</th>
                             <th width="5%">Discounted Percentage</th>
                             <th width="3%">B2b Price</th>
-                            <th width="3%">Brand</th>
-                            <th width="3%">Is Sale</th>
-                            <th width="7%">Date</th> 
+                            <th width="5%">Brand</th>
+                            <th width="5%">Is Sale</th>
+                            <th width="10%">Date</th> 
                         @endif
                     </tr>
                 </thead>
@@ -525,10 +525,10 @@
     <div id="update-scrapper-status-modal" class="modal fade" role="dialog">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
-                <form action="<?php echo route('development.updatescrapperdata'); ?>" method="post">
+                <form action="<?php echo route('development.updatescrapperdata'); ?>" method="post" id="update-scrapper-status-modal-form">
                     @csrf
                     <div class="modal-header">
-                        <h4 class="modal-title text-left">Update Status</h4>
+                        <h4 class="modal-title text-left">Update Status & Remarks</h4>
                     </div>
                     <div class="modal-body">
 
@@ -536,12 +536,17 @@
                         <input class="form-control" type="hidden" name="column_name" id="scrapper_title" />
                     
                         <div class="form-group">
-                            <select class="form-control" name="status">
+                            <select class="form-control" name="status" onchange="changeStatus(this.value)" id="status_div_id">
                                 <option>--Select Status--</option>
                                 <option value="Approve">Approve</option>
                                 <option value="Unapprove">Unapprove</option>
                             </select>
                         </div>
+
+                        <div class="form-group" id="remarks_div" style="display:none;">
+                            <textarea class="form-control" name="remarks" id="remarks_div_id" placeholder="Enter Remarks" s></textarea>
+                        </div>
+                        
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -595,6 +600,7 @@
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script>
 $(document).on('click', '.expand-row-msg', function () {
     var name = $(this).data('name');
@@ -636,10 +642,59 @@ $(document).on('click','.scrapper-images',function(){
 });
 
 $(document).on('click', '.update-scrapper-status', function() {
+
+    //$('#update-scrapper-status-modal-form')[0].reset();
+
+    $('#update-scrapper-status-modal #remarks_div').css('display', 'none');
+    $('#update-scrapper-status-modal #remarks_div_id').val('');
+    //$('#status_div_id option[value=""]').attr("selected", "selected");
+
+    $('#status_div_id').prop('selectedIndex', 0);
+
+
     var $this = $(this);
     column_name = $(this).data("column_name");
     task_id = $(this).data("task_id");
-    
+
+    $.ajax({
+        url: "{{route('development.getscrapperdata')}}",
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'column_name' :column_name
+        },
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+
+            if(response.ScrapperValuesHistory.id!=''){
+                if(response.ScrapperValuesHistory.status=='Unapprove'){
+
+                    $('#update-scrapper-status-modal #remarks_div').css('display', '');
+                    
+                    if(response.ScrapperValuesRemarksHistory.id!=''){
+                        $('#update-scrapper-status-modal #remarks_div_id').val(response.ScrapperValuesRemarksHistory.remarks);
+                    }
+
+                    //$('#status_div_id option[value="Unapprove"]').attr("selected", "selected");
+                    $('#status_div_id').prop('selectedIndex', 2);
+                } else {
+                    //$('#status_div_id option[value="Approve"]').attr("selected", "selected");
+                    $('#status_div_id').prop('selectedIndex', 1);
+                }
+            }
+        }
+    }).fail(function(response) {
+        $("#loading-image").hide();
+        toastr['error'](response.responseJSON.message);
+    });
+
     $("#update-scrapper-status-modal").modal("show");
     $("#update-scrapper-status-modal #scrapper_task_id").val(task_id);
     $('#update-scrapper-status-modal #scrapper_title').val(column_name);
@@ -723,5 +778,14 @@ $(document).on('click', '.view-scrapper-remarks', function() {
     $("#view-scrapper-remarks-modal #view-remarks-data").text(remarks);
 });
 
+function changeStatus(value){
+
+    if(value=='Unapprove'){
+        $('#update-scrapper-status-modal #remarks_div').css('display', '');
+    } else {
+        $('#update-scrapper-status-modal #remarks_div').css('display', 'none');
+    }
+    
+}
 </script>
 @endsection
