@@ -5853,7 +5853,7 @@ class DevelopmentController extends Controller
             });
         }
 
-        $records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        $records = $records->select('task_id', 'scrapper_values.scrapper_values', 'scrapper_values.created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
         ->groupBy('task_id')
         ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
         ->paginate(50);
@@ -6035,5 +6035,40 @@ class DevelopmentController extends Controller
             }       
         }
         return response()->json(['code' => 200, 'values' => $returnData, 'task_id' => $request->task_id]);
+    }
+
+    public function devScrappingTaskHistory($id)
+    {
+        $title = 'Scrapper Verification Data';
+
+        $recordsSingle = ScrapperValues::where('id', $id)->first();
+
+        $records = ScrapperValues::with('tasks')->where('id', "!=", $id)->where("task_id", $recordsSingle['task_id']);
+
+        $keywords = request('keywords');
+        if (! empty($keywords)) {
+            $records = $records->where(function ($q) use ($keywords) {
+                $q->where('scrapper_values', 'LIKE', "%$keywords%")
+                ->orWhere('task_id', 'LIKE', "%$keywords%");
+            });
+        }
+
+        $records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        ->groupBy('task_id')
+        ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
+        ->paginate(50);
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
+
+        $dynamicColumnsToShowscrapper = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowscrapper = json_decode($hideColumns, true);
+        }
+
+        return view('development.scrapperlisthistroy', [
+            'records' => $records,
+            'dynamicColumnsToShowscrapper' => $dynamicColumnsToShowscrapper,
+        ]);
     }
 }

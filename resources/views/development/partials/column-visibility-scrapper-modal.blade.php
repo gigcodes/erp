@@ -163,6 +163,12 @@
                                     <input type="checkbox" value="Date" id="Date" name="column_scrapper[]" @if (!empty($dynamicColumnsToShowscrapper) && in_array('Date', $dynamicColumnsToShowscrapper)) checked @endif>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>Action</td>
+                                <td>
+                                    <input type="checkbox" value="Action" id="Action" name="column_scrapper[]" @if (!empty($dynamicColumnsToShowscrapper) && in_array('Action', $dynamicColumnsToShowscrapper)) checked @endif>
+                                </td>
+                            </tr>
                         </div>
                     </table>
                 </div>

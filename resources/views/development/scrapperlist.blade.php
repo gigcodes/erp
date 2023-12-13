@@ -43,32 +43,6 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="row">
-                <div class="col-lg-12 margin-tb pr-0">
-                    <h2 class="page-heading">Scrapper Verification Data <button type="button" class="btn custom-button float-right ml-10" data-toggle="modal" data-target="#scrapperdatatablecolumnvisibilityList">Column Visiblity</button></h2>
-                    <div class="pull-left cls_filter_box">
-                        {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
-
-                            <div class="form-group ml-3 cls_filter_inputbox">
-                                {{Form::text('keywords', @$inputs['keywords'], array('class'=>'form-control', 'placeholder'=>'Enter Keywords'))}}
-                            </div>
-
-                            <div class="form-group  cls_filter_inputbox">
-                                <button type="submit" class="btn custom-button ml-3" style="width:100px">Search</button>
-                            </div>
-
-                            <div class="form-group  cls_filter_inputbox">
-                                <button type="button" class="btn custom-button ml-3 reset" style="width:100px">Reset</button>
-                            </div>
-                            
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="mt-3 col-md-12 tablescrapper">
     	<div class="infinite-scroll" style="overflow-y: auto">
 		    <table class="table table-bordered table-striped" style="width: 150%; max-width:initial">
@@ -170,6 +144,9 @@
                             @if (!in_array('Date', $dynamicColumnsToShowscrapper))
                                 <th width="7%">Date</th>
                             @endif
+                            @if (!in_array('Action', $dynamicColumnsToShowscrapper))
+                                <th width="5%">Action</th>
+                            @endif
                         @else 
                             <th width="5%">Id</th>
                             <th width="10%">Task Id</th>
@@ -195,6 +172,7 @@
                             <th width="10%">Brand</th>
                             <th width="5%">Is Sale</th>
                             <th width="7%">Date</th> 
+                            <th width="5%">Action</th>
                         @endif
                     </tr>
                 </thead>
@@ -247,7 +225,7 @@
                         @if(!empty($dynamicColumnsToShowscrapper))
                             <tr>
                                 @if (!in_array('Id', $dynamicColumnsToShowscrapper))
-                                    <td>{{ $record['id'] }}</td>
+                                    <td>{{ $record['max_id'] }}</td>
                                 @endif
 
                                 @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
@@ -327,7 +305,7 @@
 
                                 @if (!in_array('Images', $dynamicColumnsToShowscrapper))
                                     <td>
-                                        <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
+                                        <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
                                             <i class="fa fa-eye" aria-hidden="true"></i>
                                         </button>
 
@@ -358,7 +336,7 @@
                                             @endif
                                         @endif
 
-                                        <!-- <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
+                                        <!-- <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
                                             <i class="fa fa-eye" aria-hidden="true"></i>
                                         </button> -->
 
@@ -513,10 +491,13 @@
                                 @if (!in_array('Date', $dynamicColumnsToShowscrapper))
                                     <td>{{ $record['created_at'] }}</td>
                                 @endif
+                                @if (!in_array('Action', $dynamicColumnsToShowscrapper))
+                                    <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
+                                @endif
                             </tr>
                         @else  
                             <tr>
-								<td>{{ $record['id'] }}</td>
+								<td>{{ $record['max_id'] }}</td>
                                 <td>#DEVTASK-{{ $record['task_id'] }}</td>
                                 <td class="expand-row-msg" data-name="subject" data-id="{{$i}}">
                                     @if(!empty($record['tasks']['subject']))
@@ -557,7 +538,7 @@
                                     @include('development.partials.dynamic-column', ['columnname' => 'url', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td>
-                                    <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
+                                    <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-images" style="padding:1px 0px;">
                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                     </button>
 
@@ -581,7 +562,7 @@
                                             @endif
                                         @endif
                                     @endif
-                                    <!-- <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
+                                    <!-- <button type="button" data-id="<?php echo $record['max_id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
                                         <i class="fa fa-eye" aria-hidden="true"></i>
                                     </button> -->
 
@@ -693,6 +674,7 @@
                                     @include('development.partials.dynamic-column', ['columnname' => 'is_sale', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td>{{ $record['created_at'] }}</td>
+                                <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
 							</tr>
                         @endif
                     @endforeach

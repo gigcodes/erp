@@ -2407,6 +2407,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('scrapper-column-visbility', [DevelopmentController::class, 'scrapperColumnVisbilityUpdate'])->name('scrapper.column.update');
     Route::post('development-scrapper-data', [DevelopmentController::class, 'developmentGetScrapperData'])->name('development.getscrapperdata');
     Route::post('development/historyscrapper', [DevelopmentController::class, 'devScrappingTaskHistoryIndex'])->name('development.historyscrapper');
+    Route::get('development/scrapperhistory/{id}', [DevelopmentController::class, 'devScrappingTaskHistory'])->name('development.scrapper_hisotry');
     
 
     Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
