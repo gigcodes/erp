@@ -325,13 +325,15 @@
                                 @endif
 
                                 @if (!in_array('Dimension', $dynamicColumnsToShowscrapper))
-                                    <td>
+                                    <td class="expand-row-msg" data-name="dimension" data-id="{{$i}}">
                                         @if(!empty($returnData['properties']))
                                             @if(!empty($returnData['properties']['dimension']))
                                                 @if(is_array($returnData['properties']['dimension'])) 
-                                                    {{implode("," , $returnData['properties']['dimension'])}}
+                                                    <span class="show-short-dimension-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['dimension']), 10, '...')}}</span>
+                                                    <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ implode("," , $returnData['properties']['dimension']) }}</span>
                                                 @else
-                                                    {{$returnData['properties']['dimension']}}
+                                                    <span class="show-short-dimension-{{$i}}">{{ Str::limit($returnData['properties']['dimension'], 10, '...')}}</span>
+                                                    <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ $returnData['properties']['dimension'] }}</span>
                                                 @endif
                                             @endif
                                         @endif
@@ -345,10 +347,16 @@
                                 @endif
 
                                 @if (!in_array('Sizes', $dynamicColumnsToShowscrapper))
-                                <td>
+                                <td class="expand-row-msg" data-name="sizes" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
                                         @if(!empty($returnData['properties']['sizes']))
-                                            {{implode("," , $returnData['properties']['sizes'])}}
+                                            @if(is_array($returnData['properties']['sizes'])) 
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['sizes']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ implode("," , $returnData['properties']['sizes']) }}</span>
+                                            @else
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit($returnData['properties']['sizes'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ $returnData['properties']['sizes'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
@@ -357,14 +365,15 @@
                                 @endif
 
                                 @if (!in_array('Material Used', $dynamicColumnsToShowscrapper))
-                                <td>
+                                <td class="expand-row-msg" data-name="material_used" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
                                         @if(!empty($returnData['properties']['material_used']))
-                                            @if(is_array($returnData['properties']['category'])) 
-                                                {{implode("," , $returnData['properties']['sizes'])}}
+                                            @if(is_array($returnData['properties']['material_used'])) 
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['material_used']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ implode("," , $returnData['properties']['material_used']) }}</span>
                                             @else
-                                                <span class="show-short-title-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
-                                                <span style="word-break:break-all;" class="show-full-title-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
                                             @endif
                                         @endif
                                     @endif
@@ -374,14 +383,16 @@
                                 @endif
 
                                 @if (!in_array('Category', $dynamicColumnsToShowscrapper))
-                                <td>
+                                <td class="expand-row-msg" data-name="category" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
-                                        @if(!empty($returnData['properties']['category'])) 
+                                        @if(!empty($returnData['properties']['category']))
                                             @if(is_array($returnData['properties']['category'])) 
-                                                {{implode("," , $returnData['properties']['category'])}}
-                                            @else 
-                                                {{$returnData['properties']['category']}} 
-                                            @endif                                            
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['category']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ implode("," , $returnData['properties']['category']) }}</span>
+                                            @else
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit($returnData['properties']['category'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ $returnData['properties']['category']}}</span>
+                                            @endif
                                         @endif
                                     @endif
 
@@ -390,14 +401,16 @@
                                 @endif
 
                                 @if (!in_array('Color', $dynamicColumnsToShowscrapper))
-                                <td>
+                                <td class="expand-row-msg" data-name="color" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
-                                        @if(!empty($returnData['properties']['color'])) 
+                                        @if(!empty($returnData['properties']['color']))
                                             @if(is_array($returnData['properties']['color'])) 
-                                                {{implode("," , $returnData['properties']['color'])}}
-                                            @else 
-                                                {{$returnData['properties']['color']}} 
-                                            @endif                                            
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['color']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ implode("," , $returnData['properties']['color']) }}</span>
+                                            @else
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit($returnData['properties']['color'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ $returnData['properties']['color'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
@@ -406,14 +419,16 @@
                                 @endif
 
                                 @if (!in_array('Country', $dynamicColumnsToShowscrapper))
-                                <td>
+                                <td class="expand-row-msg" data-name="country" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
-                                        @if(!empty($returnData['properties']['country'])) 
+                                        @if(!empty($returnData['properties']['country']))
                                             @if(is_array($returnData['properties']['country'])) 
-                                                {{implode("," , $returnData['properties']['country'])}}
-                                            @else 
-                                                {{$returnData['properties']['country']}} 
-                                            @endif                                            
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['country']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ implode("," , $returnData['properties']['country']) }}</span>
+                                            @else
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit($returnData['properties']['country'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ $returnData['properties']['country'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
@@ -473,8 +488,11 @@
                                 @endif
 
                                 @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
-                                    <td>
-                                        @if(!empty($returnData['brand'])) {{ $returnData['brand'] }} @endif
+                                    <td class="expand-row-msg" data-name="brand" data-id="{{$i}}">
+                                        @if(!empty($returnData['brand']))
+                                            <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 10, '...')}}</span>
+                                            <span style="word-break:break-all;" class="show-full-brand-{{$i}} hidden">{{ $returnData['brand'] }}</span>
+                                        @endif
 
                                         @include('development.partials.dynamic-column', ['columnname' => 'brand', 'taskss_id' => $record['task_id']])
                                     </td>
@@ -550,15 +568,17 @@
                                         <span style="word-break:break-all;" class="show-full-description-{{$i}} hidden">{{ $returnData['description'] }}</span>
                                     @endif
 
-                                    @include('development.partials.dynamic-column', ['columnname' => 'description', 'taskss_id' => $record['task_id']])
+                                    @include('development.partials.dynamic-column', ['columnname' => 'description', 'taskss_id' => $record['task_id']]) 
                                 </td>
-                                <td>
+                                <td class="expand-row-msg" data-name="dimension" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
                                         @if(!empty($returnData['properties']['dimension']))
                                             @if(is_array($returnData['properties']['dimension'])) 
-                                                {{implode("," , $returnData['properties']['dimension'])}}
+                                                <span class="show-short-dimension-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['dimension']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ implode("," , $returnData['properties']['dimension']) }}</span>
                                             @else
-                                                {{$returnData['properties']['dimension']}}
+                                                <span class="show-short-dimension-{{$i}}">{{ Str::limit($returnData['properties']['dimension'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-dimension-{{$i}} hidden">{{ $returnData['properties']['dimension'] }}</span>
                                             @endif
                                         @endif
                                     @endif
@@ -568,63 +588,76 @@
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'dimension', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
+                                <td class="expand-row-msg" data-name="sizes" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
                                         @if(!empty($returnData['properties']['sizes']))
-                                            {{implode("," , $returnData['properties']['sizes'])}}
+                                            @if(is_array($returnData['properties']['sizes'])) 
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['sizes']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ implode("," , $returnData['properties']['sizes']) }}</span>
+                                            @else
+                                                <span class="show-short-sizes-{{$i}}">{{ Str::limit($returnData['properties']['sizes'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-sizes-{{$i}} hidden">{{ $returnData['properties']['sizes'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'sizes', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
+                                <td class="expand-row-msg" data-name="material_used" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
                                         @if(!empty($returnData['properties']['material_used']))
-                                            @if(is_array($returnData['properties']['category'])) 
-                                                {{implode("," , $returnData['properties']['sizes'])}}
+                                            @if(is_array($returnData['properties']['material_used'])) 
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['material_used']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ implode("," , $returnData['properties']['material_used']) }}</span>
                                             @else
-                                                <span class="show-short-title-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
-                                                <span style="word-break:break-all;" class="show-full-title-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
+                                                <span class="show-short-material_used-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-material_used-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
                                             @endif
                                         @endif
                                     @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'material_used', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
+                                <td class="expand-row-msg" data-name="category" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
-                                        @if(!empty($returnData['properties']['category'])) 
+                                        @if(!empty($returnData['properties']['category']))
                                             @if(is_array($returnData['properties']['category'])) 
-                                                {{implode("," , $returnData['properties']['category'])}}
-                                            @else 
-                                                {{$returnData['properties']['category']}} 
-                                            @endif                                            
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['category']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ implode("," , $returnData['properties']['category']) }}</span>
+                                            @else
+                                                <span class="show-short-category-{{$i}}">{{ Str::limit($returnData['properties']['category'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-category-{{$i}} hidden">{{ $returnData['properties']['category'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'category', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
+                                <td class="expand-row-msg" data-name="color" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
-                                        @if(!empty($returnData['properties']['color'])) 
+                                        @if(!empty($returnData['properties']['color']))
                                             @if(is_array($returnData['properties']['color'])) 
-                                                {{implode("," , $returnData['properties']['color'])}}
-                                            @else 
-                                                {{$returnData['properties']['color']}} 
-                                            @endif                                            
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['color']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ implode("," , $returnData['properties']['color']) }}</span>
+                                            @else
+                                                <span class="show-short-color-{{$i}}">{{ Str::limit($returnData['properties']['color'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-color-{{$i}} hidden">{{ $returnData['properties']['color'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'color', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
+                                <td class="expand-row-msg" data-name="country" data-id="{{$i}}">
                                     @if(!empty($returnData['properties']))
-                                        @if(!empty($returnData['properties']['country'])) 
+                                        @if(!empty($returnData['properties']['country']))
                                             @if(is_array($returnData['properties']['country'])) 
-                                                {{implode("," , $returnData['properties']['country'])}}
-                                            @else 
-                                                {{$returnData['properties']['country']}} 
-                                            @endif                                            
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit(implode("," , $returnData['properties']['country']), 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ implode("," , $returnData['properties']['country']) }}</span>
+                                            @else
+                                                <span class="show-short-country-{{$i}}">{{ Str::limit($returnData['properties']['country'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-country-{{$i}} hidden">{{ $returnData['properties']['country'] }}</span>
+                                            @endif
                                         @endif
                                     @endif
 
@@ -663,8 +696,11 @@
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'b2b_price', 'taskss_id' => $record['task_id']])
                                 </td>
-                                <td>
-                                    @if(!empty($returnData['brand'])) {{ $returnData['brand'] }} @endif
+                                <td class="expand-row-msg" data-name="brand" data-id="{{$i}}">
+                                    @if(!empty($returnData['brand']))
+                                        <span class="show-short-brand-{{$i}}">{{ Str::limit($returnData['brand'], 10, '...')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-brand-{{$i}} hidden">{{ $returnData['brand'] }}</span>
+                                    @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'brand', 'taskss_id' => $record['task_id']])
                                 </td>
