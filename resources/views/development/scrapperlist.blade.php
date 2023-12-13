@@ -71,7 +71,7 @@
     </div>
     <div class="mt-3 col-md-12 tablescrapper">
     	<div class="infinite-scroll" style="overflow-y: auto">
-		    <table class="table table-bordered table-striped">
+		    <table class="table table-bordered table-striped" style="width: 150%; max-width:initial">
                 <thead>
                     <tr>
                         @if(!empty($dynamicColumnsToShowscrapper))
@@ -84,7 +84,7 @@
                             @endif
 
                             @if (!in_array('Scrapper', $dynamicColumnsToShowscrapper))
-                                <th width="10%">Scrapper</th>
+                                <th width="7%">Scrapper</th>
                             @endif
 
                             @if (!in_array('Title', $dynamicColumnsToShowscrapper))
@@ -108,11 +108,31 @@
                             @endif
 
                             @if (!in_array('Description', $dynamicColumnsToShowscrapper))
-                                <th width="5%">Description</th>
+                                <th width="7%">Description</th>
                             @endif
 
-                            @if (!in_array('Properties', $dynamicColumnsToShowscrapper))
-                                <th width="5%">Properties</th>
+                            @if (!in_array('Dimension', $dynamicColumnsToShowscrapper))
+                                <th width="5%">Dimension</th>
+                            @endif
+
+                            @if (!in_array('Sizes', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Sizes</th>
+                            @endif
+
+                            @if (!in_array('Material Used', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Material Used</th>
+                            @endif
+
+                            @if (!in_array('Category', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Category</th>
+                            @endif
+
+                            @if (!in_array('Color', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Color</th>
+                            @endif
+
+                            @if (!in_array('Country', $dynamicColumnsToShowscrapper))
+                                <th width="7%">Country</th>
                             @endif
 
                             @if (!in_array('Currency', $dynamicColumnsToShowscrapper))
@@ -140,7 +160,7 @@
                             @endif
 
                             @if (!in_array('Brand', $dynamicColumnsToShowscrapper))
-                                <th width="5%">Brand</th>
+                                <th width="10%">Brand</th>
                             @endif
 
                             @if (!in_array('Is Sale', $dynamicColumnsToShowscrapper))
@@ -148,28 +168,33 @@
                             @endif
 
                             @if (!in_array('Date', $dynamicColumnsToShowscrapper))
-                                <th width="10%">Date</th>
+                                <th width="7%">Date</th>
                             @endif
                         @else 
                             <th width="5%">Id</th>
                             <th width="10%">Task Id</th>
-                            <th width="10%">Scrapper</th>
+                            <th width="7%">Scrapper</th>
                             <th width="7%">Title</th>
                             <th width="7%">Website</th>
                             <th width="7%">Sku</th>
                             <th width="5%">Url</th>
                             <th width="4%">Images</th>
-                            <th width="5%">Description</th>
-                            <th width="5%">Properties</th>
+                            <th width="7%">Description</th>
+                            <th width="5%">Dimension</th>
+                            <th width="7%">Sizes</th>
+                            <th width="7%">Material Used</th>
+                            <th width="7%">Category</th>
+                            <th width="7%">Color</th>
+                            <th width="5%">Country</th>
                             <th width="5%">Currency</th>
                             <th width="4%">Size System</th>
                             <th width="3%">Price</th>
                             <th width="5%">Discounted Price</th>
                             <th width="5%">Discounted Percentage</th>
                             <th width="3%">B2b Price</th>
-                            <th width="5%">Brand</th>
+                            <th width="10%">Brand</th>
                             <th width="5%">Is Sale</th>
-                            <th width="10%">Date</th> 
+                            <th width="7%">Date</th> 
                         @endif
                     </tr>
                 </thead>
@@ -191,13 +216,13 @@
                         $ScrapperValuesHistory = App\Models\ScrapperValuesHistory::where('task_id', $record['task_id'])->get();
                         $ScrapperValuesRemarksHistory = App\Models\ScrapperValuesRemarksHistory::where('task_id', $record['task_id'])->get();
 
-                        $columnArray = ['title', 'website', 'sku', 'url', 'images', 'description', 'properties', 'currency', 'size_system', 'price', 'discounted_price', 'discounted_percentage', 'b2b_price', 'brand', 'is_sale'];
+                        $columnArray = ['title', 'website', 'sku', 'url', 'images', 'description', 'dimension', 'sizes', 'material_used', 'category', 'color', 'country', 'currency', 'size_system', 'price', 'discounted_price', 'discounted_percentage', 'b2b_price', 'brand', 'is_sale'];
 
-                        $titleRecord= $websiteRecord= $skuRecord= $urlRecord= $imagesRecord= $descriptionRecord= $propertiesRecord= $currencyRecord= $size_systemRecord= $priceRecord= $discounted_priceRecord= $discounted_percentageRecord= $b2b_priceRecord= $brandRecord= $is_saleRecord= [];
+                        $titleRecord= $websiteRecord= $skuRecord= $urlRecord= $imagesRecord= $descriptionRecord= $dimensionRecord= $sizesRecord= $material_usedRecord= $categoryRecord= $colorRecord= $currencyRecord= $countryRecord= $size_systemRecord= $priceRecord= $discounted_priceRecord= $discounted_percentageRecord= $b2b_priceRecord= $brandRecord= $is_saleRecord= [];
 
-                        $titleVar= $websiteVar= $skuVar= $urlVar= $imagesVar= $descriptionVar= $propertiesVar= $currencyVar= $size_systemVar= $priceVar= $discounted_priceVar= $discounted_percentageVar= $b2b_priceVar= $brandVar= $is_saleVar= 'btn-default';
+                        $titleVar= $websiteVar= $skuVar= $urlVar= $imagesVar= $descriptionVar= $dimensionVar= $sizesVar= $material_usedVar= $categoryVar= $colorVar= $currencyVar= $countryVar= $size_systemVar= $priceVar= $discounted_priceVar= $discounted_percentageVar= $b2b_priceVar= $brandVar= $is_saleVar= 'btn-default';
 
-                        $titleIcon= $websiteIcon= $skuIcon= $urlIcon= $imagesIcon= $descriptionIcon= $propertiesIcon= $currencyIcon= $size_systemIcon= $priceIcon= $discounted_priceIcon= $discounted_percentageIcon= $b2b_priceIcon= $brandIcon= $is_saleIcon= 'fa fa-check';
+                        $titleIcon= $websiteIcon= $skuIcon= $urlIcon= $imagesIcon= $descriptionIcon= $dimensionIcon= $sizesIcon= $material_usedIcon= $categoryIcon= $colorIcon= $currencyIcon= $countryIcon= $size_systemIcon= $priceIcon= $discounted_priceIcon= $discounted_percentageIcon= $b2b_priceIcon= $brandIcon= $is_saleIcon= 'fa fa-check';
 
                         foreach ($ScrapperValuesHistory as $data) {
                             if (in_array($data['column_name'],$columnArray)) {
@@ -321,14 +346,101 @@
                                     </td>
                                 @endif
 
-                                @if (!in_array('Properties', $dynamicColumnsToShowscrapper))
+                                @if (!in_array('Dimension', $dynamicColumnsToShowscrapper))
                                     <td>
-                                        <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
-                                            <i class="fa fa-eye" aria-hidden="true"></i>
-                                        </button>
+                                        @if(!empty($returnData['properties']))
+                                            @if(!empty($returnData['properties']['dimension']))
+                                                @if(is_array($returnData['properties']['dimension'])) 
+                                                    {{implode("," , $returnData['properties']['dimension'])}}
+                                                @else
+                                                    {{$returnData['properties']['dimension']}}
+                                                @endif
+                                            @endif
+                                        @endif
 
-                                        @include('development.partials.dynamic-column', ['columnname' => 'properties', 'taskss_id' => $record['task_id']])
+                                        <!-- <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
+                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                        </button> -->
+
+                                        @include('development.partials.dynamic-column', ['columnname' => 'dimension', 'taskss_id' => $record['task_id']])
                                     </td>
+                                @endif
+
+                                @if (!in_array('Sizes', $dynamicColumnsToShowscrapper))
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['sizes']))
+                                            {{implode("," , $returnData['properties']['sizes'])}}
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'sizes', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Material Used', $dynamicColumnsToShowscrapper))
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['material_used']))
+                                            @if(is_array($returnData['properties']['category'])) 
+                                                {{implode("," , $returnData['properties']['sizes'])}}
+                                            @else
+                                                <span class="show-short-title-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-title-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'material_used', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Category', $dynamicColumnsToShowscrapper))
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['category'])) 
+                                            @if(is_array($returnData['properties']['category'])) 
+                                                {{implode("," , $returnData['properties']['category'])}}
+                                            @else 
+                                                {{$returnData['properties']['category']}} 
+                                            @endif                                            
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'category', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Color', $dynamicColumnsToShowscrapper))
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['color'])) 
+                                            @if(is_array($returnData['properties']['color'])) 
+                                                {{implode("," , $returnData['properties']['color'])}}
+                                            @else 
+                                                {{$returnData['properties']['color']}} 
+                                            @endif                                            
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'color', 'taskss_id' => $record['task_id']])
+                                </td>
+                                @endif
+
+                                @if (!in_array('Country', $dynamicColumnsToShowscrapper))
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['country'])) 
+                                            @if(is_array($returnData['properties']['country'])) 
+                                                {{implode("," , $returnData['properties']['country'])}}
+                                            @else 
+                                                {{$returnData['properties']['country']}} 
+                                            @endif                                            
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'country', 'taskss_id' => $record['task_id']])
+                                </td>
                                 @endif
 
                                 @if (!in_array('Currency', $dynamicColumnsToShowscrapper))
@@ -460,11 +572,82 @@
                                     @include('development.partials.dynamic-column', ['columnname' => 'description', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td>
-                                    <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['dimension']))
+                                            @if(is_array($returnData['properties']['dimension'])) 
+                                                {{implode("," , $returnData['properties']['dimension'])}}
+                                            @else
+                                                {{$returnData['properties']['dimension']}}
+                                            @endif
+                                        @endif
+                                    @endif
+                                    <!-- <button type="button" data-id="<?php echo $record['id'];  ?>" class="btn scrapper-properties" style="padding:1px 0px;">
                                         <i class="fa fa-eye" aria-hidden="true"></i>
-                                    </button>
+                                    </button> -->
 
-                                    @include('development.partials.dynamic-column', ['columnname' => 'properties', 'taskss_id' => $record['task_id']])
+                                    @include('development.partials.dynamic-column', ['columnname' => 'dimension', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['sizes']))
+                                            {{implode("," , $returnData['properties']['sizes'])}}
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'sizes', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['material_used']))
+                                            @if(is_array($returnData['properties']['category'])) 
+                                                {{implode("," , $returnData['properties']['sizes'])}}
+                                            @else
+                                                <span class="show-short-title-{{$i}}">{{ Str::limit($returnData['properties']['material_used'], 10, '...')}}</span>
+                                                <span style="word-break:break-all;" class="show-full-title-{{$i}} hidden">{{ $returnData['properties']['material_used'] }}</span>
+                                            @endif
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'material_used', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['category'])) 
+                                            @if(is_array($returnData['properties']['category'])) 
+                                                {{implode("," , $returnData['properties']['category'])}}
+                                            @else 
+                                                {{$returnData['properties']['category']}} 
+                                            @endif                                            
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'category', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['color'])) 
+                                            @if(is_array($returnData['properties']['color'])) 
+                                                {{implode("," , $returnData['properties']['color'])}}
+                                            @else 
+                                                {{$returnData['properties']['color']}} 
+                                            @endif                                            
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'color', 'taskss_id' => $record['task_id']])
+                                </td>
+                                <td>
+                                    @if(!empty($returnData['properties']))
+                                        @if(!empty($returnData['properties']['country'])) 
+                                            @if(is_array($returnData['properties']['country'])) 
+                                                {{implode("," , $returnData['properties']['country'])}}
+                                            @else 
+                                                {{$returnData['properties']['country']}} 
+                                            @endif                                            
+                                        @endif
+                                    @endif
+
+                                    @include('development.partials.dynamic-column', ['columnname' => 'country', 'taskss_id' => $record['task_id']])
                                 </td>
                                 <td>
                                     @if(!empty($returnData['currency'])) {{ $returnData['currency'] }} @endif
