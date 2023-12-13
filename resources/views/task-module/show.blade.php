@@ -948,7 +948,7 @@
                                                 </td>
                                                 @endif
 
-                                                @if (!in_array('Communication', $dynamicColumnsToShowTask))                                
+                                                @if (!in_array('Communication', $dynamicColumnsToShowTask))                           
                                                 <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
                                                     @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
                                                         <div style="margin-bottom:10px;width: 100%;">
@@ -994,7 +994,7 @@
                                                                                 $start = 0;
                                                                             }
                                                                             ?>
-                                                                        {{substr($task->message, $start,28)}}
+                                                                        {{substr($task->message, $start,100)}}
                                                                         </span>
                                                                     </div>
                                                                     <div class="expand-row-msg" data-id="{{$task->id}}">
@@ -1002,6 +1002,7 @@
                                                                         {{ $task->message }}
                                                                         </span>
                                                                     </div>
+                                                                    <!-- <span style="word-break:break-word;">{{ $task->message }}</span> -->
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1031,6 +1032,17 @@
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                         </div>
                                                     </div>
+
+                                                    <?php 
+                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+
+                                                    @if(!empty($time_history))
+                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                                 </td>
                                                 @endif
 
@@ -1046,9 +1058,9 @@
                                                         </div>
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                         {{$single->task_start_date}}
-                                                    @endif -->
+                                                    @endif
 
                                                     <div class="form-group d-flex">
                                                         <div class='input-group date cls-start-due-date'>
@@ -1057,9 +1069,9 @@
                                                         </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                         {{$single->task_new_due_date}}
-                                                    @endif -->
+                                                    @endif
                                                 </td>
                                                 @endif
 
@@ -1341,7 +1353,7 @@
                                                                                 $start = 0;
                                                                             }
                                                                             ?>
-                                                                        {{substr($task->message, $start,28)}}
+                                                                        {{substr($task->message, $start,100)}}
                                                                         </span>
                                                                     </div>
                                                                     <div class="expand-row-msg" data-id="{{$task->id}}">
@@ -1349,6 +1361,7 @@
                                                                         {{ $task->message }}
                                                                         </span>
                                                                     </div>
+                                                                    <!-- <span style="word-break:break-word;">{{ $task->message }}</span> -->
                                                                     @endif
                                                                 </div>
                                                             @endif
@@ -1375,6 +1388,17 @@
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                         </div>
                                                     </div>
+
+                                                    <?php 
+                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+
+                                                    @if(!empty($time_history))
+                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                                 </td>
                                                 @php
                                                     $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -1387,9 +1411,9 @@
                                                         </div>
                                                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                         {{$single->task_start_date}}
-                                                    @endif -->
+                                                    @endif
 
                                                     <div class="form-group d-flex">
                                                         <div class='input-group date cls-start-due-date'>
@@ -1398,9 +1422,9 @@
                                                         </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
-                                                    <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                    @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                         {{$single->task_new_due_date}}
-                                                    @endif -->
+                                                    @endif
                                                 </td>
                                                 <td id="shortcutsIds">
                                                     @include('task-module.partials.shortcuts')
@@ -1672,7 +1696,7 @@
                                                                             $start = 0;
                                                                         }
                                                                         ?>
-                                                                    {{substr($task->message, $start,28)}}
+                                                                    {{substr($task->message, $start,100)}}
                                                                     </span>
                                                                 </div>
                                                                 <div class="expand-row-msg" data-id="{{$task->id}}">
@@ -1680,6 +1704,7 @@
                                                                     {{ $task->message }}
                                                                     </span>
                                                                 </div>
+                                                                <!-- <span style="word-break:break-word;">{{ $task->message }}</span> -->
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -1706,6 +1731,17 @@
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('approximate',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                     </div>
                                                 </div>
+
+                                                <?php 
+                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+
+                                                    @if(!empty($time_history))
+                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                                <i class="fa fa-check" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                             </td>
                                             @php
                                                 $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -1718,9 +1754,9 @@
                                                     </div>
                                                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('start_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                <!-- @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
+                                                @if(!empty($single->task_start_date) && $single->task_start_date!='0000-00-00 00:00:00')
                                                     {{$single->task_start_date}}
-                                                @endif -->
+                                                @endif
 
                                                 <div class="form-group d-flex">
                                                     <div class='input-group date cls-start-due-date'>
@@ -1729,9 +1765,9 @@
                                                     </div>
                                                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funTaskInformationUpdatesTime('due_date',{{$task->id}})" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                                                 </div>
-                                                <!-- @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
+                                                @if(!empty($single->task_new_due_date) && $single->task_new_due_date!='0000-00-00 00:00:00')
                                                     {{$single->task_new_due_date}}
-                                                @endif -->
+                                                @endif
                                             </td>
                                             <td class="p-2">
                                                 <!-- <div class="dropdown dropleft">
@@ -4863,5 +4899,31 @@ function funTaskInformationUpdatesTime(type,id) {
         }
     }
 }
+
+$(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+    if (confirm('Are you sure, do you want to approve this task?')) {
+        event.preventDefault();
+        let type = $(this).data('type');
+        let task_id = $(this).data('task');
+        let history_id = $(this).data('id');
+        $.ajax({
+            url: "/task/time/history/approve",
+            type: "POST",
+            data: {
+                _token: "{{csrf_token()}}",
+                approve_time: history_id,
+                developer_task_id: task_id,
+                user_id: 0
+            },
+            success: function (response) {
+                toastr["success"]("Successfully approved", "success");
+                window.location.reload();
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            },
+        });
+    }
+});
 </script>
 @endsection

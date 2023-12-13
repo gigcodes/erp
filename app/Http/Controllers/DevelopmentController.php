@@ -962,6 +962,10 @@ class DevelopmentController extends Controller
             $issues = $issues->where('developer_tasks.status', 'In Progress');
         }
 
+        if (! empty($request->get('module_id', []))) {
+            $issues = $issues->whereIn('developer_tasks.module_id', $request->get('module_id'));
+        }
+
         $whereCondition = '';
         if ($request->get('subject') != '') {
             $subject = explode(',', $request->get('subject'));
@@ -5775,6 +5779,12 @@ class DevelopmentController extends Controller
     public function UpdateScrapper(Request $request)
     {
 
+        $this->validate($request, [
+            'task_id' => 'required',
+            'column_name' => 'required',
+            'status' => 'required',
+        ]);
+
         $input = $request->all();
         $input['updated_by'] = auth()->user()->id;
 
@@ -5795,6 +5805,8 @@ class DevelopmentController extends Controller
     {
 
         $this->validate($request, [
+            'task_id' => 'required',
+            'column_name' => 'required',
             'remarks' => 'required'
         ]);
 
@@ -5812,5 +5824,157 @@ class DevelopmentController extends Controller
                 'message' => 'Your scrapper status has been updated!',
             ]
         );
+    }
+
+    public function devScrappingTaskIndex(Request $request)
+    {
+        $title = 'Scrapper Verification Data';
+
+        $inputs = $request->input();
+
+        $records = ScrapperValues::with('tasks');
+
+        $keywords = request('keywords');
+        if (! empty($keywords)) {
+            $records = $records->where(function ($q) use ($keywords) {
+                $q->where('scrapper_values', 'LIKE', "%$keywords%")
+                ->orWhere('task_id', 'LIKE', "%$keywords%");
+            });
+        }
+
+        $records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        ->groupBy('task_id')
+        ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
+        ->paginate(50);
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
+
+        $dynamicColumnsToShowscrapper = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowscrapper = json_decode($hideColumns, true);
+        }
+
+        return view('development.scrapperlist', [
+            'records' => $records,
+            'inputs' => $inputs,
+            'dynamicColumnsToShowscrapper' => $dynamicColumnsToShowscrapper,
+        ]);
+    }
+
+    public function scrapperColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','development-scrapper-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'development-scrapper-listing';
+            $column->column_name = json_encode($request->column_scrapper); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'development-scrapper-listing';
+            $column->column_name = json_encode($request->column_scrapper); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function developmentScrapperData($id)
+    {   
+        $ScrapperValues = ScrapperValues::findorFail($id);
+
+        $properties = [];
+        $jsonString = $ScrapperValues['scrapper_values'];
+        $phpArray = json_decode($jsonString, true);
+        if(!empty($phpArray)){
+            if(!empty($phpArray)){
+                foreach ($phpArray as $key_json => $value_json) {
+                    if($key_json=='properties'){
+                        $properties[] = $value_json;         
+                    }
+                }
+            }           
+        }       
+
+        $html = '';
+        if(!empty($properties)){
+
+            $html = '<table class="table table-bordered table-striped">
+                    <tbody class="text-center task_queue_list">';
+            foreach ($properties as $key => $value) {
+                $keys = array_keys($value);
+
+                if(!empty($keys)){
+                    foreach ($keys as $key_k => $value_k) {
+                        $html .= '<tr>';
+                        $html .= '<th>'.ucwords(str_replace("_", " ", $value_k)).'</th>';
+
+                        if(gettype($value[$value_k])=='array'){
+                            $html .= '<td>'.implode(", ", $value[$value_k]).'</td>';
+                        } else {
+                            $html .= '<td>'.$value[$value_k].'</td>';
+                        }
+                        $html .= '</tr>';        
+                    }
+                }                
+            }
+
+            $html .= '</tbody>';
+            $html .= '</table>';
+        }
+
+        return response()->json([
+            'status' => true,
+            'html' => $html,
+            'message' => 'Data get successfully',
+        ], 200);
+    }
+
+    public function developmentScrapperImagesData($id)
+    {   
+        $ScrapperValues = ScrapperValues::findorFail($id);
+
+        $images = [];
+        $jsonString = $ScrapperValues['scrapper_values'];
+        $phpArray = json_decode($jsonString, true);
+        if(!empty($phpArray)){
+            if(!empty($phpArray)){
+                foreach ($phpArray as $key_json => $value_json) {
+                    if($key_json=='images'){
+                        $images[] = $value_json;         
+                    }
+                }
+            }           
+        }       
+
+        $html = '';
+        if(!empty($images)){
+
+            $html = '<div class="row">
+                    <div class="col-lg-12">';
+            foreach ($images as $key => $value) {
+
+                if(!empty($value)){
+                    foreach ($value as $key_k => $value_k) {
+                        $html .= '<div class="col-lg-1">';
+                            $html .= '<img src="'.$value_k.'">';
+                        $html .= '</div>';        
+                    }
+                }                
+            }
+
+            $html .= '</div>';
+            $html .= '</div>';
+        }
+
+        return response()->json([
+            'status' => true,
+            'html' => $html,
+            'message' => 'Data get successfully',
+        ], 200);
     }
 }

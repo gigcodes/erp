@@ -173,6 +173,8 @@
         <button class="btn custom-button mt-3" style="color:white;" data-toggle="modal" data-target="#dscolumnvisibilityList"> Column Visiblity</button>
     @endif
 
+    <a class="btn custom-button mt-3" href="{{ route('development.scrapper.index') }}" role="link"> Scrapper Verification Data </a>
+
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
@@ -185,8 +187,8 @@
                                placeholder="Issue Id / Subject" class="form-control"
                                value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
                     </div>
-                    <div class="col-md-2 pd-sm pd-rt">
-                        <select class="form-control" name="module_id" id="module_id">
+                    <div class="col-md-2 pd-sm pd-rt status-selection">
+                        <select class="form-control multiselect" name="module_id[]" id="module_id" multiple="multiple">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                                 <option {{ $request->get('module') == $module->id ? 'selected' : '' }}
@@ -243,7 +245,7 @@
 
                     </div>
 
-                    <div class="pd-sm status-selection">
+                    <div class="pd-sm">
                         <button type="button" class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     </div>
 

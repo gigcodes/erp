@@ -251,6 +251,16 @@
                             <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                         </div>
                     </div>
+                    <?php 
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+                    @if(!empty($time_history))
+                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="DEVTASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                <i class="fa fa-check" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                    @endif
                 </td>
             @endif
 
@@ -263,9 +273,9 @@
                         </div>
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
-                    <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                    @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                         {{$issue->start_date}}
-                    @endif -->
+                    @endif
 
                     <div class="form-group">
                         <div class='input-group date cls-start-due-date'>
@@ -274,9 +284,9 @@
                         </div>
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
-                    <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                    @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                         {{$issue->estimate_date}}
-                    @endif -->
+                    @endif
                 </td>
             @endif
 
@@ -537,6 +547,16 @@
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
                 </div>
+                <?php 
+                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+                @if(!empty($time_history))
+                    @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                        <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="DEVTASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                        </button>
+                    @endif
+                @endif
             </td>
             <td class="p-2">
                 <div class="form-group">
@@ -546,9 +566,9 @@
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                     {{$issue->start_date}}
-                @endif -->
+                @endif
 
                 <div class="form-group">
                     <div class='input-group date cls-start-due-date'>
@@ -557,9 +577,9 @@
                     </div>
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
-                <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+                @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                     {{$issue->estimate_date}}
-                @endif -->
+                @endif
             </td>
            
             <td id="shortcutsIds">@include('development.partials.shortcutsdl')</td>
@@ -812,6 +832,16 @@
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
             </div>
+            <?php 
+            $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+            @if(!empty($time_history))
+                @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                    <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="DEVTASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                    </button>
+                @endif
+            @endif
         </td>
         <td class="p-2">
             <div class="form-group">
@@ -821,9 +851,9 @@
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('start_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            <!-- @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
+            @if(!empty($issue->start_date) && $issue->start_date!='0000-00-00 00:00:00')
                 {{$issue->start_date}}
-            @endif -->
+            @endif
 
             <div class="form-group">
                 <div class='input-group date cls-start-due-date'>
@@ -832,9 +862,9 @@
                 </div>
                 <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-start_date-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_date',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
             </div>
-            <!-- @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
+            @if(!empty($issue->estimate_date) && $issue->estimate_date!='0000-00-00 00:00:00')
                 {{$issue->estimate_date}}
-            @endif -->
+            @endif
         </td>
        
         <td>
