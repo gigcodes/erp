@@ -36,6 +36,7 @@
     }
 
     .tablescrapper .btn-sm{padding: 2px;}
+    .tablescrapper td{color: grey;}
     /* END - DEVTASK-4359*/
 </style>
 @section('content')
