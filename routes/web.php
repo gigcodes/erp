@@ -962,6 +962,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/{id}/history', [CompositionsController::class, 'history'])->name('compositions.history');
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
+    Route::get('compositions/listing', [CompositionsController::class, 'compositionsListing']);
+    Route::get('compositions/group/{name}/{threshold}', [CompositionsController::class, 'compositionsGroupBy']);
+    Route::post('compositions/delete-composition', [CompositionsController::class, 'deleteComposition'])->name('compositions.delete');
     Route::resource('compositions', CompositionsController::class);
     Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
     Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
