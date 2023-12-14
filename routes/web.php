@@ -5118,6 +5118,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
     Route::get('/edit-value', [GoogleFileTranslator::class, 'editValue'])->name('googlefiletranslator.edit.value');
     Route::post('/googlefiletranslator/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
     Route::get('googlefiletranslator/{id}', [GoogleFileTranslator::class, 'tranalteHistoryShow'])->name('googlefiletranslator_histories.show');
+    Route::get('googlefiletranslatorstatus/{id}', [GoogleFileTranslator::class, 'tranalteStatusHistoryShow'])->name('googlefiletranslator_histories_status.show');
     Route::post('status-change', [GoogleFileTranslator::class, 'statusChange'])->name('googlefiletranslator_histories.status');
     Route::get('/download-csv/{id}/{type}', [GoogleFileTranslator::class, 'downloadCsv'])->name('store-website.download.csv');
 
