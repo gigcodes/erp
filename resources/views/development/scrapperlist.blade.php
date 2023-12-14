@@ -36,7 +36,7 @@
     }
 
     .tablescrapper .btn-sm{padding: 2px;}
-    .tablescrapper td{color: grey;}
+    .tablescrapper td{color: grey;font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;font-size: 14px;}
     /* END - DEVTASK-4359*/
 </style>
 @section('content')

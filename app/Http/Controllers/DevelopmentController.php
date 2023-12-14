@@ -5801,8 +5801,16 @@ class DevelopmentController extends Controller
                     ['task_id' => $request->task_id, 'column_name' => $request->column_name], $input
                 );
             }
+
+            $task = DeveloperTask::find($request->task_id);
+            $task->status = 'Scrapper Data Unapproved';
+            $task->save();
+        } else {
+            $task = DeveloperTask::find($request->task_id);
+            $task->status = 'Scrapper Data Approved';
+            $task->save();
         }
-      
+
         return response()->json(
             [
                 'code' => 200,
@@ -6131,6 +6139,10 @@ class DevelopmentController extends Controller
                                 ScrapperValuesRemarksHistory::where('column_name', $key_json)->where('task_id', $recordsScrapper['task_id'])->delete();
                             }
                         }
+
+                        $task = DeveloperTask::find($recordsScrapper['task_id']);
+                        $task->status = 'Scrapper Data Approved';
+                        $task->save();
                     }                   
                 }
 
