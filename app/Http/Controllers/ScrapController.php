@@ -38,6 +38,7 @@ use App\Services\Products\ProductsCreator;
 use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Products\GnbProductsCreator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\ScrapedProductsLinks;
 
 class ScrapController extends Controller
 {
@@ -1125,6 +1126,14 @@ class ScrapController extends Controller
      *      ),
      * )
      */
+
+    public function scrap_links()
+    {
+        $scrap_links = ScrapedProductsLinks::orderBy('id', 'DESC')->paginate(25);
+
+        return view('scrap.scrap-links', compact('scrap_links'));
+    }
+
     public function processProductLinks(Request $request)
     {
         $pendingUrl = [];
@@ -1149,6 +1158,18 @@ class ScrapController extends Controller
                     $scraper->full_scrape = 0;
                     $scraper->save();
 
+                    foreach ($links as $key => $value) {
+                        $input = [];
+                        $input['status'] = 'new';
+                        $input['website'] = $website;
+                        $input['links'] = $value;
+                        $input['scrap_product_id'] = 0;
+
+                        ScrapedProductsLinks::updateOrCreate(
+                            ['links' => $value, 'website' => $website], $input
+                        );
+                    }
+
                     return $links;
                 }
             }
@@ -1169,9 +1190,29 @@ class ScrapController extends Controller
                     $scrapedProduct->url = $link;
                     $scrapedProduct->last_inventory_at = Carbon::now();
                     $scrapedProduct->save();
-                //$pendingUrl[] = $link;
+                    //$pendingUrl[] = $link;
+
+                    $input = [];
+                    $input['status'] = 'in stock';
+                    $input['website'] = $website;
+                    $input['links'] = $link;
+                    $input['scrap_product_id'] = $scrapedProduct->id;
+
+                    ScrapedProductsLinks::updateOrCreate(
+                        ['links' => $link, 'website' => $website], $input
+                    );
                 } else {
                     $pendingUrl[] = $link;
+
+                    $input = [];
+                    $input['status'] = 'out of stock';
+                    $input['website'] = $website;
+                    $input['links'] = $link;
+                    $input['scrap_product_id'] = 0;
+
+                    ScrapedProductsLinks::updateOrCreate(
+                        ['links' => $link, 'website' => $website], $input
+                    );
                 }
                 //} else {
                 //$pendingUrl[] = $link;
