@@ -601,11 +601,27 @@ class ReplyController extends Controller
             }
         }
 
-        $replies = json_encode($translate_text);
+        //$replies = json_encode($translate_text);
+
+        $itemsPerPage = 10; // Define the number of items per page
+        $currentPage = $request->input('page', 1);
+        $offset = ($currentPage - 1) * $itemsPerPage;
+
+        // Paginate the JSON-encoded data manually
+        $totalItems = count($translate_text);
+
+        // Calculate the total number of pages
+        $totalPages = ceil($totalItems / $itemsPerPage);
+
+        // Extract the data for the current page
+        $paginatedTranslateText = array_slice($translate_text, $offset, $itemsPerPage, true);
+
+        // Convert the paginated data back to JSON
+        $replies = json_encode($paginatedTranslateText);
 
         $replyTranslatorStatuses = ReplyTranslatorStatus::all();
 
-        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs', 'totalItems', 'itemsPerPage', 'currentPage', 'totalPages'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function quickRepliesPermissions(Request $request)
