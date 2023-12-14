@@ -225,7 +225,11 @@
                         @if(!empty($dynamicColumnsToShowscrapper))
                             <tr>
                                 @if (!in_array('Id', $dynamicColumnsToShowscrapper))
-                                    <td>{{ $record['max_id'] }}</td>
+                                    <td>
+                                        {{ $record['max_id'] }}
+                                        </br>
+                                        <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;">
+                                    </td>
                                 @endif
 
                                 @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
@@ -521,7 +525,11 @@
                             </tr>
                         @else  
                             <tr>
-								<td>{{ $record['max_id'] }}</td>
+								<td>
+                                    {{ $record['max_id'] }}
+                                    </br>
+                                    <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;">
+                                </td>
                                 <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
                                     <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
                                     <span style="word-break:break-all;" class="show-full-task_id-{{$i}} hidden">#DEVTASK-{{ $record['task_id'] }}</span>
@@ -930,6 +938,7 @@ $(document).on("click", ".update-scrapper-status-data", function(e) {
         success: function(response) {
             $("#loading-image").hide();
             if (response.code == 200) {
+                location.reload();
                 form[0].reset();
                 toastr['success'](response.message);
                 $("#update-scrapper-status-modal").modal("hide");
@@ -1000,5 +1009,54 @@ function changeStatus(value){
     }
     
 }
+
+$(document).ready(function() {
+    // Attach change event handler to the checkbox
+    $('#approveAll').change(function() {
+
+        var dataIdValue = $(this).data('id');
+
+        // Check if the checkbox is checked
+        if ($(this).is(':checked')) {
+
+            var confirmed = confirm('Are you sure you want to approved the values?');
+
+            if (confirmed) {
+
+                $.ajax({
+                    url: "{{route('development.updateallstatusdata')}}",
+                    type: 'POST',
+                    headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        'scrapper_id' : dataIdValue
+                    },
+                    beforeSend: function() {
+                        $(this).text('Loading...');
+                        $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+                        if (response.status == true) {
+                            location.reload();
+                            toastr['success'](response.message);
+                        } else {
+                            toastr['error'](response.message);
+                        }
+                    }
+                }).fail(function(response) {
+                    $("#loading-image").hide();
+                    toastr['error'](response.responseJSON.message);
+                });
+
+            } else {    
+                $('.approveAll_'+dataIdValue).prop('checked', false);
+            }
+        } else {
+            $('.approveAll_'+dataIdValue).prop('checked', false);
+        }        
+    });
+});
 </script>
 @endsection
