@@ -56,7 +56,7 @@
                     @if($issue->is_audio)
                         <audio controls="" src="{{\App\Helpers::getAudioUrl($issue->message)}}"></audio>
                     @else
-                    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+                    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 90, $end='...') }}</span>
                     @endif
                     <textarea class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-top:5px;margin-bottom:5px" rows="3" cols="20"></textarea>
                     <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
@@ -321,7 +321,7 @@
                     <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>
-                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
+                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
                     <!-- <div class="dropdown dropleft">
                         <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$issue->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Actions
@@ -376,7 +376,7 @@
                 @if($issue->is_audio)
                     <audio controls="" src="{{\App\Helpers::getAudioUrl($issue->message)}}"></audio>
                 @else
-                <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+                <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 90, $end='...') }}</span>
                 @endif
                 <textarea class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-top:5px;margin-bottom:5px" rows="3" cols="20"></textarea>
                 <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
@@ -606,7 +606,7 @@
                 <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                     <i class="fa fa-plus" aria-hidden="true"></i>
                 </button>
-                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
                 <!-- <div class="dropdown dropleft">
                     <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$issue->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Actions
@@ -661,7 +661,7 @@
             @if($issue->is_audio)
                 <audio controls="" src="{{\App\Helpers::getAudioUrl($issue->message)}}"></audio>
             @else
-            <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+            <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{ \Illuminate\Support\Str::limit($issue->message, 90, $end='...') }}</span>
             @endif
             <textarea class="form-control send-message-textbox addToAutoComplete" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-top:5px;margin-bottom:5px" rows="3" cols="20"></textarea>
             <input class="" name="add_to_autocomplete" class="add_to_autocomplete" type="checkbox" value="true">
@@ -832,16 +832,6 @@
                     <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
             </div>
-            <?php 
-            $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
-
-            @if(!empty($time_history))
-                @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
-                    <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="DEVTASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
-                        <i class="fa fa-check" aria-hidden="true"></i>
-                    </button>
-                @endif
-            @endif
         </td>
         <td class="p-2">
             <div class="form-group">
@@ -891,7 +881,7 @@
             <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
             </button>
-            <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
+            <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
             <!-- <div class="dropdown dropleft">
                 <a class="btn btn-secondary btn-sm dropdown-toggle" href="javascript:void(0);" role="button" id="dropdownMenuLink{{$issue->id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Actions
