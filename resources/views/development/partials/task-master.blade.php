@@ -303,7 +303,7 @@
                     if (response.code == 200) {
                         form[0].reset();
                         toastr['success'](response.message);
-                        $("#create-quick-task").modal("hide");
+                        $("#addScrapperModel").modal("hide");
                     } else {
                         toastr['error'](response.message);
                     }
@@ -372,6 +372,7 @@
 
                                     var approveValue = '';
                                     var unapproveValue = '';
+                                    var StatusValue = ''
                                     for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
 
                                         if(data.ScrapperValuesHistory[i].column_name==key){
@@ -389,14 +390,6 @@
                                         }                            
                                     }
 
-                                    table = table + '<td>';
-                                        table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
-                                        table = table + '<option>Select Status</option>';
-                                        table = table + '<option '+approveValue+' value="Approve">Approve</option>';
-                                        table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
-                                        table = table + '</select>';
-                                    table = table + '</td>';
-
                                     var remarksValue = '';
                                     for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
 
@@ -407,15 +400,33 @@
                                         }                            
                                     }
 
-                                    table = table + '<td>';
+                                    @if (Auth::user()->isAdmin())
+                                        table = table + '<td>';
+                                            table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                            table = table + '<option>Select Status</option>';
+                                            table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                            table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                            table = table + '</select>';
+                                        table = table + '</td>';
 
-                                    if(unapproveValue=='selected'){
-                                        table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+                                        table = table + '<td>';
 
-                                        table = table + '<button class="btn btn-sm btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></button>';
-                                    }
+                                        if(unapproveValue=='selected'){
+                                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
 
-                                    table = table + '</td>';
+                                            table = table + '<button class="btn btn-sm btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></button>';
+                                        }
+
+                                        table = table + '</td>';
+                                    @else   
+                                        table = table + '<td>'+StatusValue+'</td>';
+
+                                        table = table + '<td>';
+                                        if(unapproveValue=='selected'){
+                                            table = table +remarksValue;
+                                        }
+                                        table = table + '</td>';
+                                    @endif
                                 }
                             } else if(key=='images'){
                                 if(data.values.images!=''){
@@ -429,6 +440,7 @@
 
                                     var approveValue = '';
                                     var unapproveValue = '';
+                                    var StatusValue = ''
                                     for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
 
                                         if(data.ScrapperValuesHistory[i].column_name==key){
@@ -446,14 +458,6 @@
                                         }                            
                                     }
 
-                                    table = table + '<td>';
-                                        table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
-                                        table = table + '<option>--Select Status--</option>';
-                                        table = table + '<option '+approveValue+' value="Approve">Approve</option>';
-                                        table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
-                                        table = table + '</select>';
-                                    table = table + '</td>';
-
                                     var remarksValue = '';
                                     for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
 
@@ -464,14 +468,34 @@
                                         }                            
                                     }
 
-                                    table = table + '<td>';
-                                    if(unapproveValue=='selected'){
-                                        table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+                                    @if (Auth::user()->isAdmin())
 
-                                        table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
-                                    }
+                                        table = table + '<td>';
+                                            table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                            table = table + '<option>--Select Status--</option>';
+                                            table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                            table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                            table = table + '</select>';
+                                        table = table + '</td>';
 
-                                    table = table + '</td>';
+                                        table = table + '<td>';
+                                        if(unapproveValue=='selected'){
+                                            table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+
+                                            table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                                        }
+
+                                        table = table + '</td>';
+
+                                    @else   
+                                        table = table + '<td>'+StatusValue+'</td>';
+
+                                        table = table + '<td>';
+                                        if(unapproveValue=='selected'){
+                                            table = table +remarksValue;
+                                        }
+                                        table = table + '</td>';
+                                    @endif
                                 }
                             } else {
                                 table = table + '<td>'+value;
@@ -479,6 +503,7 @@
 
                                 var approveValue = '';
                                 var unapproveValue = '';
+                                var StatusValue = ''
                                 for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
 
                                     if(data.ScrapperValuesHistory[i].column_name==key){
@@ -496,14 +521,6 @@
                                     }                            
                                 }
 
-                                table = table + '<td>';
-                                    table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
-                                    table = table + '<option>--Select Status--</option>';
-                                    table = table + '<option '+approveValue+' value="Approve">Approve</option>';
-                                    table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
-                                    table = table + '</select>';
-                                table = table + '</td>';
-
                                 var remarksValue = '';
                                 for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
 
@@ -514,15 +531,35 @@
                                     }                            
                                 }
 
-                                table = table + '<td>';
+                                @if (Auth::user()->isAdmin())
+                                    table = table + '<td>';
+                                        table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                        table = table + '<option>--Select Status--</option>';
+                                        table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                        table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                        table = table + '</select>';
+                                    table = table + '</td>';
 
-                                if(unapproveValue=='selected'){
-                                    table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea> ';
+                                    table = table + '<td>';
 
-                                    table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
-                                }
+                                    if(unapproveValue=='selected'){
+                                        table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea> ';
 
-                                table = table + '</td>';
+                                        table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                                    }
+
+                                    table = table + '</td>';
+                                @else   
+                                    table = table + '<td>'+StatusValue+'</td>';
+
+                                    table = table + '<td>';
+                                    if(unapproveValue=='selected'){
+                                        table = table +remarksValue;
+                                    }
+                                    table = table + '</td>';
+                                @endif
+
+                                
                             }
                             table = table + '</tr>';
                         });
