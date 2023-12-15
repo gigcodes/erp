@@ -241,6 +241,37 @@
                     </table>
                 </div>
 {{--                    {!! $replies->appends(request()->except('page'))->links() !!}--}}
+
+                <!-- Custom pagination -->
+                @if ($totalItems > 0)
+                    <nav aria-label="Pagination">
+                        <ul class="pagination justify-content-center">
+                            @if ($currentPage > 1)
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ $currentPage - 1 }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            @for ($i = 1; $i <= $totalPages; $i++)
+                                <li class="page-item {{ ($i == $currentPage) ? 'active' : '' }}">
+                                    <a class="page-link" href="?page={{ $i }}">{{ $i }}</a>
+                                </li>
+                            @endfor
+
+                            @if ($currentPage < $totalPages)
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ $currentPage + 1 }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                @else
+                    <p>No data available.</p>
+                @endif
             </div>
         </div>
     </div>
