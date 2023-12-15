@@ -97,6 +97,15 @@
                   @endif
                 </div>
               </div>
+              <div class="col-md-6">
+              <div class="form-group d-flex">
+                <span>Create User:</span>
+                <input type="checkbox" name="create_user" class="" style=" height: 14px;">
+                @if ($errors->has('create_user'))
+                <div class="alert alert-danger">{{$errors->first('create_user')}}</div>
+                @endif
+              </div>
+              </div>
               <div class="col-md-12">
                 <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
