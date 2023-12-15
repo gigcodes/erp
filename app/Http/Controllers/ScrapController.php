@@ -1127,11 +1127,28 @@ class ScrapController extends Controller
      * )
      */
 
-    public function scrap_links()
+    public function scrap_links(Request $request)
     {
-        $scrap_links = ScrapedProductsLinks::orderBy('id', 'DESC')->paginate(25);
+        //$scrap_links = ScrapedProductsLinks::orderBy('id', 'DESC')->paginate(25);
+        //return view('scrap.scrap-links', compact('scrap_links'));
 
-        return view('scrap.scrap-links', compact('scrap_links'));
+        $scrap_links = ScrapedProductsLinks::select('*');
+
+        if (!empty($request->status)) {
+            $scrap_links = $scrap_links->where('status', $request->status);
+        }
+
+        if (!empty($request->selected_date)) {
+            $scrap_links = $scrap_links->whereDate('created_at', "=", $request->selected_date);
+        }
+
+        if (!empty($request->search)) {
+            $scrap_links = $scrap_links->where('links', 'LIKE', "%" . $request->search . "%")->orWhere('website', 'LIKE', '%' . $request->search . '%');
+        }
+        
+        $scrap_links = $scrap_links->orderBy('id', 'DESC')->paginate(25);
+
+        return view('scrap.scrap-links', ['scrap_links' => $scrap_links])->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
     public function processProductLinks(Request $request)
