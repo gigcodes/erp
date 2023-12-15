@@ -386,4 +386,109 @@ class VendorResumeController extends Controller
     {
         //
     }
+
+    public function storeCVWithoutLogin(Request $request)
+    {
+        /*$this->validate($request, [
+            'captcha' => 'required',
+        ]);
+        if(!captcha_check($request->captcha)){
+            return back()->with('error', 'Incorrect Captcha');
+        }*/
+
+        $requestData = $request->all();
+        $project = [];
+        $dev_role = [];
+        $tools = [];
+
+        foreach ($requestData['work_experiance'] as $key => $val) {
+            if (isset($requestData['project' . $key])) {
+                foreach ($requestData['project' . $key] as $pKey => $pval) {
+                    $project[$key][$pKey] = $pval;
+                    $dev_role[$key][$pKey] = $request->input('dev_role' . $key);
+                    $tools[$key][$pKey] = $request->input('tools' . $key);
+                }
+            }
+        }
+
+        $path = public_path('vendorResume');
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        $vendorResumeName = '';
+        if ($request->file('soft_upload_document')) {
+            $file = $request->file('soft_upload_document');
+            $vendorResumeName = uniqid() . '_' . trim($file->getClientOriginalName());
+            $file->move($path, $vendorResumeName);
+        }
+
+
+        $vendorResume = new VendorResume();
+        $vendorResume->vendor_id = $request->vendor_id;
+        $vendorResume->pre_name = $request->pre_name;
+        $vendorResume->first_name = $request->first_name;
+        $vendorResume->second_name = $request->second_name;
+        $vendorResume->email = $request->email;
+        $vendorResume->mobile = $request->mobile;
+        $vendorResume->position_id = $request->position_id;
+        if (!empty($request->criteria)) {
+            $vendorResume->criteria = implode(",", $request->criteria);
+        }
+        $vendorResume->career_objective = $request->career_objective;
+        $vendorResume->salary_in_usd = serialize($request->salary_in_usd);
+        $vendorResume->expected_salary_in_usd = $request->expected_salary_in_usd;
+        $vendorResume->start_time = $request->start_time;
+        $vendorResume->end_time = $request->end_time;
+        $vendorResume->time_zone = $request->time_zone;
+        $vendorResume->preferred_working_days = $request->preferred_working_days;
+        $vendorResume->start_day = $request->start_day;
+        $vendorResume->end_day = $request->end_day;
+        $vendorResume->full_time = serialize($request->full_time);
+        $vendorResume->part_time = serialize($request->part_time);
+        $vendorResume->job_responsibilities = serialize($request->job_responsibilities);
+        $vendorResume->projects_worked = serialize($request->projects_worked);
+        $vendorResume->tool_used = serialize($request->tool_used);
+        $vendorResume->work_remark = serialize($request->work_remark);
+        $vendorResume->soft_upload_document = $vendorResumeName;
+        $vendorResume->fulltime_freelancer = serialize($request->fulltime_freelancer);
+        $vendorResume->current_assignments = serialize($request->current_assignments);
+        $vendorResume->current_assignments_description = serialize($request->current_assignments_description);
+        $vendorResume->current_assignments_hours_utilisted = serialize($request->current_assignments_hours_utilisted);
+        $vendorResume->work_experiance = serialize($request->work_experiance); //array
+        $vendorResume->reason_for_leaving = serialize($request->reason_for_leaving); //array
+        $vendorResume->date_from = serialize($request->date_from); //array
+        $vendorResume->date_to = serialize($request->date_to); //array
+        $vendorResume->designation = serialize($request->designation); //array
+        $vendorResume->organization = serialize($request->organization); //array
+        $vendorResume->project = serialize($project); //array
+        $vendorResume->dev_role = serialize($dev_role); //array
+        $vendorResume->tools = serialize($tools); //array
+        $vendorResume->soft_framework = $request->soft_framework;
+        $vendorResume->soft_proficiency = $request->soft_proficiency;
+        $vendorResume->soft_description = $request->soft_description;
+        $vendorResume->soft_experience = $request->soft_experience;
+        $vendorResume->soft_remark = serialize($request->soft_remark);
+        $vendorResume->edu_date_from = serialize($request->edu_date_from);
+        $vendorResume->edu_date_to = serialize($request->edu_date_to);
+        $vendorResume->edu_institute_programme = serialize($request->edu_institute_programme);
+        $vendorResume->edu_course_name = serialize($request->edu_course_name);
+        $vendorResume->edu_grades = serialize($request->edu_grades);
+        $vendorResume->edu_remark = serialize($request->edu_remark);
+        $vendorResume->father_name = $request->father_name;
+        $vendorResume->dob = $request->dob;
+        $vendorResume->gender = $request->gender;
+        $vendorResume->marital_status = $request->marital_status;
+        $vendorResume->langauge_know = $request->langauge_know;
+        $vendorResume->hobbies = $request->hobbies;
+        $vendorResume->city = $request->city;
+        $vendorResume->state = $request->state;
+        $vendorResume->country = $request->country;
+        $vendorResume->pin_code = $request->pin_code;
+        $vendorResume->address = serialize($request->address);
+        $vendorResume->save();
+        //dd(\DB::getQueryLog());
+        return back()->with('success', 'Data stored successfully!!!');
+        //return response()->json(["code" => 200, "data" => $vendorResume, "message" => 'Data stored successfully!!!']);
+
+    }
 }

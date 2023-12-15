@@ -46,7 +46,9 @@ class ReplyController extends Controller
 
         $replies = $replies->paginate(Setting::get('pagination'));
 
-        return view('reply.index', compact('replies', 'reply_categories'))
+        $reply_main_categories = ReplyCategory::where('parent_id', 0)->get();
+
+        return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories'))
         ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -80,6 +82,10 @@ class ReplyController extends Controller
         ]);
 
         $data = $request->except('_token', '_method');
+
+        if(!empty($data['sub_category_id'])){
+            $data['category_id'] = $data['sub_category_id'];    
+        }
         $data['reply'] = trim($data['reply']);
         $reply->create($data);
 
@@ -120,6 +126,21 @@ class ReplyController extends Controller
         $category->save();
 
         return redirect()->route('reply.index')->with('success', 'You have successfully created category');
+    }
+
+    public function subcategoryStore(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|string',
+            'parent_id' => 'required',
+        ]);
+
+        $category = new ReplyCategory;
+        $category->name = $request->name;
+        $category->parent_id = $request->parent_id;
+        $category->save();
+
+        return redirect()->route('reply.index')->with('success', 'You have successfully created sub category');
     }
 
     /**
@@ -580,11 +601,27 @@ class ReplyController extends Controller
             }
         }
 
-        $replies = json_encode($translate_text);
+        //$replies = json_encode($translate_text);
+
+        $itemsPerPage = 10; // Define the number of items per page
+        $currentPage = $request->input('page', 1);
+        $offset = ($currentPage - 1) * $itemsPerPage;
+
+        // Paginate the JSON-encoded data manually
+        $totalItems = count($translate_text);
+
+        // Calculate the total number of pages
+        $totalPages = ceil($totalItems / $itemsPerPage);
+
+        // Extract the data for the current page
+        $paginatedTranslateText = array_slice($translate_text, $offset, $itemsPerPage, true);
+
+        // Convert the paginated data back to JSON
+        $replies = json_encode($paginatedTranslateText);
 
         $replyTranslatorStatuses = ReplyTranslatorStatus::all();
 
-        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs', 'totalItems', 'itemsPerPage', 'currentPage', 'totalPages'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function quickRepliesPermissions(Request $request)

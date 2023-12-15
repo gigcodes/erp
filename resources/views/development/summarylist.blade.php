@@ -169,6 +169,12 @@
         <a href="javascript:" class="btn custom-button mt-3" style="height: 35px;" id="newTaskModalBtn">Add New Dev Task </a>
     @endif
 
+    @if (Auth::user()->isAdmin())
+        <button class="btn custom-button mt-3" style="color:white;" data-toggle="modal" data-target="#dscolumnvisibilityList"> Column Visiblity</button>
+
+        <a class="btn custom-button mt-3" href="{{ route('development.scrapper.index') }}" role="link"> Scrapper Verification Data </a>
+    @endif
+
     <div class="row" style="margin-top:13px ;margin-bottom:11px;float: left;">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/'); ?>
@@ -181,8 +187,8 @@
                                placeholder="Issue Id / Subject" class="form-control"
                                value="{{ !empty(app('request')->input('subject')) ? app('request')->input('subject') : '' }}">
                     </div>
-                    <div class="col-md-2 pd-sm pd-rt">
-                        <select class="form-control" name="module_id" id="module_id">
+                    <div class="col-md-2 pd-sm pd-rt status-selection">
+                        <select class="form-control multiselect" name="module_id[]" id="module_id" multiple="multiple">
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                                 <option {{ $request->get('module') == $module->id ? 'selected' : '' }}
@@ -239,7 +245,7 @@
 
                     </div>
 
-                    <div class="pd-sm status-selection">
+                    <div class="pd-sm">
                         <button type="button" class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     </div>
 
@@ -258,38 +264,77 @@
 
     <div class="infinite-scroll">
         <div class="table-responsive mt-3">
-            <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
+            <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;" id="task_Tables">
                 <thead>
                 <tr>
                     @if (Auth::user()->isAdmin())
-                        <th width="8%">ID</th>
-                        <th width="12%">MODULE</th>
-                        <th width="13%">Assigned To</th>
-                        <th width="13%">Lead</th>
-                        <th width="15%">Communication</th>
-                        <th width="10%">Send To</th>
-                        <th width="10%">Status</th>
-                        <th style="width:10%">Estimated Time</th>
-                        <th style="width:10%">Estimated Start Datetime</th>
-                        <th style="width:10%">Estimated End Datetime</th>
-                        <th width="10%">Actions</th>
+                        @if(!empty($dynamicColumnsToShowDs))
+                            @if (!in_array('ID', $dynamicColumnsToShowDs))
+                                <th width="4%">ID</th>
+                            @endif
+
+                            @if (!in_array('MODULE', $dynamicColumnsToShowDs))
+                                <th width="6%">MODULE</th>
+                            @endif
+
+                            @if (!in_array('Assigned To', $dynamicColumnsToShowDs))
+                                <th width="8%">Assigned To</th>
+                            @endif
+
+                            @if (!in_array('Lead', $dynamicColumnsToShowDs))
+                                <th width="8%">Lead</th>
+                            @endif
+
+                            @if (!in_array('Communication', $dynamicColumnsToShowDs))
+                                <th width="15%">Communication</th>
+                            @endif
+
+                            @if (!in_array('Send To', $dynamicColumnsToShowDs))
+                                <th width="8%">Send To</th>
+                            @endif
+
+                            @if (!in_array('Status', $dynamicColumnsToShowDs))
+                                <th width="8%">Status</th>
+                            @endif
+
+                            @if (!in_array('Estimated Time', $dynamicColumnsToShowDs))
+                                <th width="7%">Estimated Time</th>
+                            @endif
+
+                            @if (!in_array('Estimated Start Datetime', $dynamicColumnsToShowDs))
+                                <th width="10%">Estimated Datetime</th>
+                            @endif
+
+                            @if (!in_array('Shortcuts', $dynamicColumnsToShowDs))
+                                <th width="25%">Shortcuts</th>
+                            @endif
+                            @if (!in_array('Actions', $dynamicColumnsToShowDs))
+                                <th width="5%">Actions</th>
+                            @endif
+                        @else
+                            <th width="4%">ID</th>
+                            <th width="6%">MODULE</th>
+                            <th width="8%">Assigned To</th>
+                            <th width="8%">Lead</th>
+                            <th width="15%">Communication</th>
+                            <th width="8%">Send To</th>
+                            <th width="5%">Status</th>
+                            <th width="7%">Estimated Time</th>
+                            <th width="10%">Estimated Datetime</th>
+                            <th width="25%">Shortcuts</th>
+                            <th width="5%">Actions</th>
+                        @endif
                     @else
-                        <th style="width:12%;">ID</th>
-                        <th style="width:5%;">Module</th>
-                        <th style="width:5%;">Date</th>
-                        <th style="width:8%;">Subject</th>
-                        <th style="width:20%;">Communication</th>
-                        <th style="width:10%;">Est Completion Time</th>
-                        <th style="width:10%;">Est Completion Date</th>
-                        <th style="width:9%;">Tracked Time</th>
-                        <th style="width:13%;">Developers</th>
-                        <th style="width:10%;">Status</th>
-                        <th style="width:5%;">Cost</th>
-                        <th style="width:7%;">Milestone</th>
-                        <th style="width:10%">Estimated Time</th>
-                        <th style="width:10%">Estimated Start Datetime</th>
-                        <th style="width:10%">Estimated End Datetime</th>
-                        <th style="width:7%;">Actions</th>
+                        <th width="4%">ID</th>
+                        <th width="6%">MODULE</th>
+                        <th width="8%">Assigned To</th>
+                        <th width="8%">Lead</th>
+                        <th width="15%">Communication</th>
+                        <th width="8%">Send To</th>
+                        <th width="5%">Status</th>
+                        <th width="7%">Estimated Time</th>
+                        <th width="10%">Estimated Datetime</th>
+                        <th width="5%">Actions</th>
                     @endif
                 </tr>
                 </thead>
@@ -309,7 +354,34 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.modal-summary-task-color")
+    @include("development.partials.column-visibility-modal")
+    @include("development.partials.add-scrapper")
 
+    <div id="dev_scrapper_statistics" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="p-0 m-0">Scrapper Statistics <!-- <a href="javascript:void(0)" id="scrapper-history"><i class="fa fa-list" aria-hidden="true"></i></a> --></h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body" id="dev_scrapper_statistics_content">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dev_scrapper_statistics_history" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="p-0 m-0">Scrapper Statistics History</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body" id="dev_scrapper_statistics_history_content">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="python-action-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -1958,4 +2030,727 @@
     $("#lead").select2();
     $("#assigned_to").select2();
     </script>
+    <script type="text/javascript" src="/js/common-helper.js"></script>
+<script type="text/javascript">
+var siteHelpers = {
+            
+    quickCategoryAdd : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var textBox = ele.closest("div").find(".quick_category");
+        if (textBox.val() == "") {
+            alert("Please Enter Category!!");
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                name : textBox.val(),
+                quickCategoryId : quickCategoryId
+            },
+            url: "/add-reply-category"
+        };
+
+        if(quickCategoryId!=''){
+            siteHelpers.sendAjax(params,"afterQuickSubCategoryAdd");
+        } else {
+            siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+        }
+    },
+    afterQuickSubCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickSubCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    afterQuickCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    deleteQuickCategory : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickSubCategory : function(ele) {
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (quickSubCategory.val() == "") {
+            alert("Please Select Sub Category!!");
+            return false;
+        }
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete sub category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickSubCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickComment : function(ele) {
+        var quickComment = ele.closest("#shortcutsIds").find(".quickCommentEmail");
+        if (quickComment.val() == "") {
+            alert("Please Select Quick Comment!!");
+            return false;
+        }
+        var quickCommentId = quickComment.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete comment?")) {
+            return false;
+        }
+        var params = {
+            method : 'DELETE',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "/reply/" + quickCommentId,
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    pageReload : function(response) {
+        location.reload();
+    },
+    quickCommentAdd : function(ele) {
+        var textBox = ele.closest("div").find(".quick_comment");
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (textBox.val() == "") {
+            alert("Please Enter New Quick Comment!!");
+            return false;
+        }
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        var formData = new FormData();
+        formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+        formData.append("reply", textBox.val());
+        formData.append("category_id", quickCategoryId);
+        formData.append("sub_category_id", quickSubCategoryId);
+        formData.append("model", 'Approval Lead');
+        var params = {
+            method : 'post',
+            data : formData,
+            url: "/reply"
+        };
+        siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+    },
+    afterQuickCommentAdd : function(reply) {
+        $(".quick_comment").val('');
+        $('.quickCommentEmail').append($('<option>', {
+            value: reply,
+            text: reply
+        }));
+    },
+    changeQuickCategory : function (ele) {
+
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('value');
+
+        ele.closest("#shortcutsIds").find('.quickSubCategory').empty();
+        ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+            value: '',
+            text: 'Select Sub Category'
+        }));
+        dataValue.forEach(function (category) {
+            ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+                value: category.name,
+                text: category.name,
+                'data-id': category.id
+            }));
+        });
+
+        if (ele.val() != "") {
+            var replies = JSON.parse(ele.val());
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+            replies.forEach(function (reply) {
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply,
+                    'data-id': reply.id
+                }));
+            });
+        }
+    },
+    changeQuickComment : function (ele) {
+        $('#send_message_'+ele.attr('data-id')).val(ele.val());
+        
+        var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
+        var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
+
+        $("#reply-message").val(senderName)
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+            $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+        }).fail(function(errObj) {
+        })
+        
+    },
+    changeQuickSubCategory : function (ele) {
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('id');
+
+        var userEmaillUrl = '/email/email-replise/'+dataValue;
+
+        $.ajax({        
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+
+            if(response!=''){
+                var replies = JSON.parse(response);
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: '',
+                    text: 'Quick Reply'
+                }));
+                replies.forEach(function (reply) {
+                    ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                        value: reply.reply,
+                        text: reply.reply,
+                        'data-id': reply.id
+                    }));
+                });
+            }
+            
+        }).fail(function(errObj) {
+        })
+    },
+};
+
+$.extend(siteHelpers, common);
+
+$(document).on('click', '.quick_category_add', function () {
+    siteHelpers.quickCategoryAdd($(this));
+});
+$(document).on('click', '.delete_category', function () {
+    siteHelpers.deleteQuickCategory($(this));
+});
+$(document).on('click', '.delete_sub_category', function () {
+    siteHelpers.deleteQuickSubCategory($(this));
+});
+$(document).on('click', '.delete_quick_comment', function () {
+    siteHelpers.deleteQuickComment($(this));
+});
+$(document).on('click', '.quick_comment_add', function () {
+    siteHelpers.quickCommentAdd($(this));
+});
+$(document).on('change', '.quickCategory', function () {
+    siteHelpers.changeQuickCategory($(this));
+});
+$(document).on('change', '.quickCommentEmail', function () {
+    siteHelpers.changeQuickComment($(this));
+});
+$(document).on('change', '.quickSubCategory', function () {
+    siteHelpers.changeQuickSubCategory($(this));
+});
+
+$(".add-scrapper").click(function (e) { 
+    e.preventDefault();
+    let task_id = $(this).data("task_id")
+    let task_type = $(this).data("task_type")
+    $("#addScrapperModel").find('input[name=task_id]').val(task_id);
+    $("#addScrapperModel").find('input[name=task_type]').val(task_type);
+    $("#addScrapperModel").modal("show");
+});
+
+$(document).on("click", ".create-scrapper", function(e) {
+    e.preventDefault();
+    var form = $(this).closest("form");
+    $.ajax({
+        url: form.attr("action"),
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: form.serialize(),
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                form[0].reset();
+                toastr['success'](response.message);
+                $("#addScrapperModel").modal("hide");
+            } else {
+                toastr['error'](response.message);
+            }
+        }
+    }).fail(function(response) {
+        $('#loading-image').hide();
+        toastr['error'](response.responseJSON.message);
+    });
+});
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+$(document).on("click", ".count-dev-scrapper", function() {
+
+    var $this = $(this);
+    var task_id = $(this).data("id");
+
+    $('#scrapper-history').attr('data-id', task_id);
+
+    $.ajax({
+        type: 'get',
+        url: '/development/countscrapper/' + task_id,
+        dataType: "json",
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        },
+        success: function(data) {
+
+            $("#dev_scrapper_statistics").modal("show");
+            var table = `<div class="table-responsive">
+                <table class="table table-bordered table-striped table-scrapper" style="font-size:14px;">`;
+                table = table + '<tr>';
+                table = table + '<th width="10%">Column Name</th>';
+                table = table + '<th width="30%">Values</th>';
+                table = table + '<th width="15%">Status</th>';
+                table = table + '<th width="45%">Remarks</th>';
+                table = table + '</tr>';
+            if(data.values!=''){
+
+                $('#scrapper-history').attr('data-scrapperid', data.id);
+
+                $.each(data.values, function(key, value) {
+                    table = table + '<tr>';
+                    table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
+                    table = table + '</th>';
+
+                    if(key=='properties'){
+                        if(data.values.properties!=''){
+                            table = table + '<td><table class="table table-bordered table-striped">';
+                            $.each(data.values.properties, function(key, value) {
+                                table = table + '<tr>';
+                                    table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
+;
+                                    table = table + '</th>';
+                                    table = table + '<td>'+value;
+                                    table = table + '</td>';
+                                table = table + '</tr>';
+
+                            });
+                            table = table + '</table></td>';
+
+                            var approveValue = '';
+                            var unapproveValue = '';
+                            var StatusValue = ''
+                            for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
+
+                                if(data.ScrapperValuesHistory[i].column_name==key){
+
+                                    StatusValue = data.ScrapperValuesHistory[i].status;
+
+                                    if(StatusValue=='Approve'){
+                                        approveValue = 'selected';
+                                    }
+
+                                    if(StatusValue=='Unapprove'){
+                                        unapproveValue = 'selected';
+                                    }
+
+                                }                            
+                            }
+
+                            var remarksValue = '';
+                            for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
+
+                                if(data.ScrapperValuesRemarksHistory[i].column_name==key){
+
+                                    remarksValue = data.ScrapperValuesRemarksHistory[i].remarks;
+
+                                }                            
+                            }
+
+                            @if (Auth::user()->isAdmin())
+                                table = table + '<td>';
+                                    table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                    table = table + '<option>Select Status</option>';
+                                    table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                    table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                    table = table + '</select>';
+                                table = table + '</td>';
+
+
+                                table = table + '<td>';
+                                if(unapproveValue=='selected'){
+                                    table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+
+                                    table = table + '<button class="btn btn-sm btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></button>';
+                                }
+
+                                table = table + '</td>';
+                            @else   
+                                table = table + '<td>'+StatusValue+'</td>';
+
+                                table = table + '<td>';
+                                if(unapproveValue=='selected'){
+                                    table = table +remarksValue;
+                                }
+                                table = table + '</td>';
+                            @endif
+                        }
+                    } else if(key=='images'){
+                        if(data.values.images!=''){
+                            table = table + '<td><table class="table table-bordered table-striped">';
+                            table = table + '<tr><td>';
+                            $.each(data.values.images, function(key, value) {
+                                table = table + '<img src="'+value+'" width="50px" style="cursor: default;margin-right: 10px;">';
+                            });
+                            table = table + '</td></tr>';
+                            table = table + '</table></td>';
+
+                            var approveValue = '';
+                            var unapproveValue = '';
+                            var StatusValue = ''
+                            for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
+
+                                if(data.ScrapperValuesHistory[i].column_name==key){
+
+                                    StatusValue = data.ScrapperValuesHistory[i].status;
+
+                                    if(StatusValue=='Approve'){
+                                        approveValue = 'selected';
+                                    }
+
+                                    if(StatusValue=='Unapprove'){
+                                        unapproveValue = 'selected';
+                                    }
+
+                                }                            
+                            }
+
+                            var remarksValue = '';
+                            for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
+
+                                if(data.ScrapperValuesRemarksHistory[i].column_name==key){
+
+                                    remarksValue = data.ScrapperValuesRemarksHistory[i].remarks;
+
+                                }                            
+                            }
+
+                            @if (Auth::user()->isAdmin())
+                                table = table + '<td>';
+                                    table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                    table = table + '<option>--Select Status--</option>';
+                                    table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                    table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                    table = table + '</select>';
+                                table = table + '</td>';
+
+                                table = table + '<td>';
+                                if(unapproveValue=='selected'){
+                                    table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea>';
+
+                                    table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                                }
+
+                                table = table + '</td>';
+                            @else   
+                                table = table + '<td>'+StatusValue+'</td>';
+
+                                table = table + '<td>';
+                                if(unapproveValue=='selected'){
+                                    table = table +remarksValue;
+                                }
+                                table = table + '</td>';
+                            @endif
+                        }
+                    } else {
+                        table = table + '<td>'+value;
+                        table = table + '</td>';
+
+                        var approveValue = '';
+                        var unapproveValue = '';
+                        var StatusValue = ''
+                        for (var i = 0; i < data.ScrapperValuesHistory.length; i++) {
+
+                            if(data.ScrapperValuesHistory[i].column_name==key){
+
+                                StatusValue = data.ScrapperValuesHistory[i].status;
+
+                                if(StatusValue=='Approve'){
+                                    approveValue = 'selected';
+                                }
+
+                                if(StatusValue=='Unapprove'){
+                                    unapproveValue = 'selected';
+                                }
+
+                            }                            
+                        }
+
+                        var remarksValue = '';
+                        for (var i = 0; i < data.ScrapperValuesRemarksHistory.length; i++) {
+
+                            if(data.ScrapperValuesRemarksHistory[i].column_name==key){
+
+                                remarksValue = data.ScrapperValuesRemarksHistory[i].remarks;
+
+                            }                            
+                        }
+
+                        @if (Auth::user()->isAdmin())
+                            table = table + '<td>';
+                                table = table + '<select class="add-scrapper-status form-control" id="status_values_'+data.task_id+'_'+key+'" data-value="'+key+'" data-taskid="'+data.task_id+'">';
+                                table = table + '<option>--Select Status--</option>';
+                                table = table + '<option '+approveValue+' value="Approve">Approve</option>';
+                                table = table + '<option '+unapproveValue+' value="Unapprove">Unapprove</option>';
+                                table = table + '</select>';
+                            table = table + '</td>';
+
+
+                            table = table + '<td>';
+                            if(unapproveValue=='selected'){
+                                table = table + '<textarea rows="1" class="add-scrapper-textarea form-control" id="remarks_values_'+data.task_id+'_'+key+'">'+remarksValue+'</textarea> ';
+
+                                table = table + '<button class="btn btn-image add-scrapper-remarks"  title="Send approximate" data-taskid="'+data.task_id+'" data-value="'+key+'"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>';
+                            }
+
+                            table = table + '</td>';
+                        @else   
+                            table = table + '<td>'+StatusValue+'</td>';
+
+                            table = table + '<td>';
+                            if(unapproveValue=='selected'){
+                                table = table +remarksValue;
+                            }
+                            table = table + '</td>';
+                        @endif
+                    }
+                    table = table + '</tr>';
+                });
+            }
+
+            table = table + '</table></div>';
+            $("#loading-image").hide();
+            $(".modal").css("overflow-x", "hidden");
+            $(".modal").css("overflow-y", "auto");
+            $("#dev_scrapper_statistics_content").html(table);
+        },
+        error: function(error) {
+            console.log(error);
+            $("#loading-image").hide();
+        }
+    });
+});
+
+$(document).on("change", ".add-scrapper-status", function(e) {
+
+    let task_id = $(this).data("taskid");
+    let column_name = $(this).data("value");
+    var status = $(this).val();
+
+    $.ajax({
+        url: "{{route('development.updatescrapperdata')}}",
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'column_name' :column_name,
+            'status' :status,
+        },
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $('.count-dev-scrapper_'+task_id).trigger('click');
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message);
+            } else {
+                toastr['error'](response.message);
+            }
+        }
+    }).fail(function(response) {
+        $('#loading-image').hide();
+        toastr['error'](response.responseJSON.message);
+    });
+    
+});
+
+$(document).on("click", ".add-scrapper-remarks", function() {
+
+    let task_id = $(this).data("taskid");
+    let column_name = $(this).data("value");
+    var remarks = $('#remarks_values_'+task_id+'_'+column_name).val();
+    
+    $.ajax({
+        url: "{{route('development.updatescrapperremarksdata')}}",
+        type: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'column_name' :column_name,
+            'remarks' :remarks,
+        },
+        beforeSend: function() {
+            $(this).text('Loading...');
+            $("#loading-image").show();
+        },
+        success: function(response) {
+            $("#loading-image").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message);
+            } else {
+                toastr['error'](response.message);
+            }
+        }
+    }).fail(function(response) {
+        $('#loading-image').hide();
+        toastr['error'](response.responseJSON.message);
+    });
+});
+
+$(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+    if (confirm('Are you sure, do you want to approve this task?')) {
+        event.preventDefault();
+        let type = $(this).data('type');
+        let task_id = $(this).data('task');
+        let history_id = $(this).data('id');
+        $.ajax({
+            url: "/development/time/history/approve",
+            type: "POST",
+            data: {
+                _token: "{{csrf_token()}}",
+                approve_time: history_id,
+                developer_task_id: task_id,
+                user_id: 0
+            },
+            success: function (response) {
+                toastr["success"]("Successfully approved", "success");
+                window.location.reload();
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            },
+        });
+    }
+});
+
+$(document).on("click", "#scrapper-history", function() {
+
+    var $this = $(this);
+    var task_id = $(this).data("id");
+    var scrapperid_id = $(this).data("scrapperid");
+        
+    $.ajax({
+        type: 'post',
+        url: "{{route('development.historyscrapper')}}",
+        dataType: "json",
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            'task_id' :task_id,
+            'id' :scrapperid_id
+        },
+        beforeSend: function() {
+            $("#loading-image").show();
+        },
+        success: function(data) {
+
+            $("#dev_scrapper_statistics_history").modal("show");
+            var table = `<div class="table-responsive infinite-scroll" style="overflow-y: auto">
+                <table class="table table-bordered table-striped" style="font-size:14px;">`;
+                table = table + '<tr>';
+                table = table + '<th width="10%">Title</th>';
+                table = table + '<th width="7%">Website</th>';
+                table = table + '<th width="7%">Sku</th>';
+                table = table + '<th width="5%">Url</th>';
+                table = table + '<th width="4%">Images</th>';
+                table = table + '<th width="5%">Description</th>';
+                table = table + '<th width="5%">Properties</th>';
+                table = table + '<th width="5%">Currency</th>';
+                table = table + '<th width="4%">Size System</th>';
+                table = table + '<th width="3%">Price</th>';
+                table = table + '<th width="5%">Discounted Price</th>';
+                table = table + '<th width="5%">Discounted Percentage</th>';
+                table = table + '<th width="3%">B2b Price</th>';
+                table = table + '<th width="3%">Brand</th>';
+                table = table + '<th width="3%">Is Sale</th>';
+                table = table + '<th width="7%">Date</th>';
+                table = table + '</tr>';
+            if(data.values!=''){
+                $.each(data.values, function(key, value) {
+                    table = table + '<tr>';
+                    table = table + '<td>'+value.title+'</td>';
+                    table = table + '<td>'+value.website+'</td>';
+                    table = table + '<td>'+value.sku+'</td>';
+                    table = table + '<td>'+value.url+'</td>';
+                    table = table + '<td>'+value.title+'</td>';
+                    table = table + '<td>'+value.description+'</td>';
+                    table = table + '<td>'+value.title+'</td>';
+                    table = table + '<td>'+value.currency+'</td>';
+                    table = table + '<td>'+value.size_system+'</td>';
+                    table = table + '<td>'+value.price+'</td>';
+                    table = table + '<td>'+value.discounted_price+'</td>';
+                    table = table + '<td>'+value.discounted_percentage+'</td>';
+                    table = table + '<td>'+value.b2b_price+'</td>';
+                    table = table + '<td>'+value.brand+'</td>';
+                    table = table + '<td>'+value.is_sale+'</td>';
+                    table = table + '</tr>';
+                });
+            }
+
+            table = table + '</table></div>';
+            $("#loading-image").hide();
+            $(".modal").css("overflow-x", "hidden");
+            $(".modal").css("overflow-y", "auto");
+            $("#dev_scrapper_statistics_history_content").html(table);
+        },
+        error: function(error) {
+            console.log(error);
+            $("#loading-image").hide();
+        }
+    });
+});
+</script>
 @endsection

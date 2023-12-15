@@ -56,6 +56,7 @@ use App\Models\Tasks\TaskHistoryForStartDate;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\UserAvaibility;
+use App\Models\DataTableColumn;
 
 class TaskModuleController extends Controller
 {
@@ -308,20 +309,28 @@ class TaskModuleController extends Controller
 
         $task_statuses = TaskStatus::all();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'task-listing')->first();
+
+        $dynamicColumnsToShowTask = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowTask = json_decode($hideColumns, true);
+        }
+
         if ($request->ajax()) {
             if ($type == 'pending') {
-                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader', 'dynamicColumnsToShowTask'));
             } elseif ($type == 'statutory_not_completed') {
-                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+                return view('task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader', 'dynamicColumnsToShowTask'));
             } elseif ($type == 'completed') {
-                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+                return view('task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader', 'dynamicColumnsToShowTask'));
             } else {
-                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+                return view('task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader', 'dynamicColumnsToShowTask'));
             }
         }
 
         if ($request->is_statutory_query == 3) {
-            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader'));
+            return view('task-module.discussion-tasks', compact('data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'isTeamLeader', 'dynamicColumnsToShowTask'));
         } else {
             $taskStatusData = TaskStatus::get();
 
@@ -329,8 +338,29 @@ class TaskModuleController extends Controller
             $selectStatusList = $taskStatusData->pluck('id')->toArray();
             $taskstatus = $taskStatusData;
 
-            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader'));
+            return view('task-module.show', compact('taskstatus', 'data', 'users', 'selected_user', 'category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority', 'openTask', 'type', 'title', 'task_statuses', 'statuseslist', 'selectStatusList', 'isTeamLeader', 'dynamicColumnsToShowTask'));
         }
+    }
+
+    public function taskColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','task-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'task-listing';
+            $column->column_name = json_encode($request->column_task); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'task-listing';
+            $column->column_name = json_encode($request->column_task); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function indexModules(Request $request)
@@ -2517,6 +2547,37 @@ class TaskModuleController extends Controller
     }
 
     public function createMultipleTaskFromSortcutPostman(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function createMultipleTaskFromSortcutDevOops(Request $request)
     {
         try {
             $this->validate(

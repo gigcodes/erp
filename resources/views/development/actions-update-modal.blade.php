@@ -10,124 +10,130 @@
                 $cls_1 = 'col-md-8';
                 $cls_2 = 'col-md-4';
                 ?>
-                <div class="row">
+
+                <style type="text/css">
+                   .popupModalInfo .col-md-4, .popupModalInfo .col-md-3{ border: 1px solid #eee;    border-radius: 10px;    margin: 10px 10px;}
+                </style>
+                <div class="row popupModalInfo">
                     <div class="col-md-4">
-                        <label>Estimated Time: [In Minutes]</label>
-                        <div class="form-group">
-                            <input type="number" class="form-control" name="estimate_minutes" value="" min="1" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Estimated Time: [In Minutes]</label>
+                                <div class="form-group">
+                                    <input type="number" class="form-control" name="estimate_minutes" value="" min="1" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Remark:</label>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="remark" rows="4"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Actions</label>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_minutes')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default show-time-history"><i class="fa fa-list" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
                         </div>
+                   
+
+                        <?php 
+                        if (isAdmin()) { ?>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Lead Estimated Time: [In Minutes]</label>
+                                    <div class="form-group">
+                                        <input type="number" class="form-control" name="lead_estimate_time" value="" min="1" />
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Remark:</label>
+                                    <div class="form-group">
+                                        <textarea class="form-control" name="lead_remark" rows="4"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Actions</label>
+                                    <div class="form-group">
+                                        <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('lead_estimate_time')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                        <button type="button" class="btn btn-default show-lead-time-history"><i class="fa fa-list" aria-hidden="true"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php 
+                        } ?>
                     </div>
+
                     <div class="col-md-4">
-                        <label>Remark:</label>
-                        <div class="form-group">
-                            <textarea class="form-control" name="remark" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_minutes')">Update</button>
-                            <button type="button" class="btn btn-default show-time-history">History</button>
-                        </div>
-                    </div>
-                </div>
-
-                <hr />
-
-                <?php if (isAdmin()) { ?>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label>Lead Estimated Time: [In Minutes]</label>
-                            <div class="form-group">
-                                <input type="number" class="form-control" name="lead_estimate_time" value="" min="1" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Estimated Start Datetime:</label>
+                                <div class="form-group">
+                                    <div class='input-group date cls-start-due-date'>
+                                        <input type="text" class="form-control" name="start_date" value="" />
+                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Actions</label>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')"><i class="fa fa-list" aria-hidden="true"></i></button>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <label>Remark:</label>
-                            <div class="form-group">
-                                <textarea class="form-control" name="lead_remark" rows="2"></textarea>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Estimated End Datetime: [Due Date]</label>
+                                <div class="form-group">
+                                    <div class='input-group date cls-start-due-date'>
+                                        <input type="text" class="form-control" name="estimate_date" value="" />
+                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="{{$cls_2}}">
-                            <label>Actions</label>
-                            <div class="form-group">
-                                <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('lead_estimate_time')">Update</button>
-                                <button type="button" class="btn btn-default show-lead-time-history">History</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr />
-                <?php } ?>
-
-                <div class="row">
-                    <div class="{{$cls_1}}">
-                        <label>Estimated Start Datetime:</label>
-                        <div class="form-group">
-                            <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="start_date" value="" />
-                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                            <div class="col-md-12">
+                                <label>Actions</label>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_date')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('estimate_date')"><i class="fa fa-list" aria-hidden="true"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('start_date')">Update</button>
-                            <button type="button" class="btn btn-default" onclick="funTaskHistories('start_date')">History</button>
-                        </div>
-                    </div>
-                </div>
-
-                <hr />
-
-                <div class="row">
-                    <div class="{{$cls_1}}">
-                        <label>Estimated End Datetime: [Due Date]</label>
-                        <div class="form-group">
-                            <div class='input-group date cls-start-due-date'>
-                                <input type="text" class="form-control" name="estimate_date" value="" />
-                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    
+                    <div class="col-md-3">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Cost:</label>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="cost" value="" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Actions</label>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')"><i class="fa fa-list" aria-hidden="true"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('estimate_date')">Update</button>
-                            <button type="button" class="btn btn-default" onclick="funTaskHistories('estimate_date')">History</button>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Actual Start Time:</label>
+                                <div class="form-group cls-actual_start_date"></div>
+                            </div>
+                            <div class="col-md-12">
+                                <label>Actual End Time:</label>
+                                <div class="form-group cls-actual_end_date"></div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <hr />
-
-                <div class="row">
-                    <div class="{{$cls_1}}">
-                        <label>Cost:</label>
-                        <div class="form-group">
-                            <input type="text" class="form-control" name="cost" value="" />
-                        </div>
-                    </div>
-                    <div class="{{$cls_2}}">
-                        <label>Actions</label>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="funTaskInformationUpdates('cost')">Update</button>
-                            <button type="button" class="btn btn-default" onclick="funTaskHistories('cost')">History</button>
-                        </div>
-                    </div>
-                </div>
-
-                <hr />
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <label>Actual Start Time:</label>
-                        <div class="form-group cls-actual_start_date"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Actual End Time:</label>
-                        <div class="form-group cls-actual_end_date"></div>
                     </div>
                 </div>
             </div>
@@ -149,9 +155,9 @@
                 </div>
                 <div class="modal-body"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)">Save</button>
-                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)">History</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)" title="Save"><i class="fa fa-bookmark" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)" title="History"><i class="fa fa-list" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" title="Close"><i class="fa fa-window-close" aria-hidden="true"></i></button>
                 </div>
             </form>
         </div>
@@ -344,7 +350,7 @@
 
     function funTaskHistories(type) {
         if (type == 'start_date' || type == 'estimate_date' || type == 'cost') {
-            siteLoader(1);
+            //siteLoader(1);
             let mdl = jQuery('#modalTaskHistories');
             mdl.find('input[name="type"]').val(type);
 
@@ -373,10 +379,10 @@
             }).done(function(response) {
                 mdl.find('.modal-body').html(response.data);
                 mdl.modal('show');
-                siteLoader(0);
+                //siteLoader(0);
             }).fail(function(err) {
                 siteLoader(0);
-                siteErrorAlert(err);
+                //siteErrorAlert(err);
             });
         }
     }
