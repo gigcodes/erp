@@ -92,7 +92,7 @@ class CompositionsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function compositionsListing(Request $request)
+    public function compositionsGroups(Request $request)
     {
         $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with')->toArray();
         return view('compositions.listing', compact('listcompostions'));
