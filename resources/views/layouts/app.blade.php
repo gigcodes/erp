@@ -4552,6 +4552,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/devoops">Dev Oops</a>
+                                    </li>
                                 </ul>
                             </li>
 
