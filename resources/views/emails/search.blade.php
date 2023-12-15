@@ -139,6 +139,10 @@
         <a href="{{  route('simulator.message.list', ['object' => 'customer', 'object_id' =>  $email->supplier_id]) }}"
            title="Load messages"><i style="color: #757575c7;" class="fa fa-file-text-o" aria-hidden="true"></i></a>
       @endif
+
+      <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="createVendorPopup('{{ $email->from }}')">
+            <i style="color: #757575c7;" class="fa fa-user-plus" aria-hidden="true"></i>
+        </button>
   </td>
 </tr>
 @endforeach

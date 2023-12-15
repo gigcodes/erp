@@ -1888,5 +1888,13 @@
     $('.reply-message-textarea').text(reply);
   }
 
+  function createVendorPopup(email) {
+      var username = email.split('@')[0];
+
+      $('#vendorShortcutCreateModal #popup_email').val(email);
+      $('#vendorShortcutCreateModal #popup_gmail').val(email);
+      $('#vendorShortcutCreateModal #popup_name').val(username);
+      $('#create-vendor-id').trigger('click');
+  }
 </script>
 @endsection
