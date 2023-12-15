@@ -677,6 +677,31 @@ class CategoryController extends Controller
         ]);
     }
 
+    public function newCategoryReferenceGroup(Request $request){
+        $categoryAll = Category::with('childs.childLevelSencond')
+        ->where('title', 'NOT LIKE', '%Unknown Category%')
+        ->where('magento_id', '!=', '0')
+        ->get();
+
+        $categoryArray = [];
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
+            $childs = $category->childs;
+            foreach ($childs as $child) {
+                $categoryArray[] = ['id' => $child->id, 'value' => $child->title];
+                $grandChilds = $child->childLevelSencond;
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $grandChild->title];
+                    }
+                }
+            }
+        }
+
+        return view('category.new-reference-group', ['categoryAll' => $categoryArray]);
+
+    }
+
     public function newCategoryReferenceIndex(Request $request)
     {
         $users = [];
