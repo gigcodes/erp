@@ -47,7 +47,7 @@
                         <input type="hidden" name="developer_task_id" id="developer_task_id">
 
                         <div id="time_history_div" class="col-md-12">
-                            <table class="table">
+                            <table class="table table table-bordered" style="font-size: 14px;">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -68,15 +68,15 @@
                 <div class="modal-footer1 mx-5 d-flex justify-content-between" style="margin-bottom:10px;">
                     <div class="b">
                         @if(\Auth::user()->isAdmin())
-                        <button type="button" class="btn btn-secondary remind_btn">Remind</button>
-                        <button type="button" class="btn btn-secondary revise_btn">Revise</button>
+                        <button type="button" class="btn btn-secondary remind_btn" title="Remind"><i class="fa fa-bell-o" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-secondary revise_btn" title="Revise"><i class="fa fa-repeat" aria-hidden="true"></i></button>
                         @endif
-                        <button type="button" class="btn btn-secondary approved_history" title="Approve History"> History</button>
+                        <button type="button" class="btn btn-secondary approved_history" title="Approve History" title="History"><i class="fa fa-list" aria-hidden="true"></i></button>
                     </div>
                     <div class="a">
-                        <button type="button" class="btn btn-default close_btn" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default close_btn" data-dismiss="modal" title="Close"><i class="fa fa-window-close" aria-hidden="true"></i></button>
                         <?php if (auth()->user()->isReviwerLikeAdmin() || isAdmin()) { ?>
-                            <button type="submit" class="btn btn-secondary confirm_btn">Confirm</button>
+                            <button type="submit" class="btn btn-secondary confirm_btn" title="Confirm"><i class="fa fa-check" aria-hidden="true"></i></button>
                         <?php } ?>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" title="Close"><i class="fa fa-window-close" aria-hidden="true"></i></button>
             </div>
             </form>
         </div>
