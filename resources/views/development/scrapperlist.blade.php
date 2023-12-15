@@ -36,12 +36,40 @@
     }
 
     .tablescrapper .btn-sm{padding: 2px;}
+    .tablescrapper td{color: grey;font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;font-size: 14px;}
     /* END - DEVTASK-4359*/
 </style>
 @section('content')
 
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <div class="row">
+                <div class="col-lg-12 margin-tb pr-0">
+                    <h2 class="page-heading">Scrapper Verification Data <button type="button" class="btn custom-button float-right ml-10" data-toggle="modal" data-target="#scrapperdatatablecolumnvisibilityList">Column Visiblity</button></h2>
+                    <div class="pull-left cls_filter_box">
+                        {{Form::model( [], array('method'=>'get', 'class'=>'form-inline')) }}
+
+                            <div class="form-group ml-3 cls_filter_inputbox">
+                                {{Form::text('keywords', @$inputs['keywords'], array('class'=>'form-control', 'placeholder'=>'Enter Keywords'))}}
+                            </div>
+
+                            <div class="form-group  cls_filter_inputbox">
+                                <button type="submit" class="btn custom-button ml-3" style="width:100px">Search</button>
+                            </div>
+
+                            <div class="form-group  cls_filter_inputbox">
+                                <button type="button" class="btn custom-button ml-3 reset" style="width:100px">Reset</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="mt-3 col-md-12 tablescrapper">
     	<div class="infinite-scroll" style="overflow-y: auto">
@@ -225,7 +253,20 @@
                         @if(!empty($dynamicColumnsToShowscrapper))
                             <tr>
                                 @if (!in_array('Id', $dynamicColumnsToShowscrapper))
-                                    <td>{{ $record['max_id'] }}</td>
+                                    <td>
+                                        {{ $record['max_id'] }}
+                                        </br>
+
+                                        @php
+                                            $ScrapperValuesHistoryCount = App\Models\ScrapperValuesHistory::where('task_id', $record['task_id'])->where('status', 'Approve')->count();
+
+                                            $checkBoX = '';
+                                            if($ScrapperValuesHistoryCount==20){
+                                                $checkBoX = 'checked';
+                                            }
+                                        @endphp
+                                        <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
+                                    </td>
                                 @endif
 
                                 @if (!in_array('Task Id', $dynamicColumnsToShowscrapper))
@@ -521,7 +562,21 @@
                             </tr>
                         @else  
                             <tr>
-								<td>{{ $record['max_id'] }}</td>
+								<td>
+                                    {{ $record['max_id'] }}
+                                    </br>
+
+                                    @php
+                                        $ScrapperValuesHistoryCount = App\Models\ScrapperValuesHistory::where('task_id', $record['task_id'])->where('status', 'Approve')->count();
+
+                                        $checkBoX = '';
+                                        if($ScrapperValuesHistoryCount==20){
+                                            $checkBoX = 'checked';
+                                        }
+                                    @endphp
+
+                                    <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
+                                </td>
                                 <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
                                     <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
                                     <span style="word-break:break-all;" class="show-full-task_id-{{$i}} hidden">#DEVTASK-{{ $record['task_id'] }}</span>
@@ -933,6 +988,7 @@ $(document).on("click", ".update-scrapper-status-data", function(e) {
                 form[0].reset();
                 toastr['success'](response.message);
                 $("#update-scrapper-status-modal").modal("hide");
+                location.reload();
             } else {
                 toastr['error'](response.message);
             }
@@ -1000,5 +1056,90 @@ function changeStatus(value){
     }
     
 }
+
+$(document).ready(function() {
+    // Attach change event handler to the checkbox
+    $('#approveAll').change(function() {
+
+        var dataIdValue = $(this).data('id');
+
+        // Check if the checkbox is checked
+        if ($(this).is(':checked')) {
+
+            var confirmed = confirm('Are you sure you want to approved the values?');
+
+            if (confirmed) {
+
+                $.ajax({
+                    url: "{{route('development.updateallstatusdata')}}",
+                    type: 'POST',
+                    headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        'scrapper_id' : dataIdValue,
+                        'type' : 1
+                    },
+                    beforeSend: function() {
+                        $(this).text('Loading...');
+                        $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+                        if (response.status == true) {
+                            location.reload();
+                            toastr['success'](response.message);
+                        } else {
+                            toastr['error'](response.message);
+                        }
+                    }
+                }).fail(function(response) {
+                    $("#loading-image").hide();
+                    toastr['error'](response.responseJSON.message);
+                });
+
+            } else {    
+                $('.approveAll_'+dataIdValue).prop('checked', false);
+            }
+        } else {
+
+            var confirmed = confirm('Are you sure you want to remove the updated status?');
+
+            if (confirmed) {
+
+                $.ajax({
+                    url: "{{route('development.updateallstatusdata')}}",
+                    type: 'POST',
+                    headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        'scrapper_id' : dataIdValue,
+                        'type' : 2
+                    },
+                    beforeSend: function() {
+                        $(this).text('Loading...');
+                        $("#loading-image").show();
+                    },
+                    success: function(response) {
+                        $("#loading-image").hide();
+                        if (response.status == true) {
+                            location.reload();
+                            toastr['success'](response.message);
+                        } else {
+                            toastr['error'](response.message);
+                        }
+                    }
+                }).fail(function(response) {
+                    $("#loading-image").hide();
+                    toastr['error'](response.responseJSON.message);
+                });
+
+            } else {    
+                $('.approveAll_'+dataIdValue).prop('checked', true);
+            }
+        }        
+    });
+});
 </script>
 @endsection

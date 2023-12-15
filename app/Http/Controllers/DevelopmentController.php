@@ -5801,8 +5801,16 @@ class DevelopmentController extends Controller
                     ['task_id' => $request->task_id, 'column_name' => $request->column_name], $input
                 );
             }
+
+            $task = DeveloperTask::find($request->task_id);
+            $task->status = 'Scrapper Data Unapproved';
+            $task->save();
+        } else {
+            $task = DeveloperTask::find($request->task_id);
+            $task->status = 'Scrapper Data Approved';
+            $task->save();
         }
-      
+
         return response()->json(
             [
                 'code' => 200,
@@ -6070,5 +6078,94 @@ class DevelopmentController extends Controller
             'records' => $records,
             'dynamicColumnsToShowscrapper' => $dynamicColumnsToShowscrapper,
         ]);
+    }
+
+    public function developmentUpdateAllScrapperStatusData(Request $request)
+    {   
+
+        $recordsScrapper = ScrapperValues::where('id', $request->scrapper_id)->first();
+
+        if(!empty($recordsScrapper)){            
+
+            if($request->type==1){
+                $jsonString = $recordsScrapper['scrapper_values'];
+                $phpArray = json_decode($jsonString, true);
+                if(!empty($phpArray)){
+
+                    if(!empty($phpArray)){
+
+                        foreach ($phpArray as $key_json => $value_json) {
+                            
+
+                            if($key_json=='properties'){
+                                if(!empty($value_json)){
+                                    foreach ($value_json as $key => $value) {
+
+                                        $ScrapperValuesHistory = ScrapperValuesHistory::where('column_name', $key)->where('task_id', $recordsScrapper['task_id'])->first();
+                                        
+                                        if(empty($ScrapperValuesHistory)){
+                                            $ScrapperValuesHistoryNew = new ScrapperValuesHistory;
+                                            $ScrapperValuesHistoryNew->status = 'Approve';
+                                            $ScrapperValuesHistoryNew->column_name = $key;
+                                            $ScrapperValuesHistoryNew->updated_by =  auth()->user()->id;
+                                            $ScrapperValuesHistoryNew->task_id =  $recordsScrapper['task_id'];
+                                            $ScrapperValuesHistoryNew->save();
+                                        } else {
+                                            $ScrapperValuesHistory->status = 'Approve';
+                                            $ScrapperValuesHistory->updated_by =  auth()->user()->id;
+                                            $ScrapperValuesHistory->save();
+                                        }
+
+                                        ScrapperValuesRemarksHistory::where('column_name', $key)->where('task_id', $recordsScrapper['task_id'])->delete();
+                                    }
+                                }
+                            } else {
+
+                                $ScrapperValuesHistory = ScrapperValuesHistory::where('column_name', $key_json)->where('task_id', $recordsScrapper['task_id'])->first();
+
+                                if(empty($ScrapperValuesHistory)){
+                                    $ScrapperValuesHistoryNew = new ScrapperValuesHistory;
+                                    $ScrapperValuesHistoryNew->status = 'Approve';
+                                    $ScrapperValuesHistoryNew->column_name = $key_json;
+                                    $ScrapperValuesHistoryNew->updated_by =  auth()->user()->id;
+                                    $ScrapperValuesHistoryNew->task_id =  $recordsScrapper['task_id'];
+                                    $ScrapperValuesHistoryNew->save();
+                                } else {
+                                    $ScrapperValuesHistory->status = 'Approve';
+                                    $ScrapperValuesHistory->updated_by =  auth()->user()->id;
+                                    $ScrapperValuesHistory->save();
+                                }
+
+                                ScrapperValuesRemarksHistory::where('column_name', $key_json)->where('task_id', $recordsScrapper['task_id'])->delete();
+                            }
+                        }
+
+                        $task = DeveloperTask::find($recordsScrapper['task_id']);
+                        $task->status = 'Scrapper Data Approved';
+                        $task->save();
+                    }                   
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Scrapper values status updated.',
+                ], 200);
+            } else {
+
+                ScrapperValuesHistory::where('task_id', $recordsScrapper['task_id'])->delete();
+                ScrapperValuesRemarksHistory::where('task_id', $recordsScrapper['task_id'])->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Scrapper values status updated.',
+                ], 200);
+
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Scrapper values status updated.',
+        ], 200);
     }
 }
