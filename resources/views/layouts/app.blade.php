@@ -1556,7 +1556,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
                                         <span><i class="fa fa fa-user-plus fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
@@ -4551,6 +4551,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
+                                    </li>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/scrap/scrap-links">Scrap Links</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/devoops">Dev Oops</a>
                                     </li>
                                 </ul>
                             </li>
