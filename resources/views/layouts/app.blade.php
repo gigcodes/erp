@@ -1556,7 +1556,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
                                         <span><i class="fa fa fa-user-plus fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
