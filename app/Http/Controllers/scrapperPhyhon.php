@@ -170,13 +170,16 @@ class scrapperPhyhon extends Controller
         $oldDate = null;
         $count = 0;
         $images = [];
+        $website_id = 0;
 
         $categories = \App\SiteDevelopmentCategory::orderBy('title', 'asc')->get();
         $webStore = \App\WebsiteStore::where('id', $store_id)->first();
-        $list = Website::where('id', $webStore->website_id)->first();
-        $website_id = $list->id;
-
+    
         if ($webStore) {
+
+            $list = Website::where('id', $webStore->website_id)->first();
+            $website_id = $list->id;
+
             $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
 
             if ($website_store_views) {
@@ -215,7 +218,7 @@ class scrapperPhyhon extends Controller
         } else {
             $view_path = 'scrapper-phyhon.list-image-products';
         }
-
+        
         return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate'));
     }
 
