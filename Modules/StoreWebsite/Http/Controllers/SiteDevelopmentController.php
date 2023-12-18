@@ -21,6 +21,7 @@ use Illuminate\Routing\Controller;
 use App\SiteDevelopmentArtowrkHistory;
 use App\SiteDevelopmentMasterCategory;
 use App\SiteDevelopmentCategoryBuilderIoHistory;
+use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SiteDevelopmentController extends Controller
@@ -277,14 +278,23 @@ class SiteDevelopmentController extends Controller
         $users = User::select('id', 'name')->whereIn('id', $userIDs)->get();
         $store_websites = StoreWebsite::pluck('title', 'id')->toArray();
 
+        $sd_create_task_user = \App\Models\SiteDevelopmentCreateTaskUsres::where('id', 1)->first();
+
+        $login_user_id = Auth::user()->id;
+
+        $user_ids = [];
+        if($sd_create_task_user->user_ids!=''){
+            $user_ids = explode(",",$sd_create_task_user->user_ids);
+        }
+
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'users_all', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers', 'store_websites'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('input', 'masterCategories', 'categories', 'users', 'website', 'users_all', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers', 'store_websites', 'user_ids', 'login_user_id'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'users_all', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers', 'store_websites', 'designDevCategories', 'filter_category'));
+        return view('storewebsite::site-development.index', compact('input', 'masterCategories', 'categories', 'users', 'users_all', 'website', 'allStatus', 'ignoredCategory', 'statusCount', 'allUsers', 'store_websites', 'designDevCategories', 'filter_category', 'user_ids', 'login_user_id'));
     }
 
     public function SendTask(Request $request)
@@ -1345,5 +1355,32 @@ class SiteDevelopmentController extends Controller
             'message' => 'History get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function createTaskUsers(Request $request)
+    {   
+        $post = $request->all();
+        $validator = Validator::make($post, [
+            'user_ids' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . '<br>';
+                }
+            }
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
+        }
+
+        $siteDevHiddenCat = \App\Models\SiteDevelopmentCreateTaskUsres::updateOrCreate(
+            ['id' => 1],
+            ['user_ids' => implode(",",$request->user_ids)]
+        );
+
+        return redirect()->back()->with('success', 'Updated successfully');
     }
 }
