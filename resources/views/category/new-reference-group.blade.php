@@ -35,7 +35,7 @@
     @endif
 </div>
 <div class="row change-data">
-  <div class="col-md-12 mt-3 pl-4 compositions">
+  <div class="col-md-12 mt-3 pl-4 category">
     <div class="col-md-12">
       <div class="col-md-12 d-flex align-items-center p-1">
           <div class="col-md-3 p-1">
@@ -55,16 +55,16 @@
               </div>
           </div>
           <div class="form-group">
-              <button type="submit" class="btn btn-default ml-2 small-field-btn compositions " id="searchButton"><i class="fa fa-search"></i></button>
+              <button type="submit" class="btn btn-default ml-2 small-field-btn category" id="searchButton"><i class="fa fa-search"></i></button>
           </div>
       </div>
   </div>
   </div>
 </div>  
 <div class="row">
-    <div class="col-md-12 ml-1 compositions">
+    <div class="col-md-12 ml-1 category">
     <div class="table-responsive mt-3">
-      <table class="table table-compositions" id="table-compositions">
+      <table class="table table-new-references-group" id="table-new-references-group">
         <thead>
           <tr>
             <th>ID</th>
@@ -80,7 +80,7 @@
             		{{$key+1}}
             	</td>
               <td>
-                {{ $cron['value'] }}
+                {{ $cron[0] }}
               </td>
               <td>
                 <select name="Searchdropdown" id="Searchdropdown-{{$key+1}}" class="form-control change-list-compostion select2">
@@ -92,9 +92,8 @@
                 </select>
               </td>
               <td>
-                  <a href="javascript:;" data-id="{{$key+1}}" data-name="{{$cron['value']}}" class="btn btn-secondary btn-sm" onclick="redirectToPage(this)">View</a>
-                | <a href="javascript:;" data-r="{{ $cron['value'] }}" data-toggle="modal" data-target="#deleteConfirmationModal" class="btn btn-secondary btn-sm btn-run-command">Delete</button></a>
-            </tr>
+                  <a href="javascript:;" data-id="{{$key+1}}" data-name="{{$cron[0]}}" class="btn btn-secondary btn-sm" onclick="redirectToPage(this)">View</a>
+           </tr>
             @endforeach
         </tbody>
       </table>
@@ -104,30 +103,39 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
-<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteConfirmationModalLabel">Delete Confirmation</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            Are you sure you want to delete this item : <strong><span id="cron-value"></span></strong>?
-          </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" onclick="deleteItem()">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
 @endsection
 
 @section('scripts')
 
     <script>
-    
+         $(document).ready(function() {
+
+          $('#table-new-references-group').DataTable();
+            // Handle button click
+            $('#searchButton').on('click', function() {
+              $("#loading-image").show();
+              var keywordValue = $('#name').val().trim();
+              var dropdownValue = $('#Searchdropdownsearch').val();
+              if(keywordValue == ''){
+                  toastr['error']('Sorry, Pleaase Enter keyword', 'error');
+                  $("#loading-image").hide();
+              }else{
+                var redirectUrl = '/category/group/' + keywordValue + '/' + dropdownValue;
+                window.location.href = redirectUrl;
+              }
+              
+            });
+        });
+            
+        function redirectToPage(element) {
+          $("#loading-image").show();
+          var dataId = element.getAttribute('data-id');
+          var selectedValue = $('#Searchdropdown-'+dataId).val();
+          var dataName = element.getAttribute('data-name');
+          var redirectUrl = '/category/group/' + dataName + '/' + selectedValue;
+          window.location.href = redirectUrl;
+      }
+
+
     </script>
 @endsection

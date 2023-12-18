@@ -1355,6 +1355,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('category/new-references', [CategoryController::class, 'newCategoryReferenceIndex']);
     Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
+    Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
     Route::post('category/new-references/save-category', [CategoryController::class, 'saveCategoryReference']);
     Route::get('category/fix-autosuggested', [CategoryController::class, 'fixAutoSuggested'])->name('category.fix-autosuggested');
     Route::get('category/fix-autosuggested-string', [CategoryController::class, 'fixAutoSuggestedString'])->name('category.fix-autosuggested-via-str');
