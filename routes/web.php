@@ -3793,6 +3793,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::resource('gmail', GmailDataController::class);
     Route::resource('designer', DesignerController::class);
     Route::resource('sales', SalesItemController::class);
+    Route::get('/scrap-links', [ScrapController::class, 'scrap_links']);
     Route::get('/dubbizle', [DubbizleController::class, 'index']);
     Route::post('/dubbizle/set-reminder', [DubbizleController::class, 'updateReminder']);
     Route::post('/dubbizle/bulkWhatsapp', [DubbizleController::class, 'bulkWhatsapp'])->name('dubbizle.bulk.whatsapp');
