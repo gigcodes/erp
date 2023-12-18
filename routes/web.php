@@ -383,6 +383,7 @@ use App\Http\Controllers\MonitStatusController;
 use App\Http\Controllers\MagentoProblemController;
 use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
+use App\Http\Controllers\DevOppsController;
 
 Auth::routes();
 
@@ -1892,6 +1893,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-multiple-task-from-shortscriptdocument', [TaskModuleController::class, 'createMultipleTaskFromScriptDocument'])->name('task.create.multiple.task.shortscriptdocument');
     Route::post('task/create-multiple-task-from-shortcutsentry', [TaskModuleController::class, 'createMultipleTaskFromSortcutSentry'])->name('task.create.multiple.task.shortcutsentry');
     Route::post('task/create-multiple-task-from-shortcutmagentoproblems', [TaskModuleController::class, 'createMultipleTaskFromSortcutMagentoProblems'])->name('task.create.multiple.task.shortcutmagentoproblems');
+    Route::post('task/create-multiple-task-from-shortcutdevoops', [TaskModuleController::class, 'createMultipleTaskFromSortcutDevOops'])->name('task.create.multiple.task.shortcutdevoops');
     Route::post('task/create-multiple-task-from-shortcutwebsitelogs', [TaskModuleController::class, 'createMultipleTaskFromSortcutWebsiteLogs'])->name('task.create.multiple.task.shortcutwebsitelogs');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
@@ -2408,6 +2410,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development-scrapper-data', [DevelopmentController::class, 'developmentGetScrapperData'])->name('development.getscrapperdata');
     Route::post('development/historyscrapper', [DevelopmentController::class, 'devScrappingTaskHistoryIndex'])->name('development.historyscrapper');
     Route::get('development/scrapperhistory/{id}', [DevelopmentController::class, 'devScrappingTaskHistory'])->name('development.scrapper_hisotry');
+    Route::post('development-scrapper-update-all-statusdata', [DevelopmentController::class, 'developmentUpdateAllScrapperStatusData'])->name('development.updateallstatusdata');
     
 
     Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
@@ -5504,6 +5507,12 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/checklist_update', [CheckListController::class, 'checklistUpdate'])->name('checklist.update.c');
     Route::post('checklist/add-remark', [CheckListController::class, 'subjectRemarkCreate'])->name('checklist.add.remark');
     Route::post('checklist/list', [CheckListController::class, 'subjectRemarkList'])->name('checklist.remark.list');
+    Route::resource('devoops', DevOppsController::class);
+    Route::delete('devoopslist/{id}', [DevOppsController::class, 'delete']);
+    Route::delete('devoopssublist/{id}', [DevOppsController::class, 'subdelete']);
+    Route::post('devoopssublist/remarks', [DevOppsController::class, 'saveRemarks'])->name('devoopssublist.saveremarks');
+    Route::post('devoopssublist/getremarks', [DevOppsController::class, 'getRemarksHistories'])->name('devoopssublist.getremarks');
+    Route::get('devoops/countdevtask/{id}', [DevOppsController::class, 'taskCount']);
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);

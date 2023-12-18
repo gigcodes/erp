@@ -52,7 +52,8 @@ class scrapperPhyhon extends Controller
                });*/
 
         $images = $images->groupBy('scraper_imags.website_id', 'store_website', DB::raw('date(scraper_imags.created_at)'));
-        $images = $images->orderByRaw('date(scraper_imags.created_at) DESC', 'store_website', 'scraper_imags.website_id');
+        //$images = $images->orderByRaw('date(scraper_imags.created_at) DESC', 'store_website', 'scraper_imags.website_id');
+        $images = $images->orderByRaw("scraper_imags.created_at DESC, store_website ASC, scraper_imags.website_id ASC");
         $images = $images->paginate(Setting::get('pagination'));
 
         foreach ($images as $image) {
