@@ -354,7 +354,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Add Stauts</h4>
+                    <h4 class="modal-title">Add Status</h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <form  method="POST" id="status-create-form">
@@ -382,7 +382,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Update Stauts</h4>
+                    <h4 class="modal-title">Update Status</h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <form  method="POST" id="status-update-form">
