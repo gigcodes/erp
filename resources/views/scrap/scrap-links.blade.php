@@ -46,8 +46,11 @@
                             <tr>
                                 <td>{{ $links->id }}</td>
                                 <td>{{ $links->website }}</td>
-                                <td>{{ $links->links }}</td>
-                                <td>{{ $links->status }}</td>
+                                <td><a href="{{ $links->links }}" target="_blank">{{ $links->links }}</a></td>
+                                <td>
+                                    {{ $links->status }}
+                                    <button type="button" data-id="{{ $links->id  }}" class="btn btn-image status-history-show p-0 ml-2 pull-right"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
+                                </td>
                                 <td>{{ $links->created_at }}</td>
                             </tr>
                         @endforeach
@@ -58,9 +61,66 @@
             </div>
         </div>
     </div>
+
+    <div id="scrap-links-status-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Status</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="scrap-links-status-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/media-card.css') }}">
 @endsection
 @section('scripts')
+
+<script>
+    // Load settings value Histories
+    $(document).on('click', '.status-history-show', function() {
+        var id = $(this).attr('data-id');
+        $.ajax({
+            method: "GET",
+            url: `{{ route('scrap_links.status.histories', [""]) }}/` + id,
+            dataType: "json",
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.status} </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#scrap-links-status-histories-list").find(".scrap-links-status-histories-list-view").html(html);
+                    $("#scrap-links-status-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+</script>
 @endsection

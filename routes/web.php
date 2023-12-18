@@ -3791,6 +3791,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::resource('designer', DesignerController::class);
     Route::resource('sales', SalesItemController::class);
     Route::get('/scrap-links', [ScrapController::class, 'scrap_links']);
+    Route::get('scrap-links/status/histories/{id}', [ScrapController::class, 'scrapLinksStatusHistories'])->name('scrap_links.status.histories');
     Route::get('/dubbizle', [DubbizleController::class, 'index']);
     Route::post('/dubbizle/set-reminder', [DubbizleController::class, 'updateReminder']);
     Route::post('/dubbizle/bulkWhatsapp', [DubbizleController::class, 'bulkWhatsapp'])->name('dubbizle.bulk.whatsapp');
