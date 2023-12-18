@@ -5866,6 +5866,27 @@ class DevelopmentController extends Controller
         ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
         ->paginate(50);
 
+        /*$records = ScrapperValues::leftJoin('scrapper_values_histories', 'scrapper_values.task_id', '=', 'scrapper_values_histories.task_id')->with('tasks');
+
+        $keywords = request('keywords');
+        if (!empty($keywords)) {
+            $records = $records->where(function ($q) use ($keywords) {
+                $q->where('scrapper_values.scrapper_values', 'LIKE', "%$keywords%")
+                    ->orWhere('scrapper_values.task_id', 'LIKE', "%$keywords%");
+            });
+        }
+
+        $records = $records->select(
+            'scrapper_values.task_id',
+            'scrapper_values.scrapper_values',
+            'scrapper_values.created_at',
+            DB::raw('MAX(scrapper_values.id) AS max_id'), // Select max ID from scrapper_values
+            DB::raw('COUNT(scrapper_values_histories.id) AS history_count') // Count records from scrapper_values_histories
+        )
+            ->groupBy('scrapper_values.task_id')
+            ->orderBy('history_count', 'DESC') // Order by the count of scrapper_values_histories records
+            ->paginate(50);*/
+
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 
         $dynamicColumnsToShowscrapper = [];

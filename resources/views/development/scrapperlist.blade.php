@@ -265,7 +265,7 @@
                                                 $checkBoX = 'checked';
                                             }
                                         @endphp
-                                        <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
+                                        <input type="checkbox" class="approveAll approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
                                     </td>
                                 @endif
 
@@ -575,7 +575,7 @@
                                         }
                                     @endphp
 
-                                    <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
+                                    <input type="checkbox" class="approveAll approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
                                 </td>
                                 <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
                                     <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
@@ -1059,7 +1059,7 @@ function changeStatus(value){
 
 $(document).ready(function() {
     // Attach change event handler to the checkbox
-    $('#approveAll').change(function() {
+    $('.approveAll').change(function() {
 
         var dataIdValue = $(this).data('id');
 
@@ -1099,7 +1099,7 @@ $(document).ready(function() {
                 });
 
             } else {    
-                $('.approveAll_'+dataIdValue).prop('checked', false);
+                $('.approveAll approveAll_'+dataIdValue).prop('checked', false);
             }
         } else {
 
@@ -1136,7 +1136,7 @@ $(document).ready(function() {
                 });
 
             } else {    
-                $('.approveAll_'+dataIdValue).prop('checked', true);
+                $('.approveAll approveAll_'+dataIdValue).prop('checked', true);
             }
         }        
     });
