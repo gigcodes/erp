@@ -5512,6 +5512,12 @@ Route::middleware('auth')->group(function () {
     Route::post('devoopssublist/remarks', [DevOppsController::class, 'saveRemarks'])->name('devoopssublist.saveremarks');
     Route::post('devoopssublist/getremarks', [DevOppsController::class, 'getRemarksHistories'])->name('devoopssublist.getremarks');
     Route::get('devoops/countdevtask/{id}', [DevOppsController::class, 'taskCount']);
+    Route::post('devoops/status/create', [DevOppsController::class, 'createStatus'])->name('devoops.status.create');
+    Route::post('devoops/statuscolor', [DevOppsController::class, 'statuscolor'])->name('devoops.statuscolor');
+    Route::post('devoops/status/update', [DevOppsController::class, 'updateStatus'])->name('devoops.status.update');
+    Route::post('devoopssublist/getstatus', [DevOppsController::class, 'getStatusHistories'])->name('devoopssublist.getstatus');
+    Route::post('devoopssublist/upload-file', [DevOppsController::class, 'uploadFile'])->name('devoopssublist.upload-file');
+    Route::get('devoopssublist/files/record', [DevOppsController::class, 'getUploadedFilesList'])->name('devoopssublist.files.record');
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);

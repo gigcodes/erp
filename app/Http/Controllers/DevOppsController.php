@@ -8,9 +8,13 @@ use App\User;
 use App\Models\DevOppsCategories;
 use App\Models\DevOppsSubCategory;
 use App\Models\DevOppsRemarks;
+use App\Models\DevOopsStatus;
+use App\Models\DevOopsStatusHistory;
 use Illuminate\Http\Request;
 use App\DeveloperTask;
 use App\Task;
+use App\Jobs\UploadGoogleDriveScreencast;
+use App\GoogleScreencast;
 
 class DevOppsController extends Controller
 {
@@ -22,7 +26,7 @@ class DevOppsController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $items = DevOppsSubCategory::with(['devoops_category']);
+            $items = DevOppsSubCategory::with(['devoops_category', 'status']);
 
             if (isset($request->category_name) && ! empty($request->category_name)) {
                 $items = DevOppsSubCategory::with(['devoops_category'])
@@ -42,7 +46,9 @@ class DevOppsController extends Controller
 
             $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
 
-            return view('dev-oops.index', ['title' => $title, 'devoops_categories' => $devoops_categories, 'allUsers' => $allUsers]);
+            $status = DevOopsStatus::all();
+
+            return view('dev-oops.index', ['title' => $title, 'devoops_categories' => $devoops_categories, 'allUsers' => $allUsers, 'status' => $status]);
         }
     }
 
@@ -162,5 +168,133 @@ class DevOppsController extends Controller
         $othertaskStatistics = $query1->get();
 
         return response()->json(['code' => 200, 'taskStatistics' => $othertaskStatistics]);
+    }
+
+    public function createStatus(Request $request)
+    {
+        try {
+            $status = new DevOopsStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $id = $request->input('id');
+        $status_name = $request->input('status_name');
+
+        $devoops = DevOppsSubCategory::find($id);
+        $history = new DevOopsStatusHistory();
+        $history->devoops_sub_category_id = $id;
+        $history->old_value = $devoops->status_id;
+        $history->new_value = $status_name;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $devoops->status_id = $status_name;
+        $devoops->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $dostatus = DevOopsStatus::find($key);
+            $dostatus->status_color = $value;
+            $dostatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function getStatusHistories(Request $request)
+    {
+        $datas = DevOopsStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('devoops_sub_category_id', $request->id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required',
+            'file_creation_date' => 'required',
+            'remarks' => 'sometimes',
+            'task_id' => 'required',
+            'file_read' => 'sometimes',
+            'file_write' => 'sometimes',
+        ]);
+
+        $data = $request->all();
+        try {
+            foreach ($data['file'] as $file) {
+                DB::transaction(function () use ($file, $data) {
+                    $googleScreencast = new GoogleScreencast();
+
+                    $googleScreencast->file_name = $file->getClientOriginalName();
+
+                    $googleScreencast->extension = $file->extension();
+                    $googleScreencast->user_id = Auth::user()->id;
+
+                    $googleScreencast->read = '';
+                    $googleScreencast->write = '';
+
+                    $googleScreencast->remarks = $data['remarks'];
+                    $googleScreencast->file_creation_date = $data['file_creation_date'];
+
+                    $googleScreencast->dev_oops_id = $data['task_id'];
+                    $googleScreencast->save();
+                    UploadGoogleDriveScreencast::dispatchNow($googleScreencast, $file);
+                });
+            }
+
+            return back()->with('success', 'File is Uploaded to Google Drive.');
+        } catch (Exception $e) {
+            \Log::error($e->getMessage());
+            return back()->with('error', 'Something went wrong. Please try again');
+        }
+    }
+
+    //dev_oops_id
+    public function getUploadedFilesList(Request $request)
+    {
+        try {
+            $result = [];
+            if (isset($request->dev_oops_id)) {
+                $result = GoogleScreencast::where('dev_oops_id', $request->dev_oops_id)->orderBy('id', 'desc')->with('user')->get();
+                if (isset($result) && count($result) > 0) {
+                    $result = $result->toArray();
+                }
+
+                return response()->json([
+                    'data' => view('dev-oops.google-drive-list', compact('result'))->render(),
+                ]);
+            } else {
+                throw new Exception('Task not found');
+            }
+        } catch (Exception $e) {
+            \Log::error($e->getMessage());
+            return response()->json([
+                'data' => view('dev-oops.google-drive-list', ['result' => null])->render(),
+            ]);
+        }
     }
 }

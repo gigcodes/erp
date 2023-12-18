@@ -15,6 +15,6 @@ class DevOppsCategories extends Model
 
     public function subcategory()
     {
-        return $this->hasMany(DevOppsSubCategory::class, 'devoops_category_id', 'id');
+        return $this->hasMany(DevOppsSubCategory::class, 'devoops_category_id', 'id', 'status_id');
     }
 }
