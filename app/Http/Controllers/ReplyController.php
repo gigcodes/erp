@@ -497,113 +497,80 @@ class ReplyController extends Controller
     public function replyTranslateList(Request $request)
     {
         $storeWebsite = $request->get('store_website_id');
-        $lang = $request->get('lang');
+        $language = $request->get('lang');
         $keyword = $request->get('keyword');
         $status = $request->get('status');
-
-        /*$replies = Reply::select('replies.id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id')
-            ->with('transalates')
-            ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
-            ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
-            ->where('model', 'Store Website')->where('replies.is_flagged', '1');*/
-
-        $replies = \App\TranslateReplies::join('replies', 'translate_replies.replies_id', 'replies.id')
-        ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
-        ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
-        ->where('model', 'Store Website')->where('replies.is_flagged', '1')
-        ->select(['replies.*', 'translate_replies.status', 'translate_replies.replies_id as replies_id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id', 'translate_replies.id as id', 'translate_replies.translate_from', 'translate_replies.translate_to', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at']);
-
-        $getLangs = \App\TranslateReplies::distinct('translate_to')->pluck('translate_to');
-
-        if ($storeWebsite > 0) {
-            $replies = $replies->where('replies.store_website_id', $storeWebsite);
-        }
-
-        if (! empty($keyword)) {
-            $replies = $replies->where(function ($q) use ($keyword) {
-                $q->orWhere('reply_categories.name', 'LIKE', '%' . $keyword . '%')->orWhere('replies.reply', 'LIKE', '%' . $keyword . '%');
-            });
-        }
-
-        if ($lang) {
-            $replies = $replies->where('translate_replies.translate_to', $lang);
-        }
-
-        if (! empty($status)) {
-            $replies = $replies->where(function ($q) use ($status) {
-                $q->orWhere('translate_replies.status', 'LIKE', $status);
-            });
-        }
-
-        $replies = $replies->get();
 
         $lang = [];
         $original_text = [];
         $ids = [];
         $translate_text = [];
 
-        /*foreach ($replies as $replie) {
+        $getLangs = \App\TranslateReplies::distinct('translate_to')->pluck('translate_to');
 
-            if(!empty($replie->transalates)){
-                $translate_text[$replie->id]['id'] = $replie->transalates[0]->translate_id;
+        if ($storeWebsite > 0 && !empty($language)) {
+
+            $replies = \App\TranslateReplies::join('replies', 'translate_replies.replies_id', 'replies.id')
+            ->leftJoin('store_websites as sw', 'sw.id', 'replies.store_website_id')
+            ->leftJoin('reply_categories', 'reply_categories.id', 'replies.category_id')
+            ->where('model', 'Store Website')->where('replies.is_flagged', '1')
+            ->select(['replies.*', 'translate_replies.status', 'translate_replies.replies_id as replies_id', 'replies.reply as original_text', 'sw.website', 'reply_categories.intent_id', 'reply_categories.name as category_name', 'reply_categories.parent_id', 'reply_categories.id as reply_cat_id', 'translate_replies.id as id', 'translate_replies.translate_from', 'translate_replies.translate_to', 'translate_replies.translate_text', 'translate_replies.created_at', 'translate_replies.updated_at']);
+
+            $replies = $replies->where('replies.store_website_id', $storeWebsite);
+
+            if (! empty($keyword)) {
+                $replies = $replies->where(function ($q) use ($keyword) {
+                    $q->orWhere('reply_categories.name', 'LIKE', '%' . $keyword . '%')->orWhere('replies.reply', 'LIKE', '%' . $keyword . '%');
+                });
             }
 
-            $translate_text[$replie->id]['website'] = $replie->website;
-            $translate_text[$replie->id]['category_name'] = $replie->category_name;
-            $translate_text[$replie->id]['original_text'] = $replie->original_text;
+            $replies = $replies->where('translate_replies.translate_to', $language);            
 
-            if(!empty($replie->transalates)){
-                $translate_text[$replie->id]['translate_from'] = $replie->transalates[0]->translate_from;
-                $translate_text[$replie->id]['created_at'] = $replie->transalates[0]->created_at;
-                $translate_text[$replie->id]['updated_at'] = $replie->transalates[0]->updated_at;
-                foreach ($replie->transalates as $key => $value) {
+            if (! empty($status)) {
+                $replies = $replies->where(function ($q) use ($status) {
+                    $q->orWhere('translate_replies.status', 'LIKE', $status);
+                });
+            }
 
-                    if (! in_array($value->translate_lang, $lang)) {
-                        $lang[$replie->id] = $value->translate_lang;
-                    }
+            $replies = $replies->get();
 
-                    $translate_text[$replie->id]['transalates'][$value->translate_lang] = $value;
+            foreach ($replies as $replie) {
+                if (! in_array($replie->replies_id, $ids)) {
+                    $ids[] = $replie->replies_id;
+
+                    $translate_text[$replie->replies_id]['id'] = $replie->id;
+                    $translate_text[$replie->replies_id]['website'] = $replie->website;
+                    $translate_text[$replie->replies_id]['category_name'] = $replie->category_name;
+                    $translate_text[$replie->replies_id]['translate_from'] = $replie->translate_from;
+                    $translate_text[$replie->replies_id]['original_text'] = $replie->original_text;
+                    
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
+                    
+                    $translate_text[$replie->replies_id]['created_at'] = $replie->created_at;
+                    $translate_text[$replie->replies_id]['updated_at'] = $replie->updated_at;
+                    
+                } else {
+
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
+                    $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
                 }
 
-            }
-        }*/
-
-        foreach ($replies as $replie) {
-            if (! in_array($replie->replies_id, $ids)) {
-                $ids[] = $replie->replies_id;
-
-                $translate_text[$replie->replies_id]['id'] = $replie->id;
-                $translate_text[$replie->replies_id]['website'] = $replie->website;
-                $translate_text[$replie->replies_id]['category_name'] = $replie->category_name;
-                $translate_text[$replie->replies_id]['translate_from'] = $replie->translate_from;
-                $translate_text[$replie->replies_id]['original_text'] = $replie->original_text;
-                
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
-                
-                $translate_text[$replie->replies_id]['created_at'] = $replie->created_at;
-                $translate_text[$replie->replies_id]['updated_at'] = $replie->updated_at;
-                
-            } else {
-
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_text'] = $replie->translate_text;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_lang'] = $replie->translate_to;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_id'] = $replie->id;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status'] = $replie->status;
-                $translate_text[$replie->replies_id]['transalates'][$replie->translate_to]['translate_status_color'] = $replie->status_color;
-            }
-
-            if (! in_array($replie->translate_to, $lang)) {
-                $lang[$replie->id] = $replie['translate_to'];
+                if (! in_array($replie->translate_to, $lang)) {
+                    $lang[$replie->id] = $replie['translate_to'];
+                }
             }
         }
 
         //$replies = json_encode($translate_text);
 
-        $itemsPerPage = 10; // Define the number of items per page
+        $itemsPerPage = 25; // Define the number of items per page
         $currentPage = $request->input('page', 1);
         $offset = ($currentPage - 1) * $itemsPerPage;
 
@@ -621,7 +588,7 @@ class ReplyController extends Controller
 
         $replyTranslatorStatuses = ReplyTranslatorStatus::all();
 
-        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs', 'totalItems', 'itemsPerPage', 'currentPage', 'totalPages'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs', 'totalItems', 'itemsPerPage', 'currentPage', 'totalPages'))->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
     public function quickRepliesPermissions(Request $request)
