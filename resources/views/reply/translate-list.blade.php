@@ -21,7 +21,7 @@
         <h2 class="page-heading">Quick Replies Translate List</h2>
         
         <div class="col-md-12 ml-sm-6">         
-            <div class="col-md-9 ml-sm-6">     
+            <div class="col-md-8 ml-sm-6">     
                 <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
                     <div class="row">
                         <div class="col-md-3 pd-sm">
@@ -60,7 +60,7 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-3 float-right">
+            <div class="col-md-4 float-right">
                 <button class="btn btn-secondary text-white" data-toggle="modal" data-target="#statusColor"> Status Color</button>
 
                 @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
