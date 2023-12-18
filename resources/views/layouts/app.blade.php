@@ -801,7 +801,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     
     @auth
         <script type="text/javascript">
-            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
+            const IS_ADMIN_USER = {{ (auth()->user()->isAdmin() === true || auth()->user()->isAdmin() === false) ? auth()->user()->isAdmin() : false }};
             const LOGGED_USER_ID = {{ auth()->user()->id}};
         </script>
     @else
