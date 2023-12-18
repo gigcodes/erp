@@ -156,7 +156,7 @@ class DevOppsController extends Controller
 
     public function taskCount($site_developement_id)
     {
-        $othertask = Task::where('site_developement_id', $site_developement_id)->where('category', 60)->whereNull('is_completed')->select();
+        $query1 = Task::where('site_developement_id', $site_developement_id)->where('category', 60)->whereNull('is_completed')->select();
         $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
