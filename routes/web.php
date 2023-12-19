@@ -384,8 +384,13 @@ use App\Http\Controllers\MagentoProblemController;
 use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
 use App\Http\Controllers\DevOppsController;
+use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
 
 Auth::routes();
+
+Route::post('global_files_and_attachments_store', [FilesAndAttachmentsController::class, 'store_data'])->name('global_files_and_attachments_store');
+
+Route::post('global_files_and_attachments', [FilesAndAttachmentsController::class, 'get_data'])->name('global_files_and_attachments');
 
 Route::prefix('youtube')->middleware('auth')->group(function () {
     Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
