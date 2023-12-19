@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\GlobalComponants;
 
 use App\Account;
+use Storage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\GlobalFilesAndAttachments;
@@ -30,7 +31,7 @@ class FilesAndAttachmentsController extends Controller
 
 	        $file = $request->file('filename');
 	        if(isset($file)){
-				$file->move(base_path('/storage/global_files_and_attachments_file'), $file->getClientOriginalName());
+				$file->move(base_path('/storage/app/global_files_and_attachments_file'), $file->getClientOriginalName());
 			}
 
 			if(isset($store['filename']))
@@ -54,4 +55,8 @@ class FilesAndAttachmentsController extends Controller
         }
 	}
 
+	public function download($filename)
+    {
+        return Storage::download('global_files_and_attachments_file/'.$filename);
+    }
 }

@@ -389,8 +389,8 @@ use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
 Auth::routes();
 
 Route::post('global_files_and_attachments_store', [FilesAndAttachmentsController::class, 'store_data'])->name('global_files_and_attachments_store');
-
 Route::post('global_files_and_attachments', [FilesAndAttachmentsController::class, 'get_data'])->name('global_files_and_attachments');
+Route::get('global_files_and_attachments_download/{filename}', [FilesAndAttachmentsController::class, 'download'])->name('global_files_and_attachments_download');
 
 Route::prefix('youtube')->middleware('auth')->group(function () {
     Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
