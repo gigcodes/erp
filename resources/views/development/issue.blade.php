@@ -294,6 +294,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 </div>
 @include("development.actions-update-modal")
 @include("development.partials.time-history-modal")
+@include('global_componants.files_and_attachments.files_and_attachments', ['module' => 'development_list'])
 
 @endsection
 @section('scripts')
@@ -1690,6 +1691,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
         $('#user_history_modal').modal('show');
     });
+
+    
+        
+
     function fetchGoogleDriveFileData(task_id) {
         if(task_id == ''){
             $('#googleDriveFileData').html('<tr><td>No Data Found.</td></tr>');

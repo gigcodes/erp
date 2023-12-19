@@ -398,7 +398,12 @@
                 <a class="btn btn-xs btn-image" title="View Drive Files" onclick="fetchGoogleDriveFileData('{{$issue->id}}')" style="margin-top:-0%;margin-left: -3%;">
                 <img width="2px;" src="/images/google-drive.png"/>
                 </a>
+
+                <a class="btn btn-xs btn-image" id="global_files_and_attachments_id" title="File video and images" onclick="GlobalFilesAndAttachments('{{$issue->id}}')" style="margin-top:-0%;margin-left: -3%;">
+                <img width="2px;" src="/images/attach.png"/>
+                </a>
                 <br>
+
                 <div class="td-full-container hidden">
                     <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
                     <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>

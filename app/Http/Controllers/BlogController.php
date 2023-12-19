@@ -209,7 +209,7 @@ class BlogController extends Controller
 
         $users = User::get();
         $store_website = \App\StoreWebsite::all();
-        //         $allTag = Tag::get()->toArray();
+        // $allTag = Tag::get()->toArray();
         // $tagName = array_column($allTag, 'tag');
 
         // $tagName = implode(",", $tagName);
