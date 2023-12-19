@@ -31,12 +31,12 @@ class FilesAndAttachmentsController extends Controller
 
 	        $file = $request->file('filename');
 	        if(isset($file)){
-				$file->move(base_path('/storage/app/global_files_and_attachments_file'), $file->getClientOriginalName());
+				$file->move(base_path('/storage/app/global_files_and_attachments_file'), time()."_".$file->getClientOriginalName());
 			}
 
 			if(isset($store['filename']))
 			{
-				$filename = $store['filename']->getClientOriginalName();
+				$filename = time()."_".$store['filename']->getClientOriginalName();
 			} else {
 				$filename = '';
 			}
