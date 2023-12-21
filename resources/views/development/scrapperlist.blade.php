@@ -348,8 +348,8 @@
                                 @if (!in_array('Url', $dynamicColumnsToShowscrapper))
                                     <td class="expand-row-msg" data-name="url" data-id="{{$i}}">
                                         @if(!empty($returnData['url']))
-                                            <span class="show-short-url-{{$i}}">{{ Str::limit($returnData['url'], 10, '...')}}</span>
-                                            <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden">{{ $returnData['url'] }}</span>
+                                            <span class="show-short-url-{{$i}}"><a target="_blank" href="{{$returnData['url']}}">{{ Str::limit($returnData['url'], 10, '...')}}</a></span>
+                                            <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden"><a target="_blank" href="{{$returnData['url']}}">{{ $returnData['url'] }}</a></span>
                                         @endif
 
                                         @include('development.partials.dynamic-column', ['columnname' => 'url', 'taskss_id' => $record['task_id']])
@@ -622,8 +622,8 @@
                                 </td>
                                 <td class="expand-row-msg" data-name="url" data-id="{{$i}}">
                                     @if(!empty($returnData['url']))
-                                        <span class="show-short-url-{{$i}}">{{ Str::limit($returnData['url'], 10, '...')}}</span>
-                                        <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden">{{ $returnData['url'] }}</span>
+                                        <span class="show-short-url-{{$i}}"><a target="_blank" href="{{$returnData['url']}}">{{ Str::limit($returnData['url'], 10, '...')}}</a></span>
+                                        <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden"><a target="_blank" href="{{$returnData['url']}}">{{ $returnData['url'] }}</a></span>
                                     @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'url', 'taskss_id' => $record['task_id']])
