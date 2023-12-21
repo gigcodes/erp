@@ -7,6 +7,7 @@ use App\BusinessPost;
 use App\BusinessComment;
 use App\GoogleTranslate;
 use App\SocialWebhookLog;
+use App\Reply;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 
@@ -107,5 +108,13 @@ class SocialAccountCommentController extends Controller
 
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
     }
 }

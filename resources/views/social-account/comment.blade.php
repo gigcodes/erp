@@ -399,30 +399,13 @@ var siteHelpers = {
         }
     },
     changeQuickComment : function (ele) {
-        $('#getMsg'+ele.attr('data-id')).val(ele.val());
-
-        var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
-        var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
-
-        $("#reply-message").val(senderName)
-
-        $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: userEmaillUrl,
-            type: 'get',
-        }).done( function(response) {
-            $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
-        }).fail(function(errObj) {
-        })
-        
+        $('#textareaBox_'+ele.attr('data-id')).val(ele.val());        
     },
     changeQuickSubCategory : function (ele) {
         var selectedOption = ele.find('option:selected');
         var dataValue = selectedOption.data('id');
 
-        var userEmaillUrl = '/email/email-replise/'+dataValue;
+        var userEmaillUrl = '/social/email-replise/'+dataValue;
 
         $.ajax({        
             headers: {
