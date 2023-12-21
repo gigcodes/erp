@@ -1373,6 +1373,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('category', CategoryController::class)->except('show');
     Route::resource('category-segment', CategorySegmentController::class);
 
+    Route::get('resourceimg/searchimg', [ResourceImgController::class, 'searchResourceimg'])->name('resourceimg.searchimg');
     Route::resource('resourceimg', ResourceImgController::class);
     Route::get('resourceimg/pending/1', [ResourceImgController::class, 'pending']);
     Route::post('add-resource', [ResourceImgController::class, 'addResource'])->name('add.resource');
