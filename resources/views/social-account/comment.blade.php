@@ -37,7 +37,18 @@ overflow-x: auto !important;
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <form class="form-inline" method="GET">
+                <div class="form-group">
+                    <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                </div>
+                <br>
+                <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
+            </form>
+        </div>
     </div>
     <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id ?? '' }}">
     <div class="mt-3">
