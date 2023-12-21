@@ -6072,7 +6072,8 @@ class DevelopmentController extends Controller
 
         $recordsSingle = ScrapperValues::where('id', $id)->first();
 
-        $records = ScrapperValues::with('tasks')->where('id', "!=", $id)->where("task_id", $recordsSingle['task_id']);
+        //$records = ScrapperValues::with('tasks')->where('id', "!=", $id)->where("task_id", $recordsSingle['task_id']);
+        $records = ScrapperValues::with('tasks')->where("task_id", $recordsSingle['task_id'])->orderBy('id', 'DESC');
 
         $keywords = request('keywords');
         if (! empty($keywords)) {
@@ -6082,10 +6083,12 @@ class DevelopmentController extends Controller
             });
         }
 
-        $records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        /*$records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
         ->groupBy('task_id')
         ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
-        ->paginate(50);
+        ->paginate(50);*/
+
+        $records = $records->paginate(50);
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 

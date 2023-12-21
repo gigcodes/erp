@@ -57,6 +57,15 @@
                                 {{Form::text('keywords', @$inputs['keywords'], array('class'=>'form-control', 'placeholder'=>'Enter Keywords'))}}
                             </div>
 
+                            <div class="form-group px-2">
+                                <select class="form-control" name="status" id="status">
+                                    <option value="">Select Status</option>
+                                    <option value="Approve" <?php if('Approve' == Request::get('status')) echo "selected"; ?>>Approve</option>
+                                    <option value="Unapprove" <?php if('Unapprove' == Request::get('status')) echo "selected"; ?>>Unapprove</option>
+                                    <option value="Uncheck" <?php if('Uncheck' == Request::get('status')) echo "selected"; ?>>Uncheck</option>
+                                </select>
+                            </div>
+
                             <div class="form-group  cls_filter_inputbox">
                                 <button type="submit" class="btn custom-button ml-3" style="width:100px">Search</button>
                             </div>
@@ -557,7 +566,7 @@
                                     </td>
                                 @endif
                                 @if (!in_array('Action', $dynamicColumnsToShowscrapper))
-                                    <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
+                                    <td><a target="_blank" href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
                                 @endif
                             </tr>
                         @else  
@@ -777,7 +786,7 @@
                                     <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 5, '...')}}</span>
                                     <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
                                 </td>
-                                <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
+                                <td><a target="_blank" href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
 							</tr>
                         @endif
                     @endforeach
