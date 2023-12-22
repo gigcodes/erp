@@ -38,6 +38,7 @@ use App\Mails\Manual\PurchaseExport;
 use App\Imports\CustomerNumberImport;
 use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
+use App\Models\DataTableColumn;
 
 class PurchaseProductController extends Controller
 {
@@ -47,7 +48,8 @@ class PurchaseProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    {   
+        $filter_product = $request->input('filter_product');
         $filter_customer = $request->input('filter_customer');
         $filter_supplier = $request->filter_supplier ?? '';
         $filter_selling_price = $request->input('filter_selling_price');
@@ -147,6 +149,8 @@ class PurchaseProductController extends Controller
             //->orWhere('id', 'LIKE', '%'.$filter_customer.'%')
             //->orWhere('email', 'LIKE', '%'.$filter_customer.'%');
         });
+
+
         if ($filter_order_date != '') {
             $orders = $orders->where('order_date', $filter_order_date);
         }
@@ -175,6 +179,11 @@ class PurchaseProductController extends Controller
         if (! empty($brandIds)) {
             $orders = $orders->whereIn('p.brand', $brandIds);
         }
+
+        if ($filter_product != '') {
+            $orders = $orders->where('p.name', 'LIKE', '%' . $filter_product . '%');
+        }
+
         $orders = $orders->groupBy('op.id');
         $orders = $orders->select(['orders.*', 'op.id as order_product_id', 'op.product_price', 'op.product_id as product_id', 'op.supplier_discount_info_id', 'op.inventory_status_id', 'op.currency as curr', 'op.eur_price']);
         if ($filter_selling_price != '') {
@@ -204,11 +213,55 @@ class PurchaseProductController extends Controller
         $totalOrders = count($orders->get());
         $orders_array = $orders->paginate(10);
 
+        $inventory_status = InventoryStatus::get();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchase-product')->first();
+
+        $dynamicColumnsToShowPp = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPp = json_decode($hideColumns, true);
+        }
+
         $inventoryStatusQuery = InventoryStatus::query();
         $inventoryStatus = $inventoryStatusQuery->pluck('name', 'id');
         //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
         return view('purchase-product.index', compact('orders_array', 'users', 'orderby',
-            'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id'));
+            'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_product', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id', 'inventory_status', 'dynamicColumnsToShowPp'));
+    }
+
+    public function ppColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','purchase-product')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'purchase-product';
+            $column->column_name = json_encode($request->column_pp); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'purchase-product';
+            $column->column_name = json_encode($request->column_pp); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = InventoryStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     /**
