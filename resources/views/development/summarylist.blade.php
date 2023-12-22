@@ -189,7 +189,7 @@
                     </div>
                     <div class="col-md-2 pd-sm pd-rt status-selection">
                         <select class="form-control multiselect" name="module_id[]" id="module_id" multiple="multiple">
-                            <option value>Select a Module</option>
+                            <option value>Select All Modules</option>
                             @foreach ($modules as $module)
                                 <option {{ $request->get('module') == $module->id ? 'selected' : '' }}
                                         value="{{ $module->id }}" {{ !empty(app('request')->input('module_id')) ? app('request')->input('module_id') ==  $module->id ? 'selected' : '' : '' }}>{{ $module->name }}</option>
@@ -2752,5 +2752,17 @@ $(document).on("click", "#scrapper-history", function() {
         }
     });
 });
+
+$(document).ready(function() {
+    // Check/Uncheck all checkboxes when "Select All" is clicked
+    $('.select-all-checkbox').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#module_id option').prop('selected', true);
+        } else {
+            $('#module_id option').prop('selected', false);
+        }
+    });
+});
+
 </script>
 @endsection
