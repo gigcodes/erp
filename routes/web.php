@@ -1382,6 +1382,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('acitvate-resourceCat', [ResourceImgController::class, 'activateResourceCat'])->name('activate.resourceCat');
 
     Route::get('resourceimg/pending', [ResourceImgController::class, 'pending']);
+    Route::post('resourceimg/status/create', [ResourceImgController::class, 'resourceStatusCreate'])->name('resourceimg.status.create');
+    Route::post('resourceimg/statuscolor', [ResourceImgController::class, 'statuscolor'])->name('resourceimg.statuscolor');
+    Route::post('resourceimg/resourceimg-update-status', [ResourceImgController::class, 'updateStatus'])->name('resourceimg-update-status');
+    Route::get('resourceimg/status/histories/{id}', [ResourceImgController::class, 'resourceimgStatusHistories'])->name('resourceimg.status.histories');
+    Route::post('resourceimg/remarks', [ResourceImgController::class, 'saveRemarks'])->name('resourceimg.saveremarks');
+    Route::post('resourceimg/getremarks', [ResourceImgController::class, 'getRemarksHistories'])->name('resourceimg.getremarks');
+    Route::post('resourceimg/getimages', [ResourceImgController::class, 'getResourcesImages'])->name('resourceimg.getimages');
 
     Route::post('delete-resource', [ResourceImgController::class, 'deleteResource'])->name('delete.resource');
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
