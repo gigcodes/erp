@@ -427,6 +427,11 @@
             @if($pageType != "images")
             <input type="button" onclick="conditionsCheck()" class="btn btn-secondary" value="Proceed to conditions check"/>
             @endif
+
+            @if($pageType != "images")
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#plfdatatablecolumnvisibilityList">Column Visiblity</button>
+            <button class="btn btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+            @endif
         </div>
     </div>
 
@@ -449,6 +454,10 @@
     @include('partials.modals.image-expand')
     @include('partials.modals.set-description-site-wise')
 
+    @if($pageType != "images")
+    @include("products.partials.column-visibility-modal")
+    @include("products.partials.modal-status-color")
+    @endif
     <div class="common-modal modal" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -2281,6 +2290,10 @@
                 alert('Could not update Order');
             });
 
+        }
+
+        function Showactionbtn(id){
+            $(".action-btn-tr-"+id).toggleClass('d-none')
         }
 	</script>
 @endsection

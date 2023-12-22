@@ -1037,6 +1037,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('product/listing/users', [ProductController::class, 'showListigByUsers']);
     Route::get('products/listing', [ProductController::class, 'listing'])->name('products.listing');
     Route::get('products/listing/final', [ProductController::class, 'approvedListing'])->name('products.listing.approved');
+    Route::post('products-listing-final-column-visbility', [ProductController::class, 'plfColumnVisbilityUpdate'])->name('products.column.update');
+    Route::post('products-listing-final/statuscolor', [ProductController::class, 'statuscolor'])->name('products.statuscolor');
     Route::get('products/listing/conditions-check', [ProductController::class, 'magentoConditionsCheck'])->name('products.magentoConditionsCheck');
     Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
 
