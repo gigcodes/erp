@@ -59,264 +59,439 @@
 @endsection
 
 @section('large_content')
-  <div class="ajax-loader" style="display: none;">
+<div class="ajax-loader" style="display: none;">
     <div class="inner_loader">
-    <img src="{{ asset('/images/loading2.gif') }}">
+        <img src="{{ asset('/images/loading2.gif') }}">
     </div>
-  </div>
-
-  <div class="row">
-        <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading">Purchase Products ({{$totalOrders}})</h2>
-        </div>
-           <div class="col-10" style="padding-left:0px;">
-            <div >
-            <form class="form-inline" action="{{ route('purchase-product.index') }}" method="GET">
-<!-- 
-                <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="term" type="text" class="form-control"
-                         value="{{ isset($term) ? $term : '' }}"
-                         placeholder="Search">
-                </div> -->
-
-                <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_customer" type="text" class="form-control"
-                         value="{{ isset($filter_customer) ? $filter_customer : '' }}"
-                         placeholder="Customer">
-                </div>
-
-              
-                
-                <div class="form-group col-md-3 pd-3">
-                <select class="form-control select-multiple2" style="width:100%" name="filter_supplier[]" data-placeholder="Search Supplier By Name.." multiple>
-                @foreach($product_suppliers_list as $supplier)
-                  <option value="{{ $supplier->id }}" @if(is_array($filter_supplier) && in_array($supplier->id,$filter_supplier)) selected @endif>{{ $supplier->supplier }}</option>
-                @endforeach
-                
-              </select>
-              </div>
-
-
-                <!-- <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_product" type="text" class="form-control"
-                         value="{{ isset($filter_product) ? $filter_product : '' }}"
-                         placeholder="Product">
-                </div> -->
-
-                <!-- <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_buying_price" type="text" class="form-control"
-                         value="{{ isset($filter_buying_price) ? $filter_buying_price : '' }}"
-                         placeholder="Buying Price">
-                </div> -->
-
-                <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_selling_price" type="text" class="form-control"
-                         value="{{ isset($filter_selling_price) ? $filter_selling_price : '' }}"
-                         placeholder="Selling Price">
-                </div>
-
-                <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_order_date" type="text" class="form-control"
-                         value="{{ isset($filter_order_date) ? $filter_order_date : '' }}"
-                         placeholder="Order Date">
-                </div>
-                
-                <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_date_of_delivery" type="text" class="form-control"
-                         value="{{ isset($filter_date_of_delivery) ? $filter_date_of_delivery : '' }}"
-                         placeholder="Delivery Date">
-                </div>
-
-                <div class="form-group col-md-3 pd-3">
-                <select name="filter_inventory_status_id" id="filter_inventory_status_id" class="form-control">
-              <option value="">Select Inventory status</option>
-              @foreach($inventoryStatus as $id => $status)
-                <option value="{{$id}}" {{$id==$filter_inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
-              @endforeach
-              </select>
-                </div>
-
-                   <div class="form-group col-md-1 pd-3">
-                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
-                  </div>
-              </form>
-
-            </div>
-             </div>
-        </div>
-<div class="row">
-@include('partials.flash_messages')
-
 </div>
+
 <div class="row">
-        <div class="col-md-12" style="padding:0px;">
+    <div class="col-12" style="padding:0px;">
+        <h2 class="page-heading">
+            Purchase Products ({{$totalOrders}})
+
             <div class="pull-right">
-              <a href="#" class="btn btn-xs btn-secondary create-status-btn">
-                            Create status
-              </a>
-              <a href="/purchase-product/get-suppliers" class="btn btn-xs btn-secondary">
-                            Suppliers
-              </a>
-              <!-- START - Purpose : Add Vutton - DEVTASK-19941 -->
-              <a href="#" class="btn btn-xs btn-secondary not_mapping_supplier_list">
-                            Not Mapping Suppliers
-              </a>
-              <!-- END - DEVTASK-19941 -->
+                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#ppdatatablecolumnvisibilityList">Column Visiblity</button>
+                <a href="#" class="btn btn-xs btn-secondary create-status-btn">Create status</a>
+                <button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                <a href="/purchase-product/get-suppliers" class="btn btn-xs btn-secondary">Suppliers</a>
+                <a href="#" class="btn btn-xs btn-secondary not_mapping_supplier_list">Not Mapping Suppliers</a>
             </div>
-        </div>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <div class="infinite-scroll" style="width:100%;">
-  <div class="table-responsive mt-2">
-      <table class="table table-bordered order-table purchase-order-table" style="border: 1px solid #ddd !important; color:black;">
-        <thead>
-        <tr>
-            <th width="2%">-</th>
-            <th width="5%">ID</th>
-            <th width="6%">Customer</th>
-            <th width="10%">Supplier</th>
-            <th width="15%">Product</th>
-            <th width="10%">Buying Price</th>
-            <th width="10%">Selling Price(EUR)</th>
-            <th width="10%">Selling price</th>
-            <th width="8%">Order Date</th>
-           <th width="8%">Del Date</th>
-            <th style="width: 8%">Inv Status</th>
-            <th width="5%">Action</th>
-         </tr>
-        </thead>
+        </h2>
+    </div>
+    
+    <div class="col-12" style="padding-left:0px;">
+        <form class="form-inline" action="{{ route('purchase-product.index') }}" method="GET">
 
-        <tbody>
-      @foreach ($orders_array as $key => $order)
-                @php
-                if($order->supplier_discount_info_id) {
-                  $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select(['suppliers.*'])->get();
-                }
-                else {
-                  $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select(['suppliers.*','product_suppliers.supplier_link'])->get();
-                }
-                @endphp
-                
-            <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
-              <td><span class="td-mini-container">
-                  <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}" style="width: 10px;">
-                  </span>
+            <!-- <div class="form-group col-md-3 pd-3">
+              <input style="width:100%;" name="term" type="text" class="form-control"
+                     value="{{ isset($term) ? $term : '' }}"
+                     placeholder="Search">
+            </div> -->
 
-                </td>
-              <td  class="view-details" data-type="order" data-id="{{$order->id}}">
-              <div class="form-inline">
-                  @if ($order->is_priority == 1)
-                    <strong class="text-danger mr-1">!!!</strong>
-                  @endif
-                  <span class="td-mini-container">
-                  <span style="font-size:14px;">{{ $order->order_id }}</span>
-                  </span>
-                </div>
-              </td>
-              <td class="view-details customer-name" data-type="customer" data-id="{{$order->id}}">
-              @if ($order->customer)
-                  <span class="td-mini-container">
-                    <a href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
-                  </span>
-                @endif
-              </td>
-                <td>
-                    <p class="view-supplier-details" data-id="{{$order->order_product_id}}" >
-                    @if(!$supplier->isEmpty())
-                        @foreach($supplier as $s) 
-                          @if(!empty($s->supplier_link))
-                            <a target="_blank" href="{{$s->supplier_link}}">{{$s->supplier}}</a><br>
-                          @else
-                            <a target="_blank" href="javascript:;">{{$s->supplier}}</a><br>
-                          @endif
-                        @endforeach
-                    @endif
-                    </p>
-                    @php
-                    $order_product = \App\OrderProduct::find($order->order_product_id);
-                    @endphp
+            <div class="form-group col-md-2 pd-3">
+                <input style="width:100%;" name="filter_product" type="text" class="form-control" value="{{ isset($filter_product) ? $filter_product : '' }}" placeholder="Search Keyword for product">
+            </div>
 
-                    
+            <div class="form-group col-md-2 pd-3">
+                <input style="width:100%;" name="filter_customer" type="text" class="form-control" value="{{ isset($filter_customer) ? $filter_customer : '' }}" placeholder="Customer">
+            </div>
 
-                </td>
-              <td class="expand-row table-hover-cell product-name">
-                <div class="d-flex">
-                  <div class="">
-                  @php
-                  $order_product = \App\OrderProduct::find($order->order_product_id);
-                  @endphp
-                      @if ($order_product && $order_product->product)
-                      {{$order_product->product->name}}
-                        @if ($order_product->product->hasMedia(config('constants.media_tags')))
-                          <span class="td-mini-container">
-                              <br/>
-                              <a style="color:#000!important;" data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
-                          </span>
-                        @endif
-                      @endif
-                  </div>
-                </div>
-              </td>
-              <td class="expand-row table-hover-cell">
-              @if ($order_product && $order_product->product)
-                {{$order_product->product->price}}
-              @endif
-              </td>
-              <td class="expand-row table-hover-cell">
-                  EUR {{$order->eur_price}}
-              </td>
-              <td class="expand-row table-hover-cell">
-              {{$order->currency}} {{$order->product_price}}
-              </td>
-              <td>{{ $order->order_date }}</td>
-              <td>{{$order->date_of_delivery}}</td>
-              <td>
-                <select name="inventory_status_id" id="" class="form-control change-inventory-status" data-id="{{$order->order_product_id}}">
+            <div class="form-group col-md-3 pd-3">
+                <select class="form-control select-multiple2" style="width:100%" name="filter_supplier[]" data-placeholder="Search Supplier By Name.." multiple>
+                    @foreach($product_suppliers_list as $supplier)
+                        <option value="{{ $supplier->id }}" @if(is_array($filter_supplier) && in_array($supplier->id,$filter_supplier)) selected @endif>{{ $supplier->supplier }}</option>
+                    @endforeach                    
+                </select>
+            </div>
+
+            <!-- <div class="form-group col-md-3 pd-3">
+              <input style="width:100%;" name="filter_product" type="text" class="form-control"
+                     value="{{ isset($filter_product) ? $filter_product : '' }}"
+                     placeholder="Product">
+            </div> -->
+
+            <!-- <div class="form-group col-md-3 pd-3">
+              <input style="width:100%;" name="filter_buying_price" type="text" class="form-control"
+                     value="{{ isset($filter_buying_price) ? $filter_buying_price : '' }}"
+                     placeholder="Buying Price">
+            </div> -->
+
+            <div class="form-group col-md-2 pd-3">
+                <input style="width:100%;" name="filter_selling_price" type="text" class="form-control" value="{{ isset($filter_selling_price) ? $filter_selling_price : '' }}" placeholder="Selling Price">
+            </div>
+
+            <div class="form-group col-md-2 pd-3">
+                <input style="width:100%;" name="filter_order_date" type="text" class="form-control" value="{{ isset($filter_order_date) ? $filter_order_date : '' }}" placeholder="Order Date">
+            </div>
+            
+            <div class="form-group col-md-2 pd-3">
+                <input style="width:100%;" name="filter_date_of_delivery" type="text" class="form-control" value="{{ isset($filter_date_of_delivery) ? $filter_date_of_delivery : '' }}" placeholder="Delivery Date">
+            </div>
+
+            <div class="form-group col-md-2 pd-3">
+                <select name="filter_inventory_status_id" id="filter_inventory_status_id" class="form-control">
                     <option value="">Select Inventory status</option>
                     @foreach($inventoryStatus as $id => $status)
-                        <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
+                        <option value="{{$id}}" {{$id==$filter_inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
                     @endforeach
                 </select>
-              </td>
-              <td>{{-- $order->balance_amount --}}
-                @if ($order_product && $order_product->product)
-              <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
-              @endif
-              @if(count($order->orderProducts))
-              @php
-                $image_array = [];
-                foreach($order->orderProducts as $pid){
-                  $product = $pid->product;
-                  if($product){
-                    if ($product->hasMedia(config('constants.media_tags'))){
-                        $productImages = $product->getMedia(config('constants.media_tags'));
-                        foreach($productImages as $img){
-                            $image['product_id'] = $product->id;
-                            $image['image_url'] = $img->getUrl();
-                            $image_array[] = $image;
-                        }
-                    }
-                  }
-                }
-              @endphp
-              @endif
-              @if(isset($image_array) && count($image_array))
-              <button type="button" class="btn btn-xs image-button" style="cursor: pointer;" data-image-array="{{json_encode($image_array)}}" data-customer-id="{{$order->customer_id}}" data-order-id="{{$order->id}}" data-product-id="{{implode(',', $order->orderProducts->pluck('product_id')->toArray())}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt="" style="cursor: pointer; width: 16px;"></button>
-              @endif
-              </td>
+            </div>
 
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
+            <div class="form-group col-md-1 pd-3">
+                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+            </div>
+        </form>
 
-  {!! $orders_array->appends(Request::except('page'))->links() !!}
-  </div>
     </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        @include('partials.flash_messages')
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="infinite-scroll" style="width:100%;">
+            <div class="table-responsive mt-2">
+                <table class="table table-bordered order-table purchase-order-table" style="border: 1px solid #ddd !important; color:black;">
+                    <thead>
+                        <tr>
+                            @if(!empty($dynamicColumnsToShowPp))
+                                @if (!in_array('checkbox', $dynamicColumnsToShowPp))
+                                    <th width="2%">#</th>
+                                @endif
+                                @if (!in_array('ID', $dynamicColumnsToShowPp))
+                                    <th width="5%">ID</th>
+                                @endif
+                                @if (!in_array('Customer', $dynamicColumnsToShowPp))
+                                    <th width="6%">Customer</th>
+                                @endif
+                                @if (!in_array('Supplier', $dynamicColumnsToShowPp))
+                                    <th width="10%">Supplier</th>
+                                @endif
+                                @if (!in_array('Product', $dynamicColumnsToShowPp))
+                                    <th width="15%">Product</th>
+                                @endif
+                                @if (!in_array('Buying Price', $dynamicColumnsToShowPp))
+                                    <th width="10%">Buying Price</th>
+                                @endif
+                                @if (!in_array('Selling Price EUR', $dynamicColumnsToShowPp))
+                                    <th width="10%">Selling Price (EUR)</th>
+                                @endif
+                                @if (!in_array('Selling price', $dynamicColumnsToShowPp))
+                                    <th width="10%">Selling price</th>
+                                @endif
+                                @if (!in_array('Order Date', $dynamicColumnsToShowPp))
+                                    <th width="8%">Order Date</th>
+                                @endif
+                                @if (!in_array('Del Date', $dynamicColumnsToShowPp))
+                                    <th width="8%">Del Date</th>
+                                @endif
+                                @if (!in_array('Inv Status', $dynamicColumnsToShowPp))
+                                    <th style="width: 8%">Inv Status</th>
+                                @endif
+                                @if (!in_array('Action', $dynamicColumnsToShowPp))
+                                    <th width="5%">Action</th>
+                                @endif
+                            @else 
+                                <th width="2%">#</th>
+                                <th width="5%">ID</th>
+                                <th width="6%">Customer</th>
+                                <th width="10%">Supplier</th>
+                                <th width="15%">Product</th>
+                                <th width="10%">Buying Price</th>
+                                <th width="10%">Selling Price (EUR)</th>
+                                <th width="10%">Selling price</th>
+                                <th width="8%">Order Date</th>
+                                <th width="8%">Del Date</th>
+                                <th style="width: 8%">Inv Status</th>
+                                <th width="5%">Action</th>
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($orders_array as $key => $order)
+                            @php
+                            if($order->supplier_discount_info_id) {
+                                $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select(['suppliers.*'])->get();
+                            } else {
+                                $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select(['suppliers.*','product_suppliers.supplier_link'])->get();
+                            }
+                            @endphp
+
+                            @php
+                                $status_color = \App\InventoryStatus::where('id',$order->inventory_status_id)->first();
+                                if ($status_color == null) {
+                                    $status_color = new stdClass();
+                                }
+                            @endphp
+
+                            @if(!empty($dynamicColumnsToShowPp))
+                
+                                <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}" style="background-color: {{$status_color->status_color ?? ""}}!important;">
+
+                                    @if (!in_array('checkbox', $dynamicColumnsToShowPp))
+                                    <td>
+                                        <span class="td-mini-container">
+                                            <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}" style="width: 10px;">
+                                        </span>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('ID', $dynamicColumnsToShowPp))
+                                    <td class="view-details" data-type="order" data-id="{{$order->id}}">
+                                        <div class="form-inline">
+                                            @if ($order->is_priority == 1)
+                                                <strong class="text-danger mr-1">!!!</strong>
+                                            @endif
+                                            <span class="td-mini-container">
+                                                <span style="font-size:14px;">{{ $order->order_id }}</span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Customer', $dynamicColumnsToShowPp))
+                                    <td class="view-details customer-name" data-type="customer" data-id="{{$order->id}}">
+                                        @if ($order->customer)
+                                            <span class="td-mini-container">
+                                                <a href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
+                                            </span>
+                                        @endif
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Supplier', $dynamicColumnsToShowPp))
+                                    <td>
+                                        <p class="view-supplier-details" data-id="{{$order->order_product_id}}" >
+                                            @if(!$supplier->isEmpty())
+                                                @foreach($supplier as $s) 
+                                                  @if(!empty($s->supplier_link))
+                                                    <a target="_blank" href="{{$s->supplier_link}}">{{$s->supplier}}</a><br>
+                                                  @else
+                                                    <a target="_blank" href="javascript:;">{{$s->supplier}}</a><br>
+                                                  @endif
+                                                @endforeach
+                                            @endif
+                                        </p>
+                                        @php
+                                            $order_product = \App\OrderProduct::find($order->order_product_id);
+                                        @endphp
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Product', $dynamicColumnsToShowPp))
+                                    <td class="expand-row table-hover-cell product-name">
+                                        <div class="d-flex">
+                                            <div class="">
+                                                @php
+                                                    $order_product = \App\OrderProduct::find($order->order_product_id);
+                                                @endphp
+                                                @if ($order_product && $order_product->product)
+                                                    {{$order_product->product->name}}
+                                                    @if ($order_product->product->hasMedia(config('constants.media_tags')))
+                                                        <span class="td-mini-container">
+                                                            <br/>
+                                                            <a style="color:#000!important;" data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                                                        </span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Buying Price', $dynamicColumnsToShowPp))
+                                    <td class="expand-row table-hover-cell">
+                                        @if ($order_product && $order_product->product)
+                                            {{$order_product->product->price}}
+                                        @endif
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Selling Price EUR', $dynamicColumnsToShowPp))
+                                    <td class="expand-row table-hover-cell">
+                                        EUR {{$order->eur_price}}
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Selling price', $dynamicColumnsToShowPp))
+                                    <td class="expand-row table-hover-cell">
+                                        {{$order->currency}} {{$order->product_price}}
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Order Date', $dynamicColumnsToShowPp))
+                                    <td>{{ $order->order_date }}</td>
+                                    @endif
+
+                                    @if (!in_array('Del Date', $dynamicColumnsToShowPp))
+                                    <td>{{$order->date_of_delivery}}</td>
+                                    @endif
+
+                                    @if (!in_array('Inv Status', $dynamicColumnsToShowPp))
+                                    <td>
+                                        <select name="inventory_status_id" id="" class="form-control change-inventory-status" data-id="{{$order->order_product_id}}">
+                                            <option value="">Select Inventory status</option>
+                                            @foreach($inventoryStatus as $id => $status)
+                                                <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    @endif
+
+                                    @if (!in_array('Action', $dynamicColumnsToShowPp))
+                                    <td>{{-- $order->balance_amount --}}
+                                        @if ($order_product && $order_product->product)
+                                            <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+                                        @endif
+
+                                        @if(count($order->orderProducts))
+                                            @php
+                                                $image_array = [];
+                                                foreach($order->orderProducts as $pid){
+                                                  $product = $pid->product;
+                                                  if($product){
+                                                    if ($product->hasMedia(config('constants.media_tags'))){
+                                                        $productImages = $product->getMedia(config('constants.media_tags'));
+                                                        foreach($productImages as $img){
+                                                            $image['product_id'] = $product->id;
+                                                            $image['image_url'] = $img->getUrl();
+                                                            $image_array[] = $image;
+                                                        }
+                                                    }
+                                                  }
+                                                }
+                                            @endphp
+                                        @endif
+
+                                        @if(isset($image_array) && count($image_array))
+                                            <button type="button" class="btn btn-xs image-button" style="cursor: pointer;" data-image-array="{{json_encode($image_array)}}" data-customer-id="{{$order->customer_id}}" data-order-id="{{$order->id}}" data-product-id="{{implode(',', $order->orderProducts->pluck('product_id')->toArray())}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt="" style="cursor: pointer; width: 16px;"></button>
+                                        @endif
+                                    </td>
+                                    @endif
+                                </tr>
+                            @else
+                                <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}" style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                    <td>
+                                        <span class="td-mini-container">
+                                            <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}" style="width: 10px;">
+                                        </span>
+                                    </td>
+                                    <td class="view-details" data-type="order" data-id="{{$order->id}}">
+                                        <div class="form-inline">
+                                            @if ($order->is_priority == 1)
+                                                <strong class="text-danger mr-1">!!!</strong>
+                                            @endif
+                                            <span class="td-mini-container">
+                                                <span style="font-size:14px;">{{ $order->order_id }}</span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="view-details customer-name" data-type="customer" data-id="{{$order->id}}">
+                                        @if ($order->customer)
+                                            <span class="td-mini-container">
+                                                <a href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <p class="view-supplier-details" data-id="{{$order->order_product_id}}" >
+                                            @if(!$supplier->isEmpty())
+                                                @foreach($supplier as $s) 
+                                                  @if(!empty($s->supplier_link))
+                                                    <a target="_blank" href="{{$s->supplier_link}}">{{$s->supplier}}</a><br>
+                                                  @else
+                                                    <a target="_blank" href="javascript:;">{{$s->supplier}}</a><br>
+                                                  @endif
+                                                @endforeach
+                                            @endif
+                                        </p>
+                                        @php
+                                            $order_product = \App\OrderProduct::find($order->order_product_id);
+                                        @endphp
+                                    </td>
+                                    <td class="expand-row table-hover-cell product-name">
+                                        <div class="d-flex">
+                                            <div class="">
+                                                @php
+                                                    $order_product = \App\OrderProduct::find($order->order_product_id);
+                                                @endphp
+                                                @if ($order_product && $order_product->product)
+                                                    {{$order_product->product->name}}
+                                                    @if ($order_product->product->hasMedia(config('constants.media_tags')))
+                                                        <span class="td-mini-container">
+                                                            <br/>
+                                                            <a style="color:#000!important;" data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                                                        </span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="expand-row table-hover-cell">
+                                        @if ($order_product && $order_product->product)
+                                            {{$order_product->product->price}}
+                                        @endif
+                                    </td>
+                                    <td class="expand-row table-hover-cell">
+                                        EUR {{$order->eur_price}}
+                                    </td>
+                                    <td class="expand-row table-hover-cell">
+                                        {{$order->currency}} {{$order->product_price}}
+                                    </td>
+                                    <td>{{ $order->order_date }}</td>
+                                    <td>{{$order->date_of_delivery}}</td>
+                                    <td>
+                                        <select name="inventory_status_id" id="" class="form-control change-inventory-status" data-id="{{$order->order_product_id}}">
+                                            <option value="">Select Inventory status</option>
+                                            @foreach($inventoryStatus as $id => $status)
+                                                <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>{{-- $order->balance_amount --}}
+                                        @if ($order_product && $order_product->product)
+                                            <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
+                                        @endif
+
+                                        @if(count($order->orderProducts))
+                                            @php
+                                                $image_array = [];
+                                                foreach($order->orderProducts as $pid){
+                                                  $product = $pid->product;
+                                                  if($product){
+                                                    if ($product->hasMedia(config('constants.media_tags'))){
+                                                        $productImages = $product->getMedia(config('constants.media_tags'));
+                                                        foreach($productImages as $img){
+                                                            $image['product_id'] = $product->id;
+                                                            $image['image_url'] = $img->getUrl();
+                                                            $image_array[] = $image;
+                                                        }
+                                                    }
+                                                  }
+                                                }
+                                            @endphp
+                                        @endif
+
+                                        @if(isset($image_array) && count($image_array))
+                                            <button type="button" class="btn btn-xs image-button" style="cursor: pointer;" data-image-array="{{json_encode($image_array)}}" data-customer-id="{{$order->customer_id}}" data-order-id="{{$order->id}}" data-product-id="{{implode(',', $order->orderProducts->pluck('product_id')->toArray())}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt="" style="cursor: pointer; width: 16px;"></button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+
+                {!! $orders_array->appends(Request::except('page'))->links() !!}
+            </div>
+        </div>
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
-   </div>
+    </div>
 
    <div id="createStatusModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -424,6 +599,44 @@
       </div>
   </div>
 </div>
+
+<div id="newStatusColor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Purchase Products Status Color</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('purchase-product.statuscolor') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($inventory_status as $status_data) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->name; ?></td>
+                            <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
+                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
 @endsection
 @include('common.commonEmailModal')
 @include("partials.modals.update-delivery-date-modal")
@@ -431,6 +644,7 @@
 @include("partials.modals.generate-awb-modal")
 @include("partials.modals.add-invoice-modal")
 @include('partials.modals.return-exchange-modal')
+@include("purchase-product.partials.column-visibility-modal")
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
