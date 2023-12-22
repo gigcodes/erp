@@ -1375,6 +1375,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('category', CategoryController::class)->except('show');
     Route::resource('category-segment', CategorySegmentController::class);
 
+    Route::get('resourceimg/searchimg', [ResourceImgController::class, 'searchResourceimg'])->name('resourceimg.searchimg');
     Route::resource('resourceimg', ResourceImgController::class);
     Route::get('resourceimg/pending/1', [ResourceImgController::class, 'pending']);
     Route::post('add-resource', [ResourceImgController::class, 'addResource'])->name('add.resource');
@@ -2267,6 +2268,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchase-product/lead-supplier-details/{lead_id}', [PurchaseProductController::class, 'leadSupplierDetails']);
 
     Route::get('purchase-product/customer-details/{type}/{order_id}', [PurchaseProductController::class, 'getCustomerDetails']);
+    Route::post('purchase-product/statuscolor', [PurchaseProductController::class, 'statuscolor'])->name('purchase-product.statuscolor');
+    Route::post('purchase-product-column-visbility', [PurchaseProductController::class, 'ppColumnVisbilityUpdate'])->name('purchase-product.column.update');
     Route::resource('purchase-product', PurchaseProductController::class);
 
     Route::post('purchase-product/insert_suppliers_product', [PurchaseProductController::class, 'insert_suppliers_product'])->name('purchase-product.insert_suppliers_product');
@@ -3613,6 +3616,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
+    Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
