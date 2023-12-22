@@ -3613,6 +3613,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
+    Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
