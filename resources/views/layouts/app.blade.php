@@ -4556,13 +4556,17 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
-                                    </li>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+                                    </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/scrap/scrap-links">Scrap Links</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/devoops">Dev Oops</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('seo.company.index')}}">Seo Company</a>
+                                    </li>
+                                    
                                 </ul>
                             </li>
 
