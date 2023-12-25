@@ -26,51 +26,48 @@
 <link href="//cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">{{$title}}<span class="count-text"></span></h2>
+        <h2 class="page-heading">
+            {{$title}}<span class="count-text"></span>
+
+            <div style="float: right;">
+                <button class="btn btn-secondary btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#environmentHistoryStatusCreate"> Create Status </button>
+                <button class="btn btn-secondary" data-toggle="modal" data-target="#environmentHistoryStatusList"> List Status</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sedatatablecolumnvisibilityList">Column Visiblity</button>
+            </div>
+        </h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
         <div class="row">
             <div class="col col-md-12 ">
-                <div class="col col-md-1">
-    				<button style="display: inline-block;" class="btn ml-2 btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
-    					<img src="/images/add.png" style="cursor: default;">
-    				</button>
-                </div>
-                <div class="col col-md-9">
-    				<form class="form-inline message-search-handler" method="get">
-    					   
-    					<div class="ml-2 col-md-5">
-    						<div class="form-group">
-                                <label>Select Store Website :</label>
-    							<?php echo Form::select("store_websites[]",$storeWebsites,request("store_websites"),["class"=> "form-control select2-ele",'multiple'=>true]) ?>
-    						</div>
-    					</div>
-    					<div class="ml-2 col-md-5">
-    						<div class="form-group">
-                                <label>Select Environment path :</label>
-                                <?php echo Form::select("paths[]",$paths,request("paths"),["class"=> "form-control select2-ele",'multiple'=>true]) ?>
-    							<?php //echo Form::select("paths",$paths,request("paths"),["class"=> "form-control select2-ele","placeholder" => "Select Environment path"]) ?>
-    						</div>
-    					</div>
-    					<div class="ml-2 col-md-1">
-    						<div class="form-group">
-    							<label for="button">&nbsp;</label>
-    							<button type="submit" style="width: 10%;" class="btn btn-sm btn-image btn-search-action1">
-    								<img src="/images/search.png">
-    							</button>
+				<form class="form-inline message-search-handler" method="get">
+					<div class="ml-2 col-md-5">
+						<div class="form-group">
+                            <label>Select Store Website :</label>
+							<?php echo Form::select("store_websites[]",$storeWebsites,request("store_websites"),["class"=> "form-control select2-ele",'multiple'=>true]) ?>
+						</div>
+					</div>
+					<div class="ml-2 col-md-5">
+						<div class="form-group">
+                            <label>Select Environment path :</label>
+                            <?php echo Form::select("paths[]",$paths,request("paths"),["class"=> "form-control select2-ele",'multiple'=>true]) ?>
+							<?php //echo Form::select("paths",$paths,request("paths"),["class"=> "form-control select2-ele","placeholder" => "Select Environment path"]) ?>
+						</div>
+					</div>
+					<div class="ml-2 col-md-1">
+						<div class="form-group">
+							<label for="button">&nbsp;</label>
+							<button type="submit" style="width: 10%;" class="btn btn-sm btn-image btn-search-action1">
+								<img src="/images/search.png">
+							</button>
 
-                                <a href="{{route('store-website.environment.matrix')}}" class="btn btn-sm btn-image"><img src="/images/resend2.png"></a>
-    						</div>
-    					</div>
-    				</form>
-                </div>
-                <div class="col col-md-2">
-                    <div class="pull-right">
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#environmentHistoryStatusCreate"> Create Status </button>
-                        <button class="btn btn-secondary my-3" data-toggle="modal" data-target="#environmentHistoryStatusList"> List Status</button>
-                    </div>
-                </div>
+                            <a href="{{route('store-website.environment.matrix')}}" class="btn btn-sm btn-image"><img src="/images/resend2.png"></a>
+						</div>
+					</div>
+				</form>
 			</div>
         </div>
         <div class="row">
@@ -262,7 +259,7 @@
 
     </div>
 </div>
-
+@include("storewebsite::environment.templates.column-visibility-modal")
 @include("storewebsite::environment.templates.list-template")
 @include("storewebsite::environment.templates.create-website-template")
 @include("storewebsite::environment.templates.change-value-template")
