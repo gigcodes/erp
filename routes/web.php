@@ -3625,6 +3625,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
     Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
+    Route::get('all-comments', [SocialAccountCommentController::class, 'allcomments'])->name('social.all-comments');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
