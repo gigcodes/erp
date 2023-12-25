@@ -32,7 +32,7 @@
                              {{$product->description}}
                         </td>
                         <td class="Website-task visible-app clickable">
-                            <input type="text" name="product" value="{{ $key + 1 }}" data-id="{{ $product->sid }}" class="product-checkbox mr-2"> 
+                            <input type="text" name="product" value="{{ $product->sort_order == 0 ? $key + 1 : $product->sort_order }}" data-id="{{ $product->sid }}" class="product-checkbox mr-2"> 
                         </td>
                         
                     </tr>
@@ -41,59 +41,90 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="checkProduct" tabindex="-1" role="dialog" aria-labelledby="checkProductLabel">
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="checkProductLabel">Record Check Result</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to proceed with this action?
+                <b><span id="modal-body-content"></span></b>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="confirmNoBtn">No</button>
+                <button type="button" class="btn btn-primary" id="confirmYesBtn">Yes</button>
+            </div>
         </div>
-        <div class="modal-body" id="modal-body-content">
-          <!-- Content will go here -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 <script>
     function setProductDescription() {
+        $("#loading-image").show();
         // Get the value of data-sku
         var sku = $(".setProductDescription").data("sku");
-
-        $.ajax({
-        headers: {
-                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-                },
-        url: '{{ route("products.multidescription.skucheck")}}',
-        method: "POST",
-        data: { sku: sku },
-        success: function (data) {
-            // Display result in the modal
-            $("#modal-body-content").html(data.result);
-
-            // Show the modal
-            $("#checkProduct").modal("show");
-        },
-        error: function (error) {
-            console.log(error);
-        }
-        });
-        
         var productData = [];
         $("input.product-checkbox").each(function () {
             var productId = $(this).data("id");
             var productValue = $(this).val();
             productData.push({ id: productId, value: productValue });
         });
-        
-        // Display the array of objects containing data-id and value
-        console.log("Product sku:", sku);
-        console.log("Product Data:", productData);
-        
-        // Add your logic to update the product description using the extracted values
+        $.ajax({
+        headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+        url: '{{ route("products.multidescription.skucheck")}}',
+        method: "POST",
+        data: { sku: sku, productData:productData},
+        success: function (data) {
+            $("#loading-image").hide();
+            var productCount = data.result;
+            if (productCount > 0) {
+                $("#modal-body-content").html('Record exists also update on product description if click NO only update scraped product');
+                $("#confirmationModal").modal("show");
+                $("#confirmYesBtn").on("click", function () {
+                    $("#loading-image").show();
+                    // Call a function with the parameter "yes"
+                    UpdateProduct(sku, productData, 1);
+                });
+                $("#confirmNoBtn").on("click", function () {
+                    $("#loading-image").show();
+                    // Call a function with the parameter "no"
+                    UpdateProduct(sku, productData, 0);
+                });
+            }else{
+                $("#loading-image").show();
+                UpdateProduct(sku, productData, 0);
+            }            
+        },
+        error: function (error) {
+            console.log(error);
+        }
+        });
     }
+
+    function UpdateProduct(sku, productData, condition) {
+        $.ajax({
+            headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+            url: '{{ route("products.multidescription.update")}}',
+            method: "POST",
+            data: { sku: sku, productData:productData, condition:condition},
+            success: function (data) {
+                $("#loading-image").hide();
+                $("#confirmationModal").modal("hide");
+                $("#show-content-model-table").modal("hide");
+                toastr['success'](data.message, 'success');
+                var redirectUrl = '/products/multi-description';
+                window.location.href = redirectUrl;          
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+        }
 </script>
