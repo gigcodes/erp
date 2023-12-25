@@ -455,7 +455,7 @@
     @include('partials.modals.set-description-site-wise')
 
     @if($pageType != "images")
-    @include("products.partials.column-visibility-modal")
+    @include("products.partials.column-visibility-modal-plf")
     @include("products.partials.modal-status-color")
     @endif
     <div class="common-modal modal" role="dialog">
