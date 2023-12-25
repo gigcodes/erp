@@ -123,10 +123,10 @@
                                     @if (!in_array('Env Path', $dynamicColumnsToShowse))
                                         <td class="expand-row">
                                             <span class="td-mini-container">
-                                                {{ strlen($paths) > 15 ? substr($paths, 0, 15).'...' :  $paths }}
+                                                {{ strlen($paths->path) > 15 ? substr($paths->path, 0, 15).'...' :  $paths->path }}
                                             </span>
                                             <span class="td-full-container hidden">
-                                                {{$paths}}
+                                                {{$paths->path}}
                                             </span>
                                         </td>
                                     @endif
@@ -134,7 +134,7 @@
                                     @foreach($env_store_websites as $id => $title)
                                         @if (!in_array($id, $dynamicColumnsToShowse))
                                             <?php 
-                                                $key = array_search($paths, array_column($environments[$id], 'path'));
+                                                $key = array_search($paths->path, array_column($environments[$id], 'path'));
                                             ?>
                                             @if($key !== false)
                                             <td class="expand-row" style="background-color: {{$environments[$id][$key]['status_color']}}">
@@ -164,15 +164,15 @@
                                 @else
                                     <td class="expand-row">
                                         <span class="td-mini-container">
-                                            {{ strlen($paths) > 15 ? substr($paths, 0, 15).'...' :  $paths }}
+                                            {{ strlen($paths->path) > 15 ? substr($paths->path, 0, 15).'...' :  $paths->path }}
                                         </span>
                                         <span class="td-full-container hidden">
-                                            {{$paths}}
+                                            {{$paths->path}}
                                         </span>
                                     </td>
                                     @foreach($env_store_websites as $id => $title)
                                         <?php 
-                                            $key = array_search($paths, array_column($environments[$id], 'path'));
+                                            $key = array_search($paths->path, array_column($environments[$id], 'path'));
                                         ?>
                                         @if($key !== false)
                                             <td class="expand-row" style="background-color: {{$environments[$id][$key]['status_color']}}">
@@ -204,7 +204,7 @@
                         
                     </tbody>
                 </table>
-                
+                {!! $env_paths->appends(Request::except('page'))->links() !!}
             </div>
         </div>
         

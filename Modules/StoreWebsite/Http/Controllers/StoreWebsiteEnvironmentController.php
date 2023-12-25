@@ -62,7 +62,8 @@ class StoreWebsiteEnvironmentController extends Controller
             $env_store_websites->whereIn('path', $request->paths);
         }
 
-        $env_paths = $env_paths->pluck('path', 'id');
+        //$env_paths = $env_paths->pluck('path', 'id');
+        $env_paths = $env_paths->paginate(25);
         $env_store_websites = $env_store_websites->groupBy('store_website_id')->pluck('store_website_name', 'store_website_id');
 
         $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id', 'path', 'value')->get()->toArray();
