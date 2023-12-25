@@ -1094,6 +1094,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
+    Route::post('products-status-history-column-visbility', [ProductController::class, 'columnVisbilityUpdate'])->name('products.column.update');
 
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
@@ -3627,6 +3628,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
     Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
+    Route::get('all-comments', [SocialAccountCommentController::class, 'allcomments'])->name('social.all-comments');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -5667,6 +5669,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
         Route::get('{id}/edit', [Seo\CompanyController::class, 'edit'])->name('seo.company.edit');
         Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
+        Route::post('column-visbility', [Seo\CompanyController::class, 'columnVisbilityUpdate'])->name('seo.company.column.update');
+        Route::post('statuscolor', [Seo\CompanyController::class, 'statuscolor'])->name('seo.company.statuscolor');
     });
 
     Route::prefix('company-type')->group(function () {
