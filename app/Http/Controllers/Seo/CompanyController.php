@@ -220,6 +220,16 @@ class CompanyController extends Controller
 
                 return "<span class='badge'>{$val->status}</a>";
             })
+            ->addColumn('status_color', function ($val) {
+
+                $statusColor = SeoCompanyStatus::where('status_name',$val->status)->first();
+                
+                if(!empty($statusColor)){
+                   return $statusColor['status_color'];
+                } else{
+                    return '';
+                }
+            })
             ->addIndexColumn()
             ->rawColumns(['actions', 'liveLink', 'status'])
             ->make(true);

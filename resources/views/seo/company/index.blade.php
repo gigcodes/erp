@@ -96,6 +96,7 @@ $auth = auth()->user();
                         <th>Date</th>
                         <th>Status</th>
                         <th>Action</th>
+                        <th>Status Color</th>
                     </tr>
                 </thead>
             </table>

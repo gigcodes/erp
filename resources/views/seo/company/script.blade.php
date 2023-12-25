@@ -16,6 +16,11 @@
                     status:() => $(document).find(".statusFilter option:selected").val(),
                 }
             },
+            fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                if (aData[12] != '') {
+                    $('td', nRow).css('background-color', aData.status_color);
+                } 
+            },
             columns:[
                 @if(!empty($dynamicColumnsToShowsc))
                     @if (!in_array('#', $dynamicColumnsToShowsc))
@@ -89,12 +94,13 @@
                     @else
                         {data:'status', name:'status', 'visible': false},
                     @endif
-                    
+
                     @if (!in_array('Action', $dynamicColumnsToShowsc))
                         {data:'actions', name:'actions'},
                     @else
                         {data:'actions', name:'actions', 'visible': false},
                     @endif
+                    {data:'status_color', name:'status_color', 'visible': false},
                 @else
                     { data: 'DT_RowIndex', 'orderable': false, 'searchable': false },
                     { data: 'company', name:'company' },
@@ -109,6 +115,7 @@
                     {data:'created_at', name:'created_at'},
                     {data:'status', name:'status'},
                     {data:'actions', name:'actions'},
+                    {data:'status_color', name:'status_color', 'visible': false},
                 @endif
             ]
         });
