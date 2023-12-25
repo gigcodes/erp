@@ -82,6 +82,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Status</td>
+                                <td>
+                                    <input type="checkbox" value="Status" id="Status" name="column_pp[]" @if (!empty($dynamicColumnsToShowPp) && in_array('Status', $dynamicColumnsToShowPp)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Action</td>
                                 <td>
                                     <input type="checkbox" value="Action" id="Action" name="column_pp[]" @if (!empty($dynamicColumnsToShowPp) && in_array('Action', $dynamicColumnsToShowPp)) checked @endif>
