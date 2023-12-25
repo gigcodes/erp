@@ -39,6 +39,8 @@ use App\Imports\CustomerNumberImport;
 use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
 use App\Models\DataTableColumn;
+use App\Models\OrderPurchaseProductStatus;
+use App\Models\OrderPurchaseProductStatusHistory;
 
 class PurchaseProductController extends Controller
 {
@@ -213,7 +215,7 @@ class PurchaseProductController extends Controller
         $totalOrders = count($orders->get());
         $orders_array = $orders->paginate(10);
 
-        $inventory_status = InventoryStatus::get();
+        $inventory_status = OrderPurchaseProductStatus::get();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchase-product')->first();
 
@@ -253,13 +255,22 @@ class PurchaseProductController extends Controller
 
     public function statuscolor(Request $request)
     {
+
         $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = OrderPurchaseProductStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        /*$status_color = $request->all();
         $data = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
             $bugstatus = InventoryStatus::find($key);
             $bugstatus->status_color = $value;
             $bugstatus->save();
-        }
+        }*/
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
     }
@@ -664,7 +675,18 @@ class PurchaseProductController extends Controller
 
     public function createStatus(Request $request)
     {
-        $inventory_status = InventoryStatus::where('name', $request->status)->first();
+        $OrderPurchaseProductStatus = OrderPurchaseProductStatus::where('status_name', $request->status)->first();
+        if (! $OrderPurchaseProductStatus) {
+            $OrderPurchaseProductStatus = new OrderPurchaseProductStatus;
+            $OrderPurchaseProductStatus->status_name = $request->status;
+            $OrderPurchaseProductStatus->save();
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        } else {
+            return response()->json(['message' => 'Already exist', 'code' => 500]);
+        }
+
+        /*$inventory_status = InventoryStatus::where('name', $request->status)->first();
         if (! $inventory_status) {
             $inventory_status = new InventoryStatus;
             $inventory_status->name = $request->status;
@@ -673,7 +695,7 @@ class PurchaseProductController extends Controller
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         } else {
             return response()->json(['message' => 'Already exist', 'code' => 500]);
-        }
+        }*/
     }
 
     public function changeStatus($id, Request $request)
@@ -681,6 +703,26 @@ class PurchaseProductController extends Controller
         $order_product = OrderProduct::find($id);
         if ($request->status && $order_product) {
             $order_product->update(['inventory_status_id' => $request->status]);
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        }
+
+        return response()->json(['message' => 'Status not changed', 'code' => 500]);
+    }
+
+    public function changeMainStatus($id, Request $request)
+    {
+        $orders = Order::find($id);
+        if ($request->status && $orders) {
+
+            $history = new OrderPurchaseProductStatusHistory();
+            $history->order_id = $id;
+            $history->old_value = $orders->purchase_product_status_id;
+            $history->new_value = $request->status;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+
+            $orders->update(['purchase_product_status_id' => $request->status]);
 
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         }
@@ -1771,4 +1813,19 @@ class PurchaseProductController extends Controller
         ]);
     }
     //END - DEVTASK-19941
+
+    public function getStatusHistories(Request $request)
+    {
+        $datas = OrderPurchaseProductStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('order_id', $request->id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }
