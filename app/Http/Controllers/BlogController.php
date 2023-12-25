@@ -37,7 +37,7 @@ class BlogController extends Controller
             }
 
             $blogs->with('user', 'blogsTag');
-            return $blogs = $blogs->orderBy('id', 'desc')->toSql();
+            $blogs = $blogs->orderBy('id', 'desc')->get();
 
             return Datatables::of($blogs)
                 ->addIndexColumn()
