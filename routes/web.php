@@ -1092,6 +1092,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
+    Route::post('products-status-history-column-visbility', [ProductController::class, 'columnVisbilityUpdate'])->name('products.column.update');
 
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
