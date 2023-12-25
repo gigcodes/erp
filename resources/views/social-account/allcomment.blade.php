@@ -45,6 +45,20 @@ overflow-x: auto !important;
                 <div class="form-group">
                     <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
                 </div>
+                <div class="form-group ml-3">
+                    <select id="social_config" class="form-control social_config" name="social_config[]" multiple>
+                        @foreach ($socialconfigs->unique('platform') as $socialconfig)
+                            <option value="{{ $socialconfig->platform }}" {{ in_array($socialconfig->platform,$_GET['social_config']?? []) ? 'selected' : '' }}>{{ $socialconfig->platform }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group ml-3">
+                    <select id="store_website_id" class="form-control store_website_id" name="store_website_id[]" multiple>
+                        @foreach ($websites as $id => $website)
+                            <option value="{{ $website->id }}" {{ in_array($website->id,$_GET['store_website_id']?? []) ? 'selected' : '' }}>{{ $website->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <br>
                 <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
             </form>
@@ -113,7 +127,12 @@ overflow-x: auto !important;
                         <td>@if(!empty($value->user->name)) {{ $value->user->name }} @endif</td>
                         <td>{{ $value->time }}</td>
                         <td id="shortcutsIds">
-                            @include('social-account.shortcuts')
+                            <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image" onclick="ShowShortcuts('{{$value->comment_id}}')">
+                                <img src="/images/filled-sent.png" style="cursor: nwse-resize; width: 0px;">
+                            </button>
+                            <div class="shortcuts_{{ $value->comment_id }} d-none">
+                                @include('social-account.shortcuts-all-comments')
+                            </div>
                         </td>
                         <td>
                             <button id="showReplyButton" class="btn btn-light" title="Show Reply" data-comment-id="{{ $value->comment_id }}"><i class="fa fa-eye" aria-hidden="true"></i></button>
@@ -159,6 +178,16 @@ overflow-x: auto !important;
 
 @section('scripts')
 <script>
+function ShowShortcuts(id){
+    $(".shortcuts_"+id).toggleClass('d-none')
+}
+
+$('#social_config').select2({
+    placeholder: 'Select Platform',
+});
+$('#store_website_id').select2({
+    placeholder: 'Select Website',
+});
 $(document).on('click', '#showReplyButton', function(e) {
     $("#loading-image").show();
     const commentId = $(this).data('comment-id')

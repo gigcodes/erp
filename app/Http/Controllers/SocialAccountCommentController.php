@@ -10,6 +10,7 @@ use App\SocialWebhookLog;
 use App\Reply;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\StoreWebsite;
 
 class SocialAccountCommentController extends Controller
 {
@@ -63,7 +64,10 @@ class SocialAccountCommentController extends Controller
             $value['translation'] = $translationString;
         }
 
-        return view('social-account.allcomment', compact('comments', 'totalcomments'));
+        $websites = \App\StoreWebsite::select('id', 'title')->get();
+        $socialconfigs = SocialConfig::get();
+
+        return view('social-account.allcomment', compact('comments', 'totalcomments', 'socialconfigs', 'websites'));
     }
 
     public function replyComments(Request $request)
