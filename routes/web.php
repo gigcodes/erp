@@ -1373,6 +1373,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('category', CategoryController::class)->except('show');
     Route::resource('category-segment', CategorySegmentController::class);
 
+    Route::get('resourceimg/searchimg', [ResourceImgController::class, 'searchResourceimg'])->name('resourceimg.searchimg');
     Route::resource('resourceimg', ResourceImgController::class);
     Route::get('resourceimg/pending/1', [ResourceImgController::class, 'pending']);
     Route::post('add-resource', [ResourceImgController::class, 'addResource'])->name('add.resource');
@@ -1382,6 +1383,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('acitvate-resourceCat', [ResourceImgController::class, 'activateResourceCat'])->name('activate.resourceCat');
 
     Route::get('resourceimg/pending', [ResourceImgController::class, 'pending']);
+    Route::post('resourceimg/status/create', [ResourceImgController::class, 'resourceStatusCreate'])->name('resourceimg.status.create');
+    Route::post('resourceimg/statuscolor', [ResourceImgController::class, 'statuscolor'])->name('resourceimg.statuscolor');
+    Route::post('resourceimg/resourceimg-update-status', [ResourceImgController::class, 'updateStatus'])->name('resourceimg-update-status');
+    Route::get('resourceimg/status/histories/{id}', [ResourceImgController::class, 'resourceimgStatusHistories'])->name('resourceimg.status.histories');
+    Route::post('resourceimg/remarks', [ResourceImgController::class, 'saveRemarks'])->name('resourceimg.saveremarks');
+    Route::post('resourceimg/getremarks', [ResourceImgController::class, 'getRemarksHistories'])->name('resourceimg.getremarks');
+    Route::post('resourceimg/getimages', [ResourceImgController::class, 'getResourcesImages'])->name('resourceimg.getimages');
 
     Route::post('delete-resource', [ResourceImgController::class, 'deleteResource'])->name('delete.resource');
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
@@ -2254,6 +2262,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchase-product/not_mapping_product_supplier_list', [PurchaseProductController::class, 'not_mapping_product_supplier_list'])->name('not_mapping_product_supplier_list'); //Purpose : Get not mapping supplier - DEVTASK-19941
 
     Route::post('purchase-product/change-status/{id}', [PurchaseProductController::class, 'changeStatus']);
+    Route::post('purchase-product/change-main-status/{id}', [PurchaseProductController::class, 'changeMainStatus']);
+    Route::post('purchase-product/getstatus', [PurchaseProductController::class, 'getStatusHistories'])->name('purchase-product.getstatus');
     Route::post('purchase-product/submit-status', [PurchaseProductController::class, 'createStatus']);
     Route::get('purchase-product/send-products/{type}/{supplier_id}', [PurchaseProductController::class, 'sendProducts']);
     Route::get('purchase-product/get-products/{type}/{supplier_id}', [PurchaseProductController::class, 'getProducts']);
@@ -2265,6 +2275,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchase-product/lead-supplier-details/{lead_id}', [PurchaseProductController::class, 'leadSupplierDetails']);
 
     Route::get('purchase-product/customer-details/{type}/{order_id}', [PurchaseProductController::class, 'getCustomerDetails']);
+    Route::post('purchase-product/statuscolor', [PurchaseProductController::class, 'statuscolor'])->name('purchase-product.statuscolor');
+    Route::post('purchase-product-column-visbility', [PurchaseProductController::class, 'ppColumnVisbilityUpdate'])->name('purchase-product.column.update');
     Route::resource('purchase-product', PurchaseProductController::class);
 
     Route::post('purchase-product/insert_suppliers_product', [PurchaseProductController::class, 'insert_suppliers_product'])->name('purchase-product.insert_suppliers_product');
@@ -3188,6 +3200,7 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat-tickets-column-visbility', [LiveChatController::class, 'columnVisbilityUpdate'])->name('livechat.column.update');
 /*#DEVTASK-22731 - START*/
 Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
 Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
