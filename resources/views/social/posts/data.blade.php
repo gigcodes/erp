@@ -5,7 +5,7 @@
           <img width="100" class="img-responsive thumbnail thumbnail-wrapper mb-0 mr-0" src="{{ asset($post->image_path) ?? '' }}">
         @endif
       </td>
-        <!-- <td>{{ \Carbon\Carbon::parse($post->created_at)->format('d-m-Y') }}</td> -->
+        <td>{{ \Carbon\Carbon::parse($post->created_at)->format('d-m-Y') }}</td>
         <?php
           $config_name = App\Social\SocialConfig::where('id',$post->config_id)->first();
         ?>
