@@ -82,38 +82,100 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Env Path</th>
-                            @foreach($env_store_websites as $id => $title)
-                                <th class="expand-row">
-                                    <span class="td-mini-container">
-                                        {{ strlen($title) > 10 ? substr($title, 0, 10).'...' :  $title }}
-                                    </span>
-                                    <span class="td-full-container hidden">
-                                        {{$title}}
-                                    </span>
+                            @if(!empty($dynamicColumnsToShowse))
+                                @if (!in_array('Env Path', $dynamicColumnsToShowse))
+                                    <th>Env Path</th>
+                                @endif
 
-                                </td>
-                            @endforeach
-                            
+                                @foreach($env_store_websites as $id => $title)
+                                    @if (!in_array($id, $dynamicColumnsToShowse))
+                                        <th class="expand-row">
+                                            <span class="td-mini-container">
+                                                {{ strlen($title) > 10 ? substr($title, 0, 10).'...' :  $title }}
+                                            </span>
+                                            <span class="td-full-container hidden">
+                                                {{$title}}
+                                            </span>
+
+                                        </td>
+                                    @endif
+                                @endforeach
+                            @else 
+                                <th>Env Path</th>
+                                @foreach($env_store_websites as $id => $title)
+                                    <th class="expand-row">
+                                        <span class="td-mini-container">
+                                            {{ strlen($title) > 10 ? substr($title, 0, 10).'...' :  $title }}
+                                        </span>
+                                        <span class="td-full-container hidden">
+                                            {{$title}}
+                                        </span>
+
+                                    </td>
+                                @endforeach
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($env_paths as $id => $paths)
                             <tr>
-                                <td class="expand-row">
-                                    <span class="td-mini-container">
-                                        {{ strlen($paths) > 15 ? substr($paths, 0, 15).'...' :  $paths }}
-                                    </span>
-                                    <span class="td-full-container hidden">
-                                        {{$paths}}
-                                    </span>
-                                </td>
-                                @foreach($env_store_websites as $id => $title)
-                                    <?php 
-                                        $key = array_search($paths, array_column($environments[$id], 'path'));
-                                    ?>
-                                    @if($key !== false)
-                                    <td class="expand-row" style="background-color: {{$environments[$id][$key]['status_color']}}">
+                                @if(!empty($dynamicColumnsToShowse))
+                                    @if (!in_array('Env Path', $dynamicColumnsToShowse))
+                                        <td class="expand-row">
+                                            <span class="td-mini-container">
+                                                {{ strlen($paths) > 15 ? substr($paths, 0, 15).'...' :  $paths }}
+                                            </span>
+                                            <span class="td-full-container hidden">
+                                                {{$paths}}
+                                            </span>
+                                        </td>
+                                    @endif
+
+                                    @foreach($env_store_websites as $id => $title)
+                                        @if (!in_array($id, $dynamicColumnsToShowse))
+                                            <?php 
+                                                $key = array_search($paths, array_column($environments[$id], 'path'));
+                                            ?>
+                                            @if($key !== false)
+                                            <td class="expand-row" style="background-color: {{$environments[$id][$key]['status_color']}}">
+                                                <span class="td-mini-container">
+                                                    {{ strlen($environments[$id][$key]['value']) > 15 ? substr($environments[$id][$key]['value'], 0, 15).'...' :  $environments[$id][$key]['value'] }}
+                                                </span>
+                                                <span class="td-full-container hidden">
+                                                    {{$environments[$id][$key]['value']}}
+                                                </span>
+                                                
+                                                <br>
+                                                <button type="button" title="Edit" data-id="{{$environments[$id][$key]['id']}}" class="btn btn-edit-template" style="padding: 0px 5px !important;">
+                                                    <i class="fa fa-edit" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" title="Update Value" data-id="{{$environments[$id][$key]['id']}}" class="btn btn-update-value" style="padding: 0px 5px !important;">
+                                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                                </button>
+                                                <button type="button" title="History" data-id="{{$environments[$id][$key]['id']}}" class="btn btn-history" style="padding: 0px 5px !important;">
+                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                </button>
+                                            </td>
+                                            @else
+                                            <td></td>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <td class="expand-row">
+                                        <span class="td-mini-container">
+                                            {{ strlen($paths) > 15 ? substr($paths, 0, 15).'...' :  $paths }}
+                                        </span>
+                                        <span class="td-full-container hidden">
+                                            {{$paths}}
+                                        </span>
+                                    </td>
+                                    @foreach($env_store_websites as $id => $title)
+                                        <?php 
+                                            $key = array_search($paths, array_column($environments[$id], 'path'));
+                                        ?>
+                                        @if($key !== false)
+                                            <td class="expand-row" style="background-color: {{$environments[$id][$key]['status_color']}}">
                                             <span class="td-mini-container">
                                                 {{ strlen($environments[$id][$key]['value']) > 15 ? substr($environments[$id][$key]['value'], 0, 15).'...' :  $environments[$id][$key]['value'] }}
                                             </span>
@@ -131,13 +193,12 @@
                                             <button type="button" title="History" data-id="{{$environments[$id][$key]['id']}}" class="btn btn-history" style="padding: 0px 5px !important;">
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                             </button>
-                                    
-                                    </td>
-                                    @else
-                                    <td></td>
-                                    @endif
-                                @endforeach
-                                
+                                        </td>
+                                        @else
+                                            <td></td>
+                                        @endif
+                                    @endforeach
+                                @endif
                             </tr>
                         @endforeach
                         

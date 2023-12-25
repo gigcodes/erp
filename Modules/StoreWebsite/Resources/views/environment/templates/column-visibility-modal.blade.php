@@ -6,7 +6,7 @@
                 <h4 class="modal-title">Columns Visibility Listing</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="{{ route('postman.column.update') }}" method="POST" id="postman-column-update">
+            <form action="{{ route('store-website.environment.column.update') }}" method="POST" id="store-website-environment-column-update">
                 @csrf
                 <div class="form-group col-md-12">
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
@@ -16,11 +16,20 @@
                         </tr>
                         <div id="columnVisibilityControls">
                             <tr>
-                                <td>ID</td>
+                                <td>Env Path</td>
                                 <td>
-                                    <input type="checkbox" value="ID" id="ID" name="column_postman[]" @if (!empty($dynamicColumnsToShowPostman) && in_array('ID', $dynamicColumnsToShowPostman)) checked @endif>
+                                    <input type="checkbox" value="Env Path" id="Env Path" name="column_se[]" @if (!empty($dynamicColumnsToShowse) && in_array('Env Path', $dynamicColumnsToShowse)) checked @endif>
                                 </td>
                             </tr>
+
+                            @foreach($storeWebsites as $id => $title)
+                                <tr>
+                                    <td>{{$title}}</td>
+                                    <td>
+                                        <input type="checkbox" value="{{$id}}" id="{{$id}}" name="column_se[]" @if (!empty($dynamicColumnsToShowse) && in_array($id, $dynamicColumnsToShowse)) checked @endif>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </div>
                     </table>
                 </div>
