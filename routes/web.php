@@ -1373,6 +1373,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('category', CategoryController::class)->except('show');
     Route::resource('category-segment', CategorySegmentController::class);
 
+    Route::get('resourceimg/searchimg', [ResourceImgController::class, 'searchResourceimg'])->name('resourceimg.searchimg');
     Route::resource('resourceimg', ResourceImgController::class);
     Route::get('resourceimg/pending/1', [ResourceImgController::class, 'pending']);
     Route::post('add-resource', [ResourceImgController::class, 'addResource'])->name('add.resource');
@@ -3192,6 +3193,7 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat-tickets-column-visbility', [LiveChatController::class, 'columnVisbilityUpdate'])->name('livechat.column.update');
 /*#DEVTASK-22731 - START*/
 Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
 Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
@@ -3615,6 +3617,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
+    Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {

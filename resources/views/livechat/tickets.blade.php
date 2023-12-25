@@ -121,7 +121,7 @@
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
-
+                        <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#ltdatatablecolumnvisibilityList">Column Visiblity</button>
                     </div>
                 </div>
             </h2>
@@ -245,28 +245,85 @@
             <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
                 <thead>
                 <tr>
-                    <th style="width: 5%;"></th>
-                    <th style="width: 5%;">Id</th>
-                    <th style="width: 6%;">Source</th>
-                    <th style="width: 8%;">Name</th>
-                    <th style="width: 8%;">Email</th>
-                    <th class="chat-msg" style="width: 5%;">Subject</th>
-                    <th class="chat-msg" style="width: 6%;">Message</th>
-                    <th style="width: 6%;">Asg name</th>
-                    <th class="chat-msg" style="width: 5%;">Brand</th>
-                    <th class="chat-msg" style="width: 5%;">Country</th>
-                    <th style="width: 5%;">Ord no</th>
-                    <th style="width: 8%;">Ph no</th>
-                    <th style="width: 16%;">Msg Box</th>
-                    <th style="width: 16%;">Images</th>
-                    <th class="chat-msg" style="width: 13%;">Resolution Date</th>
-                    <th style="width: 6%;">Status</th>
-                    <th class="chat-msg" style="width: 6%;">Created</th>
-                    <th class="chat-msg" style="width: 5%;">Action</th>
+                    @if(!empty($dynamicColumnsToShowLt))
+                        @if (!in_array('Checkbox', $dynamicColumnsToShowLt))
+                            <th style="width: 5%;"></th>
+                        @endif
+                        @if (!in_array('Id', $dynamicColumnsToShowLt))
+                            <th style="width: 5%;">Id</th>
+                        @endif
+                        @if (!in_array('Source', $dynamicColumnsToShowLt))
+                            <th style="width: 6%;">Source</th>
+                        @endif
+                        @if (!in_array('Name', $dynamicColumnsToShowLt))
+                            <th style="width: 8%;">Name</th>
+                        @endif
+                        @if (!in_array('Email', $dynamicColumnsToShowLt))
+                            <th style="width: 8%;">Email</th>
+                        @endif
+                        @if (!in_array('Subject', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 5%;">Subject</th>
+                        @endif
+                        @if (!in_array('Message', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 6%;">Message</th>
+                        @endif
+                        @if (!in_array('Asg name', $dynamicColumnsToShowLt))
+                            <th style="width: 6%;">Asg name</th>
+                        @endif
+                        @if (!in_array('Brand', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 5%;">Brand</th>
+                        @endif
+                        @if (!in_array('Country', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 5%;">Country</th>
+                        @endif
+                        @if (!in_array('Ord no', $dynamicColumnsToShowLt))
+                            <th style="width: 5%;">Ord no</th>
+                        @endif
+                        @if (!in_array('Ph no', $dynamicColumnsToShowLt))
+                            <th style="width: 8%;">Ph no</th>
+                        @endif
+                        @if (!in_array('Msg Box', $dynamicColumnsToShowLt))
+                            <th style="width: 16%;">Msg Box</th>
+                        @endif
+                        @if (!in_array('Images', $dynamicColumnsToShowLt))
+                            <th style="width: 16%;">Images</th>
+                        @endif
+                        @if (!in_array('Resolution Date', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 13%;">Resolution Date</th>
+                        @endif
+                        @if (!in_array('Status', $dynamicColumnsToShowLt))
+                            <th style="width: 6%;">Status</th>
+                        @endif
+                        @if (!in_array('Created', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 6%;">Created</th>
+                        @endif
+                        @if (!in_array('Action', $dynamicColumnsToShowLt))
+                            <th class="chat-msg" style="width: 5%;">Action</th>
+                        @endif
+                    @else
+                        <th style="width: 5%;"></th>
+                        <th style="width: 5%;">Id</th>
+                        <th style="width: 6%;">Source</th>
+                        <th style="width: 8%;">Name</th>
+                        <th style="width: 8%;">Email</th>
+                        <th class="chat-msg" style="width: 5%;">Subject</th>
+                        <th class="chat-msg" style="width: 6%;">Message</th>
+                        <th style="width: 6%;">Asg name</th>
+                        <th class="chat-msg" style="width: 5%;">Brand</th>
+                        <th class="chat-msg" style="width: 5%;">Country</th>
+                        <th style="width: 5%;">Ord no</th>
+                        <th style="width: 8%;">Ph no</th>
+                        <th style="width: 16%;">Msg Box</th>
+                        <th style="width: 16%;">Images</th>
+                        <th class="chat-msg" style="width: 13%;">Resolution Date</th>
+                        <th style="width: 6%;">Status</th>
+                        <th class="chat-msg" style="width: 6%;">Created</th>
+                        <th class="chat-msg" style="width: 5%;">Action</th>
+                    @endif
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">
-                @include('livechat.partials.ticket-list')
+                    @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
         </div>
@@ -274,7 +331,7 @@
 
     </div>
 
-
+    @include("livechat.partials.column-visibility-modal")
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
     @include('livechat.partials.modal_ticket_send_option')
