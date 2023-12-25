@@ -3191,6 +3191,7 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat-tickets-column-visbility', [LiveChatController::class, 'columnVisbilityUpdate'])->name('livechat.column.update');
 /*#DEVTASK-22731 - START*/
 Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
 Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
