@@ -6,6 +6,9 @@ use Auth;
 use Exception;
 use App\ResourceImage;
 use App\ResourceCategory;
+use App\Models\ResourceStatusHistory;
+use App\Models\ResourceStatus;
+use App\Models\ResourceRemarksHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -43,6 +46,8 @@ class ResourceImgController extends Controller
             return $query;
         });
 
+        $ResourceStatus = ResourceStatus::all();
+
         $allresources = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->except(['page']));
 
         if ($request->ajax()) {
@@ -50,16 +55,79 @@ class ResourceImgController extends Controller
             LOG::info(\DB::getQueryLog());
 
             return response()->json([
-                'tbody' => view('resourceimg.partial_index', compact('allresources', 'Categories', 'categories', 'sub_categories'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('resourceimg.partial_index', compact('allresources', 'Categories', 'categories', 'sub_categories', 'ResourceStatus'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $allresources->render(),
                 'count' => $allresources->total(),
             ], 200);
         } else {
-            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories'))
+            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories', 'ResourceStatus'))
                 ->with('i', ($request->input('page', 1) - 1) * 5);
         }
     }
 
+
+    public function resourceimgStatusHistories($id)
+    {
+        $datas = ResourceStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('resource_images_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $postId = $request->input('postId');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $ResourceImage = ResourceImage::find($postId);
+        $history = new ResourceStatusHistory();
+        $history->resource_images_id = $postId;
+        $history->old_value = $ResourceImage->status_id;
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $ResourceImage->status_id = $selectedStatus;
+        $ResourceImage->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = ResourceStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function resourceStatusCreate(Request $request)
+    {
+        try {
+            $status = new ResourceStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+  
     public function searchResourceimg(Request $request)
     {
         $query = ResourceImage::where('is_pending', '=', 0)->select();
@@ -347,5 +415,77 @@ class ResourceImgController extends Controller
         }
 
         return back()->with('success', 'New Resource image added successfully.');
+    }
+
+    public function saveRemarks(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'resource_images_id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        $input['added_by'] = Auth::user()->id;
+        ResourceRemarksHistory::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input]);
+    }
+
+    public function getRemarksHistories(Request $request)
+    {
+        $datas = ResourceRemarksHistory::with(['user'])
+                ->where('resource_images_id', $request->resource_images_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getResourcesImages(Request $request)
+    {
+        $datas = ResourceImage::where('id', $request->resource_images_id)->first();
+
+        $html = '';
+        if(!empty($datas)){
+
+            if(isset($datas->image1)){
+                $image1Url = url('/category_images/'.$datas->image1);
+
+                $html .= '<div class="col-md-3"> <img onclick="OpenModel(this.id)" id="myImg1" class="myImg" src="'.$image1Url.'" alt="'.$image1Url.'" style="width: 100% !important;height: 50px !important;"> </div>';
+            }
+
+            if(isset($datas->image2)){
+
+                $image2Url = url('/category_images/'.$datas->image2);
+
+                $html .= '<div class="col-md-3"> <img onclick="OpenModel(this.id)" id="myImg2" class="myImg" src="'.$image2Url.'" alt="'.$image2Url.'" style="width: 100% !important;height: 50px !important;"> </div>';
+            }
+
+            if(isset($datas->images)){
+                if($datas->images!=null){
+                    foreach (json_decode($datas->images) as $key => $image) {
+
+                        $imageUrl = url('/category_images/'.$image);
+
+                        $html .= '<div class="col-md-3" style="margin-top: 15px"> <img id="myShowImg" img-id="'.$datas->id.'" src="'.$imageUrl.'" style="width: 100% !important;height: 50px !important;"> </div>';
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'html' => $html,
+            'message' => 'Images get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
