@@ -17,19 +17,99 @@
                 }
             },
             columns:[
-                { data: 'DT_RowIndex', 'orderable': false, 'searchable': false },
-                { data: 'company', name:'company' },
-                {data:'website.website', name:'website.website'},
-                {data:'da', name:'da'},
-                {data:'pa', name:'pa'},
-                {data:'ss', name:'ss'},
-                {data:'user.name', name:'user.name'},
-                {data:'username', name:'username'},
-                {data:'password', name:'password'},
-                {data:'liveLink', name:'liveLink'},
-                {data:'created_at', name:'created_at'},
-                {data:'status', name:'status'},
-                {data:'actions', name:'actions'},
+                @if(!empty($dynamicColumnsToShowsc))
+                    @if (!in_array('#', $dynamicColumnsToShowsc))
+                        { data: 'DT_RowIndex', 'orderable': false, 'searchable': false },
+                    @else
+                        { data: 'DT_RowIndex', 'orderable': false, 'searchable': false, 'visible': false },
+                    @endif
+
+                    @if (!in_array('Type', $dynamicColumnsToShowsc))
+                        { data: 'company', name:'company' },
+                    @else
+                        { data: 'company', name:'company', 'visible': false },
+                    @endif
+
+                    @if (!in_array('Website', $dynamicColumnsToShowsc))
+                        {data:'website.website', name:'website.website'},
+                    @else
+                        {data:'website.website', name:'website.website', 'visible': false},
+                    @endif
+
+                    @if (!in_array('DA', $dynamicColumnsToShowsc))
+                        {data:'da', name:'da'},
+                    @else
+                        {data:'da', name:'da', 'visible': false},
+                    @endif
+
+                    @if (!in_array('PA', $dynamicColumnsToShowsc))
+                        {data:'pa', name:'pa'},
+                    @else
+                        {data:'pa', name:'pa', 'visible': false},
+                    @endif
+
+                    @if (!in_array('SS', $dynamicColumnsToShowsc))
+                        {data:'ss', name:'ss'},
+                    @else
+                        {data:'ss', name:'ss', 'visible': false},
+                    @endif
+
+                    @if (!in_array('User', $dynamicColumnsToShowsc))
+                        {data:'user.name', name:'user.name'},
+                    @else
+                        {data:'user.name', name:'user.name', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Username', $dynamicColumnsToShowsc))
+                        {data:'username', name:'username'},
+                    @else
+                        {data:'username', name:'username', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Password', $dynamicColumnsToShowsc))
+                        {data:'password', name:'password'},
+                    @else
+                        {data:'password', name:'password', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Live link', $dynamicColumnsToShowsc))
+                        {data:'liveLink', name:'liveLink'},
+                    @else
+                        {data:'liveLink', name:'liveLink', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Date', $dynamicColumnsToShowsc))
+                        {data:'created_at', name:'created_at'},
+                    @else
+                        {data:'created_at', name:'created_at', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Status', $dynamicColumnsToShowsc))
+                        {data:'status', name:'status'},
+                    @else
+                        {data:'status', name:'status', 'visible': false},
+                    @endif
+                    
+                    @if (!in_array('Action', $dynamicColumnsToShowsc))
+                        {data:'actions', name:'actions'},
+                    @else
+                        {data:'actions', name:'actions', 'visible': false},
+                    @endif
+                @else
+                    { data: 'DT_RowIndex', 'orderable': false, 'searchable': false },
+                    { data: 'company', name:'company' },
+                    {data:'website.website', name:'website.website'},
+                    {data:'da', name:'da'},
+                    {data:'pa', name:'pa'},
+                    {data:'ss', name:'ss'},
+                    {data:'user.name', name:'user.name'},
+                    {data:'username', name:'username'},
+                    {data:'password', name:'password'},
+                    {data:'liveLink', name:'liveLink'},
+                    {data:'created_at', name:'created_at'},
+                    {data:'status', name:'status'},
+                    {data:'actions', name:'actions'},
+                @endif
             ]
         });
 

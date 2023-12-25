@@ -5665,6 +5665,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
         Route::get('{id}/edit', [Seo\CompanyController::class, 'edit'])->name('seo.company.edit');
         Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
+        Route::post('column-visbility', [Seo\CompanyController::class, 'columnVisbilityUpdate'])->name('seo.company.column.update');
+        Route::post('statuscolor', [Seo\CompanyController::class, 'statuscolor'])->name('seo.company.statuscolor');
     });
 
     Route::prefix('company-type')->group(function () {
