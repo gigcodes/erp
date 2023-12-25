@@ -54,7 +54,7 @@ class SocialAccountCommentController extends Controller
             });
         }
 
-        $comments = $comments->orderBy('comment_id', 'DESC')->paginate(1);
+        $comments = $comments->orderBy('comment_id', 'DESC')->paginate(25);
 
         $googleTranslate = new GoogleTranslate();
         $target = 'en';
