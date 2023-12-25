@@ -72,6 +72,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class ProductController extends Controller
 {
@@ -4298,7 +4299,37 @@ class ProductController extends Controller
         //dd($status);
         //echo "<pre>";
         //  print_r($products->toArray());
-        return view('products.statuslog', compact('products', 'request', 'status', 'products_count', 'request'));
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'products-status-history')->first();
+
+        $dynamicColumnsToShowp = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowp = json_decode($hideColumns, true);
+        }
+
+        return view('products.statuslog', compact('products', 'request', 'status', 'products_count', 'request', 'dynamicColumnsToShowp'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','products-status-history')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'products-status-history';
+            $column->column_name = json_encode($request->column_p); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'products-status-history';
+            $column->column_name = json_encode($request->column_p); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function productStats(Request $request)
