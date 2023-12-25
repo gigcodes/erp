@@ -33,7 +33,7 @@ overflow-x: auto !important;
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">Comments</h2>
+                    <h2 class="page-heading">Comments ({{$totalcomments}})</h2>
                 </div>
             </div>
         </div>

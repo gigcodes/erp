@@ -44,6 +44,8 @@ class SocialAccountCommentController extends Controller
     {
         $search = request('search', '');
 
+        $totalcomments = BusinessComment::where('is_parent', 0)->count();
+
         $comments = BusinessComment::with('bussiness_post', 'bussiness_post.bussiness_social_configs', 'bussiness_post.bussiness_social_configs.bussiness_website')->where('is_parent', 0);
         
         if (! empty($search)) {
@@ -52,7 +54,7 @@ class SocialAccountCommentController extends Controller
             });
         }
 
-        $comments = $comments->orderBy('comment_id', 'DESC')->paginate(25);
+        $comments = $comments->orderBy('comment_id', 'DESC')->paginate(1);
 
         $googleTranslate = new GoogleTranslate();
         $target = 'en';
@@ -61,7 +63,7 @@ class SocialAccountCommentController extends Controller
             $value['translation'] = $translationString;
         }
 
-        return view('social-account.allcomment', compact('comments'));
+        return view('social-account.allcomment', compact('comments', 'totalcomments'));
     }
 
     public function replyComments(Request $request)
