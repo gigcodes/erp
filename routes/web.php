@@ -951,9 +951,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('color-reference/affected-product', [ColorReferenceController::class, 'affectedProduct']);
     Route::post('color-reference/update-color', [ColorReferenceController::class, 'updateColor']);
-
+    Route::post('color-reference/update-color-miltiple', [ColorReferenceController::class, 'updateColorMultiple']);
     Route::resource('color-reference', ColorReferenceController::class);
-
+    Route::get('color-reference-group', [ColorReferenceController::class, 'groupColor']);
+    Route::get('/color-reference/group/{name}/{threshold}', [ColorReferenceController::class, 'colorGroupBy']);
     Route::get('compositions/{id}/used-products', [CompositionsController::class, 'usedProducts'])->name('compositions.used-products');
     Route::get('compositions/affected-product', [CompositionsController::class, 'affectedProduct']);
     Route::post('compositions/update-composition', [CompositionsController::class, 'updateComposition']);
