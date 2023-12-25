@@ -65,6 +65,7 @@ class ResourceImgController extends Controller
         }
     }
 
+
     public function resourceimgStatusHistories($id)
     {
         $datas = ResourceStatusHistory::with(['user', 'newValue', 'oldValue'])
@@ -125,6 +126,29 @@ class ResourceImgController extends Controller
 
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+  
+    public function searchResourceimg(Request $request)
+    {
+        $query = ResourceImage::where('is_pending', '=', 0)->select();
+
+        $query->where(function ($query) use ($request) {
+            if ($request->term) {
+                $query = $query->where('url', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('created_at', 'LIKE', '%' . $request->term . '%')
+                ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
+            }
+            if ($request->category) {
+                $query = $query->orwhereIn('cat_id', $request->category);
+            }
+            if ($request->sub_category) {
+                $query = $query->orwhereIn('sub_cat_id', $request->sub_category);
+            }
+        });
+
+        $allresources = $query->orderBy('id', 'desc')->get();
+
+        return view('resourceimg.partial_index', compact('allresources'));
     }
 
     public function addResourceCat(Request $request)
