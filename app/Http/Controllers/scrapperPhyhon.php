@@ -168,7 +168,6 @@ class scrapperPhyhon extends Controller
         //  echo '<pre>';print_r($websites->toArray());die;
         //      return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
 
-        return $images;
         return view('scrapper-phyhon.list', compact('images', 'allWebsites', 'request', 'query', 'storewebsite', 'current_date', 'startDate', 'endDate', 'storewebsiteUrls'));
     }
 
