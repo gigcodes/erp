@@ -4657,6 +4657,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     </li>
 
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="/category/new-references-group">New Category
+                                                            Reference Group</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
