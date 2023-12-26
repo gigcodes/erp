@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use App\Repositories\GtMatrixRepository;
 use Entrecore\GTMetrixClient\GTMetrixClient;
+use App\Models\DataTableColumn;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -883,11 +884,41 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $pagespeedDatanew[] = ['website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => array_unique($catName)];
                 $catArr = array_unique($catName);
             }
+
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'gtmetrixcategoryWeb')->first();
+
+            $dynamicColumnsToShowgt = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowgt = json_decode($hideColumns, true);
+            }
+
             //dd($pagespeedDatanew);
-            return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew', 'title', 'catArr'));
+            return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew', 'title', 'catArr', 'dynamicColumnsToShowgt'));
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','gtmetrixcategoryWeb')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'gtmetrixcategoryWeb';
+            $column->column_name = json_encode($request->column_gt); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'gtmetrixcategoryWeb';
+            $column->column_name = json_encode($request->column_gt); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function runCurrentUrl(Request $request)

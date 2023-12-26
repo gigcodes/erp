@@ -5296,6 +5296,7 @@ Route::get('gtmetrixAccount/show', [StoreGTMetrixAccountController::class, 'show
 Route::post('gtmetrixAccount/update', [StoreGTMetrixAccountController::class, 'update'])->name('account.update');
 Route::post('gtmetrixAccount/store', [StoreGTMetrixAccountController::class, 'store'])->name('account.store');
 Route::get('gtmetrixcategoryWeb', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'CategoryWiseWebsiteReport'])->name('gtm.cetegory.web');
+Route::post('gtmetrixcategoryWeb-column-visbility', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'columnVisbilityUpdate'])->name('gtmetrix.column.update');
 
 Route::get('product-pricing', [product_price\ProductPriceController::class, 'index'])->name('product.pricing');
 Route::get('product-autocomplete', [product_price\ProductPriceController::class, 'getProductAutocomplete'])->name('product.autocomplete');
