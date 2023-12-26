@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seo;
 
 use DB;
+use Auth;
 use App\User;
 use App\EmailAddress;
 use App\StoreWebsite;
@@ -11,6 +12,8 @@ use App\Models\Seo\SeoCompany;
 use App\Models\Seo\SeoCompanyType;
 use App\Http\Controllers\Controller;
 use App\Models\Seo\SeoCompanyHistroy;
+use App\Models\DataTableColumn;
+use App\Models\SeoCompanyStatus;
 
 class CompanyController extends Controller
 {
@@ -34,8 +37,53 @@ class CompanyController extends Controller
         $data['users'] = User::select('id', 'name')->get();
         $data['companyTypes'] = SeoCompanyType::all();
         $data['moduleName'] = $this->moduleName;
+        $data['statusList'] = SeoCompanyStatus::all();
+
+        $data['totalSeoCompanies'] = SeoCompany::count();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'seo-company')->first();
+
+        $data['dynamicColumnsToShowsc'] = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $data['dynamicColumnsToShowsc'] = json_decode($hideColumns, true);
+        }
 
         return view("{$this->view}/index", $data);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','seo-company')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'seo-company';
+            $column->column_name = json_encode($request->column_sc); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'seo-company';
+            $column->column_name = json_encode($request->column_sc); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $SeoCompanyStatus = SeoCompanyStatus::find($key);
+            $SeoCompanyStatus->status_color = $value;
+            $SeoCompanyStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function create()
@@ -171,6 +219,16 @@ class CompanyController extends Controller
                 $val->status = ucfirst($val->status);
 
                 return "<span class='badge'>{$val->status}</a>";
+            })
+            ->addColumn('status_color', function ($val) {
+
+                $statusColor = SeoCompanyStatus::where('status_name',$val->status)->first();
+                
+                if(!empty($statusColor)){
+                   return $statusColor['status_color'];
+                } else{
+                    return '';
+                }
             })
             ->addIndexColumn()
             ->rawColumns(['actions', 'liveLink', 'status'])
