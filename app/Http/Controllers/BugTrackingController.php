@@ -157,7 +157,7 @@ class BugTrackingController extends Controller
         }
 
         $records_count = $records->count();
-        $records = $records->take(1)->get();
+        $records = $records->take(10)->get();
 
         $records = $records->map(
             function ($bug) {
@@ -212,7 +212,7 @@ class BugTrackingController extends Controller
 
         $page = $_REQUEST['page'];
 
-        $page = $page * 1;
+        $page = $page * 10;
 
         $bugStatuses = BugStatus::get();
         $bugEnvironments = BugEnvironment::get();
