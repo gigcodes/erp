@@ -801,7 +801,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     
     @auth
         <script type="text/javascript">
-            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
+            const IS_ADMIN_USER = {{ (auth()->user()->isAdmin() === true || auth()->user()->isAdmin() === false) ? auth()->user()->isAdmin() : false }};
             const LOGGED_USER_ID = {{ auth()->user()->id}};
         </script>
     @else
@@ -1429,6 +1429,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-file-image-o fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
+                                    <a title="Search Resource Center" data-toggle="modal" data-target="#menu-show-resource-img-model" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
+                                        <span><i class="fa fa fa-list fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                     class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -1556,7 +1561,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
                                         <span><i class="fa fa fa-user-plus fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
@@ -4552,6 +4557,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/scrap/scrap-links">Scrap Links</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/devoops">Dev Oops</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('seo.company.index')}}">Seo Company</a>
+                                    </li>
+                                    
                                 </ul>
                             </li>
 
@@ -5096,6 +5111,76 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </form>
                             </div>
                         </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-show-resource-img-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Search Resource Center</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        @php
+                                        $categoriesList = App\ResourceCategory::where('parent_id', 0)->get();
+                                        $sub_categoriesList = App\ResourceCategory::where('parent_id', '!=', 0)->get();
+                                        @endphp
+                                        <div class="col-12" style=" margin-bottom: 10px;">
+                                            <div class="col-md-3 pl-0">
+                                                <label for="">Keyword</label>
+                                                <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search keyword" id="term-resourceimg">
+                                            </div>
+                                            <div class="col-md-4 pl-0">
+                                                <label for="">Category</label>
+                                                <select name="category" id="header_filter_category">
+                                                    @foreach ($categoriesList as $category)
+                                                        <option value="{{$category->id}}">{{$category->title}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4 pl-0">
+                                                <label for="">Sub Category</label>
+                                                <select name="category" id="header_filter_sub_category">
+                                                    @foreach ($sub_categoriesList as $s_category)
+                                                        <option value="{{$s_category->id}}">{{$s_category->title}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-1 pl-0">
+                                                <button type="button" class="btn btn-secondary btn-resourceimg-search-menu" style="    margin-top: 21px;"><i class="fa fa-search"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th style="width: 2%;">#</th>
+                                                    <th style="width: 10%;">Category</th>
+                                                    <th style="width: 10%;">Sub Category</th>
+                                                    <th style="width: 10%;">Url</th>
+                                                    <th style="width: 10%;">Images</th>
+                                                    <th style="width: 15%;">Created at</th>
+                                                    <th style="width: 10%;">Created by</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-resourceimg-task-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -9933,6 +10018,43 @@ if (!\Auth::guest()) {
         menubar: false
     });*/
     
+    $("#header_filter_sub_category").select2({width: "100%", placeholder: "Select Subcategory", multiple: true})
+
+    $("#header_filter_category").select2({width: "100%", placeholder: "Select Category", multiple: true})
+
+    $("#header_filter_sub_category, #header_filter_category").val(null).trigger('change')
+
+    $(document).on("click", ".btn-resourceimg-search-menu", function (e) {
+        var keyword = $('#term-resourceimg').val();
+        var header_filter_category = $('#header_filter_category').val();
+        var header_filter_sub_category = $('#header_filter_sub_category').val();
+
+        $.ajax({
+            url: '{{route('resourceimg.searchimg')}}',
+            type: 'GET',
+            data: {
+                term: keyword,
+                category: header_filter_category,
+                sub_category: header_filter_sub_category,
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-resourceimg-task-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    });
+
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>

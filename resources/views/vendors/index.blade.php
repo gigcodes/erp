@@ -1486,7 +1486,7 @@
     });
 
     function createUserFromVendor(id, email) {
-        $('#vendor_id').attr('data-id', id);
+        $('#createUser #vendor_id').attr('data-id', id);
         if (email) {
             $('#createUser').attr('data-email', email);
         }

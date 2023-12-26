@@ -314,17 +314,46 @@
     </div>
 </div>
 
+<div id="magneto-frontend-historyliststatus" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="max-width: 95%;width: 100%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Google Translate History</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="25%">New Status</th>
+                                <th width="25%">Updated By</th>                   
+                            </tr>
+                        </thead>
+                        <tbody class="magneto-historyliststatus-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="mt-3 col-md-12">
     <table class="table table-bordered table-striped" id="log-table">
         <thead>
             <tr>
                 <th width="3%">ID</th>
                 <th width="3%">KeyWords</th>
-                <th width="30%">Message</th>
-                <th width="30%">Standard Value</th>
-                <th width="10%">Date</th>
-                <th width="10%">Edit</th>
-                <th width="10%">History</th>
+                <th width="45%">Message</th>
+                <th width="45%">Standard Value</th>
+                <th width="8%">Date</th>
+                <th width="5%">Action</th>
              </tr>
             <tbody>
                 @foreach ($googleTranslateDatas as $data)
@@ -337,22 +366,29 @@
                                 {{$data->value}}
                             </div>
                         </td>
-                        <td><div class="show_csv_co">{{$data->standard_value}}</div> 
-                            @if($data->status == 1 && auth()->user()->hasRole('Admin'))
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="status" id="accept" value="accept" data-id="{{$data->id}}">
-                                        <label class="form-check-label" for="accept">
-                                            Accept
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="status" id="reject" value="reject" data-id="{{$data->id}}">
-                                        <label class="form-check-label" for="reject">
-                                            Reject
-                                        </label>
-                                    </div>
-                                @endif
+                        @if($data->status == 3)
+                            <td style="background-color: #dd6255!important;"><div class="show_csv_co">{{$data->standard_value}}</div> 
+                        @elseif($data->status == 1)
+                            <td style="background-color: #8bd789!important;"><div class="show_csv_co">{{$data->standard_value}}</div> 
+                        @else 
+                            <td><div class="show_csv_co">{{$data->standard_value}}</div> 
+                        @endif
+                        
+                            @if($data->status == 2 && auth()->user()->hasRole('Admin'))
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="accept" value="accept" data-id="{{$data->id}}">
+                                    <label class="form-check-label" for="accept">
+                                        Accept
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" id="reject" value="reject" data-id="{{$data->id}}">
+                                    <label class="form-check-label" for="reject">
+                                        Reject
+                                    </label>
+                                </div>
+                            @endif
                         </td>
                         <td>{{$data->created_at}}</td>
 
@@ -360,8 +396,13 @@
                         $userPermission = \App\Models\GoogleTranslateUserPermission::where('user_id', auth()->user()->id)->where('action', "edit")->first();
                          @endphp
                         @if($userPermission || auth()->user()->hasRole('Admin'))
-                        <td><button class="insert-code-shortcut" data-target="#edit_model"  data-user ="{{auth()->user()->id }}" data-lang ="{{$data->lang_id}}" data-value="{{$data->standard_value}}" data-id="{{$data->id}}"><i class="fa fa-pencil"></i></button></td>
-                        <td><button class="view-history" data-id="{{$data->id}}"><i class="fa fa-history"></i></button></td>
+                        <td>
+                            <button class="insert-code-shortcut" data-target="#edit_model"  data-user ="{{auth()->user()->id }}" data-lang ="{{$data->lang_id}}" data-value="{{$data->standard_value}}" data-id="{{$data->id}}"><i class="fa fa-pencil"></i></button>
+                            
+                            <button class="view-history" data-id="{{$data->id}}" title="view Test Change History"><i class="fa fa-history"></i></button>
+
+                            <button class="view-status-history" data-id="{{$data->id}}" title="View Status Change History"><i class="fa fa-history"></i></button>
+                        </td>
                         @endif
                     </tr>                        
                 @endforeach
@@ -511,46 +552,41 @@
         });
     });
 
-
-   
-
     $(document).on("click", ".view-history", function (e) {
         e.preventDefault();
         let id = $(this).data("id");
         $.ajax({
-                method: "GET",
-                url: '{{ route("googlefiletranslator_histories.show", '') }}/' + id,
-                dataType: "json",
-                data: {
-                    id:id,
-                },
-                beforeSend: function() {
-                    $("#loading-image").show();
-                },
-                success: function(response) {
+            method: "GET",
+            url: '{{ route("googlefiletranslator_histories.show", '') }}/' + id,
+            dataType: "json",
+            data: {
+                id:id,
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#magneto-frontend-historylist").modal("show");
+
+                if (response) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.old_value} </td>
+                                    <td> ${v.new_value} </td>
+                                    <td> ${v.user.name} </td>
+                                </tr>`;
+                    });
+                    $("#magneto-frontend-historylist").find(".magneto-historylist-view").html(html);
                     $("#magneto-frontend-historylist").modal("show");
-
-                    if (response) {
-                        var html = "";
-                        $.each(response.data, function(k, v) {
-                            html += `<tr>
-                                        <td> ${k + 1} </td>
-                                        <td> ${v.old_value} </td>
-                                        <td> ${v.new_value} </td>
-                                        <td> ${v.user.name} </td>
-                                    </tr>`;
-                        });
-                        $("#magneto-frontend-historylist").find(".magneto-historylist-view").html(html);
-                        $("#magneto-frontend-historylist").modal("show");
-                    } else {
-                        toastr["error"](response.error, "Message");
-                    }
-                    $("#loading-image").hide();
+                } else {
+                    toastr["error"](response.error, "Message");
                 }
-            });
+                $("#loading-image").hide();
+            }
+        });
     });
-
-
 
     $('input[type="radio"]').change(function() {
         var selectedValue = $('input[name="status"]:checked').val();
@@ -574,7 +610,49 @@
         });
     });
 
+    $(document).on("click", ".view-status-history", function (e) {
+        e.preventDefault();
+        let id = $(this).data("id");
+        $.ajax({
+                method: "GET",
+                url: '{{ route("googlefiletranslator_histories_status.show", '') }}/' + id,
+                dataType: "json",
+                data: {
+                    id:id,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#magneto-frontend-historyliststatus").modal("show");
 
+                    if (response) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+
+                            if(v.status==1){
+                                var status = 'Accept';
+                            } else if(v.status==2){
+                                var status = 'Unchecked';
+                            } else if(v.status==3){
+                                var status = 'Reject';
+                            }
+
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> `+status+` </td>
+                                        <td> ${v.user.name} </td>
+                                    </tr>`;
+                        });
+                        $("#magneto-frontend-historyliststatus").find(".magneto-historyliststatus-view").html(html);
+                        $("#magneto-frontend-historyliststatus").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                    $("#loading-image").hide();
+                }
+            });
+    });
 
 </script>
 @endsection
