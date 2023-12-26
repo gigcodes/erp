@@ -4683,6 +4683,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                             href="{{route('compositions.index')}}">Composition</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item"
+                                                            href="{{route('compositions.groups')}}">Composition Groups</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="/descriptions">Description</a>
                                                     </li>
                                                 </ul>
