@@ -951,9 +951,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('color-reference/affected-product', [ColorReferenceController::class, 'affectedProduct']);
     Route::post('color-reference/update-color', [ColorReferenceController::class, 'updateColor']);
-
+    Route::post('color-reference/update-color-miltiple', [ColorReferenceController::class, 'updateColorMultiple']);
     Route::resource('color-reference', ColorReferenceController::class);
-
+    Route::get('color-reference-group', [ColorReferenceController::class, 'groupColor']);
+    Route::get('/color-reference/group/{name}/{threshold}', [ColorReferenceController::class, 'colorGroupBy']);
     Route::get('compositions/{id}/used-products', [CompositionsController::class, 'usedProducts'])->name('compositions.used-products');
     Route::get('compositions/affected-product', [CompositionsController::class, 'affectedProduct']);
     Route::post('compositions/update-composition', [CompositionsController::class, 'updateComposition']);
@@ -1097,8 +1098,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
+    Route::post('products/description/update', [ProductController::class, 'productDescriptionUpdate'])->name('products.description.update');
+    Route::get('products/multi-description', [ProductController::class, 'productMultiDescription'])->name('products.multidescription');
+    Route::post('products/multi-description-sky-check', [ProductController::class, 'productMultiDescriptionCheck'])->name('products.multidescription.skucheck');
+    Route::get('/products/multi-description-sku', [ProductController::class, 'productMultiDescriptionSku'])->name('products.multidescription.sku');
+    Route::post('products/multi-description-sky-update', [ProductController::class, 'productMultiDescriptionUpdate'])->name('products.multidescription.update');
     Route::post('products-status-history-column-visbility', [ProductController::class, 'columnVisbilityUpdate'])->name('products.column.update');
-
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
     Route::post('products/{id}/updateComposition', [ProductController::class, 'updateComposition']);
@@ -3433,6 +3438,7 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
+    Route::post('bug-tracking-column-visbility', [BugTrackingController::class, 'columnVisbilityUpdate'])->name('bug-tracking.column.update');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
     Route::get('bug-tracking/create', [BugTrackingController::class, 'create'])->name('bug-tracking.create');
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
