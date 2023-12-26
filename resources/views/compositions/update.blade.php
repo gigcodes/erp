@@ -107,7 +107,7 @@ Compositions
             if (response.code == 200) {
                 if (response.html != "") {
                     toastr['success'](response.message, 'success');
-                    var redirectUrl = '/compositions/listing';
+                    var redirectUrl = '/compositions/groups';
                     window.location.href = redirectUrl;
                 } else {
                     $("#loading-image").hide();
