@@ -772,10 +772,21 @@ class WebsiteStoreViewGTMetrixController extends Controller
         return view('gtmetrix.gtmetrix_report', compact('data', 'title', 'g_typeData', 'y_typeData', 'Insightdata', 'InsightTypeData', 'Insightdata', 'pagespeedData', 'yslowData'));
     }
 
-    public function CategoryWiseWebsiteReport()
+    public function CategoryWiseWebsiteReport(Request $request)
     {
         try {
-            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->where('status', 'completed')->orderBy('created_at', 'desc')->get();
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->where('status', 'completed');
+
+            $search = request('search', '');
+
+            if (! empty($search)) {
+                $resourcedata = $resourcedata->where(function ($q) use ($search) {
+                    $q->where('website_url', 'LIKE', '%' . $search . '%');
+                });
+            }
+
+            $resourcedata = $resourcedata->orderBy('created_at', 'desc')->get();
+
             $title = 'GTmetrix Website Report Data';
             $iKey = '0';
             $inc = 0;
