@@ -34,24 +34,20 @@
                 <tr>
                     <th width="2%">#</th>
                     <th width="6%">Product Sku</th>
-                    <th width="6%">Product Name</th>
                     <th width="5%">Count</th>
                     <th width="5%">Action</th>
                 </tr>
-                @foreach($products as $key=>$product)
+                @foreach($products as $key=>$pro)
                     <tr>
                         <td>{{ $key + 1 + ($products->currentPage() - 1) * $products->perPage() }}</td>
                         <td class="Website-task visible-app">
-                            {{$product->sku}}
+                            {{$pro->sku}}
                         </td>
                         <td class="Website-task visible-app">
-                            {{$product->pname}}
-                        </td>
-                        <td class="Website-task visible-app">
-                            {{$product->count}}
+                            {{$pro->count}}
                         </td>
                         <td>
-                            <button style="padding: 1px" data-id="{{ $product->sku }}" type="button" class="btn btn-image d-inline get-multiple-description" title="multiple-description">
+                            <button style="padding: 1px" data-id="{{ $pro->sku }}" type="button" class="btn btn-image d-inline get-multiple-description" title="multiple-description">
                                 <i class="fa fa-tasks"></i>
                            </button>
                         </td>
