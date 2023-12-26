@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use DB;
 use Mail;
 use App\User;
@@ -35,6 +36,7 @@ use App\Mails\Manual\PurchaseEmail;
 use Google\Cloud\Translate\TranslateClient;
 use App\Library\Watson\Model as WatsonManager;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class LiveChatController extends Controller
 {
@@ -1536,7 +1538,36 @@ class LiveChatController extends Controller
         }
         $taskstatus = TicketStatuses::get();
 
-        return view('livechat.tickets', compact('data', 'taskstatus'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'livechat-tickets')->first();
+
+        $dynamicColumnsToShowLt = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowLt = json_decode($hideColumns, true);
+        }
+
+        return view('livechat.tickets', compact('data', 'taskstatus', 'dynamicColumnsToShowLt'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','livechat-tickets')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'livechat-tickets';
+            $column->column_name = json_encode($request->column_lt); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'livechat-tickets';
+            $column->column_name = json_encode($request->column_lt); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function statuscolor(Request $request)
