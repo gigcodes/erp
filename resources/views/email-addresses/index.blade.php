@@ -236,6 +236,10 @@
                     </div>
                   </div>
                 </div>
+
+                <button style="padding:3px;" title="Email Auto Acknowledgement" type="button" class="btn btn-xs p-0 m-0 text-secondary mr-2 create-email-auto-acknowledgement" data-id="{{ $server->id }}"><i class="fa fa-envelope" aria-hidden="true"></i></button>
+
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-xs p-0 m-0 text-secondary mr-2  count-email-acknowledgement" title="Email Auto Acknowledgement history" data-id="{{ $server->id }}"><i class="fa fa-info-circle"></i></button>
               </td>
             </tr>
 
@@ -930,7 +934,87 @@
         </div>
       </div>
     </div>
+
+<div id="create-email-auto-acknowledgement" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="<?php echo route('email-addresses.create.acknowledgement'); ?>" method="post">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Auto Acknowledgement</h4>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" type="hidden" name="email_addresses_id" id="email_addresses_id" />
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Start Date:</strong>
+                            <input type="datetime-local" name="start_date" id="start_date" class="form-control start_date" value="" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>End Date:</strong>
+                            <input type="datetime-local" name="end_date" id="end_date" class="form-control end_date" value="" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="">Message</label>
+                            <textarea id="ack_message" name="ack_message" class="form-control" ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="">Type</label>
+                            <select name="ack_status" class="form-control" id="ack_status">
+                                <option value="">--Select Status--</option>
+                                <option value="1">Auto</option>
+                                <option value="2">Manual</option>
+                          </select>
+                        </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-default create-acknowledgement">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="acknowledgement_statistics" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Email Acknowledgement statistics</h2>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body" id="acknowledgement_statistics_content">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Message</th>
+                                <th>Type</th>
+                                <th>Created Date</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+
 
 @section('scripts')
 <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
@@ -940,18 +1024,140 @@
   }
 </script>
 <script>
-  tinymce.init({
-    selector: '#address',
-    menubar: false
-  });
-  tinymce.init({
-    selector: '#social',
-    menubar: false
-  });
+    tinymce.init({
+        selector: '#address',
+        menubar: false
+    });
+    tinymce.init({
+        selector: '#social',
+        menubar: false
+    });
+    tinymce.init({
+        selector: '#ack_message',
+        menubar: false
+    });
 
+    $(document).on('click', '.create-email-auto-acknowledgement', function() {
+        var $this = $(this);
+        id = $(this).data("id");
+        $("#create-email-auto-acknowledgement").modal("show");
+        $('#email_addresses_id').val(id);
+    });
 
-</script>
-  <script type="text/javascript">
+    $(document).on("click", ".create-acknowledgement", function(e) {
+
+        var ack_message = tinymce.get('ack_message').getContent();
+        var start_date = $('#start_date').val();
+        var end_date = $('#end_date').val();
+        var email_addresses_id = $('#email_addresses_id').val();
+        var ack_status = $('#ack_status').val();
+
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                ack_message : ack_message,
+                start_date : start_date,
+                end_date : end_date,
+                email_addresses_id : email_addresses_id,
+                ack_status : ack_status,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    form[0].reset();
+                    toastr['success'](response.message);
+                    $("#create-email-auto-acknowledgement").modal("hide");
+                } else {
+                    toastr['error'](response.message);
+                }
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    });
+
+    $(document).on("click", ".count-email-acknowledgement", function() {
+
+        var $this = $(this);
+        var email_addresses_id = $(this).data("id");
+
+        $.ajax({
+            type: 'get',
+            url: 'email-addresses/countemailacknowledgement/' + email_addresses_id,
+            dataType: "json",
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(data) {
+                $("#acknowledgement_statistics").modal("show");
+                var table = `<div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Message</th>
+                            <th>Type</th>
+                            <th>Created Date</th>
+                        </tr>`;
+                for (var i = 0; i < data.EMailAcknowledgement.length; i++) {
+                    var ack_status = data.EMailAcknowledgement[i].ack_status;
+                    if (typeof ack_status == 1 ) {
+                        ack_status = 'Auto'
+                    } else {
+                        ack_status = 'Manual'
+                    };
+                    table = table + '<tr><td>' + data.EMailAcknowledgement[i].start_date + '</td><td>' +
+                        data.EMailAcknowledgement[i].end_date +
+                        '</td>';
+
+                    if(data.EMailAcknowledgement[i].ack_message!=null){
+                        table = table + '<td>' + data.EMailAcknowledgement[i].ack_message +'</td>';
+                    } else {
+                        table = table + '<td>--</td>';
+                    }
+
+                    table = table + '<td>' + ack_status +'</td><td>' + data.EMailAcknowledgement[i]
+                        .created_at +'</td>';
+
+                    table = table + '</tr>';
+                }
+                table = table + '</table></div>';
+                $("#loading-image").hide();
+                $(".modal").css("overflow-x", "hidden");
+                $(".modal").css("overflow-y", "auto");
+                $("#acknowledgement_statistics_content").html(table);
+            },
+            error: function(error) {
+                console.log(error);
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on('click', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        console.log(name);
+        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
     $(document).on('click','.btn-search-email-address',function(){
       search = $('.email-address-search').val()
       $.ajax({

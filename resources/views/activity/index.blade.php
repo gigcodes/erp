@@ -308,7 +308,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="col-md-12" id="time_history_div">
-                    <table class="table">
+                    <table class="table table table-bordered" style="font-size: 14px;">
                         <thead>
                             <tr>
                                 <th>Date</th>

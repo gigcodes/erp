@@ -254,7 +254,7 @@
                 <th width="3%">ID</th>
                 <th width="30%">Filepath</th>
                 <th width="10%">Date</th>
-                <th width="3%">Action</th>
+                <th width="10%">Action</th>
              </tr>
             <tbody>
                 <?php $id = request()->route('id'); ?>
@@ -282,6 +282,7 @@
             </tbody>
         </thead>
     </table>
+    {{ $filenames->appends(request()->except('page'))->links() }}
 </div>
 
 

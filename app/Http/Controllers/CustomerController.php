@@ -2608,10 +2608,13 @@ class CustomerController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|string',
-        ]);
+        ]); 
 
         $category = new ReplyCategory;
         $category->name = $request->name;
+        if(!empty($request->quickCategoryId)){
+            $category->parent_id = $request->quickCategoryId;
+        }
         $category->save();
 
         return response()->json(['code' => 1, 'data' => $category]);

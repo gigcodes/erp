@@ -379,6 +379,7 @@ Route::group([
         Route::get('/{id}/edit', [StoreWebsiteEnvironmentController::class, 'edit'])->name('store-website.environment.edit');
 
         Route::get('/{id}/history', [StoreWebsiteEnvironmentController::class, 'history'])->name('store-website.environment.history');
+        Route::post('column-visbility', [StoreWebsiteEnvironmentController::class, 'columnVisbilityUpdate'])->name('store-website.environment.column.update');
     });
 });
 

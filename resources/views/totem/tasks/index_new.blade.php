@@ -144,7 +144,7 @@ table tr td {
     background: #fff;
     color: #757575;
 }
-
+.select2-container--default .select2-results__group{display: inline-block !important;}
 </style>
 @endsection
 <?php /*print_r($developer_module); */?>
@@ -592,11 +592,11 @@ table tr td {
                             <select id="command" name="command" class="form-control select2" width="100%" placeholder="Click here to select one of the available commands">
                                 <option value="">Select a command</option>
                                 @forelse ($commands as $k => $command)
-                                <optgroup label="{{$command->getName()}}">
+                                <!-- <optgroup label="{{$command->getName()}}"> -->
                                     <option value="{{$command->getName()}}">
                                         {{$command->getDescription()}}
                                     </option>
-                                </optgroup>
+                                <!-- </optgroup> -->
                                 <p class="d-none"></p>
                                 @empty
                                 @endforelse

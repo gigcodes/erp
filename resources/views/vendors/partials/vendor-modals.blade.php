@@ -46,8 +46,7 @@
                     <?php
                     $frameworkVer = \App\Models\VendorFrameworks::all();
                     ?>
-                    <select name="framework" value="" class="form-control" id="framework">
-                      <option value="">Select framework</option>
+                    <select name="framework[]" value="" class="form-control select-multiple-f selectpicker" id="framework" multiple>
                       @foreach ($frameworkVer as $fVer)
                         <option value="{{$fVer->id}}">{{$fVer->name}}</option>
                       @endforeach
@@ -309,8 +308,7 @@
                     <?php
                     $frameworkVer = \App\Models\VendorFrameworks::all();
                     ?>
-                    <select name="framework" value="" class="form-control" id="framework_update">
-                      <option value="">Select framework</option>
+                    <select name="framework[]" value="" class="form-control select-multiple-f selectpicker" id="framework_update" multiple>
                       @foreach ($frameworkVer as $fVer)
                         <option value="{{$fVer->id}}" {{ $fVer->id == old('framework') ? 'selected' : '' }}>{{$fVer->name}}</option>
                       @endforeach
