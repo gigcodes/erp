@@ -12,7 +12,7 @@
                     <td>{{$item->store_name}}</td>
                     <td>{{ $item->lang }}({{ $item->website_id }})</td>
                     
-                        <td> @if($item->desktop > 0) {{ $item->desktop }} @else {{ '1' }} @endif</td>
+                        <td> @if($item->desktop > 0) {{ $item->desktop }} @else {{ '0' }} @endif</td>
                         <td>@if($item->mobile > 0) {{ $item->mobile }} @else {{ '0' }} @endif</td>
                         <td>@if($item->tablet > 0) {{ $item->tablet }} @else {{ '0' }} @endif</td>
                         <td>

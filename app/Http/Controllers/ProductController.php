@@ -72,6 +72,8 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
+use App\Models\ProductListingFinalStatus;
 
 class ProductController extends Controller
 {
@@ -466,6 +468,16 @@ class ProductController extends Controller
             $siteCroppedImages = \App\SiteCroppedImages::select('product_id', DB::raw('group_concat(site_cropped_images.website_id) as website_ids'))->whereIn('product_id', $productIds)->groupBy('product_id')->pluck('website_ids', 'product_id')->toArray();
         }
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'products-listing-final')->first();
+
+        $dynamicColumnsToShowPlf = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPlf = json_decode($hideColumns, true);
+        }
+
+        $statusProductsListingFinal = ProductListingFinalStatus::all();
+
         if ($request->ajax()) {
             // view path for images
             $viewpath = ($pageType == 'images') ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
@@ -498,6 +510,8 @@ class ProductController extends Controller
                 'request' => $request->all(),
                 'categories_paths_array' => $categories_paths_array,
                 'siteCroppedImages' => $siteCroppedImages,
+                'dynamicColumnsToShowPlf' => $dynamicColumnsToShowPlf,
+                'statusProductsListingFinal' => $statusProductsListingFinal,
             ]);
         }
 
@@ -534,7 +548,43 @@ class ProductController extends Controller
             //'store_website_count' => StoreWebsite::count(),
             'categories_paths_array' => $categories_paths_array,
             'siteCroppedImages' => $siteCroppedImages,
+            'dynamicColumnsToShowPlf' => $dynamicColumnsToShowPlf,
+            'statusProductsListingFinal' => $statusProductsListingFinal,
         ]);
+    }
+
+    public function plfColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','products-listing-final')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'products-listing-final';
+            $column->column_name = json_encode($request->column_plf); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'products-listing-final';
+            $column->column_name = json_encode($request->column_plf); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = ProductListingFinalStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function getFinalApporvalImages(Request $request)
@@ -4315,7 +4365,37 @@ class ProductController extends Controller
         //dd($status);
         //echo "<pre>";
         //  print_r($products->toArray());
-        return view('products.statuslog', compact('products', 'request', 'status', 'products_count', 'request'));
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'products-status-history')->first();
+
+        $dynamicColumnsToShowp = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowp = json_decode($hideColumns, true);
+        }
+
+        return view('products.statuslog', compact('products', 'request', 'status', 'products_count', 'request', 'dynamicColumnsToShowp'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','products-status-history')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'products-status-history';
+            $column->column_name = json_encode($request->column_p); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'products-status-history';
+            $column->column_name = json_encode($request->column_p); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function productStats(Request $request)
