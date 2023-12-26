@@ -378,7 +378,7 @@
                         <input type="hidden" name="developer_task_id" id="developer_task_id">
 
                         <div class="col-md-12" id="time_history_div">
-                            <table class="table">
+                            <table class="table table table-bordered" style="font-size: 14px;">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -435,7 +435,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12" id="time_history_div">
-                        <table class="table">
+                        <table class="table table table-bordered" style="font-size: 14px;">
                             <thead>
                                 <tr>
                                     <th>User</th>

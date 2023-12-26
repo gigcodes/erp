@@ -2703,9 +2703,11 @@ class StoreWebsiteController extends Controller
             $query->whereDate('created_at', $date);
         }
 
-        $filenames = $query->get();
+        $query->groupBy('filename');
+         
+        $filenames = $query->paginate(25);
 
-        return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames]);
+        return View('googlefiletranslator.store-website-push-csv-list', ['filenames' => $filenames])->with('i', ($request->input('page', 1) - 1) * 25);
        
     }
 

@@ -70,15 +70,9 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Estimated Start Datetime</td>
+                                <td>Estimated Datetime</td>
                                 <td>
                                     <input type="checkbox" value="Estimated Start Datetime" id="Estimated_Start_Datetime" name="column_task[]" @if (!empty($dynamicColumnsToShowTask) && in_array('Estimated Start Datetime', $dynamicColumnsToShowTask)) checked @endif>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Estimated End Datetime</td>
-                                <td>
-                                    <input type="checkbox" value="Estimated End Datetime" id="Estimated_End_Datetime" name="column_task[]" @if (!empty($dynamicColumnsToShowTask) && in_array('Estimated End Datetime', $dynamicColumnsToShowTask)) checked @endif>
                                 </td>
                             </tr>
                             <tr>
