@@ -55,10 +55,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
-    <!-- Include Summernote CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
-
     @if(Auth::user())
         @if(Auth::user()->user_timeout!=0)
             <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
@@ -801,7 +797,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     
     @auth
         <script type="text/javascript">
-            const IS_ADMIN_USER = {{ (auth()->user()->isAdmin() === true || auth()->user()->isAdmin() === false) ? auth()->user()->isAdmin() : false }};
+            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
             const LOGGED_USER_ID = {{ auth()->user()->id}};
         </script>
     @else
@@ -1007,16 +1003,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </button>
                 </div>
                 <div class="modal-body">
-                    @include('emails.shortcuts')
-                    <p><strong>Subject : </strong><input type="text" id="quickemailSubject" name="subject" class="form-control"></p>
-                    <p><strong>Body : </strong><textarea id="reply-message" name="message" class="form-control reply-email-message"></textarea></p>
+                    <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
+                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
                     </br>
-                    <p>
-                        <strong>Message Body : </strong> - <span id="quickemailDate"></span>
-                        <span class="pull-right"><label>History : <input type="checkbox" name="pass_history" id="pass_history" value="1" style=" height: 13px;"></label></span>
-                    </p>
+                    <p><strong>Message Body : </strong><span id="quickemailSubject"></span></p>
                     <input type="hidden" id="receiver_email">
-                    <input type="hidden" id="sender_email_address">
                     <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
 
@@ -1429,11 +1420,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 class="fa fa-file-image-o fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
                                 <li>
-                                    <a title="Search Resource Center" data-toggle="modal" data-target="#menu-show-resource-img-model" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
-                                        <span><i class="fa fa fa-list fa-2x" aria-hidden="true"></i></span>
-                                    </a>
-                                </li>
-                                <li>
                                     <a title="Sop Search" type="button" class="quick-icon menu-sop-search" style="padding: 0px 1px;"><span><i
                                                     class="fa fa-search fa-2x" aria-hidden="true"></i></span></a>
                                 </li>
@@ -1561,7 +1547,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa fa-user-plus fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
@@ -4556,12 +4542,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
-                                    </li>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="/scrap/scrap-links">Scrap Links</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="/devoops">Dev Oops</a>
+                                        <a class="dropdown-item" href="{{route('database.tables-list')}}">Truncate Tables</a>
                                     </li>
                                 </ul>
                             </li>
@@ -4674,6 +4657,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     </li>
 
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="/category/new-references-group">New Category
+                                                            Reference Group</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -4693,6 +4681,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item"
                                                             href="{{route('compositions.index')}}">Composition</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item"
+                                                            href="{{route('compositions.groups')}}">Composition Groups</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="/descriptions">Description</a>
@@ -5107,76 +5099,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 </form>
                             </div>
                         </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="menu-show-resource-img-model" class="modal fade" role="dialog">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Search Resource Center</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <form id="database-form">
-                                    <?php echo csrf_field(); ?>
-                                    <div class="row">
-                                        @php
-                                        $categoriesList = App\ResourceCategory::where('parent_id', 0)->get();
-                                        $sub_categoriesList = App\ResourceCategory::where('parent_id', '!=', 0)->get();
-                                        @endphp
-                                        <div class="col-12" style=" margin-bottom: 10px;">
-                                            <div class="col-md-3 pl-0">
-                                                <label for="">Keyword</label>
-                                                <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search keyword" id="term-resourceimg">
-                                            </div>
-                                            <div class="col-md-4 pl-0">
-                                                <label for="">Category</label>
-                                                <select name="category" id="header_filter_category">
-                                                    @foreach ($categoriesList as $category)
-                                                        <option value="{{$category->id}}">{{$category->title}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-4 pl-0">
-                                                <label for="">Sub Category</label>
-                                                <select name="category" id="header_filter_sub_category">
-                                                    @foreach ($sub_categoriesList as $s_category)
-                                                        <option value="{{$s_category->id}}">{{$s_category->title}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-1 pl-0">
-                                                <button type="button" class="btn btn-secondary btn-resourceimg-search-menu" style="    margin-top: 21px;"><i class="fa fa-search"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <table class="table table-sm table-bordered">
-                                                <thead>
-                                                <tr>
-                                                    <th style="width: 2%;">#</th>
-                                                    <th style="width: 10%;">Category</th>
-                                                    <th style="width: 10%;">Sub Category</th>
-                                                    <th style="width: 10%;">Url</th>
-                                                    <th style="width: 10%;">Images</th>
-                                                    <th style="width: 15%;">Created at</th>
-                                                    <th style="width: 10%;">Created by</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody class="show-resourceimg-task-list">
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -6161,38 +6083,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
-        <!-- <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
-
-    <!-- Include Summernote JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
-
-    <script>
-        // Initialize Summernote
-        $(document).ready(function () {
-            $('#reply-message').summernote({
-                height: 300, // Set the height of the editor
-                placeholder: 'Write your content here...', // Placeholder text
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['fontsize', ['fontsize']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['height', ['height']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview']],
-                    ['help', ['help']]
-                ]
-            });
-        });
-
-        function addTextToEditor(text) {
-            // Append the provided text to the existing content of the editor
-            $('#reply-message').summernote('code', text);
-          }
-    </script>
-
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
@@ -6599,7 +6489,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $('#formattedContent').html(formattedHTML);
         }
 
-        $('#sender_email_address').val(userEmail.from);
         $('#receiver_email').val(userEmail.to);
         $('#reply_email_id').val(userEmail.id);
 
@@ -6615,59 +6504,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
             return formattedContent;
         }
-        $('#quickemailSubject').val(userEmail.subject);
-        $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
+        $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
-
-        var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
-        var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
-
-        //$("#reply-message").val(senderName);
-        //addContentToEditor(senderName);
-        addTextToEditor(senderName);
-
-
-        $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: userEmaillUrl,
-            type: 'get',
-        }).done( function(response) {
-            //$("#reply-message").val(senderName+'\n\n'+response);
-            //addContentToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
-            addTextToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
-        }).fail(function(errObj) {
-        })        
     }
-
-    /*function addContentToEditor(newContent) {
-        // Get the TinyMCE editor instance by ID
-        var editor = tinymce.get('reply-message');
-
-        if (editor) {
-          // Add content to the editor
-          editor.setContent(newContent);
-        } else {
-          console.error('Editor instance not found.');
-        }
-      }*/
 
     $(document).on('click', '.submit-reply-email', function (e) {
         e.preventDefault();
 
-        var quickemailSubject = $("#quickemailSubject").val();
+        var quickemailSubject = $("#quickemailSubject").text();
         var formattedContent = $("#formattedContent").html();
         var replyMessage = $("#reply-message").val();
         var receiver_email = $('#receiver_email').val();
         var reply_email_id= $('#reply_email_id').val();
-
-        var pass_history = $('#pass_history').prop('checked');
-        if (pass_history) {
-          pass_history = 1;
-        } else {
-          pass_history = 0;
-        }
 
             $.ajax({
             headers: {
@@ -6679,8 +6527,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             'receiver_email': receiver_email,
             'subject': quickemailSubject,
             'message': replyMessage,
-            'reply_email_id': reply_email_id,
-            'pass_history': pass_history
+            'reply_email_id': reply_email_id
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -10004,53 +9851,7 @@ if (!\Auth::guest()) {
               }
           });
     });
-
-    $(".select-multiple-s").select2({
-      tags: true
-  });
-
-    /*tinymce.init({
-        selector: '#reply-message',
-        menubar: false
-    });*/
     
-    $("#header_filter_sub_category").select2({width: "100%", placeholder: "Select Subcategory", multiple: true})
-
-    $("#header_filter_category").select2({width: "100%", placeholder: "Select Category", multiple: true})
-
-    $("#header_filter_sub_category, #header_filter_category").val(null).trigger('change')
-
-    $(document).on("click", ".btn-resourceimg-search-menu", function (e) {
-        var keyword = $('#term-resourceimg').val();
-        var header_filter_category = $('#header_filter_category').val();
-        var header_filter_sub_category = $('#header_filter_sub_category').val();
-
-        $.ajax({
-            url: '{{route('resourceimg.searchimg')}}',
-            type: 'GET',
-            data: {
-                term: keyword,
-                category: header_filter_category,
-                sub_category: header_filter_sub_category,
-            },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            // dataType: 'json',
-            beforeSend: function () {
-                $("#loading-image").show();
-            },
-            success: function (response) {
-                $("#loading-image").hide();
-                $('.show-resourceimg-task-list').html(response);
-            },
-            error: function () {
-                $("#loading-image").hide();
-                toastr["Error"]("An error occured!");
-            }
-        });
-    });
-
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>
