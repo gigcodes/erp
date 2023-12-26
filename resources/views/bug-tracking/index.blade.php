@@ -212,7 +212,8 @@ table{border-collapse: collapse;}
 							</button>&nbsp;&nbsp;
 							<button class="btn btn-secondary btn-xs btn-add-status-color" style="color:white;"
 									data-toggle="modal" data-target="#newStatusColor"> Status Color
-							</button>
+							</button>&nbsp;&nbsp;
+							<button type="button" class="btn btn-secondary btn-x" data-toggle="modal" data-target="#bugdatatablecolumnvisibilityList">Column Visiblity</button>
 						</div>&nbsp;&nbsp;
 					</div>
 				</div>
@@ -303,7 +304,7 @@ table{border-collapse: collapse;}
 	@include("bug-tracking.templates.bug-status")
 	@include("bug-tracking.templates.bug-type")
 	@include("bug-tracking.templates.bug-status-color")
-	
+	@include("bug-tracking.templates.column-visibility-modal")
 	
 	<div id="dev_task_statistics" class="modal fade" role="dialog">
 		<div class="modal-dialog modal-lg">
@@ -1394,5 +1395,9 @@ table{border-collapse: collapse;}
 				});
 			});
 		});
+
+		function Showactionbtn(id){
+	      	$(".action-btn-tr-"+id).toggleClass('d-none')
+	    }
 	</script>
 @endsection
