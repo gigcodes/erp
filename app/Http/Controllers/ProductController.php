@@ -4232,6 +4232,50 @@ class ProductController extends Controller
         ]);
     }
 
+    public function productMultiDescription(Request $request){
+        $products = \App\ScrapedProducts::selectRaw('scraped_products.sku, COUNT(*) as count, scraped_products.product_id')
+                ->where('scraped_products.sku', '!=', '') 
+                ->groupBy('scraped_products.sku')
+                ->orderByDesc('count')
+                ->paginate(25);
+        return view('products.multidescription', compact('products'));
+    }
+    
+    public function productMultiDescriptionCheck(Request $request)
+        {
+            $sku = $request->input('sku');
+            $productCount = Product::where('sku', $sku)->count();
+
+            return response()->json(['result' => $productCount]);
+        }
+
+    public function productMultiDescriptionSku(Request $request){
+        $sku = $request->id;
+        $products = \App\ScrapedProducts::selectRaw('scraped_products.id as sid, scraped_products.sort_order as sort_order, scraped_products.description, scraped_products.brand_id, scraped_products.website as website, products.name as pname, brands.name as bname')
+                            ->join('products', 'scraped_products.product_id', '=', 'products.id')
+                            ->join('brands', 'scraped_products.brand_id', '=', 'brands.id')
+                            ->where('scraped_products.sku', $sku)
+                            ->get();
+       //dd($products);
+        return view('products.skumultidescription', compact('products', 'sku'));
+    }
+
+    public function productMultiDescriptionUpdate(Request $request){
+        $updates = $request->productData;
+        $sku = $request->sku;
+        $condition = $request->condition;
+        foreach ($updates as $update) {
+            $productId = $update['id'];
+            $sortOrder = $update['value'];
+            \App\ScrapedProducts::where('id', $productId)->where('sku', $sku)->update(['sort_order' => $sortOrder]);
+            if($condition == 1 && $sortOrder == 1){
+                $getdescription = \App\ScrapedProducts::where('id', $productId)->where('sku', $sku)->first();
+                Product::where('sku', $sku)->update(['short_description' => $getdescription->description]); 
+            }
+        }
+        return response()->json(['message' => 'Sort orders updated successfully']);
+    }
+
     public function productDescription(Request $request)
     {
         $query = ProductSupplier::with('supplier', 'product')

@@ -459,7 +459,11 @@ class ScrapController extends Controller
         $this->saveScrapperRequest($scrap_details, $errorLog);
 
         // Create or update product
-        app(ProductsCreator::class)->createProduct($scrapedProduct);
+        $scrapedProductUpdate = ScrapedProducts::where('sku', $sku)
+            ->whereNotNull('description') // Filter out rows where description is null
+            ->orderBy('sort_order') // Order by sort_order
+            ->first();
+        app(ProductsCreator::class)->createProduct($scrapedProductUpdate);
 
         // Return response
         return response()->json([
