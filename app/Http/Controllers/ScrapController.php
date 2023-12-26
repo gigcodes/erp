@@ -1132,6 +1132,7 @@ class ScrapController extends Controller
      * )
      */
 
+
     public function scrap_links(Request $request)
     {
         //$scrap_links = ScrapedProductsLinks::orderBy('id', 'DESC')->paginate(25);

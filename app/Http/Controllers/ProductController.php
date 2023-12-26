@@ -4333,6 +4333,23 @@ class ProductController extends Controller
         // dd($products);
     }
 
+    public function productDescriptionUpdate(Request $request)
+    {
+        $ids = $request->ids;
+        $from = $request->from;
+        $to = $request->to;
+        foreach ($ids as $id) {
+            $prod = ProductSupplier::where('product_id', $id)->first();
+            $description = str_replace($from, $to, $prod->description);
+            $prod->description = $description;
+            $prod->save();
+        }
+        return response()->json([
+            'code' => 200,
+            'message' => 'Your request has been update successfully',
+        ]);
+    }
+
     public function productScrapLog(Request $request)
     {
         //dd($request->input());
