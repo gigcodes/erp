@@ -1097,6 +1097,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
+    Route::get('products/multi-description', [ProductController::class, 'productMultiDescription'])->name('products.multidescription');
+    Route::post('products/multi-description-sky-check', [ProductController::class, 'productMultiDescriptionCheck'])->name('products.multidescription.skucheck');
+    Route::get('/products/multi-description-sku', [ProductController::class, 'productMultiDescriptionSku'])->name('products.multidescription.sku');
+    Route::post('products/multi-description-sky-update', [ProductController::class, 'productMultiDescriptionUpdate'])->name('products.multidescription.update');
     Route::post('products-status-history-column-visbility', [ProductController::class, 'columnVisbilityUpdate'])->name('products.column.update');
 
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
@@ -3433,6 +3437,7 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
+    Route::post('bug-tracking-column-visbility', [BugTrackingController::class, 'columnVisbilityUpdate'])->name('bug-tracking.column.update');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
     Route::get('bug-tracking/create', [BugTrackingController::class, 'create'])->name('bug-tracking.create');
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
@@ -5296,6 +5301,7 @@ Route::get('gtmetrixAccount/show', [StoreGTMetrixAccountController::class, 'show
 Route::post('gtmetrixAccount/update', [StoreGTMetrixAccountController::class, 'update'])->name('account.update');
 Route::post('gtmetrixAccount/store', [StoreGTMetrixAccountController::class, 'store'])->name('account.store');
 Route::get('gtmetrixcategoryWeb', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'CategoryWiseWebsiteReport'])->name('gtm.cetegory.web');
+Route::post('gtmetrixcategoryWeb-column-visbility', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'columnVisbilityUpdate'])->name('gtmetrix.column.update');
 
 Route::get('product-pricing', [product_price\ProductPriceController::class, 'index'])->name('product.pricing');
 Route::get('product-autocomplete', [product_price\ProductPriceController::class, 'getProductAutocomplete'])->name('product.autocomplete');

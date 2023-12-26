@@ -52,49 +52,104 @@
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
     </div>
-    <div class=" mt-3 pr-2 pl-2" style="overflow-x: auto;">
-        <div class="col-md-12">
-            <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+    <div style="overflow-x: auto;">
+        <div class="">
+            <h2 class="page-heading">{{$title}} <span class="count-text"></span>
+                <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#gtdatatablecolumnvisibilityList">Column Visiblity</button>
+            </h2>
           </div>  
         </div>
         <div class="gtmetrix_table_data" style="overflow-x: auto;height:600px;">
             <table class="table table-bordered " id="gtmetrix_table">
                 <thead>
                     <tr>
-                        <th width="10%"> Website URL </th>
-                        @foreach ($catArr as $catN)
-                            <th width="10%"> {{$catN}} </th>
-                        @endforeach
+                        @if(!empty($dynamicColumnsToShowgt))
+                            @if (!in_array('Website URL', $dynamicColumnsToShowgt))
+                                <th width="10%"> Website URL </th>
+                            @endif
+
+                            @php
+                            $columnArray = [];
+                            @endphp
+                            @foreach ($catArr as $key => $catN)
+                                @if (!in_array($catN, $dynamicColumnsToShowgt))
+
+                                    @php
+                                        $columnArray[] = $key;
+                                    @endphp
+                                    <th width="10%"> {{$catN}} </th>
+                                @endif
+                            @endforeach
+                        @else
+                            <th width="10%"> Website URL </th>
+                            @foreach ($catArr as $catN)
+                                <th width="10%"> {{$catN}} </th>
+                            @endforeach
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($pagespeedDatanew as $cat)
-                        <tr>
-                            <td width="10%">{{$cat['website']}}</td>
-                            @foreach ($cat['score'] as $key => $score)
-                                <td width="10%">
-                                    @if($score >= 89)
-                                    @php $color = 'bg-success' ; @endphp
+                        @if(!empty($dynamicColumnsToShowgt))
+                            <tr>
+                                @if (!in_array('Website URL', $dynamicColumnsToShowgt))
+                                    <td width="10%">{{$cat['website']}}</td>
+                                @endif
+
+                                @foreach ($cat['score'] as $key => $score)
+
+                                    @if(in_array($key,$columnArray))
+                                        <td width="10%">
+                                            @if($score >= 89)
+                                            @php $color = 'bg-success' ; @endphp
+                                            @endif
+                                            @if($score <= 48)
+                                            @php $color = 'bg-danger' ; @endphp
+                                            @endif
+                                            @if($score <= 60 && $score >= 48 )
+                                            @php $color = 'bg-warning' ; @endphp
+                                            @endif
+                                            <div class="progress">
+                                                <div class="progress-bar {{$color}} progress-bar-striped " role="progressbar" style="width: {{$score}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{$score}}%</div>
+                                            </div>
+                                        </td>
                                     @endif
-                                    @if($score <= 48)
-                                    @php $color = 'bg-danger' ; @endphp
-                                    @endif
-                                    @if($score <= 60 && $score >= 48 )
-                                    @php $color = 'bg-warning' ; @endphp
-                                    @endif
-                                    <div class="progress">
-                                        <div class="progress-bar {{$color}} progress-bar-striped " role="progressbar" style="width: {{$score}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{$score}}%</div>
-                                    </div>
-                                </td>
-                            @endforeach
-                            @empty($cat['score'])
-                                @foreach ($catArr as $catN1)
-                                    <td width="10%"> N/A </td>
-                                @endforeach  
-                            @endempty
-                                
-                            
-                        </tr>
+                                @endforeach
+
+                                @empty($cat['score'])
+                                    @foreach ($catArr as $catN1)
+                                        @if (!in_array($catN1, $dynamicColumnsToShowgt))
+                                            <td width="10%"> N/A </td>
+                                        @endif
+                                    @endforeach  
+                                @endempty
+                            </tr>
+                        @else
+                            <tr>
+                                <td width="10%">{{$cat['website']}}</td>
+                                @foreach ($cat['score'] as $key => $score)
+                                    <td width="10%">
+                                        @if($score >= 89)
+                                        @php $color = 'bg-success' ; @endphp
+                                        @endif
+                                        @if($score <= 48)
+                                        @php $color = 'bg-danger' ; @endphp
+                                        @endif
+                                        @if($score <= 60 && $score >= 48 )
+                                        @php $color = 'bg-warning' ; @endphp
+                                        @endif
+                                        <div class="progress">
+                                            <div class="progress-bar {{$color}} progress-bar-striped " role="progressbar" style="width: {{$score}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{$score}}%</div>
+                                        </div>
+                                    </td>
+                                @endforeach
+                                @empty($cat['score'])
+                                    @foreach ($catArr as $catN1)
+                                        <td width="10%"> N/A </td>
+                                    @endforeach  
+                                @endempty
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
@@ -109,7 +164,7 @@
         </div>
     </div>
 </div>
-
+@include("gtmetrix.column-visibility-modal")
 @endsection
 
 @section('scripts')
