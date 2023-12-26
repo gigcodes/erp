@@ -1,7 +1,7 @@
 <?php
 
 namespace App;
-
+use App\BusinessPost;
 use App\Social\SocialConfig;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +29,10 @@ class BusinessComment extends Model
         } else {
             return SocialContact::find($this->social_contact_id);
         }
+    }
+
+    public function bussiness_post()
+    {
+        return $this->belongsTo(BusinessPost::class, 'post_id')->select('post_id', 'social_config_id');
     }
 }
