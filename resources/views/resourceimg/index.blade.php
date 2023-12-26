@@ -8,141 +8,126 @@
 @endsection
 @section('content')
     <link href="{{ asset('css/treeview.css') }}" rel="stylesheet">
-    <div class="">
-        <div class="row">
-            <div class="col-lg-12 margin-tb">
-                <h2 class="page-heading">List Resources Center (<span
-                        id="translation_count">{{ $allresources->total() }}</span>)</h2>
-                <div class="">
-                    <br>
-                    <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <label for="">Keyword</label>
-                                <input name="term" type="text" class="form-control"
-                                    value="{{ isset($term) ? $term : '' }}" placeholder="Search keyword"
-                                    id="term">
-                            </div>
-                            <div class="col-md-2">
-                                <label for="">Category</label>
-                                <select name="category" id="filter_category">
-                                    @foreach ($categories as $category)
-                                        <option value="{{$category->id}}">{{$category->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="">Sub Category</label>
-                                <select name="category" id="filter_sub_category">
-                                    @foreach ($sub_categories as $s_category)
-                                        <option value="{{$s_category->id}}">{{$s_category->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-image" id='submitSearch'><img
-                                        src="/images/filter.png" /></button>
-                                <button type="button" class="btn btn-image" id="resetFilter"><img
-                                        src="/images/resend2.png" /></button>
-                            </div>
-                            <div class="col-md-2">
-                            </div>
-                        </div>
-                    </div>
-                    <!--  <form action="{{ route('document.index') }}" method="GET">
-                                        <div class="form-group">
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <input name="term" type="text" class="form-control"
-                                                           value="{{ isset($term) ? $term : '' }}"
-                                                           placeholder="user,department,filename">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <select class="form-control select-multiple2" name="category[]" data-placeholder="Select Category.." multiple>
-                                                        <option>Select Category</option>
-                                                        
-                                                    </select>
-                                                </div>
+    <div class="row">
+        <div class="col-12">
+            <h2 class="page-heading">
+                List Resources Center (<span id="translation_count">{{ $allresources->total() }}</span>)
 
-                                                <div class="col-md-3">
-                                                    <div class='input-group date' id='filter-date'>
-                                                        <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
-
-                                                        <span class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                      </span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-1">
-                                                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </form> -->
-                </div>
                 <div class="pull-right">
-                    <a href="{{ url('/resourceimg/pending/1') }}"><button type="button"
-                            class="btn btn-secondary">Pending</button></a>
-                    <button type="button" class="btn btn-secondary" title="Add Category" data-toggle="modal"
-                        data-target="#addcategory">Add Category</button>
-                    <button type="button" class="btn btn-secondary" title="Edit Category" data-toggle="modal"
-                        data-target="#editcategory">Edit Category</button>
-                    <button type="button" class="btn btn-image" title="Add Resource" data-toggle="modal"
-                        data-target="#addresource">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#status-create">Add Status</button>
+                    <button class="btn btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                    <a href="{{ url('/resourceimg/pending/1') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
+                    <button type="button" class="btn btn-secondary" title="Add Category" data-toggle="modal" data-target="#addcategory">Add Category</button>
+                    <button type="button" class="btn btn-secondary" title="Edit Category" data-toggle="modal" data-target="#editcategory">Edit Category</button>
+                    <button type="button" class="btn btn-secondary" title="Add Resource" data-toggle="modal" data-target="#addresource">
                         <i class="fa fa-plus"></i>
                     </button>
-
+                </div>
+            </h2>
+        </div>
+        
+        <div class="col-lg-12 ">
+            <div class="form-group">
+                <div class="col-md-2">
+                    <input name="term" type="text" class="form-control"
+                        value="{{ isset($term) ? $term : '' }}" placeholder="Search keyword"
+                        id="term">
+                </div>
+                <div class="col-md-2">
+                    <select name="category" id="filter_category">
+                        @foreach ($categories as $category)
+                            <option value="{{$category->id}}">{{$category->title}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="category" id="filter_sub_category">
+                        @foreach ($sub_categories as $s_category)
+                            <option value="{{$s_category->id}}">{{$s_category->title}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-image" id='submitSearch'><img src="/images/filter.png" /></button>
+                    <button type="button" class="btn btn-image" id="resetFilter"><img src="/images/resend2.png" /></button>
                 </div>
             </div>
+        </div>
 
-
-
-            <div class="col-lg-12 margin-tb">
-                {{-- @if ($message = Session::get('success'))
-                    <div class="alert alert-success alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
-                        <strong>{{ $message }}</strong>
-                    </div>
-                @endif --}}
-                @if ($message = Session::get('danger'))
-                    <div class="alert alert-danger alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
-                        <strong>{{ $message }}</strong>
-                    </div>
-                @endif
-
-                @include('partials.flash_messages')
-
-                <div class="table-responsive col-md-12" style="margin-top : 30px;">
-                    <table class="table table-striped table-bordered" id='tblImageResource' style="border: 1px solid #ddd;">
-                        <thead>
-                            <tr>
-                                <th style="width: 2%;">#</th>
-                                <th style="width: 10%;">Category</th>
-                                <th style="width: 10%;">Sub Category</th>
-                                <th style="width: 10%;">Url</th>
-                                <th style="width: 10%;">Images</th>
-                                <th style="width: 15%;">Created at</th>
-                                <th style="width: 10%;">Created by</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @include('resourceimg.partial_index')
-
-                        </tbody>
-                    </table>
+        <div class="col-lg-12 margin-tb">
+            {{-- @if ($message = Session::get('success'))
+                <div class="alert alert-success alert-block">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    <strong>{{ $message }}</strong>
                 </div>
-                {{ $allresources->render() }}
+            @endif --}}
+            @if ($message = Session::get('danger'))
+                <div class="alert alert-danger alert-block">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    <strong>{{ $message }}</strong>
+                </div>
+            @endif
+
+            @include('partials.flash_messages')
+
+            <div class="table-responsive col-md-12" style="margin-top : 30px;">
+                <table class="table table-striped table-bordered" id='tblImageResource' style="border: 1px solid #ddd;">
+                    <thead>
+                        <tr>
+                            <th style="width: 2%;">#</th>
+                            <th style="width: 10%;">Category</th>
+                            <th style="width: 15%;">Sub Category</th>
+                            <th style="width: 30%;">Url</th>
+                            <th style="width: 5%;">Images</th>
+                            <th style="width: 10%;">Status</th>
+                            <th style="width: 15%;">Remarks</th>
+                            <th style="width: 10%;">Created at</th>
+                            <th style="width: 10%;">Created by</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @include('resourceimg.partial_index')
+
+                    </tbody>
+                </table>
             </div>
+            {{ $allresources->render() }}
         </div>
     </div>
 
+    <div id="status-create" class="modal fade in" role="dialog">
+      <div class="modal-dialog">
 
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+          <h4 class="modal-title">Add Stauts</h4>
+          <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+          <form  method="POST" id="status-create-form">
+            @csrf
+            @method('POST')
+              <div class="modal-body">
+                <div class="form-group">
+                  {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+                  {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
 
+      </div>
+    </div>
+    @include("resourceimg.partials.modal-status-color")
+    @include('resourceimg.partials.status-history')
+    @include('resourceimg.partials.remarks-history')
     @include('resourceimg.partials.modal-create-resource-center')
     @include('resourceimg.partials.modal-create-edit-category')
+    @include('resourceimg.partials.modal-images')
     <input type="hidden" name='hiddenShowImage' id='hiddenShowImage'data-target="#showresource" data-toggle="modal">
     <div id='modelShowImage'></div>
 
@@ -351,6 +336,163 @@
                 }, a.src = e
             }
         }
+
+        $(document).on("click", ".status-save-btn", function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                url: "{{route('resourceimg.status.create')}}",
+                type: "post",
+                data: $('#status-create-form').serialize()
+            }).done(function(response) {
+                if (response.code = '200') {
+                    $('#loading-image').hide();
+                    $('#addPostman').modal('hide');
+                    toastr['success']('Status  Created successfully!!!', 'success');
+                    location.reload();
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        });
+
+        $('.status-dropdown').change(function(e) {
+            e.preventDefault();
+            var postId = $(this).data('id');
+            var selectedStatus = $(this).val();
+            console.log("Dropdown data-id:", postId);
+            console.log("Selected status:", selectedStatus);
+
+
+            // Make an AJAX request to update the status
+            $.ajax({
+                url: '/resourceimg/resourceimg-update-status',
+                method: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                  postId: postId,
+                  selectedStatus: selectedStatus
+                },
+                success: function(response) {
+                    toastr['success']('Status has been updated successfully!!!', 'success');
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle the error here
+                    console.error(error);
+                }
+            });
+        });
+
+        $(document).on('click', '.status-history-show', function() {
+            var id = $(this).attr('data-id');
+            $.ajax({
+                method: "GET",
+                url: `{{ route('resourceimg.status.histories', [""]) }}/` + id,
+                dataType: "json",
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${k + 1} </td>
+                                        <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                        <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                        <td> ${v.created_at} </td>
+                                    </tr>`;
+                        });
+                        $("#resourceimg-status-histories-list").find(".resourceimg-status-histories-list-view").html(html);
+                        $("#resourceimg-status-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        function saveRemarks(resource_images_id){
+
+            var remarks = $("#remark_"+resource_images_id).val();
+
+            if(remarks==''){
+                alert('Please enter remarks.');
+                return false;
+            }
+
+            $.ajax({
+                url: "{{route('resourceimg.saveremarks')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'resource_images_id' :resource_images_id,
+                    'remarks' :remarks,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    toastr['success']('Remarks hase been added successfully!!!', 'success');
+                    $("#loading-image").hide();
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+
+        $(document).on('click', '.remarks-history-show', function() {
+            var resource_images_id = $(this).attr('data-id');
+            $.ajax({
+                url: "{{route('resourceimg.getremarks')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'resource_images_id' :resource_images_id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $("#resourceimg-remarks-histories-list").find(".resourceimg-remarks-histories-list-view").html(response.html);
+                        $("#resourceimg-remarks-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '.view-resources-center-images', function() {
+            var resource_images_id = $(this).attr('data-id');
+            $.ajax({
+                url: "{{route('resourceimg.getimages')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'resource_images_id' :resource_images_id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        $("#resourceimg-images-histories-list").find(".resourceimg-images-histories-list-view").html(response.html);
+                        $("#resourceimg-images-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
     </script>
     <script src="{{ asset('js/treeview.js') }}"></script>
 @endsection
