@@ -283,7 +283,7 @@ class SiteDevelopmentController extends Controller
         $login_user_id = Auth::user()->id;
 
         $user_ids = [];
-        if($sd_create_task_user->user_ids!=''){
+        if (isset($sd_create_task_user->user_ids) && !empty($sd_create_task_user->user_ids)) {
             $user_ids = explode(",",$sd_create_task_user->user_ids);
         }
 
