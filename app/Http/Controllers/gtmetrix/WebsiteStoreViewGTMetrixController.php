@@ -779,6 +779,8 @@ class WebsiteStoreViewGTMetrixController extends Controller
             $iKey = '0';
             $inc = 0;
             $catName = [];
+            $pagespeedDatanew = [];
+            $catArr = [];
             foreach ($resourcedata as $datar) {
                 //$inc++;
                 //$pagespeedData[] = $datar->website_url;
