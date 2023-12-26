@@ -31,13 +31,13 @@
         <div class="row">
             <div class="col-md-12">
                 <br>
-                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{$images->total()}}</h5> 
+                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{count($images)}}</h5> 
 
                 <hr style="margin: 5px 0px;">
             </div>
         </div>
         <div class="image-1"> 
-        @if(!$images->isEmpty())
+        @if(!empty($images))
             @foreach($images as $image)
                     <?php $image = $image->toArray();?>
                     {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
@@ -148,7 +148,9 @@
         <div class="col-md-12">No more Images</div>
         @endif
         <br>
+        @if(!empty($images))
         {{ $images->appends(request()->except('page'))->links() }}
+        @endif
     
 </div>
 <img class="infinite-scroll-products-loader center-block" src="{{env('APP_URL')}}/images/loading.gif" alt="Loading..." style="display: none" />

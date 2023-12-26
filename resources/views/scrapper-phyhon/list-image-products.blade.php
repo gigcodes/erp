@@ -230,7 +230,9 @@
     </form>
 </div>
 <!-- END - DEVTASK-4271 -->
+@if(!empty($images))
 {{ $images->appends(request()->except('page'))->links() }}
+@endif
 <!-- Purpose : Add class infinite-scroll - DEVTASK-4271 -->
 <div class="infinite-scroll customer-count infinite-scroll-data customer-list-{{$website_id}} customer-{{$website_id}}" style="padding: 0px 10px;display: grid">
     @include("scrapper-phyhon.list-image-products_ajax")   
@@ -428,8 +430,10 @@
         $('[name="language"]').find('option').eq(1).not().remove();
 
         if(store == undefined)
-        {
+        {   
+            @if(!empty($_REQUEST['id']))
             var store="{{ $_REQUEST['id'] }}";
+            @endif
         }
 
         if(store)
