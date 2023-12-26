@@ -3601,6 +3601,8 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
     Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
+    Route::get('/tables-list', [DatabaseTableController::class, 'tableList'])->name('database.tables-list');
+    Route::post('truncate-tables', [DatabaseTableController::class, 'truncateTables'])->name('truncate-tables');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');
