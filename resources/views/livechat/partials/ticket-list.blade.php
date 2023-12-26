@@ -137,6 +137,12 @@
             </td>
         @endif
 
+        @if (!in_array('Shortcuts', $dynamicColumnsToShowLt))
+            <td id="shortcutsIds">
+                @include('livechat.partials.shortcuts')
+            </td>
+        @endif
+
         @if (!in_array('Action', $dynamicColumnsToShowLt))
             <td>
                 <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Ticketsbtn('{{$ticket->id}}')"><i class="fa fa-arrow-down"></i></button>
@@ -225,7 +231,10 @@
                 {{ Str::limit(date('d-m-y', strtotime($ticket->created_at)),8,'..')}}
 
             </a>
-            </td>
+        </td>
+        <td id="shortcutsIds">
+            @include('livechat.partials.shortcuts')
+        </td>
         <td>
             <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Ticketsbtn('{{$ticket->id}}')"><i class="fa fa-arrow-down"></i></button>
         </td>
