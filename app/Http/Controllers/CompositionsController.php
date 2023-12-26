@@ -98,10 +98,10 @@ class CompositionsController extends Controller
         return view('compositions.listing', compact('listcompostions'));
     }
 
-    public function compositionsGroupBy(Request $request, $name, $threshold){
+    public function compositionsGroupBy(Request $request, $threshold){
 
         //$threshold = 0.9; // Adjust this threshold as needed
-
+        $name = $request->search;
         $compositions = Compositions::withCount('productCounts')->where('replace_with', '')->get()->filter(function ($composition) use ($name, $threshold) {
             similar_text(strtolower($composition->name), strtolower($name), $percentage);
 

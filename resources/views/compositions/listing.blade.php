@@ -138,7 +138,7 @@
             toastr['error']('Sorry, Pleaase Enter keyword', 'error');
             $("#loading-image").hide();
         }else{
-          var redirectUrl = '/compositions/group/' + keywordValue + '/' + dropdownValue;
+          var redirectUrl = '/compositions/group/' + dropdownValue +'?search='+keywordValue;
           window.location.href = redirectUrl;
         }
         
@@ -150,7 +150,7 @@
                 var dataId = element.getAttribute('data-id');
                 var selectedValue = $('#Searchdropdown-'+dataId).val();
                 var dataName = element.getAttribute('data-name');
-                var redirectUrl = '/compositions/group/' + dataName + '/' + selectedValue;
+                var redirectUrl = '/compositions/group/' + selectedValue +'?search='+dataName;
                 window.location.href = redirectUrl;
             }
 
