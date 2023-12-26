@@ -2794,3 +2794,4 @@ button.show-task-history {
     max-width: 1500px !important;
   }
 }
+.btn-group .dropdown-menu li a label.checkbox input[type=checkbox]{height: auto;}
