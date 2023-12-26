@@ -1711,6 +1711,10 @@ class VendorController extends Controller
         $sourceStatus = $validateStatus = false;
         $inputsData = array_merge($mainVendorData, $vendorData);
         foreach ($inputsData as $key => $data) {
+
+            if(!empty($data['framework'])){
+                $data['framework'] = implode(",", $data['framework']);
+            }
             Vendor::create($data);
 
             if ($request->create_user == 'on') {

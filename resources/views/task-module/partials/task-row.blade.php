@@ -158,7 +158,17 @@
         @endif
     </td>
 
-    <td class="p-2">
+    <td id="shortcutsIds">
+        @include('task-module.partials.shortcuts')
+    </td>
+    <td>
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$task->id}}')"><i class="fa fa-arrow-down"></i></button>
+    </td>
+</tr>
+<tr class="action-btn-tr-{{$task->id}} d-none">
+    <td class="font-weight-bold">Action</td>
+    <td colspan="5">
+
         <div class="row" style="margin:0px;">
             @if ( $row_type === "statutory" && ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id()))
                 @if ($task->is_completed == '')

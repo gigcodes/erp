@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\DatabaseTableHistoricalRecord;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseTableController extends Controller
 {
@@ -54,5 +55,29 @@ class DatabaseTableController extends Controller
         }
 
         return response()->json(['code' => 500, 'message' => 'No records found!']);
+    }
+
+    public function tableList(Request $request)
+    {
+
+        $tables = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+
+        return view('database.tables-list', compact('tables'));
+    }
+
+    public function truncateTables(Request $request)
+    {   
+
+        if(!empty($request->ids)){
+            foreach ($request->ids as $key => $value) {
+                DB::statement('TRUNCATE TABLE '.$value);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => " column visiblity Added Successfully",
+            'status_name' => 'success',
+        ], 200);
     }
 }

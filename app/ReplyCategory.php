@@ -16,6 +16,11 @@ class ReplyCategory extends Model
         return $this->hasMany(\App\Reply::class, 'category_id')->where('model', 'Approval Lead')->orderBy('reply', 'ASC');
     }
 
+    public function sub_categories()
+    {
+        return $this->hasMany(\App\ReplyCategory::class, 'parent_id')->select('id','parent_id','name')->orderBy('name', 'ASC');
+    }
+
     public function internal_leads()
     {
         return $this->hasMany(\App\Reply::class, 'category_id')->where('model', 'Internal Lead');
