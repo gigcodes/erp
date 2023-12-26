@@ -4543,6 +4543,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('database.tables-list')}}">Truncate Tables</a>
+                                    </li>
                                 </ul>
                             </li>
 
