@@ -4234,6 +4234,7 @@ class ProductController extends Controller
 
     public function productMultiDescription(Request $request){
         $products = \App\ScrapedProducts::selectRaw('scraped_products.sku, COUNT(*) as count, scraped_products.product_id')
+                ->whereNotNull('scraped_products.sku') 
                 ->groupBy('scraped_products.sku')
                 ->orderByDesc('count')
                 ->paginate(25);
