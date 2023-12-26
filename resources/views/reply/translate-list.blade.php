@@ -21,7 +21,7 @@
         <h2 class="page-heading">Quick Replies Translate List</h2>
         
         <div class="col-md-12 ml-sm-6">         
-            <div class="col-md-9 ml-sm-6">     
+            <div class="col-md-8 ml-sm-6">     
                 <form action="{{ route('reply.replyTranslateList') }}" method="get" class="search">
                     <div class="row">
                         <div class="col-md-3 pd-sm">
@@ -60,8 +60,10 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-3 float-right">
+            <div class="col-md-4 float-right">
                 <button class="btn btn-secondary text-white" data-toggle="modal" data-target="#statusColor"> Status Color</button>
+
+                <button class="btn btn-secondary text-white" data-toggle="modal" data-target="#Translatestatus"> Replies Status</button>
 
                 @if(auth()->user()->hasRole(['Lead Translator', 'Admin']))
                     {{-- ToDo: Have to plan about this, Need to display permission history --}}
@@ -241,6 +243,37 @@
                     </table>
                 </div>
 {{--                    {!! $replies->appends(request()->except('page'))->links() !!}--}}
+
+                <!-- Custom pagination -->
+                @if ($totalItems > 0)
+                    <nav aria-label="Pagination">
+                        <ul class="pagination justify-content-center">
+                            @if ($currentPage > 1)
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ $currentPage - 1 }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            @for ($i = 1; $i <= $totalPages; $i++)
+                                <li class="page-item {{ ($i == $currentPage) ? 'active' : '' }}">
+                                    <a class="page-link" href="?page={{ $i }}">{{ $i }}</a>
+                                </li>
+                            @endfor
+
+                            @if ($currentPage < $totalPages)
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ $currentPage + 1 }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                @else
+                    <p>No data available.</p>
+                @endif
             </div>
         </div>
     </div>
@@ -532,6 +565,44 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="Translatestatus" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Replies Status</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="form-group col-md-12">
+                <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                    <tr>
+                        <th>Language</th>
+                        <th>Uncheck</th>
+                        <th>New</th>
+                        <th>Approve</th>
+                        <th>Reject</th>
+                    </tr>
+                    <?php
+                    foreach ($StatusArray as $totalValue) { ?>
+                        <tr>
+                            <td>{{$totalValue['language']}}</td>
+                            <td>{{$totalValue['uncheck']}}</td>
+                            <td>{{(!empty($totalValue['new'])) ? $totalValue['new'] :0}}</td>
+                            <td>{{(!empty($totalValue['approve'])) ? $totalValue['approve'] :0}}</td>
+                            <td>{{(!empty($totalValue['rejected'])) ? $totalValue['rejected'] :0}}</td>
+                        </tr>
+                    <?php 
+                    } ?>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>

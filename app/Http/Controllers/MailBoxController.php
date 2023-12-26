@@ -196,7 +196,7 @@ class MailBoxController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('emails.search_email', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $emails->links(),
                 'count' => $emails->total(),
                 'emails' => $emails,

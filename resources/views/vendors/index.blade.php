@@ -143,6 +143,7 @@
         top: 17px;
         right: 10px;
     }
+    #vendorCreateModal .select2-container, #vendorEditModal .select2-container {width: 100% !important;}
 </style>
 @endsection
 
@@ -910,10 +911,18 @@
         var vendor = $(this).data('vendor');
         var url = "{{ url('vendors') }}/" + vendor.id;
 
+        var myString = vendor.framework;
+        var myArray = myString.split(',');
+
+        $.each(myArray, function(index, value) {
+            $('#framework_update option[value="' + value + '"]').attr('selected', true);
+            $('#framework_update option[value="' + value + '"]').prop('selected', true);
+        });
+
         $('#vendorEditModal form').attr('action', url);
         $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
         $('#vendor_type option[value="' + vendor.type + '"]').attr('selected', true);
-        $('#framework_update option[value="' + vendor.framework + '"]').attr('selected', true);
+        
         $('#vendorEditModal #vendor_name').val(vendor.name);
         $('#vendorEditModal #vendor_address').val(vendor.address);
         $('#vendorEditModal #vendor_phone').val(vendor.phone);
@@ -1429,7 +1438,7 @@
 
         });
 
-        $(".select2-quick-reply").select2({
+        $(".select2-quick-reply, .select-multiple-f").select2({
             tags: true
         });
 
@@ -1477,7 +1486,7 @@
     });
 
     function createUserFromVendor(id, email) {
-        $('#vendor_id').attr('data-id', id);
+        $('#createUser #vendor_id').attr('data-id', id);
         if (email) {
             $('#createUser').attr('data-email', email);
         }
