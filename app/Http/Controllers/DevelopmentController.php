@@ -5754,6 +5754,7 @@ class DevelopmentController extends Controller
         $ScrapperValuesHistory = [];
         $ScrapperValuesRemarksHistory = [];
         $returnData = [];
+        $id = 0;
         if(!empty($ScrapperValues)){
 
             $jsonString = $ScrapperValues['scrapper_values'];
@@ -5770,10 +5771,12 @@ class DevelopmentController extends Controller
                     }
                 }
                
-            }            
+            } 
+
+            $id = $ScrapperValues->id;
         }
 
-        return response()->json(['code' => 200, 'values' => $returnData, 'task_id' => $task_id, 'ScrapperValuesHistory' => $ScrapperValuesHistory, 'ScrapperValuesRemarksHistory' => $ScrapperValuesRemarksHistory]);
+        return response()->json(['code' => 200, 'values' => $returnData, 'task_id' => $task_id, 'ScrapperValuesHistory' => $ScrapperValuesHistory, 'ScrapperValuesRemarksHistory' => $ScrapperValuesRemarksHistory, 'id' => $id]);
     }
 
     public function UpdateScrapper(Request $request)
@@ -5791,7 +5794,23 @@ class DevelopmentController extends Controller
         ScrapperValuesHistory::updateOrCreate(
             ['task_id' => $request->task_id, 'column_name' => $request->column_name], $input
         );
-      
+
+        if($request->status=='Unapprove'){
+            if(!empty($request->remarks)){
+                ScrapperValuesRemarksHistory::updateOrCreate(
+                    ['task_id' => $request->task_id, 'column_name' => $request->column_name], $input
+                );
+            }
+
+            $task = DeveloperTask::find($request->task_id);
+            $task->status = 'Scrapper Data Unapproved';
+            $task->save();
+        } else {
+            $task = DeveloperTask::find($request->task_id);
+            $task->status = 'Scrapper Data Approved';
+            $task->save();
+        }
+
         return response()->json(
             [
                 'code' => 200,
@@ -5842,10 +5861,31 @@ class DevelopmentController extends Controller
             });
         }
 
-        $records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        $records = $records->select('task_id', 'scrapper_values.scrapper_values', 'scrapper_values.created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
         ->groupBy('task_id')
         ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
         ->paginate(50);
+
+        /*$records = ScrapperValues::leftJoin('scrapper_values_histories', 'scrapper_values.task_id', '=', 'scrapper_values_histories.task_id')->with('tasks');
+
+        $keywords = request('keywords');
+        if (!empty($keywords)) {
+            $records = $records->where(function ($q) use ($keywords) {
+                $q->where('scrapper_values.scrapper_values', 'LIKE', "%$keywords%")
+                    ->orWhere('scrapper_values.task_id', 'LIKE', "%$keywords%");
+            });
+        }
+
+        $records = $records->select(
+            'scrapper_values.task_id',
+            'scrapper_values.scrapper_values',
+            'scrapper_values.created_at',
+            DB::raw('MAX(scrapper_values.id) AS max_id'), // Select max ID from scrapper_values
+            DB::raw('COUNT(scrapper_values_histories.id) AS history_count') // Count records from scrapper_values_histories
+        )
+            ->groupBy('scrapper_values.task_id')
+            ->orderBy('history_count', 'DESC') // Order by the count of scrapper_values_histories records
+            ->paginate(50);*/
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 
@@ -5975,6 +6015,181 @@ class DevelopmentController extends Controller
             'status' => true,
             'html' => $html,
             'message' => 'Data get successfully',
+        ], 200);
+    }
+
+    public function developmentGetScrapperData(Request $request)
+    {   
+        $ScrapperValuesHistory = ScrapperValuesHistory::where('task_id',$request->task_id)->where('column_name',$request->column_name)->first();
+
+        $ScrapperValuesRemarksHistory = [];
+        if(!empty($ScrapperValuesHistory)){
+            if($ScrapperValuesHistory['status']=='Unapprove'){
+                $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id',$request->task_id)->where('column_name',$request->column_name)->first();        
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'ScrapperValuesHistory' => $ScrapperValuesHistory,
+            'ScrapperValuesRemarksHistory' => $ScrapperValuesRemarksHistory,
+            'message' => 'Data get successfully',
+        ], 200);
+    }
+
+    public function devScrappingTaskHistoryIndex(Request $request)
+    {
+
+        $ScrapperValues = ScrapperValues::where('task_id', $request->task_id)->where('id', "!=", $request->id)->orderBy('id', 'DESC')->get();
+
+        $ScrapperValuesHistory = [];
+        $ScrapperValuesRemarksHistory = [];
+        $returnData = [];
+        if(!empty($ScrapperValues)){
+            foreach ($ScrapperValues as $key => $value) {
+                $jsonString = $value['scrapper_values'];
+                $phpArray = json_decode($jsonString, true);
+                if(!empty($phpArray)){
+
+                    if(!empty($phpArray)){
+
+                        $ScrapperValuesHistory = ScrapperValuesHistory::where('task_id', $request->task_id)->get();
+                        $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id', $request->task_id)->get();
+
+                        foreach ($phpArray as $key_json => $value_json) {
+                            $returnData[$key][$key_json] = $value_json;         
+                        }
+                    }                   
+                }     
+            }       
+        }
+        return response()->json(['code' => 200, 'values' => $returnData, 'task_id' => $request->task_id]);
+    }
+
+    public function devScrappingTaskHistory($id)
+    {
+        $title = 'Scrapper Verification Data';
+
+        $recordsSingle = ScrapperValues::where('id', $id)->first();
+
+        //$records = ScrapperValues::with('tasks')->where('id', "!=", $id)->where("task_id", $recordsSingle['task_id']);
+        $records = ScrapperValues::with('tasks')->where("task_id", $recordsSingle['task_id'])->orderBy('id', 'DESC');
+
+        $keywords = request('keywords');
+        if (! empty($keywords)) {
+            $records = $records->where(function ($q) use ($keywords) {
+                $q->where('scrapper_values', 'LIKE', "%$keywords%")
+                ->orWhere('task_id', 'LIKE', "%$keywords%");
+            });
+        }
+
+        /*$records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        ->groupBy('task_id')
+        ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
+        ->paginate(50);*/
+
+        $records = $records->paginate(50);
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
+
+        $dynamicColumnsToShowscrapper = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowscrapper = json_decode($hideColumns, true);
+        }
+
+        return view('development.scrapperlisthistroy', [
+            'records' => $records,
+            'dynamicColumnsToShowscrapper' => $dynamicColumnsToShowscrapper,
+        ]);
+    }
+
+    public function developmentUpdateAllScrapperStatusData(Request $request)
+    {   
+
+        $recordsScrapper = ScrapperValues::where('id', $request->scrapper_id)->first();
+
+        if(!empty($recordsScrapper)){            
+
+            if($request->type==1){
+                $jsonString = $recordsScrapper['scrapper_values'];
+                $phpArray = json_decode($jsonString, true);
+                if(!empty($phpArray)){
+
+                    if(!empty($phpArray)){
+
+                        foreach ($phpArray as $key_json => $value_json) {
+                            
+
+                            if($key_json=='properties'){
+                                if(!empty($value_json)){
+                                    foreach ($value_json as $key => $value) {
+
+                                        $ScrapperValuesHistory = ScrapperValuesHistory::where('column_name', $key)->where('task_id', $recordsScrapper['task_id'])->first();
+                                        
+                                        if(empty($ScrapperValuesHistory)){
+                                            $ScrapperValuesHistoryNew = new ScrapperValuesHistory;
+                                            $ScrapperValuesHistoryNew->status = 'Approve';
+                                            $ScrapperValuesHistoryNew->column_name = $key;
+                                            $ScrapperValuesHistoryNew->updated_by =  auth()->user()->id;
+                                            $ScrapperValuesHistoryNew->task_id =  $recordsScrapper['task_id'];
+                                            $ScrapperValuesHistoryNew->save();
+                                        } else {
+                                            $ScrapperValuesHistory->status = 'Approve';
+                                            $ScrapperValuesHistory->updated_by =  auth()->user()->id;
+                                            $ScrapperValuesHistory->save();
+                                        }
+
+                                        ScrapperValuesRemarksHistory::where('column_name', $key)->where('task_id', $recordsScrapper['task_id'])->delete();
+                                    }
+                                }
+                            } else {
+
+                                $ScrapperValuesHistory = ScrapperValuesHistory::where('column_name', $key_json)->where('task_id', $recordsScrapper['task_id'])->first();
+
+                                if(empty($ScrapperValuesHistory)){
+                                    $ScrapperValuesHistoryNew = new ScrapperValuesHistory;
+                                    $ScrapperValuesHistoryNew->status = 'Approve';
+                                    $ScrapperValuesHistoryNew->column_name = $key_json;
+                                    $ScrapperValuesHistoryNew->updated_by =  auth()->user()->id;
+                                    $ScrapperValuesHistoryNew->task_id =  $recordsScrapper['task_id'];
+                                    $ScrapperValuesHistoryNew->save();
+                                } else {
+                                    $ScrapperValuesHistory->status = 'Approve';
+                                    $ScrapperValuesHistory->updated_by =  auth()->user()->id;
+                                    $ScrapperValuesHistory->save();
+                                }
+
+                                ScrapperValuesRemarksHistory::where('column_name', $key_json)->where('task_id', $recordsScrapper['task_id'])->delete();
+                            }
+                        }
+
+                        $task = DeveloperTask::find($recordsScrapper['task_id']);
+                        $task->status = 'Scrapper Data Approved';
+                        $task->save();
+                    }                   
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Scrapper values status updated.',
+                ], 200);
+            } else {
+
+                ScrapperValuesHistory::where('task_id', $recordsScrapper['task_id'])->delete();
+                ScrapperValuesRemarksHistory::where('task_id', $recordsScrapper['task_id'])->delete();
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Scrapper values status updated.',
+                ], 200);
+
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Scrapper values status updated.',
         ], 200);
     }
 }

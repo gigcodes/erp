@@ -82,7 +82,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
                 <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
                     <span class="td-mini-container-{{$issue->id}}" style="margin:0px;">
-                                    {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+                                    {{  \Illuminate\Support\Str::limit($issue->message, 90, $end='...') }}
                     </span>
                 </span>
                 <div class="expand-row-msg" data-id="{{$issue->id}}">
@@ -139,6 +139,17 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
                 </div>
+
+                <?php 
+                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+                @if(!empty($time_history))
+                    @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                        <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="DEVTASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                        </button>
+                    @endif
+                @endif
             </td>
             @endif
 
@@ -200,7 +211,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                     <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                     </button>
-                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
+                    <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
                 </td>
             </tr>
         @endif
@@ -271,7 +282,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
                 <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
                     <span class="td-mini-container-{{$issue->id}}" style="margin:0px;">
-                                    {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+                                    {{  \Illuminate\Support\Str::limit($issue->message, 90, $end='...') }}
                     </span>
                 </span>
                 <div class="expand-row-msg" data-id="{{$issue->id}}">
@@ -321,6 +332,17 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                         <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
                 </div>
+
+                <?php 
+                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+                @if(!empty($time_history))
+                    @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                        <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="DEVTASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                            <i class="fa fa-check" aria-hidden="true"></i>
+                        </button>
+                    @endif
+                @endif
             </td>
             <td class="p-2">
                 <div class="form-group">
@@ -371,7 +393,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                 <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                 </button>
-                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
             </td>
         </tr>
     @endif
@@ -442,7 +464,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
             <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;margin-top:6px;" data-id="{{$issue->id}}">
                 <span class="td-mini-container-{{$issue->id}}" style="margin:0px;">
-                                {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+                                {{  \Illuminate\Support\Str::limit($issue->message, 90, $end='...') }}
                 </span>
             </span>
             <div class="expand-row-msg" data-id="{{$issue->id}}">
@@ -539,7 +561,7 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
             <button class="btn btn-sm btn-image add-scrapper" data-task_id="{{$issue->id}}" data-task_type="DEVTASK" data-assigned_to="{{$issue->assigned_to}}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
             </button>
-            <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
+            <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-scrapper count-dev-scrapper_{{ $issue->id }}" title="Show scrapper" data-id="{{ $issue->id }}" data-category="{{ $issue->id }}"><i class="fa fa-list"></i></button>
         </td>
     </tr>
 @endif

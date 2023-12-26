@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use App\Models\StoreWebsiteCsvFile;
 use Illuminate\Support\Facades\Storage;
+use App\Models\GoogleFileStausHistory;
 
 
 class GoogleFileTranslator extends Controller
@@ -161,7 +162,7 @@ class GoogleFileTranslator extends Controller
        
         $record->updated_by_user_id = $request->update_by_user_id;
         $record->standard_value = $request->update_record;
-        $record->status = 1;
+        $record->status = 2;
         $record->save();
 
         $history = new GoogleFileTranslateHistory();
@@ -388,20 +389,53 @@ class GoogleFileTranslator extends Controller
         }
     }
 
+    public function tranalteStatusHistoryShow($id)
+    {
+        try {
+            $google_file_translate_csv_data_id = [];
+            if (isset($id)) {
+                $google_file_translate_csv_data_id = GoogleFileStausHistory::with(['user'])->Where('google_file_translate_id', $id)->latest()->get();
+
+                return response()->json([
+                    'status' => true,
+                    'data' => $google_file_translate_csv_data_id,
+                    'message' => 'Status history added successfully',
+                    'status_name' => 'success',
+                ], 200);
+        
+            } else {
+                throw new Exception('Task not found');
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'data' => $google_file_translate_csv_data_id,
+                'message' => 'Status history added successfully',
+                'status_name' => 'failed',
+            ], 500);
+    
+        }
+    }
+
     public function statusChange(Request $request)
     {
         $googleTranslateDatas =  GoogleTranslateCsvData::find(($request->id));
-        $google_file_translate_csv_data_id = GoogleFileTranslateHistory::with(['user'])->Where('google_file_translate_csv_data_id', $request->id)
-                                            ->latest('updated_at') 
-                                            ->first(); 
-        $oldvalue = $google_file_translate_csv_data_id->old_value;
+        $google_file_translate_csv_data_id = GoogleFileTranslateHistory::with(['user'])->Where('google_file_translate_csv_data_id', $request->id)->latest('updated_at')->first(); 
+        $oldvalue = (!empty($google_file_translate_csv_data_id)) ? $google_file_translate_csv_data_id->old_value : '';
 
         if($request->status == 'accept')
-        {
-            $googleTranslateDatas->status = 2;
-            $googleTranslateDatas->approved_by_user_id = \Auth::id();
-            $googleTranslateDatas->save();
+        {   
+            $history = new GoogleFileStausHistory();
+            $history->google_file_translate_id = $request->id;
+            $history->updated_by_user_id = \Auth::id();
+            $history->old_status = $googleTranslateDatas->status;
+            $history->status = 1;
+            $history->save();
 
+            $googleTranslateDatas->status = 1;
+            $googleTranslateDatas->approved_by_user_id = \Auth::id();
+            $googleTranslateDatas->save();            
+            
             return response()->json([
                 'status' => true,
                 'data' => $googleTranslateDatas,
@@ -412,8 +446,14 @@ class GoogleFileTranslator extends Controller
            
         if($request->status == 'reject')
         {
-            $googleTranslateDatas->status = 2;
-            $googleTranslateDatas->standard_value = $oldvalue;
+            $history = new GoogleFileStausHistory();
+            $history->google_file_translate_id = $request->id;
+            $history->updated_by_user_id = \Auth::id();
+            $history->old_status = $googleTranslateDatas->status;
+            $history->status = 3;
+            $history->save();
+
+            $googleTranslateDatas->status = 3;
             $googleTranslateDatas->save();
 
             return response()->json([
