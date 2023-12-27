@@ -1419,6 +1419,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('leads/permanentDelete/{leads}', [LeadsController::class, 'permanentDelete'])->name('leads.permanentDelete');
     Route::resource('chat', ChatController::class);
     Route::get('erp-leads', [LeadsController::class, 'erpLeads'])->name('erp-leads.erpLeads');
+    Route::post('erp-leads-column-visbility', [LeadsController::class, 'columnVisbilityUpdate'])->name('erp-leads.column.update');
+    Route::post('erp-leads/statuscolor', [LeadsController::class, 'statuscolor'])->name('erp-leads.statuscolor');
     Route::post('erp-leads/enable-disable', [LeadsController::class, 'enableDisable'])->name('erp-leads.enable-disable');
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', [LeadsController::class, 'sendMessage'])->name('erp-leads-send-message');
@@ -3219,6 +3221,7 @@ Route::post('livechat-tickets-column-visbility', [LiveChatController::class, 'co
 Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
 Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
 Route::post('livechat/tickets/ticket-data', [LiveChatController::class, 'ticketData'])->name('livechat.tickets.ticket-data');
+Route::get('livechat-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
 /*#DEVTASK-22731 - END*/
 Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
