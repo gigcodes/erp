@@ -133,12 +133,12 @@ class StoreWebsiteEnvironmentController extends Controller
         $environments = StoreWebsiteEnvironment::leftJoin('store_websites as sw', 'sw.id', 'store_website_environments.store_website_id');
 
         if ($request->store_website_id != null) {
-            $environments = $environments->where('store_website_environments.store_website_id', $request->store_website_id);
+            $environments = $environments->whereIn('store_website_environments.store_website_id', $request->store_website_id);
         }
         if ($request->paths != null) {
-            $environments = $environments->where('store_website_environments.path', $request->paths);
+            $environments = $environments->whereIn('store_website_environments.path', $request->paths);
         }
-
+        
         $environments = $environments->orderBy('store_website_environments.id', 'desc')->select(['store_website_environments.*', 'sw.title as store_website_name'])->paginate();
 
         $items = $environments->items();

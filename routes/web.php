@@ -479,6 +479,7 @@ Route::post('vendors/cv/storeCVWithoutLogin', [VendorResumeController::class, 's
 
 Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::post('blog-column-visbility', [BlogController::class, 'columnVisbilityUpdate'])->name('blog.column.update');
     Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
     Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
     Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
@@ -951,9 +952,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('color-reference/affected-product', [ColorReferenceController::class, 'affectedProduct']);
     Route::post('color-reference/update-color', [ColorReferenceController::class, 'updateColor']);
-
+    Route::post('color-reference/update-color-miltiple', [ColorReferenceController::class, 'updateColorMultiple']);
     Route::resource('color-reference', ColorReferenceController::class);
-
+    Route::get('color-reference-group', [ColorReferenceController::class, 'groupColor']);
+    Route::get('/color-reference/group/{name}/{threshold}', [ColorReferenceController::class, 'colorGroupBy']);
     Route::get('compositions/{id}/used-products', [CompositionsController::class, 'usedProducts'])->name('compositions.used-products');
     Route::get('compositions/affected-product', [CompositionsController::class, 'affectedProduct']);
     Route::post('compositions/update-composition', [CompositionsController::class, 'updateComposition']);
@@ -963,6 +965,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/{id}/history', [CompositionsController::class, 'history'])->name('compositions.history');
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
+    Route::get('compositions/groups', [CompositionsController::class, 'compositionsGroups'])->name('compositions.groups');
+    Route::get('compositions/group/{threshold}', [CompositionsController::class, 'compositionsGroupBy']);
+    Route::post('compositions/delete-composition', [CompositionsController::class, 'deleteComposition'])->name('compositions.delete');
     Route::resource('compositions', CompositionsController::class);
     Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
     Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
@@ -1094,8 +1099,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
+    Route::post('products/description/update', [ProductController::class, 'productDescriptionUpdate'])->name('products.description.update');
+    Route::get('products/multi-description', [ProductController::class, 'productMultiDescription'])->name('products.multidescription');
+    Route::post('products/multi-description-sky-check', [ProductController::class, 'productMultiDescriptionCheck'])->name('products.multidescription.skucheck');
+    Route::get('/products/multi-description-sku', [ProductController::class, 'productMultiDescriptionSku'])->name('products.multidescription.sku');
+    Route::post('products/multi-description-sky-update', [ProductController::class, 'productMultiDescriptionUpdate'])->name('products.multidescription.update');
     Route::post('products-status-history-column-visbility', [ProductController::class, 'columnVisbilityUpdate'])->name('products.column.update');
-
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
     Route::post('products/{id}/updateComposition', [ProductController::class, 'updateComposition']);
@@ -1410,6 +1419,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('leads/permanentDelete/{leads}', [LeadsController::class, 'permanentDelete'])->name('leads.permanentDelete');
     Route::resource('chat', ChatController::class);
     Route::get('erp-leads', [LeadsController::class, 'erpLeads'])->name('erp-leads.erpLeads');
+    Route::post('erp-leads-column-visbility', [LeadsController::class, 'columnVisbilityUpdate'])->name('erp-leads.column.update');
+    Route::post('erp-leads/statuscolor', [LeadsController::class, 'statuscolor'])->name('erp-leads.statuscolor');
     Route::post('erp-leads/enable-disable', [LeadsController::class, 'enableDisable'])->name('erp-leads.enable-disable');
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', [LeadsController::class, 'sendMessage'])->name('erp-leads-send-message');
@@ -3210,6 +3221,7 @@ Route::post('livechat-tickets-column-visbility', [LiveChatController::class, 'co
 Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
 Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
 Route::post('livechat/tickets/ticket-data', [LiveChatController::class, 'ticketData'])->name('livechat.tickets.ticket-data');
+Route::get('livechat-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
 /*#DEVTASK-22731 - END*/
 Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
@@ -3430,6 +3442,7 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
+    Route::post('bug-tracking-column-visbility', [BugTrackingController::class, 'columnVisbilityUpdate'])->name('bug-tracking.column.update');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
     Route::get('bug-tracking/create', [BugTrackingController::class, 'create'])->name('bug-tracking.create');
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
@@ -3598,6 +3611,8 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
     Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
+    Route::get('/tables-list', [DatabaseTableController::class, 'tableList'])->name('database.tables-list');
+    Route::post('truncate-tables', [DatabaseTableController::class, 'truncateTables'])->name('truncate-tables');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');
@@ -5291,6 +5306,7 @@ Route::get('gtmetrixAccount/show', [StoreGTMetrixAccountController::class, 'show
 Route::post('gtmetrixAccount/update', [StoreGTMetrixAccountController::class, 'update'])->name('account.update');
 Route::post('gtmetrixAccount/store', [StoreGTMetrixAccountController::class, 'store'])->name('account.store');
 Route::get('gtmetrixcategoryWeb', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'CategoryWiseWebsiteReport'])->name('gtm.cetegory.web');
+Route::post('gtmetrixcategoryWeb-column-visbility', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'columnVisbilityUpdate'])->name('gtmetrix.column.update');
 
 Route::get('product-pricing', [product_price\ProductPriceController::class, 'index'])->name('product.pricing');
 Route::get('product-autocomplete', [product_price\ProductPriceController::class, 'getProductAutocomplete'])->name('product.autocomplete');
