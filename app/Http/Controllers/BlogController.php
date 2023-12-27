@@ -46,8 +46,7 @@ class BlogController extends Controller
                 $blogs->whereDate('created_at', $request->get('date'));
             }
 
-            //$blogs->with('user', 'blogsTag');
-            $blogs->with('user');
+            $blogs->with('user', 'blogsTag');
             $blogs = $blogs->orderBy('id', 'desc')->get();
 
             return Datatables::of($blogs)
