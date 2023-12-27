@@ -15,6 +15,7 @@ use App\Models\BlogTag;
 use App\Models\BlogHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\DataTableColumn;
 
 class BlogController extends Controller
 {
@@ -215,7 +216,36 @@ class BlogController extends Controller
         // $tagName = implode(",", $tagName);
         // $tagName = "['" . str_replace(",", "','", $tagName) . "']";
 
-        return view('blogs.index', compact('users', 'store_website'));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'blogs-listing')->first();
+
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }
+
+        return view('blogs.index', compact('users', 'store_website', 'dynamicColumnsToShowb'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','blogs-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'blogs-listing';
+            $column->column_name = json_encode($request->column_blogs); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'blogs-listing';
+            $column->column_name = json_encode($request->column_blogs); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     /**
