@@ -475,8 +475,14 @@
                     </div>
                 </div>
             </div>
+
+            <div class="form-group col-md-2 pd-3 pl-0">
+                <label class="form-label">Search keyword</label>                
+                <input type="text" name="keyword" class="form-control" id="keyword" placeholder="Search keyword">
+            </div>
                 
-            <div class="form-group col-md-2 pd-3 p-0">
+            <div class="form-group col-md-2 pd-3 pl-0">
+                <label class="form-label">Select User</label>                
                 <select class="form-control" name="user_id" id="userId">
                     <option value="">Select User</option>
                     @foreach ($users as  $value)
@@ -485,13 +491,25 @@
                 </select>
             </div>
 
+            <div class="form-group col-md-2 pd-3 pl-0">
+                <label class="form-label">Select Website</label>
+                <select class="browser-default custom-select"  required="required" name="storeWebsiteId" style="height:auto">
+                    <option disabled value="" selected>---Selecty store websites---</option>
+                    @foreach($store_website as $sw)
+                        <option value="{{$sw->id}}" >{{$sw->website}}</option>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="form-group col-md-1 pd-3 status-select-cls select-multiple-checkbox">
+                <label class="form-label">Select Date</label>
                 <div class='input-group date' id='blog-datetime'>
                     <input type='date' class="form-control" name="created_at" id="created_at" value="" />
                 </div>
             </div>
 
             <div class="form-group col-md-1 pd-3">
+                <label class="form-label" style=" width: 100%;">&nbsp;</label>
                 <button id="BlogFilter" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                 <button  class="btn btn-image refreshTable"><i class="fa fa-history" aria-hidden="true"></i></button>
             </div>
@@ -504,7 +522,7 @@
                 id="blog_listing" style="overflow-x: auto !important">
                 <thead>
                     <tr>
-                        <th style="width:10px !important;">userName</th>
+                        <th>userName</th>
                         <th>Idea</th>
                         <th>Keyword</th>
                         <th>Website</th>
@@ -582,6 +600,8 @@
                   url: "{{ route('blog.index') }}",
                   data: function (d) {
                       d.user_id = $('#userId').val(),
+                      d.keyword = $('#keyword').val(),
+                      d.storeWebsiteId = $('#storeWebsiteId').val(),
                       d.date = $('#created_at').val()
                     
                   }
@@ -879,6 +899,8 @@
           $('.refreshTable').click(function(){
              
                 $('#userId').val('');
+                $('#keyword').val('');
+                $('#storeWebsiteId').val('');
                 $('#created_at').val('');
               $('#blog_listing').DataTable().ajax.reload();
             });

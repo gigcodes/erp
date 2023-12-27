@@ -33,11 +33,21 @@ class BlogController extends Controller
             if ($request->get('user_id')) {
                 $blogs->where('user_id', $request->get('user_id'));
             }
+            if ($request->get('storeWebsiteId')) {
+                $blogs->where('store_website_id', $request->get('storeWebsiteId'));
+            }
+            if ($request->get('keyword')) {
+                $keyword = request('keyword', '');
+                $blogs = $blogs->where(function ($q) use ($keyword) {
+                    $q->where('blogs.idea', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.keyword', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.header_tag', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.title_tag', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.canonical_url', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.meta_desc', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.url_structure', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.url_xml', 'LIKE', '%' . $keyword . '%');
+                });
+            }
             if (! empty($request->get('date'))) {
                 $blogs->whereDate('created_at', $request->get('date'));
             }
 
-            $blogs->with('user', 'blogsTag');
+            //$blogs->with('user', 'blogsTag');
+            $blogs->with('user');
             $blogs = $blogs->orderBy('id', 'desc')->get();
 
             return Datatables::of($blogs)
@@ -178,7 +188,7 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('content', function ($row) {
-                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="btn custom-button ViewContent btn-warning btn-sm"><i class="fa fa-eye"></i> Content</a>&nbsp;';
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="ViewContent"><i class="fa fa-eye"></i></a>&nbsp;';
 
                     return $actionBtn;
                 })
@@ -199,8 +209,8 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn custom-button BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp;
-                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn btn-xs pull-left BlogEditData"><i class="fa fa-edit"></i></a>&nbsp;
+                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="delete-blog btn btn-xs pull-left"><i class="fa fa-trash"></i></a>&nbsp;';
 
                     return $actionBtn;
                 })
