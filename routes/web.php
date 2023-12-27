@@ -479,6 +479,7 @@ Route::post('vendors/cv/storeCVWithoutLogin', [VendorResumeController::class, 's
 
 Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::post('blog-column-visbility', [BlogController::class, 'columnVisbilityUpdate'])->name('blog.column.update');
     Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
     Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
     Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
