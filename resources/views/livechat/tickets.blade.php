@@ -239,90 +239,90 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right infinite-scroll chat-list-table">
+    <div class="space-right chat-list-table">
 
-        <div class="table-responsive">
-            <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+        <div class="infinite-scroll" style="overflow-y: auto">
+            <table class="table table-bordered table-striped" style="font-size: 14px;">
                 <thead>
                 <tr>
                     @if(!empty($dynamicColumnsToShowLt))
                         @if (!in_array('Checkbox', $dynamicColumnsToShowLt))
-                            <th style="width: 5%;"></th>
+                            <th></th>
                         @endif
                         @if (!in_array('Id', $dynamicColumnsToShowLt))
-                            <th style="width: 5%;">Id</th>
+                            <th>Id</th>
                         @endif
                         @if (!in_array('Source', $dynamicColumnsToShowLt))
-                            <th style="width: 6%;">Source</th>
+                            <th>Source</th>
                         @endif
                         @if (!in_array('Name', $dynamicColumnsToShowLt))
-                            <th style="width: 8%;">Name</th>
+                            <th>Name</th>
                         @endif
                         @if (!in_array('Email', $dynamicColumnsToShowLt))
-                            <th style="width: 8%;">Email</th>
+                            <th>Email</th>
                         @endif
                         @if (!in_array('Subject', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 5%;">Subject</th>
+                            <th>Subject</th>
                         @endif
                         @if (!in_array('Message', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 6%;">Message</th>
+                            <th>Message</th>
                         @endif
                         @if (!in_array('Asg name', $dynamicColumnsToShowLt))
-                            <th style="width: 6%;">Asg name</th>
+                            <th>Asg name</th>
                         @endif
                         @if (!in_array('Brand', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 5%;">Brand</th>
+                            <th>Brand</th>
                         @endif
                         @if (!in_array('Country', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 5%;">Country</th>
+                            <th>Country</th>
                         @endif
                         @if (!in_array('Ord no', $dynamicColumnsToShowLt))
-                            <th style="width: 5%;">Ord no</th>
+                            <th>Ord no</th>
                         @endif
                         @if (!in_array('Ph no', $dynamicColumnsToShowLt))
-                            <th style="width: 8%;">Ph no</th>
+                            <th>Ph no</th>
                         @endif
                         @if (!in_array('Msg Box', $dynamicColumnsToShowLt))
-                            <th style="width: 16%;">Msg Box</th>
+                            <th>Msg Box</th>
                         @endif
                         @if (!in_array('Images', $dynamicColumnsToShowLt))
-                            <th style="width: 16%;">Images</th>
+                            <th>Images</th>
                         @endif
                         @if (!in_array('Resolution Date', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 13%;">Resolution Date</th>
+                            <th>Resolution Date</th>
                         @endif
                         @if (!in_array('Status', $dynamicColumnsToShowLt))
-                            <th style="width: 6%;">Status</th>
+                            <th>Status</th>
                         @endif
                         @if (!in_array('Created', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 6%;">Created</th>
+                            <th>Created</th>
                         @endif
                         @if (!in_array('Shortcuts', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 20%;">Shortcuts</th>
+                            <th>Shortcuts</th>
                         @endif
                         @if (!in_array('Action', $dynamicColumnsToShowLt))
-                            <th class="chat-msg" style="width: 5%;">Action</th>
+                            <th>Action</th>
                         @endif
                     @else
-                        <th style="width: 5%;"></th>
-                        <th style="width: 5%;">Id</th>
-                        <th style="width: 6%;">Source</th>
-                        <th style="width: 8%;">Name</th>
-                        <th style="width: 8%;">Email</th>
-                        <th class="chat-msg" style="width: 5%;">Subject</th>
-                        <th class="chat-msg" style="width: 6%;">Message</th>
-                        <th style="width: 6%;">Asg name</th>
-                        <th class="chat-msg" style="width: 5%;">Brand</th>
-                        <th class="chat-msg" style="width: 5%;">Country</th>
-                        <th style="width: 5%;">Ord no</th>
-                        <th style="width: 8%;">Ph no</th>
-                        <th style="width: 16%;">Msg Box</th>
-                        <th style="width: 16%;">Images</th>
-                        <th class="chat-msg" style="width: 13%;">Resolution Date</th>
-                        <th style="width: 6%;">Status</th>
-                        <th class="chat-msg" style="width: 6%;">Created</th>
-                        <th class="chat-msg" style="width: 20%;">Shortcuts</th>
-                        <th class="chat-msg" style="width: 5%;">Action</th>
+                        <th></th>
+                        <th>Id</th>
+                        <th>Source</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Asg name</th>
+                        <th>Brand</th>
+                        <th>Country</th>
+                        <th>Ord no</th>
+                        <th>Ph no</th>
+                        <th>Msg Box</th>
+                        <th>Images</th>
+                        <th>Resolution Date</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Shortcuts</th>
+                        <th>Action</th>
                     @endif
                 </tr>
                 </thead>
@@ -1226,6 +1226,9 @@ function opnMsg(email) {
         $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
     }
 
+    function Shortcutsbtn(id){
+        $(".action-shortcuts-tr-"+id).toggleClass('d-none')
+    }
 
     // Load tickets on initial page load
         $(document).ready(function() {
@@ -1504,6 +1507,15 @@ $(document).on('change', '.quickCommentEmail', function () {
 });
 $(document).on('change', '.quickSubCategory', function () {
     siteHelpers.changeQuickSubCategory($(this));
+});
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
 });
 </script>
 @endsection
