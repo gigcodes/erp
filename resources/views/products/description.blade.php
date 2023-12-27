@@ -17,7 +17,9 @@
   }
         </style>
 @endsection
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @section('content')
     <div class="row">
         <div class="col-md-12">
@@ -100,6 +102,14 @@
         </div>
     </form>
 </div>
+<div class="col-md-12 ml-1 description">
+    <div class="form-group small-field change-list-all-replace_description-wrap">
+        <div class="col-md-2 pd-sm">
+            <input type="text" name="replace_description" class="form-control replace_description" id="replace_description" placeholder="Enter Replace Keyword" value="">
+        </div>
+        <button type="button" class="btn btn-secondary update-description-selected">Update Selected</button>
+    </div>
+</div>
 </div>
     
     <div class="row">
@@ -112,6 +122,7 @@
         <div class="col-md-12">
             <table class="table table-striped table-bordered" id="quick-reply-list" style="table-layout: fixed;">
                 <tr>
+                    <th width="3%"><span><input type="checkbox" class="check-all-btn mr-2">&nbsp;</span></th>
                     <th width="6%">Product ID</th>
                     <th width="5%">SKU</th>
                     <th width="4%">Supplier</th>
@@ -129,6 +140,7 @@
                 </tr>
                 @foreach($products as $product)
                     <tr>
+                        <td><input type="checkbox" name="product[]" value="{{ $product->product_id }}" class="product-checkbox mr-2"></td>
                         <td>
                             <a target="__blank" href="{{$product->supplier_link}}" style="color:black;">{{$product->product_id}}</a>
                         </td>
@@ -209,6 +221,80 @@
         $("#select_date").datepicker({
 	  	format: 'yyyy-mm-dd'
 	});
+    $(document).off('click', '.update-description-selected').on('click', '.update-description-selected', function() {
+        $("#loading-image").show();
+        var changefrom = $("#product_description").val();
+        var changeto = $(".replace_description").val();
+        var changesIds = $(".product-checkbox:checked");
+        var checkedValues = [];
+        changesIds.each(function() {
+            checkedValues.push($(this).val());
+        });
+        if (changefrom == '') {
+            $("#loading-image").hide();
+            toastr['error']('Sorry, Please enter description and search result', 'error');
+        } else if(changeto == ''){
+            $("#loading-image").hide();
+            toastr['error']('Sorry, Please enter replace keyword', 'error');
+        } else if(checkedValues.length <= 0){
+            $("#loading-image").hide();
+            toastr['error']('Sorry, Please select at least one product', 'error');
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '/products/description/update',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    from: changefrom,
+                    to: changeto,
+                    ids: checkedValues,
+                },
+                dataType: "json"
+            }).done(function(response) {
+                console.log(response);
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if (response.html != "") {
+                        toastr['success'](response.message, 'success');
+                        var redirectUrl = '/products/description';
+                        window.location.href = redirectUrl;
+                    } else {
+                        $("#loading-image").hide();
+                        toastr['error']('Sorry, something went wrong', 'error');
+                    }
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+            });
+        }
+    });
+    $(document).ready(function() {
+    // When the check-all-btn is clicked
+        $(".check-all-btn").on("change", function() {
+            // If check-all-btn is checked, check all product-checkbox
+            if ($(this).prop("checked")) {
+                $(".product-checkbox").prop("checked", true);
+            } else {
+                // If check-all-btn is unchecked, uncheck all product-checkbox
+                $(".product-checkbox").prop("checked", false);
+            }
+        });
+
+        // When any product-checkbox is clicked
+        $(".product-checkbox").on("change", function() {
+            // Check if all product-checkbox are checked, then check the check-all-btn
+            if ($(".product-checkbox:checked").length === $(".product-checkbox").length) {
+                $(".check-all-btn").prop("checked", true);
+            } else {
+                // If any product-checkbox is unchecked, uncheck the check-all-btn
+                $(".check-all-btn").prop("checked", false);
+            }
+        });
+    });
 
  </script>
 @endsection
