@@ -37,6 +37,7 @@ use Google\Cloud\Translate\TranslateClient;
 use App\Library\Watson\Model as WatsonManager;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
+use App\Reply;
 
 class LiveChatController extends Controller
 {
@@ -1529,15 +1530,6 @@ class LiveChatController extends Controller
         $query = $query->groupBy('tickets.ticket_id');
         $data = $query->orderBy('created_at', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
 
-        if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
-                'links' => (string) $data->links(),
-                'count' => $data->total(),
-            ], 200);
-        }
-        $taskstatus = TicketStatuses::get();
-
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'livechat-tickets')->first();
 
         $dynamicColumnsToShowLt = [];
@@ -1546,7 +1538,24 @@ class LiveChatController extends Controller
             $dynamicColumnsToShowLt = json_decode($hideColumns, true);
         }
 
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('livechat.partials.ticket-list', compact('data', 'dynamicColumnsToShowLt'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
+                'links' => (string) $data->links(),
+                'count' => $data->total(),
+            ], 200);
+        }
+        $taskstatus = TicketStatuses::get();
+
         return view('livechat.tickets', compact('data', 'taskstatus', 'dynamicColumnsToShowLt'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+    }
+
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
     }
 
     public function columnVisbilityUpdate(Request $request)

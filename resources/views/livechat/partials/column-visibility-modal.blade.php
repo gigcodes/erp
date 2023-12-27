@@ -118,6 +118,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Shortcuts</td>
+                                <td>
+                                    <input type="checkbox" value="Shortcuts" id="Shortcuts" name="column_lt[]" @if (!empty($dynamicColumnsToShowLt) && in_array('Shortcuts', $dynamicColumnsToShowLt)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Action</td>
                                 <td>
                                     <input type="checkbox" value="Action" id="Action" name="column_lt[]" @if (!empty($dynamicColumnsToShowLt) && in_array('v', $dynamicColumnsToShowLt)) checked @endif>

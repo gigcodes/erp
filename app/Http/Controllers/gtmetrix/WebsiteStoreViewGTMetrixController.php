@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use App\Repositories\GtMatrixRepository;
 use Entrecore\GTMetrixClient\GTMetrixClient;
+use App\Models\DataTableColumn;
 
 class WebsiteStoreViewGTMetrixController extends Controller
 {
@@ -771,14 +772,27 @@ class WebsiteStoreViewGTMetrixController extends Controller
         return view('gtmetrix.gtmetrix_report', compact('data', 'title', 'g_typeData', 'y_typeData', 'Insightdata', 'InsightTypeData', 'Insightdata', 'pagespeedData', 'yslowData'));
     }
 
-    public function CategoryWiseWebsiteReport()
+    public function CategoryWiseWebsiteReport(Request $request)
     {
         try {
-            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->where('status', 'completed')->orderBy('created_at', 'desc')->get();
+            $resourcedata = StoreViewsGTMetrix::select('id', 'website_url', 'test_id', 'pagespeed_json', 'yslow_json', 'pagespeed_insight_json')->where('test_id', '!=', '')->where('status', 'completed');
+
+            $search = request('search', '');
+
+            if (! empty($search)) {
+                $resourcedata = $resourcedata->where(function ($q) use ($search) {
+                    $q->where('website_url', 'LIKE', '%' . $search . '%');
+                });
+            }
+
+            $resourcedata = $resourcedata->orderBy('created_at', 'desc')->get();
+
             $title = 'GTmetrix Website Report Data';
             $iKey = '0';
             $inc = 0;
             $catName = [];
+            $pagespeedDatanew = [];
+            $catArr = [];
             foreach ($resourcedata as $datar) {
                 //$inc++;
                 //$pagespeedData[] = $datar->website_url;
@@ -881,11 +895,41 @@ class WebsiteStoreViewGTMetrixController extends Controller
                 $pagespeedDatanew[] = ['website' => $datar->website_url, 'score' => $catScrore, 'impact' => $catImpact, 'catName' => array_unique($catName)];
                 $catArr = array_unique($catName);
             }
+
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'gtmetrixcategoryWeb')->first();
+
+            $dynamicColumnsToShowgt = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowgt = json_decode($hideColumns, true);
+            }
+
             //dd($pagespeedDatanew);
-            return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew', 'title', 'catArr'));
+            return view('gtmetrix.gtmetrixWebsiteCategoryReport', compact('pagespeedDatanew', 'title', 'catArr', 'dynamicColumnsToShowgt'));
         } catch (\Exception $e) {
             dd($e->getMessage());
         }
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','gtmetrixcategoryWeb')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'gtmetrixcategoryWeb';
+            $column->column_name = json_encode($request->column_gt); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'gtmetrixcategoryWeb';
+            $column->column_name = json_encode($request->column_gt); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function runCurrentUrl(Request $request)
