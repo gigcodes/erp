@@ -4335,6 +4335,10 @@ Route::middleware('auth')->prefix('marketing')->group(function () {
 });
 
 Route::middleware('auth')->prefix('checkout')->group(function () {
+	Route::post('coupons/remarks', [CouponController::class, 'saveRemarks'])->name('coupons.saveremarks');
+    Route::post('coupons/getremarks', [CouponController::class, 'getRemarksHistories'])->name('coupons.getremarks');
+    Route::post('coupons-column-visbility', [CouponController::class, 'columnVisbilityUpdate'])->name('coupons.column.update');
+    Route::post('coupons/statuscolor', [CouponController::class, 'statuscolor'])->name('coupons.statuscolor');
     Route::post('coupons/store', [CouponController::class, 'store'])->name('coupons.store');
     Route::post('coupons/{id}', [CouponController::class, 'update']);
     Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
