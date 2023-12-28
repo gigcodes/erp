@@ -2994,6 +2994,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
     Route::get('assets-manager-user-access-request/{id}', [AssetsManagerController::class, 'userAccessRequest'])->name('assetsmanager.user_access_request');
     Route::post('assets-manager-column-visbility', [AssetsManagerController::class, 'asColumnVisbilityUpdate'])->name('assetsmanager.column.update');
+    Route::post('assets-manager/terminal-user-access-create', [AssetsManagerController::class, 'createTerminalUserAccess']);
+    Route::post('assets-manager/terminal_users_access', [AssetsManagerController::class, 'assetManamentTerminalUsersAccess'])->name('assetsmanager.assetManamentTerminalUsersAccess');
+    Route::post('assets-manager/terminal-user-access-delete', [AssetsManagerController::class, 'deleteTerminalUserAccess']);
+    Route::post('assets-manager/remarks', [AssetsManagerController::class, 'saveRemarks'])->name('assetsmanager.saveremarks');
+    Route::post('assets-manager/getremarks', [AssetsManagerController::class, 'getRemarksHistories'])->name('assetsmanager.getremarks');
+    Route::post('assets-manager/updateup', [AssetsManagerController::class, 'updateUsernamePassword'])->name('assetsmanager.updateup');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
