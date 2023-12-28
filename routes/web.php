@@ -1692,6 +1692,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/get-email-send-journey-step-logs', [OrderController::class, 'getOrderEmailSendJourneyStepLog'])->name('order.get.email.send.journey.step.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
+    Route::post('orders-journey-column-visbility', [OrderController::class, 'columnVisbilityUpdate'])->name('orders.journey.column.update');
+    Route::post('orders-journey/getproducts', [OrderController::class, 'getOrderProductsList'])->name('orders.journey.products');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
