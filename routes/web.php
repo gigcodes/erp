@@ -5295,6 +5295,7 @@ Route::get('gtmetrix/getstatscomparison/{id}', [gtmetrix\WebsiteStoreViewGTMetri
 Route::any('gtmetrix/categories', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listGTmetrixCategories'])->name('gtmetrix.category.list');
 Route::any('gtmetrix/gtmetrixReport', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listWebsiteWiseCategories'])->name('gtmetrix.Report.list');
 Route::post('gtmetrix/gtmetrixReportData', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'WebsiteWiseCategoriesReport'])->name('gtmetrix.single.report');
+Route::post('gtmetrix-error-tables', [GTMatrixErrorLogController::class, 'truncateTables'])->name('gtmetrix.error.truncate-tables');
 Route::get('gtmetrix/error-index', [GTMatrixErrorLogController::class, 'index'])->name('gtmetrix.error.index.list');
 Route::any('gtmetrix/error-list', [GTMatrixErrorLogController::class, 'listGTmetrixError'])->name('gtmetrix.error.list');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
