@@ -256,6 +256,9 @@
                     @endif
                     {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
                     <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
+                    <a href="{{route('vendors.flowchart', $vendor->id)}}" class="btn btn-sm" title="Vendor Flow Chart" target="_blank">
+                        <i class="fa fa-line-chart" aria-hidden="true"></i>
+                    </a>
                 </div>
             </td>
         </tr>
@@ -460,6 +463,9 @@
                 @endif
                 {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
                 <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
+                <a href="{{route('vendors.flowchart', $vendor->id)}}" class="btn btn-sm" title="Vendor Flow Chart" target="_blank">
+                    <i class="fa fa-line-chart" aria-hidden="true"></i>
+                </a>
             </div>
         </td>
     </tr>
