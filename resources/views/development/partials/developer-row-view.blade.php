@@ -348,6 +348,10 @@
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
                 @endif
             </td>
             @endif
@@ -759,6 +763,10 @@
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
                 @endif
             </td>
             <td class="p-2">

@@ -2101,6 +2101,29 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                 });
             }
         });
+
+        $(document).on("click", ".startDirectTask", function (event) {
+            if (confirm('Are you sure, do you want to start this task?')) {
+                event.preventDefault();
+                let type = $(this).data('type');
+                let task_id = $(this).data('task');
+                $.ajax({
+                    url: "/development/time/history/start",
+                    type: "POST",
+                    data: {
+                        _token: "{{csrf_token()}}",                
+                        developer_task_id: task_id,
+                    },
+                    success: function (response) {
+                        toastr["success"]("Successfully start", "success");
+                        //window.location.reload();
+                    },
+                    error: function (error) {
+                        toastr["error"](error.responseJSON.message);
+                    },
+                });
+            }
+        });
         </script>
 @endsection
 @push('scripts')

@@ -1042,7 +1042,12 @@
                                                                 <i class="fa fa-check" aria-hidden="true"></i>
                                                             </button>
                                                         @endif
+
+                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                                        </button>
                                                     @endif
+
                                                 </td>
                                                 @endif
 
@@ -1398,7 +1403,11 @@
                                                                 <i class="fa fa-check" aria-hidden="true"></i>
                                                             </button>
                                                         @endif
-                                                    @endif
+
+                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                                        </button>
+                                                    @endif                                                    
                                                 </td>
                                                 @php
                                                     $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -1733,15 +1742,19 @@
                                                 </div>
 
                                                 <?php 
-                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+                                                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
 
-                                                    @if(!empty($time_history))
-                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
-                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
-                                                                <i class="fa fa-check" aria-hidden="true"></i>
-                                                            </button>
-                                                        @endif
+                                                @if(!empty($time_history))
+                                                    @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                        <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                                        </button>
                                                     @endif
+
+                                                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
+                                                        <i class="fa fa-play" aria-hidden="true"></i>
+                                                    </button>
+                                                @endif                                                
                                             </td>
                                             @php
                                                 $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -4918,6 +4931,29 @@ $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (
             success: function (response) {
                 toastr["success"]("Successfully approved", "success");
                 window.location.reload();
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            },
+        });
+    }
+});
+
+$(document).on("click", ".startDirectTask", function (event) {
+    if (confirm('Are you sure, do you want to start this task?')) {
+        event.preventDefault();
+        let type = $(this).data('type');
+        let task_id = $(this).data('task');
+        $.ajax({
+            url: "/task/time/history/start",
+            type: "POST",
+            data: {
+                _token: "{{csrf_token()}}",                
+                developer_task_id: task_id,
+            },
+            success: function (response) {
+                toastr["success"]("Successfully start", "success");
+                //window.location.reload();
             },
             error: function (error) {
                 toastr["error"](error.responseJSON.message);

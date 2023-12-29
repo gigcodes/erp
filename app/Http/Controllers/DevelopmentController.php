@@ -6192,4 +6192,18 @@ class DevelopmentController extends Controller
             'message' => 'Scrapper values status updated.',
         ], 200);
     }
+
+    public function startTimeHistory(Request $request)
+    {
+        $task = DeveloperTask::find($request->developer_task_id);
+
+        $currentDateTime = Carbon::now();
+        $dateTimePlusOneHour = Carbon::now()->addMinutes($task->estimate_minutes);
+
+        $input['start_date'] = $currentDateTime;
+        $input['estimate_date'] = $dateTimePlusOneHour;
+        $task->update($input);
+
+        return response()->json(['msg' => 'success']);
+    }
 }

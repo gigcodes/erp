@@ -280,6 +280,10 @@
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
                 @endif
             </td>
             @endif
@@ -649,6 +653,10 @@
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
                 @endif
             </td>
             <td class="p-2">
@@ -1008,6 +1016,10 @@
                         <i class="fa fa-check" aria-hidden="true"></i>
                     </button>
                 @endif
+
+                <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
+                    <i class="fa fa-play" aria-hidden="true"></i>
+                </button>
             @endif
         </td>
         <td class="p-2">

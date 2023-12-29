@@ -5914,4 +5914,18 @@ class TaskModuleController extends Controller
             return response()->json(['code' => 200]);
         }
     }
+
+    public function startTimeHistory(Request $request)
+    {
+        $task = Task::find($request->developer_task_id);
+
+        $currentDateTime = Carbon::now();
+        $dateTimePlusOneHour = Carbon::now()->addMinutes($task->approximate);
+
+        $input['start_date'] = $currentDateTime;
+        $input['due_date'] = $dateTimePlusOneHour;
+        $task->update($input);
+
+        return response()->json(['msg' => 'success']);
+    }
 }
