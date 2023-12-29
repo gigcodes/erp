@@ -349,9 +349,15 @@
                         </button>
                     @endif
 
-                    <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask">
-                        <i class="fa fa-play" aria-hidden="true"></i>
-                    </button>
+                    @if($issue->task_start!=1)
+                        <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                            <i class="fa fa-play" aria-hidden="true"></i>
+                        </button>
+                    @else 
+                        <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                            <i class="fa fa-stop" aria-hidden="true"></i>
+                        </button>
+                    @endif
                 @endif
             </td>
             @endif
@@ -764,9 +770,15 @@
                         </button>
                     @endif
 
-                    <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask">
-                        <i class="fa fa-play" aria-hidden="true"></i>
-                    </button>
+                    @if($issue->task_start!=1)
+                        <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                            <i class="fa fa-play" aria-hidden="true"></i>
+                        </button>
+                    @else 
+                        <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                            <i class="fa fa-stop" aria-hidden="true"></i>
+                        </button>
+                    @endif
                 @endif
             </td>
             <td class="p-2">

@@ -5919,11 +5919,16 @@ class TaskModuleController extends Controller
     {
         $task = Task::find($request->developer_task_id);
 
-        $currentDateTime = Carbon::now();
-        $dateTimePlusOneHour = Carbon::now()->addMinutes($task->approximate);
+        if($request->task_type==1){
+            $input['start_date'] = Carbon::now();
+            $input['task_start'] = 1;
+        } else if($request->task_type==2){
+            $input['due_date'] = Carbon::now();
+            $input['task_start'] = 2;
+        }
 
-        $input['start_date'] = $currentDateTime;
-        $input['due_date'] = $dateTimePlusOneHour;
+        return $input;
+        
         $task->update($input);
 
         return response()->json(['msg' => 'success']);

@@ -109,6 +109,7 @@ class DeveloperTask extends Model
         'manually_assign',
         'slotTaskRemarks',
         'estimate_date',
+        'task_start',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';

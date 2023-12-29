@@ -2103,20 +2103,35 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
 
         $(document).on("click", ".startDirectTask", function (event) {
-            if (confirm('Are you sure, do you want to start this task?')) {
+            let task_type = $(this).data('task-type');
+
+            if(task_type==1){
+                var msg = "Are you sure, do you want to start this task?";
+            }else{
+                var msg = "Are you sure, do you want to end this task?";
+            }
+
+            if (confirm(msg)) {
                 event.preventDefault();
                 let type = $(this).data('type');
                 let task_id = $(this).data('task');
+
                 $.ajax({
                     url: "/development/time/history/start",
                     type: "POST",
                     data: {
                         _token: "{{csrf_token()}}",                
                         developer_task_id: task_id,
+                        task_type: task_type,
                     },
                     success: function (response) {
-                        toastr["success"]("Successfully start", "success");
-                        //window.location.reload();
+
+                        if(task_type==1){
+                            toastr["success"]("Successfully start", "success");
+                        }else{
+                            toastr["success"]("Successfully end", "success");
+                        }
+                        window.location.reload();
                     },
                     error: function (error) {
                         toastr["error"](error.responseJSON.message);

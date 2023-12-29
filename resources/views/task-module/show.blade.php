@@ -1043,9 +1043,15 @@
                                                             </button>
                                                         @endif
 
-                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
-                                                            <i class="fa fa-play" aria-hidden="true"></i>
-                                                        </button>
+                                                        @if($task->task_start!=1)
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                                            </button>
+                                                        @else 
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                                                <i class="fa fa-stop" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
                                                     @endif
 
                                                 </td>
@@ -1404,9 +1410,15 @@
                                                             </button>
                                                         @endif
 
-                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
-                                                            <i class="fa fa-play" aria-hidden="true"></i>
-                                                        </button>
+                                                        @if($task->task_start!=1)
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                                            </button>
+                                                        @else 
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                                                <i class="fa fa-stop" aria-hidden="true"></i>
+                                                            </button>
+                                                        @endif
                                                     @endif                                                    
                                                 </td>
                                                 @php
@@ -1751,9 +1763,15 @@
                                                         </button>
                                                     @endif
 
-                                                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
-                                                        <i class="fa fa-play" aria-hidden="true"></i>
-                                                    </button>
+                                                    @if($task->task_start!=1)
+                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                                        </button>
+                                                    @else 
+                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                                            <i class="fa fa-stop" aria-hidden="true"></i>
+                                                        </button>
+                                                    @endif
                                                 @endif                                                
                                             </td>
                                             @php
@@ -4940,20 +4958,35 @@ $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (
 });
 
 $(document).on("click", ".startDirectTask", function (event) {
-    if (confirm('Are you sure, do you want to start this task?')) {
+
+    let task_type = $(this).data('task-type');
+
+    if(task_type==1){
+        var msg = "Are you sure, do you want to start this task?";
+    }else{
+        var msg = "Are you sure, do you want to end this task?";
+    }
+
+    if (confirm(msg)) {
         event.preventDefault();
         let type = $(this).data('type');
         let task_id = $(this).data('task');
+
         $.ajax({
             url: "/task/time/history/start",
             type: "POST",
             data: {
                 _token: "{{csrf_token()}}",                
                 developer_task_id: task_id,
+                task_type: task_type,
             },
             success: function (response) {
-                toastr["success"]("Successfully start", "success");
-                //window.location.reload();
+                if(task_type==1){
+                    toastr["success"]("Successfully start", "success");
+                }else{
+                    toastr["success"]("Successfully end", "success");
+                }
+                window.location.reload();
             },
             error: function (error) {
                 toastr["error"](error.responseJSON.message);

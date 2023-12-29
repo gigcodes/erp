@@ -281,9 +281,15 @@
                         </button>
                     @endif
 
-                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
-                        <i class="fa fa-play" aria-hidden="true"></i>
-                    </button>
+                    @if($task->task_start!=1)
+                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                            <i class="fa fa-play" aria-hidden="true"></i>
+                        </button>
+                    @else 
+                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                            <i class="fa fa-stop" aria-hidden="true"></i>
+                        </button>
+                    @endif
                 @endif
             </td>
             @endif
@@ -654,9 +660,15 @@
                         </button>
                     @endif
 
-                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
-                        <i class="fa fa-play" aria-hidden="true"></i>
-                    </button>
+                    @if($task->task_start!=1)
+                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                            <i class="fa fa-play" aria-hidden="true"></i>
+                        </button>
+                    @else 
+                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                            <i class="fa fa-stop" aria-hidden="true"></i>
+                        </button>
+                    @endif
                 @endif
             </td>
             <td class="p-2">
@@ -1017,9 +1029,15 @@
                     </button>
                 @endif
 
-                <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask">
-                    <i class="fa fa-play" aria-hidden="true"></i>
-                </button>
+                @if($task->task_start!=1)
+                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
+                @else 
+                    <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                        <i class="fa fa-stop" aria-hidden="true"></i>
+                    </button>
+                @endif
             @endif
         </td>
         <td class="p-2">
