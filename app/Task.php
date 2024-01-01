@@ -98,6 +98,8 @@ class Task extends Model
         'manually_assign',
         'slotTaskRemarks',
         'task_start',
+        'm_start_date',
+        'm_end_date',
     ];
 
     const TASK_TYPES = [

@@ -110,6 +110,8 @@ class DeveloperTask extends Model
         'slotTaskRemarks',
         'estimate_date',
         'task_start',
+        'm_start_date',
+        'm_end_date',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';

@@ -6198,10 +6198,10 @@ class DevelopmentController extends Controller
         $task = DeveloperTask::find($request->developer_task_id);
 
         if($request->task_type==1){
-            $input['start_date'] = Carbon::now();
+            $input['m_start_date'] = Carbon::now();
             $input['task_start'] = 1;
         } else if($request->task_type==2){
-            $input['estimate_date'] = Carbon::now();
+            $input['m_end_date'] = Carbon::now();
             $input['task_start'] = 2;
         }
 
