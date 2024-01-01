@@ -1866,7 +1866,16 @@ class VendorController extends Controller
 
     public function flowChart(Request $request)
     {
-        $VendorFlowchart = new Vendor;   
+        $VendorFlowchart = Vendor::with('category');
+
+        if (request('category') != null) {
+            $VendorFlowchart = $VendorFlowchart->where('category_id', $request->category);
+        }
+
+        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+            $VendorFlowchart = $VendorFlowchart->where('id', $request->selectedId);
+        }
+
         $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->paginate(25);
 
         $totalVendor = Vendor::whereNotNull('flowchart_date')->count();
@@ -1879,9 +1888,11 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
         }
 
-        $vendor_flow_charts = VendorFlowChart::all();
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
 
-        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts'))
+        $vendor_categories = VendorCategory::all();
+
+        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -1889,6 +1900,7 @@ class VendorController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|string',
+            'sorting' => 'required|numeric',
         ]);
         $data = $request->except('_token');
         $data['created_by'] = Auth::user()->id;
@@ -1959,5 +1971,30 @@ class VendorController extends Controller
         }
 
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function getVendorAutocomplete(Request $request)
+    {
+        $input = $_GET['term'];
+
+        $products = [];
+        if(!empty($input)){
+            $products = Vendor::where('name', 'like', '%'.$input.'%')->whereNull('deleted_at')->pluck('name', 'id');
+        }
+
+        return response()->json($products);
+    }
+
+    public function sortingVendorFlowchart(Request $request)
+    {
+        $flow_chart = $request->all();
+        $data = $request->except('_token');
+        foreach ($flow_chart['sorting'] as $key => $value) {
+            $vendor_fc = VendorFlowChart::find($key);
+            $vendor_fc->sorting = $value;
+            $vendor_fc->save();
+        }
+
+        return redirect()->back()->with('success', 'The flow-chart sorting updated successfully.');
     }
 }

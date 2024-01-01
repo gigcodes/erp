@@ -16,6 +16,14 @@
                     @endif
                 </div>
 
+                <div class="form-group">
+                    <input type="number" class="form-control" name="sorting" placeholder="Sorting" value="{{ old('sorting') }}" required>
+
+                    @if ($errors->has('sorting'))
+                        <div class="alert alert-danger">{{$errors->first('sorting')}}</div>
+                    @endif
+                </div>
+
                 <button type="submit" class="btn btn-secondary">Add Flow Chart</button>
             </form>
         </div>

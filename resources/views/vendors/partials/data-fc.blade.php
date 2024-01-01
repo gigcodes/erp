@@ -4,6 +4,11 @@
             @if (!in_array('ID', $dynamicColumnsToShowVendorsfc))
                 <td>{{ $vendor->name }}</td>
             @endif
+
+            @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
+                <td>{{ $vendor->category->title }}</td>
+            @endif
+            
             @if($vendor_flow_charts)
                 @foreach($vendor_flow_charts as $flow_chart)
                     @if (!in_array($flow_chart->id, $dynamicColumnsToShowVendorsfc))
@@ -23,6 +28,7 @@
     @else
         <tr>
             <td>{{ $vendor->name }}</td>
+            <td>{{ $vendor->category->title }}</td>
             @if($vendor_flow_charts)
                 @foreach($vendor_flow_charts as $flow_chart)
                     <td>

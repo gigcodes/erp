@@ -159,23 +159,46 @@
                 <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vfcdatatablecolumnvisibilityList">Column Visiblity</button>
 
                 <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a>
+
+                <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#setFlowChartSorting"> Set Flow Chart Sorting</button>
             </div>
         </h2>
     </div>
 
-    <!-- <div class="col-12" style="padding-left:0px;">
+    <div class="col-12">
         <form class="form-inline" action="{{ route('vendors.flow-chart') }}" method="GET">
 
-            <div class="form-group col-md-3 pr-0">
+            <div class="form-group mr-3">
+                <strong>Select Vendor :</strong></br>
+                <input type="text" name="term" id="searchInput" value="{{ request('term') }}" class="form-control" placeholder="Enter Vendor Name">
+                <input type="hidden" id="selectedId" name="selectedId" value="{{ request('selectedId') }}">
+            </div>
+
+            <div class="form-group mr-3">
+                <strong>Select Vendor Category :</strong></br>
+                <?php
+                $category_post = request('category');
+                ?>
+                <select class="form-control" name="category" id="category">
+                    <option value="">Category</option>
+                    <?php
+                    foreach ($vendor_categories as $row_cate) { ?>
+                        <option value="<?php echo $row_cate->id; ?>" <?php if ($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title; ?></option>
+                    <?php }
+                    ?>
+                </select>
+            </div>
+
+            {{-- <div class="form-group col-md-3 pr-0">
                 <strong>Select Vendor :</strong>
                 {{ Form::select("filter_vendor[]", \App\Vendor::orderBy('name')->pluck('name','id')->toArray(), request('filter_vendor'), ["class" => "form-control select2", "multiple", "id" => "filter_vendor"]) }}
-            </div>
-            <div class="form-group col-md-1 pr-0 pt-20">
+            </div> --}}
+            <div class="form-group col-md-1 pr-0 pt-20" style=" padding-top: 20px;">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                 <a href="{{route('vendors.flow-chart')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
             </div>
         </form>
-    </div> -->
+    </div>
 </div>
 
 @include('partials.flash_messages')
@@ -190,6 +213,7 @@
                     @if(!empty($dynamicColumnsToShowVendorsfc))
                         @if (!in_array('ID', $dynamicColumnsToShowVendorsfc))
                             <th width="10%">Vendor</th>
+                            <th width="10%">Categgory</th>
                         @endif
                         @if($vendor_flow_charts)
                             @foreach($vendor_flow_charts as $flow_chart)
@@ -200,6 +224,7 @@
                         @endif
                     @else
                         <th width="10%">Vendor</th>
+                        <th width="10%">Categgory</th>
                         @if($vendor_flow_charts)
                             @foreach($vendor_flow_charts as $flow_chart)
                                 <th>{{$flow_chart->name}}</th>
@@ -247,7 +272,7 @@
         </div>
     </div>
 </div>
-
+@include("vendors.partials.modal-flow-chart-sorting")
 @endsection
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
@@ -332,5 +357,34 @@
     });
 
     $("#filter_vendor").select2();
+
+    $(document).ready(function($) {
+        $("#searchInput").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('vendors.autocomplete') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function (data) {
+                        var transformedData = Object.keys(data).map(function(key) {
+                            return {
+                                label: data[key],
+                                value: data[key],
+                                id: key
+                            };
+                        });
+                        response(transformedData); // Populate autocomplete suggestions with label, value, and id
+                    }
+                });
+            },
+            minLength: 2, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                $('#selectedId').val(ui.item.id);
+            }
+        });
+    })
 </script>
 @endsection

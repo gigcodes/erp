@@ -9,5 +9,5 @@ class VendorFlowChart extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','created_by'];
+    protected $fillable = ['name','created_by','sorting'];
 }

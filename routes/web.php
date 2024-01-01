@@ -2713,6 +2713,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('complaint/{id}/status', [ComplaintController::class, 'updateStatus'])->name('complaint.updateStatus');
 
     // Vendor Module
+    Route::get('vendors-autocomplete', [VendorController::class, 'getVendorAutocomplete'])->name('vendors.autocomplete');
+    Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
     Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');

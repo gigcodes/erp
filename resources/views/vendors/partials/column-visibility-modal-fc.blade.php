@@ -21,6 +21,12 @@
                                     <input type="checkbox" value="Vendor" id="Vendor" name="column_vendorsfc[]" @if (!empty($dynamicColumnsToShowVendorsfc) && in_array('Vendor', $dynamicColumnsToShowVendorsfc)) checked @endif>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>Categgory</td>
+                                <td>
+                                    <input type="checkbox" value="Categgory" id="Categgory" name="column_vendorsfc[]" @if (!empty($dynamicColumnsToShowVendorsfc) && in_array('Categgory', $dynamicColumnsToShowVendorsfc)) checked @endif>
+                                </td>
+                            </tr>                            
                             @if($vendor_flow_charts)
                                 @foreach($vendor_flow_charts as $flow_chart)
                                     <tr>
