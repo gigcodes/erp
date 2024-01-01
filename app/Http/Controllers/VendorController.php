@@ -366,8 +366,6 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
         }
 
-        //return $vendors;
-
         return view('vendors.index', [
             'vendors' => $vendors,
             'vendor_categories' => $vendor_categories,

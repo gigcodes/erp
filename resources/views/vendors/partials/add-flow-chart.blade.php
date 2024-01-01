@@ -26,6 +26,25 @@
 
                 <button type="submit" class="btn btn-secondary">Add Flow Chart</button>
             </form>
+
+            <div class="form-group col-md-12">
+                <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                    <tr>
+                        <td class="text-center"><b>Flow Chart</b></td>
+                        <td class="text-center"><b>Sorting</b></td>
+                    </tr>
+                    <?php
+                    foreach ($vendor_flow_charts as $vendorflowchart) { ?>
+                    <tr>
+                        <td><?php echo $vendorflowchart->name; ?></td>
+                        
+                        <td>
+                            <?php echo $vendorflowchart->sorting; ?>
+                        </td>                              
+                    </tr>
+                    <?php } ?>
+                </table>
+            </div>
         </div>
     </div>
 </div>
