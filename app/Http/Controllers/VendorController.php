@@ -366,6 +366,8 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
         }
 
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+
         return view('vendors.index', [
             'vendors' => $vendors,
             'vendor_categories' => $vendor_categories,
@@ -379,6 +381,7 @@ class VendorController extends Controller
             'statusList' => $statusList,
             'dynamicColumnsToShowVendors' => $dynamicColumnsToShowVendors,
             'whatsapp' => $whatsapp,
+            'vendor_flow_charts' => $vendor_flow_charts,
         ]);
     }
 
