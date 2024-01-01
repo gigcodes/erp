@@ -286,9 +286,11 @@
                             <i class="fa fa-play" aria-hidden="true"></i>
                         </button>
                     @else 
+                        <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->id}}">
                         <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
                             <i class="fa fa-stop" aria-hidden="true"></i>
                         </button>
+                        <div id="time-counter_{{$task->id}}"></div>
                     @endif
                 @endif
             </td>
@@ -665,9 +667,11 @@
                             <i class="fa fa-play" aria-hidden="true"></i>
                         </button>
                     @else 
+                        <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->id}}">
                         <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
                             <i class="fa fa-stop" aria-hidden="true"></i>
                         </button>
+                        <div id="time-counter_{{$task->id}}"></div>
                     @endif
                 @endif
             </td>
@@ -1034,9 +1038,11 @@
                         <i class="fa fa-play" aria-hidden="true"></i>
                     </button>
                 @else 
+                    <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->id}}">
                     <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
                         <i class="fa fa-stop" aria-hidden="true"></i>
                     </button>
+                    <div id="time-counter_{{$task->id}}"></div>
                 @endif
             @endif
         </td>

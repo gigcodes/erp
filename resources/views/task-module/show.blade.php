@@ -1048,9 +1048,11 @@
                                                                 <i class="fa fa-play" aria-hidden="true"></i>
                                                             </button>
                                                         @else 
+                                                            <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->m_start_date}}">
                                                             <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
                                                                 <i class="fa fa-stop" aria-hidden="true"></i>
                                                             </button>
+                                                            <div id="time-counter_{{$task->id}}"></div>
                                                         @endif
                                                     @endif
 
@@ -1415,9 +1417,11 @@
                                                                 <i class="fa fa-play" aria-hidden="true"></i>
                                                             </button>
                                                         @else 
+                                                            <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->m_start_date}}">
                                                             <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
                                                                 <i class="fa fa-stop" aria-hidden="true"></i>
                                                             </button>
+                                                            <div id="time-counter_{{$task->id}}"></div>
                                                         @endif
                                                     @endif                                                    
                                                 </td>
@@ -1768,9 +1772,11 @@
                                                             <i class="fa fa-play" aria-hidden="true"></i>
                                                         </button>
                                                     @else 
+                                                        <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->m_start_date}}">
                                                         <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
                                                             <i class="fa fa-stop" aria-hidden="true"></i>
                                                         </button>
+                                                        <div id="time-counter_{{$task->id}}"></div>
                                                     @endif
                                                 @endif                                                
                                             </td>
@@ -4994,5 +5000,50 @@ $(document).on("click", ".startDirectTask", function (event) {
         });
     }
 });
+
+$(document).ready(function() {
+    // Iterate through elements with class 'myClass'
+    $('.m_start_date_').each(function() {
+        var elementId = $(this).attr('id'); // Get ID of each element
+
+        var task_id = $("#"+elementId).attr('data-id');
+        var inputTime = $("#"+elementId).attr('data-value');
+
+        startTime = new Date(inputTime);
+        //setInterval(updateTimeCounter(startTime, task_id), 1000); 
+
+        (function(startTime, id) {
+            setInterval(function() {
+                updateTimeCounter(startTime, id);
+            }, 1000);
+        })(startTime, task_id);
+    });
+});
+
+function updateTimeCounter(startTime, id) {
+    // Check if startTime is defined
+    if (startTime && !isNaN(startTime.getTime())) {
+        // Get the current time
+        var currentTime = new Date();
+
+        // Calculate the difference in milliseconds
+        var timeDifference = currentTime - startTime;
+
+        // Convert milliseconds to hours, minutes, and seconds
+        var hours = Math.floor(timeDifference / (60 * 60 * 1000));
+        var minutes = Math.floor((timeDifference % (60 * 60 * 1000)) / (60 * 1000));
+        var seconds = Math.floor((timeDifference % (60 * 1000)) / 1000);
+
+        // Display the time counter
+        var counterText = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+        $("#time-counter_"+id).text(counterText);
+    }
+}
+
+// Function to pad single digits with leading zeros
+function pad(number) {
+    return (number < 10 ? '0' : '') + number;
+}
 </script>
 @endsection

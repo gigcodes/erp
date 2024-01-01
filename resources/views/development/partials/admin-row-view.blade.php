@@ -266,9 +266,11 @@
                                 <i class="fa fa-play" aria-hidden="true"></i>
                             </button>
                         @else 
+                            <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->m_start_date}}">
                             <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
                                 <i class="fa fa-stop" aria-hidden="true"></i>
                             </button>
+                            <div id="time-counter_{{$issue->id}}"></div>
                         @endif
                     @endif
                 </td>
@@ -572,9 +574,11 @@
                             <i class="fa fa-play" aria-hidden="true"></i>
                         </button>
                     @else 
+                        <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->id}}">
                         <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
                             <i class="fa fa-stop" aria-hidden="true"></i>
                         </button>
+                        <div id="time-counter_{{$issue->id}}"></div>
                     @endif
                 @endif
             </td>
