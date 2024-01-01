@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use App\GTMatrixErrorLog;
 use Illuminate\Http\Request;
 
@@ -23,7 +23,7 @@ class GTMatrixErrorLogController extends Controller
     {
         $title = 'GTmetrix Error';
         if ($request->ajax()) {
-            $items = GTMatrixErrorLog::select('id', 'store_viewGTM_id', 'error_title', 'error', 'created_at');
+            $items = GTMatrixErrorLog::select('id', 'store_viewGTM_id', 'error_title', 'error', 'created_at')->orderBy('id', 'DESC');
             if (isset($request->name) && ! empty($request->name)) {
                 $items->where('error_title', 'Like', '%' . $request->name . '%')->orWhere('error', 'Like', '%' . $request->name . '%')->orWhere('store_viewGTM_id', 'Like', '%' . $request->name . '%');
             }
@@ -33,6 +33,17 @@ class GTMatrixErrorLogController extends Controller
         }
 
         return redirect()->back()->with('error', 'Somthing wrong here to access GTMetrix error');
+    }
+
+    public function truncateTables(Request $request)
+    {   
+        DB::statement('TRUNCATE TABLE g_t_matrix_error_logs');
+        
+        return response()->json([
+            'status' => true,
+            'message' => " Your selected batabase tables has been truncate successfully",
+            'status_name' => 'success',
+        ], 200);
     }
 
     /**

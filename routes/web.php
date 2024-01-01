@@ -5303,6 +5303,7 @@ Route::get('gtmetrix/getstatscomparison/{id}', [gtmetrix\WebsiteStoreViewGTMetri
 Route::any('gtmetrix/categories', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listGTmetrixCategories'])->name('gtmetrix.category.list');
 Route::any('gtmetrix/gtmetrixReport', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listWebsiteWiseCategories'])->name('gtmetrix.Report.list');
 Route::post('gtmetrix/gtmetrixReportData', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'WebsiteWiseCategoriesReport'])->name('gtmetrix.single.report');
+Route::post('gtmetrix-error-tables', [GTMatrixErrorLogController::class, 'truncateTables'])->name('gtmetrix.error.truncate-tables');
 Route::get('gtmetrix/error-index', [GTMatrixErrorLogController::class, 'index'])->name('gtmetrix.error.index.list');
 Route::any('gtmetrix/error-list', [GTMatrixErrorLogController::class, 'listGTmetrixError'])->name('gtmetrix.error.list');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
@@ -5731,14 +5732,6 @@ Route::prefix('appconnect')->middleware('auth')->group(function () {
 });
 
 Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
-    Route::prefix('providers')->group(function () {
-        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
-        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
-        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
-        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
-        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
-    });
-
     Route::prefix('provider-accounts')->group(function () {
         Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
         Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
@@ -5757,6 +5750,7 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
     Route::prefix('programs')->group(function () {
         Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::get('commission-type', [AffiliateMarketingDataController::class, 'programCommissionType'])->name('affiliate-marketing.provider.program.commissionType');
         Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
     });
 
