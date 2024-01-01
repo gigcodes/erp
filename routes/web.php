@@ -2778,7 +2778,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/changeWhatsapp', [VendorController::class, 'changeWhatsapp'])->name('vendor.changeWhatsapp');
     Route::post('vendor/status/create', [VendorController::class, 'statusStore'])->name('vendor.status.store');
     Route::post('vendor/flowchart/create', [VendorController::class, 'flowchartStore'])->name('vendor.flowchart.store');
-    Route::get('vendor/{vendor}/flowchart', [VendorController::class, 'vendorFlowchart'])->name('vendors.flowchart');
+    Route::post('vendor/updateflowchart', [VendorController::class, 'vendorFlowchart'])->name('vendors.flowchart');
     Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
     Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
     Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');

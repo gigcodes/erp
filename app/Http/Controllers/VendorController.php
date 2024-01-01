@@ -290,6 +290,8 @@ class VendorController extends Controller
                     vendors.remark,
                     vendors.type,
                     vendors.framework,
+                    vendors.fc_status,
+                    vendors.flowchart_date,
                     category_name,
                   chat_messages.message_id,
                   vf.name as framework_name
@@ -363,6 +365,8 @@ class VendorController extends Controller
             $hideColumns = $datatableModel->column_name ?? "";
             $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
         }
+
+        //return $vendors;
 
         return view('vendors.index', [
             'vendors' => $vendors,
@@ -1909,13 +1913,22 @@ class VendorController extends Controller
         return redirect()->back()->with('success', 'You have successfully created a flow chart!');
     }
 
-    public function vendorFlowchart(Vendor $vendor)
+    public function vendorFlowchart(Request $request)
     {
 
-        $data['flowchart_date'] = Carbon::now();
-        Vendor::find($vendor->id)->update($data);
+        $vendor = Vendor::find($request->id);
 
-        return redirect(route('vendors.flow-chart'));
+        if(empty($vendor->flowchart_date)){
+            $data['flowchart_date'] = Carbon::now();
+            $data['fc_status'] = 1;
+        } else {
+            $data['flowchart_date'] = null;
+            $data['fc_status'] = 0;
+        }
+        
+        Vendor::find($request->id)->update($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a flow chart!');
     }
 
     public function saveVendorFlowChartRemarks(Request $request)

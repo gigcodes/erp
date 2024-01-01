@@ -6,7 +6,7 @@
             @endif
 
             @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
-                <td>{{ $vendor->category->title }}</td>
+                <td>@if(!empty($vendor->category->title)) {{ $vendor->category->title }} @endif</td>
             @endif
             
             @if($vendor_flow_charts)
@@ -28,7 +28,7 @@
     @else
         <tr>
             <td>{{ $vendor->name }}</td>
-            <td>{{ $vendor->category->title }}</td>
+            <td>@if(!empty($vendor->category->title)) {{ $vendor->category->title }} @endif</td>
             @if($vendor_flow_charts)
                 @foreach($vendor_flow_charts as $flow_chart)
                     <td>
