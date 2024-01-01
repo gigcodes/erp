@@ -50,7 +50,14 @@
 @section('content')
     <div class = "row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">GTMetrix Error List</h2>
+            <h2 class="page-heading">
+                GTMetrix Error List
+                <div style="float: right;">
+                    <button type="button" class="btn btn-secondary truncate-tables-btn" style=" float: right;">
+                        Truncate Table
+                    </button> 
+                </div>
+            </h2>
         </div>
     </div>
     <div id="myDiv">
@@ -62,9 +69,9 @@
                 <thead>
                     <tr>
                         <th width="5%"> Id </th>
-                        <th width="5%"> store view GTM id </th>
-                        <th width="10%"> Error title </th>
-                        <th width="70%"> Error </th>
+                        <th width="10%"> Store view GTM id </th>
+                        <th width="20%"> Error title </th>
+                        <th width="55%"> Error </th>
                         <th width="10%"> Created at </th>
                     </tr>
                 </thead>
@@ -113,7 +120,7 @@
                 ],
                 targets: 'no-sort',
                 bSort: false,
-
+                pageLength: 100,
                 oLanguage: {
                     sLengthMenu: "Show _MENU_",
                 },
@@ -163,7 +170,7 @@
                         data: 'created_at',
                         name: 'g_t_matrix_error_logs.created_at',
                         render: function(data, type, row, meta) {
-                            return  data;
+                            return moment(data).format('YYYY-MM-DD HH:mm:ss');
                         }
                     }
                 ],
@@ -171,7 +178,27 @@
         });
         // END Print Table Using datatable
 
-       
+        $(document).on("click",".truncate-tables-btn",function() {
+
+            if (confirm('Are you sure you want to truncate the GTMetrix Error tables?')) {
+
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    type: 'POST',
+                    url: '{{ route('gtmetrix.error.truncate-tables') }}',                
+                    success: function(response) {
+                        toastr["success"]("Your GTMetrix Error tables has been truncate successfully");
+                        location.reload();
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                        location.reload();
+                    }
+                }); 
+            }
+        });
     </script>
 
 @endsection
