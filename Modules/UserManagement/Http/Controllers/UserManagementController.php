@@ -2408,6 +2408,8 @@ class UserManagementController extends Controller
                                         'estimate_minutes' => $task->estimate_minutes,
                                         'slotTaskRemarks' => $task->slotTaskRemarks,
                                         'task_type' => 'tasks',
+                                        'mt_start_date' => $task->mt_start_date,
+                                        'mt_end_date' => $task->mt_end_date,
                                     ];
                                 }
                             }
@@ -2434,6 +2436,8 @@ class UserManagementController extends Controller
                                         'estimate_minutes' => $task->estimate_minutes,
                                         'slotTaskRemarks' => $task->slotTaskRemarks,
                                         'task_type' => 'dev_tasks',
+                                        'mt_start_date' => $task->mt_start_date,
+                                        'mt_end_date' => $task->mt_end_date,
                                     ];
                                 }
                             }
@@ -3058,6 +3062,34 @@ class UserManagementController extends Controller
                             } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
                                 array_push($userTasks, $task);
                             }
+
+                            if ($task['mt_start_date'] !== null && $task['mt_end_date'] !== null) {
+                                $TaskStart = Carbon::parse($task['mt_start_date']);
+                                $TaskEnd = Carbon::parse($task['mt_end_date']);
+
+                                if (
+                                    ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                                    ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                                ) {
+                                    array_push($userTasks, $task);
+                                } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                                    array_push($userTasks, $task);
+                                }
+
+                            } else if ($task['mt_start_date'] !== null && $task['mt_end_date'] == null) {
+                                $TaskStart = Carbon::parse($task['mt_start_date']);
+                                $TaskEnd = Carbon::parse(Carbon::now());
+
+                                if (
+                                    ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                                    ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                                ) {
+                                    array_push($userTasks, $task);
+                                } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                                    array_push($userTasks, $task);
+                                }
+                            }
+
                         }
                         $list = array_values($list);
                         $tasks[$key] = $list;
@@ -3145,7 +3177,9 @@ class UserManagementController extends Controller
                     slotTaskRemarks, 
                     task_subject AS title, 
                     start_date AS st_date, 
-                    due_date AS en_date, 
+                    due_date AS en_date,
+                    m_start_date AS mt_start_date, 
+                    m_end_date AS mt_end_date, 
                     COALESCE(approximate, 0) AS est_minutes, 
                     status,
                     (
@@ -3173,7 +3207,7 @@ class UserManagementController extends Controller
                 WHERE 
                 1
                 AND deleted_at IS NULL
-                AND due_date IS NOT NULL
+                AND (due_date IS NOT NULL OR m_start_date IS NOT NULL)
                 AND assign_to IN (" . implode(',', $userIds) . ")";
 
                 if(!empty($taskStatuses)){
@@ -3200,6 +3234,8 @@ class UserManagementController extends Controller
                     subject AS title, 
                     start_date AS st_date, 
                     estimate_date AS en_date, 
+                    m_start_date AS mt_start_date, 
+                    m_end_date AS mt_end_date, 
                     COALESCE(estimate_minutes, 0) AS est_minutes, 
                     status,
                     (
@@ -3224,7 +3260,7 @@ class UserManagementController extends Controller
                 FROM developer_tasks
                 WHERE 1
                 AND deleted_at IS NULL
-                AND estimate_date IS NOT NULL
+                AND (estimate_date IS NOT NULL OR m_start_date IS NOT NULL)
                 AND assigned_to IN (" . implode(',', $userIds) . ")";
 
                 if(!empty($devTaskStatuses)){
