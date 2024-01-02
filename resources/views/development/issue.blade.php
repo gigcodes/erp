@@ -167,6 +167,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 @include("development.partials.chat-list-history-modal")
 @include("development.partials.upload-document-modal")
 @include("partials.plain-modal")
+@include("development.partials.timer-history")
 
 @include("development.partials.status-update-check-list")
 @include("development.partials.meeting-time-modal")
@@ -2100,6 +2101,114 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
                     },
                 });
             }
+        });
+
+        $(document).on("click", ".startDirectTask", function (event) {
+            let task_type = $(this).data('task-type');
+
+            if(task_type==1){
+                var msg = "Are you sure, do you want to start this task?";
+            }else{
+                var msg = "Are you sure, do you want to end this task?";
+            }
+
+            if (confirm(msg)) {
+                event.preventDefault();
+                let type = $(this).data('type');
+                let task_id = $(this).data('task');
+
+                $.ajax({
+                    url: "/development/time/history/start",
+                    type: "POST",
+                    data: {
+                        _token: "{{csrf_token()}}",                
+                        developer_task_id: task_id,
+                        task_type: task_type,
+                    },
+                    success: function (response) {
+
+                        if(task_type==1){
+                            toastr["success"]("Successfully start", "success");
+                        }else{
+                            toastr["success"]("Successfully end", "success");
+                        }
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        toastr["error"](error.responseJSON.message);
+                    },
+                });
+            }
+        });
+
+        $(document).ready(function() {
+            // Iterate through elements with class 'myClass'
+            $('.m_start_date_').each(function() {
+                var elementId = $(this).attr('id'); // Get ID of each element
+
+                var task_id = $("#"+elementId).attr('data-id');
+                var inputTime = $("#"+elementId).attr('data-value');
+
+                startTime = new Date(inputTime);
+                //setInterval(updateTimeCounter(startTime, task_id), 1000); 
+
+                (function(startTime, id) {
+                    setInterval(function() {
+                        updateTimeCounter(startTime, id);
+                    }, 1000);
+                })(startTime, task_id);
+            });
+        });
+
+        function updateTimeCounter(startTime, id) {
+            // Check if startTime is defined
+            if (startTime && !isNaN(startTime.getTime())) {
+                // Get the current time
+                var currentTime = new Date();
+
+                // Calculate the difference in milliseconds
+                var timeDifference = currentTime - startTime;
+
+                // Convert milliseconds to hours, minutes, and seconds
+                var hours = Math.floor(timeDifference / (60 * 60 * 1000));
+                var minutes = Math.floor((timeDifference % (60 * 60 * 1000)) / (60 * 1000));
+                var seconds = Math.floor((timeDifference % (60 * 1000)) / 1000);
+
+                // Display the time counter
+                var counterText = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+                $("#time-counter_"+id).text(counterText);
+            }
+        }
+
+        // Function to pad single digits with leading zeros
+        function pad(number) {
+            return (number < 10 ? '0' : '') + number;
+        }
+
+        $(document).on('click', '.show-timer-history', function() {
+            var issueId = $(this).data('id');
+            $('#timer_tracked_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development.timer.history') }}",
+                data: {
+                    id: issueId,
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            $('#timer_tracked_modal table tbody').append(
+                                '<tr>\
+                                    <td>' + moment(item['start_date']).format('DD-MM-YYYY HH:mm:ss') + '</td>\
+                                    <td>' + ((item['end_date'] != null) ? moment(item['end_date']).format('DD-MM-YYYY HH:mm:ss') : 'Not Stop') + '</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#timer_tracked_modal').modal('show');
         });
         </script>
 @endsection

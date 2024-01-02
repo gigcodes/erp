@@ -74,6 +74,8 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
+use App\Loggers\LogScraper;
+use App\DescriptionChange;
 
 class ProductController extends Controller
 {
@@ -4276,10 +4278,26 @@ class ProductController extends Controller
         return response()->json(['message' => 'Sort orders updated successfully']);
     }
 
+    public function productDescriptionHistory(Request $request)
+    {
+        $id = $request->id;
+
+        $query = LogScraper::where('sku', $id)
+        ->leftJoin('brands as b', 'b.id', 'log_scraper.brand')
+        ->leftJoin('categories as c', 'c.id', 'log_scraper.category')
+        ->select([
+            'log_scraper.*',
+            'b.name as brand_name',
+            'c.title as category_name']);
+        $products = $query->orderBy('updated_at', 'DESC')->get();
+        return view('products.partials.history', compact('products'));
+    }
+
+
     public function productDescription(Request $request)
     {
         $query = ProductSupplier::with('supplier', 'product')
-        ->select(['product_suppliers.*', 'scrapers.id as scraper_id'])
+        ->select(['product_suppliers.*', 'scrapers.id as scraper_id', 'scrapers.last_started_at as last_started_at'])
         ->join('scrapers', 'scrapers.supplier_id', 'product_suppliers.supplier_id');
         if ($request->get('product_id') != '') {
             $products = $query->where('product_id', $request->get('product_id'));
@@ -4328,7 +4346,7 @@ class ProductController extends Controller
 
         $products_count = $query->count();
         $products = $query->orderBy('product_id', 'DESC')->paginate(50);
-
+       // dd($products);
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
     }
@@ -4337,7 +4355,11 @@ class ProductController extends Controller
     {
         $ids = $request->ids;
         $from = $request->from;
-        $to = $request->to;
+        $to = $request->to; 
+        DescriptionChange::create([
+            'keyword' => $from,
+            'replace_with' => $to,
+        ]);
         foreach ($ids as $id) {
             $prod = ProductSupplier::where('product_id', $id)->first();
             $description = str_replace($from, $to, $prod->description);

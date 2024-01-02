@@ -38,8 +38,8 @@
                     </div>
                         <input type="hidden" name="id" id="passwordsId"/>
                     <div class="form-group">
-                        <strong>Password:</strong>
-                        <input type="text" name="password" id="pass-password" class="form-control" required>
+                        <strong>Password:</strong> <a href="javascript:void(0);" class="generatepasswordedit" style=" float: right;">Generate Password</a>
+                        <input type="text" name="password" id="pass-password" class="form-control password-edit" required>
 
                         @if ($errors->has('password'))
                             <div class="alert alert-danger" >{{$errors->first('password')}}</div>

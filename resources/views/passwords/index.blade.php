@@ -225,7 +225,26 @@
                 minLength: 1,
             });
         });
-   
+    
+        $( ".generatepasswordadd" ).bind( "click", function() {
+            var newPassword = generatePassword(8);
+            $(".password-add").val(newPassword);
+        });
+
+        $( ".generatepasswordedit" ).bind( "click", function() {
+            var newPassword = generatePassword(8);
+            $(".password-edit").val(newPassword);
+        });
+
+        function generatePassword(length) {
+            var charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}:?><,./;'[]\|-=";
+            var password = "";
+            for (var i = 0; i < length; i++) {
+              var randomChar = Math.floor(Math.random() * charset.length);
+              password += charset.substring(randomChar, randomChar + 1);
+            }
+            return password;
+        }
     </script>
     <script type="text/javascript" src="{{asset('js/custom-passwords.js')}}"></script>
 @endsection

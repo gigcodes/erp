@@ -4,9 +4,7 @@
             <label class="form-label">Name</label>
             <input type="text" name="label" class="form-control" value="{{ $status->label ?? '' }}">
         </div>
-    </div>
-
-    <div class="row mb-3">
+    
         <div class="col-md-6">
             <label class="form-label">Type</label>
             <select name="type" class="form-control">

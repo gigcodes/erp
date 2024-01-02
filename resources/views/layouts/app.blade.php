@@ -3317,9 +3317,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('affiliate-marketing.providers')}}">Providers</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('affiliate-marketing.providerAccounts')}}">Providers Accounts</a>
                                             </li>
                                         </ul>
@@ -4545,6 +4542,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{route('database.tables-list')}}">Truncate Tables</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/scrap/scrap-links">Scrap Links</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/devoops">Dev Oops</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="https://erp.theluxuryunlimited.com/seo/company">Seo Company</a>
                                     </li>
                                 </ul>
                             </li>
