@@ -5688,6 +5688,8 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
 Route::prefix('seo')->middleware('auth')->group(function () {
     Route::prefix('content')->group(function () {
         Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
+        Route::post('seo-content-column-visbility', [Seo\ContentController::class, 'columnVisbilityUpdate'])->name('seo.content.column.update');
+    	Route::post('statuscolor', [Seo\ContentController::class, 'statuscolor'])->name('seo.content.statuscolor');
         Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
         Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
         Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
