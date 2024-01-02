@@ -2,15 +2,12 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Status</h5>
+                <h5 class="modal-title">Status <a href="javascript:void(0)" data-url="{{ route('seo.content-status.create') }}" class="addStatusBtn" style=" font-weight: bold;   text-decoration: underline;">Add</a></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="d-flex justify-content-end mb-3">
-                    <button type="button" data-url="{{ route('seo.content-status.create') }}" class="btn btn-secondary addStatusBtn">Add</button>
-                </div>
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Type</label>

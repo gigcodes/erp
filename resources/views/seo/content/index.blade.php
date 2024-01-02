@@ -5,22 +5,27 @@
 @php
 $auth = auth()->user();
 @endphp
-<h2 class="page-heading">{{ $moduleName }}</h2>
+<h2 class="page-heading">
+    {{ $moduleName }} ({{$total_seo}})
+    <div style="float: right;">
+        @if($auth->hasRole(['Admin', 'User', 'Seo Head']))
+            <a href="javascript:;" class="btn btn-secondary statusListBtn">Status</a>
+            <a href="javascript:;" class="btn btn-secondary addNewBtn">Add new</a>
+        @endif
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#seodatatablecolumnvisibilityList">Column Visiblity</button>
+        <button class="btn btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+    </div>
+</h2>
 
 <div class="container-fluid">
     <div class="d-flex justify-content-end">
-        <div class="">
-            @if($auth->hasRole(['Admin', 'User', 'Seo Head']))
-            <a href="javascript:;" class="btn btn-secondary statusListBtn">Status</a>
-            <a href="javascript:;" class="btn btn-secondary addNewBtn">Add new</a>
-            @endif
-        </div>
+        
     </div>
     <div class="mt-3">
         <div class="row">
             <div class="col-md-2">
                 <label for="">Select website</label>
-                <select name="website_id" class="form-control websiteFilter">
+                <select name="website_id[]" class="form-control websiteFilter select2-ele" multiple="multiple">
                     <option value="">-- SELECT --</option>
                     @foreach ($websites as $item)
                         <option value="{{ $item->id }}">{{ $item->website }}</option>
@@ -38,7 +43,7 @@ $auth = auth()->user();
             @if($auth->hasRole(['Admin', 'Seo Head']))
                 <div class="col-md-2">
                     <label for="">Select user</label>
-                    <select name="website_id" class="form-control userFilter">
+                    <select name="website_id[]" class="form-control userFilter select2-ele" multiple="multiple">
                         <option value="">-- SELECT --</option>
                         @foreach ($users as $item)
                             @if(!$item->hasRole(['user']))
@@ -66,7 +71,7 @@ $auth = auth()->user();
                 </button>
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="padding: 1.25rem 0px;">
             <div class="table-responsive-lg" style="overflow-x:auto;">
                 <table class="table table-bordered" id="seoProcessTbl">
                     <thead>
@@ -85,6 +90,7 @@ $auth = auth()->user();
                             <th>Live Status Link</th>
                             <th>Publish Date</th>
                             <th>Actions</th>
+                            <th>Status Color</th>
                         </tr>
                     </thead>
                 </table>
@@ -135,6 +141,13 @@ $auth = auth()->user();
     </div>
 </div>
 @include('seo.content.modal')
+@include("seo.content.column-visibility-modal")
+@include("seo.content.modal-status-color")
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".select2-ele").select2();
+});
+</script>
 @include('seo.content.script')
 @endsection

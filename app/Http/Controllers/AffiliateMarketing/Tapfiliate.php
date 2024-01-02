@@ -65,6 +65,14 @@ class Tapfiliate
     }
 
     /**
+     * Get all commissio types of the programmes from API
+     */
+    public function getProgramCommissionType($program): array
+    {
+        return $this->callApi('GET', 'programs/'.$program.'/commission-types');
+    }
+
+    /**
      * Get all the commissions from API
      */
     public function getCommissions(): array
@@ -308,14 +316,15 @@ class Tapfiliate
         if ($err) {
             $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
 
-            return ['status' => false, 'message' => $message . 'cURL Error #:' . $err];
+            return ['status' => false, 'message' => $message . 'cURL Error #:' . $err, 'errors' => false];
         } else {
             $response = json_decode($response, true);
             if (is_array($response)) {
                 if (array_key_exists('errors', $response)) {
                     $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
 
-                    return ['status' => false, 'message' => $message . 'cURL Error #:' . serialize($response)];
+                    return ['status' => false, 'message' => $message . 'cURL Error #:' . serialize($response), 
+                    'errors' => true, 'response' => $response];
                 }
 
                 return ['status' => true, 'message' => 'Data found', 'data' => $response];
@@ -325,7 +334,7 @@ class Tapfiliate
                 } else {
                     $message = 'Account :- ' . $this->PROVIDER_ACCOUNT->id . ', ';
 
-                    return ['status' => false, 'message' => $message . 'cURL Error #:' . $response];
+                    return ['status' => false, 'message' => $message . 'cURL Error #:' . $response, 'errors' => false];
                 }
             }
         }

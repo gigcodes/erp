@@ -60,8 +60,8 @@
             display: block;
             width: 100%;
         }
-        #checklist_table td .justify-left {display: inline-block !important;width: 100%;}
-        #checklist_table td .justify-left .edit-checklist, #checklist_table td .justify-left .clsdelete, #checklist_table td .justify-left .sub_edit-checklist, #checklist_table td .justify-left .clssubdelete {float: right;}
+        #devoopslist_table td .justify-left {display: inline-block !important;width: 100%;}
+        #devoopslist_table td .justify-left .edit-checklist, #devoopslist_table td .justify-left .clsdelete, #devoopslist_table td .justify-left .sub_edit-checklist, #devoopslist_table td .justify-left .clssubdelete {float: right;}
     </style>
 @endsection
 
@@ -142,7 +142,7 @@
             </div>
         @endif
         <div class="checklist_data">
-            <table class="table table-bordered " id="checklist_table">
+            <table class="table table-bordered " id="devoopslist_table">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -354,7 +354,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Add Stauts</h4>
+                    <h4 class="modal-title">Add Status</h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <form  method="POST" id="status-create-form">
@@ -382,7 +382,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Update Stauts</h4>
+                    <h4 class="modal-title">Update Status</h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <form  method="POST" id="status-update-form">
@@ -584,7 +584,7 @@
     // START Print Table Using datatable
     var oTable;
     $(document).ready(function() {
-        oTable = $('#checklist_table').DataTable({
+        oTable = $('#devoopslist_table').DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
             responsive: true,
             searchDelay: 500,

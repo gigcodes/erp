@@ -74,6 +74,8 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
+use App\Loggers\LogScraper;
+use App\DescriptionChange;
 
 class ProductController extends Controller
 {
@@ -4232,6 +4234,66 @@ class ProductController extends Controller
         ]);
     }
 
+    public function productMultiDescription(Request $request){
+        $products = \App\ScrapedProducts::selectRaw('scraped_products.sku, COUNT(*) as count, scraped_products.product_id')
+                ->where('scraped_products.sku', '!=', '') 
+                ->groupBy('scraped_products.sku')
+                ->orderByDesc('count')
+                ->paginate(25);
+        return view('products.multidescription', compact('products'));
+    }
+    
+    public function productMultiDescriptionCheck(Request $request)
+        {
+            $sku = $request->input('sku');
+            $productCount = Product::where('sku', $sku)->count();
+
+            return response()->json(['result' => $productCount]);
+        }
+
+    public function productMultiDescriptionSku(Request $request){
+        $sku = $request->id;
+        $products = \App\ScrapedProducts::selectRaw('scraped_products.id as sid, scraped_products.sort_order as sort_order, scraped_products.description, scraped_products.brand_id, scraped_products.website as website, products.name as pname, brands.name as bname')
+                            ->join('products', 'scraped_products.product_id', '=', 'products.id')
+                            ->join('brands', 'scraped_products.brand_id', '=', 'brands.id')
+                            ->where('scraped_products.sku', $sku)
+                            ->get();
+       //dd($products);
+        return view('products.skumultidescription', compact('products', 'sku'));
+    }
+
+    public function productMultiDescriptionUpdate(Request $request){
+        $updates = $request->productData;
+        $sku = $request->sku;
+        $condition = $request->condition;
+        foreach ($updates as $update) {
+            $productId = $update['id'];
+            $sortOrder = $update['value'];
+            \App\ScrapedProducts::where('id', $productId)->where('sku', $sku)->update(['sort_order' => $sortOrder]);
+            if($condition == 1 && $sortOrder == 1){
+                $getdescription = \App\ScrapedProducts::where('id', $productId)->where('sku', $sku)->first();
+                Product::where('sku', $sku)->update(['short_description' => $getdescription->description]); 
+            }
+        }
+        return response()->json(['message' => 'Sort orders updated successfully']);
+    }
+
+    public function productDescriptionHistory(Request $request)
+    {
+        $id = $request->id;
+
+        $query = LogScraper::where('sku', $id)
+        ->leftJoin('brands as b', 'b.id', 'log_scraper.brand')
+        ->leftJoin('categories as c', 'c.id', 'log_scraper.category')
+        ->select([
+            'log_scraper.*',
+            'b.name as brand_name',
+            'c.title as category_name']);
+        $products = $query->orderBy('updated_at', 'DESC')->get();
+        return view('products.partials.history', compact('products'));
+    }
+
+
     public function productDescription(Request $request)
     {
         $query = ProductSupplier::with('supplier', 'product')
@@ -4287,6 +4349,27 @@ class ProductController extends Controller
 
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
+    }
+
+    public function productDescriptionUpdate(Request $request)
+    {
+        $ids = $request->ids;
+        $from = $request->from;
+        $to = $request->to; 
+        DescriptionChange::create([
+            'keyword' => $from,
+            'replace_with' => $to,
+        ]);
+        foreach ($ids as $id) {
+            $prod = ProductSupplier::where('product_id', $id)->first();
+            $description = str_replace($from, $to, $prod->description);
+            $prod->description = $description;
+            $prod->save();
+        }
+        return response()->json([
+            'code' => 200,
+            'message' => 'Your request has been update successfully',
+        ]);
     }
 
     public function productScrapLog(Request $request)
