@@ -1693,6 +1693,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/get-email-send-journey-step-logs', [OrderController::class, 'getOrderEmailSendJourneyStepLog'])->name('order.get.email.send.journey.step.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
+    Route::post('orders-journey-column-visbility', [OrderController::class, 'columnVisbilityUpdate'])->name('orders.journey.column.update');
+    Route::post('orders-journey/getproducts', [OrderController::class, 'getOrderProductsList'])->name('orders.journey.products');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
@@ -2714,6 +2716,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('complaint/{id}/status', [ComplaintController::class, 'updateStatus'])->name('complaint.updateStatus');
 
     // Vendor Module
+    Route::get('vendors-autocomplete', [VendorController::class, 'getVendorAutocomplete'])->name('vendors.autocomplete');
+    Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
+    Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');
     Route::post('vendors/storeshortcut', [VendorController::class, 'storeshortcut'])->name('vendors.storeshortcut');
@@ -2775,6 +2780,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('vendor_category/assign-user', [VendorController::class, 'assignUserToCategory']);
     Route::post('vendor/changeWhatsapp', [VendorController::class, 'changeWhatsapp'])->name('vendor.changeWhatsapp');
     Route::post('vendor/status/create', [VendorController::class, 'statusStore'])->name('vendor.status.store');
+    Route::post('vendor/flowchart/create', [VendorController::class, 'flowchartStore'])->name('vendor.flowchart.store');
+    Route::post('vendor/updateflowchart', [VendorController::class, 'vendorFlowchart'])->name('vendors.flowchart');
+    Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
+    Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
+    Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');
@@ -4336,6 +4346,10 @@ Route::middleware('auth')->prefix('marketing')->group(function () {
 });
 
 Route::middleware('auth')->prefix('checkout')->group(function () {
+	Route::post('coupons/remarks', [CouponController::class, 'saveRemarks'])->name('coupons.saveremarks');
+    Route::post('coupons/getremarks', [CouponController::class, 'getRemarksHistories'])->name('coupons.getremarks');
+    Route::post('coupons-column-visbility', [CouponController::class, 'columnVisbilityUpdate'])->name('coupons.column.update');
+    Route::post('coupons/statuscolor', [CouponController::class, 'statuscolor'])->name('coupons.statuscolor');
     Route::post('coupons/store', [CouponController::class, 'store'])->name('coupons.store');
     Route::post('coupons/{id}', [CouponController::class, 'update']);
     Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
@@ -5296,6 +5310,7 @@ Route::get('gtmetrix/getstatscomparison/{id}', [gtmetrix\WebsiteStoreViewGTMetri
 Route::any('gtmetrix/categories', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listGTmetrixCategories'])->name('gtmetrix.category.list');
 Route::any('gtmetrix/gtmetrixReport', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listWebsiteWiseCategories'])->name('gtmetrix.Report.list');
 Route::post('gtmetrix/gtmetrixReportData', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'WebsiteWiseCategoriesReport'])->name('gtmetrix.single.report');
+Route::post('gtmetrix-error-tables', [GTMatrixErrorLogController::class, 'truncateTables'])->name('gtmetrix.error.truncate-tables');
 Route::get('gtmetrix/error-index', [GTMatrixErrorLogController::class, 'index'])->name('gtmetrix.error.index.list');
 Route::any('gtmetrix/error-list', [GTMatrixErrorLogController::class, 'listGTmetrixError'])->name('gtmetrix.error.list');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
@@ -5724,14 +5739,6 @@ Route::prefix('appconnect')->middleware('auth')->group(function () {
 });
 
 Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
-    Route::prefix('providers')->group(function () {
-        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
-        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
-        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
-        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
-        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
-    });
-
     Route::prefix('provider-accounts')->group(function () {
         Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
         Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
@@ -5750,6 +5757,7 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
     Route::prefix('programs')->group(function () {
         Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::get('commission-type', [AffiliateMarketingDataController::class, 'programCommissionType'])->name('affiliate-marketing.provider.program.commissionType');
         Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
     });
 
