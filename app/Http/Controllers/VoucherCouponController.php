@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use DB;
+use Auth;
 use App\Platform;
 use App\CouponType;
 use App\VoucherCoupon;
 use App\VoucherCouponCode;
 use App\VoucherCouponOrder;
 use App\VoucherCouponRemark;
+use App\Models\VoucherCouponStatus;
 use Illuminate\Http\Request;
+use App\Models\VoucherCouponStatusHistory;
 
 class VoucherCouponController extends Controller
 {
@@ -45,8 +48,101 @@ class VoucherCouponController extends Controller
         $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
         $emails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
         $coupontypes = CouponType::get()->pluck('name', 'id');
+        $status = VoucherCouponStatus::all();
 
-        return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails', 'coupontypes'));
+        return view('voucher-coupon.index', compact('voucher', 'platform', 'whatsapp_configs', 'emails', 'coupontypes', 'status'));
+    }
+
+    public function saveRemarks(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'voucher_coupons_id' => 'required',
+            'remark' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        VoucherCouponRemark::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input]);
+    }
+
+    public function getRemarksHistories(Request $request)
+    {
+        $datas = VoucherCouponRemark::where('voucher_coupons_id', $request->voucher_coupons_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = VoucherCouponStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function statusCreate(Request $request)
+    {
+        try {
+            $status = new VoucherCouponStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $voucherId = $request->input('voucherId');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $voucher = VoucherCoupon::find($voucherId);
+        $history = new VoucherCouponStatusHistory();
+        $history->voucher_coupons_id = $voucherId;
+        $history->old_value = $voucher->status_id;
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        $voucher->status_id = $selectedStatus;
+        $voucher->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function statusHistories($id)
+    {
+        $datas = VoucherCouponStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('voucher_coupons_id', $id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     /**
