@@ -62,6 +62,7 @@ use App\Models\DataTableColumn;
 use App\Models\ScrapperValues;
 use App\Models\ScrapperValuesHistory;
 use App\Models\ScrapperValuesRemarksHistory;
+use App\Models\DeveloperTaskStartEndHistory;
 
 class DevelopmentController extends Controller
 {
@@ -6200,9 +6201,23 @@ class DevelopmentController extends Controller
         if($request->task_type==1){
             $input['m_start_date'] = Carbon::now();
             $input['task_start'] = 1;
+
+            $history = new DeveloperTaskStartEndHistory();
+            $history->user_id = auth()->user()->id;
+            $history->task_id = $request->developer_task_id;
+            $history->start_date = Carbon::now();            
+            $history->save();
+
         } else if($request->task_type==2){
             $input['m_end_date'] = Carbon::now();
             $input['task_start'] = 2;
+
+            $history = DeveloperTaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
+
+            if(!empty($history)){                
+                $history->end_date = Carbon::now();
+                $history->save();
+            }
         }
 
         $task->update($input);

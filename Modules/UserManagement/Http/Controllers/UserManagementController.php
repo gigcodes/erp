@@ -3479,4 +3479,75 @@ class UserManagementController extends Controller
 
         return view('user-management.index-database-logs', compact('title', 'UserDatabaseLog'))->with('i', ($request->input('page', 1) - 1) * 25);
     }
+
+    public function userSchedulesReport(Request $request)
+    {
+
+        $months = ['01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'];
+
+        $currentYear = Carbon::now()->year;
+    
+        $years = range($currentYear - 5, $currentYear + 5);
+
+        $dataArray = [];
+
+        //return $request;
+
+        if(!empty($request->user_id) && !empty($request->month) && !empty($request->year)){
+
+            $desiredMonth = $request->month; // September (example)
+            $desiredYear = $request->year; // 2023 (example)
+
+            // Create a Carbon instance for the specified month and year
+            $startDate = Carbon::createFromDate($desiredYear, $desiredMonth, 1)->startOfMonth();
+            $endDate = $startDate->copy()->endOfMonth();
+
+            // Loop through each day of the specified month
+            
+            
+            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+                $dates = $date->format('Y-m-d'); // Add each date to the array
+
+                $records = DeveloperTask::select('id', 'estimate_minutes', 'start_date', 'estimate_date')->whereDate('created_at', '=', $dates)->where('assigned_to', Auth::user()->id)->get();
+
+                if(count($records)>0){
+
+                    foreach ($records as $key => $value) {
+                        $records[$key]['task_type'] = 'DT';
+                        $records[$key]['totalTime'] = $value->estimate_minutes;
+
+                        if($value->start_date!==null && $value->estimate_date!==null){
+                            $startDate = Carbon::parse($value->start_date);
+                            $endDate = Carbon::parse($value->estimate_date);
+
+                            $records[$key]['totalMinutes'] = $endDate->diffInMinutes($startDate);
+                        }
+                    }
+
+                    $dataArray[$dates] = $records;
+                }
+
+                $records = Task::select('id', 'approximate', 'start_date', 'due_date')->whereDate('created_at', '=', $dates)->where('assign_to', Auth::user()->id)->get();
+
+                if(count($records)>0){
+
+                    foreach ($records as $key => $value) {
+                        $records[$key]['task_type'] = 'T';
+                        $records[$key]['totalTime'] = $value->approximate;
+
+                        if($value->start_date!==null && $value->due_date!==null){
+                            $startDate = Carbon::parse($value->start_date);
+                            $endDate = Carbon::parse($value->due_date);
+
+                            $records[$key]['totalMinutes'] = $endDate->diffInMinutes($startDate);
+                        }
+                    }
+
+                    $dataArray[$dates] = $records;
+                }
+            }
+        }
+
+        return view('usermanagement::user-schedules.report', compact('months', 'years', 'dataArray'));
+    }
 }
