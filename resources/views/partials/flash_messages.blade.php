@@ -1,6 +1,6 @@
 @if ($message = Session::get('success'))
   <div class="alert alert-success">
-    <p>{{ $message }}</p>
+    <p>{!! $message !!}</p>
   </div>
 @endif
 
@@ -26,3 +26,6 @@
     </ul>
   </div>
 @endif
+
+<div class="alert alert-danger hidden unauthorised">
+</div>

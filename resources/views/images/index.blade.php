@@ -13,7 +13,7 @@
         {!! $category_selection !!}
       </div>
 
-      <div class="form-group mr-3">
+      <div class="form-group mr-3 col-3">
         <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
             @foreach ($brands as $key => $name)
               <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
@@ -23,7 +23,7 @@
 
       <div class="form-group mr-3">
         <strong class="mr-3">Price</strong>
-        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]"/>
+        <input type="text" name="price" data-provide="slider" class="form-control" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) && isset($price[0]) ? $price[0] : '0' }},{{ isset($price) && isset($price[1]) ? $price[1] : '10000000' }}]"/>
       </div>
 
       <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}" /></button>

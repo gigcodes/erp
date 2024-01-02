@@ -474,11 +474,29 @@
                    </tr>
                    <?php if(!empty($hubstaffNotifications)){  $i = 1;?>
                      <?php foreach($hubstaffNotifications as $row) { 
-                        $dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
+						$timeSpent = $row['daily_working_hour'];
+						$time = explode(":",$timeSpent);
+						$timeInSec = 0;
+						if(isset($time[0])){
+							$timeInSec += (int)$time[0]*60*60;
+						}
+						if(isset($time[1])){
+							$timeInSec += (int)$time[1]*60;
+						}
+						if(isset($time[2])){
+							$timeInSec += (int)$time[2];
+						}
+						//$timeInSec = (int)$time[0]*60*60 + (int)$time[1]*60 + (int)$time[2];
+		
+						
+						
+						//$dwork = $row['daily_working_hour'] ? number_format($row['daily_working_hour'],2,".","") : 0;
+						$dwork = $timeInSec ? number_format($timeInSec,2,".","") : 0;
                         $thours = floor($row['total_track'] / 3600);
                         $tminutes = floor(($row['total_track'] / 60) % 60);
                         $twork = $thours.':'.sprintf("%02d", $tminutes);
-                        $difference = ( ($row['daily_working_hour'] * 60 * 60 ) - $row['total_track']);
+                        //$difference = ( ($row['daily_working_hour'] * 60 * 60 ) - $row['total_track']);
+                        $difference = ( $timeInSec  - $row['total_track']);
                         $sing = '';
                         if($difference > 0){
                           $sign = '-';

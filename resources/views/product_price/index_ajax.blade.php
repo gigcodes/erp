@@ -2,7 +2,7 @@
                        @php $i=$count; @endphp
                        @foreach ($product_list as $key)
                            <tr data-storeWebsitesID="{{$key['storeWebsitesID']}}" data-id="{{$i}}" data-country_code="{{$key['country_code']}}" class="tr_{{$i++}}">
-                           <td><input  type="checkbox" class="checkboxClass" name="selectcheck" value='{{ $key["store_website_product_prices_id"] }}'></td> 
+                           
                                <td class="expand-row" style="word-break: break-all">
 {{--                                   {{ $key['sku'] }}--}}
 

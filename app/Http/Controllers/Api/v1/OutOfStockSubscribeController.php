@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Customer;
-use App\Http\Controllers\Controller;
-use App\OutOfStockSubscribe;
 use App\Product;
+use App\Customer;
 use App\StoreWebsite;
+use App\OutOfStockSubscribe;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
 class OutOfStockSubscribeController extends Controller
@@ -23,53 +23,62 @@ class OutOfStockSubscribeController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "data" => $validator->messages(), "message" => "Failed"]);
+            return response()->json(['code' => 500, 'data' => $validator->messages(), 'message' => 'Failed']);
         }
 
-        $storeWebsite = StoreWebsite::where("website", "like", $request->website)->select('id')->first();
+        $website = str_replace('www.', '', $request->website);
+        $website = str_replace('WWW.', '', $website);
+
+        $storeWebsite = StoreWebsite::where(function ($q) use ($website) {
+            $q->where('website', 'like', $website)
+                ->orWhere('website', 'like', 'www.' . $website);
+        })->select('id')->first();
 
         if ($storeWebsite) {
             $website_id = $storeWebsite->id;
             $data = $params;
-            $sku = explode("-", $request->get("sku"));
-            $product = Product::where("sku", $sku[0])->first();
+            $sku = explode('-', $request->get('sku'));
+            $product = Product::where('sku', $sku[0])->first();
             if ($product) {
-                $customer = Customer::where('email', $data['email'])->where('store_website_id',$website_id)->first();
+                $customer = Customer::where('email', $data['email'])->where('store_website_id', $website_id)->first();
                 if ($customer == null) {
                     $customer = Customer::create(['name' => $data['email'], 'email' => $data['email'], 'store_website_id' => $website_id]);
                 }
                 $status = 0;
-                \App\ErpLeads::create(['customer_id' => $customer->id,'store_website_id' => $website_id, 'lead_status_id' => 1, 'product_id' => $product->id, 'type' => 'out-of-stock-subscribe','size' => $request->get("size",null)]);
+
+                \App\ErpLeads::create(['customer_id' => $customer->id, 'store_website_id' => $website_id, 'lead_status_id' => 1, 'product_id' => $product->id, 'type' => 'out-of-stock-subscribe', 'size' => $request->get('size', null)]);
+
                 $arrayToStore = ['customer_id' => $customer['id'], 'product_id' => $product->id, 'status' => $status, 'website_id' => $website_id];
                 OutOfStockSubscribe::updateOrCreate(['customer_id' => $customer['id'], 'product_id' => $product->id, 'website_id' => $website_id], $arrayToStore);
 
-                $message = $this->generate_erp_response("erp.lead.created.for.subscribed.success", $website_id, $default = 'Subscribed successfully.', request('lang_code'));
-                return response()->json(["code" => 'success', "message" => $message]);
+                $message = $this->generate_erp_response('erp.lead.created.for.subscribed.success', $website_id, $default = 'Subscribed successfully.', request('lang_code'));
 
+                return response()->json(['code' => 'success', 'message' => $message]);
             } else {
-                $message = $this->generate_erp_response("erp.lead.product.not.found.for.subscribed", 0, $default = 'Product not found in records', request('lang_code'));
-                return response()->json(["code" => 500, "data" => [], "message" => $message]);
+                $message = $this->generate_erp_response('erp.lead.product.not.found.for.subscribed', 0, $default = 'Product not found in records', request('lang_code'));
+
+                return response()->json(['code' => 500, 'data' => [], 'message' => $message]);
             }
         } else {
-            $message = $this->generate_erp_response("erp.lead.failed.validation.for.subscribed", 0, $default = 'Website not found in records', request('lang_code'));
-            return response()->json(["code" => 500, "data" => [], "message" => $message]);
-        }
+            $message = $this->generate_erp_response('erp.lead.failed.validation.for.subscribed', 0, $default = 'Website not found in records', request('lang_code'));
 
+            return response()->json(['code' => 500, 'data' => [], 'message' => $message]);
+        }
     }
 
     public function getOrderState(Request $request)
     {
         \Log::info(json_encode($request->all()));
-        if ($request->token == "PEtXGYMNqMD6Px3FKsbmgzMZrUnBtGq") {
+        if ($request->token == 'PEtXGYMNqMD6Px3FKsbmgzMZrUnBtGq') {
             if ($request->isMethod('get')) {
                 return $request->challenge;
             }
         }
 
-        $attributes = $request->get("attributes");
+        $attributes = $request->get('attributes');
 
-        if ($attributes["action"] == "track-order") {
-            $order_data = \App\Order::where('order_id', $attributes["trackingNumber"])->first();
+        if ($attributes['action'] == 'track-order') {
+            $order_data = \App\Order::where('order_id', $attributes['trackingNumber'])->first();
             if ($order_data) {
                 $status = \App\OrderStatus::where('id', $order_data->order_status_id)->first();
                 $statusMessage = $order_data->order_status;
@@ -77,22 +86,21 @@ class OutOfStockSubscribeController extends Controller
                     $statusMessage = $status->status;
                 }
                 $response = [
-                    "responses" => [
+                    'responses' => [
                         [
-                            "type" => "text",
-                            "delay" => 1000,
-                            "message" => "Thanks for contacting us Your order is right now on " . ucwords($statusMessage),
+                            'type' => 'text',
+                            'delay' => 1000,
+                            'message' => 'Thanks for contacting us Your order is right now on ' . ucwords($statusMessage),
                         ],
                     ],
                 ];
-
             } else {
                 $response = [
-                    "responses" => [
+                    'responses' => [
                         [
-                            "type" => "text",
-                            "delay" => 1000,
-                            "message" => "Sorry, We could not found your order number in our system please contact administrator",
+                            'type' => 'text',
+                            'delay' => 1000,
+                            'message' => 'Sorry, We could not found your order number in our system please contact administrator',
                         ],
                     ],
                 ];
@@ -100,6 +108,5 @@ class OutOfStockSubscribeController extends Controller
 
             return response()->json($response);
         }
-
     }
 }

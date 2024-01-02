@@ -138,7 +138,7 @@
 		console.log($(this).data('id'));
 		$.ajax({
 		      type: 'POST',
-		      url: '{{action("DigitalMarketingController@getEmails")}}',
+		      url: '{{action([\App\Http\Controllers\DigitalMarketingController::class, 'getEmails'])}}',
 		      data: { 
 		        _token: "{{ csrf_token() }}",
 		        id: $(this).data('id'),

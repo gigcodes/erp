@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Library\Watson\Language\ToneAnalyser\V3;
 
-use App\Library\Watson\Response;
 use App\Library\Watson\Service;
+use App\Library\Watson\Response;
 
 class ToneAnalyserService extends Service
 {
@@ -11,7 +12,7 @@ class ToneAnalyserService extends Service
      *
      * @var string
      */
-    protected $url = "https://gateway.watsonplatform.net/tone-analyzer/api";
+    protected $url = 'https://gateway.watsonplatform.net/tone-analyzer/api';
 
     /**
      * API service version
@@ -36,11 +37,11 @@ class ToneAnalyserService extends Service
      *
      * @return Response
      */
-    public function plainText($textToAnalyse, $version='2016-05-19')
+    public function plainText($textToAnalyse, $version = '2016-05-19')
     {
         return $this->client->request(
             'GET',
-            $this->getMountedUrl().'/tone',
+            $this->getMountedUrl() . '/tone',
             ['query' => ['version' => $version, 'text' => $textToAnalyse]]
         );
     }

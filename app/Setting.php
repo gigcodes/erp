@@ -1,131 +1,138 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
-	/**
-	 * The attributes that aren't mass assignable.
-	 *
-	 * @var array
-	 */
-	protected $guarded = [];
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
 
-	/**
-	 * Add a settings value
-	 *
-	 * @param $key
-	 * @param $val
-	 * @param string $type
-	 * @return bool
-	 */
-	public static function add($key, $val, $type = 'string')
-	{
-		if ( self::has($key) ) {
-			return self::set($key, $val, $type);
-		}
+    /**
+     * Add a settings value
+     *
+     * @param  string  $type
+     * @return bool
+     */
+    public static function add($key, $val, $type = 'string')
+    {
+        if (self::has($key)) {
+            return self::set($key, $val, $type);
+        }
 
-		return self::create(['name' => $key, 'val' => $val, 'type' => $type]) ? $val : false;
-	}
+        return self::create(['name' => $key, 'val' => $val, 'type' => $type]) ? $val : false;
+    }
 
-	/**
-	 * Get a settings value
-	 *
-	 * @param $key
-	 * @param null $default
-	 * @return bool|int|mixed
-	 */
-	public static function get($key, $default = null)
-	{
-		if ( self::has($key) ) {
-			$setting = self::getAllSettings()->where('name', $key)->first();
-			return self::castValue($setting->val, $setting->type);
-		}
+    /**
+     * Get a settings value
+     *
+     * @param  null  $default
+     * @return bool|int|mixed
+     */
+    public static function get($key, $default = null)
+    {
+        if (self::has($key)) {
+            $setting = self::getAllSettings()->where('name', $key)->first();
 
-		return '';
-	}
+            return self::castValue($setting->val, $setting->type);
+        }
 
-	/**
-	 * Set a value for setting
-	 *
-	 * @param $key
-	 * @param $val
-	 * @param string $type
-	 * @return bool
-	 */
-	public static function set($key, $val, $type = 'string')
-	{
-		if ( $setting = self::getAllSettings()->where('name', $key)->first() ) {
-			return $setting->update([
-				'name' => $key,
-				'val' => $val,
-				'type' => $type]) ? $val : false;
-		}
+        return $default;
+    }
 
-		return self::add($key, $val, $type);
-	}
+    /**
+     * Set a value for setting
+     *
+     * @param  string  $type
+     * @return bool
+     */
+    public static function set($key, $val, $type = 'string')
+    {
+        if ($setting = self::getAllSettings()->where('name', $key)->first()) {
+            return $setting->update([
+                'name' => $key,
+                'val' => $val,
+                'type' => $type,
+            ]) ? $val : false;
+        }
 
-	/**
-	 * Remove a setting
-	 *
-	 * @param $key
-	 * @return bool
-	 */
-	public static function remove($key)
-	{
-		if( self::has($key) ) {
-			return self::whereName($key)->delete();
-		}
+        return self::add($key, $val, $type);
+    }
 
-		return false;
-	}
+    /**
+     * Remove a setting
+     *
+     * @return bool
+     */
+    public static function remove($key)
+    {
+        if (self::has($key)) {
+            return self::whereName($key)->delete();
+        }
 
-	/**
-	 * caste value into respective type
-	 *
-	 * @param $val
-	 * @param $castTo
-	 * @return bool|int
-	 */
-	private static function castValue($val, $castTo)
-	{
-		switch ($castTo) {
-			case 'int':
-			case 'integer':
-				return intval($val);
-				break;
+        return false;
+    }
 
-			case 'bool':
-			case 'boolean':
-				return boolval($val);
-				break;
+    /**
+     * caste value into respective type
+     *
+     * @return bool|int
+     */
+    private static function castValue($val, $castTo)
+    {
+        switch ($castTo) {
+            case 'int':
+            case 'integer':
+                return intval($val);
+                break;
 
-			case 'float':
-			case 'double':
-				return floatval($val);
-				break;
+            case 'bool':
+            case 'boolean':
+                return boolval($val);
+                break;
 
-			default:
-				return $val;
-		}
-	}
+            case 'float':
+            case 'double':
+                return floatval($val);
+                break;
 
-	public static function has($key)
-	{
-		return (boolean) self::getAllSettings()->whereStrict('name', $key)->count();
-	}
+            default:
+                return $val;
+        }
+    }
 
-	/**
-	 * Get all the settings
-	 *
-	 * @return mixed
-	 */
-	public static function getAllSettings()
-	{
-		return self::all();
-	}
+    public static function has($key)
+    {
+        return (bool) self::getAllSettings()->whereStrict('name', $key)->count();
+    }
+
+    /**
+     * Get all the settings
+     *
+     * @return mixed
+     */
+    public static $allData = null;
+
+    public static function getAllSettings()
+    {
+        if (self::$allData == null) {
+            self::$allData = self::all();
+        }
+
+        return self::$allData;
+    }
+
+    public static function getErpLeadsCronSave()
+    {
+        return self::get('erp_leads_cron_save', 1);
+    }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -43,16 +43,16 @@ class WhatsappMoveToNew extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             // Set variables
             $newNumber = '971545889192';
-            $days      = 60;
+            $days = 60;
 
             // Query to find all customers of $number
-            $sql = "
+            $sql = '
             SELECT
                 DISTINCT(customer_id)
             FROM
@@ -68,8 +68,8 @@ class WhatsappMoveToNew extends Command
                         is_blocked=0
                 ) AND
                 number IS NOT NULL AND
-                created_at > DATE_SUB(NOW(), INTERVAL " . $days . " DAY)
-        ";
+                created_at > DATE_SUB(NOW(), INTERVAL ' . $days . ' DAY)
+        ';
             // echo $sql;
             $rs = DB::select(DB::raw($sql));
 
@@ -77,7 +77,7 @@ class WhatsappMoveToNew extends Command
             if ($rs !== null) {
                 foreach ($rs as $result) {
                     // Find customer
-                    $customer                  = Customer::find($result->customer_id);
+                    $customer = Customer::find($result->customer_id);
                     $customer->whatsapp_number = $newNumber;
                     $customer->save();
 

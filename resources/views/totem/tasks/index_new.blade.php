@@ -7,6 +7,71 @@
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
 <style>
+    #ckbCheckAll{
+        height: 12px !important;
+        margin-left: 6px !important;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 55px;
+        height: 25px;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 17px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
 .ajax-loader{
     position: fixed;
     left: 0;
@@ -79,13 +144,14 @@ table tr td {
     background: #fff;
     color: #757575;
 }
+.select2-container--default .select2-results__group{display: inline-block !important;}
 </style>
 @endsection
-
+<?php /*print_r($developer_module); */?>
 @section('large_content')
     <script src="/js/jquery.jscroll.min.js"></script>
 
-
+    
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -94,58 +160,116 @@ table tr td {
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks
-                <div class="margin-tb" style="flex-grow: 1;">
-                    <div class="pull-right ">
-                        <button type="button" class="btn btn-default btn-sm add-remark mr-1" data-toggle="modal" data-target="#addEditTaskModal">
-                            <span class="glyphicon glyphicon-th-plus"></span> Add Task
-                        </button>
-                    </div>
-                </div>
-            </h2>
-
-
-
+            <h2 class="page-heading flex" style="padding: 8px 5px 8px 10px;border-bottom: 1px solid #ddd;line-height: 32px;">Cron Tasks {{'('.$total_tasks.')'}}</h2>
         </div>
-         <div class="col-12 pl-2" style="padding-left:0px;">
-            <div >
+        <div class="col-7 pl-2" style="padding-left:0px;">
+                <div class="form-group col-md-2 pd-3">
+                    <button type="button" class="btn btn-secondary website-template-btn add-torterm" data-toggle="modal" data-target="#addEditTaskModal">
+                        <span class="glyphicon glyphicon-th-plus"></span> Add Task
+                    </button>
+                </div>
                 <form class="form-inline" action="" method="GET">
+                    
                     <div class="form-group col-md-2 pd-3">
-                        <input style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
-                    </div> 
-                    <div class="form-group col-md-1 pd-3">
+                        <input list="tasks-lists" style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
+                        <datalist id="tasks-lists">
+                            @foreach($tasks as $key => $task)
+                            <option value="{{$task->description}}">
+                            @endforeach
+                        </datalist>
+                    </div>
+                    <div class="form-group col-md-2 pd-3">
+                        <select name="developer_module" id="developer_module" class="form-control">
+                            <option value="">Select Module</option>
+                            @foreach($developer_module as  $module)
+                                <option {{ isset($_REQUEST['developer_module']) && $_REQUEST['developer_module']  == $module->id ? 'selected' : '' }} value="{{$module->id}}">{{$module->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2 pd-3">
+                        <select name="is_active" id="is_active" class="form-control">
+                            <option value="">Select Status</option>
+                            <option value="1" {{ isset($_REQUEST['is_active']) && $_REQUEST['is_active']  == "1" ? 'selected' : '' }} >Active</option>
+                            <option value="0" {{ isset($_REQUEST['is_active']) && $_REQUEST['is_active']  == "0" ? 'selected' : '' }} >In Active</option>
+
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2 pd-3">
                         <button type="submit" class="btn btn-image ml-0"><img src="{{asset('images/filter.png')}}" /></button>
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
-
-                </form> 
-            </div>
+                </form>
+                
+            
         </div>
-    </div>	
+        <div class="col-5 pl-2" style="padding-left:0px;">
+            @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+
+                    <div class="form-group" style="display: flex;">
+                        <h4 class="pt-2">Assign Cron to User</h4>
+                        <div>
+                            <form class="post-assign-cron" action="" method="POST">
+                                @csrf
+                                
+                                <input type="hidden" id="taskId" name="task-id"/>
+                                <select class="js-select2" multiple="multiple" name="users_id[]" >
+                                    @foreach ($users as $key => $userData)
+                                        <option data-badge="" value="{{ $userData->id }}">
+                                            {{ $userData->name }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </div>
+                        <div style="margin-top: 10px"><button class="btn btn-primary grant_button" bulk-assign="1">Grant Access</button></div>
+                    </div>
+                @endif
+        </div>
+    </div>
 
 
 
     <div class="row">
         <div class="infinite-scroll" style="width:100%;padding: 0 8px">
-            {!! $tasks->links() !!}
+            
+            <div class="col-md-12 pl-1" style="display: flex">
+                <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
+                <button id="disableAllData" class="btn btn-danger m-2 enable-disable" cron-status="0" >Disable</button>
+            </div>
 	        <div class="table-responsive mt-2">
                 <table class="table table-bordered order-table" style="color:black;table-layout:fixed">
                     <thead>
-                        <tr>
-                            <th width="2%">#</th>
-                            <th width="5%">Description</th> 
-                            <th width="8%">Average Runtime</th>
-                            <th width="5%">Last Run</th>
-                            <th width="5%">Next Run</th>
-                            <th width="5%">Action</th> 
-                        </tr>    
+                    <tr>
+                        @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+                            <th width="2%">
+                                <input type="checkbox" id="ckbCheckAll"/>
+                            </th>
+                        @endif
+                            <th width="2%" class="tablesorter-header category">#</th>
+                            <th width="10%" class="tablesorter-header category" >Description</th>
+                            <th width="5%" class="tablesorter-header category" >Module</th>
+                            <th width="5%" class="tablesorter-header category">Average Runtime</th>
+                            <th width="5%" class="tablesorter-header category">Last Run</th>
+                            <th width="5%" class="tablesorter-header category">Next Run</th>
+                            <th width="5%" class="tablesorter-header category">Frequencies</th>
+                            <th width="5%">Action</th>
+                        @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+                            <th width="5%" class="">Enable & Disable</th>
+                            @endif
+
+                        </tr>
                     </thead>
-                    <tbody> 
+                    <tbody>
                             @foreach($tasks as $key => $task)
                             <tr class="{{$task->is_active ? '' : 'red' }}">
+                                @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+                                <td style="text-align: center;vertical-align: middle;"><input style="height:15px;" type="checkbox" data-id="{{$task->id}}" class="checkBoxClass" id="checkbox{{$task->id}}"/></td>
+                                @endif
                                 <td>{{$task->id}}</td>
+                                <td >
+                                        {{Str::limit($task->description, 30)}}
+                                </td>
                                 <td>
-                                        {{str_limit($task->description, 30)}}
+                                    {{$task->developer_module_id ? $developer_module->find($task->developer_module_id)->name : ''}}
                                 </td>
                                 <td>
                                     {{ number_format(  $task->averageRuntime / 1000 , 2 ) }} seconds
@@ -162,25 +286,49 @@ table tr td {
                                 <td>
                                     {{$task->upcoming}}
                                 </td>
+                                <td>
+                                    @if(isset($task->frequencies) && count($task->frequencies) > 0)
+                                    {{$task->frequencies[0]->interval}}
+                                    @endif
+                                    
+                                </td>
                                 <td class="uk-text-center@m">
                                     <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" title="view task" data-expression="{{$task->getCronExpression()}}"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    @if (Auth::user()->isAdmin())
+                                        <a style="padding:1px;" class="btn d-inline btn-image edit-task" href="#" data-id="{{$task->id}}" title="edit task"><img src="/images/edit.png" style="cursor: pointer; width: 0px;"></a>
+                                        <a style="padding:1px;" class="btn d-inline btn-image delete-tasks" href="#" data-id="{{$task->id}}" title="delete task"><img src="/images/delete.png" style="cursor: pointer; width: 0px;"></a>
+                                    @endif
                                     <a style="padding:1px;" class="btn d-inline btn-image execute-task" href="#" data-id="{{$task->id}}" title="execute Task"><img src="/images/send.png" style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image active-task" href="#" data-id="{{$task->id}}" title="task status" data-active="{{$task->is_active}}"><img src="/images/{{ $task->is_active ? 'flagged-green' : 'flagged'}}.png"  style="cursor: pointer; width: 0px;"></a>
-                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image execution-history" href="#" data-id="{{$task->id}}" title="task execution history" data-results="{{json_encode($task->results()->orderByDesc('created_at')->get())}}"><i class="fa fa-globe" aria-hidden="true"></i></a>
 
                                     <a style="padding:1px;" class="btn d-inline btn-image task-history" href="#" data-id="{{$task->id}}" title="Task History">T</a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image command-execution-error" href="#" data-id="{{$task->id}}"  title="Cron Run error History"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image command-schedule" href="#" data-id="{{$task->command}}" title="See Cron query and description"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></a>
+                                    <a style="padding:1px;" class="btn d-inline btn-image show-cron-history" href="#" data-id="{{$task->id}}" title="Show cron assign history"><img src="/images/history.png"  style="cursor: pointer; width: 0px;"></a>
+                                    @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+                                    <a style="padding:1px;" class="btn d-inline btn-image assign-user" href="#" assing-id="{{$task->users_ids}}" task-id="{{$task->id}}" title="Assign user"><i class="fa fa-universal-access" aria-hidden="true"></i></a>
+                                        @endif
+
                                 </td>
+                                @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
+                                <td>
+                                    <label class="switch">
+                                        <input class="active-task" data-id="{{$task->id}}" data-active="{{$task->is_active}}" {{$task->is_active ? "checked" : ""}} type="checkbox">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                                    @endif
                             </tr>
                             @endforeach
                     </tbody>
                 </table>
                 @if(!count($tasks))
-                <h5 class="text-center">No Tasks found</h5> 
+                <h5 class="text-center">No Tasks found</h5>
                 @endif
+                {!! $tasks->links() !!}
 	        </div>
         </div>
+        
     </div>
 
 
@@ -297,6 +445,131 @@ table tr td {
     </div>
     </div>
 
+    <div class="modal fade" id="view_assign_user" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <form class="post-assign-cron">
+            @csrf
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Cron to User</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <input type="hidden" id="taskId" name="task-id"/>
+                <select class="js-select2" multiple="multiple" name="users_id[]" >
+                        @foreach ($users as $key => $userData)
+                            <option data-badge="" value="{{ $userData->id }}">
+                                {{ $userData->name }}</option>
+                        @endforeach
+                    </select>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-default user_submit_btn">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal fade" id="view_command_query" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">COMMAND QUERIES</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                            <thead>
+                            <tr>
+                                <th width="5%">Command Name</th>
+                                <th width="5%">Queries</th>
+                                <th width="5%">Description</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="view_cron_assign_history" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">COMMAND ASSIGN HISTORY</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                            <thead>
+                            <tr>
+                                <th width="5%">Assign By</th>
+                                <th width="5%">Assign To</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="view_execution_error" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">EXECUTION ERROR</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
+                        <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="5%">Signature</th>
+                            <th width="5%">Error</th>  
+                            <th width="5%">Error Count</th>
+                            <th width="5%">Status</th>
+                            <th width="5%">Date</th>
+                        </tr>
+                        </thead>
+    
+                        <tbody >
+                        </tbody>
+                    </table>
+                </div>  
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
     <div id="addEditTaskModal" class="modal fade" role="dialog" data-id = '' style="overflow-y:auto;">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -316,14 +589,14 @@ table tr td {
                         </div>
                         <div class="form-group">
                             <label>Command</label><i class="fa fa-info-circle" title="Select an artisan command to schedule"></i>
-                            <select id="command" name="command" class="form-control select2" placeholder="Click here to select one of the available commands">
+                            <select id="command" name="command" class="form-control select2" width="100%" placeholder="Click here to select one of the available commands">
                                 <option value="">Select a command</option>
                                 @forelse ($commands as $k => $command)
-                                <optgroup label="{{$command->getName()}}">
+                                <!-- <optgroup label="{{$command->getName()}}"> -->
                                     <option value="{{$command->getName()}}">
                                         {{$command->getDescription()}}
                                     </option>
-                                </optgroup>
+                                <!-- </optgroup> -->
                                 <p class="d-none"></p>
                                 @empty
                                 @endforelse
@@ -345,7 +618,15 @@ table tr td {
                                 <p class="d-none"></p>
                                 @endforeach
                             </select>
-                        </div> 
+                        </div>
+                        <div class="form-group">
+                            <label>Module</label><i class="fa fa-info-circle" title="Select a module"></i>
+                            <select id="developer_module_id" name="developer_module_id" class="form-control select2" placeholder="Select a module">
+                                @foreach($developer_module as  $module)
+                                    <option value="{{$module->id}}">{{$module->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label>Type</label><i class="fa fa-info-circle" title="Choose whether to define a cron expression or to add frequencies"></i><br>
                             <label>
@@ -361,7 +642,7 @@ table tr td {
                          </div> 
                         <div class="form-group frequencies">
                             <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add   to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
-                            <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
+                            <button type="button" class="btn btn-default btn-sm add-remark add-remark-s" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
                             <div class="table-responsive mt-2" style="width: fit-content">
                             <table class="uk-table table-bordered uk-table-divider uk-margin-remove">
                                 <thead>
@@ -472,26 +753,152 @@ table tr td {
 
 @endsection
 @section('scripts')
+    <style>
+        .select2-container{ width: 100% !important; padding: 10px}
+        .select2-results__option {
+            padding-right: 20px;
+            vertical-align: middle;
+        }
+        .select2-results__option:before {
+            content: "";
+            display: inline-block;
+            position: relative;
+            height: 20px;
+            width: 20px;
+            border: 2px solid #e9e9e9;
+            border-radius: 4px;
+            background-color: #fff;
+            margin-right: 20px;
+            vertical-align: middle;
+        }
+        .select2-results__option[aria-selected=true]:before {
+            font-family:fontAwesome;
+            content: "\f00c";
+            color: #fff;
+            background-color: #f77750;
+            border: 0;
+            display: inline-block;
+            padding-left: 3px;
+        }
 
+        .select2-selection .select2-selection--multiple:after {
+            content: 'hhghgh';
+        }
+        /* select with icons badges single*/
+        .select-icon .select2-selection__placeholder .badge {
+            display: none;
+        }
+        .select-icon .placeholder {
+            display: none;
+        }
+        .select-icon .select2-results__option:before,
+        .select-icon .select2-results__option[aria-selected=true]:before {
+            display: none !important;
+            /* content: "" !important; */
+        }
+        .select-icon  .select2-search--dropdown {
+            display: none;
+        }
+    </style>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="/js/jquery.jscroll.min.js"></script>
-<script type="text/javascript"> 
-    $('ul.pagination').hide();
-    $(function() {
-        $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').hide();
+<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+
+<script type="text/javascript">
+    $(".js-select2").select2({
+        closeOnSelect : false,
+        placeholder : "Select user",
+        allowHtml: true,
+        allowClear: true,
+        tags: true,
+    });
+    $('.icons_select2').select2({
+        templateSelection: iformat,
+        templateResult: iformat,
+        allowHtml: true,
+        placeholder: "Placeholder",
+        dropdownParent: $( '.select-icon' ),//обавили класс
+        allowClear: true,
+        multiple: false
+    });
+    function iformat(icon, badge,) {
+        var originalOption = icon.element;
+        var originalOptionBadge = $(originalOption).data('badge');
+        return $('<span><i class="fa ' + $(originalOption).data('icon') + '"></i> ' + icon.text + '<span class="badge">' + originalOptionBadge + '</span></span>');
+    }
+    // $('ul.pagination').hide();
+     $(function() {
+        $(document).on("change","#ckbCheckAll",function (e) {
+            var status = $(this).is(":checked") ? true : false;
+            console.log(status);
+            $(".checkBoxClass").prop("checked",status);
+        });
+         $(".table").tablesorter();
+    //     $('.infinite-scroll').jscroll({
+    //         autoTrigger: true,
+    //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+    //         padding: 2500,
+    //         nextSelector: '.pagination li.active + li a',
+    //         contentSelector: 'div.infinite-scroll',
+    //         callback: function() {
+    //             $('ul.pagination').hide();
+    //             setTimeout(function(){
+    //                 $('ul.pagination').first().remove();
+    //             }, 2000);
+    //             $(".select-multiple").select2();
+    //             initialize_select2();
+    //         }
+    //     });
+     });
+
+    $('#command').select2({
+        dropdownParent: $('#addEditTaskModal')
+    });
+    
+    $(".enable-disable").click(function () {
+        let type = $(this).attr('cron-status')
+        var selectedIds = []
+        $(".checkBoxClass:checked").each(function () {
+            selectedIds.push($(this).attr('data-id'))
+        })
+        if(selectedIds.length == 0){
+            toastr['error']('Please select at least one task to enable   ');
+        return;
+        }
+        $.ajax({
+            type: "POST",
+            url: "/totem/tasks/enable-disable",
+            beforeSend : function() {
+                $(".ajax-loader").show();
+            },
+            dataType : "json",
+            data:{
+                ids:selectedIds,
+                active: type,
+                _token: "{{ csrf_token() }}",
+            },
+            success: function (response) {
+                if(response.status){
+                    toastr['success'](response.message);
+                }else{
+                    toastr['error'](response.message);
+                }
                 setTimeout(function(){
-                    $('ul.pagination').first().remove();
-                }, 2000);
-                $(".select-multiple").select2();
-                initialize_select2();
+                    window.location.reload(1);
+                }, 1000);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
             }
         });
+    });
+    $('#developer_module_id').select2({
+        dropdownParent: $('#addEditTaskModal')
     });
 
     var freq = 0;
@@ -500,18 +907,6 @@ table tr td {
         $(this).attr('data-id', '');
         $('#addEditTaskModal .modal-title').html('Create task');
         $('.freq').html('<tr><td class="default_td">No Frequencies Found</td></tr>');
-    });
-
-    $('.infinite-scroll').jscroll({
-            autoTrigger: true,
-            loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            padding: 2500,
-            nextSelector: '.pagination li.active + li a',
-            contentSelector: 'div.infinite-scroll',
-            callback: function() {
-                $('ul.pagination').first().remove();
-                $(".select-multiple").select2();
-            }
     });
 
     $(document).on("click",".view-task",function(e) {
@@ -565,13 +960,47 @@ table tr td {
         });
     }); 
 
+    $(document).off().on("click",".command-execution-error",function(e) {
+           
+        $.ajax({
+            type: "POST",
+            url: "/totem/tasks/"+$(this).data('id')+"/get-error", 
+            dataType : "json",
+            data:{ 
+                id:$(this).data('id'),
+                _token: "{{ csrf_token() }}", 
+             },
+            dataType : "json",
+            success: function (response) {
+                var t = ''
+                //$( response.data ).each(function(key, val ) {
+                var d = response.data;
+                for(let i=0; i< response.data.length; i++){ 
+                   // console.log( key + ": " + val);
+                    t += '<tr><td>'+d[i].id+'</td>';
+                    t += '<td>'+d[i].signature+'</td>'
+                    t += '<td>'+d[i].error+'</td>'
+                    t += '<td>'+d[i].error_count+'</td>'
+                    t += '<td>'+d[i].status+'</td>'
+                    t += '<td>'+d[i].module+'</td></tr>'
+                 };
+                $("#view_execution_error tbody").html(t);                   
+                $('#view_execution_error').modal('show'); 
+                toastr['success'](response.message);
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
+
     $(document).on("click",".execution-history",function(e) {
         let results = JSON.parse($(this).attr('data-results'));
         var html_content = '';
         for(let i=0; i< results.length; i++){ 
             html_content += '<tr>'; 
             html_content += '<td>' + results[i].ran_at + '</td>';
-            html_content += '<td>' + (results[i].duration / 1000 , 2).toFixed(2) + ' seconds</td>';
+            html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
             html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
             html_content += '</tr>';
         }
@@ -580,6 +1009,63 @@ table tr td {
         }
         $("#view_execution_history tbody").html(html_content);                   
         $('#view_execution_history').modal('show'); 
+    });
+
+    $(document).on("click",".command-schedule",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "query-command/"+$(this).data('id'),
+            success: function (response) {
+                var html_content = '';
+                for(let i=0; i< response.length; i++){
+                    html_content += '<tr>';
+                    html_content += '<td>' + response[i].schedule_name + '</td>';
+                    html_content += '<td>' + response[i].query + '</td>';
+                    html_content += '<td>' + response[i].description + '</td>';
+                    html_content += '</tr>';
+                }
+                if(response.length == 0){
+                    html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'No Data to show.' + '</h5></td></tr>';
+                }
+                $("#view_command_query tbody").html(html_content);
+                $('#view_command_query').modal('show');
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
+
+    $(document).on("click",".show-cron-history",function(e) {
+        $.ajax({
+            type: "GET",
+            url: "cron-history/"+$(this).data('id'),
+            success: function (response) {
+                console.log(response, "response")
+                var html_content = response.map(r => {
+                    return `<tr><td>${r.assign_by_name}</td><td>${r.assign_to_name}</td></tr>`
+                }).join('');
+
+                if(response.length == 0){
+                    html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'No Data to show.' + '</h5></td></tr>';
+                }
+                $("#view_cron_assign_history tbody").html(html_content);
+                $('#view_cron_assign_history').modal('show');
+            },
+            error: function () {
+                toastr['error']('Something went wrong!');
+            }
+        });
+    });
+
+
+    $(document).on("click",".assign-user",function(e) {
+        $('#taskId').val($(this).attr('task-id'));
+        console.log($(this).attr('assing-id'))
+        console.log($(this).attr('task-id'))
+        $('#view_assign_user').modal('show');
+
+
     });
 
     $(document).on("click","#show-result",function(e) {
@@ -726,6 +1212,7 @@ table tr td {
     }); 
 
     $('.submit_btn').click(function(){
+        
         $('.error').remove();
         let url = $('#addEditTaskModal').attr('data-id') == '' ? '/totem/tasks/create' : `/totem/tasks/${$('#addEditTaskModal').attr('data-id')}/edit`
         var form_data =  $('.taskForm').serialize();
@@ -751,24 +1238,127 @@ table tr td {
                         window.location.reload(1);
                     }, 1000);
                 }else{
+                    debugger;
                     let errors = response.responseJSON.errors;
+                    let error = '';
                     for (var key in errors) {
                         if($(`input[name="${key}"]`).length == 0){
-                            let error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                             error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
                             $(`select[name="${key}"]`).parent().after(error);
                         }else{
-                            let error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                            error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
                             $(`input[name="${key}"]`).after(error);
                         }
                         if(key == 'frequencies'){
-                            let error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                            error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
                             $('.frequencies').after(error);
                         }
                     }
-                    // toastr['error']('Something went wrong!');
+                    toastr['error'](error);
                 }
+                toastr['error'](errors.message);
             }
         });
+
+    });
+    $('.grant_button').click(function(){
+        let type = $(this).attr('bulk-assign');
+        if (!type){
+            const form_data =  $('.post-assign-cron').serialize();
+            return;
+            $.ajax({
+                type: "POST",
+                url: '/totem/tasks/assign-users',
+                data: form_data,
+                dataType : "json",
+                success: function (response) {
+                    if(response.status){
+                        toastr['success']('Cron assigned Succesfully.');
+                    }else{
+                        toastr['error']('Something went wrong!');
+                    }
+                    setTimeout(function(){
+                        window.location.reload(1);
+                    }, 1000);
+                },
+                error: function (response) {
+                    if(response.status == 200){
+                        toastr['success']('Task Created Successfully.');
+                        setTimeout(function(){
+                            window.location.reload(1);
+                        }, 1000);
+                    }else{
+                        debugger;
+                        let errors = response.responseJSON.errors;
+                        let error = '';
+                        for (var key in errors) {
+                            if($(`input[name="${key}"]`).length == 0){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $(`select[name="${key}"]`).parent().after(error);
+                            }else{
+                                error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                                $(`input[name="${key}"]`).after(error);
+                            }
+                            if(key == 'frequencies'){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $('.frequencies').after(error);
+                            }
+                        }
+                        toastr['error'](error);
+                    }
+                    toastr['error'](errors.message);
+                }
+            });
+
+        }
+        else {
+            const form_data =  $('.post-assign-cron').serialize();
+            console.log(form_data);
+            $.ajax({
+                type: "POST",
+                url: '/totem/tasks/bulk-assign',
+                data: form_data,
+                dataType : "json",
+                success: function (response) {
+                    if(response.status){
+                        toastr['success']('Cron assigned Succesfully.');
+                    }else{
+                        toastr['error']('Something went wrong!');
+                    }
+                    setTimeout(function(){
+                        window.location.reload(1);
+                    }, 1000);
+                },
+                error: function (response) {
+                    if(response.status == 200){
+                        toastr['success']('Task Created Successfully.');
+                        setTimeout(function(){
+                            window.location.reload(1);
+                        }, 1000);
+                    }else{
+                        debugger;
+                        let errors = response.responseJSON.errors;
+                        let error = '';
+                        for (var key in errors) {
+                            if($(`input[name="${key}"]`).length == 0){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $(`select[name="${key}"]`).parent().after(error);
+                            }else{
+                                error = `<p class="error" style="color:red">${errors[key][0]}</p>`;
+                                $(`input[name="${key}"]`).after(error);
+                            }
+                            if(key == 'frequencies'){
+                                error = `<p class="error" style="color:red;margin-top:-15px">${errors[key][0]}</p>`;
+                                $('.frequencies').after(error);
+                            }
+                        }
+                        toastr['error'](error);
+                    }
+                    toastr['error'](errors.message);
+                }
+            });
+
+        }
 
     });
 
@@ -792,7 +1382,12 @@ table tr td {
             }
         });
     });
-
+    $('.add-torterm').click(function(){
+        $('#addEditTaskModal').modal('show');  
+    });
+    $('.add-remark-s').click(function(){
+        $('#addFrequencyModal').modal('show');  
+    });
     $('.edit-task').click(function(){
         freq = 0;
         $('#addEditTaskModal').attr('data-id', $(this).data('id'));
@@ -802,12 +1397,20 @@ table tr td {
             url: "/totem/tasks/"+$(this).data('id'),  
             dataType : "json",
             success: function (response) {
-                let task_fields = response  .task;
+                let task_fields = response.task;
+               
                 for (var key in task_fields) {
+                    console.log(key);
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
-                    }else if($(`select[name="${key}"]`).length != 0){
+                        if($(`input[type="checkbox"]`) && task_fields[key] == 1)
+                            $(`input[name="${key}"]`).prop( "checked", true );
+                        
+
+                    }else if(task_fields[key]  != null && $(`select[name="${key}"]`).length != 0){
                         $(`select[name="${key}"]`).val(task_fields[key]);
+                        $(`select[name="${key}"]`).val(task_fields[key]).trigger("change");
+
                     }
                     if(key == 'frequencies'){
                         if(task_fields[key].length){
@@ -845,8 +1448,9 @@ table tr td {
                             freq++;
                         }
                     }
-                    $('#addEditTaskModal').modal('show');  
+                      
                 }
+                $('#addEditTaskModal').modal('show');
             },
             error: function (response) { 
                 if(response.status != 200){      

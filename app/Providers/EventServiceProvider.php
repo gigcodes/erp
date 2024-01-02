@@ -3,17 +3,20 @@
 namespace App\Providers;
 
 use App\Brand;
-use App\Category;
 use App\Email;
+use App\Category;
+use App\ChatMessage;
+use App\Observers\ChatMessageIndexObserver;
+use App\ScrapedProducts;
+use Plank\Mediable\Media;
 use App\Observers\BrandObserver;
 use App\Observers\EmailObserver;
 use App\Observers\MediaObserver;
+use Illuminate\Support\Facades\Event;
+use App\Observers\ChatMessageObserver;
 use App\Observers\ScrappedCategoryMappingObserver;
 use App\Observers\ScrappedProductCategoryMappingObserver;
-use App\ScrapedProducts;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
-use \Plank\Mediable\Media;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -23,109 +26,113 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event'                  => [
+        'App\Events\Event' => [
             'App\Listeners\EventListener',
         ],
 
-        'Illuminate\Auth\Events\Login'      => [
-            'App\Listeners\LogSuccessfulLoginListener',
+        'Illuminate\Auth\Events\Login' => [
+            \App\Listeners\LogSuccessfulLoginListener::class,
         ],
 
-        'Illuminate\Auth\Events\Logout'     => [
-            'App\Listeners\LogSuccessfulLogoutListener',
+        'Illuminate\Auth\Events\Logout' => [
+            \App\Listeners\LogSuccessfulLogoutListener::class,
         ],
 
-        'App\Events\OrderCreated'           => [
-            'App\Listeners\CreateOrderCashFlow',
+        \App\Events\OrderCreated::class => [
+            \App\Listeners\CreateOrderCashFlow::class,
         ],
 
-        'App\Events\OrderUpdated'           => [
-            'App\Listeners\UpdateOrderCashFlow',
+        \App\Events\OrderUpdated::class => [
+            \App\Listeners\UpdateOrderCashFlow::class,
         ],
 
-        'App\Events\RefundCreated'          => [
-            'App\Listeners\CreateRefundCashFlow',
+        \App\Events\RefundCreated::class => [
+            \App\Listeners\CreateRefundCashFlow::class,
         ],
 
-        'App\Events\RefundDispatched'       => [
-            'App\Listeners\UpdateRefundCashFlow',
+        \App\Events\RefundDispatched::class => [
+            \App\Listeners\UpdateRefundCashFlow::class,
         ],
 
-        'App\Events\CaseBilled'             => [
-            'App\Listeners\CreateCaseCashFlow',
+        \App\Events\CaseBilled::class => [
+            \App\Listeners\CreateCaseCashFlow::class,
         ],
 
-        'App\Events\CaseBillPaid'           => [
-            'App\Listeners\UpdateCaseCashFlow',
+        \App\Events\CaseBillPaid::class => [
+            \App\Listeners\UpdateCaseCashFlow::class,
         ],
 
-        'App\Events\ProformaConfirmed'      => [
-            'App\Listeners\CreatePurchaseCashFlow',
+        \App\Events\ProformaConfirmed::class => [
+            \App\Listeners\CreatePurchaseCashFlow::class,
         ],
 
-        'App\Events\VendorPaymentCreated'   => [
-            'App\Listeners\VendorPaymentCashFlow',
+        \App\Events\VendorPaymentCreated::class => [
+            \App\Listeners\VendorPaymentCashFlow::class,
         ],
 
-        'App\Events\CaseReceivableCreated'  => [
-            'App\Listeners\CreateCaseReceivableCashFlow',
+        \App\Events\CaseReceivableCreated::class => [
+            \App\Listeners\CreateCaseReceivableCashFlow::class,
         ],
 
-        'App\Events\BloggerPaymentCreated'  => [
-            'App\Listeners\CreateBloggerCashFlow',
+        \App\Events\BloggerPaymentCreated::class => [
+            \App\Listeners\CreateBloggerCashFlow::class,
         ],
 
-        'App\Events\VoucherApproved'        => [
-            'App\Listeners\CreateVoucherCashFlow',
+        \App\Events\VoucherApproved::class => [
+            \App\Listeners\CreateVoucherCashFlow::class,
         ],
 
-        'App\Events\PaymentReceiptCreated'  => [
-            'App\Listeners\CreatePaymentReceiptCashflow',
+        \App\Events\PaymentReceiptCreated::class => [
+            \App\Listeners\CreatePaymentReceiptCashflow::class,
         ],
 
-        'App\Events\PaymentReceiptUpdated'  => [
-            'App\Listeners\UpdatePaymentReceiptCashflow',
+        \App\Events\PaymentReceiptUpdated::class => [
+            \App\Listeners\UpdatePaymentReceiptCashflow::class,
         ],
 
-        'App\Events\PaymentCreated'         => [
-            'App\Listeners\CreatePaymentCashflow',
+        \App\Events\PaymentCreated::class => [
+            \App\Listeners\CreatePaymentCashflow::class,
         ],
 
-        'App\Events\PaymentUpdated'         => [
-            'App\Listeners\UpdatePaymentCashflow',
+        \App\Events\PaymentUpdated::class => [
+            \App\Listeners\UpdatePaymentCashflow::class,
         ],
 
-        'App\Events\PurchaseCreated'        => [
+        'App\Events\PurchaseCreated' => [
             'App\Listeners\CreatePurchaseCashflow',
         ],
 
-        'App\Events\PurchaseUpdated'        => [
+        'App\Events\PurchaseUpdated' => [
             'App\Listeners\UpdatePurchaseCashflow',
         ],
 
-        'App\Events\CashFlowCreated'        => [
-            'App\Listeners\CreateCurrencyCashFlow',
+        \App\Events\CashFlowCreated::class => [
+            \App\Listeners\CreateCurrencyCashFlow::class,
         ],
 
-        'App\Events\CashFlowUpdated'        => [
-            'App\Listeners\UpdateCurrencyCashFlow',
+        \App\Events\CashFlowUpdated::class => [
+            \App\Listeners\UpdateCurrencyCashFlow::class,
         ],
-        'App\Events\MonetaryAccountCreated' => [
-            'App\Listeners\MonetaryAccountHistoryCreate',
+        \App\Events\MonetaryAccountCreated::class => [
+            \App\Listeners\MonetaryAccountHistoryCreate::class,
         ],
 
-        'App\Events\MonetaryAccountUpdated' => [
-            'App\Listeners\MonetaryAccountHistoryUpdate',
+        \App\Events\MonetaryAccountUpdated::class => [
+            \App\Listeners\MonetaryAccountHistoryUpdate::class,
         ],
-        'App\Events\SendgridEventCreated' => [
-            'App\Listeners\SendgridEventCreatedListner',
+        \App\Events\SendgridEventCreated::class => [
+            \App\Listeners\SendgridEventCreatedListner::class,
         ],
         'Illuminate\Mail\Events\MessageSent' => [
-            'App\Events\MessageIdTranscript',
+            \App\Events\MessageIdTranscript::class,
         ],
         'Illuminate\Mail\Events\MessageSending' => [
-            'App\Listeners\AddSignatureToMail',
-        ]
+            \App\Listeners\AddSignatureToMail::class,
+        ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... other providers
+            \SocialiteProviders\YouTube\YouTubeExtendSocialite::class . '@handle',
+        ],
 
     ];
 
@@ -136,11 +143,11 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        parent::boot();
-
         Brand::observe(BrandObserver::class);
         Email::observe(EmailObserver::class);
         Media::observe(MediaObserver::class);
+        ChatMessage::observe(ChatMessageObserver::class);
+        ChatMessage::observe(ChatMessageIndexObserver::class);
 
         Category::observe(ScrappedCategoryMappingObserver::class);
 

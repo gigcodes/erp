@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use App\CronJobReport;
+use Illuminate\Console\Command;
 
 class FetchMeasurementsIfScraped extends Command
 {
@@ -42,7 +42,7 @@ class FetchMeasurementsIfScraped extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,24 +56,24 @@ class FetchMeasurementsIfScraped extends Command
                     $query->where('dmeasurement', '')->orWhereNull('dmeasurement');
                 })
                 ->orderBy('created_at', 'DESC')->chunk(1000, function ($products) {
-                foreach ($products as $product) {
-                    dump($product->id);
-                    $scrapedProducts = $product->many_scraped_products;
-                    foreach ($scrapedProducts as $scrapedProduct) {
-                        $property = $scrapedProduct->properties['dimension'] ?? [];
-                        if ($property !== [] && $property !== [null, null, null]) {
-                            preg_match('/\d+/', $property[0] ?? '', $lmeasurement);
-                            preg_match('/\d+/', $property[1] ?? '', $hmeasurement);
-                            preg_match('/\d+/', $property[2] ?? '', $dmeasurement);
-                            dump($lmeasurement, $hmeasurement, $dmeasurement);
-                            $product->lmeasurement = $lmeasurement[0] ?? null;
-                            $product->hmeasurement = $hmeasurement[0] ?? null;
-                            $product->dmeasurement = $dmeasurement[0] ?? null;
-                            $product->save();
+                    foreach ($products as $product) {
+                        dump($product->id);
+                        $scrapedProducts = $product->many_scraped_products;
+                        foreach ($scrapedProducts as $scrapedProduct) {
+                            $property = $scrapedProduct->properties['dimension'] ?? [];
+                            if ($property !== [] && $property !== [null, null, null]) {
+                                preg_match('/\d+/', $property[0] ?? '', $lmeasurement);
+                                preg_match('/\d+/', $property[1] ?? '', $hmeasurement);
+                                preg_match('/\d+/', $property[2] ?? '', $dmeasurement);
+                                dump($lmeasurement, $hmeasurement, $dmeasurement);
+                                $product->lmeasurement = $lmeasurement[0] ?? null;
+                                $product->hmeasurement = $hmeasurement[0] ?? null;
+                                $product->dmeasurement = $dmeasurement[0] ?? null;
+                                $product->save();
+                            }
                         }
                     }
-                }
-            });
+                });
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

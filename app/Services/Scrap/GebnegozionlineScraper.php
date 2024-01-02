@@ -15,7 +15,6 @@ class GebnegozionlineScraper extends Scraper
         'man' => 'https://www.gebnegozionline.com/en_it/men/designers/',
     ];
 
-
     public function scrap(): void
     {
 //        $this->scrapPage(self::URL['homepage'], false);
@@ -34,11 +33,11 @@ class GebnegozionlineScraper extends Scraper
         }
     }
 
-    private function scrapPage($url, $hasProduct=true): void
+    private function scrapPage($url, $hasProduct = true): void
     {
         echo $url;
         $scrapEntry = ScrapEntries::where('url', $url)->first();
-        if (!$scrapEntry) {
+        if (! $scrapEntry) {
             $scrapEntry = new ScrapEntries();
             $scrapEntry->title = $url;
             $scrapEntry->url = $url;
@@ -47,6 +46,7 @@ class GebnegozionlineScraper extends Scraper
 
         if ($hasProduct) {
             $this->getProducts($scrapEntry);
+
             return;
         }
 
@@ -56,28 +56,26 @@ class GebnegozionlineScraper extends Scraper
 
         $urls = [];
 
-        foreach ($links as $key=>$link) {
+        foreach ($links as $key => $link) {
             $text = $link->firstChild->data;
             $text = trim(preg_replace('/\s\s+/', '', $text));
             $text = str_replace(' ', '-', strtolower($text));
             if ($text === '' || $text === 'designers') {
                 continue;
             }
-            $urls[$text.'_'.$key] = $link->getAttribute('href');
+            $urls[$text . '_' . $key] = $link->getAttribute('href');
         }
-
 
         foreach ($urls as $itemUrl) {
             $this->scrapPage($itemUrl);
         }
-
     }
 
-    private function getProducts(ScrapEntries $scrapEntriy ): void
+    private function getProducts(ScrapEntries $scrapEntriy): void
     {
         $date = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'GNB')->first();
-        if (!$allLinks) {
+        if (! $allLinks) {
             $allLinks = new ScrapCounts();
             $allLinks->scraped_date = $date;
             $allLinks->website = 'GNB';
@@ -85,11 +83,10 @@ class GebnegozionlineScraper extends Scraper
         }
 
         $paginationData = $scrapEntriy->pagination;
-        if (!$paginationData)
-        {
+        if (! $paginationData) {
             $body = $this->getContent($scrapEntriy->url);
             $c = new HtmlPageCrawler($body);
-            $scrapEntriy->pagination =  $this->getPaginationData($c);
+            $scrapEntriy->pagination = $this->getPaginationData($c);
             $scrapEntriy->save();
         }
 
@@ -112,16 +109,15 @@ class GebnegozionlineScraper extends Scraper
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);
 
-            if (!$title || !$link || !$images) {
+            if (! $title || ! $link || ! $images) {
                 continue;
             }
 
             $entry = ScrapEntries::where('title', $title)
                 ->orWhere('url', $link)
-                ->first()
-            ;
+                ->first();
 
-            if (!$entry) {
+            if (! $entry) {
                 $entry = new ScrapEntries();
                 $entry->title = $title;
                 $entry->url = $link;
@@ -133,19 +129,18 @@ class GebnegozionlineScraper extends Scraper
         if ($pageNumber >= $totalPageNumber) {
             $scrapEntriy->pagination = [
                 'current_page_number' => 0,
-                'total_pages' => $totalPageNumber
+                'total_pages' => $totalPageNumber,
             ];
             $scrapEntriy->is_scraped = 0;
             $scrapEntriy->save();
         } else {
             $scrapEntriy->pagination = [
                 'current_page_number' => $pageNumber,
-                'total_pages' => $totalPageNumber
+                'total_pages' => $totalPageNumber,
             ];
             $scrapEntriy->is_scraped = 0;
             $scrapEntriy->save();
         }
-
     }
 
     private function getImagesFromProduct($product): array
@@ -153,14 +148,15 @@ class GebnegozionlineScraper extends Scraper
         $items = $product->getElementsByTagName('img');
         $images = [];
 
-        for ($i=0; $i<$items->length; $i++) {
+        for ($i = 0; $i < $items->length; $i++) {
             $images[] = $items->item($i)->getAttribute('src');
         }
 
         return $images;
     }
 
-    private function getTitleFromProduct($product) {
+    private function getTitleFromProduct($product)
+    {
         try {
             $description = preg_replace('/\s\s+/', '', $product->getElementsByTagName('p')->item(0)->firstChild->data);
         } catch (\Exception $exception) {
@@ -168,7 +164,6 @@ class GebnegozionlineScraper extends Scraper
         }
 
         return $description;
-
     }
 
     private function getLinkFromProduct($product)
@@ -186,7 +181,7 @@ class GebnegozionlineScraper extends Scraper
         return $link;
     }
 
-    private function getPaginationData( HtmlPageCrawler $c): array
+    private function getPaginationData(HtmlPageCrawler $c): array
     {
         $maxPageNumber = 1;
         $paginationOptions = $c->filter('.pages-items li a')->getIterator();
@@ -201,11 +196,9 @@ class GebnegozionlineScraper extends Scraper
 
         $options = [
             'current_page_number' => 0,
-            'total_pages' => $maxPageNumber
+            'total_pages' => $maxPageNumber,
         ];
 
         return $options;
-
-
     }
 }

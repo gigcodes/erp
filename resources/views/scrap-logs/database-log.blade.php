@@ -6,13 +6,48 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 @endsection
+
 @section('content')
 	<div class="row">
 		<div class="col-lg-12 margin-tb">
 		    <h2 class="page-heading">Databse Logs</h2>
 		</div>
 	</div>
-	<form action="{{ action('ScrapLogsController@databaseLog') }}" method="get">
+	@if ($errors->any())
+		<div class="col-sm-12">
+			<div class="alert alert-warning" role="alert">
+				@foreach ($errors->all() as $error)
+					<span><p>{{ $error }}</p></span>
+				@endforeach
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+			</div>
+		</div>
+	@endif
+
+	@if (session('success'))
+		<div class="col-sm-12">
+			<div class="alert alert-success" role="alert">
+				{{ session('success') }}
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+			</div>
+		</div>
+	@endif
+
+	@if (session('error'))
+		<div class="col-sm-12">
+			<div class="alert  alert-danger" role="alert">
+				{{ session('error') }}
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+			</div>
+		</div>
+	@endif
+	<form action="{{ action([\App\Http\Controllers\ScrapLogsController::class, 'databaseLog']) }}" method="get">
 		<div class="mt-3 col-md-12">
 			<div class="col-lg-2">
 				<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $search }}">
@@ -24,24 +59,68 @@
 			</div>
 		</div>
 	</form>
+	<?php $typeBtn = $logBtn->type ?? '';?>
+	<button type='button' class='btn custom-button float-right mr-3 truncate'>Truncate Log</button>
+	<a href="/admin/database-log/enable" class="btn custom-button float-right mr-3 " style="@if ($typeBtn == 'Enable')  background-color: #28a745 !important; @endif">Enabled</a>
+	<a href="/admin/database-log/disable" class="btn custom-button float-right mr-3 "  style="@if ($typeBtn == 'Disable') background-color: #ffc107 !important; @endif">Disable</a>
+	<button style='padding:3px;' type='button' class='btn custom-button float-right mr-3 history' data-toggle='modal' data-target='#slow_loh_history_model'>Log History</button>
 	<div class="mt-3 col-md-12">
 		<table class="table table-bordered table-striped" id="log-table">
 		    <thead>
-				<td>Index</td>
-				<!-- <td>File Name</td> -->
-				<td>Log Messages</td>
+				<td width="5%">Index</td>
+				<td width="10%">Date Time</td>
+				<td width="10%">Time Taken</td>
+				<td width="10%">Url</td>
+				<td width="10%">Sql</td>
+				<td width="85%">Log Messages</td>
 			</thead>
 			<tbody id="log_popup_body">
 				@php $count = 1;  @endphp
-				@foreach($output as $key => $line)
+				@foreach($databaseLogs as $key => $databaseLog)
 					<tr>
-	    				<td>{{$key+1}}</td>
-	    				<!-- <td></td> -->
-	    				<td>{{$line}}</td>
+						<td>{{$key+1}}</td>
+						<?php $timeCol = false;
+							$dateResult = '';
+							$dateTime = '';
+							if(Str::contains($databaseLog->log_message, '# Time: ') OR Str::contains($databaseLog->log_message, 'Time: ')){
+								$timeCol = true;
+								$dateString = $databaseLog->log_message;
+								$prefix = "# Time:";
+								$index = explode(" ",$dateString);
+								//$dateResult = date('d M Y H:s:i', "1652880141");
+								$dateTime = $index[3];
+							}
+							if(Str::contains($databaseLog->log_message, "SET timestamp=")){
+								$dateString = $databaseLog->log_message;
+								$prefix = "SET timestamp=";
+								$index = explode("=",$dateString);//strpos($dateString, $prefix) + strlen($prefix);
+								$dateStr = str_replace(';', '', $index[1]);
+								$dateResult = date('d M Y', (int)$dateStr);
+							}
+							if(Str::contains($databaseLog->log_message, "exceeded")){
+								$dateResult = date('d M Y H:s:i', strtotime(substr($databaseLog->log_message,1,19)));
+							}
+							?>
+						@if($dateResult || $dateTime)
+							<td>{{$dateResult.' '.$dateTime}}</td>
+						@else
+							<td></td>
+						@endif
+						<td>{{$databaseLog->time_taken}}</td>
+						<td>{{$databaseLog->url}}</td>
+						<td>{{$databaseLog->sql_data}}</td>
+						@if(Str::contains($databaseLog->log_message, "exceeded"))
+							<td>{{substr($databaseLog->log_message,32)}}</td>
+						@else
+							<td>{{$databaseLog->log_message}}</td>
+						@endif
 	    			</tr>
 				@endforeach
 			</tbody>
 		</table>
+		<div class="d-flex justify-content-center">
+			{!! $databaseLogs->links() !!}
+		</div>
 	</div>
 
 	<div id="chat-list-history" class="modal fade" role="dialog">
@@ -53,6 +132,36 @@
                 <div class="modal-body">
                 	<div class="cls_log_popup">
                 		<table class="table">
+                		</table>
+                	</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div id="slow_loh_history_model" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Slow Log History</h4>
+                </div>
+                <div class="modal-body">
+                	<div class="cls_log_popup">
+                		<table class="table">
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Date</th>
+									<th>User Name</th>
+									<th>Type</th>
+								</tr>
+							</thead>
+							<tbody class="slow_loh_history_tbody">
+								
+							</tbody>
                 		</table>
                 	</div>
                 </div>
@@ -100,5 +209,44 @@
 	// 		});
 	// 	}
 	// });
+	$(document).on('click', '.history', function (e) {
+		
+		$.ajax({
+			url: BASE_URL+"/database-log/history",
+			method:"get",
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+				},
+			data:{},
+			cache: false,
+			success: function(data) {
+				$(".slow_loh_history_tbody").empty();
+				$.each(data.data, function(i,row){
+					$(".slow_loh_history_tbody").append("<tr><td>"+row['id']+"</td><td>"+row['created_at']+"</td><td>"+row['userName']+"</td><td>"+row['type']+"</td></tr>");
+				});
+				toastr['success'](data.message, 'success');
+			}
+		});
+	});
+	$(document).on('click', '.truncate', function (e) {
+		$.ajax({
+			url: BASE_URL + "/admin/database-log/truncate",
+			method: "get",
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			},
+			data: {},
+			cache: false,
+			success: function (data) {
+				console.log(data);
+				if(data.code == 200){
+					toastr['success'](data.message, 'success');
+					location.reload();
+				}else{
+					toastr['error'](data.message, 'error');
+				}
+			}
+		});
+	});
 </script> 
 @endsection

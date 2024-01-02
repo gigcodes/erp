@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -11,6 +12,7 @@ class ErpEvents extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="event_name",type="string")
      * @SWG\Property(property="event_description",type="integer")
      * @SWG\Property(property="start_date",type="datetime")
@@ -29,28 +31,25 @@ class ErpEvents extends Model
      * @SWG\Property(property="next_run_date",type="datetime")
      * @SWG\Property(property="is_closed",type="boolean")
      * @SWG\Property(property="created_by",type="integer")
-
      */
-
     protected $fillable = [
-        "event_name",
-        "event_description",
-        "start_date",
-        "end_date",
-        "type",
-        "brand_id",
-        "category_id",
-        "number_of_person",
-        "product_start_date",
-        "product_end_date",
-        "minute",
-        "hour",
-        "day_of_month",
-        "month",
-        "day_of_week",
-        "next_run_date",
-        "is_closed",
-        "created_by"
+        'event_name',
+        'event_description',
+        'start_date',
+        'end_date',
+        'type',
+        'brand_id',
+        'category_id',
+        'number_of_person',
+        'product_start_date',
+        'product_end_date',
+        'minute',
+        'hour',
+        'day_of_month',
+        'month',
+        'day_of_week',
+        'next_run_date',
+        'is_closed',
+        'created_by',
     ];
-
 }

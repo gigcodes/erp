@@ -39,10 +39,10 @@ class LeadQueueServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('leadqueue.php'),
+            __DIR__ . '/../Config/config.php' => config_path('leadqueue.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'leadqueue'
+            __DIR__ . '/../Config/config.php', 'leadqueue'
         );
     }
 
@@ -55,11 +55,11 @@ class LeadQueueServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/leadqueue');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/leadqueue';
@@ -78,7 +78,7 @@ class LeadQueueServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'leadqueue');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'leadqueue');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'leadqueue');
         }
     }
 

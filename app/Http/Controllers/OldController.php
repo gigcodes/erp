@@ -2,45 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Auth;
+use Mail;
 use App\Old;
 use Session;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Redirect;
-use View;
-use App\Issue;
-use App\OldCategory;
 use App\User;
-use App\ReplyCategory;
+use Response;
+use App\Email;
 use App\Helpers;
 use App\OldRemark;
-use Auth;
-use App\OldPayment;
-use Webklex\IMAP\Client;
-use App\Email;
+use App\OldStatus;
 use Carbon\Carbon;
-use Mail;
-use Response;
+use App\OldPayment;
+use App\OldCategory;
+use App\ReplyCategory;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseEmail;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Pagination\LengthAwarePaginator;
-
 
 class OldController extends Controller
 {
     /**
      * Defining scope of variable
      *
-     * @access protected
      *
-     * @var    array $old
+     * @var    array
      */
     protected $old;
 
     /**
      * Create a new controller instance.
      *
-     * @param mixed $old get old model
-     *
+     * @param  mixed  $old get old model
      * @return void
      */
     public function __construct(Old $old)
@@ -55,140 +51,142 @@ class OldController extends Controller
      */
     public function index(Request $request)
     {
-       if($request->type == 2){
-
-            if($request->term != null || $request->status != null){
-                if($request->status && $request->term){
-                $olds  =   Old::query()
+        if ($request->type == 2) {
+            if ($request->term != null || $request->status != null || $request->category != null) {
+                if ($request->status && $request->term && $request->category) {
+                    $olds = Old::query()
                         ->where('status', '=', $request->status)
                         ->orWhere('name', 'LIKE', "%{$request->term}%")
                         ->orWhere('description', 'LIKE', "%{$request->term}%")
                         ->orWhere('email', 'LIKE', "%{$request->term}%")
                         ->orWhereHas('category', function ($q) use ($request) {
-                        $q->where('category', 'like', "%{$request->term}%");
-                        })
-                        ->paginate(10);  
-                }
-
-                if($request->status){
-                    $olds  = Old::query()->where('status', '=', $request->status)->paginate(10);
-                }
-
-                if($request->term){
-                
-                $olds  = Old::query()
-                            ->where('name', 'LIKE', "%{$request->term}%")
-                            ->orWhere('description', 'LIKE', "%{$request->term}%")
-                            ->orWhere('email', 'LIKE', "%{$request->term}%")
-                            ->orWhereHas('category', function ($q) use ($request) {
                             $q->where('category', 'like', "%{$request->term}%");
-                            })
-                            ->paginate(10);         
+                        })
+                        ->orWhereHas('category', function ($q) use ($request) {
+                            $q->where('category', '=', $request->category);
+                        })
+                        ->paginate(10);
                 }
+
+                if ($request->category) {
+                    $olds = Old::query()
+                        ->whereHas('category', function ($q) use ($request) {
+                            $q->where('category', '=', $request->category);
+                        })
+                        ->paginate(10);
+                }
+
+                if ($request->status) {
+                    $olds = Old::query()->where('status', '=', $request->status)->paginate(10);
+                }
+
+                if ($request->term) {
+                    $olds = Old::query()
+                        ->where('name', 'LIKE', "%{$request->term}%")
+                        ->orWhere('description', 'LIKE', "%{$request->term}%")
+                        ->orWhere('email', 'LIKE', "%{$request->term}%")
+                        ->orWhereHas('category', function ($q) use ($request) {
+                            $q->where('category', 'like', "%{$request->term}%");
+                        })
+                        ->paginate(10);
+                }
+
                 $title = 'Old Info';
-                $type = '2';    
-            }else{
+                $type = '2';
+            } else {
                 $olds = Old::paginate(10);
                 $title = 'Old Info';
                 $type = '2';
             }
-
-       }elseif ($request->type == 0 && $request->type != null) {
-
-          if($request->term != null || $request->status != null){
-                if($request->status && $request->term){
-                $olds  =   Old::query()
+        } elseif ($request->type == 0 && $request->type != null) {
+            if ($request->term != null || $request->status != null) {
+                if ($request->status && $request->term) {
+                    $olds = Old::query()
                         ->where('status', '=', $request->status)
                         ->orWhere('name', 'LIKE', "%{$request->term}%")
                         ->orWhere('description', 'LIKE', "%{$request->term}%")
                         ->orWhere('email', 'LIKE', "%{$request->term}%")
                         ->orWhereHas('category', function ($q) use ($request) {
-                        $q->where('category', 'like', "%{$request->term}%");
-                        })
-                        ->where('is_payable',0)
-                        ->paginate(10);  
-                }
-
-                if($request->status){
-
-                    $olds  = Old::query()->where('status', '=', $request->status)->where('is_payable',0)->paginate(10);
-                }
-
-                if($request->term){
-                
-                $olds  = Old::query()
-                            ->where('name', 'LIKE', "%{$request->term}%")
-                            ->orWhere('description', 'LIKE', "%{$request->term}%")
-                            ->orWhere('email', 'LIKE', "%{$request->term}%")
-                            ->orWhereHas('category', function ($q) use ($request) {
                             $q->where('category', 'like', "%{$request->term}%");
-                            })
-                            ->where('is_payable',0)
-                            ->paginate(10);         
+                        })
+                        ->where('is_payable', 0)
+                        ->paginate(10);
                 }
-                   
-            }else{
-                $olds = Old::where('is_payable',0)->paginate(10);
+
+                if ($request->status) {
+                    $olds = Old::query()->where('status', '=', $request->status)->where('is_payable', 0)->paginate(10);
+                }
+
+                if ($request->term) {
+                    $olds = Old::query()
+                                ->where('name', 'LIKE', "%{$request->term}%")
+                                ->orWhere('description', 'LIKE', "%{$request->term}%")
+                                ->orWhere('email', 'LIKE', "%{$request->term}%")
+                                ->orWhereHas('category', function ($q) use ($request) {
+                                    $q->where('category', 'like', "%{$request->term}%");
+                                })
+                                ->where('is_payable', 0)
+                                ->paginate(10);
+                }
+            } else {
+                $olds = Old::where('is_payable', 0)->paginate(10);
             }
             $title = 'Old Incoming Info';
             $type = 0;
-       }elseif ($request->type == 1 && $request->type != null) {
-          if($request->term != null || $request->status != null){
-                if($request->status && $request->term){
-                $olds  =   Old::query()
+        } elseif ($request->type == 1 && $request->type != null) {
+            if ($request->term != null || $request->status != null) {
+                if ($request->status && $request->term) {
+                    $olds = Old::query()
                         ->where('status', '=', $request->status)
                         ->orWhere('name', 'LIKE', "%{$request->term}%")
                         ->orWhere('description', 'LIKE', "%{$request->term}%")
                         ->orWhere('email', 'LIKE', "%{$request->term}%")
                         ->orWhereHas('category', function ($q) use ($request) {
-                        $q->where('category', 'like', "%{$request->term}%");
-                        })
-                        ->where('is_payable',1)
-                        ->paginate(10);  
-                }
-
-                if($request->status){
-                    $olds  = Old::query()->where('status', '=', $request->status)->where('is_payable',1)->paginate(10);
-                }
-
-                if($request->term){
-                
-                $olds  = Old::query()
-                            ->where('name', 'LIKE', "%{$request->term}%")
-                            ->orWhere('description', 'LIKE', "%{$request->term}%")
-                            ->orWhere('email', 'LIKE', "%{$request->term}%")
-                            ->orWhereHas('category', function ($q) use ($request) {
                             $q->where('category', 'like', "%{$request->term}%");
-                            })
-                            ->where('is_payable',1)
-                            ->paginate(10);         
+                        })
+                        ->where('is_payable', 1)
+                        ->paginate(10);
                 }
-                   
-            }else{
-                $olds = Old::where('is_payable',1)->paginate(10);
+
+                if ($request->status) {
+                    $olds = Old::query()->where('status', '=', $request->status)->where('is_payable', 1)->paginate(10);
+                }
+
+                if ($request->term) {
+                    $olds = Old::query()
+                                ->where('name', 'LIKE', "%{$request->term}%")
+                                ->orWhere('description', 'LIKE', "%{$request->term}%")
+                                ->orWhere('email', 'LIKE', "%{$request->term}%")
+                                ->orWhereHas('category', function ($q) use ($request) {
+                                    $q->where('category', 'like', "%{$request->term}%");
+                                })
+                                ->where('is_payable', 1)
+                                ->paginate(10);
+                }
+            } else {
+                $olds = Old::where('is_payable', 1)->paginate(10);
             }
             $title = 'Old Outgoing Info';
             $type = 1;
-       }else{
+        } else {
             $olds = Old::paginate(10);
             $title = 'Old Info';
             $type = '2';
-       }
+        }
 
-      $old_categories = OldCategory::all();
-      $users = User::all();
-      $status = $this->old->getStatus();
-       
-      return view('old.index', [
-        'olds' => $olds,
-        'old_categories' => $old_categories,
-        'users' => $users,
-        'title' => $title,
-        'type' => $type,
-        'status' => $status,
-      ]);
+        $old_categories = OldCategory::all();
+        $users = User::all();
+        $status = $this->old->getStatus();
+
+        return view('old.index', [
+            'olds' => $olds,
+            'old_categories' => $old_categories,
+            'users' => $users,
+            'title' => $title,
+            'type' => $type,
+            'status' => $status,
+        ]);
     }
-    
 
     /**
      * Show the form for creating a new resource.
@@ -197,53 +195,53 @@ class OldController extends Controller
      */
     public function create()
     {
-       //
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-       $this->validate($request, [
-            'name' => 'required|string|max:255',
-            'category_id' => 'required',
-            'phone' => 'required',
-            'email' => 'required',
-            'pending_payment' => 'required',
-            'status' => 'required',
-        ]);
+//       $this->validate($request, [
+//             'name' => 'required|string|max:255',
+//             'category_id' => 'required',
+//             'phone' => 'required',
+//             'email' => 'required',
+//             'pending_payment' => 'required',
+//             'status' => 'required',
+//        ]);
 
         $new = new Old();
-        $new->name = $request->name;
-        $new->description = $request->description;
-        if($request->amount == null){
-          $new->amount = 0;
-        }else{
-          $new->amount = $request->amount;
+        $new->name = $request->name ?? '';
+        $new->description = $request->description ?? '';
+        if ($request->amount == null) {
+            $new->amount = 0;
+        } else {
+            $new->amount = $request->amount;
         }
-        
-        $new->email = $request->email;
-        $new->number = $request->number;
-        $new->address = $request->address;
-        $new->phone = $request->phone;
-        $new->gst = $request->gst;
-        $new->amount = $request->amount;
-        $new->account_name = $request->account_name;
-        $new->account_number = $request->account_number;
-        $new->account_iban = $request->account_iban;
-        $new->account_swift = $request->account_swift;
+
+        $new->email = $request->email ?? '';
+        $new->number = $request->number ?? '';
+        $new->address = $request->address ?? '';
+        $new->phone = $request->phone ?? '';
+        $new->gst = $request->gst ?? '';
+        $new->amount = $request->amount ?? '';
+        $new->account_name = $request->account_name ?? '';
+        $new->account_number = $request->account_number ?? '';
+        $new->account_iban = $request->account_iban ?? '';
+        $new->account_swift = $request->account_swift ?? '';
         $new->category_id = $request->category_id;
-        $new->pending_payment = $request->pending_payment;
-        $new->currency = $request->currency;
-        $new->is_payable = $request->is_payable;
-        $new->status = $request->status;
+        $new->pending_payment = $request->pending_payment ?? '';
+        $new->currency = $request->currency ?? '';
+        $new->is_payable = $request->is_payable ?? '';
+        $new->status = $request->status ?? '';
         $new->save();
 
         Session::flash('success', 'Record Created');
+
         return Redirect::back();
     }
 
@@ -255,21 +253,21 @@ class OldController extends Controller
      */
     public function show($id)
     {
-      $old = Old::find($id);
-      $old_categories = OldCategory::all();
-      $old_show = true;
-      $emails = [];
-      $reply_categories = ReplyCategory::all();
-      $users_array = Helpers::getUserArray(User::all());
+        $old = Old::find($id);
+        $old_categories = OldCategory::all();
+        $old_show = true;
+        $emails = [];
+        $reply_categories = ReplyCategory::all();
+        $users_array = Helpers::getUserArray(User::all());
 
-      return view('old.show', [
-        'old'  => $old,
-        'old_categories'  => $old_categories,
-        'old_show'  => $old_show,
-        'reply_categories'  => $reply_categories,
-        'users_array'  => $users_array,
-        'emails' => $emails,
-      ]);
+        return view('old.show', [
+            'old' => $old,
+            'old_categories' => $old_categories,
+            'old_show' => $old_show,
+            'reply_categories' => $reply_categories,
+            'users_array' => $users_array,
+            'emails' => $emails,
+        ]);
     }
 
     /**
@@ -279,31 +277,30 @@ class OldController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($serial_no)
-    {        
+    {
         $old = $this->old::where('serial_no', $serial_no)->first();
         $status = $this->old->getStatus();
+
         return view('old.edit', compact('status', 'old'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $serial_no)
     {
-      
         $new = Old::findorfail($serial_no);
         $new->name = $request->name;
         $new->description = $request->description;
-        if($request->amount == null){
-          $new->amount = 0;
-        }else{
-          $new->amount = $request->amount;
+        if ($request->amount == null) {
+            $new->amount = 0;
+        } else {
+            $new->amount = $request->amount;
         }
-        
+
         $new->email = $request->email;
         $new->number = $request->number;
         $new->address = $request->address;
@@ -319,12 +316,14 @@ class OldController extends Controller
         $new->update();
 
         Session::flash('success', 'Record Updated');
+
         return redirect('old');
     }
 
     /**
      * Remove the specified resource from storage.
      * Destroy Old Issues
+     *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -332,18 +331,18 @@ class OldController extends Controller
     {
         $old = Old::find($id);
         $old->delete();
-        // Delete Relation    
-        OldRemark::where('old_id',$id)->delete();
-        OldPayment::where('old_id',$id)->delete();
+        // Delete Relation
+        OldRemark::where('old_id', $id)->delete();
+        OldPayment::where('old_id', $id)->delete();
 
-      return redirect()->route('old.index')->withSuccess('You have successfully deleted a old vendor');
+        return redirect()->route('old.index')->withSuccess('You have successfully deleted a old vendor');
     }
 
     //Twilio Block
-    public function block(Request $request){
-
+    public function block(Request $request)
+    {
         $old = Old::find($request->old_id);
-        
+
         if ($old->is_blocked == 0) {
             $old->is_blocked = 1;
         } else {
@@ -354,23 +353,37 @@ class OldController extends Controller
 
         return response()->json(['is_blocked' => $old->is_blocked]);
     }
-    
+
     //Create Category
     public function createCategory(Request $request)
     {
         $this->validate($request, [
-        'category' => 'required|string'
-      ]);
+            'category' => 'required|string',
+        ]);
 
-      $data = $request->except('_token');
+        $data = $request->except('_token');
 
-      OldCategory::create($data);
+        OldCategory::create($data);
 
-      return redirect()->route('old.index')->withSuccess('You have successfully created a old category!');
+        return redirect()->route('old.index')->withSuccess('You have successfully created a old category!');
+    }
+
+    // create status
+    public function createStatus(Request $request)
+    {
+        $this->validate($request, [
+            'status' => 'required|string|unique:old_status',
+        ]);
+
+        $data = $request->except('_token');
+
+        OldStatus::create($data);
+
+        return redirect()->route('old.index')->withSuccess('You have successfully created a old status!');
     }
 
     //Get Remark
-     public function getTaskRemark(Request $request)
+    public function getTaskRemark(Request $request)
     {
         $id = $request->input('id');
 
@@ -383,17 +396,15 @@ class OldController extends Controller
     public function addRemark(Request $request)
     {
         $remark = OldRemark::create([
-                'old_id' => $request->id,
-                'remark' => $request->remark,
-                'user_name' => $request->user_name ? $request->user_name : Auth::user()->name
-            ]);
-        
+            'old_id' => $request->id,
+            'remark' => $request->remark,
+            'user_name' => $request->user_name ? $request->user_name : Auth::user()->name,
+        ]);
 
         return response()->json(['remark' => $remark], 200);
-
     }
 
-    //Send Email 
+    //Send Email
     public function sendEmail(Request $request)
     {
         $this->validate($request, [
@@ -401,7 +412,7 @@ class OldController extends Controller
             'message' => 'required',
             'email.*' => 'required|email',
             'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email'
+            'bcc.*' => 'nullable|email',
         ]);
 
         $old = Old::find($request->old_id);
@@ -413,7 +424,7 @@ class OldController extends Controller
                 foreach ($request->file('file') as $file) {
                     $filename = $file->getClientOriginalName();
 
-                    $file->storeAs("documents", $filename, 'files');
+                    $file->storeAs('documents', $filename, 'files');
 
                     $file_paths[] = "documents/$filename";
                 }
@@ -429,7 +440,7 @@ class OldController extends Controller
                 $bcc = array_values(array_filter($request->bcc));
             }
 
-            if (is_array($emails) && !empty($emails)) {
+            if (is_array($emails) && ! empty($emails)) {
                 $to = array_shift($emails);
                 $cc = array_merge($emails, $cc);
 
@@ -458,23 +469,23 @@ class OldController extends Controller
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
                 'cc' => $cc ?: null,
-                'bcc' => $bcc ?: null
+                'bcc' => $bcc ?: null,
             ];
 
             Email::create($params);
 
             return redirect()->route('old.show', $old->serial_no)->withSuccess('You have successfully sent an email!');
-
         }
     }
-    // Send Bulk Email 
+
+    // Send Bulk Email
     public function sendEmailBulk(Request $request)
     {
         $this->validate($request, [
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
             'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email'
+            'bcc.*' => 'nullable|email',
         ]);
 
         if ($request->olds) {
@@ -505,7 +516,7 @@ class OldController extends Controller
             foreach ($request->file('file') as $file) {
                 $filename = $file->getClientOriginalName();
 
-                $file->storeAs("documents", $filename, 'files');
+                $file->storeAs('documents', $filename, 'files');
 
                 $file_paths[] = "documents/$filename";
             }
@@ -532,17 +543,17 @@ class OldController extends Controller
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
 
             $params = [
-                'model_id'        => $old->serial_no,
-                'model_type'      => Old::class,
-                'from'            => 'buying@amourint.com',
-                'seen'            => 1,
-                'to'              => $old->email,
-                'subject'         => $request->subject,
-                'message'         => $request->message,
-                'template'      => 'customer-simple',
-                'additional_data'   => json_encode(['attachment' => $file_paths]),
-                'cc'              => $cc ?: null,
-                'bcc'             => $bcc ?: null,
+                'model_id' => $old->serial_no,
+                'model_type' => Old::class,
+                'from' => 'buying@amourint.com',
+                'seen' => 1,
+                'to' => $old->email,
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'template' => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'cc' => $cc ?: null,
+                'bcc' => $bcc ?: null,
             ];
 
             Email::create($params);
@@ -552,16 +563,17 @@ class OldController extends Controller
     }
 
     //Recieve Email
-    public function emailInbox(Request $request){
-        
-        $imap = new Client([
-            'host'          => 'mail.myinteriormart.com',
-            'port'          => 143,
-            'encryption'    => 'tls',
+    public function emailInbox(Request $request)
+    {
+        $cm = new ClientManager();
+        $imap = $cm->make([
+            'host' => 'mail.myinteriormart.com',
+            'port' => 143,
+            'encryption' => 'tls',
             'validate_cert' => false,
-            'username'      => 'suggestion@myinteriormart.com',
-            'password'      => 'FIVEthousand',
-            'protocol'      => 'imap'
+            'username' => 'suggestion@myinteriormart.com',
+            'password' => 'FIVEthousand',
+            'protocol' => 'imap',
         ]);
 
         $imap->connect();
@@ -580,7 +592,7 @@ class OldController extends Controller
 
         $inbox = $imap->getFolder($inbox_name);
 
-        $latest_email = Email::where('type', $type)->where('model_id', $old->serial_no)->where('model_type', 'App\Old')->latest()->first();
+        $latest_email = Email::where('type', $type)->where('model_id', $old->serial_no)->where('model_type', \App\Old::class)->latest()->first();
 
         $latest_email_date = $latest_email
             ? Carbon::parse($latest_email->created_at)
@@ -592,18 +604,15 @@ class OldController extends Controller
             $emails = $inbox->messages()->where($direction, $old->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
             $emails = $emails->leaveUnread()->get();
             $this->createEmailsForEmailInbox($old, $type, $latest_email_date, $emails);
-            
-        }
-        else if($oldAgentsCount == 1) {
+        } elseif ($oldAgentsCount == 1) {
             $emails = $inbox->messages()->where($direction, $old->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
             $emails = $emails->leaveUnread()->get();
             $this->createEmailsForEmailInbox($old, $type, $latest_email_date, $emails);
-        }
-        else {
+        } else {
             foreach ($old->agents as $key => $agent) {
                 if ($key == 0) {
                     $emails = $inbox->messages()->where($direction, $agent->email)->where([
-                        ['SINCE', $latest_email_date->format('d M y H:i')]
+                        ['SINCE', $latest_email_date->format('d M y H:i')],
                     ]);
                     $emails = $emails->leaveUnread()->get();
                     $this->createEmailsForEmailInbox($old, $type, $latest_email_date, $emails);
@@ -617,8 +626,9 @@ class OldController extends Controller
         }
 
         $db_emails = $old->emails()->with('model')->where('type', $type)->get();
-            
-        $emails_array = []; $count = 0;
+
+        $emails_array = [];
+        $count = 0;
         foreach ($db_emails as $key2 => $email) {
             $dateCreated = $email->created_at->format('D, d M Y');
             $timeCreated = $email->created_at->format('H:i');
@@ -644,7 +654,7 @@ class OldController extends Controller
             $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
         }
 
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
+        $emails_array = array_values(Arr::sort($emails_array, function ($value) {
             return $value['date'];
         }));
 
@@ -654,14 +664,14 @@ class OldController extends Controller
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
         $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
-            
+
         $view = view('old.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
 
         return response()->json(['emails' => $view]);
     }
 
-    //Save Recieved Email 
-     private function createEmailsForEmailInbox($old, $type, $latest_email_date, $emails)
+    //Save Recieved Email
+    private function createEmailsForEmailInbox($old, $type, $latest_email_date, $emails)
     {
         foreach ($emails as $email) {
             $content = $email->hasHTMLBody() ? $email->getHTMLBody() : $email->getTextBody();
@@ -672,22 +682,22 @@ class OldController extends Controller
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                    $path = "email-attachments/" . $attachment->name;
+                    $path = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 
                 $params = [
-                    'model_id'        => $old->serial_no,
-                    'model_type'      => Old::class,
-                    'type'            => $type,
-                    'seen'            => $email->getFlags()['seen'],
-                    'from'            => $email->getFrom()[0]->mail,
-                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                    'subject'         => $email->getSubject(),
-                    'message'         => $content,
-                    'template'        => 'customer-simple',
+                    'model_id' => $old->serial_no,
+                    'model_type' => Old::class,
+                    'type' => $type,
+                    'seen' => $email->getFlags()['seen'],
+                    'from' => $email->getFrom()[0]->mail,
+                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                    'subject' => $email->getSubject(),
+                    'message' => $content,
+                    'template' => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $attachments_array]),
-                    'created_at'      => $email->getDate()
+                    'created_at' => $email->getDate(),
                 ];
 
                 Email::create($params);
@@ -696,7 +706,7 @@ class OldController extends Controller
     }
 
     // Payment Index
-     public function paymentindex($id)
+    public function paymentindex($id)
     {
         $old = Old::findorfail($id);
         $payments = $old->payments()->orderBy('payment_date')->paginate(50);
@@ -707,7 +717,6 @@ class OldController extends Controller
             'currencies' => Helpers::currencies(),
         ]);
     }
-
 
     // Payment Store
     public function paymentStore(Old $old, Request $request)
@@ -725,12 +734,12 @@ class OldController extends Controller
                 $status = 1;
             }
 
-            //Check if amount is equal to total paid amount 
+            //Check if amount is equal to total paid amount
             //if yes make it paid
             //If no update the payment in the Old module
-            if($request->payable_amount < $old->paid_amount){
-                    return redirect()->back()->withErrors('Payable amount is greater then Paid amount');
-                }
+            if ($request->payable_amount < $old->paid_amount) {
+                return redirect()->back()->withErrors('Payable amount is greater then Paid amount');
+            }
 
             $vendor_payment = $old->payments()->create([
                 'service_provided' => $request->get('service_provided'),
@@ -745,36 +754,39 @@ class OldController extends Controller
                 'status' => $status,
             ]);
 
-            if($vendor_payment != null){
-                if($old->pending_payment == $request->paid_amount){
-                  $old->status = 'paid';
-                  $old->pending_payment = ($old->pending_payment - $request->paid_amount);
-                  $old->update();  
-                  return redirect()->back()->withSuccess('Payment completed!');
+            if ($vendor_payment != null) {
+                if ($old->pending_payment == $request->paid_amount) {
+                    $old->status = 'paid';
+                    $old->pending_payment = ($old->pending_payment - $request->paid_amount);
+                    $old->update();
+
+                    return redirect()->back()->withSuccess('Payment completed!');
                 }
-                
-                if($request->paid_amount != null){
-                  $old->pending_payment =($old->pending_payment - $request->paid_amount);
-                  $old->update();
-                  return redirect()->back()->withSuccess('You have successfully added a old vendor payment!');
+
+                if ($request->paid_amount != null) {
+                    $old->pending_payment = ($old->pending_payment - $request->paid_amount);
+                    $old->update();
+
+                    return redirect()->back()->withSuccess('You have successfully added a old vendor payment!');
                 }
             }
-           
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t store old vendor payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully added a old vendor payment!');
     }
 
     //Destroy Payment
     public function paymentDestroy(Old $old, OldPayment $old_payment)
     {
-      $payment = $old->payments()->where('id', $old_payment->id)->firstOrFail();
+        $payment = $old->payments()->where('id', $old_payment->id)->firstOrFail();
         try {
             $payment->delete();
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t delete vendor payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully deleted vendor payment!');
     }
 
@@ -783,15 +795,10 @@ class OldController extends Controller
         $old = Old::findorfail($request->id);
         $old->status = $request->value;
         $old->save();
-        return Response::json(array(
-          'success' => true,
-          'data'   => $old
-        )); 
+
+        return Response::json([
+            'success' => true,
+            'data' => $old,
+        ]);
     }
-
-   
-
-
-
-   
 }

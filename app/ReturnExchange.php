@@ -1,17 +1,19 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\ReturnExchangeHistory;
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class ReturnExchange extends Model
 {
-     /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="reason_for_refund",type="string")
@@ -32,8 +34,11 @@ class ReturnExchange extends Model
      * @SWG\Property(property="est_completion_date",type="datetime")
      */
     use Mediable;
+
     use SoftDeletes;
+
     protected $fillable = [
+        'id',
         'customer_id',
         'type',
         'reason_for_refund',
@@ -53,9 +58,9 @@ class ReturnExchange extends Model
         'credited',
         'est_completion_date',
         'send_email',
-        'website_id'
+        'website_id',
     ];
-    
+
     const STATUS = [
         1 => 'Return request received from customer',
         2 => 'Return request sent to courier',
@@ -64,47 +69,47 @@ class ReturnExchange extends Model
         5 => 'Return accepted',
         6 => 'Return rejected',
     ];
-    
+
+    const ORDER_EXCHANGE_STATUS_TEMPLATE = 'Greetings from Solo Luxury Ref: Exchange number #{id} we have updated your Exchange with status : #{status}.';
+
     public function notifyToUser()
     {
-        if ($this->type == "refund") {
+        if ($this->type == 'refund') {
             // notify message we need to add here
         }
     }
 
     public function returnExchangeProducts()
     {
-        return $this->hasMany(\App\ReturnExchangeProduct::class, "return_exchange_id", "id");
+        return $this->hasMany(\App\ReturnExchangeProduct::class, 'return_exchange_id', 'id');
     }
 
     public function returnExchangeHistory()
     {
-        return $this->hasMany(\App\ReturnExchangeHistory::class, "return_exchange_id", "id");
+        return $this->hasMany(\App\ReturnExchangeHistory::class, 'return_exchange_id', 'id');
     }
-    
+
     public function returnExchangeStatus()
     {
-        return $this->hasOne(\App\ReturnExchangeStatus::class, "id", "status");
+        return $this->hasOne(\App\ReturnExchangeStatus::class, 'id', 'status');
     }
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     /**
      * Update return exchange history
-     *
      */
-
     public function updateHistory()
     {
         ReturnExchangeHistory::create([
-            "return_exchange_id" => $this->id,
-            "status_id"          => $this->status,
-            "user_id"            => \Auth::user()->id,
-            "comment"            => $this->remarks,
-            "history_type"       => 'status'
+            'return_exchange_id' => $this->id,
+            'status_id' => $this->status,
+            'user_id' => \Auth::user()->id,
+            'comment' => $this->remarks,
+            'history_type' => 'status',
         ]);
 
         return true;
@@ -114,5 +119,4 @@ class ReturnExchange extends Model
     {
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
-
 }

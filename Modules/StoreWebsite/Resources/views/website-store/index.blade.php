@@ -23,6 +23,9 @@
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action" data-toggle="modal" data-target="#colorCreateModal">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
+					<button style="display: inline-block;" class="btn btn-secondary btn-delete-group m-2" >
+						Delete Multiple Website
+					</button>
 				 </div>
 		    </div>
 		    <div class="col">
@@ -32,7 +35,7 @@
 					  		<div class="col">
 					  			<div class="form-group">
 								    <label for="keyword">Website:</label>
-								    <?php echo Form::select("website_id",["" => "-- select website --"] + $websites,request('website_id'), ["class" => "form-control"]); ?>
+								    <?php echo Form::select("website_id",["" => "-- select website --"] + $websites,request('website_id'), ["class" => "form-control select2-vendor"]); ?>
 							  	</div>
 					  			<div class="form-group">
 								    <label for="keyword">Keyword:</label>

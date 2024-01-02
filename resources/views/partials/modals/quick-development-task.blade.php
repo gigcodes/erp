@@ -34,7 +34,10 @@
           <div class="form-group">
             <strong>Module:</strong>
             @php
-              $quick_tasks_modules = \App\DeveloperModule::all();
+              $quick_tasks_modules = Illuminate\Support\Facades\Cache::remember('DeveloperModule::all', 60 * 60 * 24 * 1, function(){
+                                return \App\DeveloperModule::all();
+                                });
+
             @endphp
             <select class="form-control" name="module_id" >
               <option value>Select a Module</option>

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -10,13 +11,14 @@ class ListingHistory extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="content",type="integer")
      */
     protected $casts = [
-        'content' => 'array'
+        'content' => 'array',
     ];
 
-    public static function createNewListing( $userId = NULL, $productId = NULL, $content = [], $action = NULL )
+    public static function createNewListing($userId = null, $productId = null, $content = [], $action = null)
     {
         // Create new activity for listing history
         $listingHistory = new ListingHistory();
@@ -24,11 +26,12 @@ class ListingHistory extends Model
         $listingHistory->product_id = $productId;
         $listingHistory->content = $content;
         $listingHistory->action = $action;
+
         return $listingHistory->save();
     }
 
     public function user()
     {
-        return $this->belongsTo( User::class );
+        return $this->belongsTo(User::class);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\BuildProcessHistory;
+use Illuminate\Console\Command;
 
 class BuildStatus extends Command
 {
@@ -38,18 +38,19 @@ class BuildStatus extends Command
      */
     public function handle()
     {
-		//$buildHistory = BuildProcessHistory::where('status', 'running')->get();
-		$buildHistory = BuildProcessHistory::all();
-		 $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080'); 
-                   
-		foreach($buildHistory as $history) {
-			$job = $jenkins->getJob($history['build_name']);
-			foreach ($job->getBuilds() as $build) {
-			  $number = $build->getNumber();var_dump($number);
-			  $result = $build->getResult();var_dump($result); 
-			  BuildProcessHistory::where('build_name', $history['build_name'])->where('build_number', $number)->update(['status'=>strtolower($result)]);
-			}
-		}
-        
+        //$buildHistory = BuildProcessHistory::where('status', 'running')->get();
+        $buildHistory = BuildProcessHistory::all();
+        $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
+
+        foreach ($buildHistory as $history) {
+            $job = $jenkins->getJob($history['build_name']);
+            foreach ($job->getBuilds() as $build) {
+                $number = $build->getNumber();
+                var_dump($number);
+                $result = $build->getResult();
+                var_dump($result);
+                BuildProcessHistory::where('build_name', $history['build_name'])->where('build_number', $number)->update(['status' => strtolower($result)]);
+            }
+        }
     }
 }

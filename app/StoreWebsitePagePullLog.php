@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsitePagePullLog extends Model
 {
-	 protected $table = "store_website_page_pull_logs";
-     protected $fillable = [
+    protected $table = 'store_website_page_pull_logs';
+
+    protected $fillable = [
         'title',
         'meta_title',
         'meta_keywords',
@@ -19,6 +20,6 @@ class StoreWebsitePagePullLog extends Model
         'platform_id',
         'page_id',
         'store_website_id',
-		'response_type'
+        'response_type',
     ];
 }

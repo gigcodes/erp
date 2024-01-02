@@ -7,7 +7,7 @@
                 <h4 class="modal-title">Send Customer Message</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="{{action('WhatsAppController@sendMessage', 'quicksell_group')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'quicksell_group')}}" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <input type="hidden" name="status" value="2">
                     <div class="form-group">

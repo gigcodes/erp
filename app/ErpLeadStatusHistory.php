@@ -10,6 +10,6 @@ class ErpLeadStatusHistory extends Model
         'lead_id',
         'old_status',
         'new_status',
-        'user_id'
+        'user_id',
     ];
 }

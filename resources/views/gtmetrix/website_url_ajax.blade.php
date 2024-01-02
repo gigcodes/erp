@@ -27,6 +27,7 @@
 		</td>
 		<td>  
 			<a id="delete-url" href="javascript:void(0)" data-value="{{ $key->id }}">Delete</a>
+			<a id="run-current-url" href="javascript:void(0)" data-value="{{ $key->id }}">Run Current Page</a>
 		</td>
 	</tr>
 @endforeach

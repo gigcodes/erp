@@ -56,7 +56,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::select("merge_status",\App\SiteDevelopmentStatus::pluck("name","id")->toArray(),null,["class" => "form-control select2-site-status merge-status"]); ?>
+					         	<?php echo Form::select('merge_status', \App\SiteDevelopmentStatus::pluck('name', 'id')->toArray(), null, ['class' => 'form-control select2-site-status merge-status']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">

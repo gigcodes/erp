@@ -221,7 +221,7 @@
                                 @endif
                             </td>
                             
-                            <td>{{ str_limit( $supplier->status, '7', '..') }}</td>
+                            <td>{{ Str::limit( $supplier->status, '7', '..') }}</td>
                             
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td>{{ !empty($data->total) ? $data->total : '' }}</td>

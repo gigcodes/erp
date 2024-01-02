@@ -12,97 +12,98 @@ class Backlink extends Model
      * @var array
      */
     protected $fillable = [
-        'store_website_id', 'tool_id', 'database','backlinks_overview','backlinks','tld_distribution','anchors','indexed_pages','competitors','comparison_by_referring_domains','batch_comparison','authority_score_profile','categories_profile','categories','historical_data'
+        'store_website_id', 'tool_id', 'database', 'backlinks_overview', 'backlinks', 'tld_distribution', 'anchors', 'indexed_pages', 'competitors', 'comparison_by_referring_domains', 'batch_comparison', 'authority_score_profile', 'categories_profile', 'categories', 'historical_data',
     ];
 
-    public function backlinkSemrushApis($domain, $db, $column=null) {
+    public function backlinkSemrushApis($domain, $db, $column = null)
+    {
         $key = env('KEY');
         $apis = [
-            'backlinks_overview'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_overview&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
-            
-            'backlinks'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks&target=searchenginejournal.com&target_type=root_domain&export_columns=page_ascore,source_title,source_url,target_url,anchor,external_num,internal_num,first_seen,last_seen&display_limit=5', 
-            
-            'tld_distribution'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_tld&target=searchenginejournal.com&target_type=root_domain&export_columns=zone,domains_num,backlinks_num&display_limit=5', 
-            
-            'anchors'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_anchors&target=searchenginejournal.com&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5', 
-            
-            'indexed_pages'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_pages&target=searchenginejournal.com&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5', 
-            
-            'competitors'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_competitors&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,neighbour,similarity,common_refdomains,domains_num,backlinks_num&display_limit=5', 
+            'backlinks_overview' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_overview&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,total,domains_num,urls_num,ips_num,ipclassc_num,follows_num,nofollows_num,sponsored_num,ugc_num,texts_num,images_num,forms_num,frames_num',
+
+            'backlinks' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks&target=searchenginejournal.com&target_type=root_domain&export_columns=page_ascore,source_title,source_url,target_url,anchor,external_num,internal_num,first_seen,last_seen&display_limit=5',
+
+            'tld_distribution' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_tld&target=searchenginejournal.com&target_type=root_domain&export_columns=zone,domains_num,backlinks_num&display_limit=5',
+
+            'anchors' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_anchors&target=searchenginejournal.com&target_type=root_domain&export_columns=anchor,domains_num,backlinks_num,first_seen,last_seen&display_limit=5',
+
+            'indexed_pages' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_pages&target=searchenginejournal.com&target_type=root_domain&export_columns=source_url,source_title,response_code,backlinks_num,domains_num,last_seen,external_num,internal_num&display_sort=domains_num_desc&display_limit=5',
+
+            'competitors' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_competitors&target=searchenginejournal.com&target_type=root_domain&export_columns=ascore,neighbour,similarity,common_refdomains,domains_num,backlinks_num&display_limit=5',
             //doubt
-            'comparison_by_referring_domains'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_matrix&targets[]=searchenginejournal.com&targets[]=searchengineland.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=domain,domain_ascore,matches_num,backlinks_num&display_limit=5',
-            
-            
-            'batch_comparison'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_comparison&targets[]=ebay.com&targets[]=amazon.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=target,target_type,ascore,backlinks_num,domains_num,ips_num,follows_num,nofollows_num,texts_num,images_num,forms_num,frames_num',
-            
-            'authority_score_profile'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_ascore_profile&target=searchenginejournal.com&target_type=root_domain', 
-            
-            'categories_profile'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_categories_profile&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating&display_limit=5', 
-            
-            'categories'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_categories&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating',
-            
-            'historical_data'=>'https://api.semrush.com/analytics/v1/?key='.$key.'&type=backlinks_historical&target=searchenginejournal.com&target_type=root_domain&export_columns=date,backlinks_num,domains_num&display_limit=5'
+            'comparison_by_referring_domains' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_matrix&targets[]=searchenginejournal.com&targets[]=searchengineland.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=domain,domain_ascore,matches_num,backlinks_num&display_limit=5',
+
+            'batch_comparison' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_comparison&targets[]=ebay.com&targets[]=amazon.com&target_types[]=root_domain&target_types[]=root_domain&export_columns=target,target_type,ascore,backlinks_num,domains_num,ips_num,follows_num,nofollows_num,texts_num,images_num,forms_num,frames_num',
+
+            'authority_score_profile' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_ascore_profile&target=searchenginejournal.com&target_type=root_domain',
+
+            'categories_profile' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_categories_profile&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating&display_limit=5',
+
+            'categories' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_categories&target=searchenginejournal.com&target_type=root_domain&export_columns=category_name,rating',
+
+            'historical_data' => 'https://api.semrush.com/analytics/v1/?key=' . $key . '&type=backlinks_historical&target=searchenginejournal.com&target_type=root_domain&export_columns=date,backlinks_num,domains_num&display_limit=5',
         ];
-        
-        if($column == null) {
+
+        if ($column == null) {
             return $apis;
         } else {
             return $apis[$column];
         }
     }
 
-    public function backlinkSemrushResponse($column) {
+    public function backlinkSemrushResponse($column)
+    {
         $apisResponse = [
-            'backlinks_overview'=>'ascore;total;domains_num;urls_num;ips_num;ipclassc_num;follows_num;nofollows_num;sponsored_num;ugc_num;texts_num;images_num;forms_num;frames_num
+            'backlinks_overview' => 'ascore;total;domains_num;urls_num;ips_num;ipclassc_num;follows_num;nofollows_num;sponsored_num;ugc_num;texts_num;images_num;forms_num;frames_num
 74;22063983;49145;13059030;47793;22956;20457307;1606307;258;1475;21784602;278624;437;320',
-            
-            'backlinks'=>'page_ascore;source_title;source_url;target_url;anchor;external_num;internal_num;first_seen;last_seen
+
+            'backlinks' => 'page_ascore;source_title;source_url;target_url;anchor;external_num;internal_num;first_seen;last_seen
 88;ChevyBike.com is available at DomainMarket.com. Call 888-694-6735;https://www.domainmarket.com/buynow/chevybike.com;http://www.searchenginejournal.com/how-your-domain-name-will-impact-seo-social-media-marketing;Search Engine Journal;18;41;1560106298;1566808385
 87;Colorlib - How To Start A Blog From Scratch Using WordPress;https://colorlib.com/;https://www.searchenginejournal.com/how-your-domain-name-will-impact-seo-social-media-marketing/;a significant impact;22;30;1454645248;1580401052
 86;Blogging Fusion - Blog Directory - Article Directory - RSS Directory - Web Directory;https://www.bloggingfusion.com/;https://www.searchenginejournal.com/;Search Engine Journal;49;425;1496340118;1575940029
 85;SEO Hacker on Flipboard by Sean Si | Google Lens, WordPress, DuckDuckGo;https://flipboard.com/@seansi/seo-hacker-2leifaa4z;https://www.searchenginejournal.com/wordpress-hackers-are-using-vulnerable-plugins-to-gain-access-to-sites/324171/;searchenginejournal.com - Matt Southern;27;114;1567808179;1572994828
-84;Link exchange;https://www.backlinks-exchange.net/;https://www.searchenginejournal.com/ultimate-guide/321125/;The Ultimate Guide to Creating a True ‘Ultimate Guide’ - Search Engine Journal;52;287;1567704395;1571725665', 
-            
-            'tld_distribution'=>'zone;domains_num;backlinks_num
+84;Link exchange;https://www.backlinks-exchange.net/;https://www.searchenginejournal.com/ultimate-guide/321125/;The Ultimate Guide to Creating a True ‘Ultimate Guide’ - Search Engine Journal;52;287;1567704395;1571725665',
+
+            'tld_distribution' => 'zone;domains_num;backlinks_num
 com;27755;11645051
 net;1894;1684571
 org;1486;800180
 uk;1267;22572
-au;645;9531', 
-            
-            'anchors'=>'anchor;domains_num;backlinks_num;first_seen;last_seen
+au;645;9531',
+
+            'anchors' => 'anchor;domains_num;backlinks_num;first_seen;last_seen
 search engine journal;8113;691263;1370650463;1580411804
 93% of people;3;354284;1524707034;1580411673
 the growth of social media v2.0 | search engine journal;1;251996;1532739198;1578767338
 more;57;153884;1452198531;1580411620
-read more >;2;114350;1545826610;1580411612', 
-            
-            'indexed_pages'=>'source_url;source_title;response_code;backlinks_num;domains_num;last_seen;external_num;internal_num
+read more >;2;114350;1545826610;1580411612',
+
+            'indexed_pages' => 'source_url;source_title;response_code;backlinks_num;domains_num;last_seen;external_num;internal_num
 https://www.searchenginejournal.com/;Search Engine Journal - SEO, Search Marketing News and Tutorials;200;129873;3602;1580113263;16;405
 http://www.searchenginejournal.com/;;301;213841;3543;1580400186;0;0
 https://www.searchenginejournal.com/seo-101/seo-statistics/;60+ Mind-Blowing Search Engine Optimization Stats - SEO 101;200;11746;1675;1580367611;88;156
 https://www.searchenginejournal.com/24-eye-popping-seo-statistics/42665/;;301;3127;822;1579709305;0;0
-https://www.searchenginejournal.com/seo-guide/;A Complete Guide to SEO | Search Engine Journal;200;12856;743;1580411596;19;130', 
-            
-            'competitors'=>'ascore;neighbour;similarity;common_refdomains;domains_num;backlinks_num
+https://www.searchenginejournal.com/seo-guide/;A Complete Guide to SEO | Search Engine Journal;200;12856;743;1580411596;19;130',
+
+            'competitors' => 'ascore;neighbour;similarity;common_refdomains;domains_num;backlinks_num
 80;searchengineland.com;36;17584;79939;42840590
 74;searchenginewatch.com;34;11537;47115;35855777
 68;wordstream.com;32;9575;37065;1750926
 77;moz.com;31;15732;103754;21136846
-76;marketingland.com;30;9058;39986;9756098', 
+76;marketingland.com;30;9058;39986;9756098',
             //doubt
-            'comparison_by_referring_domains'=>'domain;domain_ascore;matches_num;searchenginejournal.com;searchengineland.com
+            'comparison_by_referring_domains' => 'domain;domain_ascore;matches_num;searchenginejournal.com;searchengineland.com
 google.com;98;2;100;92
 squarespace.com;85;1;0;4
 cloudflare.com;92;1;0;8
 wordpress.org;95;2;378;1158
 microsoft.com;94;2;52;85',
-            
-            'batch_comparison'=>'target;target_type;ascore;backlinks_num;domains_num;ips_num;follows_num;nofollows_num;texts_num;images_num;forms_num;frames_num
+
+            'batch_comparison' => 'target;target_type;ascore;backlinks_num;domains_num;ips_num;follows_num;nofollows_num;texts_num;images_num;forms_num;frames_num
 ebay.com;root_domain;94;15248332274;461273;321889;6863043986;8385235217;11753970129;3487503037;6183483;675625
 amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;4522715595;1637657601;14954399;82699668',
-            
-            'authority_score_profile'=>'ascore;domains_num
+
+            'authority_score_profile' => 'ascore;domains_num
 0;941
 1;60
 2;114
@@ -115,54 +116,56 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
 97;1
 98;1
 99;0
-100;0', 
-            
-            'categories_profile'=>'category_name;rating
+100;0',
+
+            'categories_profile' => 'category_name;rating
 /Business & Industrial/Advertising & Marketing/Marketing;2188
 /Internet & Telecom/Web Services/Search Engine Optimization & Marketing;1975
 /Business & Industrial/Advertising & Marketing/Brand Management;1725
 /Business & Industrial/Advertising & Marketing/Sales;1116
-/Internet & Telecom/Web Services/Web Design & Development;1001', 
-            
-            'categories'=>'category_name;rating
+/Internet & Telecom/Web Services/Web Design & Development;1001',
+
+            'categories' => 'category_name;rating
 /Internet & Telecom/Web Services/Search Engine Optimization & Marketing;0.931905
 /Internet & Telecom/Web Services/Affiliate Programs;0.880989
 /Business & Industrial/Advertising & Marketing/Marketing;0.872495
 /Internet & Telecom/Search Engines;0.821398
 /Business & Industrial/Advertising & Marketing/Brand Management;0.813207',
-            
-            'historical_data'=>'date;backlinks_num;domains_num
+
+            'historical_data' => 'date;backlinks_num;domains_num
 1618185600;18768868;266988
 1617580800;19005841;270238
 1616976000;19145818;270371
 1616371200;20011497;309865
-1615766400;20669614;383991'
+1615766400;20669614;383991',
         ];
+
         return $apisResponse[$column];
     }
 
-
-    public function backlinkAhrefsApis($domain, $db, $column=null){
+    public function backlinkAhrefsApis($domain, $db, $column = null)
+    {
         $key = env('KEY');
         $apis = [
-    
-            'backlinks'=>'https://apiv2.ahrefs.com?from=backlinks&target=ahrefs.com&mode=domain&limit=2&order_by=ahrefs_rank%3Adesc&output=json',
 
-            'anchors'=>'https://apiv2.ahrefs.com?from=anchors&target=ahrefs.com&mode=domain&limit=2&output=json',
+            'backlinks' => 'https://apiv2.ahrefs.com?from=backlinks&target=ahrefs.com&mode=domain&limit=2&order_by=ahrefs_rank%3Adesc&output=json',
 
-            'indexed_pages'=>'https://apiv2.ahrefs.com?from=pages&target=ahrefs.com&mode=domain&limit=2&output=json',
+            'anchors' => 'https://apiv2.ahrefs.com?from=anchors&target=ahrefs.com&mode=domain&limit=2&output=json',
+
+            'indexed_pages' => 'https://apiv2.ahrefs.com?from=pages&target=ahrefs.com&mode=domain&limit=2&output=json',
         ];
-        
-        if($column == null) {
+
+        if ($column == null) {
             return $apis;
         } else {
             return $apis[$column];
         }
     }
 
-    public function backlinkAhrefsResponse($column){
+    public function backlinkAhrefsResponse($column)
+    {
         $apisResponse = [
-            'backlinks'=>'{
+            'backlinks' => '{
         "refpages": [
             {
                 "url_to": "http://ahrefs.com/serp-checker",
@@ -221,8 +224,7 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
         ]
     }',
 
-
-'anchors'=>'{
+            'anchors' => '{
     "anchors": [
         {
             "anchor": "$11.99/month",
@@ -247,7 +249,7 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
     }
 }',
 
-            'indexed_pages'=>'{
+            'indexed_pages' => '{
     "pages": [
         {
             "url": "https://ahrefs.com/",
@@ -283,6 +285,7 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
     }
 }',
         ];
+
         return $apisResponse[$column];
     }
 }

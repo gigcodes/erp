@@ -11,8 +11,11 @@ class OrderInvoice extends Mailable
     use Queueable, SerializesModels;
 
     public $customer;
+
     public $orderItems;
+
     public $order;
+
     public $orderTotal;
 
     /**
@@ -22,26 +25,25 @@ class OrderInvoice extends Mailable
      */
     public function __construct($params)
     {
-        if (!empty($params["order"])) {
-            $this->order = $params["order"];
+        if (! empty($params['order'])) {
+            $this->order = $params['order'];
         }
 
-        if (!empty($params["customer"])) {
-            $this->customer = $params["customer"];
+        if (! empty($params['customer'])) {
+            $this->customer = $params['customer'];
         }
 
-        if (!empty($params["order"])) {
+        if (! empty($params['order'])) {
             $this->orderItems = $this->viewOrderProductBlock($this->order);
         }
-
     }
 
     public function preview()
     {
         return view('maileclipse::templates.orderInvoice', [
             'orderItems' => $this->orderItems,
-            'customer'   => $this->customer,
-            'order'      => $this->order,
+            'customer' => $this->customer,
+            'order' => $this->order,
             'orderTotal' => $this->orderTotal,
         ]);
     }
@@ -58,12 +60,12 @@ class OrderInvoice extends Mailable
 
     public function viewOrderProductBlock($order)
     {
-        $string = "";
-        if (!empty($order)) {
+        $string = '';
+        if (! empty($order)) {
             foreach ($order->order_product as $products) {
-                if($products->product) {
+                if ($products->product) {
                     $string .= '<tr class="item last" style="height: 25px;">
-                              <td class="bl br vm" style="height: 25px; width: 300px; text-align: left;">' . $products->product->name . ' '. $products->product->short_description .'</td>
+                              <td class="bl br vm" style="height: 25px; width: 300px; text-align: left;">' . $products->product->name . ' ' . $products->product->short_description . '</td>
                               <td class="vm" style="height: 25px; width: 100px; text-align: left;"></td>
                               <td class="bl vm" style="height: 25px; width: 100px; text-align: left;">' . $products->product->made_in . '</td>
                               <td class="bl vm" style="height: 25px; width: 100px; text-align: left;">' . $products->qty . '</td>
@@ -77,5 +79,4 @@ class OrderInvoice extends Mailable
 
         return $string;
     }
-
 }

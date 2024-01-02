@@ -3,10 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Colors;
-use App\CronJobReport;
 use App\Product;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use App\CronJobReport;
+use Illuminate\Support\Str;
+use Illuminate\Console\Command;
 
 class ImportColorsFromTitleAndDescription extends Command
 {
@@ -39,14 +40,13 @@ class ImportColorsFromTitleAndDescription extends Command
      *
      * @return mixed
      */
-
     private $colors;
+
     public function handle()
     {
-
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -61,7 +61,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $property['color'] ?? '';
                         $color = $this->getColorsFromText($color);
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color . '--ing...');
@@ -72,7 +72,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $property['colors'] ?? '';
                         $color = $this->getColorsFromText($color);
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color . '--ing...');
@@ -84,7 +84,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $this->getColorsFromText($product->title);
                         $color = trim(str_replace(['-', '_'], '', $color));
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color . '--ing...');
@@ -95,7 +95,7 @@ class ImportColorsFromTitleAndDescription extends Command
 
                         $color = $this->getColorsFromText($product->short_description);
                         $color = trim(str_replace(['-', '_'], '', $color));
-                        $color = title_case($color);
+                        $color = Str::title($color);
 
                         if ($color && strlen($color) < 18 && stripos($color, 'Leather') === false && preg_match('/\d/', $color) === 0 && stripos($color, 'Fabric') === false) {
                             dump($color . '--ing...');
@@ -103,7 +103,6 @@ class ImportColorsFromTitleAndDescription extends Command
                             $product->save();
                             break;
                         }
-
                     }
                 }
             });
@@ -117,13 +116,13 @@ class ImportColorsFromTitleAndDescription extends Command
     private function getColorsFromText($text)
     {
         $availableColors = [];
-        $text            = strtolower($text);
+        $text = strtolower($text);
 
         if (strpos($text, 'multi') !== false) {
             return 'Multi';
         }
         foreach ($this->colors as $color) {
-            if (!in_array($color, $availableColors, false) && (stripos($text, strtolower($color)) !== false)) {
+            if (! in_array($color, $availableColors, false) && (stripos($text, strtolower($color)) !== false)) {
                 $availableColors[] = $color;
             }
         }

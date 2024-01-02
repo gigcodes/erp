@@ -219,9 +219,7 @@
                         </a>
                     </div>
                     @endif
-                    <!-- <div class="col-xs-12 text-center">
-                        <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
-                    </div> -->
+                    
                 </div>
             </form>
         </div>
@@ -1648,19 +1646,24 @@
                             dataType : "json"
                         }).done(function (response) {
                             $("#loading-image").hide();
+                            toastr["success"](response.message);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                            
                             if(response.code == 200) {
-                                if(response.statutory == 1) {
-                                    $(".statutory-row-render-view").prepend(response.raw);
-                                }
-                                else if(response.statutory == 3) {
-                                    $(".discussion-row-render-view").prepend(response.raw);
-                                }
-                                else{
-                                    $(".pending-row-render-view").prepend(response.raw);
+                                // if(response.statutory == 1) {
+                                //     $(".statutory-row-render-view").prepend(response.raw);
+                                // }
+                                // else if(response.statutory == 3) {
+                                //     $(".discussion-row-render-view").prepend(response.raw);
+                                // }
+                                // else{
+                                //     $(".pending-row-render-view").prepend(response.raw);
                                     
-                                }
+                                // }
                             }
-                            //window.location.reload();
+                            
                         }).fail(function (response) {
                             console.log(response);
                         });
@@ -1819,7 +1822,7 @@
             let total = $(this).val();
 
             $.ajax({
-                url: "{{action('TaskModuleController@saveMilestone')}}",
+                url: "{{action([\App\Http\Controllers\TaskModuleController::class, 'saveMilestone'])}}",
                 data: {
                     total: total,
                     task_id: id

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,8 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lawyer extends Model
 {
-/**
+    /**
      * @var string
+     *
      * @SWG\Property(property="phone",type="string")
      * @SWG\Property(property="default_phone",type="string")
      * @SWG\Property(property="name",type="string")
@@ -25,11 +27,11 @@ class Lawyer extends Model
      */
     use SoftDeletes;
 
-    protected $fillable = ['name','phone','default_phone','email','address','referenced_by','speciality_id','rating','whatsapp_numberwhatsapp_number','remarks','other'];
+    protected $fillable = ['name', 'phone', 'default_phone', 'email', 'address', 'referenced_by', 'speciality_id', 'rating', 'whatsapp_numberwhatsapp_number', 'remarks', 'other'];
 
     public function lawyerSpeciality()
     {
-        return $this->belongsTo(LawyerSpeciality::class,'speciality_id');
+        return $this->belongsTo(LawyerSpeciality::class, 'speciality_id');
     }
 
     public function getSpecialityAttribute()
@@ -39,6 +41,6 @@ class Lawyer extends Model
 
     public function chat_message()
     {
-        return $this->hasMany(ChatMessage::class,'lawyer_id');
+        return $this->hasMany(ChatMessage::class, 'lawyer_id');
     }
 }

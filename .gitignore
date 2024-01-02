@@ -35,6 +35,7 @@ phpunit.phar
 /node_modules
 /public/hot
 /public/storage
+/public/vendor/*
 /storage/*.key
 /storage/tmp
 /.vscode
@@ -64,10 +65,13 @@ composer.lock
 /public/.htaccess
 public/uploads
 public/zoom/*
+public/vendorResume/*
+public/uicheckdocs/*
 !public/zoom/.gitkeep
 public/tmp_images/*
 public/purchase_product_orders/*
 public/brand_logo/*
+public/download_asset/*
 
 /deployment_scripts_test
 
@@ -84,14 +88,20 @@ app/Library/_MACOSX/*
 /app/Mail/*
 /public/mailinglist/
 /public/wetransfer/*
-/resources/assets/analytics_files/*
+/resources/analytics_files/*
 /.phpintel
 public/scrappersImages/*
 public/product_discount_file/*
 storage/framework/laravel-excel/*
 storage/chatMessageFiles/*
+storage/horizon.log
+storage/worker.log
 public/7WZr3fgqVfRS5ZskKfv3km2ByrVRGqyDW9F/*
 
 
 public/60f89208edcc4_product.csv
 public/test-image/*
+public/queues.txt
+
+storage/websites/*
+storage/framework

@@ -18,13 +18,14 @@ class OrderConfirmation extends Mailable
      *
      * @return void
      */
-
     public $order;
+
+    public $fromMailer;
 
     public function __construct(Order $order)
     {
         $this->order = $order;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail($order->customer->id);
     }
 
     /**
@@ -34,37 +35,36 @@ class OrderConfirmation extends Mailable
      */
     public function build()
     {
-        $subject        = "New Order # " . $this->order->order_id;
-        $order          = $this->order;
-        $customer       = $order->customer;
+        $subject = 'New Order # ' . $this->order->order_id;
+        $order = $this->order;
+        $customer = $order->customer;
         $order_products = $order->order_products;
-        
-        $this->subject  = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
+
+        $this->subject = $subject;
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
-        
+
         // get the template based on store
         if ($storeWebsiteOrder) {
-            $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
-            if($emailAddress) {
+            $emailAddress = \App\EmailAddress::where('store_website_id', $storeWebsiteOrder->website_id)->first();
+            if ($emailAddress) {
                 $this->fromMailer = $emailAddress->from_address;
             }
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate($storeWebsiteOrder->website_id);
         } else {
-            $emailAddress = \App\EmailAddress::where('store_website_id',self::STORE_ERP_WEBSITE)->first();
-            if($emailAddress) {
+            $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
+            if ($emailAddress) {
                 $this->fromMailer = $emailAddress->from_address;
             }
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate();
         }
-        
 
         if ($template) {
-            if ($template->from_email!='')
+            if ($template->from_email != '') {
                 $this->fromMailer = $template->from_email;
-            if (!empty($template->mail_tpl)) {
+            }
+            if (! empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
@@ -73,6 +73,7 @@ class OrderConfirmation extends Mailable
                     ));
             } else {
                 $content = $template->static_template;
+
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view('emails.blank_content', compact(
@@ -80,8 +81,8 @@ class OrderConfirmation extends Mailable
                     ));
             }
         }
-        
-        if(!$storeWebsiteOrder) {
+
+        if (! $storeWebsiteOrder) {
             return $this->view('emails.orders.confirmed-solo', compact(
                 'order', 'customer', 'order_products'
             ));

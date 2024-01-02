@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class EnrichWiseProducts extends Command
@@ -42,7 +42,7 @@ class EnrichWiseProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -53,9 +53,9 @@ class EnrichWiseProducts extends Command
             foreach ($products as $product) {
                 $properties = $product->properties;
                 foreach ($properties as $key => $property) {
-                    if (!is_array($property)) {
+                    if (! is_array($property)) {
                         $property = $this->sanitize($property);
-                        $key      = $this->getAppropriateKey($key, $property);
+                        $key = $this->getAppropriateKey($key, $property);
 
                         if ($this->getColors($property) !== '') {
                             $newProperties['colors'] = $this->getColors($property);
@@ -64,10 +64,9 @@ class EnrichWiseProducts extends Command
                     $newProperties[$key] = $property;
                 }
                 $product->description = $this->sanitize($product->description);
-                $product->properties  = $newProperties;
+                $product->properties = $newProperties;
                 $product->is_enriched = 1;
                 $product->save();
-
             }
 
             $report->update(['end_time' => Carbon::now()]);
@@ -89,9 +88,9 @@ class EnrichWiseProducts extends Command
 
     private function getColors($value)
     {
-        $value          = strtoupper($value);
+        $value = strtoupper($value);
         $detectedColors = [];
-        $colors         = [
+        $colors = [
             'WHITE',
             'RED ',
             ' RED',
@@ -113,7 +112,6 @@ class EnrichWiseProducts extends Command
         }
 
         return implode(', ', $detectedColors);
-
     }
 
     private function sanitize($value)

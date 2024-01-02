@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\Workspaces\V1;
 
 use App\Library\Watson\Service;
@@ -10,7 +11,7 @@ class EntitiesService extends Service
      *
      * @var string
      */
-    protected $url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350";
+    protected $url = 'https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350';
 
     /**
      * API service version
@@ -29,17 +30,19 @@ class EntitiesService extends Service
     {
         parent::__construct($username, $password);
     }
+
     public function set_url($url)
     {
         return $this->url = $url;
     }
+
     public function create($workspaceId, $params = [], $version = '2019-02-28')
     {
         // dump($this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities');
         return $this->client->request(
             'POST',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities',
-            ['query' => ['version' => $version], "json" => $params]
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 
@@ -66,7 +69,7 @@ class EntitiesService extends Service
         return $this->client->request(
             'POST',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities/' . $entity,
-            ['query' => ['version' => $version], "json" => $params]
+            ['query' => ['version' => $version], 'json' => $params]
         );
     }
 
@@ -78,5 +81,4 @@ class EntitiesService extends Service
             ['query' => ['version' => $version]]
         );
     }
-
 }

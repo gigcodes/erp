@@ -65,6 +65,7 @@
 				<th style="width: 5%">Disc</th>
 				<th style="width: 6%">F Price</th>
 				<th style="width: 5%">GMU</th>
+                <th style="width: 5%">Actions</th>
 			</tr>
 			</thead>
 			<tbody class="infinite-scroll-api-inner">
@@ -75,6 +76,66 @@
     </div>
 </div>
  </div>
+ 
+ 
+ <div id="suggetsedLog" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><p>Product Price Log</p></h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-x: scroll;">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>ID</th>
+                        <th>Order ID</th>
+                        <th>Prod ID</th>
+                        <th>Stage</th>
+                        <th>Product Price</th>
+                        <th>Product Total Price</th>
+                        <th>Product Price Dis.</th>
+                        <th>Log Info.</th>
+                    </tr>
+                    <tbody id="logtr">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="CalLog" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Lead Product Price Calculation Log</h2>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="overflow-x: scroll;">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>ID</th>
+                        <th>Prod ID</th>
+                        <th>Original Price</th>
+                        <th>Promotion Percentage</th>
+                        <th>Promotion</th>
+                        <th>Segment Discount</th>
+                        <th>Segment Discount Percentage</th>
+                        <th>IVA Price</th>
+                        <th>Euro Price</th>
+                    </tr>
+                    <tbody id="callogtr">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
@@ -102,7 +163,80 @@
         console.log(attached_leads);
       });
     </script>
-<script>      
+<script>   
+        
+        $(document).on("click", ".expand-text", function (e) {
+            if($(e.target).closest("span").css('height') == '24px')
+                $(e.target).closest("span").css('height', 'auto');
+            else
+                $(e.target).closest("span").css('height', '24px');
+           
+        });
+        $(document).on("click", ".load-log", function (event) {
+            var prodId = $(this).data("prod_id");
+            var custId = $(this).data("cust_id");
+             $.ajax({
+                    url: '{{route("lead.order.product.log")}}',
+                    type:"get",
+                    data: { 
+                            "_token": $('meta[name="csrf-token"]').attr('content'),
+                            prod_id : prodId,
+                            cust_id : custId
+                            },
+                dataType: 'json'
+            }).done(function (response) {
+                if(response.code == 200) {
+                    //$loader.hide();
+                    $("#suggetsedLog").modal('show');
+                    $('#logtr').html('');
+                    $('#logtr').html(response.data);
+                    toastr['success'](response.message);
+                }else{
+                    //$loader.hide();
+                    errorMessage = response.message ? response.message : 'Log not found!';
+                    $('#logtr').html("<td colspan='8'>No Log found</td>");
+                    toastr['error'](errorMessage);
+                }        
+            }).fail(function (response) {
+                //$loader.hide();
+                $('#logtr').html("<td colspan='8'>No Log found</td>");
+                toastr['error'](response.message);
+            });
+        });
+
+        $(document).on("click", ".load-calculation", function (event) {
+            var prodId = $(this).data("prod_id");
+            var custId = $(this).data("cust_id");
+             $.ajax({
+                    url: '{{route("lead.product.cal.log")}}',
+                    type:"get",
+                    data: { 
+                            "_token": $('meta[name="csrf-token"]').attr('content'),
+                            prod_id : prodId,
+                            cust_id : custId
+                            },
+                dataType: 'json'
+            }).done(function (response) {
+                if(response.code == 200) {
+                    //$loader.hide();
+                    $("#CalLog").modal('show');
+                    $('#callogtr').html('');
+                    $('#callogtr').html(response.data);
+                    toastr['success'](response.message);
+                }else{
+                    //$loader.hide();
+                    errorMessage = response.message ? response.message : 'Log not found!';
+                    $('#callogtr').html("<td colspan='8'>No Log found</td>");
+                    toastr['error'](errorMessage);
+                }        
+            }).fail(function (response) {
+                //$loader.hide();
+                $('#callogtr').html("<td colspan='8'>No Log found</td>");
+                toastr['error'](response.message);
+            });
+        });
+
+
         var isLoading = false;
         var page = 1;
         $(document).ready(function () {
@@ -142,6 +276,7 @@
                 });
             }            
         });
+
   </script>    
 @endsection
 @section('scripts')

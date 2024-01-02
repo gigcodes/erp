@@ -81,12 +81,25 @@
 
                         <div class="form-group">
                             <strong>Token:</strong>
-                            <input type="text" name="token" class="form-control" value="{{ old('token') }}" >
+                            <input type="text" id="token" name="token" class="form-control" value="{{ old('token') }}" >
 
                             @if ($errors->has('token'))
                             <div class="alert alert-danger">{{$errors->first('token')}}</div>
                             @endif
                         </div>
+
+                        <div class="form-group">
+                            <label for="">Choose Ads Manager Account</label>
+                                <select class="form-control" name="ads_manager"  id="adset_id">
+                                <option value="">Select Ads Manager</option>
+                                </select>
+                            <!-- <input type="hidden" name="ad_set_name" id="ad_set_name" /> -->
+
+                            @if ($errors->has('adset_id'))
+                            <p class="text-danger">{{$errors->first('adset_id')}}</p>
+                            @endif
+                        </div>
+
 						<div class="form-group">
                             <strong>Page Id:</strong>
                             <input type="text" name="page_id" class="form-control" value="{{ old('page_id') }}" >
@@ -104,6 +117,21 @@
                             <div class="alert alert-danger">{{$errors->first('page_token')}}</div>
                             @endif
                         </div>
+
+                        <div class="form-group">
+                            <strong>Language of Page:</strong>
+                            <select class="form-control" name="page_language" required>
+                                <option value="0">Select language of page</option>
+                                @foreach($languages as $language)
+                                <option value="{{ $language->locale }}">{{ $language->name }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('languages'))
+                            <div class="alert alert-danger">{{$errors->first('languages')}}</div>
+                            @endif
+                        </div>
+
 
                         <div class="form-group">
                             <strong>Webhook Verify Token:</strong>

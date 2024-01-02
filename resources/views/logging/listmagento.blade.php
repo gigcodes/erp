@@ -70,9 +70,11 @@
         <button class="btn btn-primary" id="retry-failed-job">
           Retry failed job
         </button>
-		
+
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Export_popup">Export</button>
-        
+
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#listmagentodatatablecolumnvisibilityList">Column Visiblity</button>
+
       </div>
       </h2>
   </div>
@@ -162,12 +164,15 @@
               <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') ? request()->get('crop_start_date') .' '.request()->get('crop_end_date') : 'Crop Image Date'}}</p><i class="fa fa-caret-down pull-right"></i>
             </div>
           </div>
-          <div class="col-md-3 pl-0">
+          <div class="col-md-4 pl-0">
             <button class="btn btn-primary text-dark" style="height: 34px" id="submit">
                 <span class="fa fa-filter"></span>&nbsp;Filter Results
               </button>
               <button class="btn btn-primary text-dark"  style="height: 34px" id="send-product-for-live-checking">
                 <span class="fa fa-send"></span>&nbsp;Send Live Product
+              </button>
+              <button class="btn btn-primary text-dark" style="height: 34px" onclick="event.preventDefault();" data-toggle="modal" data-target="#syncStatusColor"> 
+                Sync Status Color
               </button>
           </div>
         </div>
@@ -180,48 +185,140 @@
 
 
      <div class="row m-0">
-        <div class="table-responsive">
+        <div class="table-responsive table-horizontal-scroll">
           <table id="magento_list_tbl_895" class="table table-bordered table-hover" style="table-layout: fixed">
             <thead>
-              <th width="4%">ID</th>
-              <th width="4%">SKU</th>
-              <th width="5%">Brand</th>
-              <th width="6%">Category</th>
-              <th width="5%">Price</th>
-              <th width="6%">Message</th>
-              <th width="4%">D&T</th>
-              <th width="6%">Website</th>
-              <th width="5%">Status</th>
-              <th width="5%">Lang Id</th>
-              <th width="6%">Sync Sts</th>
-              <th width="6%">Job Start</th>
-              <th width="6%">Job End</th>
-              <th width="3%">Total</th>
-              <th width="4%;">Success</th>
-              <th width="4%">Failure</th>
-              <th width="3%;">User</th>
-              <th width="3%;">Time</th>
-              <th width="3%;">Size</th>
-              <th width="5%;">Queue</th>
-              <th width="2%">Try</th>
-              <th width="10%">Action</th>
+                @if(!empty($dynamicColumnsToShowListmagento))
+                    @if (!in_array('ID', $dynamicColumnsToShowListmagento))
+                        <th width="4%">ID</th>
+                    @endif
 
+                    @if (!in_array('SKU', $dynamicColumnsToShowListmagento))
+                        <th width="5%">SKU</th>
+                    @endif
+
+                    @if (!in_array('Brand', $dynamicColumnsToShowListmagento))
+                        <th width="5%">Brand</th>
+                    @endif
+
+                    @if (!in_array('Category', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Category</th>
+                    @endif
+
+                    @if (!in_array('Price', $dynamicColumnsToShowListmagento))
+                        <th width="4%">Price</th>
+                    @endif
+
+                    @if (!in_array('Message', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Message</th>
+                    @endif
+
+                    @if (!in_array('D&T', $dynamicColumnsToShowListmagento))
+                        <th width="6%">D&T</th>
+                    @endif
+
+                    @if (!in_array('Website', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Website</th>
+                    @endif
+
+                    @if (!in_array('Status', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Status</th>
+                    @endif
+
+                    @if (!in_array('Lang Id', $dynamicColumnsToShowListmagento))
+                        <th width="4%">Lang Id</th>
+                    @endif
+
+                    @if (!in_array('Sync Sts', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Sync Sts</th>
+                    @endif
+
+                    @if (!in_array('Job Start', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Job Start</th>
+                    @endif
+
+                    @if (!in_array('Job End', $dynamicColumnsToShowListmagento))
+                        <th width="6%">Job End</th>
+                    @endif
+
+                    @if (!in_array('Total', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Total</th>
+                    @endif
+
+                    @if (!in_array('Success', $dynamicColumnsToShowListmagento))
+                        <th width="4%;">Success</th>
+                    @endif
+
+                    @if (!in_array('Failure', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Failure</th>
+                    @endif
+
+                    @if (!in_array('User', $dynamicColumnsToShowListmagento))
+                        <th width="6%;">User</th>
+                    @endif
+
+                    @if (!in_array('Time', $dynamicColumnsToShowListmagento))
+                        <th width="3%;">Time</th>
+                    @endif
+
+                    @if (!in_array('Size', $dynamicColumnsToShowListmagento))
+                        <th width="2%;">Size</th>
+                    @endif
+
+                    @if (!in_array('Queue', $dynamicColumnsToShowListmagento))
+                        <th width="5%;">Queue</th>
+                    @endif
+
+                    @if (!in_array('Try', $dynamicColumnsToShowListmagento))
+                        <th width="2%">Try</th>
+                    @endif
+
+                    @if (!in_array('Action', $dynamicColumnsToShowListmagento))
+                        <th width="3%">Action</th>
+                    @endif
+                @else 
+                    <th width="4%">ID</th>
+                    <th width="5%">SKU</th>
+                    <th width="5%">Brand</th>
+                    <th width="6%">Category</th>
+                    <th width="4%">Price</th>
+                    <th width="6%">Message</th>
+                    <th width="6%">D&T</th>
+                    <th width="6%">Website</th>
+                    <th width="3%">Status</th>
+                    <th width="4%">Lang Id</th>
+                    <th width="6%">Sync Sts</th>
+                    <th width="6%">Job Start</th>
+                    <th width="6%">Job End</th>
+                    <th width="3%">Total</th>
+                    <th width="4%;">Success</th>
+                    <th width="3%">Failure</th>
+                    <th width="6%;">User</th>
+                    <th width="3%;">Time</th>
+                    <th width="2%;">Size</th>
+                    <th width="5%;">Queue</th>
+                    <th width="2%">Try</th>
+                    <th width="3%">Action</th>
+                @endif
             </thead>
             <tbody class="infinite-scroll-pending-inner">
-				@include("logging.partials.magento_product_data")                
+				@include("logging.partials.magento_product_data")
             </tbody>
           </table>
 
 
         </div>
-        
+
      </div>
+
+@include("logging.partials.modal-sync-status-color")
+@include("logging.partials.column-visibility-modal")
 
   <div id="ErrorLogModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">magento push error log</h4>
+          <h4 class="modal-title">Magento push error log</h4>
         </div>
         <div class="modal-body">
           <table class="table table-bordered table-hover" style="table-layout:fixed;">
@@ -249,6 +346,63 @@
     <!-- /.modal-dialog -->
   </div>
 
+<div id="pushJourney" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Product push journey</h4>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-hover" style="table-layout:fixed;">
+            <thead>
+              <th style="width:7%">Step </th>
+              <th style="width:6%">Is checked</th>
+
+            </thead>
+            <tbody class="push_journey_logs">
+
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
+
+  <div id="pushJourneyHorizontal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Product push  journey</h4>
+        </div>
+        <div class="modal-body" style="overflow-x: auto;">
+          <table class="table table-bordered table-hover">
+            {{-- <thead>
+              <th style="width:7%">Step </th>
+              <th style="width:6%">Is checked</th>
+
+            </thead> --}}
+            <tbody class="push_journey_horizontal_logs">
+
+            </tbody>
+          </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+
   <div id="PriceModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
       <div class="modal-content">
@@ -260,9 +414,13 @@
             <thead>
               <th style="width:7%">Product ID</th>
               <th style="width:7%">Default Price</th>
+              <th style="width:7%">Price Discount %</th>
               <th style="width:7%">Segment Discount</th>
+              <th style="width:7%">Segment Discount %</th>
               <th style="width:7%">Duty Price</th>
+              <th style="width:7%">IVA Price</th>
               <th style="width:7%">Override Price</th>
+              <th style="width:7%">Override Price % </th>
               <th style="width:6%">Status</th>
               <th style="width:6%">Web Store</th>
               <th style="width:11%">Store Website</th>
@@ -281,7 +439,7 @@
     </div>
     <!-- /.modal-dialog -->
   </div>
-  
+
   <div id="Export_popup" class="modal fade" role="dialog">
     <div class="modal-dialog " style="padding: 0px;">
       <div class="modal-content">
@@ -328,7 +486,7 @@
             <div class="form-group col-md-6">
               <input name="name" type="text" class="form-control" id="update_name" value=""placeholder="Name" required>
             </div>
-            
+
             <div class="form-group col-md-6">
               <input name="size" type="text" class="form-control" id="update_size" value=""placeholder="Size">
             </div>
@@ -391,7 +549,7 @@
               <input name="supplier" type="text" class="form-control" id="update_supplier" placeholder="Supplier">
             </div>
             <div class="form-group col-md-6">
-              
+
               <input name="supplier_link" type="text" class="form-control" id="update_supplier_link"placeholder="Supplier Link">
             </div>
             <div class="form-group col-md-6">
@@ -416,8 +574,8 @@
           <h4 class="modal-title">Error with count</h4>
         </div>
           <div class="modal-body">
-            
-            
+
+
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -475,7 +633,7 @@
                               <strong>Start Date&nbsp;:&nbsp;</strong>
                               <input type="text" name="start_date" value="" class="form-control start-date-picker">
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>End Date&nbsp;:&nbsp;</strong>
@@ -489,7 +647,7 @@
                               <strong>Store website&nbsp;:&nbsp;</strong>
                               <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>Product id&nbsp;:&nbsp;</strong>
@@ -522,7 +680,7 @@
                               <strong>Start Date&nbsp;:&nbsp;</strong>
                               <input type="text" name="start_date" value="" class="form-control start-date-picker">
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>End Date&nbsp;:&nbsp;</strong>
@@ -536,7 +694,7 @@
                               <strong>Store website&nbsp;:&nbsp;</strong>
                               <?php echo Form::select("store_website_id",[null => "- Select -"] + \App\StoreWebsite::where("website_source","magento")->pluck('title','id')->toArray(),null,["class" => "form-control select2"]); ?>
                           </div>
-                        </div>  
+                        </div>
                         <div class="col">
                           <div class="form-group">
                               <strong>Product id&nbsp;:&nbsp;</strong>
@@ -588,7 +746,7 @@
               <h4 class="modal-title">Product Translation</h4>
             </div>
            <div class="modal-body">
-              
+
            </div>
             <div class="modal-footer">
                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
@@ -597,7 +755,7 @@
       </div>
   </div>
 
-  
+
 
 @endsection
 
@@ -606,6 +764,9 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script>
+        function Showactionbtn(id){
+            $(".action-btn-tr-"+id).toggleClass('d-none')
+        }
         $("#select_date").datepicker({
       	  	format: 'yyyy-mm-dd'
       	});
@@ -622,7 +783,7 @@
             format: 'yyyy-mm-dd'
         });
 
-        
+
     </script>
   <script type="text/javascript">
   var product = []
@@ -640,7 +801,7 @@
     ref.find('td:eq(15)').children('.selectProductCheckbox_class').change(function(){
       if($(this).is(':checked')){
         var val = $(this).val()
-        //if(!product.includes($(this).val())){  
+        //if(!product.includes($(this).val())){
           if(product.length > 0){
             $.each(product,function(i,e){
             if(e.sku == val){
@@ -648,10 +809,10 @@
             }
           })
           }
-          
+
           var item = {"sku":$(this).val(),"websiteid":$(this).attr("websiteid")}
             product.push(item)
-            
+
         //  }
           localStorage.setItem('luxury-product-data-asin', JSON.stringify(product));
       } else {
@@ -670,21 +831,81 @@
     })
     console.log(product)
   })
-  $(document).on("click", ".show_error_logs", function() {
+  $(document).on("click", ".show_error_logs", function () {
+      var id = $(this).data('id');
+      var store_website_id = $(this).data('website');
+      $.ajax({
+          method: "GET",
+          url: "/logging/show-error-log-by-id/" + id,
+          data: {
+              "_token": "{{ csrf_token() }}"
+          },
+          dataType: 'html'
+      })
+          .done(function (result) {
+              $('#ErrorLogModal').modal('show');
+              $('#ErrorLogModal .modal-title').text('Magento product push error logs');
+              $('.error-log-data').html(result);
+          });
+
+  });
+
+  $(document).on("click", ".show_product_push_logs", function () {
+      var id = $(this).data('id');
+      var store_website_id = $(this).data('website');
+      $.ajax({
+          method: "GET",
+          url: "/logging/show-product-push-log/" + id,
+          data: {
+              "_token": "{{ csrf_token() }}"
+          },
+          dataType: 'html'
+      }).done(function (result) {
+          $('#ErrorLogModal').modal('show');
+          $('#ErrorLogModal .modal-title').text('Magento product push logs');
+          $('.error-log-data').html(result);
+      });
+  });
+
+  $(document).on("click", ".push_journey", function() {
     var id = $(this).data('id');
     var store_website_id = $(this).data('website');
     $.ajax({
       method: "GET",
-      url: "/logging/show-error-log-by-id/" + id,
+      url: "/logging/call-journey-by-id/" + id,
       data: {
         "_token": "{{ csrf_token() }}"
       },
       dataType: 'html'
     })
     .done(function(result) {
-      $('#ErrorLogModal').modal('show');
-      $('.error-log-data').html(result);
+      $('#pushJourney').modal('show');
+      $('.push_journey_logs').html(result);
     });
+
+  });
+
+  $(document).on("click", ".push_journey_horizontal", function() {
+    var id = $(this).data('id');
+    var store_website_id = $(this).data('website');
+    var prodSku = $(this).data('sku');
+    var productId = $(this).data('product_id');
+    $.ajax({
+      method: "GET",
+      url: "/logging/call-journey-horizontal-by-id/" + id,
+      data: {
+        "_token": "{{ csrf_token() }}",
+        "sku_name" : prodSku,
+        "product_id" : productId,
+      },
+      dataType: 'html'
+    })
+    .done(function(result) {
+      $('#pushJourneyHorizontal').modal('show');
+      $('.push_journey_horizontal_logs').html(result);
+    });function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
 
   });
 
@@ -858,11 +1079,11 @@
         method: "GET",
         url: "/logging/list-magento/get-live-product-screenshot",
         data : {
-          id : $this.data("id") 
+          id : $this.data("id")
         },
         beforeSend : function(response) {
            $("#loading-image").show();
-           
+
         }
       })
       .done(function(response) {
@@ -1025,7 +1246,7 @@
 				},
 				success: function (data) {
 					//console.log(data);
-					$loader.hide();				
+					$loader.hide();
 					$('.infinite-scroll-pending-inner').append(data.tbody);
 					isLoading = false;
 					if(data.tbody == "") {

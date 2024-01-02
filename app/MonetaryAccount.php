@@ -5,15 +5,16 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use App\Events\MonetaryAccountCreated;
 use App\Events\MonetaryAccountUpdated;
+use Illuminate\Database\Eloquent\Model;
 
 class MonetaryAccount extends Model
 {
     /**
      * @var string
 
+     *
      * @SWG\Property(property="date",type="datetime")
      * @SWG\Property(property="currency",type="string")
      * @SWG\Property(property="amount",type="float")
@@ -35,5 +36,4 @@ class MonetaryAccount extends Model
     {
         return $this->morphMany(\App\MonetaryAccountHistory::class, 'model');
     }
-
 }

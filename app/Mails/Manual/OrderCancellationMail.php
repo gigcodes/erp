@@ -14,6 +14,8 @@ class OrderCancellationMail extends Mailable
 
     public $order;
 
+    public $fromMailer;
+
     /**
      * Create a new message instance.
      *
@@ -22,7 +24,7 @@ class OrderCancellationMail extends Mailable
     public function __construct($data)
     {
         $this->order = $data;
-        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->fromMailer = \App\Helpers::getFromEmail($this->order->customer->id);
     }
 
     /**
@@ -32,17 +34,16 @@ class OrderCancellationMail extends Mailable
      */
     public function build()
     {
-        $subject = "Order # " . $this->order->order_id . " has been cancelled";
+        $subject = 'Order # ' . $this->order->order_id . ' has been cancelled';
         $order = $this->order;
 
         $customer = $order->customer;
         $order_products = $order->order_products;
-        $email = "customercare@sololuxury.co.in";
+        $email = $this->fromMailer;
 
-        $content = "Your order request has been cancelled";
+        $content = 'Your order request has been cancelled';
 
         $this->subject = $subject;
-        $this->fromMailer = "customercare@sololuxury.co.in";
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
@@ -67,7 +68,7 @@ class OrderCancellationMail extends Mailable
             }
 
             $this->subject = $template->subject;
-            if (!empty($template->mail_tpl)) {
+            if (! empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($email)
                     ->subject($this->subject)
@@ -75,9 +76,8 @@ class OrderCancellationMail extends Mailable
                         'order', 'customer', 'order_products'
                     ));
             } else {
-
                 $content = str_replace([
-                    '{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}'],
+                    '{FIRST_NAME}', '{ORDER_STATUS}', '{ORDER_ID}', ],
                     [$order->customer->name, $order->order_status, $order->order_id],
                     $template->static_template
                 );

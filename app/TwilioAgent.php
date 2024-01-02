@@ -9,5 +9,5 @@ class TwilioAgent extends Model
     //
     protected $table = 'twilio_agents';
 
-    protected $fillable = ['user_id','status','store_website_id'];
+    protected $fillable = ['user_id', 'status', 'store_website_id'];
 }

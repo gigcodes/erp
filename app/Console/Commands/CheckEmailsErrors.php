@@ -3,11 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Agent;
-use App\CronJobReport;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class CheckEmailsErrors extends Command
 {
@@ -43,46 +44,32 @@ class CheckEmailsErrors extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $imap = new Client([
-                'host'          => env('IMAP_HOST_PURCHASE'),
-                'port'          => env('IMAP_PORT_PURCHASE'),
-                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+            $cm = new ClientManager();
+            $imap = $cm->make([
+                'host' => env('IMAP_HOST_PURCHASE'),
+                'port' => env('IMAP_PORT_PURCHASE'),
+                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-                'username'      => env('IMAP_USERNAME_PURCHASE'),
-                'password'      => env('IMAP_PASSWORD_PURCHASE'),
-                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
+                'username' => env('IMAP_USERNAME_PURCHASE'),
+                'password' => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
             ]);
 
             $imap->connect();
 
-            $inbox           = $imap->getFolder('INBOX');
-            $email_addresses = [
-                'Mailer-Daemon@se1.mailspamprotection.com',
-                'Mailer-Daemon@se2.mailspamprotection.com',
-                'Mailer-Daemon@se3.mailspamprotection.com',
-                'Mailer-Daemon@se4.mailspamprotection.com',
-                'Mailer-Daemon@se5.mailspamprotection.com',
-                'Mailer-Daemon@se6.mailspamprotection.com',
-                'Mailer-Daemon@se7.mailspamprotection.com',
-                'Mailer-Daemon@se8.mailspamprotection.com',
-                'Mailer-Daemon@se9.mailspamprotection.com',
-                'Mailer-Daemon@se10.mailspamprotection.com',
-                'Mailer-Daemon@se11.mailspamprotection.com',
-                'Mailer-Daemon@se12.mailspamprotection.com',
-                'Mailer-Daemon@se13.mailspamprotection.com',
-                'Mailer-Daemon@se14.mailspamprotection.com',
-                'Mailer-Daemon@se15.mailspamprotection.com',
-                'Mailer-Daemon@se16.mailspamprotection.com',
-                'Mailer-Daemon@se17.mailspamprotection.com',
-                'Mailer-Daemon@se18.mailspamprotection.com',
-                'Mailer-Daemon@se19.mailspamprotection.com',
-                'Mailer-Daemon@se20.mailspamprotection.com',
-            ];
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Connecting to IMAMP']);
+
+            $inbox = $imap->getFolder('INBOX');
+
+            $email_addresses = config('app.failed_email_addresses');
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Get email addresses from config app.failed_email_addresses file.']);
 
             foreach ($email_addresses as $address) {
                 $emails = $inbox->messages()->where('from', $address);
@@ -96,12 +83,16 @@ class CheckEmailsErrors extends Command
                     } else {
                         $content = $email->getTextBody();
                     }
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Getting html body of the email ID:' . $email->id]);
 
                     if (preg_match_all("/failed: ([\a-zA-Z0-9_.-@]+) host/i", preg_replace('/\s+/', ' ', $content), $match)) {
                         dump('Found address ' . $match[1][0]);
 
                         $suppliers = Supplier::where('email', $match[1][0])->get();
-                        $agents    = Agent::where('email', $match[1][0])->get();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier model query was finished.']);
+
+                        $agents = Agent::where('email', $match[1][0])->get();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Agent model query was finished.']);
 
                         foreach ($agents as $agent) {
                             dump('Found agent email');
@@ -124,6 +115,8 @@ class CheckEmailsErrors extends Command
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

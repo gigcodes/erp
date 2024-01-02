@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use File;
-use Illuminate\Http\Request;
-use App\Setting;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use App\Template;
-use App\Product;
-use App\Category;
 use App\Brand;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Template;
+use App\LogRequest;
 use App\ProductTemplate;
 use Plank\Mediable\Media;
-use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Helpers\GuzzleHelper;
-
-
-use DB;
+use Intervention\Image\ImageManagerStatic as Image;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class TemplatesController extends Controller
 {
@@ -28,201 +27,150 @@ class TemplatesController extends Controller
      */
     public function index()
     {
-        $templates = \App\Template::orderBy("id", "desc")->with('modifications:template_id,tag,value,row_index')->paginate(Setting::get('pagination'));
+        $templates = \App\Template::orderBy('id', 'desc')->with('modifications:template_id,tag,value,row_index')->paginate(Setting::get('pagination'));
 
-     //   echo '<pre>';print_r($templates->toArray());die;
+        //   echo '<pre>';print_r($templates->toArray());die;
 
-        return view("template.index",compact('templates'));
+        return view('template.index', compact('templates'));
     }
 
     public function response()
     {
-        $records = \App\Template::orderBy("id", "desc")->paginate(Setting::get('pagination'));
-        foreach($records as &$item) {
+        $records = \App\Template::orderBy('id', 'desc')->paginate(Setting::get('pagination'));
+        foreach ($records as &$item) {
             $media = $item->lastMedia(config('constants.media_tags'));
-            $item->image = ($media) ? $media->getUrl() : "";
+            $item->image = ($media) ? $media->getUrl() : '';
         }
+
         return response()->json([
-            "code"       => 1,
-            "result"     => $records,
-            "pagination" => (string) $records->links(),
+            'code' => 1,
+            'result' => $records,
+            'pagination' => (string) $records->links(),
         ]);
     }
 
     public function updateBearBannerTemplate(Request $request)
     {
-        
-      
+        $template = \App\Template::find($request->id);
 
-         $template = \App\Template::find($request->id);
+        $template->name = $request->name;
 
-         $template->name=$request->name;
+        $template->save();
 
-         $template->save();
+        $tags = [];
 
-         $tags=[];
+        // foreach ($request->modifications_array as $key => $row) {
 
+        //    foreach ($row as $tag => $value) {
 
- 
-         // foreach ($request->modifications_array as $key => $row) {
-          
-         //    foreach ($row as $tag => $value) {
-               
-         //       if($tag !=='image_url')
-         //       {
-         //          $new_row[$tag]=$value;
-         //       }
-         //       else
-         //       { 
+        //       if($tag !=='image_url')
+        //       {
+        //          $new_row[$tag]=$value;
+        //       }
+        //       else
+        //       {
 
+        //             $image=$request->file('files')[$key]['image_url'];
 
-         //             $image=$request->file('files')[$key]['image_url'];
+        //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
 
-         //             $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
+        //             $new_row[$tag]=($media) ? $media->getUrl() : "";
 
+        //       }
+        //    }
 
-         //             $new_row[$tag]=($media) ? $media->getUrl() : "";
+        //    $new_modification_array[]=$new_row;
 
-         //       }
-         //    }
+        // }
 
-         //    $new_modification_array[]=$new_row;
-    
-         // }
+        $body = ['name' => $request->name, 'tags' => $tags];
 
-       
+        $url = env('BANNER_API_LINK') . '/templates/' . $template->uid;
 
-         $body=array('name'=>$request->name,'tags'=>$tags);
+        $api_key = env('BANNER_API_KEY');
 
-         
+        $headers = [
+            'Authorization' => 'Bearer ' . $api_key,
+            'Content-Type' => 'application/json',
+        ];
 
-         $url=env('BANNER_API_LINK').'/templates/'.$template->uid;
+        $response = GuzzleHelper::patch($url, $body, $headers);
 
-        $api_key=env('BANNER_API_KEY');
-
-  
-
-        $headers=   [
-                        'Authorization' => 'Bearer ' . $api_key,
-                        'Content-Type' => 'application/json'
-                    ];
-
-       $response=GuzzleHelper::patch($url,$body,$headers);
-
-
-        
-
-        return redirect()->back()->with('success','The template is updated.');
-
+        return redirect()->back()->with('success', 'The template is updated.');
     }
 
-    static function bearBannerTemplates()
+    public static function bearBannerTemplates()
     {
-        $url=env('BANNER_API_LINK').'/templates';
+        $url = env('BANNER_API_LINK') . '/templates';
 
-        $api_key=env('BANNER_API_KEY');
+        $api_key = env('BANNER_API_KEY');
 
-        
+        $headers = [
+            'Authorization' => 'Bearer ' . $api_key,
+            'Content-Type' => 'application/json',
+        ];
 
-        $headers=   [
-                        'Authorization' => 'Bearer ' . $api_key,
-                        'Content-Type' => 'application/json'
-                    ];
+        $response = GuzzleHelper::get($url, $headers);
 
-       $response=GuzzleHelper::get($url,$headers);
-
-     
-
-       return $response;
-
-
+        return $response;
     }
 
     public function updateTemplatesFromBearBanner(Request $request)
     {
-
-        $templates=collect(self::bearBannerTemplates());
+        $templates = collect(self::bearBannerTemplates());
 
         foreach ($templates as $key => $row) {
-            
-            $template=array('name'=>$row->name,'uid'=>$row->uid, 'is_processed' => 1);
+            $template = ['name' => $row->name, 'uid' => $row->uid, 'is_processed' => 1];
 
-            if($existingTemplate=Template::whereUid($row->uid)->first())
-            {
-                  $existingTemplate->update($template);
-                  $existingTemplate->modifications()->delete();
+            if ($existingTemplate = Template::whereUid($row->uid)->first()) {
+                $existingTemplate->update($template);
+                $existingTemplate->modifications()->delete();
 
-                  $template=$existingTemplate;
+                $template = $existingTemplate;
 
-                  if($row->preview_url)
-                  {
-                     $media = $template->lastMedia(config('constants.media_tags'));
-                     $template->detachMedia($media);
-                  }
-
+                if ($row->preview_url) {
+                    $media = $template->lastMedia(config('constants.media_tags'));
+                    $template->detachMedia($media);
+                }
+            } else {
+                $template = Template::create($template);
             }
-            else
-            {
-                $template=Template::create($template);
-
-  
+            if ($row->available_modifications) {
+                $available_modifications = $row->available_modifications;
+            } else {
+                $available_modifications = [];
             }
-                if($row->available_modifications)
-                {
-                   $available_modifications=$row->available_modifications;
+
+            if ($row->preview_url) {
+                $contents = $this->getImageByCurl($row->preview_url);
+
+                $media = MediaUploader::fromString($contents)->useFilename('template-' . time())->toDirectory('template-images')->upload();
+
+                $template->attachMedia($media, config('constants.media_tags'));
+            }
+
+            foreach ($available_modifications as $row_index => $tag) {
+                foreach ($tag as $name => $value) {
+                    $modifications = ['tag' => $name, 'value' => $value, 'template_id' => $template->id, 'row_index' => $row_index];
+
+                    $template->modifications()->create($modifications);
                 }
-                else
-                {
-                  $available_modifications=[];
-                }
-               
+            }
+        }
+        if ($request->ajax()) {
+            return response()->json(['status' => 1, 'message' => 'Templates updated successfully!']);
+        }
 
-                if($row->preview_url)
-                {
-                    $contents = $this->getImageByCurl($row->preview_url);
-
-                   $media=MediaUploader::fromString($contents)->useFilename('template-'.time())->toDirectory('template-images')->upload();
-
-                   $template->attachMedia($media, config('constants.media_tags'));
-                }
-
-                
-
-
-             foreach ($available_modifications as $row_index => $tag) {
-                    foreach ($tag as $name => $value) {
-
-                       $modifications= array('tag'=>$name,'value'=>$value,'template_id'=>$template->id,'row_index'=>$row_index);
-
-                      
-                        $template->modifications()->create($modifications);
-                    }
-                   
-                }
-
-            
-           
-
-       }
-           if($request->ajax())
-           {
-            return response()->json(["status" => 1, "message" => "Templates updated successfully!"]);
-           }
-
-           return redirect()->back()->with('success','Templates are updated.');
-       
+        return redirect()->back()->with('success', 'Templates are updated.');
     }
-
 
     public function createWebhook(Request $request)
     {
         $header = $request->header('Authorization', 'default');
 
-        if($header=='Bearer '.env('BANNER_WEBHOOK_KEY'))
-        {
-             $this->updateTemplatesFromBearBanner();
+        if ($header == 'Bearer ' . env('BANNER_WEBHOOK_KEY')) {
+            $this->updateTemplatesFromBearBanner();
         }
-      
     }
 
     /**
@@ -233,10 +181,10 @@ class TemplatesController extends Controller
     public function create(Request $request)
     {
         $template = new \App\Template;
-        if($request->auto_generate_product == 'on'){
-           $request->merge(['auto_generate_product' => '1']);
+        if ($request->auto_generate_product == 'on') {
+            $request->merge(['auto_generate_product' => '1']);
         }
-        
+
         $template->fill(request()->all());
 
         if ($template->save()) {
@@ -248,32 +196,32 @@ class TemplatesController extends Controller
             }
         }
 
-        return response()->json(["code" => 1, "message" => "Template Created successfully!"]);
+        return response()->json(['code' => 1, 'message' => 'Template Created successfully!']);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $template = \App\Template::where("id", $id)->first();
+        $template = \App\Template::where('id', $id)->first();
 
         if ($template) {
             $template->delete();
         }
 
-        return response()->json(["code" => 1, "message" => "Template Deleted successfully!"]);
+        return response()->json(['code' => 1, 'message' => 'Template Deleted successfully!']);
     }
 
     public function edit(Request $request)
     {
         $template = \App\Template::find(5);
-        if($request->auto == 'on'){
-           $template->auto_generate_product = 1;
-        }else{
+        if ($request->auto == 'on') {
+            $template->auto_generate_product = 1;
+        } else {
             $template->auto_generate_product = 0;
         }
         $template->name = $request->name;
@@ -285,64 +233,61 @@ class TemplatesController extends Controller
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('template-images')->upload();
 
-                  //  print_r($media);die;
+                    //  print_r($media);die;
                     $template->attachMedia($media, config('constants.media_tags'));
                 }
             }
         }
 
         return redirect()->back();
-    
     }
-
 
     public function typeIndex(Request $request)
     {
         $temps = Template::all();
-        if($request->search){
-            $templates = ProductTemplate::where('template_no',$request->search)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
-        }else{
-           $templates = ProductTemplate::paginate(Setting::get('pagination')); 
+        if ($request->search) {
+            $templates = ProductTemplate::where('template_no', $request->search)->paginate(Setting::get('pagination'))->appends(request()->except(['page']));
+        } else {
+            $templates = ProductTemplate::paginate(Setting::get('pagination'));
         }
-        
+
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('product-template.partials.type-list-template', compact('templates','temps'))->render(),
-                'links' => (string)$templates->render(),
+                'tbody' => view('product-template.partials.type-list-template', compact('templates', 'temps'))->render(),
+                'links' => (string) $templates->render(),
                 'total' => $templates->total(),
             ], 200);
         }
 
-        
-        return view('product-template.type-index',compact('templates','temps'));
+        return view('product-template.type-index', compact('templates', 'temps'));
     }
 
     public function generateTempalateCategoryBrand()
     {
-        $templates = Template::where('auto_generate_product',1)->get();
+        $templates = Template::where('auto_generate_product', 1)->get();
         foreach ($templates as $template) {
             $categories = Category::select('id')->get();
-                foreach ($categories as $category) {
+            foreach ($categories as $category) {
                 $brands = Brand::select('id')->get();
                 foreach ($brands as $brand) {
-                   $products = Product::where('category',$category->id)->where('brand',$brand->id)->latest()->limit(50)->get();
-                   foreach ($products as $product) {
-                        if($product->getMedia(config('constants.media_tags'))->count() != 0){
-                            $oldTemplate = ProductTemplate::where('template_no',$template->id)->where('type',1)->orderBy('id','desc')->first();
-                            if($oldTemplate != null){
-                                $mediable = DB::table('mediables')->where('mediable_type','App\ProductTemplate')->where('mediable_id',$oldTemplate->id)->count();
-                                if($template->no_of_images == $mediable){
+                    $products = Product::where('category', $category->id)->where('brand', $brand->id)->latest()->limit(50)->get();
+                    foreach ($products as $product) {
+                        if ($product->getMedia(config('constants.media_tags'))->count() != 0) {
+                            $oldTemplate = ProductTemplate::where('template_no', $template->id)->where('type', 1)->orderBy('id', 'desc')->first();
+                            if ($oldTemplate != null) {
+                                $mediable = DB::table('mediables')->where('mediable_type', \App\ProductTemplate::class)->where('mediable_id', $oldTemplate->id)->count();
+                                if ($template->no_of_images == $mediable) {
                                     //check if Product Template Already Exist
-                                    $temp = ProductTemplate::where('template_no',$template->id)->where('brand_id',$product->brand)->where('category_id',$product->category)->where('is_processed',0)->where('type',1)->count();
-                                    
-                                    if($temp == 0){
+                                    $temp = ProductTemplate::where('template_no', $template->id)->where('brand_id', $product->brand)->where('category_id', $product->category)->where('is_processed', 0)->where('type', 1)->count();
+
+                                    if ($temp == 0) {
                                         $productTemplate = new ProductTemplate;
                                         $productTemplate->template_no = $template->id;
                                         $productTemplate->product_title = '';
                                         $productTemplate->brand_id = $product->brand;
                                         $productTemplate->currency = 'eur';
                                         $productTemplate->price = '';
-                                        $productTemplate->discounted_price = ''; 
+                                        $productTemplate->discounted_price = '';
                                         $productTemplate->category_id = $product->category;
                                         $productTemplate->product_id = '';
                                         $productTemplate->is_processed = 0;
@@ -352,33 +297,32 @@ class TemplatesController extends Controller
                                         $media = Media::find($media->id);
                                         $tag = 'template-image';
                                         try {
-                                           $productTemplate->attachMedia($media, $tag); 
+                                            $productTemplate->attachMedia($media, $tag);
                                         } catch (\Exception $e) {
                                             continue;
                                         }
-                                    }    
-                                    
-                                }else{
+                                    }
+                                } else {
                                     $media = $product->getMedia(config('constants.media_tags'))->first();
                                     $media = Media::find($media->id);
                                     $tag = 'template-image';
                                     try {
-                                       $oldTemplate->attachMedia($media, $tag);
+                                        $oldTemplate->attachMedia($media, $tag);
                                     } catch (\Exception $e) {
                                         continue;
                                     }
-                               }
-                            }else{
+                                }
+                            } else {
                                 //check if Product Template Already Exist
-                                $temp = ProductTemplate::where('template_no',$template->id)->where('brand_id',$product->brand)->where('category_id',$product->category)->where('is_processed',0)->where('type',1)->count();
-                                if($temp == 0){
+                                $temp = ProductTemplate::where('template_no', $template->id)->where('brand_id', $product->brand)->where('category_id', $product->category)->where('is_processed', 0)->where('type', 1)->count();
+                                if ($temp == 0) {
                                     $productTemplate = new ProductTemplate;
                                     $productTemplate->template_no = $template->id;
                                     $productTemplate->product_title = '';
                                     $productTemplate->brand_id = $product->brand;
                                     $productTemplate->currency = 'eur';
                                     $productTemplate->price = '';
-                                    $productTemplate->discounted_price = ''; 
+                                    $productTemplate->discounted_price = '';
                                     $productTemplate->category_id = $product->category;
                                     $productTemplate->product_id = '';
                                     $productTemplate->is_processed = 0;
@@ -388,47 +332,54 @@ class TemplatesController extends Controller
                                     $media = Media::find($media->id);
                                     $tag = 'template-image';
                                     try {
-                                        $productTemplate->attachMedia($media, $tag); 
+                                        $productTemplate->attachMedia($media, $tag);
                                     } catch (\Exception $e) {
                                         continue;
                                     }
-                                }    
+                                }
                             }
                         }
-                   }
+                    }
                 }
-            } 
+            }
         }
-        
-        return response()->json(["message" => "Sucess"],200);
+
+        return response()->json(['message' => 'Sucess'], 200);
     }
-    public function getTemplateProduct(request $request){
+
+    public function getTemplateProduct(request $request)
+    {
         $id = $request->input('productid');
         $productData = product::find($id);
-        $image = $productData->getMedia(\Config('constants.media_original_tag'))->first(); 
+        $image = $productData->getMedia(\Config('constants.media_original_tag'))->first();
         $responseData = [
-            'status'=>'success',
-            'productName'=>$productData->name,
-            'short_description'=>Str::limit($productData->short_description, 20, $end='...'),
-            'price'=>'$'.$productData->price,
-            'product_url'=>'www.test.com',
+            'status' => 'success',
+            'productName' => $productData->name,
+            'short_description' => Str::limit($productData->short_description, 20, $end = '...'),
+            'price' => '$' . $productData->price,
+            'product_url' => 'www.test.com',
         ];
-        if($image) { 
-            $responseData['product_image'] = $image->getUrl(); 
+        if ($image) {
+            $responseData['product_image'] = $image->getUrl();
         }
-        if(isset($productData)){
+        if (isset($productData)) {
             return response()->json($responseData);
         }
-        return response()->json(['status'=>'failed','message'=>'Product not found']);
+
+        return response()->json(['status' => 'failed', 'message' => 'Product not found']);
     }
 
     public function getImageByCurl($url)
     {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $response = curl_exec($ch);
         curl_close($ch);
+
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\TemplatesController::class, 'report');
 
         return $response;
     }

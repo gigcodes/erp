@@ -9,19 +9,78 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     @include("social.campaigns.history")
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  Campaigns ({{ $campaigns->total() }})<span class="count-text"></span></h2>
-            <div class="pull-right">
+            <div class="pull-left ml-2 mb-3">
+                <form class="form-inline" action="{{route('social.campaign.index')}}" method="GET">
+                    <div class="form-group mr-2">
+                        <input type="date" name="date" id="date" class="form-control" style="width:250px !important">
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
+                            @foreach($campaign_data as $campaign)
+                                @php
+                                    $config_name = App\Social\SocialConfig::where('id',$campaign->config_id)->first();
+                                @endphp
+                                <option value="{{$config_name->id}}" {{ isset($_GET['config_name']) && in_array($config_name->id,$_GET['config_name']) ? 'selected' : '' }}
+
+                                >{{$config_name->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="campaign_name[]"  data-placeholder="Campaign Name" id="campaign_name" style="width:250px !important" multiple>
+                            @foreach($campaign_data as $campaign)
+                                <option value="{{$campaign->name}}" {{ isset($_GET['campaign_name']) && in_array($campaign->name,$_GET['campaign_name']) ? 'selected' : '' }}>{{$campaign->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="objective[]" data-placeholder="Objective"  id="objective" style="width:250px !important" multiple>
+                            <option value="">Objective</option>
+                            @foreach($campaign_data as $campaign)
+                                <option value="{{$campaign->objective_name}}" {{ isset($_GET['objective']) && in_array($campaign->objective_name,$_GET['objective']) ? 'selected' : '' }}>{{$campaign->objective_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control" name="type" id="type" style="width:250px !important">
+                            <option value="">Type</option>.
+                            @foreach($campaign_data as $campaign)
+                                <option value="{{$campaign->buying_type}}" {{ isset($_GET['type']) && !empty($campaign->buying_type == $_GET['type']) ? 'selected' : '' }}>{{$campaign->buying_type}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control" name="status" id="status" style="width:250px !important">
+                            <option value="">Status</option>
+                            @foreach($campaign_data as $campaign)
+                                <option value="{{$campaign->status}}" {{ isset($_GET['status']) && !empty($campaign->status == $_GET['status']) ? 'selected' : '' }}>{{$campaign->status}}</option>
+                            @endforeach
+{{--                            {{ !empty($campaign->status == $status)  ? 'selected' : '' }}--}}
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <button type="submit" class="btn btn-image3 btn-sm text-dark">
+                            <i class="fa fa-filter"></i>
+                        </button>
+                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
+                    </div>
+                </form>
+            </div>
+            <div class="pull-right mr-2">
                 <a class="btn btn-secondary create-post">+</a>
             </div>
         </div>
 
-        <br>
-        @include("social.header_menu")
-        
+        <div class="row ml-4 mb-2">
+            @include("social.header_menu")
+        </div>
+
         @if ($message = Session::get('success'))
             <div class="alert alert-success">
                 <p>{{ $message }}</p>
@@ -38,20 +97,22 @@
                 </ul>
             </div>
         @endif
-        <div class="col-lg-12 margin-tb">
 
+        <div class="col-lg-12 margin-tb">
             <div class="col-md-12 margin-tb">
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Date</th>
                             <th style="width:25%">Config Name</th>
+                            <th style="width:30%">Website</th>
                             <th style="width:30%">Campaign Name</th>
                             <!-- <th style="width:10%">Image</th> -->
                             <th style="width:10%">Objective</th>
                             <th style="width:10%">Buying Type</th>
                             <th style="width:10%">Daily Budget</th>
                             <th style="width:5%">Status</th>
+                            <th style="width:5%">Live Status    </th>
                             <th style="width:5%">Action</th>
                         </tr>
                         <tbody class="infinite-scroll-data">
@@ -79,8 +140,7 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
     <script type="text/javascript">
         $(document).on("click",".account-history",function(e) {
@@ -115,6 +175,7 @@
                 }
             });
        });
+
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             

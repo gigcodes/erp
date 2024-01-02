@@ -188,7 +188,7 @@
                 let self = this;
 
                 $.ajax({
-                    url: "{{ action('InstagramProfileController@add') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramProfileController::class, 'add']) }}",
                     type: 'post',
                     data: {
                         name: nme,
@@ -221,7 +221,7 @@
             let username = $(this).attr('data-username');
                 $("#content").html('');
                 $.ajax({
-                    url: '{{action('InstagramProfileController@show', '')}}/'+username,
+                    url: '{{action([\App\Http\Controllers\InstagramProfileController::class, 'show'], '')}}/'+username,
                     success: function(response) {
                         $("#content").html('');
                         let item = response;

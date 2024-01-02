@@ -26,7 +26,7 @@
             </div>
         </div>    
         <div class="col-md-12 mt-5">
-            <form action="{{ action('ColorReferenceController@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\ColorReferenceController::class, 'store']) }}" method="post">
                 @csrf
                 <table class="table table-striped">
                     <tr>

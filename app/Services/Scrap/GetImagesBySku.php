@@ -2,20 +2,14 @@
 
 namespace App\Services\Scrap;
 
-use App\Brand;
-use App\ScrapedProducts;
-use App\ScrapEntries;
-use App\Product;
-use App\Setting;
 use Storage;
-use Validator;
+use App\Product;
+use App\ScrapEntries;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GetImagesBySku extends Scraper
 {
-
     private $supportedBrands = [
         'Yves Saint Laurent' => 'https://www.ysl.com/Search/Index?siteCode=SAINTLAURENT_IT&season=A,P,E&department=llmnwmn&gender=D,U,E&emptySearchResult=true&textsearch={QUERY}',
         'valentino' => '',
@@ -23,7 +17,7 @@ class GetImagesBySku extends Scraper
         'fendi' => 'https://www.fendi.com/it/search-results?async=true&q={QUERY}',
         'stella mcartny' => '',
         'kenzo' => '',
-        'farfetch' => 'https://www.farfetch.com/it/shopping/tops-1/items.aspx?q={QUERY}'
+        'farfetch' => 'https://www.farfetch.com/it/shopping/tops-1/items.aspx?q={QUERY}',
     ];
 
     public function scrap($yo)
@@ -37,35 +31,31 @@ class GetImagesBySku extends Scraper
 
             $brand = $product->brands;
 
-            if (!$brand) {
+            if (! $brand) {
                 continue;
             }
-
 
             $brand = strtolower($brand->name);
 
             if (array_key_exists($brand, $this->supportedBrands)) {
                 $this->getProductDetails($product, $brand);
             }
-
         }
     }
 
-
     /**
-     * @param ScrapEntries $scrapEntry
+     * @param  ScrapEntries  $scrapEntry
+     *
      * @throws \Exception
      */
     private function getProductDetails($product, $brand): void
     {
-
         if ($product->hasMedia(config('constants.media_tags'))) {
             return;
         }
 
-
         $sku = $product->sku;
-        if (!$sku) {
+        if (! $sku) {
             return;
         }
 
@@ -95,7 +85,7 @@ class GetImagesBySku extends Scraper
                     $productUrl = $productBox->getAttribute('href');
                 }
 
-                if (!$productUrl) {
+                if (! $productUrl) {
                     break;
                 }
 
@@ -108,19 +98,17 @@ class GetImagesBySku extends Scraper
                 $c2 = new HtmlPageCrawler($productContent);
                 $images = $this->getImagesForFendi($c2);
 
-            foreach ($images as $image_name) {
-                $path = public_path('uploads') . '/social-media/' . $image_name;
-                $media = MediaUploader::fromSource($path)
-                                        ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
-                                        ->upload();
-                $product->attachMedia($media,config('constants.media_tags'));
-            }
+                foreach ($images as $image_name) {
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
+                    $media = MediaUploader::fromSource($path)
+                                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                                            ->upload();
+                    $product->attachMedia($media, config('constants.media_tags'));
+                }
             case 'farfetch':
             default:
                 break;
-
         }
-
     }
 
     private function getImagesForFendi(HtmlPageCrawler $c): array
@@ -137,9 +125,9 @@ class GetImagesBySku extends Scraper
         return $this->downloadImages($content, 'fendi');
     }
 
-    private function getImagesForPrada(HtmlPageCrawler $c) {
+    private function getImagesForPrada(HtmlPageCrawler $c)
+    {
         $images = $c->filter('div.thumbnail-list__item img')->getIterator();
-
 
         foreach ($images as $image) {
             $content[] = trim($image->getAttribute('src'));
@@ -150,7 +138,8 @@ class GetImagesBySku extends Scraper
         return $this->downloadImages($content, 'tory');
     }
 
-    private function getImagesForYSL(HtmlPageCrawler $c) {
+    private function getImagesForYSL(HtmlPageCrawler $c)
+    {
         $images = $c->filter('div.thumbnail-list__item img')->getIterator();
         $content = [];
 
@@ -164,7 +153,7 @@ class GetImagesBySku extends Scraper
     private function downloadImages($data, $prefix = 'img'): array
     {
         $images = [];
-        foreach ($data as $key=>$datum) {
+        foreach ($data as $key => $datum) {
             try {
                 $datum = $this->getImageUrl($datum);
                 $imgData = file_get_contents($datum);
@@ -172,13 +161,15 @@ class GetImagesBySku extends Scraper
                 continue;
             }
 
-            $fileName = $prefix . '_' . md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }
+
         return $images;
     }
+
     private function getImageUrl($url)
     {
         return $url;
@@ -220,6 +211,5 @@ class GetImagesBySku extends Scraper
 
             return implode('_', $skuArray);
         }
-
     }
 }

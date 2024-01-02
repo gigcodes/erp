@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -10,44 +11,44 @@ class ColorNamesReference extends Model
 {
     /**
      * @var string
-        * @SWG\Property(property="color_code",type="string")
-      * @SWG\Property(property="color_name",type="string")
+     *
+     * @SWG\Property(property="color_code",type="string")
+     * @SWG\Property(property="color_name",type="string")
      */
-    protected $fillable = ['color_code','color_name'];
+    protected $fillable = ['color_code', 'color_name'];
 
     // Get product color from text
     public static function getProductColorFromObject($productObject)
     {
         // Get distinct color names used on ERP
-        $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name','erp_name']);
-        
+        $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name', 'erp_name']);
+
         // Check if color exists
         if (isset($productObject->properties['color']) || isset($productObject->properties->color)) {
             $colerRef = $productObject->properties['color'];
             foreach ($mainColorNames as $colorName) {
-                if(!empty($colerRef) && is_string($colerRef) && !empty($colorName->color_name)) {
+                if (! empty($colerRef) && is_string($colerRef) && ! empty($colorName->color_name)) {
                     if (stristr($colerRef, $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
                 }
             }
             // in this case color refenrece we don't found so we need to add that one
-            if(!empty($colerRef) && is_string($colerRef)) {
-                $creferenceModel = ColorNamesReference::where('color_name',$colerRef)->first();
-                if(!$creferenceModel) {
+            if (! empty($colerRef) && is_string($colerRef)) {
+                $creferenceModel = ColorNamesReference::where('color_name', $colerRef)->first();
+                if (! $creferenceModel) {
                     ColorNamesReference::create([
                         'color_code' => '',
-                        'color_name' => $colerRef
+                        'color_name' => $colerRef,
                     ]);
                 }
             }
-            
         }
 
         // Check if color can be found in url
-        if (!empty($productObject->url)) {
+        if (! empty($productObject->url)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($productObject->url) && !empty($colorName->color_name)) {
+                if (! empty($productObject->url) && ! empty($colorName->color_name)) {
                     if (stristr(self::_replaceKnownProblems($productObject->url), $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
@@ -56,9 +57,9 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in title
-        if (!empty($productObject->title)) {
+        if (! empty($productObject->title)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($productObject->title) && !empty($colorName->color_name)) {
+                if (! empty($productObject->title) && ! empty($colorName->color_name)) {
                     if (stristr(self::_replaceKnownProblems($productObject->title), $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
@@ -67,9 +68,9 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in description
-        if (!empty($productObject->description)) {
+        if (! empty($productObject->description)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($productObject->description) && !empty($colorName->color_name)) {
+                if (! empty($productObject->description) && ! empty($colorName->color_name)) {
                     if (stristr(self::_replaceKnownProblems($productObject->description), $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
@@ -81,15 +82,15 @@ class ColorNamesReference extends Model
         return '';
     }
 
-    public static function getColorRequest($color = "" , $url = "" , $title = "", $description = "")
+    public static function getColorRequest($color = '', $url = '', $title = '', $description = '')
     {
         // Get distinct color names used on ERP
-        $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name','erp_name']);
-        
+        $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name', 'erp_name']);
+
         // Check if color exists
-        if (!empty($color)) {
+        if (! empty($color)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($color) && !empty($colorName->color_name)) {
+                if (! empty($color) && ! empty($colorName->color_name)) {
                     if (stristr($color, $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
@@ -98,25 +99,24 @@ class ColorNamesReference extends Model
             // in this case color refenrece we don't found so we need to add that one
             ColorNamesReference::create([
                 'color_code' => '',
-                'color_name' => $color
+                'color_name' => $color,
             ]);
 
-            if(!empty($color)) {
-                $creferenceModel = ColorNamesReference::where('color_name',$color)->first();
-                if(!$creferenceModel) {
+            if (! empty($color)) {
+                $creferenceModel = ColorNamesReference::where('color_name', $color)->first();
+                if (! $creferenceModel) {
                     ColorNamesReference::create([
                         'color_code' => '',
-                        'color_name' => $color
+                        'color_name' => $color,
                     ]);
                 }
             }
-            
         }
 
         // Check if color can be found in url
-        if (!empty($url)) {
+        if (! empty($url)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($url) && !empty($colorName->color_name)) {
+                if (! empty($url) && ! empty($colorName->color_name)) {
                     if (stristr(self::_replaceKnownProblems($url), $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
@@ -125,9 +125,9 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in title
-        if (!empty($title)) {
+        if (! empty($title)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($title) && !empty($colorName->color_name)) {
+                if (! empty($title) && ! empty($colorName->color_name)) {
                     if (stristr(self::_replaceKnownProblems($title), $colorName->color_name)) {
                         return $colorName->erp_name;
                     }
@@ -136,9 +136,9 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in description
-        if (!empty($description)) {
+        if (! empty($description)) {
             foreach ($mainColorNames as $colorName) {
-                if(!empty($description) && !empty($colorName->color_name)) {
+                if (! empty($description) && ! empty($colorName->color_name)) {
                     if (stristr(self::_replaceKnownProblems($description), $colorName->color_name)) {
                         return $colorName->erp_name;
                     }

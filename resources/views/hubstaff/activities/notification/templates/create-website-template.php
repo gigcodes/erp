@@ -56,7 +56,7 @@
 		         <div class="form-group col-md-12">
 		            <label for="ex_rate">Exchange Rate</label>
 		            <select name="status" class="form-control">
-						<?php foreach(\App\Hubstaff\HubstaffPaymentAccount::STATUS as $k => $status){ ?>
+						<?php foreach (\App\Hubstaff\HubstaffPaymentAccount::STATUS as $k => $status) { ?>
 			            	<option {{if data && data.status == <?php echo $k; ?>}}selected{{/if}} value="<?php echo $k; ?>"><?php echo $status; ?></option>
 			            <?php } ?>
 		            </select>	

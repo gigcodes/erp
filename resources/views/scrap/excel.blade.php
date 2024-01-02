@@ -13,7 +13,7 @@
             @endif
         </div>
         <div class="col-md-12">
-            <form method="post" action="{{ action('ScrapController@excel_store') }}" enctype="multipart/form-data">
+            <form method="post" action="{{ action([\App\Http\Controllers\ScrapController::class, 'excel_store']) }}" enctype="multipart/form-data">
                 @csrf
                 <div class="form-group">
                     <label for="query">Select Excel File</label>
@@ -114,7 +114,7 @@
                 let post_id = $(this).attr('data-media-id');
 
                 $.ajax({
-                    url: "{{ action('InstagramController@getComments') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getComments']) }}",
                     data: {
                         post_id: post_id
                     },
@@ -171,7 +171,7 @@
                     let self = this;
                     let postId = $(this).attr('data-post-id');
                     $.ajax({
-                        url: "{{ action('InstagramController@postComment') }}",
+                        url: "{{ action([\App\Http\Controllers\InstagramController::class, 'postComment']) }}",
                         type: 'post',
                         dataType: 'json',
                         data: {

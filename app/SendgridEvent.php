@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class SendgridEvent
  *
- * @package LaravelSendgridEvents\Models
  *
  * @property array|string[] $categories
  * @property Carbon $created_at
@@ -23,23 +22,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class SendgridEvent extends Model
 {
+    protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload', 'email_id'];
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['timestamp'];
-	protected $fillable = ['timestamp', 'email', 'event', 'sg_event_id', 'sg_message_id', 'categories', 'payload'];
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
+        'timestamp' => 'datetime',
         'payload' => 'array',
-        'categories' => 'array',
-    ];
+        'categories' => 'array',    ];
 
     /**
      * Get the current connection name for the model.
@@ -59,5 +52,21 @@ class SendgridEvent extends Model
     public function getTable()
     {
         return config('sendgridevents.events_table_name');
+    }
+
+    public function sender()
+    {
+        return $this->belongsTo(\App\Email::class, 'email_id');
+    }
+
+    public function getEventColorAttribute()
+    {
+        $eventColor = SendgridEventColor::where('name', $this->event)->first();
+
+        if ($eventColor) {
+            return $eventColor->color;
+        }
+
+        return '';
     }
 }

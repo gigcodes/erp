@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ScrapRequestHistory extends Model
 {
-		/**
+    /**
      * @var string
+     *
      * @SWG\Property(property="scrap_request_histories",type="string")
      * @SWG\Property(property="scraper_id",type="integer")
      * @SWG\Property(property="date",type="datetime")
@@ -20,5 +22,5 @@ class ScrapRequestHistory extends Model
      */
     protected $table = 'scrap_request_histories';
 
-    protected $fillable = ['scraper_id', 'date', 'start_time', 'end_time','request_sent','request_failed'];
+    protected $fillable = ['scraper_id', 'date', 'start_time', 'end_time', 'request_sent', 'request_failed'];
 }

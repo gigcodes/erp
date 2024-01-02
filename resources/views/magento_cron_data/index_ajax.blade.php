@@ -1,9 +1,12 @@
 @php $i=1; @endphp
    @foreach ($data as $dat) 
-       <tr  data-id="{{$i}}" class="tr_{{$i++}}">
+   @php
+      $cronStatus = \App\CronStatus::where('name',$dat->cronstatus)->first();
+   @endphp
+       <tr style="background-color: {{$cronStatus->color}}!important;" data-id="{{$i}}" class="tr_{{$i++}}">
            <td class="expand-row" style="word-break: break-all">
                <span class="td-mini-container">
-                  {{ strlen( $dat['website']) > 9 ? substr( $dat['website'], 0, 8).'...' :  $dat['website'] }}
+                  {{ strlen( $dat['website']) > 22 ? substr( $dat['website'], 0, 22).'...' :  $dat['website'] }}
                </span>
 
                <span class="td-full-container hidden">
@@ -23,7 +26,7 @@
 
            <td class="expand-row" style="word-break: break-all">
                 <span class="td-mini-container">
-                            {{ strlen( $dat['job_code']) > 15 ? substr( $dat['job_code'], 0, 15).'...' :  $dat['job_code'] }}
+                            {{ strlen( $dat['job_code']) > 18 ? substr( $dat['job_code'], 0, 18).'...' :  $dat['job_code'] }}
                  </span>
 
                <span class="td-full-container hidden">
@@ -81,6 +84,14 @@
                            {{ $dat['cron_finished_at'] }}
                         </span>
            </td>
+           <td class="expand-row" style="word-break: break-all">
+               <a title="Run Cron" class="btn btn-image magentoCom-run-btn pd-5     btn-ht" data-id="{{ $dat['id']}}" href="javascript:;">
+                  <i class="fa fa-paper-plane" aria-hidden="true"></i>
+               </a>
+               <a title="Preview Response" data-id="{{ $dat['id']}}" class="btn btn-image preview_response pd-5 btn-ht" href="javascript:;">
+                  <i class="fa fa-product-hunt" aria-hidden="true"></i>
+              </a>
+            </td>
 
        </tr> 
    @endforeach

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Bots\Prada;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
+use App\Services\Bots\Prada;
 use Illuminate\Console\Command;
 
 class SaveImageOnServer extends Command
@@ -25,13 +25,14 @@ class SaveImageOnServer extends Command
     protected $description = 'Command description';
 
     protected $country;
+
     protected $IP;
 
     public function handle(): void
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,7 +61,6 @@ class SaveImageOnServer extends Command
 
     private function setCountry(): void
     {
-
         $this->country = 'IT';
     }
 

@@ -144,9 +144,7 @@
                 <div class="col-md-5">
 
 
-                    <!-- {{ $product = $product->product }} -->
-                    <!--                        --><?php //dd($product); 
-                                                    ?>
+                    
                     <?php $gridImage = ''; ?>
                     @if ($product->hasMedia(config('constants.media_gallery_tag')))
                     @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)

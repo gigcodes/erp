@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Category;
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
+use App\Category;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class UpdateWiseCategory extends Command
@@ -30,7 +30,7 @@ class UpdateWiseCategory extends Command
     /**
      * Create a new command instance.
      *
-     * @param GebnegozionlineProductDetailsScraper $scraper
+     * @param  GebnegozionlineProductDetailsScraper  $scraper
      */
     public function __construct()
     {
@@ -46,7 +46,7 @@ class UpdateWiseCategory extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,19 +55,19 @@ class UpdateWiseCategory extends Command
             $products = ScrapedProducts::all();
             // $products = ScrapedProducts::where('sku', 'SIDNEYMAMOBLACK')->get();
 
-            $women_count          = 0;
-            $women_second_count   = 0;
-            $women_third_count    = 0;
+            $women_count = 0;
+            $women_second_count = 0;
+            $women_third_count = 0;
             $all_categories_count = 0;
-            $no_category_count    = 0;
-            $no_match_count       = 0;
+            $no_category_count = 0;
+            $no_match_count = 0;
 
             foreach ($products as $count => $product) {
                 if ($old_product = Product::where('sku', $product->sku)->first()) {
                     $properties_array = $product->properties ?? [];
 
                     if (array_key_exists('category', $properties_array)) {
-                        $categories  = Category::all();
+                        $categories = Category::all();
                         $category_id = 1;
 
                         if (is_array($properties_array['category'])) {
@@ -110,7 +110,6 @@ class UpdateWiseCategory extends Command
                                         }
                                     }
                                 }
-
                             }
 
                             unset($women_children);
@@ -118,7 +117,6 @@ class UpdateWiseCategory extends Command
                             $old_product->category = $category_id;
                             $old_product->save();
                         }
-
                     } else {
                         dump("NO CATEGORY - $product->sku");
                         $no_category_count++;

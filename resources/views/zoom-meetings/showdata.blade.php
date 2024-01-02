@@ -24,7 +24,7 @@
             <h2 class="page-heading">{{ ucfirst($type) }} Meetings</h2>
         </div>
         <div class="container">
-            <form action="{{ action('Meeting\ZoomMeetingController@showData') }}" method="GET" class="form-inline">
+            <form action="{{ action([\App\Http\Controllers\Meeting\ZoomMeetingController::class, 'showData']) }}" method="GET" class="form-inline">
                 <div class="form-group ml-3">
                     <select class="form-control" name="type" required>
                         <option value="">Select User Type</option>

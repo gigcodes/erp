@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Marketing\WhatsappConfig;
-use App\ApiKey;
 
 class AuthenticateWhatsapp extends Command
 {
@@ -39,9 +37,7 @@ class AuthenticateWhatsapp extends Command
      */
     public function handle()
     {
-       
-        $controller = app()->make('App\Http\Controllers\Marketing\WhatsappConfigController');
+        $controller = app()->make(\App\Http\Controllers\Marketing\WhatsappConfigController::class);
         app()->call([$controller, 'checkInstanceAuthentication'], []);
-
     }
 }

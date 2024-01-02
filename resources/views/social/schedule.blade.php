@@ -11,7 +11,7 @@
         </div>
     @endif
     <div class="mt-5">
-        <h1><u>Edit Schedule: {{ $ad->name }}</u> (<a href="{{ action('SocialController@getSchedules') }}">All Schedules</a>)</h1>
+        <h1><u>Edit Schedule: {{ $ad->name }}</u> (<a href="{{ action([\App\Http\Controllers\SocialController::class, 'getSchedules']) }}">All Schedules</a>)</h1>
         <h3>Scheduled For: {{ substr($ad->scheduled_for, 0, 10) }}</h3>
         <hr>
         <form>
@@ -33,11 +33,11 @@
         </form>
         <div class="row">
             <div class="col-md-12">
-                <form action="{{ action('SocialController@attachMedia', $ad->id) }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\SocialController::class, 'attachMedia'], $ad->id) }}" method="post">
                     @csrf
                     <button class="btn btn-primary">Add Approved Images</button>
                 </form>
-                <form action="{{ action('SocialController@attachProducts', $ad->id) }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\SocialController::class, 'attachProducts'], $ad->id) }}" method="post">
                     @csrf
                     <button class="btn btn-primary">Add Product Images</button>
                 </form>
@@ -71,7 +71,7 @@
                 header: {
                     right: "month,agendaWeek,agendaDay, today prev,next",
                 },
-                events: '{{ action('InstagramController@getScheduledEvents') }}',
+                events: '{{ action([\App\Http\Controllers\InstagramController::class, 'getScheduledEvents']) }}',
                 eventClick: function(calEvent, jsEvent, view) {
                     $('#image_container').empty();
 
@@ -102,7 +102,7 @@
                 let scheduleId = $(this).attr('data-schedule-id');
                 let self = this;
                 $.ajax({
-                    url: '{{ action('InstagramController@postMediaNow', '') }}'+'/'+scheduleId,
+                    url: '{{ action([\App\Http\Controllers\InstagramController::class, 'postMediaNow'], '') }}'+'/'+scheduleId,
                     type: 'get',
                     success: function(response) {
                         if (response.status == 'success') {
@@ -120,7 +120,7 @@
                 let scheduleId = $(this).attr('data-schedule-id');
                 let self = this;
                 $.ajax({
-                    url: '{{ action('InstagramController@cancelSchedule', '') }}'+'/'+scheduleId,
+                    url: '{{ action([\App\Http\Controllers\InstagramController::class, 'cancelSchedule'], '') }}'+'/'+scheduleId,
                     type: 'get',
                     success: function(response) {
                         if (response.status == 'success') {

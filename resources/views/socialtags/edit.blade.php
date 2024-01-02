@@ -11,7 +11,7 @@
                     {{ Session::get('message') }}
                 </div>
             @endif
-            <form method="post" action="{{ action('SocialTagsController@update', $tag->id) }}">
+            <form method="post" action="{{ action([\App\Http\Controllers\SocialTagsController::class, 'update'], $tag->id) }}">
                 @csrf
                 @method('put')
                 <div class="form-group">
@@ -19,7 +19,7 @@
                     <input value="{{ $tag->name }}" type="text" name="name" placeholder="Name" id="name" class="form-control">
                 </div>
                 <div class="form-group">
-                    <a href="{{ action('SocialTagsController@index') }}" class="btn btn-info">Back to All Tags</a>
+                    <a href="{{ action([\App\Http\Controllers\SocialTagsController::class, 'index']) }}" class="btn btn-info">Back to All Tags</a>
                     <button class="btn btn-success">Update</button>
                 </div>
             </form>

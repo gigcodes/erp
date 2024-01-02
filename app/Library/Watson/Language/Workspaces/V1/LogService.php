@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\Workspaces\V1;
 
 use App\Library\Watson\Service;
@@ -10,7 +11,7 @@ class LogService extends Service
      *
      * @var string
      */
-    protected $url = "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350";
+    protected $url = 'https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/1875ce0b-ffe1-45a1-be2b-21a8488a0350';
 
     /**
      * API service version
@@ -38,5 +39,4 @@ class LogService extends Service
             ['query' => ['version' => $version] + $params]
         );
     }
-
 }

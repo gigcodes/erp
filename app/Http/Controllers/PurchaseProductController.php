@@ -2,38 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use File;
+use Excel;
+use Storage;
+use App\User;
 use App\Brand;
-use App\ChatMessage;
-use App\Customer;
 use App\Email;
-use App\Exports\EnqueryExport;
-use App\Exports\FileExcelExport;
-use App\Helpers;
-use App\Helpers\OrderHelper;
-use App\Imports\CustomerNumberImport;
-use App\InventoryStatus;
-use App\Mails\Manual\PurchaseExport;
 use App\Order;
-use App\OrderProduct;
+use App\Helpers;
 use App\Product;
+use App\Setting;
+use App\Customer;
+use App\Supplier;
+use Carbon\Carbon;
+use App\ChatMessage;
+use App\OrderProduct;
+use App\StoreWebsite;
+use App\StatusMapping;
+use App\PurchaseStatus;
+use App\InventoryStatus;
 use App\ProductSupplier;
+use App\OrderStatusHistory;
+use App\Helpers\OrderHelper;
+use Illuminate\Http\Request;
 use App\PurchaseProductOrder;
+use App\SupplierDiscountInfo;
+use App\Exports\EnqueryExport;
+use App\SupplierOrderTemplate;
+use App\Exports\FileExcelExport;
+use App\PurchaseProductOrderLog;
+use App\SupplierOrderInquiryData;
+use App\PurchaseProductOrderImage;
+use App\Mails\Manual\PurchaseExport;
+use App\Imports\CustomerNumberImport;
 use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
-use App\PurchaseProductOrderImage;
-use App\PurchaseProductOrderLog;
-use App\Setting;
-use App\StoreWebsite;
-use App\Supplier;
-use App\SupplierDiscountInfo;
-use App\SupplierOrderInquiryData;
-use App\SupplierOrderTemplate;
-use App\User;
-use Carbon\Carbon;
-use Excel;
-use File;
-use Illuminate\Http\Request;
-use Storage;
+use App\Models\DataTableColumn;
+use App\Models\OrderPurchaseProductStatus;
+use App\Models\OrderPurchaseProductStatusHistory;
 
 class PurchaseProductController extends Controller
 {
@@ -43,7 +50,8 @@ class PurchaseProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    {   
+        $filter_product = $request->input('filter_product');
         $filter_customer = $request->input('filter_customer');
         $filter_supplier = $request->filter_supplier ?? '';
         $filter_selling_price = $request->input('filter_selling_price');
@@ -52,8 +60,8 @@ class PurchaseProductController extends Controller
         $filter_inventory_status_id = $request->input('filter_inventory_status_id');
         $order_status = $request->status ?? [''];
         $date = $request->date ?? '';
-        $brandList = \App\Brand::all()->pluck("name", "id")->toArray();
-        $brandIds = array_filter($request->get("brand_id", []));
+        $brandList = \App\Brand::all()->pluck('name', 'id')->toArray();
+        $brandIds = array_filter($request->get('brand_id', []));
         $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
         //$product_suppliers_list=ProductSupplier::all();
         //$product_suppliers_list=array();
@@ -104,7 +112,7 @@ class PurchaseProductController extends Controller
             default:
                 $sortby = 'order_date';
         }
-        $orders = (new Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo", "swo.order_id", "orders.id");
+        $orders = (new Order())->newQuery()->with('customer')->leftJoin('store_website_orders as swo', 'swo.order_id', 'orders.id');
         if (empty($term)) {
             $orders = $orders;
         } else {
@@ -135,7 +143,6 @@ class PurchaseProductController extends Controller
             ->orWhere('client_name','like','%'.$term.'%')
             ->orWhere('city','like','%'.$term.'%') */
             //$orders->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
-
         }
         $orders = $orders->whereHas('customer', function ($query) use ($filter_customer) {
             if ($filter_customer != '') {
@@ -144,6 +151,8 @@ class PurchaseProductController extends Controller
             //->orWhere('id', 'LIKE', '%'.$filter_customer.'%')
             //->orWhere('email', 'LIKE', '%'.$filter_customer.'%');
         });
+
+
         if ($filter_order_date != '') {
             $orders = $orders->where('order_date', $filter_order_date);
         }
@@ -162,18 +171,23 @@ class PurchaseProductController extends Controller
             $orders = $orders->where('swo.website_id', $store_site);
         }
 
-        $statusFilterList = clone ($orders);
+        $statusFilterList = clone $orders;
 
-        $orders = $orders->leftJoin("order_products as op", "op.order_id", "orders.id")
-            ->leftJoin("customers as cs", "cs.id", "orders.customer_id")
-            ->leftJoin("products as p", "p.id", "op.product_id")
-            ->leftJoin("product_suppliers as ps", "ps.product_id", "op.product_id");
+        $orders = $orders->leftJoin('order_products as op', 'op.order_id', 'orders.id')
+            ->leftJoin('customers as cs', 'cs.id', 'orders.customer_id')
+            ->leftJoin('products as p', 'p.id', 'op.product_id')
+            ->leftJoin('product_suppliers as ps', 'ps.product_id', 'op.product_id');
 
-        if (!empty($brandIds)) {
-            $orders = $orders->whereIn("p.brand", $brandIds);
+        if (! empty($brandIds)) {
+            $orders = $orders->whereIn('p.brand', $brandIds);
         }
-        $orders = $orders->groupBy("op.id");
-        $orders = $orders->select(["orders.*", "op.id as order_product_id", "op.product_price", "op.product_id as product_id", "op.supplier_discount_info_id", "op.inventory_status_id", "op.currency", "op.eur_price"]);
+
+        if ($filter_product != '') {
+            $orders = $orders->where('p.name', 'LIKE', '%' . $filter_product . '%');
+        }
+
+        $orders = $orders->groupBy('op.id');
+        $orders = $orders->select(['orders.*', 'op.id as order_product_id', 'op.product_price', 'op.product_id as product_id', 'op.supplier_discount_info_id', 'op.inventory_status_id', 'op.currency as curr', 'op.eur_price']);
         if ($filter_selling_price != '') {
             $orders->where('op.product_price', $filter_selling_price);
         }
@@ -196,16 +210,69 @@ class PurchaseProductController extends Controller
             $orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
         }
 
-        $statusFilterList = $statusFilterList->leftJoin("order_statuses as os", "os.id", "orders.order_status_id")
-            ->where("order_status", "!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"), "os.status as order_status", "swo.website_id")->get()->toArray();
-        $totalOrders = sizeOf($orders->get());
+        $statusFilterList = $statusFilterList->leftJoin('order_statuses as os', 'os.id', 'orders.order_status_id')
+            ->where('order_status', '!=', '')->groupBy('order_status')->select(\DB::raw('count(*) as total'), 'os.status as order_status', 'swo.website_id')->get()->toArray();
+        $totalOrders = count($orders->get());
         $orders_array = $orders->paginate(10);
+
+        $inventory_status = OrderPurchaseProductStatus::get();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchase-product')->first();
+
+        $dynamicColumnsToShowPp = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPp = json_decode($hideColumns, true);
+        }
 
         $inventoryStatusQuery = InventoryStatus::query();
         $inventoryStatus = $inventoryStatusQuery->pluck('name', 'id');
         //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
         return view('purchase-product.index', compact('orders_array', 'users', 'orderby',
-            'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id'));
+            'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_product', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id', 'inventory_status', 'dynamicColumnsToShowPp'));
+    }
+
+    public function ppColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','purchase-product')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'purchase-product';
+            $column->column_name = json_encode($request->column_pp); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'purchase-product';
+            $column->column_name = json_encode($request->column_pp); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = OrderPurchaseProductStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        /*$status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = InventoryStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }*/
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     /**
@@ -218,19 +285,23 @@ class PurchaseProductController extends Controller
         $data = null;
         if ($type == 'customer') {
             $data = Customer::join('orders', 'orders.customer_id', 'customers.id')->where('orders.id', $order_id)->select('customers.*')->first();
+
             return view('purchase-product.partials.customer_info', compact('data'));
         }
         if ($type == 'order') {
-            $data = Order::leftJoin("order_products as op", "op.order_id", "orders.id")->where('orders.id', $order_id)->leftJoin("products as p", "p.id", "op.product_id")
-                ->leftJoin("brands as b", "b.id", "p.brand")->select(["orders.*", \DB::raw("group_concat(b.name) as brand_name_list")])->first();
+            $data = Order::leftJoin('order_products as op', 'op.order_id', 'orders.id')->where('orders.id', $order_id)->leftJoin('products as p', 'p.id', 'op.product_id')
+                ->leftJoin('brands as b', 'b.id', 'p.brand')->select(['orders.*', \DB::raw('group_concat(b.name) as brand_name_list')])->first();
+
             return view('purchase-product.partials.order_info', compact('data'));
         }
     }
+
     public function getSupplierDetails($order_product_id, Request $request)
     {
         $order_product = OrderProduct::find($order_product_id);
 
         $suppliers = \App\ProductSupplier::join('suppliers', 'suppliers.id', 'product_suppliers.supplier_id')->where('product_suppliers.product_id', $order_product->product_id)->select('suppliers.*', 'product_suppliers.id as ps_id', 'product_suppliers.price as product_price', 'suppliers.id as supplier_id', 'product_suppliers.product_id', 'product_suppliers.supplier_link')->get();
+
         return view('purchase-product.partials.supplier_info', compact('suppliers', 'order_product'));
     }
 
@@ -239,6 +310,7 @@ class PurchaseProductController extends Controller
         $erpLead = \App\ErpLeads::find($lead_id);
 
         $suppliers = \App\ProductSupplier::join('suppliers', 'suppliers.id', 'product_suppliers.supplier_id')->where('product_suppliers.product_id', $erpLead->product_id)->select('suppliers.*', 'product_suppliers.id as ps_id', 'product_suppliers.price as product_price', 'suppliers.id as supplier_id', 'product_suppliers.product_id', 'product_suppliers.supplier_link')->get();
+
         return view('purchase-product.partials.lead_supplier_info', compact('suppliers', 'erpLead'));
     }
 
@@ -261,7 +333,6 @@ class PurchaseProductController extends Controller
             $suppliers = \App\ProductSupplier::join('suppliers', 'suppliers.id', 'product_suppliers.supplier_id')->where('product_suppliers.product_id', $request->product_id)->select('suppliers.*', 'product_suppliers.id as ps_id', 'product_suppliers.price as product_price', 'suppliers.id as supplier_id', 'product_suppliers.product_id')->get();
 
             $html = (string) view('purchase-product.partials.lead_supplier_info', compact('suppliers', 'erpLead'));
-
         } else {
             $order_product = OrderProduct::find($request->order_product_id);
             $suppliers = \App\ProductSupplier::join('suppliers', 'suppliers.id', 'product_suppliers.supplier_id')->where('product_suppliers.product_id', $request->product_id)->select('suppliers.*', 'product_suppliers.id as ps_id', 'product_suppliers.price as product_price', 'suppliers.id as supplier_id', 'product_suppliers.product_id')->get();
@@ -291,7 +362,6 @@ class PurchaseProductController extends Controller
             $suppliers = \App\ProductSupplier::join('suppliers', 'suppliers.id', 'product_suppliers.supplier_id')->where('product_suppliers.product_id', $request->product_id)->select('suppliers.*', 'product_suppliers.id as ps_id', 'product_suppliers.price as product_price', 'suppliers.id as supplier_id', 'product_suppliers.product_id')->get();
 
             $html = (string) view('purchase-product.partials.lead_supplier_info', compact('suppliers', 'erpLead'));
-
         } else {
             $order_product = OrderProduct::find($request->order_product_id);
             $suppliers = \App\ProductSupplier::join('suppliers', 'suppliers.id', 'product_suppliers.supplier_id')->where('product_suppliers.product_id', $request->product_id)->select('suppliers.*', 'product_suppliers.id as ps_id', 'product_suppliers.price as product_price', 'suppliers.id as supplier_id', 'product_suppliers.product_id')->get();
@@ -304,7 +374,7 @@ class PurchaseProductController extends Controller
 
     public function saveDefaultSupplier(Request $request)
     {
-        if (!$request->product_id || !$request->order_product || !$request->supplier_id) {
+        if (! $request->product_id || ! $request->order_product || ! $request->supplier_id) {
             return response()->json(['message' => 'Supplier not found', 'code' => 500]);
         }
         $discount_info = SupplierDiscountInfo::where('product_id', $request->product_id)->where('supplier_id', $request->supplier_id)->first();
@@ -326,6 +396,7 @@ class PurchaseProductController extends Controller
                 $order_product->save();
             }
         }
+
         return response()->json(['message' => 'Successfull', 'code' => 200]);
     }
 
@@ -394,11 +465,10 @@ class PurchaseProductController extends Controller
     public function sendProducts($type, $supplier_id, Request $request)
     {
         if ($type == 'inquiry') {
-
             // ChatMessage::sendWithChatApi('919825282', null, $message);
 
             $supplier = Supplier::find($supplier_id);
-            $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
+            $path = 'inquiry_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_enquiry_exports.xlsx';
             $subject = 'Product Inquiry';
             $message = 'Please check below products';
             $product_ids = json_decode($request->product_ids, true);
@@ -421,18 +491,18 @@ class PurchaseProductController extends Controller
                 'is_draft' => 0,
             ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
             // START - Purpose : Add Record for Inquiry - DEVTASK-4048
 
             $products_data = Product::whereIn('id', $product_ids)->get()->toArray();
             $product_names = array_column($products_data, 'name');
-            $products_str = implode(", ", $product_names);
+            $products_str = implode(', ', $product_names);
             $message = 'Please check Product enquiry : ' . $products_str;
 
             $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
-            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
+            $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
 
             //START - purpose : Add in ChatMessage -DEVTASK-4236
             $message_chat = ' Inquiry WhatsApp Message : ' . $message;
@@ -447,7 +517,7 @@ class PurchaseProductController extends Controller
 
             $getInquiryData = SupplierOrderInquiryData::where('type', $type)->get()->toArray();
 
-            $pro_data_arr = array();
+            $pro_data_arr = [];
             foreach ($getInquiryData as $key => $value) {
                 $pro_data_arr[$value['type']][$value['product_id']] = $value;
             }
@@ -456,14 +526,13 @@ class PurchaseProductController extends Controller
 
             $pro_arr = [];
             foreach ($product_ids as $key => $val) {
-                if (!in_array($val, $product_id)) {
+                if (! in_array($val, $product_id)) {
                     $pro_arr[] = [
                         'supplier_id' => $supplier_id,
                         'product_id' => $val,
                         'type' => $type,
                         'count_number' => '1',
                     ];
-
                 }
             }
 
@@ -474,9 +543,8 @@ class PurchaseProductController extends Controller
         }
 
         if ($type == 'order') {
-
             $supplier = Supplier::find($supplier_id);
-            $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+            $path = 'order_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
             $subject = 'Product order';
             $message = 'Please check below product order request';
             $product_ids = json_decode($request->product_ids, true);
@@ -498,18 +566,23 @@ class PurchaseProductController extends Controller
                 'status' => 'pre-send',
                 'is_draft' => 0,
             ]);
+            \App\EmailLog::create([
+                'email_id' => $email->id,
+                'email_log' => 'Email initiated',
+                'message' => $email->to,
+            ]);
 
-            \App\Jobs\SendEmail::dispatch($email);
+            \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
             // START - Purpose : Add Record for Inquiry - DEVTASK-4048
             $products_data = Product::whereIn('id', $product_ids)->get()->toArray();
             $product_names = array_column($products_data, 'name');
-            $products_str = implode(", ", $product_names);
+            $products_str = implode(', ', $product_names);
             $message = 'Please check Product Order : ' . $products_str;
 
             $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
-            $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
+            $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
 
             //START - purpose : Add in ChatMessage -DEVTASK-4236
             $message_chat = ' Order WhatsApp Message : ' . $message;
@@ -524,7 +597,7 @@ class PurchaseProductController extends Controller
 
             $getInquiryData = SupplierOrderInquiryData::where('type', $type)->get()->toArray();
 
-            $pro_data_arr = array();
+            $pro_data_arr = [];
             foreach ($getInquiryData as $key => $value) {
                 $pro_data_arr[$value['type']][$value['product_id']] = $value;
             }
@@ -533,14 +606,13 @@ class PurchaseProductController extends Controller
 
             $pro_arr = [];
             foreach ($product_ids as $key => $val) {
-                if (!in_array($val, $product_id)) {
+                if (! in_array($val, $product_id)) {
                     $pro_arr[] = [
                         'supplier_id' => $supplier_id,
                         'product_id' => $val,
                         'type' => $type,
                         'count_number' => '1',
                     ];
-
                 }
             }
 
@@ -603,16 +675,27 @@ class PurchaseProductController extends Controller
 
     public function createStatus(Request $request)
     {
-        $inventory_status = InventoryStatus::where('name', $request->status)->first();
-        if (!$inventory_status) {
-            $inventory_status = new InventoryStatus;
-            $inventory_status->name = $request->status;
-            $inventory_status->save();
-            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        $OrderPurchaseProductStatus = OrderPurchaseProductStatus::where('status_name', $request->status)->first();
+        if (! $OrderPurchaseProductStatus) {
+            $OrderPurchaseProductStatus = new OrderPurchaseProductStatus;
+            $OrderPurchaseProductStatus->status_name = $request->status;
+            $OrderPurchaseProductStatus->save();
 
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
         } else {
             return response()->json(['message' => 'Already exist', 'code' => 500]);
         }
+
+        /*$inventory_status = InventoryStatus::where('name', $request->status)->first();
+        if (! $inventory_status) {
+            $inventory_status = new InventoryStatus;
+            $inventory_status->name = $request->status;
+            $inventory_status->save();
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        } else {
+            return response()->json(['message' => 'Already exist', 'code' => 500]);
+        }*/
     }
 
     public function changeStatus($id, Request $request)
@@ -620,14 +703,35 @@ class PurchaseProductController extends Controller
         $order_product = OrderProduct::find($id);
         if ($request->status && $order_product) {
             $order_product->update(['inventory_status_id' => $request->status]);
+
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         }
+
+        return response()->json(['message' => 'Status not changed', 'code' => 500]);
+    }
+
+    public function changeMainStatus($id, Request $request)
+    {
+        $orders = Order::find($id);
+        if ($request->status && $orders) {
+
+            $history = new OrderPurchaseProductStatusHistory();
+            $history->order_id = $id;
+            $history->old_value = $orders->purchase_product_status_id;
+            $history->new_value = $request->status;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+
+            $orders->update(['purchase_product_status_id' => $request->status]);
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        }
+
         return response()->json(['message' => 'Status not changed', 'code' => 500]);
     }
 
     public function insert_suppliers_product(Request $request)
     {
-
         $product_data = Product::find($request->product_id);
         $suppliers = $request->supplier_id;
 
@@ -686,9 +790,10 @@ class PurchaseProductController extends Controller
             $purchar_product_order = $purchar_product_order->select('purchase_product_orders.*', 'purchase_product_orders.status as purchase_status', 'suppliers.*', 'suppliers.id as supplier_id', 'purchase_product_orders.id as pur_pro_id', 'purchase_product_orders.created_at as created_at_date');
             $purchar_product_order = $purchar_product_order->orderBy('purchase_product_orders.id', 'DESC')->paginate(Setting::get('pagination'));
 
-            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all'));
-        } catch (\Exception $e) {
+            $purchaseStatuses = PurchaseStatus::pluck('name', 'id')->all();
 
+            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses'));
+        } catch (\Exception $e) {
         }
     }
 
@@ -716,8 +821,7 @@ class PurchaseProductController extends Controller
                 $log = PurchaseProductOrderLog::create($params);
 
                 return response()->json(['messages' => 'Invoice Updated successfully', 'code' => 200]);
-            } else if ($from == 'payment_details') {
-
+            } elseif ($from == 'payment_details') {
                 $payment_currency = $request->payment_currency;
                 $payment_amount = $request->payment_amount;
                 $payment_mode = $request->payment_mode;
@@ -736,12 +840,12 @@ class PurchaseProductController extends Controller
                 $input['amount_eur'] = \App\Currency::convert($payment_amount, 'EUR', 'INR');
                 $input['type'] = 'pending';
                 $input['cash_flow_able_id'] = $purchase_pro_id;
-                $input['cash_flow_able_type'] = 'App\PurchaseProductOrder';
+                $input['cash_flow_able_type'] = \App\PurchaseProductOrder::class;
                 $input['order_status'] = 'pending';
                 $input['currency'] = $payment_currency;
 
                 PurchaseProductOrder::where('id', $purchase_pro_id)->update($update);
-                \App\CashFlow::updateOrCreate(['cash_flow_able_id'=> $purchase_pro_id,'user_id'=>\Auth::id()],$input);
+                \App\CashFlow::updateOrCreate(['cash_flow_able_id' => $purchase_pro_id, 'user_id' => \Auth::id()], $input);
                 $params['header_name'] = 'Payment Details';
                 $params['replace_from'] = 'Payment Currency : ' . $get_data->payment_currency . '<br/> Payment Amount : ' . $get_data->payment_amount . ' <br/> Payment Mode : ' . $get_data->payment_mode;
                 $params['replace_to'] = 'Payment Currency : ' . $payment_currency . ' <br/> Payment Amount : ' . $payment_amount . ' <br/> Payment Mode : ' . $payment_mode;
@@ -749,7 +853,7 @@ class PurchaseProductController extends Controller
                 $log = PurchaseProductOrderLog::create($params);
 
                 return response()->json(['messages' => 'Payment Details Updated successfully', 'code' => 200]);
-            } else if ($from == 'costs') {
+            } elseif ($from == 'costs') {
                 $shipping_cost = $request->shipping_cost;
                 $duty_cost = $request->duty_cost;
                 $update = [
@@ -775,7 +879,7 @@ class PurchaseProductController extends Controller
                 $landed_cost = round($purchase_price + $purchase_pro_order_data->shipping_cost + $purchase_pro_order_data->duty_cost, 2);
 
                 return response()->json(['messages' => 'Costs Updated successfully', 'code' => 200, 'landed_cost' => $landed_cost]);
-            } else if ($from == 'status') {
+            } elseif ($from == 'status') {
                 $status = $request->status;
                 $update = [
                     'status' => $status,
@@ -789,7 +893,7 @@ class PurchaseProductController extends Controller
                 $log = PurchaseProductOrderLog::create($params);
 
                 return response()->json(['messages' => 'Status Updated successfully', 'code' => 200]);
-            } else if ($from == 'mrp') {
+            } elseif ($from == 'mrp') {
                 $mrp = $request->mrp;
                 $update = [
                     'mrp_price' => $mrp,
@@ -803,7 +907,7 @@ class PurchaseProductController extends Controller
                 $log = PurchaseProductOrderLog::create($params);
 
                 return response()->json(['messages' => 'MRP Updated successfully', 'code' => 200]);
-            } else if ($from == 'discount_price') {
+            } elseif ($from == 'discount_price') {
                 $discount_price = $request->discount_price;
                 $update = [
                     'discount_price' => $discount_price,
@@ -817,7 +921,7 @@ class PurchaseProductController extends Controller
                 $log = PurchaseProductOrderLog::create($params);
 
                 return response()->json(['messages' => 'Discount Updated successfully', 'code' => 200]);
-            } else if ($from == 'special_price') {
+            } elseif ($from == 'special_price') {
                 $special_price = $request->special_price;
                 $update = [
                     'special_price' => $special_price,
@@ -831,7 +935,7 @@ class PurchaseProductController extends Controller
                 $log = PurchaseProductOrderLog::create($params);
 
                 return response()->json(['messages' => 'Special Price Updated successfully', 'code' => 200]);
-            } else if ($from == 'product_order_mrp') {
+            } elseif ($from == 'product_order_mrp') {
                 $product_order_mrp = $request->product_order_mrp;
                 $product_order_mrp_old = $request->product_order_mrp_old;
                 $order_products_id = $request->order_products_id;
@@ -873,8 +977,7 @@ class PurchaseProductController extends Controller
                 $landed_cost = round($purchase_price + $purchase_pro_order_data->shipping_cost + $purchase_pro_order_data->duty_cost, 2);
 
                 return response()->json(['messages' => 'MRP Updated successfully', 'code' => 200, 'mrp_price' => $mrp_price, 'discount_price' => $discount_price, 'special_price' => $final_special_price, 'landed_cost' => $landed_cost]);
-            } else if ($from == 'product_order_discounted_price') {
-
+            } elseif ($from == 'product_order_discounted_price') {
                 $product_order_mrp = $request->product_order_mrp;
                 $product_order_mrp_old = $request->product_order_mrp_old;
                 $order_products_id = $request->order_products_id;
@@ -916,8 +1019,7 @@ class PurchaseProductController extends Controller
                 $landed_cost = round($purchase_price + $purchase_pro_order_data->shipping_cost + $purchase_pro_order_data->duty_cost, 2);
 
                 return response()->json(['messages' => 'Discounted Price Updated successfully', 'code' => 200, 'mrp_price' => $mrp_price, 'discount_price' => $discount_price, 'special_price' => $final_special_price, 'landed_cost' => $landed_cost]);
-            } else if ($from == 'product_order_special_price') {
-
+            } elseif ($from == 'product_order_special_price') {
                 $product_order_mrp = $request->product_order_mrp;
                 $product_order_mrp_old = $request->product_order_mrp_old;
                 $order_products_id = $request->order_products_id;
@@ -960,16 +1062,70 @@ class PurchaseProductController extends Controller
 
                 return response()->json(['messages' => 'Special Price Updated successfully', 'code' => 200, 'mrp_price' => $mrp_price, 'discount_price' => $discount_price, 'special_price' => $final_special_price, 'landed_cost' => $landed_cost]);
             }
-
         } catch (\Exception $e) {
+        }
+    }
 
+    public function purchaseStatusChange(Request $request)
+    {
+        try {
+            // Get purchase product orders
+            $purchaseProductOrder = PurchaseProductOrder::FindOrFail($request->purchase_product_orders_id);
+
+            if ($purchaseProductOrder) {
+                // Get purchase status from request
+                $purchaseStatus = $request->purchase_status;
+
+                // Update the purchase status in purchase product order table.
+                $purchaseProductOrder->purchase_status_id = $purchaseStatus;
+                $purchaseProductOrder->save();
+
+                // Find mapped order status
+                $mappedStatus = StatusMapping::where('purchase_status_id', $purchaseStatus)->first();
+                if ($mappedStatus) {
+                    $orderStatusId = $mappedStatus->order_status_id;
+                    $orderStatus = $mappedStatus->orderStatus->status;
+
+                    $orderProductsOrderIds = json_decode($purchaseProductOrder->order_products_order_id, true);
+                    $orderProducts = OrderProduct::whereIn('id', $orderProductsOrderIds)->get();
+
+                    if ($orderProducts) {
+                        // Loop all the order products one by one & update the status
+                        foreach ($orderProducts as $orderProduct) {
+                            $orderProduct->order_product_status_id = $orderStatusId;
+                            $orderProduct->save();
+
+                            // $order = $orderProduct->order;
+                            // $oldStatus = $order->order_status_id;
+
+                            // $update = [
+                            //     'order_status' => $orderStatus,
+                            //     'order_status_id' => $orderStatusId,
+                            // ];
+
+                            // $order->update($update);
+
+                            // update the order history also
+                            // $history = new OrderStatusHistory;
+                            // $history->order_id = $orderProduct->order->id;
+                            // $history->old_status = $oldStatus;
+                            // $history->new_status = $orderStatusId;
+                            // $history->user_id = Auth::user()->id;
+                            // $history->save();
+                        }
+                    }
+                }
+
+                return response()->json(['messages' => 'Status Updated successfully', 'code' => 200]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Purchase product order not found!'], 404);
         }
     }
 
     public function purchaseproductorders_logs(Request $request)
     {
         try {
-
             $log_data = PurchaseProductOrderLog::where('purchase_product_order_id', $request->purchase_pro_id)
                 ->join('users', 'purchase_product_order_logs.created_by', 'users.id')
                 ->where('header_name', $request->header_name);
@@ -983,27 +1139,22 @@ class PurchaseProductController extends Controller
                 ->get();
 
             return response()->json(['log_data' => $log_data, 'code' => 200]);
-
         } catch (\Exception $e) {
-
         }
     }
 
     public function purchaseproductorders_flows(Request $request)
     {
         try {
-
             $log_data = \App\CashFlow::where('cash_flow_able_id', $request->purchase_pro_id)
                 ->join('users', 'cash_flows.user_id', 'users.id');
 
             $log_data = $log_data->orderBy('cash_flows.id', 'DESC')
-                ->select('cash_flows.*', 'users.*', 'cash_flows.created_at as log_created_at','cash_flows.cash_flow_able_id as cash_id','cash_flows.id as cash_flow_id')
+                ->select('cash_flows.*', 'users.*', 'cash_flows.created_at as log_created_at', 'cash_flows.cash_flow_able_id as cash_id', 'cash_flows.id as cash_flow_id')
                 ->get();
 
             return response()->json(['log_data' => $log_data, 'code' => 200]);
-
         } catch (\Exception $e) {
-
         }
     }
 
@@ -1011,7 +1162,7 @@ class PurchaseProductController extends Controller
     {
         try {
             $purchase_pro_id = $request->purchase_pro_id;
-            $order_products_order_id_arr = explode(",", $request->order_products_order_id);
+            $order_products_order_id_arr = explode(',', $request->order_products_order_id);
 
             $order_data = OrderProduct::join('products', 'order_products.product_id', 'products.id')
                 ->leftjoin('brands', 'brands.id', 'products.brand')
@@ -1023,15 +1174,15 @@ class PurchaseProductController extends Controller
 
             $purchase_pro_order_log = PurchaseProductOrderLog::where('purchase_product_order_id', $purchase_pro_id)->where('order_products_id', '!=', null)->get();
 
-            $purchase_pro_arr = array();
+            $purchase_pro_arr = [];
 
-            if (!empty($purchase_pro_order_log)) {
+            if (! empty($purchase_pro_order_log)) {
                 foreach ($purchase_pro_order_log as $key => $val) {
                     if ($val->header_name == 'Product Order MRP') {
                         $header = 'order_product_mrp';
-                    } else if ($val->header_name == 'Product Order Discounted Price') {
+                    } elseif ($val->header_name == 'Product Order Discounted Price') {
                         $header = 'order_product_discount';
-                    } else if ($val->header_name == 'Product Order Special Price') {
+                    } elseif ($val->header_name == 'Product Order Special Price') {
                         $header = 'order_product_special';
                     }
 
@@ -1040,9 +1191,7 @@ class PurchaseProductController extends Controller
             }
 
             return response()->json(['order_data' => $order_data, 'code' => 200, 'purchase_pro_id' => $purchase_pro_id, 'purchase_pro_arr' => $purchase_pro_arr]);
-
         } catch (\Exception $e) {
-
         }
     }
 
@@ -1050,11 +1199,10 @@ class PurchaseProductController extends Controller
     {
         // dd($request->all());
         try {
-
             $order_product_id = $request->order_product_id;
             $order_id = $request->order_id;
             $files = $request->file('file');
-            $fileNameArray = array();
+            $fileNameArray = [];
             foreach ($files as $key => $file) {
                 //echo $file->getClientOriginalName();
                 $fileName = time() . $key . '.' . $file->extension();
@@ -1069,10 +1217,9 @@ class PurchaseProductController extends Controller
 
                 $file->move(public_path('purchase_product_orders'), $fileName);
             }
-            return response()->json(["code" => 200, "msg" => "files uploaded successfully", "data" => $fileNameArray]);
 
+            return response()->json(['code' => 200, 'msg' => 'files uploaded successfully', 'data' => $fileNameArray]);
         } catch (\Exception $e) {
-
         }
     }
 
@@ -1083,14 +1230,13 @@ class PurchaseProductController extends Controller
         $order_ids = $request->order_id;
 
         $supplier = Supplier::find($supplier_id);
-        $path = Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+        $path = Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
         $subject = 'Product order';
         $message = 'Please check below product order request';
-        $product_ids = explode(",", $product_ids);
-        $order_ids = explode(",", $order_ids);
+        $product_ids = explode(',', $product_ids);
+        $order_ids = explode(',', $order_ids);
 
-        return Excel::download(new EnqueryExport($product_ids, $order_ids, $path), Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx");
-
+        return Excel::download(new EnqueryExport($product_ids, $order_ids, $path), Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx');
     }
 
     public function getallproducts(Request $request)
@@ -1116,7 +1262,7 @@ class PurchaseProductController extends Controller
             ->join('product_suppliers', 'product_suppliers.product_id', 'products.id')
             ->join('brands', 'brands.id', 'products.brand')
             ->select('product_suppliers.price as product_price', 'products.*', 'brands.name as brand_name')
-            ->whereIn('products.id', $product_ids)->whereIn('order_products.id', $order_ids)->groupBy("order_products.sku")->get()->toArray();
+            ->whereIn('products.id', $product_ids)->whereIn('order_products.id', $order_ids)->groupBy('order_products.sku')->get()->toArray();
 
         // $product_names = array_column($products_data, 'name');
         // $products_str = implode(", ",$product_names);
@@ -1124,12 +1270,12 @@ class PurchaseProductController extends Controller
         foreach ($products_data as $key => $val) {
             $products_str .= "\n" . ' => Product Name : ' . $val['name'] . ', Brand : ' . $val['brand_name'] . ', SKU : ' . $val['sku'] . ' , Price : ' . $val['product_price'];
         }
-        $message = str_replace("{product_data}", $products_str, $template);
+        $message = str_replace('{product_data}', $products_str, $template);
         // $message = 'Please check Product Order ::  '.$products_str;
 
         // $message = str_replace("=>","=>",$message);
 
-        return response()->json(["code" => 200, "data" => $message]);
+        return response()->json(['code' => 200, 'data' => $message]);
     }
 
     public function send_Products_Data(Request $request)
@@ -1142,20 +1288,19 @@ class PurchaseProductController extends Controller
         $send_options = $request->send_options;
 
         if ($type == 'order' && $send_options != '') {
-
             $supplier = Supplier::find($supplier_id);
-            $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+            $path = 'order_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
             $subject = 'Product order';
             $message_chat_data = ($content ? $content : 'Please check below product order request');
 
-            $product_ids = explode(",", $product_id);
-            $order_ids = explode(",", $order_id);
+            $product_ids = explode(',', $product_id);
+            $order_ids = explode(',', $order_id);
 
             if ($send_options == 'email' || $send_options == 'both') {
                 $message = ($content ? $content : 'Please check below product order request');
 
-                $message = str_replace("=>", "<br/>" . " =>", $message);
-                $message = str_replace("\n", "<br/>", $message);
+                $message = str_replace('=>', '<br/>' . ' =>', $message);
+                $message = str_replace("\n", '<br/>', $message);
 
                 Excel::store(new EnqueryExport($product_ids, $order_ids, $path), $path, 'files');
 
@@ -1174,21 +1319,27 @@ class PurchaseProductController extends Controller
                     'is_draft' => 0,
                 ]);
 
-                \App\Jobs\SendEmail::dispatch($email);
+                \App\EmailLog::create([
+                    'email_id' => $email->id,
+                    'email_log' => 'Email initiated',
+                    'message' => $email->to,
+                ]);
+
+                \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
             }
 
             if ($send_options == 'whatsapp' || $send_options == 'both') {
                 $products_data = Product::whereIn('id', $product_ids)->get()->toArray();
                 $product_names = array_column($products_data, 'name');
-                $products_str = implode(", ", $product_names);
+                $products_str = implode(', ', $product_names);
                 // $message = 'Please check Product Order : '.$products_str;
                 $message = ($content ? $content : 'Please check below product order request');
 
-                $message = str_replace("=>", "\n" . " =>", $message);
+                $message = str_replace('=>', "\n" . ' =>', $message);
 
                 $number = ($supplier->phone ? $supplier->phone : '971569119192');
 
-                $send_whatsapp = app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
+                $send_whatsapp = app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($number, $supplier->whatsapp_number, $message);
             }
 
             $message_chat = ' Order WhatsApp Message : ' . $message_chat_data;
@@ -1202,7 +1353,7 @@ class PurchaseProductController extends Controller
 
             $getInquiryData = SupplierOrderInquiryData::where('type', $type)->get()->toArray();
 
-            $pro_data_arr = array();
+            $pro_data_arr = [];
             foreach ($getInquiryData as $key => $value) {
                 $pro_data_arr[$value['type']][$value['product_id']] = $value;
             }
@@ -1211,14 +1362,13 @@ class PurchaseProductController extends Controller
 
             $pro_arr = [];
             foreach ($product_ids as $key => $val) {
-                if (!in_array($val, $product_id)) {
+                if (! in_array($val, $product_id)) {
                     $pro_arr[] = [
                         'supplier_id' => $supplier_id,
                         'product_id' => $val,
                         'type' => $type,
                         'count_number' => '1',
                     ];
-
                 }
             }
 
@@ -1284,10 +1434,10 @@ class PurchaseProductController extends Controller
         $order_id = $request->order_id;
 
         $supplier = Supplier::find($supplier_id);
-        $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+        $path = 'order_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
 
-        $product_ids = explode(",", $product_id);
-        $order_ids = explode(",", $order_id);
+        $product_ids = explode(',', $product_id);
+        $order_ids = explode(',', $order_id);
 
         Excel::store(new EnqueryExport($product_ids, $order_ids, $path), $path, 'files');
 
@@ -1306,7 +1456,6 @@ class PurchaseProductController extends Controller
 
     public function open_excel_file(Request $request, $excel_id, $version = null)
     {
-
         if ($version) {
             $log = PurchaseProductOrderExcelFileVersion::where('excel_id', $excel_id)->where('file_version', $version)->first();
             $id = $log->excel_id;
@@ -1327,36 +1476,32 @@ class PurchaseProductController extends Controller
 
         if ($info == '') {
             $file_found = 'not_found';
-
         }
 
         $excel_array = Excel::toArray(new CustomerNumberImport, $info);
 
-        $filter_arr = array();
+        $filter_arr = [];
 
         foreach ($excel_array as $key => $item) {
             foreach ($item as $kk => $vv) {
-
                 foreach ($vv as $k => $v) {
                     if ($kk != 0) {
                         $filter_arr['sheet_' . $key . '_' . $kk][$k] = $v;
                     }
-
                 }
             }
         }
 
         $version_excel = PurchaseProductOrderExcelFileVersion::where('excel_id', $id)->orderBy('id', 'ASC')->get();
 
-        $version_excel_data = array();
-        if (!empty($version_excel)) {
+        $version_excel_data = [];
+        if (! empty($version_excel)) {
             foreach ($version_excel as $key => $item) {
                 $version_excel_data[] = $item;
             }
         }
 
         return view('purchase-product.partials.open_excel_file', compact('excel_array', 'filter_arr', 'file_found', 'name', 'id', 'version_excel_data', 'version'));
-
     }
 
     public function update_excel_sheet(Request $request)
@@ -1367,7 +1512,7 @@ class PurchaseProductController extends Controller
 
         $log_excel_imports_id = $request->log_excel_imports_id;
 
-        $file_name_data = explode("/", $file_name);
+        $file_name_data = explode('/', $file_name);
 
         if (count($file_name_data) > 1) {
             $location = $file_name_data[0] . '/';
@@ -1377,17 +1522,17 @@ class PurchaseProductController extends Controller
 
         if ($form_data) {
             $head = 0;
-            $excel_data = array();
-            $checkbox_arr = array();
+            $excel_data = [];
+            $checkbox_arr = [];
             foreach ($form_data as $key => $item) {
-                if ($item['name'] == "checkbox") {
+                if ($item['name'] == 'checkbox') {
                     $checkbox_arr[] = $item['value'];
                 } else {
                     if ($item['name'] == '0' || $item['name'] == 'head_0') {
                         $head++;
                     }
-                    $data = explode("_", $item['name']);
-                    if ($data[0] == "head") {
+                    $data = explode('_', $item['name']);
+                    if ($data[0] == 'head') {
                         $excel_data[$head][] = $item['value'];
                     } else {
                         $excel_data[$head][] = $item['value'];
@@ -1400,9 +1545,9 @@ class PurchaseProductController extends Controller
             unset($excel_data[$v1]);
         }
 
-        $path = $location . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
+        $path = $location . Carbon::now()->format('Y-m-d-H-m-s') . '_order_exports.xlsx';
 
-        $total_sheet = array();
+        $total_sheet = [];
 
         Excel::store(new FileExcelExport($excel_data, $total_sheet, $path), $path, 'files');
 
@@ -1440,14 +1585,13 @@ class PurchaseProductController extends Controller
 
         $get_version_data = PurchaseProductOrderExcelFileVersion::get();
 
-        $get_version_data_arr = array();
+        $get_version_data_arr = [];
         foreach ($get_version_data as $key => $val) {
             $get_version_data_arr[$val['excel_id']][] = $val['file_version'];
         }
 
-        $get_final_arr = array();
+        $get_final_arr = [];
         foreach ($get_data as $key => $val) {
-
             $get_final_arr[$key]['excel_name'] = $val['id'];
 
             if (array_key_exists($val['id'], $get_version_data_arr)) {
@@ -1494,7 +1638,7 @@ class PurchaseProductController extends Controller
             'is_draft' => 0,
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         return response()->json(['code' => 200, 'message' => 'Email Send Successfully'], 200);
     }
@@ -1502,6 +1646,7 @@ class PurchaseProductController extends Controller
     public function download_excel_file(Request $request)
     {
         $file = $request->filename;
+
         return response()->download(storage_path('/app/files/' . $file));
     }
 
@@ -1529,7 +1674,7 @@ class PurchaseProductController extends Controller
         // $set_template = SupplierOrderTemplate::create($params);
 
         $storeWebsiteProduct = \App\SupplierOrderTemplate::updateOrCreate([
-            "supplier_id" => $request->supplier_id,
+            'supplier_id' => $request->supplier_id,
         ], [
             'supplier_id' => $request->supplier_id,
             'template' => $request->template_data,
@@ -1543,7 +1688,6 @@ class PurchaseProductController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -1559,7 +1703,7 @@ class PurchaseProductController extends Controller
      */
     public function show($id)
     {
-        dd("aa");
+        dd('aa');
     }
 
     /**
@@ -1576,7 +1720,6 @@ class PurchaseProductController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -1604,22 +1747,21 @@ class PurchaseProductController extends Controller
         $product_suppliers_data = ProductSupplier::get();
 
         $supplier_data = Supplier::get();
-        $supplier_arr = array();
+        $supplier_arr = [];
         foreach ($supplier_data as $key => $value) {
             $supplier_arr[$value->id] = $value->supplier;
         }
 
-        $product_suppliers_arr = array();
+        $product_suppliers_arr = [];
         foreach ($product_suppliers_data as $key => $value) {
             $product_suppliers_arr[$value->product_id][$value->supplier_id] = ($supplier_arr[$value->supplier_id] ?? $value->supplier_id);
         }
 
-        $product_not_available_product_supplier_table = array();
-        $supplier_exist_product_supplier_table = array();
-        $supplier_not_exist_product_supplier_table = array();
+        $product_not_available_product_supplier_table = [];
+        $supplier_exist_product_supplier_table = [];
+        $supplier_not_exist_product_supplier_table = [];
 
         foreach ($product_data as $key => $value) {
-
             if ($value->supplier_id != '' && $value->supplier_id != null) {
                 $supplier_id = $value->supplier_id;
                 $product_id = $value->id;
@@ -1629,7 +1771,6 @@ class PurchaseProductController extends Controller
                         $supplier_exist_product_supplier_table[$key]['product_name'] = ($value->name ?? '');
                         $supplier_exist_product_supplier_table[$key]['supplier_id'] = $supplier_id;
                         $supplier_exist_product_supplier_table[$key]['supplier_name'] = ($product_suppliers_arr[$product_id][$supplier_id] ?? '-');
-
                     } else {
                         $supplier_not_exist_product_supplier_table[$key]['product_id'] = $product_id;
                         $supplier_not_exist_product_supplier_table[$key]['product_name'] = ($value->name ?? '');
@@ -1643,26 +1784,26 @@ class PurchaseProductController extends Controller
         }
 
         $chatFileData = '';
-        $chatFileData .= html_entity_decode("Product Supplier Data", ENT_QUOTES, 'UTF-8');
+        $chatFileData .= html_entity_decode('Product Supplier Data', ENT_QUOTES, 'UTF-8');
         $chatFileData .= "\n" . "\n";
 
         foreach ($supplier_not_exist_product_supplier_table as $k => $v) {
-            $chatFileData .= html_entity_decode("Product Id : " . $v['product_id'], ENT_QUOTES, 'UTF-8');
+            $chatFileData .= html_entity_decode('Product Id : ' . $v['product_id'], ENT_QUOTES, 'UTF-8');
             $chatFileData .= "\n";
-            $chatFileData .= html_entity_decode("Prodcuct Name : " . $v['product_name'], ENT_QUOTES, 'UTF-8');
+            $chatFileData .= html_entity_decode('Prodcuct Name : ' . $v['product_name'], ENT_QUOTES, 'UTF-8');
             $chatFileData .= "\n";
-            $chatFileData .= html_entity_decode("Supplier Id : " . $v['supplier_id'], ENT_QUOTES, 'UTF-8');
+            $chatFileData .= html_entity_decode('Supplier Id : ' . $v['supplier_id'], ENT_QUOTES, 'UTF-8');
             $chatFileData .= "\n" . "\n";
         }
 
         $date = date('Y_m_d_H_i_s');
         $storagelocation = storage_path() . '/logs/not_mapping_product_supplier';
-        if (!is_dir($storagelocation)) {
+        if (! is_dir($storagelocation)) {
             mkdir($storagelocation, 0777, true);
         }
-        $filename = "not_mapping_supplier_" . $date . ".txt";
+        $filename = 'not_mapping_supplier_' . $date . '.txt';
         $file = $storagelocation . '/' . $filename;
-        $txt = fopen($file, "w") or die("Unable to open file!");
+        $txt = fopen($file, 'w') or exit('Unable to open file!');
 
         fwrite($txt, $chatFileData);
         fclose($txt);
@@ -1672,4 +1813,19 @@ class PurchaseProductController extends Controller
         ]);
     }
     //END - DEVTASK-19941
+
+    public function getStatusHistories(Request $request)
+    {
+        $datas = OrderPurchaseProductStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('order_id', $request->id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }

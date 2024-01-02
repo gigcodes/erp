@@ -15,5 +15,4 @@ class ScraperKilledHistory extends Model
         'scraper_name',
         'comment',
     ];
-
 }

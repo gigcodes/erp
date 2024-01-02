@@ -3,43 +3,43 @@
 namespace App\Services\Products;
 
 use App\Brand;
-use App\Category;
-use App\ColorNamesReference;
-use App\Compositions;
-use App\DescriptionChange;
-use App\GoogleTranslate;
-use App\Helpers\ProductHelper;
-use App\Helpers\StatusHelper;
-use App\Product;
-use App\ProductStatus;
-use App\ScrappedCategoryMapping;
-use App\Setting;
-use App\SkuColorReferences;
-use App\Supplier;
-use App\SupplierBrandCount;
-use App\SupplierCategoryCount;
-use Illuminate\Support\Facades\Log;
 use Validator;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Supplier;
+use App\Compositions;
+use App\ProductStatus;
+use App\GoogleTranslate;
+use App\DescriptionChange;
+use App\SkuColorReferences;
+use App\SupplierBrandCount;
+use App\ColorNamesReference;
+use App\Helpers\StatusHelper;
+use App\Helpers\ProductHelper;
+use App\SupplierCategoryCount;
+use App\ScrappedCategoryMapping;
+use Illuminate\Support\Facades\Log;
 
 class ProductsCreator
 {
     public function createProduct($image, $isExcel = 0)
-    { 
+    {
         // Debug log
-        Log::channel('productUpdates')->debug("[Start] createProduct is called");
+        Log::channel('productUpdates')->debug('[Start] createProduct is called');
 
         // Set supplier
-        $supplierModel = Supplier::leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($image) {
+        $supplierModel = Supplier::leftJoin('scrapers as sc', 'sc.supplier_id', 'suppliers.id')->where(function ($query) use ($image) {
             $query->where('supplier', '=', $image->website)->orWhere('sc.scraper_name', '=', $image->website);
         })->first();
 
         // Do we have a supplier?
         if ($supplierModel == null) {
             // Debug
-            Log::channel('productUpdates')->debug("[Error] Supplier is null " . $image->website);
+            Log::channel('productUpdates')->debug('[Error] Supplier is null ' . $image->website);
             // check if the object is related to scraped product then we will add the error over there
             $image->validated = 0;
-            $image->validation_result = "[Error] Supplier is null " . $image->website . " while adding sku " . $image->sku;
+            $image->validation_result = '[Error] Supplier is null ' . $image->website . ' while adding sku ' . $image->sku;
             $image->save();
             // Return false
             return false;
@@ -75,29 +75,29 @@ class ProductsCreator
         // Get color
         $isWithColor = false;
         if (isset($image->properties['color'])) {
-            if (!empty($image->properties['color'])) {
+            if (! empty($image->properties['color'])) {
                 $isWithColor = true;
             }
         }
         $color = ColorNamesReference::getProductColorFromObject($image);
 
         $composition = $formattedDetails['composition'];
-        if (!empty($formattedDetails['composition'])) {
+        if (! empty($formattedDetails['composition'])) {
             $composition = Compositions::getErpName($formattedDetails['composition']);
         }
 
         $description = $image->description;
-        if (!empty($description)) {
+        if (! empty($description)) {
             $description = DescriptionChange::getErpName($description);
         }
 
         // Store count
         try {
             SupplierBrandCount::firstOrCreate(['supplier_id' => $supplierId, 'brand_id' => $image->brand_id]);
-            if (!empty($formattedDetails['category'])) {
+            if (! empty($formattedDetails['category'])) {
                 SupplierCategoryCount::firstOrCreate(['supplier_id' => $supplierId, 'category_id' => $formattedDetails['category']]);
             }
-            if (!empty($color)) {
+            if (! empty($color)) {
                 SkuColorReferences::firstOrCreate(['brand_id' => $image->brand_id, 'color_name' => $color]);
             }
         } catch (\Exception $e) {
@@ -107,7 +107,7 @@ class ProductsCreator
         // Product validated
         if ($validator->fails()) {
             // Debug
-            Log::channel('productUpdates')->debug("[validator] fails - sku exists " . ProductHelper::getSku($image->sku));
+            Log::channel('productUpdates')->debug('[validator] fails - sku exists ' . ProductHelper::getSku($image->sku));
 
             // Try to get the product from the database
             if ($image->product_id > 0) {
@@ -115,51 +115,84 @@ class ProductsCreator
             } else {
                 $product = Product::where('sku', $data['sku'])->first();
             }
-
             // Does the product exist? This should not fail, since the validator told us it's there
-            if (!$product) {
+            if (! $product) {
                 // Debug
-                Log::channel('productUpdates')->debug("[Error] No product!");
+                Log::channel('productUpdates')->debug('[Error] No product!');
                 $image->validated = 0;
-                $image->validation_result = "[Error] No product! " . $image->website . " while adding sku " . $image->sku;
+                $image->validation_result = '[Error] No product! ' . $image->website . ' while adding sku ' . $image->sku;
                 $image->save();
                 // Return false
                 return false;
             }
+            // sets initial status pending for scrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for isBeingScrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for autoCrop
+            $auto_crop_status = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$autoCrop,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($auto_crop_status);
 
             // Is the product not approved yet?
-            if (!StatusHelper::isApproved($image->status_id)) {
+            if (! StatusHelper::isApproved($image->status_id)) {
                 // Check if we can update the title - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->where("product_id", $product->id)->first();
+                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->where('product_id', $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
                 // Check if we can update the short description - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where("product_id", $product->id)->first();
+                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where('product_id', $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     $product->short_description = ProductHelper::getRedactedText($description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->where("product_id", $product->id)->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->where('product_id', $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     $product->color = $color;
                 }
 
                 // Check if we can update the composition - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where("product_id", $product->id)->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where('product_id', $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     // Check for composition key
                     $product->composition = $composition;
 
                     // Check for material_used key
                     if (isset($image->properties['material_used'])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties['material_used'] ?? '', 'composition'));
+                        // Below code copying from controller ScrapController.php function syncProductsFromNodeApp line 313
+                        if (is_array($image->properties['material_used'])) {
+                            $compositionForScrapedProducts = implode(',', $image->properties['material_used']);
+                        } else {
+                            $compositionForScrapedProducts = $image->properties['material_used'];
+                        }
+
+                        $product->composition = trim(ProductHelper::getRedactedText($compositionForScrapedProducts ?? '', 'composition'));
                     }
                 }
 
-                $manual = ProductStatus::where('name', 'MANUAL_CATEGORY')->where("product_id", $product->id)->first();
+                $manual = ProductStatus::where('name', 'MANUAL_CATEGORY')->where('product_id', $product->id)->first();
                 if ($manual == null || (int) $manual->value == 0) {
                     // Update the category
                     $product->category = $formattedDetails['category'];
@@ -171,7 +204,6 @@ class ProductsCreator
                     $product->category = $formattedDetails['category'];
                     $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
                 }
-
             }
 
             // Get current sizes
@@ -196,31 +228,31 @@ class ProductsCreator
 
                 // get size system
                 $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
-                $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
+                $euSize = ProductHelper::getEuSize($product, $allSize, ! empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
                 $product->size_eu = implode(',', $euSize);
 
                 \App\ProductSizes::where('product_id', $product->id)->where('supplier_id', $supplierModel->id)->delete();
-				
+
                 if (empty($euSize)) {
-					$sizeFound = 0;
-					foreach($sizes as $size) {
-						$systemSizeId = \App\SystemSize::where('name', $image->size_system)->pluck('id')->first();
-						$erp_sizeFound = \App\SizeAndErpSize::where(['size'=>$size, 'system_size_id'=>$systemSizeId])->first();
-						if($erp_sizeFound == null) {
-							 \App\SizeAndErpSize::create(['size'=>$size, 'system_size_id'=>$systemSizeId]);
-						} else if($erp_sizeFound['erp_size_id'] != null) {
-							$erp_size = \App\SystemSizeManager::where('id', $erp_sizeFound['erp_size_id'])->pluck('erp_size')->first();
-							\App\ProductSizes::updateOrCreate([
-								'product_id' => $product->id, 'supplier_id' => $supplierModel->id, 'size' => $erp_size,
-							], [
-								'product_id' => $product->id, 'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $erp_size,
-							]);
-							$sizeFound = 1;
-						}
-					}				
-					if($sizeFound == 0) {
-						$product->status_id = \App\Helpers\StatusHelper::$unknownSize;
-					}
+                    $sizeFound = 0;
+                    foreach ($sizes as $size) {
+                        $systemSizeId = \App\SystemSize::where('name', $image->size_system)->pluck('id')->first();
+                        $erp_sizeFound = \App\SizeAndErpSize::where(['size' => $size, 'system_size_id' => $systemSizeId])->first();
+                        if ($erp_sizeFound == null) {
+                            \App\SizeAndErpSize::create(['size' => $size, 'system_size_id' => $systemSizeId]);
+                        } elseif ($erp_sizeFound['erp_size_id'] != null) {
+                            $erp_size = \App\SystemSizeManager::where('id', $erp_sizeFound['erp_size_id'])->pluck('erp_size')->first();
+                            \App\ProductSizes::updateOrCreate([
+                                'product_id' => $product->id, 'supplier_id' => $supplierModel->id, 'size' => $erp_size,
+                            ], [
+                                'product_id' => $product->id, 'quantity' => 1, 'supplier_id' => $supplierModel->id, 'size' => $erp_size,
+                            ]);
+                            $sizeFound = 1;
+                        }
+                    }
+                    if ($sizeFound == 0) {
+                        $product->status_id = \App\Helpers\StatusHelper::$unknownSize;
+                    }
                 } else {
                     foreach ($euSize as $es) {
                         \App\ProductSizes::updateOrCreate([
@@ -248,15 +280,13 @@ class ProductsCreator
             if ($product->category <= 1) {
                 $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
             }
-
             $product->save();
             $product->attachImagesToProduct();
             $image->product_id = $product->id;
             $image->save();
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
-
-            \Log::channel('productUpdates')->info("Saved product id :" . $product->id);
+            \Log::channel('productUpdates')->info('Saved product id :' . $product->id);
 
             // check for the auto crop
             $needToCheckStatus = [
@@ -268,26 +298,44 @@ class ProductsCreator
                 StatusHelper::$unknownSize,
             ];
 
-            if (!in_array($product->status_id, $needToCheckStatus)) {
+            if (! in_array($product->status_id, $needToCheckStatus)) {
                 $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
             }
-
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
 
                 $product->save();
             }
 
+            // Initially save status scrape in Product_status_history
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+            // If status is scrape then change status to isBeingScrape in Product_status_history
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
             // check that if the product color is white then we need to remove that
             $product->isNeedToIgnore();
 
-            if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
+            if ($db_supplier = Supplier::select('suppliers.id')->leftJoin('scrapers as sc', 'sc.supplier_id', 'suppliers.id')->where(function ($query) use ($supplier) {
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
                 if ($product) {
-
-                    $productSupplier = \App\ProductSupplier::where("supplier_id", $db_supplier->id)->where("product_id", $product->id)->first();
-                    if (!$productSupplier) {
+                    $productSupplier = \App\ProductSupplier::where('supplier_id', $db_supplier->id)->where('product_id', $product->id)->first();
+                    if (! $productSupplier) {
                         $productSupplier = new \App\ProductSupplier;
                         $productSupplier->supplier_id = $db_supplier->id;
                         $productSupplier->product_id = $product->id;
@@ -360,20 +408,20 @@ class ProductsCreator
 
             //ScrapActivity::create($params);
 
-            Log::channel('productUpdates')->debug("[Success] Updated product");
+            Log::channel('productUpdates')->debug('[Success] Updated product');
 
             return;
-
         } else {
-            Log::channel('productUpdates')->debug("[validator] success - new sku " . ProductHelper::getSku($image->sku));
+            Log::channel('productUpdates')->debug('[validator] success - new sku ' . ProductHelper::getSku($image->sku));
             $product = new Product;
         }
 
         if ($product === null) {
-            Log::channel('productUpdates')->debug("[Skipped] Product is null");
+            Log::channel('productUpdates')->debug('[Skipped] Product is null');
             $image->validated = 0;
-            $image->validation_result = "[Skipped] Product is null " . $image->website . " while adding sku " . $image->sku;
+            $image->validation_result = '[Skipped] Product is null ' . $image->website . ' while adding sku ' . $image->sku;
             $image->save();
+
             return;
         }
         // Changed status to auto crop now
@@ -434,7 +482,7 @@ class ProductsCreator
             $product->size = implode(',', $allSize);
             // get size system
             $supplierSizeSystem = \App\ProductSupplier::getSizeSystem($product->id, $supplierModel->id);
-            $euSize = ProductHelper::getEuSize($product, $allSize, !empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
+            $euSize = ProductHelper::getEuSize($product, $allSize, ! empty($supplierSizeSystem) ? $supplierSizeSystem : $image->size_system);
             $product->size_eu = implode(',', $euSize);
 
             \App\ProductSizes::where('product_id', $product->id)->where('supplier_id', $supplierModel->id)->delete();
@@ -461,6 +509,53 @@ class ProductsCreator
 
         try {
             $product->save();
+            // sets initial status pending for scrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for isBeingScrape
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+            // sets initial status pending for autoCrop
+            $pending_auto_crop_status = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$autoCrop,
+                'pending_status' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($pending_auto_crop_status);
+
+            // Initially save status scrape in Product_status_history when validator failed
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => $product->status_id,
+                'new_status' => StatusHelper::$scrape,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
+
+            // If status is scrape then change status to isBeingScrape in Product_status_history
+            $scrap_status_data = [
+                'product_id' => $product->id,
+                'old_status' => StatusHelper::$scrape,
+                'new_status' => StatusHelper::$isBeingScraped,
+                'pending_status' => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+            \App\ProductStatusHistory::addStatusToProduct($scrap_status_data);
             //$setProductDescAndNameLanguages = new ProductController();
             //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
@@ -471,24 +566,23 @@ class ProductsCreator
             $product->checkExternalScraperNeed();
             $product->isNeedToIgnore();
 
-            Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
+            Log::channel('productUpdates')->debug('[New] Product created with ID ' . $product->id);
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");
             Log::channel('productUpdates')->alert($exception->getMessage());
 
             $image->validated = 0;
-            $image->validation_result = "[Exception] Couldn't create product " . $exception->getMessage() . " while adding sku " . $image->sku;
+            $image->validation_result = "[Exception] Couldn't create product " . $exception->getMessage() . ' while adding sku ' . $image->sku;
             $image->save();
 
             return;
         }
 
-        if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
+        if ($db_supplier = Supplier::select('suppliers.id')->leftJoin('scrapers as sc', 'sc.supplier_id', 'suppliers.id')->where(function ($query) use ($supplier) {
             $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
         })->first()) {
-
-            $productSupplier = \App\ProductSupplier::where("supplier_id", $db_supplier->id)->where("product_id", $product->id)->first();
-            if (!$productSupplier) {
+            $productSupplier = \App\ProductSupplier::where('supplier_id', $db_supplier->id)->where('product_id', $product->id)->first();
+            if (! $productSupplier) {
                 $productSupplier = new \App\ProductSupplier;
                 $productSupplier->supplier_id = $db_supplier->id;
                 $productSupplier->product_id = $product->id;
@@ -533,7 +627,7 @@ class ProductsCreator
         $brand = Brand::find($image->brand_id);
 
         // Check for EUR to INR
-        if (!empty($brand->euro_to_inr)) {
+        if (! empty($brand->euro_to_inr)) {
             $priceInr = (float) $brand->euro_to_inr * (float) trim($image->price);
         } else {
             $priceInr = (float) Setting::get('euro_to_inr') * (float) trim($image->price);
@@ -542,7 +636,7 @@ class ProductsCreator
         // Set INR price
         $priceInr = round($priceInr, -3);
 
-        if (!empty($image->price) && !empty($priceInr)) {
+        if (! empty($image->price) && ! empty($priceInr)) {
             $priceEurSpecial = $image->price - ($image->price * $brand->deduction_percentage) / 100;
             $priceInrSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
         } else {
@@ -551,7 +645,7 @@ class ProductsCreator
         }
 
         // Product on sale?
-        if ($image->is_sale == 1 && $brand->sales_discount > 0 && !empty($priceEurSpecial)) {
+        if ($image->is_sale == 1 && $brand->sales_discount > 0 && ! empty($priceEurSpecial)) {
             $priceEurDiscounted = $priceEurSpecial - ($priceEurSpecial * $brand->sales_discount) / 100;
             $priceInrDiscounted = $priceInrSpecial - ($priceInrSpecial * $brand->sales_discount) / 100;
         } else {
@@ -573,7 +667,7 @@ class ProductsCreator
     public function getGeneralDetails($properties_array, $scrapedProduct = null)
     {
         if (array_key_exists('material_used', $properties_array)) {
-            $composition = (is_array($properties_array['material_used'])) ? implode(" ", $properties_array['material_used']) : (string) $properties_array['material_used'];
+            $composition = (is_array($properties_array['material_used'])) ? implode(' ', $properties_array['material_used']) : (string) $properties_array['material_used'];
         }
 
         if (array_key_exists('color', $properties_array)) {
@@ -591,7 +685,7 @@ class ProductsCreator
                     $size = trim($size);
                 }
 
-                if (!empty($size) || $size == 0) {
+                if (! empty($size) || $size == 0) {
                     $tmpSizes[] = $size;
                 }
             }
@@ -618,7 +712,6 @@ class ProductsCreator
                                 //check if it exist in unknown
                                 $ifExistInUnknown = \App\UnknownSize::where('size', 'LIKE', '%' . $size . '%')->first();
                                 if ($ifExistInUnknown) {
-
                                 } else {
                                     //save unknown size
                                     $unknown = new \App\UnknownSize;
@@ -630,7 +723,6 @@ class ProductsCreator
                             //check if it exist in unknown
                             $ifExistInUnknown = \App\UnknownSize::where('size', 'LIKE', '%' . $size . '%')->first();
                             if ($ifExistInUnknown) {
-
                             } else {
                                 //save unknown size
                                 $unknown = new \App\UnknownSize;
@@ -694,23 +786,23 @@ class ProductsCreator
                 }
 
                 // check if gender is still null then try to looks from url if we found there
-                if ($scrapedProduct && !empty($scrapedProduct->url) && is_null($gender)) {
+                if ($scrapedProduct && ! empty($scrapedProduct->url) && is_null($gender)) {
                     // check for men
                     foreach ($liForMen as $lim) {
                         if (strpos($lim, $scrapedProduct->url) !== false) {
-                            $gender = "MEN";
+                            $gender = 'MEN';
                         }
                     }
                     // check for women
                     foreach ($liForWoMen as $liw) {
                         if (strpos($liw, $scrapedProduct->url) !== false) {
-                            $gender = "WOMEN";
+                            $gender = 'WOMEN';
                         }
                     }
                     // check for kids
                     foreach ($liForKids as $lik) {
                         if (strpos($lik, $scrapedProduct->url) !== false) {
-                            $gender = "KIDS";
+                            $gender = 'KIDS';
                         }
                     }
                 }
@@ -718,15 +810,15 @@ class ProductsCreator
                 // Try to get category ID
                 $category = Category::getCategoryIdByKeyword(end($properties_array['category']), $gender);
 
-                if (!$category) {
+                if (! $category) {
                     $categoryReference = implode('/', $properties_array['category']);
 
                     ScrappedCategoryMapping::updateOrCreate([
-                        'name' =>$categoryReference
-                    ],[
-                        'name' => $categoryReference, 
-						'is_mapped'=>0
-                        ]);
+                        'name' => $categoryReference,
+                    ], [
+                        'name' => $categoryReference,
+                        'is_mapped' => 0,
+                    ]);
 
                     // $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
                     // //checking if it already exist in reference table
@@ -742,9 +834,7 @@ class ProductsCreator
                     //     $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
                     //     $unknownCategory->save();
                     // }
-
                 }
-
             }
         }
 

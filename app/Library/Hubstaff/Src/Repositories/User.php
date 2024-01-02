@@ -6,18 +6,17 @@ use Curl\Curl;
 
 class User
 {
-
     private $accessToken;
+
     private $urls = [
-        'allUsers'         => 'https://api.hubstaff.com/v2/users',
-        'userDetail'       => 'https://api.hubstaff.com/v2/users/{userId}',
+        'allUsers' => 'https://api.hubstaff.com/v2/users',
+        'userDetail' => 'https://api.hubstaff.com/v2/users/{userId}',
         'organizationUser' => 'https://api.hubstaff.com/v2/users/{userId}/organizations',
-        'projectUser'      => 'https://api.hubstaff.com/v2/users/{userId}/projects',
+        'projectUser' => 'https://api.hubstaff.com/v2/users/{userId}/projects',
     ];
 
     public function __construct($accessToken)
     {
-
         $this->accessToken = 'Bearer ' . $accessToken;
 
         return $this;
@@ -29,10 +28,8 @@ class User
      * @param userId [integer]
      * @return object user
      */
-
     public function getUserDetail($userId = null)
     {
-
         $curl = new Curl();
         $curl->setHeader('Authorization', $this->accessToken);
 
@@ -41,7 +38,7 @@ class User
         $curl->get($url);
         if ($curl->error) {
             echo 'errorCode' . $curl->error_code;
-            die();
+            exit();
         } else {
             $response = json_decode($curl->response);
         }
@@ -50,5 +47,4 @@ class User
 
         return $response;
     }
-
 }

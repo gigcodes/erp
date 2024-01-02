@@ -31,7 +31,7 @@
 					<input type="hidden" name="action_type[{{$flowAction['id']}}]" value="Send Message">
 					<label><i class="fa fa-envelope"></i> Email  <a href="{{url('link_template')}}"></a></label>
 					<div class="cross_sub_label">
-						<label><i class="fa fa-envelope"></i> @if($messageDetail['subject']) {{$messageDetail['subject']}} @else Email #1 Subject @endif <a href="{{url('link_template')}}"></a></label>
+						<label><i class="fa fa-envelope"></i> @if(isset($messageDetail) && $messageDetail['subject']) {{$messageDetail['subject']}} @else Email #1 Subject @endif <a href="{{url('link_template')}}"></a></label>
 					</div>
 				</div>
 				<div class="col-md-2 cross_sec_remove pt-3 text-right">    

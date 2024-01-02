@@ -12,12 +12,12 @@ class AnalyticsCustomerBehaviour extends Model
     /**
      * Fillables for the database
      *
-     * @access protected
      *
-     * @var array $fillable
+     * @var array
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="pages",type="string")
      * @SWG\Property(property="pageviews",type="string")
      * @SWG\Property(property="uniquePageviews",type="string")
@@ -27,9 +27,9 @@ class AnalyticsCustomerBehaviour extends Model
      * @SWG\Property(property="exitRate",type="string")
      * @SWG\Property(property="pageValue",type="string")
      */
-    protected $fillable = array(
-        'pages', 'pageviews', 'uniquePageviews', 
+    protected $fillable = [
+        'pages', 'pageviews', 'uniquePageviews',
         'avgTimeOnPage', 'entrances', 'bounceRate',
-        'exitRate', 'pageValue', ''
-    );
+        'exitRate', 'pageValue', '',
+    ];
 }

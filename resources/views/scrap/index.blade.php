@@ -9,33 +9,41 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
+            @include('partials.flash_messages')
             <h2 class="page-heading">Scrap Google Image</h2>
-            <p>Please enter the search query that you want to save the images of.</p>
+            <p class="px-4">Please enter the search query that you want to save the images of.</p>
         </div>
         <div class="col-md-12">
-            <form method="post" action="{{ action('ScrapController@scrapGoogleImages') }}">
+            <form class="px-4" method="post" action="{{ action([\App\Http\Controllers\ScrapController::class, 'scrapGoogleImages']) }}">
                 @csrf
-                <div class="form-group">
-                    <input id="google" type="checkbox" name="google" checked>
-                    <label for="google">Google</label>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <input id="pinterest" type="checkbox" name="pinterest" checked>
-                    <label for="pinterest">Pinterest</label>
-                </div>
-                <div class="form-group">
-                    <label for="query">Search Text</label>
-                    <input class="form-control" type="text" id="query" name="query" placeholder="Eg: Nike, Jordan, etc">
-                </div>
-                <div class="form-group">
-                    <label for="noi">Number of Results</label>
-                    <input class="form-control" type="number" id="noi" name="noi" placeholder="5" value="5">
-                </div>
-                <div class="form-group">
-                    <label for="noi">Chips (lifestyle, fashion, beauty, etc.)</label>
-                    <input class="form-control" type="text" id="chip" name="chip" placeholder="Eg: lifestyle" value="lifestyle">
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-primary">Extract Images</button>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group checkbox-form-group d-flex align-items-center">
+                            <div class="d-flex align-items-center">
+                                <input class="mt-0" id="google" type="checkbox" name="google" checked>
+                                <label class="mb-0 ml-3" for="google">Google</label>
+                            </div>
+                            <div class="d-flex align-items-center ml-5">
+                                <input class="mt-0" id="pinterest" type="checkbox" name="pinterest" checked>
+                                <label class="mb-0 ml-3" for="pinterest">Pinterest</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-6">
+                        <label class="group-label" for="query">Search Text</label>
+                        <input class="form-control" type="text" id="query" name="query" required placeholder="Eg: Nike, Jordan, etc">
+                    </div>
+                    <div class="form-group col-lg-4 col-md-6">
+                        <label class="group-label" for="noi">Number of Results</label>
+                        <input class="form-control" type="number" id="noi" name="noi" placeholder="5" value="5">
+                    </div>
+                    <div class="form-group col-lg-4 col-md-6">
+                        <label class="group-label" for="noi">Chips (lifestyle, fashion, beauty, etc.)</label>
+                        <input class="form-control" type="text" id="chip" name="chip" placeholder="Eg: lifestyle" value="lifestyle">
+                    </div>
+                    <div class="form-group col-12">
+                        <button class="btn btn-primary">Extract Images</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -45,7 +53,6 @@
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/media-card.css') }}">
 @endsection
-
 @section('scripts')
     <script>
         var cid = null;
@@ -56,7 +63,7 @@
                 let post_id = $(this).attr('data-media-id');
 
                 $.ajax({
-                    url: "{{ action('InstagramController@getComments') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getComments']) }}",
                     data: {
                         post_id: post_id
                     },
@@ -113,7 +120,7 @@
                     let self = this;
                     let postId = $(this).attr('data-post-id');
                     $.ajax({
-                        url: "{{ action('InstagramController@postComment') }}",
+                        url: "{{ action([\App\Http\Controllers\InstagramController::class, 'postComment']) }}",
                         type: 'post',
                         dataType: 'json',
                         data: {

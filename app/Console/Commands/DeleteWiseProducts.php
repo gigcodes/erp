@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Scrap\WiseBoutiqueProductDetailsScraper;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Services\Scrap\WiseBoutiqueProductDetailsScraper;
 
 class DeleteWiseProducts extends Command
 {
@@ -28,7 +28,7 @@ class DeleteWiseProducts extends Command
     /**
      * Create a new command instance.
      *
-     * @param GebnegozionlineProductDetailsScraper $scraper
+     * @param  GebnegozionlineProductDetailsScraper  $scraper
      */
     public function __construct(WiseBoutiqueProductDetailsScraper $scraper)
     {
@@ -45,7 +45,7 @@ class DeleteWiseProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

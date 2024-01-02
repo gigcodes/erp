@@ -9,5 +9,10 @@ class TwilioCallWaiting extends Model
     //
     protected $table = 'twilio_call_waitings';
 
-    protected $fillable = ['call_sid','account_sid','from','to','store_website_id','status'];
+    protected $fillable = ['call_sid', 'account_sid', 'from', 'to', 'store_website_id', 'status'];
+
+    public function storeWebsite()
+    {
+        return $this->belongsTo(\App\StoreWebsite::class);
+    }
 }

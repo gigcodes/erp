@@ -20,9 +20,17 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet"/>
+    
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    
     <style>
         .quick-edit-color {
             transition: 1s ease-in-out;
+        }
+        span.multiselect-native-select {
+            display: none;
+            width: 100%;
         }
         /*thead th {*/
         /*    font-size: 0.6em;*/
@@ -173,6 +181,13 @@
             min-width: 5px;
             padding: 0px 4px;
         }
+        .toggle.btn{
+            margin:0px;
+        }
+        
+        input[type=checkbox] {
+            height: 12px;
+        }
     </style>
 @endsection
 
@@ -184,7 +199,7 @@
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) 
                 <a href="{{ route('sop.index') }}?type=ListingApproved" class="pull-right">SOP</a>
             </h2>
-            <form class="product_filter" action="{{ action('ProductController@approvedListing') }}/{{ $pageType }}" method="GET">
+            <form class="product_filter" action="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}/{{ $pageType }}" method="GET">
                 <div class="row">
                     <div class="col-md-12" style="display:flex;justify-content: space-between;">
                         <div class="col-sm-1 p-0">
@@ -307,79 +322,98 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-1.5 ml-2 d-flex align-items-center">
-                        <div class="form-group">
-                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
-                                <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
-                                <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
-                            @endif
-                        </div>
                     </div>
-                    <div class="col-sm-1.5 d-flex align-items-center">
-                        <div class="form-group">
-                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
-                                <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
-                                <lable for="submit_for_image_approval pr-3">Submit For Image approval ?</lable>
-                            @endif
+                    <div class="row">
+                        <div class="col-sm-1.5 ml-2 d-flex align-items-center">
+                            <div class="form-group">
+                                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                                    <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
+                                    <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1 d-flex align-items-center">
-                        <div class="form-group">
-                           <?php echo Form::checkbox("without_title", "on", (bool)(request('without_title') == "on"), ["class" => ""]); ?>
-                                <lable for="without_title pr-3">No title</lable>
+                        <div class="col-sm-1.5 d-flex align-items-center">
+                            <div class="form-group">
+                                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                                    <?php echo Form::checkbox("submit_for_image_approval", "on", (bool)(request('submit_for_image_approval') == "on"), ["class" => ""]); ?>
+                                    <lable for="submit_for_image_approval pr-3">Submit For Image approval ?</lable>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1 d-flex align-items-center">
-                        <div class="form-group">
-                           <?php echo Form::checkbox("without_size", "on", (bool)(request('without_size') == "on"), ["class" => ""]); ?>
-                                <lable for="without_size pr-3">No size</lable>
+                        <div class="col-sm-1 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_title", "on", (bool)(request('without_title') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_title pr-3">No title</lable>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1.5 d-flex align-items-center">
-                        <div class="form-group">
-                           <?php echo Form::checkbox("without_composition", "on", (bool)(request('without_composition') == "on"), ["class" => ""]); ?>
-                                <lable for="without_composition pr-3">No Composition</lable>
+                        <div class="col-sm-1 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_size", "on", (bool)(request('without_size') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_size pr-3">No size</lable>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
-                        <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
-                        <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
-                            <!-- <i class="fa fa-calendar"></i>&nbsp;
-                            <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
-                            <i class="fa fa-calendar"></i>&nbsp;
-                            <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+                        <div class="col-sm-1.5 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_composition", "on", (bool)(request('without_composition') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_composition pr-3">No Composition</lable>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="col-sm-1">
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-secondary" title="Filter">
-                                <i type="submit" class="fa fa-filter" aria-hidden="true"></i>
-                            </button>
-                            <a href="{{url()->current()}}" class="btn  btn-secondary" title="Clear">
-                                <i type="submit" class="fa fa-times" aria-hidden="true"></i>
-                            </a>
+                        <div class="col-sm-1.5 d-flex align-items-center">
+                            <div class="form-group">
+                            <?php echo Form::checkbox("without_stock", "on", (bool)(request('without_stock') == "on"), ["class" => ""]); ?>
+                                    <lable for="without_stock pr-3">No Stock</lable>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-2"style="display: flex;">
-                        <div class="form-group">
-                            <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                        <div class="col-md-2">
+                            <input type="hidden" class="range_start_filter" value="" name="crop_start_date" />
+                            <input type="hidden" class="range_end_filter" value="" name="crop_end_date" />
+                            <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
+                                <!-- <i class="fa fa-calendar"></i>&nbsp;
+                                <span  id="date_current_show"></span><i class="fa fa-caret-down"></i> -->
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{request()->get('crop_start_date') .' '.request()->get('crop_end_date')}}</p><i class="fa fa-caret-down"></i>
+                            </div>
                         </div>
 
-                        <div class="form-group"style="margin-left:15px;">
-                            <input type="button" onclick="maskpushProduct()" class="btn btn-secondary" value="Mask Push product"/>
+                        <div class="col-sm-1">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-secondary" title="Filter">
+                                    <i type="submit" class="fa fa-filter" aria-hidden="true"></i>
+                                </button>
+                                <a href="{{url()->current()}}" class="btn  btn-secondary" title="Clear">
+                                    <i type="submit" class="fa fa-times" aria-hidden="true"></i>
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                        @if($pageType != "images")
+                        <div class="col-sm-2" style="display: flex;">
+                            <div class="form-group">
+                                <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                            </div>
 
+                            <div class="form-group" style="margin-left:15px;">
+                                <input type="button" onclick="maskpushProduct()" class="btn btn-secondary" value="Mask Push product"/>
+                            </div>
+
+                            <div class="form-group" style="margin-left:15px;">
+                                <input type="button" class="btn btn-secondary delete-out-of_stock" value="Delete OutOfStock products"/>
+                            </div>
+                            
+                            <div class="form-group" style="margin-left:15px;">
+                                <a href="{{ route('products.push.product.test') }}" class="btn btn-secondary">
+                                    Push Product Test
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    
+                <div class="row">                    
                     <div class="col-sm-2 ml-2">  
                         <div class="form-group">
                             <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
                         </div>
                     </div>
-                
-                <div class="row">
-                    
                     <div class="col-sm-1">  
                         <div class="form-group">
                         <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
@@ -387,9 +421,17 @@
                     </div>
                 </div>
             </form>
-            <input type="button" value="Auto push product - {{$auto_push_product == 0 ? 'Not Active' : 'Active'}}" class=" btn-{{$auto_push_product == 0 ? 'secondary' : 'primary'}} active autopushproduct"style="height:34px; border:1px
-            solid transparent;border-radius: 4px;margin-left:16px;background-color: #6c757d;" auto_push_value="{{$auto_push_product}}">
+            <label class="checkbox-inline">
+                Auto push product: <input id="autopushproduct_toggle" type="checkbox" data-on="Active" data-off="Not Active" {{$auto_push_product == 1 ? 'checked' : ''}} data-onstyle="secondary" data-toggle="toggle"> 
+            </label>
+            @if($pageType != "images")
+            <input type="button" onclick="conditionsCheck()" class="btn btn-secondary" value="Proceed to conditions check"/>
+            @endif
 
+            @if($pageType != "images")
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#plfdatatablecolumnvisibilityList">Column Visiblity</button>
+            <button class="btn btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+            @endif
         </div>
     </div>
 
@@ -412,6 +454,10 @@
     @include('partials.modals.image-expand')
     @include('partials.modals.set-description-site-wise')
 
+    @if($pageType != "images")
+    @include("products.partials.column-visibility-modal-plf")
+    @include("products.partials.modal-status-color")
+    @endif
     <div class="common-modal modal" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -453,6 +499,7 @@
                                 <div class="col-md-6">
                                     <span for="no-of-products">No. of proudct</span>
                                     <input type="text" name="no_of_product" class="form-control push-to-no-of-product" placeholder="Enter no of product" required="">
+                                    <input type="hidden" name="mode" value="product-push">
                                 </div>
                          </div>  
                     </div>
@@ -464,6 +511,32 @@
             </div>
         </div>  
     </div>
+
+<div class="conditions-check-number modal " role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form>
+                <div class="modal-header">
+                    <h5 class="modal-title">How many products you want to check conditions ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body edited-field-value">
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <span for="no-of-products">No. of proudct</span>
+                            <input type="text" name="no_of_product" class="form-control conditions-check-no-of-product" placeholder="Enter no of product" required="">
+                            <input type="hidden" name="mode" value="conditions-check">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="submit-conditions-check-btn" class="btn btn-secondary">Push</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
     <div class="common-modal-website-list modal " role="dialog">
         <div class="modal-dialog modal-lg" role="document">
@@ -527,6 +600,39 @@
             });
         });
     </script>
+
+    <script>
+        function conditionsCheck() {
+            $(".conditions-check-number").modal("show");
+        }
+
+        $(document).on("click","#submit-conditions-check-btn",function(e) {
+            e.preventDefault();
+            let noofProduct = $(".conditions-check-no-of-product").val();
+            if(isNaN(parseInt(noofProduct))) {
+                alert("Please select no of product for conditions check");
+                return false;
+            }
+            var form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{csrf_token()}}"
+                },
+                beforeSend : function() {
+                    $("#loading-image-preview").show();
+                },
+                url: "{{ route('products.processProductsConditionsCheck') }}",
+                data : form.serialize(),
+                success: function (html) {
+                    $("#loading-image-preview").hide();
+                    $(".product-push-number").modal("hide");
+                    swal(html.message);
+                }
+            });
+        });
+    </script>
+
     <style>
         .same-color {
             color: #898989;
@@ -550,6 +656,9 @@
 
     <script type="text/javascript">
         var categoryJson = <?php echo json_encode($category_array); ?>;
+        $(function() {
+            $('#autopushproduct_toggle').bootstrapToggle();
+        })
         $(document).on('change', '.category_level_1', function () {
             var this_ = $(this);
             var category_id = $(this).val();
@@ -601,7 +710,7 @@
                 return;
             }
             $.ajax({
-                url: '{{ action('WhatsAppController@sendMessage', 'vendor') }}',
+                url: '{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'vendor') }}',
                 type: 'POST',
                 data: {
                     vendor_id: userId,
@@ -616,26 +725,26 @@
             });
         });
        
-        $(document).on('click','.autopushproduct',function(){
+        $(document).on('change','#autopushproduct_toggle',function(){
+            var autopushproduct_toggle = $(this).prop('checked');
+            var auto_push_value = 0;
+                if(autopushproduct_toggle) {
+                    auto_push_value = 1;
+                }
             $.ajax({
                 url: "{{ url('products') }}/changeautopushvalue",
                 type: 'POST',
                 data: {
-                    auto_push_value: $(this).attr("auto_push_value"),
+                    auto_push_value: auto_push_value,
                     _token: "{{csrf_token()}}",
                 },
                 success: function (data) {
                     $(self).val('');
                     toastr['success']('value changed successfully', 'Success')
                     console.log(data.data)
-                    $(".autopushproduct").attr("auto_push_value",data.data);
                     if(data.data == 0){
-                        $(".autopushproduct").removeClass("btn-primary").addClass("btn-secondary");
-                        $(".autopushproduct").val("Auto push product - Not Active")
                         $(".fa-upload").removeClass("hide");
                     }else{
-                        $(".autopushproduct").removeClass("btn-secondary").addClass("btn-primary");
-                        $(".autopushproduct").val("Auto push product - Active")
                         $(".fa-upload").addClass("hide");
                     }
                 }
@@ -717,7 +826,7 @@
         {{--    }--}}
         {{--    let self = this;--}}
         {{--    $.ajax({--}}
-        {{--        url: '{{action('ProductController@addListingRemarkToProduct')}}',--}}
+        {{--        url: '{{action([\App\Http\Controllers\ProductController::class, 'addListingRemarkToProduct'])}}',--}}
         {{--        data: {--}}
         {{--            product_id: pid,--}}
         {{--            remark: remark,--}}
@@ -838,7 +947,8 @@
             $('.dropify').dropify();
             // $(".select-multiple").multiselect();
             $(".select-multiple").select2({
-                minimumResultsForSearch: -1
+                minimumResultsForSearch: -1,
+                width: '100%'
             });
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
         });
@@ -1779,7 +1889,8 @@
             };
             $.ajax({
                 type: 'POST',
-                url: "{{ url('products') }}/" + $(this).data('id') + '/addListingRemarkToProduct',
+                {{--url: "{{ url('products') }}/" + $(this).data('id') + '/addListingRemarkToProduct',--}}
+                url: "{{ url('products') }}/addListingRemarkToProduct",
                 data: data
             }).done(function () {
             }).fail(function (response) {
@@ -1839,7 +1950,30 @@
                 });
         });
 
-
+        $(document).on('click', '.delete-out-of_stock', function () {
+            if (confirm('Are you sure?')) {
+                var ajaxes = [];
+                var thiss = $(this);
+                url = "{{ url('products/delete-out-of-stock-products') }}";
+                ajaxes.push($.ajax({
+                    type: 'GET',
+                    url: url,
+                    beforeSend: function () {
+                        $(thiss).text('Loading...');
+                        $(thiss).html('<i class="fa fa-spinner" aria-hidden="true"></i>');
+                    }                    
+                }).done(function (response) {
+                    $(thiss).removeClass('fa-spinner');
+                    toastr['success']('Products Delete successfully', 'Success')                    
+                }).fail(function (response) {
+                    toastr['error']('Something went wrong', 'Failure')                    
+                }));
+                $.when.apply($, ajaxes)
+                .done(function () {
+                    location.reload();
+                });
+            }
+        });
         function maskpushProduct(){
             var chk = $('.affected_checkbox');
             var chked_id = [];
@@ -1913,6 +2047,7 @@
         $(document).on('click', '.reject-product-cropping', function(){
             var product_id = $(this).data('product_id');
             var site_id = $(this).data('site_id');
+            
             const data = {
                 _token: "{{ csrf_token() }}",
                 product_id: $(this).data('product_id'),
@@ -1929,6 +2064,7 @@
                 $(cssId).html('Rejected');
                 if(response.code == 200) {
                     toastr['success'](response.message, 'Success')
+                    $('tbody .site_list_box[productid="'+product_id+'"][siteid="'+site_id+'"]').remove();
                 }
             }).fail(function (response) {
                 alert('Could not update status');
@@ -1950,6 +2086,8 @@
                 var cssId = '#reject-all-cropping'+product_id;
                 $(cssId).text('All Rejected');
                 if(response.code == 200) {
+                    $('thead[productid="'+product_id+'"]').remove();
+                    $('tbody[productid="'+product_id+'"]').remove();
                     toastr['success'](response.message, 'Success')
                 }
             }).fail(function (response) {
@@ -1968,7 +2106,7 @@
                 console.log("in scroll")
                 let product_id = $(".infinite-scroll-data table tbody .col-md-12").eq(i-1).attr("productid");
                 console.log(product_id)
-              if($(".autopushproduct").attr("auto_push_value") == "1" && product_id != undefined && old_product != product_id){
+              if($("#autopushproduct_toggle").prop('checked') && product_id != undefined && old_product != product_id){
                 old_product = product_id
               //  alert("auto update");
                 var ajaxes = [];
@@ -2152,6 +2290,10 @@
                 alert('Could not update Order');
             });
 
+        }
+
+        function Showactionbtn(id){
+            $(".action-btn-tr-"+id).toggleClass('d-none')
         }
 	</script>
 @endsection

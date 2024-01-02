@@ -8,19 +8,18 @@
 
 namespace App\ReadOnly;
 
-
 use App\ReadOnlyBase;
 
-class CashFlowCategories extends ReadOnlyBase {
-
-	protected $data = [
-		'received'	=> [
-			'1'	=> 'General',
-			'2'	=> 'Car',
-		],
-		'paid'	=> [
-			'3'	=> 'Paid Category',
-			'4'	=> 'Paid Category 2',
-		]
-	];
+class CashFlowCategories extends ReadOnlyBase
+{
+    protected $data = [
+        'received' => [
+            '1' => 'General',
+            '2' => 'Car',
+        ],
+        'paid' => [
+            '3' => 'Paid Category',
+            '4' => 'Paid Category 2',
+        ],
+    ];
 }

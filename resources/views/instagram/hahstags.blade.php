@@ -88,7 +88,7 @@
                 let postId = $(this).attr('data-post-id');
                 let commentKey = $(this).attr('data-comment-key');
                 $.ajax({
-                    url: '{{action('InstagramController@deleteComment')}}',
+                    url: '{{action([\App\Http\Controllers\InstagramController::class, 'deleteComment'])}}',
                     data: {
                         post_id: postId,
                         comment_key: commentKey

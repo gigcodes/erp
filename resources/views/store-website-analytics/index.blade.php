@@ -13,7 +13,8 @@
         </div>
 
         <div class="pull-right">
-            <a class="btn btn-secondary" href="{{url('/store-website-analytics/create')}}">+</a>
+{{--            <a class="btn btn-secondary" href="{{url('/store-website-analytics/create')}}">+</a>--}}
+            <button type="button" class="float-right btn btn-secondary btn mb-3 mr-3" data-toggle="modal" data-target="#websiteanalyticsmodel">+</button>
         </div>
     </div>
 </div>
@@ -61,9 +62,99 @@
     <div class="modal-content">
       <div class="modal-body">
 
-       </div> 
+       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="websiteanalyticsmodel" role="dialog" style="z-index: 3000;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create storeWebsites </h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form method="POST" action="{{ url('/store-website-analytics/create') }}" class="mb-0" enctype="multipart/form-data">
+                    @csrf
+                        <div class="col-12">
+                    <div class="form-group">
+                        <label for="website" class="col-form-label">{{ __('Website') }}</label>
+                            <input id="website" name="website" placeholder="Website" type="text" class="form-control {{ $errors->has('website') ? ' is-invalid' : '' }}" value="{{old('website')}}" required="required" autofocus>
+                            @if ($errors->has('website'))
+                                <span class="invalid-feedback">
+                      <strong>{{ $errors->first('website') }}</strong>
+                    </span>
+                            @endif
+                        </div>
+                    </div>
+                        <div class="col-12">
+                    <div class="form-group">
+                        <label for="account_id" class="col-form-label">{{ __('Account Id') }}</label>
+                            <input id="account_id" name="account_id" placeholder="Account Id" type="text" class="form-control {{ $errors->has('account_id') ? ' is-invalid' : '' }}" value="{{old('account_id')}}" required="required" autofocus>
+                            @if ($errors->has('account_id'))
+                                <span class="invalid-feedback">
+                    <strong>{{ $errors->first('account_id') }}</strong>
+                  </span>
+                            @endif
+                        </div>
+                    </div>
+                        <div class="col-12">
+                    <div class="form-group">
+                        <label for="email" class="col-form-label">{{ __('Email') }}</label>
+                            <input id="email" name="email" placeholder="Email" type="text" class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" value="{{old('email')}}" required="required" autofocus>
+                            @if ($errors->has('email'))
+                                <span class="invalid-feedback">
+                    <strong>{{ $errors->first('email') }}</strong>
+                  </span>
+                            @endif
+                        </div>
+                    </div>
+                        <div class="col-12">
+                    <div class="form-group">
+                        <label for="view_id" class="col-form-label">{{ __('View Id') }}</label>
+                            <input id="view_id" name="view_id" placeholder="View Id" type="text" class="form-control {{ $errors->has('view_id') ? ' is-invalid' : '' }}" value="{{old('view_id')}}" autofocus>
+                            @if ($errors->has('view_id'))
+                                <span class="invalid-feedback">
+                      <strong>{{ $errors->first('view_id') }}</strong>
+                    </span>
+                            @endif
+                        </div>
+                    </div>
+                        <div class="col-12">
+                    <div class="form-group">
+                        <label for="select" class="col-form-label">Store Website Id</label>
+                            <select id="select" name="store_website_id" class="form-control">
+                                @foreach($storeWebsites as $website)
+                                    @php
+                                        $selected = '';
+                                      if(old('store_website_id') == $website->id){
+                                        $selected = 'selected';
+                                      }
+                                    @endphp
+                                    <option value="{{$website->id}}" {{$selected}}>{{$website->id .' - '. $website->website}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                        <div class="col-12">
+                    <div class="form-group">
+                        <label for="view_id" class="col-form-label">{{ __('google service account json') }}</label>
+                            <input id="google_service_account_json" name="google_service_account_json" placeholder="Google Service Account Json" type="file" class="{{ $errors->has('google_service_account_json') ? ' is-invalid' : '' }}" value="{{old('google_service_account_json')}}" required="required" autofocus>
+                            @if ($errors->has('google_service_account_json'))
+                                <span class="invalid-feedback">
+                      <strong>{{ $errors->first('google_service_account_json') }}</strong>
+                      </span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <div class="form-group">
+                            <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
+                    </div>
+                    </div>
+                </form>
+        </div>
+    </div>
 </div>
 
 @endsection

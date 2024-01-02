@@ -35,10 +35,10 @@
 			         <select name="countries[]" class="form-control select-2" multiple>
 		            	<option value="">-- N/A --</option>
 			            <?php
-							foreach($countries as $k => $l) {
-								echo "<option {{if data.countries == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-							}
-						?>
+                            foreach ($countries as $k => $l) {
+                                echo "<option {{if data.countries == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+                            }
+		?>
 			         </select>
 		         {{/if}}
 		      </div>
@@ -47,10 +47,10 @@
 		         <select name="store_website_id" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-						foreach($storeWebsites as $k => $l) {
-							echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-						}
-					?>
+		foreach ($storeWebsites as $k => $l) {
+		    echo "<option {{if data.store_website_id == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+		}
+		?>
 		         </select>
 		      </div>
 		   </div>

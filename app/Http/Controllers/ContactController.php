@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Contact;
 use Auth;
+use App\Contact;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -31,23 +31,22 @@ class ContactController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'name'      => 'required|min:1|string',
-        'phone'     => 'required|numeric',
-        'category'  => 'sometimes|nullable|string'
-      ]);
+        $this->validate($request, [
+            'name' => 'required|min:1|string',
+            'phone' => 'required|numeric',
+            'category' => 'sometimes|nullable|string',
+        ]);
 
-      $params = $request->except('_token');
-      $params['user_id'] = Auth::id();
+        $params = $request->except('_token');
+        $params['user_id'] = Auth::id();
 
-      Contact::create($params);
+        Contact::create($params);
 
-      return redirect('/')->withSuccess('You have successfully created a contact!');
+        return redirect('/')->withSuccess('You have successfully created a contact!');
     }
 
     /**
@@ -75,7 +74,6 @@ class ContactController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

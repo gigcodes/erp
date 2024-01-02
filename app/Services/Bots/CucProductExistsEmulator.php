@@ -2,12 +2,8 @@
 
 namespace App\Services\Bots;
 
-use App\Brand;
-use App\Console\Commands\Bots\Chrome;
-use App\ScrapEntries;
-use GuzzleHttp\Client;
-use NunoMaduro\LaravelConsoleDusk\Manager;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class CucProductExistsEmulator
 {
@@ -25,39 +21,34 @@ class CucProductExistsEmulator
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-          'ip' => '123.136.62.162',
-          'port' => '8080'
+            'ip' => '123.136.62.162',
+            'port' => '8080',
         ];
     }
 
     private $data;
 
-
-    public function emulate($command, $url, $commands = null, $product)
+    public function emulate($command, $url, $commands, $product)
     {
         $this->data = false;
         $self = $this;
         try {
             $this->manager->browse($command, static function ($browser) use ($url, $self, $product) {
                 try {
-
                     $browser->visit($url)
                         ->pause(200);
 
                     try {
                         $browser->script('$(document).find("input[type*=email]").val("yogeshmordani@icloud.com");');
                     } catch (\Exception $exception) {
-
                     }
 
                     try {
                         $browser->script('$(document).find("input[type*=password]").val("india");');
                     } catch (\Exception $exception) {
-
                     }
 
                     $browser->press('Login');
-
 
                     $browser->visit($product->url);
                     $detailsHTML = $browser->element('div.onepcssgrid-1200 div.paddingpage .col5')->getAttribute('innerHTML');
@@ -69,10 +60,9 @@ class CucProductExistsEmulator
                     $sku = str_replace(')', '', $sku);
                     $sku = str_replace('/', '', $sku);
 
-
                     $price = $detailsHTML->filter('.prezzidettaglio span')->getInnerHtml();
                     $price = explode(',', $price);
-                    $price = str_replace('.', ',', $price[0]).'.'.$price[1];
+                    $price = str_replace('.', ',', $price[0]) . '.' . $price[1];
 
                     $brand = $detailsHTML->filter('h1 a span')->getInnerHtml();
                     $category = $detailsHTML->filter('h2 a span')->getInnerHtml();
@@ -80,7 +70,6 @@ class CucProductExistsEmulator
                     if ($sku || $price || $brand || $category) {
                         $self->data = true;
                     }
-
                 } catch (Exception $exception) {
                     $self->data = false;
                 }
@@ -96,12 +85,10 @@ class CucProductExistsEmulator
     {
         $driver = new Chrome($this->getSelectedProxy());
 
-
         $this->manager = new Manager(
             $driver
         );
     }
-
 
     public function getProxyList(): \Illuminate\Support\Collection
     {

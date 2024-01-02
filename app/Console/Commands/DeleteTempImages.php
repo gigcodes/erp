@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use Carbon\Carbon;
 use File;
+use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -43,25 +43,24 @@ class DeleteTempImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            $file_types = array(
+            $file_types = [
                 'gif',
                 'jpg',
                 'jpeg',
                 'png',
                 'pdf',
-            );
+            ];
 
             $directory = public_path('tmp_images');
-            $files     = File::allFiles($directory);
+            $files = File::allFiles($directory);
 
             foreach ($files as $file) {
                 $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
                 if (in_array($ext, $file_types)) {
-
                     $filename = pathinfo($file, PATHINFO_FILENAME);
                     if (DB::table('media')->where('filename', '=', $filename)->count()) {
                         continue; // continue if the picture is in use
@@ -73,6 +72,5 @@ class DeleteTempImages extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

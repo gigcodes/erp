@@ -5,14 +5,15 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ReturnExchangeEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $body;
+
     public $subject;
+
     public $sendFrom;
 
     /**
@@ -23,12 +24,12 @@ class ReturnExchangeEmail extends Mailable
     public function __construct()
     {
         //
-        $this->subject =  isset($data['subject'])?:"";
-        $this->body =  isset($data['static_template'])?:"";
-        if(isset($data['from'])){
-             $this->sendFrom =  $data['from'];
-        }else{
-            $this->sendFrom = 'customercare@sololuxury.co.in';  
+        $this->subject = isset($data['subject']) ?: '';
+        $this->body = isset($data['static_template']) ?: '';
+        if (isset($data['from'])) {
+            $this->sendFrom = $data['from'];
+        } else {
+            $this->sendFrom = 'customercare@sololuxury.co.in';
         }
     }
 

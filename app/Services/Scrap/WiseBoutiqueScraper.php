@@ -9,13 +9,13 @@ use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 class WiseBoutiqueScraper extends Scraper
 {
-    private $scrapKey  = '';
+    private $scrapKey = '';
+
     private const URL = [
         'man' => 'https://www.wiseboutique.com/en/man',
         'woman' => 'https://www.wiseboutique.com/en/woman',
         'HOMEPAGE' => 'https://www.wiseboutique.com/en',
     ];
-
 
     public function scrap(): void
     {
@@ -31,10 +31,10 @@ class WiseBoutiqueScraper extends Scraper
         }
     }
 
-    private function scrapPage($url, $hasProduct=true): void
+    private function scrapPage($url, $hasProduct = true): void
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
-        if (!$scrapEntry) {
+        if (! $scrapEntry) {
             $scrapEntry = new ScrapEntries();
             $scrapEntry->title = $url;
             $scrapEntry->url = $url;
@@ -44,16 +44,16 @@ class WiseBoutiqueScraper extends Scraper
 
         if ($hasProduct) {
             $this->getProducts($scrapEntry);
+
             return;
         }
     }
 
-    private function getProducts(ScrapEntries $scrapEntry ): void
+    private function getProducts(ScrapEntries $scrapEntry): void
     {
-
         $date = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'Wiseboutique')->first();
-        if (!$allLinks) {
+        if (! $allLinks) {
             $allLinks = new ScrapCounts();
             $allLinks->scraped_date = $date;
             $allLinks->website = 'Wiseboutique';
@@ -65,23 +65,20 @@ class WiseBoutiqueScraper extends Scraper
 
         $products = $c->filter('.contfoto .cotienifoto a:first-child')->getIterator();
 
-
         foreach ($products as $product) {
             $allLinks->link_count = $allLinks->link_count + 1;
             $allLinks->save();
             $title = $product->getAttribute('title') ?? 'N/A';
             $link = self::URL['HOMEPAGE'] . '/' . $product->getAttribute('href');
 
-            if (!$link) {
+            if (! $link) {
                 continue;
             }
 
             $entry = ScrapEntries::where('url', $link)
-                ->first()
-            ;
+                ->first();
 
-
-            if (!$entry) {
+            if (! $entry) {
                 $entry = new ScrapEntries();
             }
 

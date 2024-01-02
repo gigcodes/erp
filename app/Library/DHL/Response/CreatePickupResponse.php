@@ -4,13 +4,9 @@ namespace App\Library\DHL\Response;
 
 /**
  * Get Rate response for DHL
- *
- *
  */
-
 class CreatePickupResponse extends ResponseAbstract
 {
-
     public $response;
 
     public function __construct($response)
@@ -21,24 +17,24 @@ class CreatePickupResponse extends ResponseAbstract
 
     /**
      * Check response has error or not?
-     * @return Bool
+     *
+     * @return bool
      */
-
     public function hasError()
     {
         $notification = isset($this->response->Body->PickUpResponse->Notification)
         ? $this->response->Body->PickUpResponse->Notification : null;
 
-        if (!empty($notification)) {
+        if (! empty($notification)) {
             foreach ($notification->attributes() as $k => $ntf) {
-
-                if($k == "code" && $ntf > 0) {
+                if ($k == 'code' && $ntf > 0) {
                     return true;
                 }
-            
-                if ((string) $ntf->code <= "0" && (string) $ntf->code == "") {
+
+                if ((string) $ntf->code <= '0' && (string) $ntf->code == '') {
                     return false;
                 }
+
                 return true;
             }
         }
@@ -51,7 +47,7 @@ class CreatePickupResponse extends ResponseAbstract
         $notification = isset($this->response->Body->PickUpResponse->Notification)
         ? $this->response->Body->PickUpResponse->Notification : null;
 
-        if (!empty($notification)) {
+        if (! empty($notification)) {
             return [(string) $notification[0]->Message];
         }
     }
@@ -68,9 +64,9 @@ class CreatePickupResponse extends ResponseAbstract
         // check if service is not empty then
         $resCharges = [];
 
-        if (!empty($packageResult) ) {
-            $resCharges["message"] = (string)$packageResult->Message;
-            $resCharges["code"]     = (string)$packageResult->code;
+        if (! empty($packageResult)) {
+            $resCharges['message'] = (string) $packageResult->Message;
+            $resCharges['code'] = (string) $packageResult->code;
         }
 
         return $resCharges;

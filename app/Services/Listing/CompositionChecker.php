@@ -1,23 +1,22 @@
 <?php
 
-
 namespace App\Services\Listing;
-
 
 use App\Compositions;
 
 class CompositionChecker implements CheckerInterface
 {
-
     private $compositionReplacementData;
 
     public function __construct()
     {
-        $this->setCompositionReplacementData();
-
+        if (! env('CI')) {
+            $this->setCompositionReplacementData();
+        }
     }
 
-    public function check($product): bool {
+    public function check($product): bool
+    {
         $data = $product->composition;
 
         dump('Real composition: ' . $data);
@@ -30,13 +29,13 @@ class CompositionChecker implements CheckerInterface
             $product->composition = $extractedData;
             $product->save();
             dump($product->composition);
+
             return true;
         }
 
         $additionalData = $this->getCompositionFromList($data);
         dump($additionalData);
-        if (0 === count($additionalData))
-        {
+        if (0 === count($additionalData)) {
             return false;
         }
 
@@ -55,20 +54,19 @@ class CompositionChecker implements CheckerInterface
         $correctedData = [];
         foreach ($data as $datum) {
             $rd = str_replace($this->compositionReplacementData[0], $this->compositionReplacementData[1], $datum);
-            if (!in_array($rd, $correctedData, true)) {
+            if (! in_array($rd, $correctedData, true)) {
                 $correctedData[] = $rd;
             }
         }
 
-        dump('corrected composition :' , $correctedData);
+        dump('corrected composition :', $correctedData);
 
         return $correctedData;
     }
 
-
     private function setCompositionReplacementData(): void
     {
-        $cs = Compositions::all();
+        $cs = [];
         $original = [];
         $replaces = [];
         foreach ($cs as $c) {
@@ -77,12 +75,10 @@ class CompositionChecker implements CheckerInterface
         }
 
         $this->compositionReplacementData = [$original, $replaces];
-
     }
 
     private function getCompositionFromList($properties): array
     {
-
         $compositionList = Compositions::pluck('name')->toArray();
 
         $allCompositions = [];
@@ -94,6 +90,5 @@ class CompositionChecker implements CheckerInterface
         }
 
         return $allCompositions;
-
     }
 }

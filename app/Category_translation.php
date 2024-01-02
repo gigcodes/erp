@@ -3,13 +3,15 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 class Category_translation extends Model
 {
-        /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="locale",type="string")
      * @SWG\Property(property="title",type="string")
@@ -21,12 +23,12 @@ class Category_translation extends Model
         'locale',
         'title',
         'site_id',
-        'is_rejected'
+        'is_rejected',
     ];
 
     public function category()
     {
-        return $this->belongsTo('App\Category');
+        return $this->belongsTo(\App\Category::class);
     }
 
     public function site()

@@ -4,10 +4,10 @@ namespace App\Events;
 
 use App\Blogger;
 use App\BloggerPayment;
-use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class BloggerPaymentCreated
 {
@@ -19,9 +19,12 @@ class BloggerPaymentCreated
      * @return void
      */
     public $blogger;
+
     public $payment;
+
     public $status;
-    public function __construct(Blogger $blogger, BloggerPayment $blogger_payment,$status)
+
+    public function __construct(Blogger $blogger, BloggerPayment $blogger_payment, $status)
     {
         $this->blogger = $blogger;
         $this->payment = $blogger_payment;

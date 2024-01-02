@@ -1,0 +1,31 @@
+name: Prettier
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.PERSONAL_TOKEN }}
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          token: ${{ secrets.PERSONAL_TOKEN }}
+          node-version: 16
+      - name: Install node modules
+        run: npm install
+      - name: Execute prettier
+        run: npm run format
+      - name: "Push the changes to Git"
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply Laravel Prettier Changes
+        env:
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -2,19 +2,19 @@
 
 namespace App\Console\Commands\Manual;
 
-use Carbon\Carbon;
 use DB;
+use Storage;
 use Exception;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
-use Storage;
+use GuzzleHttp\Exception\ClientException;
 
 class UploadTasksToHubstaff extends Command
 {
-
     public $HUBSTAFF_TOKEN_FILE_NAME;
+
     public $SEED_REFRESH_TOKEN;
 
     /**
@@ -41,7 +41,7 @@ class UploadTasksToHubstaff extends Command
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
         // $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
-        $this->SEED_REFRESH_TOKEN       = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
+        $this->SEED_REFRESH_TOKEN = config('env.HUBSTAFF_SEED_PERSONAL_TOKEN');
     }
 
     /**
@@ -53,7 +53,7 @@ class UploadTasksToHubstaff extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //
@@ -78,14 +78,15 @@ class UploadTasksToHubstaff extends Command
         $tasks = array_map(
             function ($task) {
                 $task->summary = '#' . $task->id . ' => ' . $task->summary;
+
                 return $task;
             },
             $tasks
         );
 
-        echo "Total tasks: " . sizeof($tasks) . PHP_EOL;
+        echo 'Total tasks: ' . count($tasks) . PHP_EOL;
         $this->uploadTasks($tasks, 'tasks');
-        echo "UPLOADED TASKS" . PHP_EOL;
+        echo 'UPLOADED TASKS' . PHP_EOL;
     }
 
     private function uploadDeveloperTasks()
@@ -105,14 +106,15 @@ class UploadTasksToHubstaff extends Command
                     $summary .= 'DEVTASK-' . $task->id . ' => ' . $task->summary;
                 }
                 $task->summary = $summary;
+
                 return $task;
             },
             $assignedTasks
         );
 
-        echo "Total Dev tasks: " . sizeof($assignedTasks) . PHP_EOL;
+        echo 'Total Dev tasks: ' . count($assignedTasks) . PHP_EOL;
         $this->uploadTasks($assignedTasks, 'developer_tasks');
-        echo "UPLOADED DEVELOPER TASKS";
+        echo 'UPLOADED DEVELOPER TASKS';
     }
 
     private function uploadTasks($tasks, $tableName)
@@ -120,7 +122,7 @@ class UploadTasksToHubstaff extends Command
         foreach ($tasks as $index => $task) {
             $taskId = $this->uploadTask($task);
             if ($taskId) {
-                echo "(" . ($index + 1) . "/" . sizeof($tasks) . ") Created Hubstaff Task: " . $taskId . ' for task: ' . $task->id . PHP_EOL;
+                echo '(' . ($index + 1) . '/' . count($tasks) . ') Created Hubstaff Task: ' . $taskId . ' for task: ' . $task->id . PHP_EOL;
 
                 DB::table($tableName)
                     ->where('id', '=', $task->id)
@@ -130,7 +132,7 @@ class UploadTasksToHubstaff extends Command
                         ]
                     );
             } else {
-                echo "(" . ($index + 1) . "/" . sizeof($tasks) . ")Failed to create task for task ID: " . $task->id . PHP_EOL;
+                echo '(' . ($index + 1) . '/' . count($tasks) . ')Failed to create task for task ID: ' . $task->id . PHP_EOL;
             }
             sleep(5);
         }
@@ -138,30 +140,29 @@ class UploadTasksToHubstaff extends Command
 
     private function uploadTask($task, $shouldRetry = true)
     {
-
         $tokens = $this->getTokens();
 
         // $url        = 'https://api.hubstaff.com/v2/projects/' . getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
-        $url        = 'https://api.hubstaff.com/v2/projects/' . config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
+        $url = 'https://api.hubstaff.com/v2/projects/' . config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID') . '/tasks';
         $httpClient = new Client();
         try {
-
             $response = $httpClient->post(
                 $url,
                 [
                     RequestOptions::HEADERS => [
                         'Authorization' => 'Bearer ' . $tokens->access_token,
-                        'Content-Type'  => 'application/json',
+                        'Content-Type' => 'application/json',
                     ],
 
-                    RequestOptions::BODY    => json_encode([
-                        'summary'     => substr($task->summary, 0, 200),
+                    RequestOptions::BODY => json_encode([
+                        'summary' => substr($task->summary, 0, 200),
                         // 'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID'),
                         'assignee_id' => isset($task->assignee_id) ? $task->assignee_id : config('env.HUBSTAFF_DEFAULT_ASSIGNEE_ID'),
                     ]),
                 ]
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
+
             return $parsedResponse->task->id;
         } catch (Exception $e) {
             if ($e instanceof ClientException) {
@@ -175,6 +176,7 @@ class UploadTasksToHubstaff extends Command
             }
             echo $e->getMessage() . PHP_EOL;
         }
+
         return false;
     }
 
@@ -186,10 +188,11 @@ class UploadTasksToHubstaff extends Command
 
     private function getTokens()
     {
-        if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
+        if (! Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
             $this->generateAccessToken($this->SEED_REFRESH_TOKEN);
         }
         $tokens = json_decode(Storage::disk('local')->get($this->HUBSTAFF_TOKEN_FILE_NAME));
+
         return $tokens;
     }
 
@@ -204,7 +207,7 @@ class UploadTasksToHubstaff extends Command
                 'https://account.hubstaff.com/access_tokens',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type'    => 'refresh_token',
+                        'grant_type' => 'refresh_token',
                         'refresh_token' => $refreshToken,
                     ],
                 ]
@@ -213,7 +216,7 @@ class UploadTasksToHubstaff extends Command
             $responseJson = json_decode($response->getBody()->getContents());
 
             $tokens = [
-                'access_token'  => $responseJson->access_token,
+                'access_token' => $responseJson->access_token,
                 'refresh_token' => $responseJson->refresh_token,
             ];
 

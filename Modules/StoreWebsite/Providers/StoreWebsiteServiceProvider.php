@@ -39,10 +39,10 @@ class StoreWebsiteServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('storewebsite.php'),
+            __DIR__ . '/../Config/config.php' => config_path('storewebsite.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'storewebsite'
+            __DIR__ . '/../Config/config.php', 'storewebsite'
         );
     }
 
@@ -55,11 +55,11 @@ class StoreWebsiteServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/storewebsite');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/storewebsite';
@@ -78,7 +78,7 @@ class StoreWebsiteServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'storewebsite');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'storewebsite');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'storewebsite');
         }
     }
 

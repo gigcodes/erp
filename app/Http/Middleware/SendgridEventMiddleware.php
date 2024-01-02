@@ -1,19 +1,15 @@
 <?php
 
-
 namespace App\Http\Middleware;
 
-
 use Closure;
-use function Symfony\Component\Console\Tests\Command\createClosure;
 
 class SendgridEventMiddleware
 {
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -26,11 +22,11 @@ class SendgridEventMiddleware
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return bool
      */
-    private function isKeyValid($request) {
-
+    private function isKeyValid($request)
+    {
         if (! config('sendgridevents.url_secret_key')) {
             return true;
         }

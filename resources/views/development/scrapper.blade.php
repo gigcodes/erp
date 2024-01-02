@@ -127,7 +127,7 @@
 								<td>{{ $issue['id'] }}</td>
 								<td>{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
 								<td class="expand-row-msg" data-name="subject" data-id="{{$i}}">
-									<span class="show-short-subject-{{$i}}">{{ str_limit($issue->subject, 10, '...')}}</span>
+									<span class="show-short-subject-{{$i}}">{{ Str::limit($issue->subject, 10, '...')}}</span>
 									<span style="word-break:break-all;" class="show-full-subject-{{$i}} hidden">{{ $issue->subject }}</span>
 								</td>
                                 <td class="expand-row">
@@ -157,7 +157,7 @@
                                  </td>
 
 								<td class="expand-row-msg Website-task" data-name="task" data-id="{{$i}}">
-									<span class="Website-task show-short-task-{{$i}}">{{ str_limit($issue->task, 20, '...')}}</span>
+									<span class="Website-task show-short-task-{{$i}}">{{ Str::limit($issue->task, 20, '...')}}</span>
 									<span style="word-break:break-all;" class="Website-task show-full-task-{{$i}} hidden">{{ $issue->task }}</span>
 								</td>
 								 <td class="Website-task">   @if($issue->assignedUser)
@@ -258,7 +258,7 @@
             // }
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'developer_task')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'developer_task')}}",
                 type: 'POST',
                 data: {
                     _token: "{{csrf_token()}}",

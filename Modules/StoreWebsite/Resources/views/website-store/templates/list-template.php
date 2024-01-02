@@ -3,7 +3,7 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>Id</th>
+		      	<th><input type="checkbox" class="check-all">Id</th>
 				<th>Name</th>
 				<th>Code</th>
 				<th>Root Category</th>
@@ -15,7 +15,7 @@
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td>{{:prop.id}}</td>
+			      	<td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
 			        <td>{{:prop.name}}</td>
 			        <td>{{:prop.code}}</td>
 			        <td>{{:prop.root_category}}</td>

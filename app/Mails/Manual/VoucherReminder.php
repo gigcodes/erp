@@ -6,7 +6,6 @@ use App\Voucher;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class VoucherReminder extends Mailable
 {
@@ -17,12 +16,15 @@ class VoucherReminder extends Mailable
      *
      * @return void
      */
-
     public $voucher;
+
+    public $fromMailer;
 
     public function __construct(Voucher $voucher)
     {
-      $this->voucher = $voucher;
+        $this->voucher = $voucher;
+
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**
@@ -32,9 +34,9 @@ class VoucherReminder extends Mailable
      */
     public function build()
     {
-      return $this->from('contact@sololuxury.co.in')
-                  ->bcc('customercare@sololuxury.co.in')
-                  ->subject('Voucher Reminder')
-                  ->markdown('emails.vouchers.reminder');
+        return $this->from($this->fromMailer)
+                    ->bcc($this->fromMailer)
+                    ->subject('Voucher Reminder')
+                    ->markdown('emails.vouchers.reminder');
     }
 }

@@ -2,12 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\User;
-use App\UserRate;
 use DB;
-use Exception;
-use Carbon\Carbon;
 use File;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 
 class ScrapLogs extends Command
@@ -43,68 +41,61 @@ class ScrapLogs extends Command
      */
     public function handle()
     {
-
         $file_list = [];
-        $searchVal = "";
-        $dateVal = "";
+        $searchVal = '';
+        $dateVal = '';
         $file_list = [];
         // $files = \File::allFiles(env('SCRAP_LOGS_FOLDER'));
         $files = \File::allFiles(config('env.SCRAP_LOGS_FOLDER'));
         /*$date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
-        if($date == 01) 
+        if($date == 01)
         {
             $date = 32;
         }*/
-        $yesterdayDate = date('j', strtotime("-1 days"));
+        $yesterdayDate = date('j', strtotime('-1 days'));
         foreach ($files as $key => $val) {
             $day_of_file = explode('-', $val->getFilename());
-            if(str_contains(end($day_of_file), $yesterdayDate) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+            if (Str::contains(end($day_of_file), $yesterdayDate) && (Str::contains($val->getFilename(), $searchVal) || empty($searchVal))) {
                 // $file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
-                $file_path_new = config('env.SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
+                $file_path_new = config('env.SCRAP_LOGS_FOLDER') . '/' . $val->getRelativepath() . '/' . $val->getFilename();
 
                 $file = file($file_path_new);
 
-                $log_msg = "";
-                for ($i = max(0, count($file)-100); $i < count($file); $i++) {
-                  $log_msg.=$file[$i];
+                $log_msg = '';
+                for ($i = max(0, count($file) - 100); $i < count($file); $i++) {
+                    $log_msg .= $file[$i];
                 }
-                if($log_msg == "")
-                {
-                    $log_msg = "Log data not found.";   
+                if ($log_msg == '') {
+                    $log_msg = 'Log data not found.';
                 }
                 $file_path_info = pathinfo($val->getFilename());
-                
 
                 $search_scraper = substr($file_path_info['filename'], 0, -3);
-                $search_scraper = str_replace("-", "_", $search_scraper);   
+                $search_scraper = str_replace('-', '_', $search_scraper);
                 $scrapers_info = DB::table('scrapers')
                     ->select('id')
                     ->where('scraper_name', 'like', $search_scraper)
-                    ->get(); 
-                
-                if(count($scrapers_info) > 0)
-                {
+                    ->get();
+
+                if (count($scrapers_info) > 0) {
                     $scrap_logs_info = DB::table('scrap_logs')
-                    ->select('id','scraper_id')
+                    ->select('id', 'scraper_id')
                     ->where('scraper_id', '=', $scrapers_info[0]->id)
                     ->get();
                     $scrapers_id = $scrapers_info[0]->id;
-                }
-                else
-                {
+                } else {
                     $scrapers_id = 0;
                 }
-                    
-                if(isset($scrap_logs_info) && count($scrap_logs_info) == 0)
-                {
-                    $file_list_data = array(
-                        "scraper_id"=>$scrapers_id,
-                        "folder_name"=>$val->getRelativepath(),
-                        "file_name"=>$val->getFilename(),
-                        "log_messages"=>$log_msg,
-                        "created_at"=>date("Y-m-d H:i:s"),
-                        "updated_at"=>date("Y-m-d H:i:s")
-                    ); 
+
+                if (isset($scrap_logs_info) && count($scrap_logs_info) == 0) {
+                    $file_list_data = [
+                        'scraper_id' => $scrapers_id,
+                        'folder_name' => $val->getRelativepath(),
+                        'file_name' => $val->getFilename(),
+                        'log_messages' => $log_msg,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ];
                     DB::table('scrap_logs')->insert($file_list_data);
                 }
             }

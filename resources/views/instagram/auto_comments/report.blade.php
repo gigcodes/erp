@@ -16,7 +16,7 @@
             <button class="btn btn-default" data-toggle="collapse" data-target="#demo">Show Target hashtags</button>
 
             <div id="demo" class="collapse" style="padding: 15px;">
-                <form action="{{action('AutoReplyHashtagsController@show', 'all')}}" method="get">
+                <form action="{{action([\App\Http\Controllers\AutoReplyHashtagsController::class, 'show'], 'all')}}" method="get">
                         <div class="col-md-2">
                             <div class="form-group">
                                 <select style="width: 100%" class="form-control" name="country" id="country">
@@ -76,7 +76,7 @@
         </div>
 
         <div class="col-md-12">
-            <form action="{{ action('AutoCommentHistoryController@index') }}" method="get">
+            <form action="{{ action([\App\Http\Controllers\AutoCommentHistoryController::class, 'index']) }}" method="get">
                 <div class="row">
                     <div class="col-md-2">
                         <select class="form-control-sm form-control" name="verified" id="verified">

@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\ResourceCategory;
-use App\ResourceImage;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ResourceImage;
+use App\ResourceCategory;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class RecieveResourceImages extends Command
 {
@@ -44,18 +44,18 @@ class RecieveResourceImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $oClient = new Client([
-                'host'          => env('IMAP_HOST_RESOURCEIMAGE'),
-                'port'          => env('IMAP_PORT_RESOURCEIMAGE'),
-                'encryption'    => env('IMAP_ENCRYPTION_RESOURCEIMAGE'),
+            $cm = new ClientManager();
+            $oClient = $cm->make([
+                'host' => env('IMAP_HOST_RESOURCEIMAGE'),
+                'port' => env('IMAP_PORT_RESOURCEIMAGE'),
+                'encryption' => env('IMAP_ENCRYPTION_RESOURCEIMAGE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_RESOURCEIMAGE'),
-                'username'      => env('IMAP_USERNAME_RESOURCEIMAGE'),
-                'password'      => env('IMAP_PASSWORD_RESOURCEIMAGE'),
-                'protocol'      => env('IMAP_PROTOCOL_RESOURCEIMAGE'),
+                'username' => env('IMAP_USERNAME_RESOURCEIMAGE'),
+                'password' => env('IMAP_PASSWORD_RESOURCEIMAGE'),
+                'protocol' => env('IMAP_PROTOCOL_RESOURCEIMAGE'),
             ]);
 
             $oClient->connect();
@@ -66,17 +66,16 @@ class RecieveResourceImages extends Command
             if (count($message) == 0) {
                 echo 'No New Mail Found';
                 echo '<br>';
-                die();
+                exit();
             }
 
             foreach ($message as $messages) {
-
                 if (session()->has('resource.image')) {
                     session()->forget('resource.image');
                 }
                 $subject = $messages->getSubject();
                 $subject = strtolower($subject);
-                $subject = explode(" ", $subject);
+                $subject = explode(' ', $subject);
                 //Getting Category
                 foreach ($subject as $value) {
                     $category = ResourceCategory::where('parent_id', 0)->where('title', $value)->first();
@@ -101,10 +100,10 @@ class RecieveResourceImages extends Command
 
                 if ($messages->hasAttachments()) {
                     $aAttachment = $messages->getAttachments();
-                    $imageArray  = array();
+                    $imageArray = [];
                     $aAttachment->each(function ($oAttachment) {
                         $name = $oAttachment->getName();
-                        if (!file_exists(public_path('/category_images'))) {
+                        if (! file_exists(public_path('/category_images'))) {
                             mkdir(public_path('/category_images'), 0777, true);
                         }
                         $oAttachment->save(public_path('/category_images'), $name);
@@ -113,7 +112,6 @@ class RecieveResourceImages extends Command
                     });
 
                     $images = json_encode(session()->get('resource.image'));
-
                 }
 
                 //Getting URL
@@ -129,24 +127,22 @@ class RecieveResourceImages extends Command
 
                 $description = strip_tags($body);
 
-                $resourceimg              = new ResourceImage;
-                $resourceimg->cat_id      = $categoryId;
-                $resourceimg->sub_cat_id  = $subCategoryId;
-                $resourceimg->images      = $images;
-                $resourceimg->url         = $url;
+                $resourceimg = new ResourceImage;
+                $resourceimg->cat_id = $categoryId;
+                $resourceimg->sub_cat_id = $subCategoryId;
+                $resourceimg->images = $images;
+                $resourceimg->url = $url;
                 $resourceimg->description = $description;
-                $resourceimg->created_by  = 'Email Reciever';
-                $resourceimg->is_pending  = 1;
+                $resourceimg->created_by = 'Email Reciever';
+                $resourceimg->is_pending = 1;
                 $resourceimg->save();
-                echo "Resource Image Saved";
+                echo 'Resource Image Saved';
                 session()->forget('resource.image');
-
             }
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

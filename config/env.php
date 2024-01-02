@@ -1,6 +1,5 @@
 <?php
 
-
 return [
     // 'APP_NAME' => env('APP_NAME'),
     'APP_ENV' => env('APP_ENV'),
@@ -12,11 +11,11 @@ return [
     // 'CACHE_DRIVER' => env('CACHE_DRIVER'),
     // 'SESSION_DRIVER' => env('SESSION_DRIVER'),
     // 'SESSION_LIFETIME' => env('SESSION_LIFETIME'),
-    // 'QUEUE_DRIVER' => env('QUEUE_DRIVER'),
+    // 'QUEUE_CONNECTION' => env('QUEUE_CONNECTION'),
     // 'REDIS_HOST' => env('REDIS_HOST'),
     // 'REDIS_PASSWORD' => env('REDIS_PASSWORD'),
     // 'REDIS_PORT' => env('REDIS_PORT'),
-    // 'MAIL_DRIVER' => env('MAIL_DRIVER'),
+    // 'MAIL_MAILER' => env('MAIL_MAILER'),
     'MAIL_HOST' => env('MAIL_HOST'),
     'MAIL_PORT' => env('MAIL_PORT'),
     'MAIL_USERNAME' => env('MAIL_USERNAME'),
@@ -55,6 +54,7 @@ return [
     'ZOOM_API_KEY' => env('ZOOM_API_KEY'),
     'ZOOM_API_SECRET' => env('ZOOM_API_SECRET'),
     'ZOOM_JWT_TOKEN' => env('ZOOM_JWT_TOKEN'),
+    'ZOOM_MEETING_ID' => env('ZOOM_MEETING_ID'),
     'ZOOM_JWT_EXPIRES_ON' => env('ZOOM_JWT_EXPIRES_ON'),
     'HUBSTAFF_ORG_ID' => env('HUBSTAFF_ORG_ID'),
     'HUBSTAFF_SEED_PERSONAL_TOKEN' => env('HUBSTAFF_SEED_PERSONAL_TOKEN'),
@@ -81,5 +81,5 @@ return [
     'NODE_SERVER_PORT' => env('NODE_SERVER_PORT'),
     'GOOGLE_TRANSLATE_API_KEY' => env('GOOGLE_TRANSLATE_API_KEY'),
     'DEFAULT_CUST_ID' => env('DEFAULT_CUST_ID'),
-	'SEMRUSH_API'=> env('SEMRUSH_API')
+    'SEMRUSH_API' => env('SEMRUSH_API'),
 ];

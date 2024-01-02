@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\ColorNamesReference;
 use App\ColorReference;
+use App\ColorNamesReference;
 use Illuminate\Http\Request;
 
 class ColorReferenceController extends Controller
@@ -24,7 +24,7 @@ class ColorReferenceController extends Controller
         }
 
         if ($request->no_ref == 1) {
-            $colors = $colors->where(function ($q) use ($request) {
+            $colors = $colors->where(function ($q) {
                 $q->orWhere('erp_name', '')->orWhereNull('erp_name');
             });
         }
@@ -32,6 +32,22 @@ class ColorReferenceController extends Controller
         $colors = $colors->get();
 
         return view('color_references.index', compact('colors'));
+    }
+
+    public function groupColor(Request $request){
+       $listcolors =  (new \App\Colors())->all();
+        return view('color_references.listing', compact('listcolors'));
+    }
+
+    public function colorGroupBy(Request $request, $name, $threshold){
+
+        $colors = ColorNamesReference::get()->filter(function ($color) use ($name, $threshold) {
+            similar_text(strtolower($color->color_name), strtolower($name), $percentage);
+
+            return $percentage >= $threshold * 100;
+        });
+        $listcolors =  (new \App\Colors())->all();
+        return view('color_references.update', compact('colors', 'listcolors'));
     }
 
     /**
@@ -47,7 +63,6 @@ class ColorReferenceController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -58,21 +73,21 @@ class ColorReferenceController extends Controller
 
         $colors = $request->get('colors');
         foreach ($colors as $key => $color) {
-            if (!$color) {
+            if (! $color) {
                 continue;
             }
-            $c           = ColorNamesReference::find($key);
+            $c = ColorNamesReference::find($key);
             $c->erp_name = $color;
             $c->save();
         }
 
         return redirect()->back();
     }
+    
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function show(ColorReference $colorReference)
@@ -83,7 +98,6 @@ class ColorReferenceController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function edit(ColorReference $colorReference)
@@ -94,8 +108,6 @@ class ColorReferenceController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ColorReference $colorReference)
@@ -106,7 +118,6 @@ class ColorReferenceController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ColorReference  $colorReference
      * @return \Illuminate\Http\Response
      */
     public function destroy(ColorReference $colorReference)
@@ -120,62 +131,88 @@ class ColorReferenceController extends Controller
 
         if ($q) {
             // check the type and then
-            $q        = '"color":"' . $q . '"';
-            $products = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')->latest()->limit(5)->get();
+            $q = '"color":"' . $q . '"';
+            $products = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')->latest()->limit(5)->get();
 
-            $view = (string) view("compositions.preview-products", compact('products'));
-            return response()->json(["code" => 200, "html" => $view]);
+            $view = (string) view('compositions.preview-products', compact('products'));
+
+            return response()->json(['code' => 200, 'html' => $view]);
         }
 
-        return response()->json(["code" => 200, "html" => ""]);
+        return response()->json(['code' => 200, 'html' => '']);
     }
 
     public function affectedProduct(Request $request)
     {
         $from = $request->from;
-        $to   = $request->to;
+        $to = $request->to;
 
-        if (!empty($from) && !empty($to)) {
+        if (! empty($from) && ! empty($to)) {
             // check the type and then
-            $q     = '"color":"' . $from . '"';
-            $total = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')
-                ->join("products as p", "p.sku", "scraped_products.sku")
-                ->where("p.color", "")
-                ->groupBy("p.id")
+            $q = '"color":"' . $from . '"';
+            $total = \App\ScrapedProducts::where('properties', 'like', '%' . $q . '%')
+                ->join('products as p', 'p.sku', 'scraped_products.sku')
+                ->where('p.color', '')
+                ->groupBy('p.id')
                 ->get()->count();
 
-            $view = (string) view("color_references.partials.affected-products", compact('total', 'from', 'to'));
+            $view = (string) view('color_references.partials.affected-products', compact('total', 'from', 'to'));
 
-            return response()->json(["code" => 200, "html" => $view]);
+            return response()->json(['code' => 200, 'html' => $view]);
         }
     }
+
+    public function updateColorMultiple(Request $request)
+    {
+        $from = $request->from;
+        $to = $request->to;
+        foreach($from as $fromname){
+            $updateWithProduct = $request->with_product;
+            if ($updateWithProduct == 'yes') {
+                \App\Jobs\UpdateProductColorFromErp::dispatch([
+                    'from' => $fromname,
+                    'to' => $to,
+                    'user_id' => \Auth::user()->id,
+                ])->onQueue('supplier_products');
+            }
+    
+            $c = ColorNamesReference::where('color_name', $fromname)->first();
+            if ($c) {
+                $c->erp_name = $to;
+                $c->save();
+            }
+        }
+        
+        return response()->json(['code' => 200, 'message' => 'Your request has been pushed successfully']);
+    }
+
 
     public function updateColor(Request $request)
     {
         $from = $request->from;
-        $to   = $request->to;
+        $to = $request->to;
 
         $updateWithProduct = $request->with_product;
-        if ($updateWithProduct == "yes") {
+        if ($updateWithProduct == 'yes') {
             \App\Jobs\UpdateProductColorFromErp::dispatch([
-                "from"    => $from,
-                "to"      => $to,
-                "user_id" => \Auth::user()->id,
-            ])->onQueue("supplier_products");
+                'from' => $from,
+                'to' => $to,
+                'user_id' => \Auth::user()->id,
+            ])->onQueue('supplier_products');
         }
 
-        $c = ColorNamesReference::where("color_name",$from)->first();
-        if($c) {
+        $c = ColorNamesReference::where('color_name', $from)->first();
+        if ($c) {
             $c->erp_name = $to;
             $c->save();
         }
 
-        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+        return response()->json(['code' => 200, 'message' => 'Your request has been pushed successfully']);
     }
 
     public function cmdcallcolorfix(Request $request)
     {
-         \Artisan::call('fix-erp-color-issue');
+        \Artisan::call('fix-erp-color-issue');
 
         return redirect()->back();
     }

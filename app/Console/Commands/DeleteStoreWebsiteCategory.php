@@ -38,14 +38,14 @@ class DeleteStoreWebsiteCategory extends Command
     public function handle()
     {
         //
-        $sWebsiteCat = \App\StoreWebsiteCategory::leftJoin("categories as c","c.id","store_website_categories.category_id")->whereNull('c.id')->get();
-        if(!$sWebsiteCat->isEmpty()) {
-            foreach($sWebsiteCat as $swc) {
+        $sWebsiteCat = \App\StoreWebsiteCategory::leftJoin('categories as c', 'c.id', 'store_website_categories.category_id')->whereNull('c.id')->get();
+        if (! $sWebsiteCat->isEmpty()) {
+            foreach ($sWebsiteCat as $swc) {
                 $storeWebsite = \App\StoreWebsite::find($swc->store_website_id);
-                if($storeWebsite && $storeWebsite->website_source == "magento") {
+                if ($storeWebsite && $storeWebsite->website_source == 'magento') {
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                        $return = \seo2websites\MagentoHelper\MagentoHelper::inactiveCategory($swc->remote_id,$storeWebsite);
-                        if($return == true) {
+                        $return = \seo2websites\MagentoHelper\MagentoHelper::inactiveCategory($swc->remote_id, $storeWebsite);
+                        if ($return == true) {
                             $swc->delete();
                         }
                     }

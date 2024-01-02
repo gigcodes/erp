@@ -1,11 +1,11 @@
 <?php
+
 // MessageCreated.php
+
 namespace App\Events;
 
 use App\Message;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -33,8 +33,8 @@ class MessageCreated implements ShouldBroadcast
 
         return [
             'message' => array_merge($this->message->toArray(), [
-                'selfMessage' => false
-            ])
+                'selfMessage' => false,
+            ]),
         ];
     }
 

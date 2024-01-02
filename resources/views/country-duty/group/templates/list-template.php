@@ -90,7 +90,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::text("name",null,["class" => "form-control group-name"]); ?>
+					         	<?php echo Form::text('name', null, ['class' => 'form-control group-name']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">
@@ -157,7 +157,7 @@
 	          <div class="form-group col-md-12">
 	            <label for="duty_group_id">Duty Group</label>
 	            <select class="form-control" name="duty_group_id">
-		            <?php foreach(\App\DutyGroup::selectList() as $k => $dglist) { ?>
+		            <?php foreach (\App\DutyGroup::selectList() as $k => $dglist) { ?>
 		            	<option {{if data && data.duty_group_id == "<?php echo $k; ?>"}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $dglist; ?></option>
 		            <?php } ?>
 	        	</select>

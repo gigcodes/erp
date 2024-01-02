@@ -15,7 +15,7 @@
                     <div class="col-10">
                         <a class="notification-link"
                            href="{{ $notification->sale_id ? route('sales.edit',$notification->sale_id) : route('products.show',$notification->product_id)  }}">
-                            <p>{{ $notification->uname }} {{ str_limit($notification->message,50,'...') }}
+                            <p>{{ $notification->uname }} {{ Str::limit($notification->message,50,'...') }}
                                 {{$notification->pname ? $notification->pname : $notification->sku }}
                                 at {{ Carbon\Carbon::parse($notification->created_at)->format('d-m H:i') }}
                             </p>

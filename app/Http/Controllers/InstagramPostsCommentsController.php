@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\InstagramPostsComments;
 use Illuminate\Http\Request;
+use App\InstagramPostsComments;
 
 class InstagramPostsCommentsController extends Controller
 {
@@ -30,7 +30,6 @@ class InstagramPostsCommentsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +40,6 @@ class InstagramPostsCommentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\InstagramPostsComments  $instagramPostsComments
      * @return \Illuminate\Http\Response
      */
     public function show(InstagramPostsComments $instagramPostsComments)
@@ -52,7 +50,6 @@ class InstagramPostsCommentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\InstagramPostsComments  $instagramPostsComments
      * @return \Illuminate\Http\Response
      */
     public function edit(InstagramPostsComments $instagramPostsComments)
@@ -63,8 +60,6 @@ class InstagramPostsCommentsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\InstagramPostsComments  $instagramPostsComments
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, InstagramPostsComments $instagramPostsComments)
@@ -75,7 +70,6 @@ class InstagramPostsCommentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramPostsComments  $instagramPostsComments
      * @return \Illuminate\Http\Response
      */
     public function destroy(InstagramPostsComments $instagramPostsComments)

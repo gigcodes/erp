@@ -30,8 +30,8 @@
 	         </div>
 	         <div class="form-group">
                 <strong>Date Range</strong>
-                <input type="text" value="{{if data && data.start_date}}{{:data.start_date}}{{else}}<?php echo date("Y-m-d 00:00:00"); ?>{{/if}}" name="start_date" hidden/>
-                <input type="text" value="{{if data && data.end_date}}{{:data.end_date}}{{else}}<?php echo date("Y-m-d 00:00:00"); ?>{{/if}}" name="end_date" hidden/>
+                <input type="text" value="{{if data && data.start_date}}{{:data.start_date}}{{else}}<?php echo date('Y-m-d 00:00:00'); ?>{{/if}}" name="start_date" hidden/>
+                <input type="text" value="{{if data && data.end_date}}{{:data.end_date}}{{else}}<?php echo date('Y-m-d 00:00:00'); ?>{{/if}}" name="end_date" hidden/>
                 <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                     <i class="fa fa-calendar"></i>&nbsp;
                     <span></span> <i class="fa fa-caret-down"></i>
@@ -40,7 +40,7 @@
 	         <div class="form-group">
 	            <label for="inputState">Status?</label>
 	            <select name="status" id="inputState" class="form-control">
-	               <?php  foreach($statuses as  $k => $s) { ?>
+	               <?php  foreach ($statuses as  $k => $s) { ?>
 	               		<option {{if data && data.status == <?php echo $k; ?>}}selected{{/if}} value="<?php echo $k; ?>"><?php echo $s; ?></option>
 	               <?php } ?>
 	            </select>

@@ -2,10 +2,9 @@
 
 namespace seo2websites\PriceComparisonScraper;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\View;
-use seo2websites\PriceComparisonScraper\PriceComparisonScraperSites;
 
 class PriceComparisonScraperSitesController extends Controller
 {
@@ -20,7 +19,7 @@ class PriceComparisonScraperSitesController extends Controller
         $sites = PriceComparisonScraperSites::all();
 
         // load the view and pass the nerds
-        return view( 'PriceComparisonScraper::sites.index', compact( 'sites' ) );
+        return view('PriceComparisonScraper::sites.index', compact('sites'));
     }
 
     /**
@@ -31,47 +30,46 @@ class PriceComparisonScraperSitesController extends Controller
     public function create()
     {
         // load the create form
-		$details = [];
-        return view( 'PriceComparisonScraper::sites.create', compact('details') );
+        $details = [];
+
+        return view('PriceComparisonScraper::sites.create', compact('details'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store( Request $request )
+    public function store(Request $request)
     {
         // Create new site
-		$input =  $request->input();
-        PriceComparisonScraperSites::updateOrCreate(['id'=>$input['id']], $input);
+        $input = $request->input();
+        PriceComparisonScraperSites::updateOrCreate(['id' => $input['id']], $input);
 
         // Redirect to index
-        return redirect()->action( '\seo2websites\PriceComparisonScraper\PriceComparisonScraperSitesController@index');
+        return redirect()->action('\seo2websites\PriceComparisonScraper\PriceComparisonScraperSitesController@index');
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\PriceComparisonScraperSites $priceComparisonScraperSites
+     * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
      * @return \Illuminate\Http\Response
      */
-    public function edit( $id )
+    public function edit($id)
     {
-		$details = PriceComparisonScraperSites::find($id);
+        $details = PriceComparisonScraperSites::find($id);
         // load the create form
-        return view( 'PriceComparisonScraper::sites.create', compact('details') );
+        return view('PriceComparisonScraper::sites.create', compact('details'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\PriceComparisonScraperSites $priceComparisonScraperSites
+     * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
      * @return \Illuminate\Http\Response
      */
-    public function update( Request $request, PriceComparisonScraperSites $priceComparisonScraperSites )
+    public function update(Request $request, PriceComparisonScraperSites $priceComparisonScraperSites)
     {
         //
     }
@@ -79,10 +77,10 @@ class PriceComparisonScraperSitesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\PriceComparisonScraperSites $priceComparisonScraperSites
+     * @param  \App\PriceComparisonScraperSites  $priceComparisonScraperSites
      * @return \Illuminate\Http\Response
      */
-    public function destroy( PriceComparisonScraperSites $priceComparisonScraperSites )
+    public function destroy(PriceComparisonScraperSites $priceComparisonScraperSites)
     {
         //
     }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="StoreWebsiteSeoFormat"))
  */
@@ -10,9 +11,10 @@ class StoreWebsiteSeoFormat extends Model
 {
     //
 
-      /**
+    /**
      * @var string
-    
+
+     *
      * @SWG\Property(property="meta_title",type="string")
      * @SWG\Property(property="meta_keyword",type="string")
      * @SWG\Property(property="meta_description",type="string")
@@ -22,7 +24,6 @@ class StoreWebsiteSeoFormat extends Model
         'meta_title',
         'meta_keyword',
         'meta_description',
-        'store_website_id'
+        'store_website_id',
     ];
-
 }

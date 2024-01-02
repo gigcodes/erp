@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Auth;
+use App\User;
 use App\Brand;
-use App\Category;
-use App\CharityCountry;
-use App\CharityProductStoreWebsite;
-use App\CustomerCharity;
-use App\CustomerCharityWebsiteStore;
-use App\Helpers\ProductHelper;
 use App\Product;
 use App\Setting;
-use App\StoreWebsite;
-use App\User;
-use App\VendorCategory;
 use App\Website;
+use App\Category;
+use App\StoreWebsite;
 use App\WebsiteStore;
-use Auth;
-use DB;
+use App\CharityCountry;
+use App\VendorCategory;
+use App\CustomerCharity;
 use Illuminate\Http\Request;
+use App\Helpers\ProductHelper;
+use App\CharityProductStoreWebsite;
+use App\CustomerCharityWebsiteStore;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerCharityController extends Controller
@@ -27,10 +27,9 @@ class CustomerCharityController extends Controller
 
     public function index(Request $request)
     {
-
-        $term         = $request->term ?? '';
+        $term = $request->term ?? '';
         $sortByClause = '';
-        $orderby      = 'DESC';
+        $orderby = 'DESC';
 
         if ($request->orderby == '') {
             $orderby = 'ASC';
@@ -59,13 +58,12 @@ class CustomerCharityController extends Controller
             if ($isAdmin) {
                 $query = CustomerCharity::query();
             } else {
-                $imp_permi = implode(",", $permittedCategories);
+                $imp_permi = implode(',', $permittedCategories);
                 if ($imp_permi != 0) {
                     $query = CustomerCharity::whereIn('category_id', $permittedCategories);
                 } else {
                     $query = CustomerCharity::query();
                 }
-
             }
 
             if (request('term') != null) {
@@ -97,15 +95,15 @@ class CustomerCharityController extends Controller
                 $query->where('phone', 'LIKE', '%' . request('phone') . '%');
             }
             $status = request('status');
-            if ($status != null && !request('with_archived')) {
+            if ($status != null && ! request('with_archived')) {
                 $query = $query->where(function ($q) use ($status) {
                     $q->orWhere('status', $status);
                 });
                 // $query->orWhere('status', $status);
             }
 
-            if (request('updated_by') != null && !request('with_archived')) {
-                $query = $query->where(function ($q) use ($status) {
+            if (request('updated_by') != null && ! request('with_archived')) {
+                $query = $query->where(function ($q) {
                     $q->orWhere('updated_by', request('updated_by'));
                 });
                 // $query->orWhere('updated_by', request('updated_by'));
@@ -113,16 +111,15 @@ class CustomerCharityController extends Controller
 
             //if category is not nyll
             if (request('category') != null) {
-                $query->whereHas('category', function ($qu) use ($request) {
+                $query->whereHas('category', function ($qu) {
                     $qu->where('category_id', '=', request('category'));
                 });
             }
             //if email is not nyll
             if (request('email') != null) {
                 $query->where('email', 'like', '%' . request('email') . '%');
-
             }
-            if (request('communication_history') != null && !request('with_archived')) {
+            if (request('communication_history') != null && ! request('with_archived')) {
                 $communication_history = request('communication_history');
                 $query->orWhereRaw("customer_charities.id in (select charity_id from chat_messages where charity_id is not null and message like '%" . $communication_history . "%')");
             }
@@ -133,19 +130,19 @@ class CustomerCharityController extends Controller
                     $pagination = $customer_charities->count();
                 }
 
-                $totalVendor        = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
+                $totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
                 $customer_charities = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
             } else {
                 $pagination = Setting::get('pagination');
                 if (request()->get('select_all') == 'true') {
                     $pagination = $customer_charities->count();
                 }
-                $totalVendor        = $query->orderby('name', 'asc')->count();
+                $totalVendor = $query->orderby('name', 'asc')->count();
                 $customer_charities = $query->orderby('name', 'asc')->paginate($pagination);
             }
         } else {
             if ($isAdmin) {
-                $permittedCategories = "";
+                $permittedCategories = '';
             } else {
                 if (empty($permittedCategories)) {
                     $permittedCategories = [0];
@@ -156,7 +153,6 @@ class CustomerCharityController extends Controller
                 } else {
                     $permittedCategories = 'and customer_charities.category_id in (' . implode(',', $permittedCategories) . ')';
                 }
-
             }
             /* $customer_charities = DB::select('
             SELECT *,
@@ -230,13 +226,13 @@ class CustomerCharityController extends Controller
             $totalVendor = count($customer_charities);
 
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $perPage     = Setting::get('pagination');
+            $perPage = Setting::get('pagination');
             if (request()->get('select_all') == 'true') {
-                $perPage     = count($customer_charities);
+                $perPage = count($customer_charities);
                 $currentPage = 1;
             }
 
-            if (!is_numeric($perPage)) {
+            if (! is_numeric($perPage)) {
                 $perPage = 2;
             }
             $currentItems = array_slice($customer_charities, $perPage * ($currentPage - 1), $perPage);
@@ -250,7 +246,7 @@ class CustomerCharityController extends Controller
 
         $users = User::all();
 
-        $replies = \App\Reply::where("model", "Vendor")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
+        $replies = \App\Reply::where('model', 'Vendor')->whereNull('deleted_at')->pluck('reply', 'id')->toArray();
 
         /* if ($request->ajax()) {
         return response()->json([
@@ -259,9 +255,9 @@ class CustomerCharityController extends Controller
         ], 200);
         } */
 
-        $updatedProducts = CustomerCharity::join("users as u", "u.id", "customer_charities.updated_by")
-            ->groupBy("customer_charities.updated_by")
-            ->select([\DB::raw("count(u.id) as total_records"), "u.name"])
+        $updatedProducts = CustomerCharity::join('users as u', 'u.id', 'customer_charities.updated_by')
+            ->groupBy('customer_charities.updated_by')
+            ->select([\DB::raw('count(u.id) as total_records'), 'u.name'])
             ->get();
 
         $storewebsite = StoreWebsite::all();
@@ -269,157 +265,155 @@ class CustomerCharityController extends Controller
         $website1 = Website::all();
 
         return view('vendors.charity', [
-            'vendors'           => $customer_charities,
+            'vendors' => $customer_charities,
             'vendor_categories' => $vendor_categories,
-            'term'              => $term,
-            'orderby'           => $orderby,
-            'users'             => $users,
-            'replies'           => $replies,
-            'updatedProducts'   => $updatedProducts,
-            'totalVendor'       => $totalVendor,
-            'storewebsite'      => $storewebsite,
-            'website1'          => $website1,
+            'term' => $term,
+            'orderby' => $orderby,
+            'users' => $users,
+            'replies' => $replies,
+            'updatedProducts' => $updatedProducts,
+            'totalVendor' => $totalVendor,
+            'storewebsite' => $storewebsite,
+            'website1' => $website1,
 
         ]);
-
     }
 
     public function store(Request $request, $id = null)
     {
-
         $this->validate($request, [
-            'category_id'   => 'sometimes|nullable|numeric',
-            'name'          => 'required|string|max:255',
-            'address'       => 'sometimes|nullable|string',
-            'phone'         => 'required|nullable|numeric',
-            'email'         => 'sometimes|nullable|email',
+            'category_id' => 'sometimes|nullable|numeric',
+            'name' => 'required|string|max:255',
+            'address' => 'sometimes|nullable|string',
+            'phone' => 'required|nullable|numeric',
+            'email' => 'sometimes|nullable|email',
             'social_handle' => 'sometimes|nullable',
-            'website'       => 'sometimes|nullable',
-            'login'         => 'sometimes|nullable',
-            'password'      => 'sometimes|nullable',
-            'gst'           => 'sometimes|nullable|max:255',
-            'account_name'  => 'sometimes|nullable|max:255',
-            'account_iban'  => 'sometimes|nullable|max:255',
+            'website' => 'sometimes|nullable',
+            'login' => 'sometimes|nullable',
+            'password' => 'sometimes|nullable',
+            'gst' => 'sometimes|nullable|max:255',
+            'account_name' => 'sometimes|nullable|max:255',
+            'account_iban' => 'sometimes|nullable|max:255',
             'account_swift' => 'sometimes|nullable|max:255',
-            'frequency_of_payment'   => 'sometimes|nullable|max:255',
-            'bank_name'   => 'sometimes|nullable|max:255',
-            'bank_address'   => 'sometimes|nullable|max:255',
-            'city'   => 'sometimes|nullable|max:255',
-            'country'   => 'sometimes|nullable|max:255',
-            'ifsc_code'   => 'sometimes|nullable|max:255',
-            'remark'   => 'sometimes|nullable|max:255',
-      ]);
-  
-      $data = $request->except(['_token', 'create_user']);
-      if(empty($data["whatsapp_number"]))  {
-          //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
-          //get default whatsapp number for vendor from whatsapp config
-          $task_info = DB::table('whatsapp_configs')
-                      ->select('*')
-                      ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
-                      ->first();
-      if(isset($task_info->number) && $task_info->number!=null){
-      $data["whatsapp_number"] = $task_info->number;
-      }
-      }
-  
-      if(empty($data["default_phone"]))  {
-        $data["default_phone"] = $data["phone"];
-      }
-  
-      if(!empty($source)) {
-         $data["status"] = 0;
-      }  
-      
-      unset($data['websites']);
-      unset($data['website_stores']);
-      if($id == null){
-          $charity = CustomerCharity::create($data); 
-          $charity_category = Category::where('title', 'charity')->first();
-          $charity_brand = Brand::where('name', 'charity')->first();
-          $product = new Product(); 
-          $product->sku = '';
-          $product->status_id = '115';
-          $product->name = $charity->name;
-          $product->short_description = $charity->name;
-          $product->brand = $charity_brand->id;
-          $product->category = $charity_category->id;
-          $product->price = 1;
-          $product->save(); 
-          CustomerCharity::where('id', $charity->id)->update([
-              'product_id' => $product->id
-          ]);
-          Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
-        /*   $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
+            'frequency_of_payment' => 'sometimes|nullable|max:255',
+            'bank_name' => 'sometimes|nullable|max:255',
+            'bank_address' => 'sometimes|nullable|max:255',
+            'city' => 'sometimes|nullable|max:255',
+            'country' => 'sometimes|nullable|max:255',
+            'ifsc_code' => 'sometimes|nullable|max:255',
+            'remark' => 'sometimes|nullable|max:255',
+        ]);
 
-          $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
-          $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
-          $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
-          $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
-         foreach($website_stores as $store){
-            CustomerCharityWebsiteStore::updateOrCreate([
-                'customer_charity_id' => $charity->id,
-                'website_store_id' => $store->id
-            ],[
-                'customer_charity_id' => $charity->id,
-                'website_store_id' => $store->id
-            ]);
-          }*/
-
-          /*foreach($storeWebsites as $w){
-            $tag = 'gallery_' . $w->cropper_color; 
-            $is_image_exist = false;
-            while(!$is_image_exist){
-                $image = Media::inRandomOrder()->first();
-               if(file_exists($image->getAbsolutePath())){
-                    $is_image_exist = true;
-                    $image = $image->getAbsolutePath();
-                }
+        $data = $request->except(['_token', 'create_user']);
+        if (empty($data['whatsapp_number'])) {
+            //$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+            //get default whatsapp number for vendor from whatsapp config
+            $task_info = DB::table('whatsapp_configs')
+                        ->select('*')
+                        ->whereRaw('find_in_set(' . self::DEFAULT_FOR . ',default_for)')
+                        ->first();
+            if (isset($task_info->number) && $task_info->number != null) {
+                $data['whatsapp_number'] = $task_info->number;
             }
         }
 
-        if (empty($data["default_phone"])) {
-            $data["default_phone"] = $data["phone"];
+        if (empty($data['default_phone'])) {
+            $data['default_phone'] = $data['phone'];
         }
 
-        if (!empty($source)) {
-            $data["status"] = 0;
+        if (! empty($source)) {
+            $data['status'] = 0;
         }
 
         unset($data['websites']);
         unset($data['website_stores']);
         if ($id == null) {
-            $charity                    = CustomerCharity::create($data);
-            $charity_category           = Category::where('title', 'charity')->first();
-            $charity_brand              = Brand::where('name', 'charity')->first();
-            $product                    = new Product();
-            $product->sku               = '';
-            $product->status_id         = '115';
-            $product->name              = $charity->name;
+            $charity = CustomerCharity::create($data);
+            $charity_category = Category::where('title', 'charity')->first();
+            $charity_brand = Brand::where('name', 'charity')->first();
+            $product = new Product();
+            $product->sku = '';
+            $product->status_id = '115';
+            $product->name = $charity->name;
             $product->short_description = $charity->name;
-            $product->brand             = $charity_brand->id;
-            $product->category          = $charity_category->id;
-            $product->price             = 1;
+            $product->brand = $charity_brand->id;
+            $product->category = $charity_category->id;
+            $product->price = 1;
             $product->save();
             CustomerCharity::where('id', $charity->id)->update([
                 'product_id' => $product->id,
             ]);
             Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
-            $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
+            /*   $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
 
-            $website_ids        = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
-            $website_store_ids  = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
-            $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
-            $website_stores     = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
-            /* foreach($website_stores as $store){
-            CustomerCharityWebsiteStore::updateOrCreate([
-            'customer_charity_id' => $charity->id,
-            'website_store_id' => $store->id
-            ],[
-            'customer_charity_id' => $charity->id,
-            'website_store_id' => $store->id
-            ]);
-            }*/
+              $website_ids = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
+              $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
+              $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
+              $website_stores = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+             foreach($website_stores as $store){
+                CustomerCharityWebsiteStore::updateOrCreate([
+                    'customer_charity_id' => $charity->id,
+                    'website_store_id' => $store->id
+                ],[
+                    'customer_charity_id' => $charity->id,
+                    'website_store_id' => $store->id
+                ]);
+              }*/
+
+            /*foreach($storeWebsites as $w){
+              $tag = 'gallery_' . $w->cropper_color;
+              $is_image_exist = false;
+              while(!$is_image_exist){
+                  $image = Media::inRandomOrder()->first();
+                 if(file_exists($image->getAbsolutePath())){
+                      $is_image_exist = true;
+                      $image = $image->getAbsolutePath();
+                  }
+              }
+        }
+
+        if (empty($data["default_phone"])) {
+              $data["default_phone"] = $data["phone"];
+        }
+
+        if (!empty($source)) {
+              $data["status"] = 0;
+        }
+
+        unset($data['websites']);
+        unset($data['website_stores']);
+        if ($id == null) {
+              $charity                    = CustomerCharity::create($data);
+              $charity_category           = Category::where('title', 'charity')->first();
+              $charity_brand              = Brand::where('name', 'charity')->first();
+              $product                    = new Product();
+              $product->sku               = '';
+              $product->status_id         = '115';
+              $product->name              = $charity->name;
+              $product->short_description = $charity->name;
+              $product->brand             = $charity_brand->id;
+              $product->category          = $charity_category->id;
+              $product->price             = 1;
+              $product->save();
+              CustomerCharity::where('id', $charity->id)->update([
+                  'product_id' => $product->id,
+              ]);
+              Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
+              $storeWebsites = StoreWebsite::whereNotNull('cropper_color')->get();
+
+              $website_ids        = Website::whereIn('store_website_id', $request->websites)->get()->pluck('id')->toArray();
+              $website_store_ids  = WebsiteStore::whereIn('website_id', $website_ids)->get()->pluck('id')->toArray();
+              $website_store_name = WebsiteStore::whereIn('id', $request->website_stores)->get()->pluck('name')->toArray();
+              $website_stores     = WebsiteStore::whereIn('name', $website_store_name)->whereIn('id', $request->website_stores)->get();
+              /* foreach($website_stores as $store){
+              CustomerCharityWebsiteStore::updateOrCreate([
+              'customer_charity_id' => $charity->id,
+              'website_store_id' => $store->id
+              ],[
+              'customer_charity_id' => $charity->id,
+              'website_store_id' => $store->id
+              ]);
+              }*/
 
             /*foreach($storeWebsites as $w){
         $tag = 'gallery_' . $w->cropper_color;
@@ -452,6 +446,7 @@ class CustomerCharityController extends Controller
         ]);
         }*/
         }
+
         return redirect()->route('customer.charity')->withSuccess('You have successfully saved a charity!');
     }
 
@@ -461,12 +456,11 @@ class CustomerCharityController extends Controller
         $customer_charity->delete();
 
         return redirect()->route('customer.charity')->withSuccess('You have successfully deleted a charity');
-
     }
 
     public function charitySearch()
     {
-        $term = request()->get("q", null);
+        $term = request()->get('q', null);
         /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
         ->orWhere('address', 'LIKE', "%" . $term . "%")
         ->orWhere('phone', 'LIKE', "%" . $term . "%")
@@ -474,14 +468,15 @@ class CustomerCharityController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = CustomerCharity::where('name', 'LIKE', "%" . $term . "%")
+        $search = CustomerCharity::where('name', 'LIKE', '%' . $term . '%')
             ->get();
+
         return response()->json($search);
     }
 
     public function charityEmail()
     {
-        $term = request()->get("q", null);
+        $term = request()->get('q', null);
         /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
         ->orWhere('address', 'LIKE', "%" . $term . "%")
         ->orWhere('phone', 'LIKE', "%" . $term . "%")
@@ -489,14 +484,15 @@ class CustomerCharityController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = CustomerCharity::where('email', 'LIKE', "%" . $term . "%")
+        $search = CustomerCharity::where('email', 'LIKE', '%' . $term . '%')
             ->get();
+
         return response()->json($search);
     }
 
     public function charityPhoneNumber()
     {
-        $term = request()->get("q", null);
+        $term = request()->get('q', null);
         /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
         ->orWhere('address', 'LIKE', "%" . $term . "%")
         ->orWhere('phone', 'LIKE', "%" . $term . "%")
@@ -504,23 +500,24 @@ class CustomerCharityController extends Controller
         ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
         })->get();*/
-        $search = CustomerCharity::where('phone', 'LIKE', "%" . $term . "%")
+        $search = CustomerCharity::where('phone', 'LIKE', '%' . $term . '%')
             ->get();
+
         return response()->json($search);
     }
 
     public function charityWebsites($id)
     {
-        $cc            = CustomerCharity::find($id);
+        $cc = CustomerCharity::find($id);
         $websiteArrays = ProductHelper::getStoreWebsiteName($cc->product_id);
         if (count($websiteArrays)) {
             foreach ($websiteArrays as $websiteArray) {
-                $website   = StoreWebsite::find($websiteArray);
-                $webStores = Website::select('code', 'name')->where("store_website_id", $website->id)->get();
+                $website = StoreWebsite::find($websiteArray);
+                $webStores = Website::select('code', 'name')->where('store_website_id', $website->id)->get();
             }
         }
         foreach ($webStores as $w) {
-            $c_raw    = CharityCountry::where('charity_id', $id)->where('country_code', $w->code)->first();
+            $c_raw = CharityCountry::where('charity_id', $id)->where('country_code', $w->code)->first();
             $w->price = 1;
             if ($c_raw) {
                 $w->price = $c_raw->price;
@@ -535,13 +532,13 @@ class CustomerCharityController extends Controller
         $countries = explode('&', $request->data);
         // dd($countries);
         foreach ($countries as $c) {
-            $cc  = explode('=', $c)[0];
+            $cc = explode('=', $c)[0];
             $val = explode('=', $c)[1];
             if ($val) {
                 $c_raw = CharityCountry::where('charity_id', $id)->where('country_code', $cc)->first();
-                if (!$c_raw) {
-                    $c_raw               = new CharityCountry();
-                    $c_raw->charity_id   = $id;
+                if (! $c_raw) {
+                    $c_raw = new CharityCountry();
+                    $c_raw->charity_id = $id;
                     $c_raw->country_code = $cc;
                 }
                 $c_raw->price = $val;
@@ -554,49 +551,45 @@ class CustomerCharityController extends Controller
 
     public function savewebsite(Request $request)
     {
-
-        $c    = CharityProductStoreWebsite::where('charity_id', $request->charity_id)->where('website_id', $request->website_id)->first();
+        $c = CharityProductStoreWebsite::where('charity_id', $request->charity_id)->where('website_id', $request->website_id)->first();
         $data = [
             'charity_id' => $request->charity_id,
             'website_id' => $request->website_id,
-            'price'      => $request->price,
+            'price' => $request->price,
         ];
         if ($c) {
-
             CharityProductStoreWebsite::where('charity_id', $request->charity_id)->where('website_id', $request->website_id)->update($data);
-
         } else {
-
             CharityProductStoreWebsite::insert($data);
         }
-        return response()->json('Charity Website Updated Successfully!');
 
+        return response()->json('Charity Website Updated Successfully!');
     }
 
     public function deletewebsite(Request $request)
     {
         CharityProductStoreWebsite::where('id', $request->id)->delete();
-        return response()->json('Charity Website deleted Successfully!');
 
+        return response()->json('Charity Website deleted Successfully!');
     }
+
     public function getwebsite(Request $request)
     {
         $charity_id = $request->charity_id;
-        $charity    = CustomerCharity::where('id', $charity_id)->first();
+        $charity = CustomerCharity::where('id', $charity_id)->first();
         //var_dump($charity);
         $website = Website::where('store_website_id', $charity->store_website_id)->get();
         $Website = CharityProductStoreWebsite::select('charity_product_store_websites.id', 'charity_product_store_websites.price', 'websites.name')->join('websites', 'charity_product_store_websites.website_id', 'websites.id')->where('charity_id', $charity_id)->get();
-        $html    = '';
+        $html = '';
         foreach ($Website as $w) {
-            $html .= "<tr><td>" . $w->name . '</td>';
-            $html .= "<td>" . $w->price . '</td>';
+            $html .= '<tr><td>' . $w->name . '</td>';
+            $html .= '<td>' . $w->price . '</td>';
             $html .= '<td><button onclick="delwebsite(' . $w->id . ')" type="button" class="btn btn-default">Delete</button></td></tr>';
-
         }
 
         echo $html = " <table class='table table-bordered' >
       <thead><tr><th>Website</th><th>Price</th></tr> </thead>
-      <tbody>" . $html . "</tbody></table";
+      <tbody>" . $html . '</tbody></table';
 
         /* if ($c)
     {
@@ -618,24 +611,22 @@ class CustomerCharityController extends Controller
     }
 
     return response()->json($data);*/
-
     }
 
     public function getCharityWebsiteStores($id)
     {
-        $website_stores    = CustomerCharityWebsiteStore::with('websiteStore.website.storeWebsite')->where('customer_charity_id', $id)->get();
+        $website_stores = CustomerCharityWebsiteStore::with('websiteStore.website.storeWebsite')->where('customer_charity_id', $id)->get();
         $website_store_ids = $website_stores->pluck('website_store_id')->toArray();
-        $website_ids       = WebsiteStore::whereIn('id', $website_store_ids)->pluck('website_id')->toArray();
+        $website_ids = WebsiteStore::whereIn('id', $website_store_ids)->pluck('website_id')->toArray();
         $store_website_ids = Website::whereIn('id', $website_ids)->pluck('store_website_id')->toArray();
-        $website_ids       = Website::whereIn('store_website_id', $store_website_ids)->pluck('id')->toArray();
-        $all_stores        = WebsiteStore::whereIn('website_id', $website_ids)->get();
-        $all_websites      = StoreWebsite::get();
+        $website_ids = Website::whereIn('store_website_id', $store_website_ids)->pluck('id')->toArray();
+        $all_stores = WebsiteStore::whereIn('website_id', $website_ids)->get();
+        $all_websites = StoreWebsite::get();
+
         return response()->json([
             'website_stores' => $website_stores,
-            'all_stores'     => $all_stores,
-            'all_websites'   => $all_websites,
+            'all_stores' => $all_stores,
+            'all_websites' => $all_websites,
         ]);
-
     }
-
 }

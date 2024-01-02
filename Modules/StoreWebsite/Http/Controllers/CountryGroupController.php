@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class CountryGroupController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
@@ -19,32 +18,31 @@ class CountryGroupController extends Controller
      */
     public function index()
     {
-        $title = "Country Group";
+        $title = 'Country Group';
 
-        return view("storewebsite::country-group.index", compact('title'));
-
+        return view('storewebsite::country-group.index', compact('title'));
     }
 
     public function records()
     {
-        $records = \App\CountryGroup::leftJoin("country_group_items as cgi", "cgi.country_group_id", "country_groups.id");
+        $records = \App\CountryGroup::leftJoin('country_group_items as cgi', 'cgi.country_group_id', 'country_groups.id');
 
-        $keyword = request("keyword");
-        if (!empty($keyword)) {
+        $keyword = request('keyword');
+        if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->orWhere("name", "LIKE", "%$keyword%")->orWhere("cgi.country_code", "LIKE", "%$keyword%");
+                $q->orWhere('name', 'LIKE', "%$keyword%")->orWhere('cgi.country_code', 'LIKE', "%$keyword%");
             });
         }
 
-        $records = $records->groupBy("country_groups.id");
+        $records = $records->groupBy('country_groups.id');
 
-        $records = $records->select(["country_groups.*"])->get();
+        $records = $records->select(['country_groups.*'])->get();
 
         foreach ($records as $i => $record) {
-            $records[$i]["items"] = $record->groupItems;
+            $records[$i]['items'] = $record->groupItems;
         }
 
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
 
     public function save(Request $request)
@@ -52,26 +50,27 @@ class CountryGroupController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'name'           => 'required',
+            'name' => 'required',
             'country_code.*' => 'required',
         ]);
 
         if ($validator->fails()) {
-            $outputString = "";
-            $messages     = $validator->errors()->getMessages();
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : " . $er . "<br>";
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
-            return response()->json(["code" => 500, "error" => $outputString]);
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $id = $request->get("id", 0);
+        $id = $request->get('id', 0);
 
         $records = CountryGroup::find($id);
 
-        if (!$records) {
+        if (! $records) {
             $records = new CountryGroup;
         } else {
             $records->groupItems()->delete();
@@ -81,15 +80,14 @@ class CountryGroupController extends Controller
 
         if ($records->save()) {
             foreach ($request->country_code as $code) {
-                $ci                   = new CountryGroupItem;
-                $ci->country_code     = $code;
+                $ci = new CountryGroupItem;
+                $ci->country_code = $code;
                 $ci->country_group_id = $records->id;
                 $ci->save();
             }
         }
 
-        return response()->json(["code" => 200, "data" => $records]);
-
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     /**
@@ -115,26 +113,25 @@ class CountryGroupController extends Controller
 
     /**
      * Edit Page
-     * @param  Request $request [description]
-     * @return
+     *
+     * @param  Request  $request [description]
      */
-
     public function edit(Request $request, $id)
     {
-        $modal = CountryGroup::where("id", $id)->first();
+        $modal = CountryGroup::where('id', $id)->first();
 
         if ($modal) {
-            $modal->items = $modal->groupItems->pluck("country_code");
-            return response()->json(["code" => 200, "data" => $modal]);
+            $modal->items = $modal->groupItems->pluck('country_code');
+
+            return response()->json(['code' => 200, 'data' => $modal]);
         }
 
-        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -156,13 +153,12 @@ class CountryGroupController extends Controller
 
     /**
      * delete Page
-     * @param  Request $request [description]
-     * @return
+     *
+     * @param  Request  $request [description]
      */
-
     public function delete(Request $request, $id)
     {
-        $coutryGroup = CountryGroup::where("id", $id)->first();
+        $coutryGroup = CountryGroup::where('id', $id)->first();
 
         /*$isExist = \App\SiteDevelopment::where("status", $id)->first();
         if ($isExist) {
@@ -174,10 +170,9 @@ class CountryGroupController extends Controller
             $coutryGroup->groupItems()->delete();
             $coutryGroup->delete();
 
-            return response()->json(["code" => 200]);
+            return response()->json(['code' => 200]);
         }
 
-        return response()->json(["code" => 500, "error" => "Wrong id!"]);
+        return response()->json(['code' => 500, 'error' => 'Wrong id!']);
     }
-
 }

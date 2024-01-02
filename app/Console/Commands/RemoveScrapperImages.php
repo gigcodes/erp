@@ -40,22 +40,18 @@ class RemoveScrapperImages extends Command
     {
         $images = scraperImags::where('created_at', '<=', now()->subDay())->get();
 
-        foreach($images as $image){
-            
-            if(empty($image->image_name)){
+        foreach ($images as $image) {
+            if (empty($image->image_name)) {
                 continue;
             }
 
-            $imagePath = public_path('scrappersImages/' . $image->image_name); 
+            $imagePath = public_path('scrappersImages/' . $image->image_name);
 
-            if(file_exists($imagePath) && !is_dir($imagePath)){
+            if (file_exists($imagePath) && ! is_dir($imagePath)) {
                 unlink($imagePath);
             }
 
             $image->delete();
-
         }
-
-
     }
 }

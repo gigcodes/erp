@@ -38,9 +38,9 @@ class MakeExternalScraperStatus extends Command
     public function handle()
     {
         //
-        $products = \App\Product::where("status_id",\App\Helpers\StatusHelper::$externalScraperFinished)->get();
-        if(!$products->isEmpty()) {
-            foreach($products as $product) {
+        $products = \App\Product::where('status_id', \App\Helpers\StatusHelper::$externalScraperFinished)->get();
+        if (! $products->isEmpty()) {
+            foreach ($products as $product) {
                 $product->checkExternalScraperNeed();
             }
         }

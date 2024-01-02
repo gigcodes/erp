@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Library\Github\GithubClient;
-use App\MemoryUsage;
-use Illuminate\Http\Request;
-use ProjectDirectory;
-use Laravel\Horizon\Contracts\JobRepository;
-use App\ScraperProcess;
 use App\Scraper;
+use App\MemoryUsage;
+use App\ScraperProcess;
+use Illuminate\Http\Request;
+use App\Library\Github\GithubClient;
+use Laravel\Horizon\Contracts\JobRepository;
 
 class MasterDevTaskController extends Controller
 {
@@ -38,90 +37,89 @@ class MasterDevTaskController extends Controller
      */
     public function index(Request $request)
     {
-        $enddate = date("Y-m-d 23:59:59");
-        $startdate = date("Y-m-d 00:00:00",strtotime("-7 day", strtotime($enddate)));
+        $enddate = date('Y-m-d 23:59:59');
+        $startdate = date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($enddate)));
 
         $productErrors = \App\ProductPushErrorLog::latest('count')->groupBy('message')->select(\DB::raw('*,COUNT(message) AS count'));
-        $productErrors->whereDate('created_at','>=',$startdate)->whereDate('created_at','<=',$enddate);
-        $productErrors->where("response_status","!=","success");
+        $productErrors->whereDate('created_at', '>=', $startdate)->whereDate('created_at', '<=', $enddate);
+        $productErrors->where('response_status', '!=', 'success');
         $productErrors = $productErrors->get();
 
-        $memory_use = MemoryUsage::
-                whereDate('created_at', now()->format('Y-m-d'))
-                ->orderBy('used','desc')
+        $memory_use = MemoryUsage::whereDate('created_at', now()->format('Y-m-d'))
+                ->orderBy('used', 'desc')
                 ->first();
 
-        $currentSize = \DB::table("database_historical_records")->orderBy("created_at", "desc")->first();
+        $currentSize = \DB::table('database_historical_records')->orderBy('created_at', 'desc')->first();
         //echo '<pre>'; print_r($currentSize); echo '</pre>';exit;
-        $sizeBefore  = null;
-        if (!empty($currentSize)) {
-            $sizeBefore = \DB::table("database_historical_records")
+        $sizeBefore = null;
+        if (! empty($currentSize)) {
+            $sizeBefore = \DB::table('database_historical_records')
                 ->whereRaw(\DB::raw("DATE(created_at) = DATE('" . $currentSize->created_at . "' - INTERVAL 1 DAY)"))
                 ->first();
         }
 
-        $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at',date("Y-m-d"))->groupBy('database_name')->orderBy('size','desc')->limit(5)->get();
+        $topFiveTables = \App\DatabaseTableHistoricalRecord::whereDate('created_at', date('Y-m-d'))->groupBy('database_name')->orderBy('size', 'desc')->limit(5)->get();
         // find the open branches
         //$github     = new GithubClient;
         //$repository = $github->getRepository();
-        $repoArr    = [];
-		$github     = new GithubClient;
+        $repoArr = [];
+        $github = new GithubClient;
         $repository = $github->getRepository();
-        
-        if (!empty($repository)) {
+
+        if (! empty($repository)) {
             foreach ($repository as $i => $repo) {
                 $repoId = $repo->full_name;
-                $pulls  = $github->getPulls($repoId, "q=is%3Aopen+is%3Apr");
-                 $repoArr[$i]["name"] =  $repoId;
-                if (!empty($pulls)) {
+                $pulls = $github->getPulls($repoId, 'q=is%3Aopen+is%3Apr');
+                $repoArr[$i]['name'] = $repoId;
+                if (! empty($pulls)) {
                     foreach ($pulls as $pull) {
-                        $repoArr[$i]["pulls"][] = [
-                            "title" => $pull->title,
-                            "no"    => $pull->number,
-                            "url"   => $pull->html_url,
-                            "user"   => $pull->user->login,
+                        $repoArr[$i]['pulls'][] = [
+                            'title' => $pull->title,
+                            'no' => $pull->number,
+                            'url' => $pull->html_url,
+                            'user' => $pull->user->login,
                         ];
                     }
                 }
             }
         }
         $cronjobReports = null;
-        
-        $cronjobReports = \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")
-        ->where("cjr.start_time", '>', \DB::raw('NOW() - INTERVAL 24 HOUR'))
-        ->where("cron_jobs.last_status", "error")
-        ->groupBy("cron_jobs.signature")
+
+        $cronjobReports = \App\CronJob::join('cron_job_reports as cjr', 'cron_jobs.signature', 'cjr.signature')
+        ->where('cjr.start_time', '>', \DB::raw('NOW() - INTERVAL 24 HOUR'))
+        ->where('cron_jobs.last_status', 'error')
+        ->groupBy('cron_jobs.signature')
         ->get();
 
         $scraper1hrsReports = null;
-        $scraper1hrsReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 1 HOUR)"))->select(
-            [\DB::raw("count(*) as cnt")]
+        $scraper1hrsReports = \App\CroppedImageReference::where('created_at', '>=', \DB::raw('DATE_SUB(NOW(),INTERVAL 1 HOUR)'))->select(
+            [\DB::raw('count(*) as cnt')]
         )->first();
         $scraper24hrsReports = null;
-        $scraper24hrsReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
-            [\DB::raw("count(*) as cnt")]
+        $scraper24hrsReports = \App\CroppedImageReference::where('created_at', '>=', \DB::raw('DATE_SUB(NOW(),INTERVAL 24 HOUR)'))->select(
+            [\DB::raw('count(*) as cnt')]
         )->first();
 
         $last3HrsMsg = null;
         $last24HrsMsg = null;
 
-        $last3HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 3 HOUR)"))->select(
-            [\DB::raw("count(*) as cnt")]
+        $last3HrsMsg = \DB::table('chat_messages')->where('created_at', '>=', \DB::raw('DATE_SUB(NOW(),INTERVAL 3 HOUR)'))->select(
+            [\DB::raw('count(*) as cnt')]
         )->first();
 
-        $last24HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
-            [\DB::raw("count(*) as cnt")]
+        $last24HrsMsg = \DB::table('chat_messages')->where('created_at', '>=', \DB::raw('DATE_SUB(NOW(),INTERVAL 24 HOUR)'))->select(
+            [\DB::raw('count(*) as cnt')]
         )->first();
 
-        $threehours = strtotime(date("Y-m-d H:i:s", strtotime('-3 hours')));
-        $twentyfourhours = strtotime(date("Y-m-d H:i:s", strtotime('-24 hours')));
+        $threehours = strtotime(date('Y-m-d H:i:s', strtotime('-3 hours')));
+        $twentyfourhours = strtotime(date('Y-m-d H:i:s', strtotime('-24 hours')));
 
-        $last3HrsJobs = \DB::table("jobs")->where("created_at",">=",$threehours)->select(
-            [\DB::raw("count(*) as cnt")]
+        $last3HrsJobs = \DB::table('jobs')->where('created_at', '>=', $threehours)->select(
+            [\DB::raw('count(*) as cnt')]
         )->first();
 
-        $last24HrsJobs = \DB::table("jobs")->whereDate("created_at",">=",$twentyfourhours)->select(
-            [\DB::raw("count(*) as cnt")]
+        $last24HrsJobs = \DB::table('jobs')->whereDate('created_at', '>=', $twentyfourhours)->select(
+            [\DB::raw('count(*) as cnt')]
         )->first();
 
         // Get scrape data
@@ -150,39 +148,31 @@ class MasterDevTaskController extends Controller
                 sc.scraper_priority desc
         ';
         $scrapeData = \DB::select($sql);
-		
-		//DB Image size management#3118
-		//$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
-        $projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at or display_dev_master = 1";
 
-        
-
+        //DB Image size management#3118
+        //$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
+        $projectDirectorySql = 'select * FROM `project_file_managers` where size > notification_at or display_dev_master = 1';
 
         $projectDirectoryData = \DB::select($projectDirectorySql);
 
-
-        $logRequest = \App\LogRequest::where('status_code',"!=",200)->whereDate("created_at",date("Y-m-d"))->groupBy('status_code')->select(["status_code",\DB::raw("count(*) as total_error")])->get();
+        $logRequest = \App\LogRequest::where('status_code', '!=', 200)->whereDate('created_at', date('Y-m-d'))->groupBy('status_code')->select(['status_code', \DB::raw('count(*) as total_error')])->get();
 
         $failedJobs = app(JobRepository::class)->getFailed();
 
-
         $scraper_proc = [];
 
-        $scraper_process = ScraperProcess::where("scraper_name","!=","")->orderBy('started_at','DESC')->get()->unique('scraper_id');
+        $scraper_process = ScraperProcess::where('scraper_name', '!=', '')->orderBy('started_at', 'DESC')->get()->unique('scraper_id');
         foreach ($scraper_process as $key => $sp) {
             $to = \Carbon\Carbon::createFromFormat('Y-m-d H:s:i', $sp->started_at);
             $from = \Carbon\Carbon::now();
             $diff_in_hours = $to->diffInMinutes($from);
             if ($diff_in_hours > 1440) {
-                array_push($scraper_proc,$sp);
+                array_push($scraper_proc, $sp);
             }
         }
-        $scrapers = Scraper::where("scraper_name","!=","")->whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
+        $scrapers = Scraper::where('scraper_name', '!=', '')->whereNotIn('id', $scraper_process->pluck('scraper_id'))->get();
 
-
-
-		return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData','last3HrsJobs','last24HrsJobs','topFiveTables','memory_use','logRequest','failedJobs','scraper_process','scrapers','productErrors'));
+        return view('master-dev-task.index', compact(
+            'currentSize', 'sizeBefore', 'repoArr', 'cronjobReports', 'last3HrsMsg', 'last24HrsMsg', 'scrapeData', 'scraper1hrsReports', 'scraper24hrsReports', 'projectDirectoryData', 'last3HrsJobs', 'last24HrsJobs', 'topFiveTables', 'memory_use', 'logRequest', 'failedJobs', 'scraper_process', 'scrapers', 'productErrors'));
     }
-
 }

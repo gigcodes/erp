@@ -1,11 +1,11 @@
 <?php
 
-
 namespace App\Http\Controllers;
-use App\AutoCommentHistory;
-use App\AutoReplyHashtags;
-use App\TargetLocation;
+
 use App\User;
+use App\TargetLocation;
+use App\AutoReplyHashtags;
+use App\AutoCommentHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +49,6 @@ class AutoCommentHistoryController extends Controller
 
         $users = User::all();
 
-
         return view('instagram.auto_comments.report', compact('comments', 'hashtags', 'countries', 'statsByCountry', 'statsByHashtag', 'request', 'users'));
     }
 
@@ -66,7 +65,6 @@ class AutoCommentHistoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -77,7 +75,6 @@ class AutoCommentHistoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\AutoCommentHistory  $autoCommentHistory
      * @return \Illuminate\Http\Response
      */
     public function show(AutoCommentHistory $autoCommentHistory)
@@ -98,15 +95,13 @@ class AutoCommentHistoryController extends Controller
         $comment->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\AutoCommentHistory  $autoCommentHistory
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, AutoCommentHistory $autoCommentHistory)
@@ -117,7 +112,6 @@ class AutoCommentHistoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\AutoCommentHistory  $autoCommentHistory
      * @return \Illuminate\Http\Response
      */
     public function destroy(AutoCommentHistory $autoCommentHistory)

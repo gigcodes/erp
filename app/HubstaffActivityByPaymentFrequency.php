@@ -12,6 +12,6 @@ class HubstaffActivityByPaymentFrequency extends Model
         'start_date',
         'end_date',
         'frequency_type',
-        'payment_receipt_ids'
+        'payment_receipt_ids',
     ];
 }

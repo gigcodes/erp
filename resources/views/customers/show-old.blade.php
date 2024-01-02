@@ -1981,7 +1981,7 @@
       function loadThread() {
           let threadId = "{{$customer->instagramThread->thread_id}}";
           $.ajax({
-              url: "{{ action('InstagramController@getThread', '') }}"+'/'+threadId,
+              url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getThread'], '') }}"+'/'+threadId,
               success: function(response) {
                   updateThreadInChatBox(response);
               },
@@ -2049,7 +2049,7 @@
                     let self = this;
                     if (message != '') {
                         $.ajax({
-                            url: '{{ action('InstagramController@replyToThread', '') }}'+'/'+threadId,
+                            url: '{{ action([\App\Http\Controllers\InstagramController::class, 'replyToThread'], '') }}'+'/'+threadId,
                             data: {
                                 message: message,
                                 _token: "{{ csrf_token() }}"
@@ -2075,7 +2075,7 @@
                 fd.append('photo', $('#ig_image').prop('files')[0]);
                 $('#ig_image').val('');
                 $.ajax({
-                    url: '{{action('InstagramController@replyToThread', '')}}'+'/'+threadId,
+                    url: '{{action([\App\Http\Controllers\InstagramController::class, 'replyToThread'], '')}}'+'/'+threadId,
                     type: 'POST',
                     cache: false,
                     contentType: false,

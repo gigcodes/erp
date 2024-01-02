@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Customer;
 use App\ChatMessage;
+use Illuminate\Console\Command;
 
 class StoreLiveChats extends Command
 {
@@ -40,23 +40,23 @@ class StoreLiveChats extends Command
     public function handle()
     {
         $data = app(\App\Http\Controllers\LiveChatController::class)->getLiveChatIncTickets();
-        if($data) {
+        if ($data) {
             foreach ($data as $key => $value) {
-                $email =$value['events'][0]['author']['id'];
+                $email = $value['events'][0]['author']['id'];
                 $name = $value['events'][0]['author']['name'];
                 $uniqueId = $value['id'];
-                $message = str_replace('Message:', '',$value['events'][0]['message']);
-                $customer = Customer::where('email',$email)->first();
-                if($customer == null && $customer == ''){
+                $message = str_replace('Message:', '', $value['events'][0]['message']);
+                $customer = Customer::where('email', $email)->first();
+                if ($customer == null && $customer == '') {
                     $customer = new Customer;
                     $customer->name = $name;
                     $customer->email = $email;
                     $customer->save();
                 }
-               $isChatMessageExist = ChatMessage::where('unique_id',$uniqueId)->first();
-               if(empty($isChatMessageExist)) {
+                $isChatMessageExist = ChatMessage::where('unique_id', $uniqueId)->first();
+                if (empty($isChatMessageExist)) {
                     $chatMessage = new ChatMessage;
-                    $chatMessage->customer_id = $customer ->id;
+                    $chatMessage->customer_id = $customer->id;
                     $chatMessage->message = $message;
                     $chatMessage->unique_id = $uniqueId;
                     $chatMessage->message_application_id = 2;

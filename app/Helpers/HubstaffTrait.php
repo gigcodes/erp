@@ -2,18 +2,19 @@
 
 namespace App\Helpers;
 
+use Storage;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\RequestOptions;
-use Storage;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Exception\ClientException;
 
 trait HubstaffTrait
 {
     private $HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
+
     private $SEED_REFRESH_TOKEN;
+
     private $client;
 
     public function init($seedToken)
@@ -24,7 +25,7 @@ trait HubstaffTrait
 
     private function checkSeedToken()
     {
-        if (!$this->SEED_REFRESH_TOKEN) {
+        if (! $this->SEED_REFRESH_TOKEN) {
             throw new Exception('Seed token not initialized');
         }
     }
@@ -36,10 +37,11 @@ trait HubstaffTrait
 
     private function getTokens($force = false)
     {
-        if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME) || $force == true) {
+        if (! Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME) || $force == true) {
             $this->generateAccessToken($this->SEED_REFRESH_TOKEN);
         }
         $tokens = json_decode(Storage::disk('local')->get($this->HUBSTAFF_TOKEN_FILE_NAME));
+
         return $tokens;
     }
 
@@ -51,19 +53,19 @@ trait HubstaffTrait
                 'https://account.hubstaff.com/access_tokens',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type'    => 'refresh_token',
+                        'grant_type' => 'refresh_token',
                         'refresh_token' => $refreshToken,
                     ],
                 ]
             );
 
             $responseJson = json_decode($response->getBody()->getContents());
-            
-            $tokens       = [
-                'access_token'  => $responseJson->access_token,
+
+            $tokens = [
+                'access_token' => $responseJson->access_token,
                 'refresh_token' => $responseJson->refresh_token,
-                'expires_in'    => $responseJson->expires_in,
-                
+                'expires_in' => $responseJson->expires_in,
+
             ];
 
             return Storage::disk('local')->put($this->HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
@@ -81,7 +83,7 @@ trait HubstaffTrait
             ]);
             app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');*/
 
-            \Log::info("Hubstaff token regenerate issue - create a personal token if expired");
+            \Log::info('Hubstaff token regenerate issue - create a personal token if expired');
 
             return false;
         }
@@ -95,11 +97,12 @@ trait HubstaffTrait
             return $functionToDo($tokens->access_token);
         } catch (Exception $e) {
             if ($e instanceof ClientException) {
-                echo "Got error";
+                echo 'Got error';
                 $this->refreshTokens();
                 if ($shouldRetry) {
-                    echo "Retrying";
+                    echo 'Retrying';
                     $tokens = $this->getTokens();
+
                     return $functionToDo($tokens->access_token);
                 }
             } else {
@@ -110,7 +113,6 @@ trait HubstaffTrait
 
     private function getActivitiesBetween($startTime, $endTime, $startId = 0, $resultArray = [], $userIds = [])
     {
-
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($startTime, $endTime, $startId, $userIds) {
@@ -118,16 +120,16 @@ trait HubstaffTrait
                     $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
 
                     $q = [];
-                    if (!empty($userIds)) {
+                    if (! empty($userIds)) {
                         foreach ($userIds as $uid) {
-                            $q[] = "user_ids[]=" . $uid;
+                            $q[] = 'user_ids[]=' . $uid;
                         }
                     }
-                    $queryString = implode("&", $q);
-                    $url .= "&" . $queryString;
+                    $queryString = implode('&', $q);
+                    $url .= '&' . $queryString;
 
-                    \Log::info("Hubstaff url : ".$url." Token  : ".$accessToken);
-                    
+                    \Log::info('Hubstaff url : ' . $url . ' Token  : ' . $accessToken);
+
                     return $this->client->get(
                         $url,
                         [
@@ -143,25 +145,27 @@ trait HubstaffTrait
             $activities = $resultArray;
 
             foreach ($responseJson->activities as $activity) {
-                $activities[$activity->id] = array(
-                    'user_id'   => $activity->user_id,
-                    'task_id'   => $activity->task_id,
+                $activities[$activity->id] = [
+                    'user_id' => $activity->user_id,
+                    'task_id' => $activity->task_id,
                     'starts_at' => $activity->starts_at,
-                    'tracked'   => $activity->tracked,
-                    'keyboard'  => $activity->keyboard,
-                    'mouse'     => $activity->mouse,
-                    'overall'   => $activity->overall,
-                );
+                    'tracked' => $activity->tracked,
+                    'keyboard' => $activity->keyboard,
+                    'mouse' => $activity->mouse,
+                    'overall' => $activity->overall,
+                ];
             }
 
             if (isset($responseJson->pagination)) {
                 $nextStart = $responseJson->pagination->next_page_start_id;
+
                 return $this->getActivitiesBetween($startTime, $endTime, $nextStart, $activities, $userIds);
             } else {
                 return $activities;
             }
         } catch (Exception $e) {
-            \Log::info("Hubstaff token issue while fetching activities : ".$e->getMessage());
+            \Log::info('Hubstaff token issue while fetching activities : ' . $e->getMessage());
+
             return false;
         }
     }

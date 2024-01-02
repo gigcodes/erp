@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Productactivitie;
-use Illuminate\Http\Request;
-
 class productactivitiesController extends Controller
 {
     /**

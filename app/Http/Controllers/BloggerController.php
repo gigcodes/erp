@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Blogger;
-use App\BloggerProduct;
-use App\Brand;
-use App\ContactBlogger;
-use App\Email;
-use App\Helpers;
-use App\Http\Requests\CreateBloggerRequest;
-use App\ReplyCategory;
 use App\User;
+use App\Brand;
+use App\Blogger;
+use App\Helpers;
+use App\ReplyCategory;
+use App\BloggerProduct;
+use App\ContactBlogger;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateBloggerRequest;
 
 class BloggerController extends Controller
 {
@@ -21,7 +20,8 @@ class BloggerController extends Controller
     {
 //        $this->middleware('permission:blogger-all');
         $this->middleware(function ($request, $next) {
-            session()->flash('active_tab','blogger_list_tab');
+            session()->flash('active_tab', 'blogger_list_tab');
+
             return $next($request);
         });
     }
@@ -32,18 +32,20 @@ class BloggerController extends Controller
         $this->data['bloggers'] = $blogger;
         $this->data['blogger_products'] = $blogger_product;
         $order_by = 'DESC';
-        if ($request->orderby == '')
+        if ($request->orderby == '') {
             $order_by = 'ASC';
+        }
 
         $this->data['orderby'] = $order_by;
         $this->data['bloggers'] = $this->data['bloggers']->with(['chat_message' => function ($chat_message) {
             $chat_message->select('id', 'message', 'blogger_id', 'status')->orderBy('id', 'desc');
         }]);
         $this->data['bloggers'] = $this->data['bloggers']->paginate(50);
-        $this->data['select_bloggers'] = Blogger::pluck('name','id');
-        $this->data['select_brands'] = Brand::pluck('name','id');
+        $this->data['select_bloggers'] = Blogger::pluck('name', 'id');
+        $this->data['select_brands'] = Brand::pluck('name', 'id');
         $this->data['blogger_products'] = $this->data['blogger_products']->paginate(50);
         $this->data['contact_histories'] = $contactBlogger->paginate(50);
+
         return view('blogger.index', $this->data);
     }
 
@@ -52,12 +54,14 @@ class BloggerController extends Controller
         $blogger = new Blogger($request->all());
         $blogger->default_phone = $request->get('phone');
         $blogger->save();
+
         return redirect()->route('blogger.index')->withSuccess('You have successfully saved a blogger!');
     }
 
     public function update(CreateBloggerRequest $request, Blogger $blogger)
     {
         $blogger->fill($request->all())->save();
+
         return redirect()->route('blogger.index')->withSuccess('You have successfully saved a blogger!');
     }
 
@@ -73,7 +77,7 @@ class BloggerController extends Controller
     public function destroy(Blogger $blogger)
     {
         $blogger->delete();
+
         return redirect()->route('blogger.index')->withSuccess('You have successfully deleted a blogger');
     }
 }
-

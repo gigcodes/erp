@@ -2,27 +2,21 @@
 
 namespace App\Helpers;
 
-use Dompdf\Dompdf;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use App\ChatMessage;
-use App\Customer;
 use App\ImQueue;
-use App\Marketing\WhatsappConfig;
-use Propaganistas\LaravelPhone\PhoneNumber;
-use Carbon\Carbon;
 use App\Setting;
+use App\Customer;
+use Carbon\Carbon;
+use App\Marketing\WhatsappConfig;
+use Illuminate\Support\Facades\DB;
 
 class InstantMessagingHelper
 {
-
     /**
      * Save Messages For Send Whats App
      *
      * @param $numberTo , $text , $image , $priority, $numberFrom , $client , sendAfter
      * @return void
+     *
      * @static
      */
     public static function sendInstantMessage($numberTo, $text = null, $image = null, $priority = null, $numberFrom = null, $client = null, $sendAfter = null)
@@ -78,9 +72,8 @@ class InstantMessagingHelper
         }
     }
 
-    public static function scheduleMessage($numberTo, $numberFrom, $message = null, $image = null, $priority = 1, $sendAfter = null , $broadcastId = null)
+    public static function scheduleMessage($numberTo, $numberFrom, $message = null, $image = null, $priority = 1, $sendAfter = null, $broadcastId = null)
     {
-
         // Check last message to this number - TODO: This works for now, but not once we start scheduling messages from the system
         $maxTime = ImQueue::select(DB::raw('IF(MAX(send_after)>MAX(sent_at), MAX(send_after), MAX(sent_at)) AS maxTime'))->where('number_from', $numberFrom)->first();
 
@@ -90,8 +83,8 @@ class InstantMessagingHelper
             return false;
         }
 
-        $numberTo = self::customerPhoneCheck($numberTo,1);
-        if($numberTo == false){
+        $numberTo = self::customerPhoneCheck($numberTo, 1);
+        if ($numberTo == false) {
             return false;
         }
 
@@ -100,7 +93,7 @@ class InstantMessagingHelper
 
         // Add interval
         $maxTime = $maxTime + (3600 / $whatappConfig->frequency);
-        
+
         // Check if it's in the future
         if ($maxTime < time()) {
             $maxTime = time();
@@ -128,9 +121,9 @@ class InstantMessagingHelper
         $imQueue->send_after = $sendAfter;
         $imQueue->broadcast_id = $broadcastId;
         $imQueue->marketing_message_type_id = 2;
+
         return $imQueue->save();
     }
-
 
     /**
      * Return Json Encode URL
@@ -138,16 +131,16 @@ class InstantMessagingHelper
      * @param $text , $image
      * @return jsonencoded image
      */
-    public function encodeImage($text = null, $image)
+    public function encodeImage($text, $image)
     {
         // Get filename from image URL
         $filename = basename($image);
 
         // Get caption from text
         if ($text == null) {
-            $image = array('body' => $image, 'filename' => $filename, 'caption' => '');
+            $image = ['body' => $image, 'filename' => $filename, 'caption' => ''];
         } else {
-            $image = array('body' => $image, 'filename' => $filename, 'caption' => $text);
+            $image = ['body' => $image, 'filename' => $filename, 'caption' => $text];
         }
 
         // Return json encoded array
@@ -165,130 +158,132 @@ class InstantMessagingHelper
             '[[PINCODE]]' => $customer->pincode,
             '[[WHATSAPP_NUMBER]]' => $customer->whatsapp_number,
             '[[SHOESIZE]]' => $customer->shoe_size,
-            '[[CLOTHINGSIZE]]' => $customer->clothing_size
+            '[[CLOTHINGSIZE]]' => $customer->clothing_size,
         ];
 
         // Get replacement tags from message
         preg_match_all("/\[[^\]]*\]]/", $message, $matches);
-        $values = $matches[ 0 ];
+        $values = $matches[0];
 
         // Replace all tags
         foreach ($values as $value) {
-            if (isset($fields[ $value ])) {
-                $message = str_replace($value, $fields[ $value ], $message);
+            if (isset($fields[$value])) {
+                $message = str_replace($value, $fields[$value], $message);
             }
         }
 
         // Return message
         return $message;
     }
+
     /**
      * Check if the number is correct
      *
      * @var int
      */
-    public static function customerPhoneCheck($phone , $type)
+    public static function customerPhoneCheck($phone, $type)
     {
-        $customer = Customer::where('phone',$phone)->first();
-        
+        $customer = Customer::where('phone', $phone)->first();
+
         //Check customer country code is null and update it By IN
-        if($customer->country == null){
+        if ($customer->country == null) {
             $customer->country = 'IN';
             $customer->update();
         }
         //Check if customer code is INDIA update it by IN
         $country = strtolower($customer->country);
-        if($country == 'india'){
+        if ($country == 'india') {
             $customer->country = 'IN';
             $customer->update();
         }
 
         //Check if phone is empty
-        if($customer->phone == null){
+        if ($customer->phone == null) {
             return false;
         }
-        
-        
-        try{
+
+        try {
             $countries = \Config('countries');
             $country = $countries[$customer->country];
             $code = $country['code'];
-            
-            //getting first 3 digit from number 
+
+            //getting first 3 digit from number
             $length = strlen($country['code']);
             $result = substr($customer->phone, 0, $length);
-            
-            if($result != $code){
-                if($type == 1){
-                    $customer->broadcast_number = NULL;
-                    if($customer->phone != 0){
-                    $customer->phone = (int)$customer->phone * -1;
+
+            if ($result != $code) {
+                if ($type == 1) {
+                    $customer->broadcast_number = null;
+                    if ($customer->phone != 0) {
+                        $customer->phone = (int) $customer->phone * -1;
                     }
                     $customer->update();
                     \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-                }   
-                    return false;
-                
-            }
+                }
 
-        }catch(\Exception $e){
-                if($type == 1){
-                $customer->broadcast_number = NULL;
-                if($customer->phone != 0){
-                    $customer->phone = (int)$customer->phone * -1;
+                return false;
+            }
+        } catch (\Exception $e) {
+            if ($type == 1) {
+                $customer->broadcast_number = null;
+                if ($customer->phone != 0) {
+                    $customer->phone = (int) $customer->phone * -1;
                 }
                 $customer->update();
                 \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-                }
-                return false;
+            }
+
+            return false;
         }
-        
+
         $phoneUtil = \libphonenumber\PhoneNumberUtil::getInstance();
         try {
             $swissNumberProto = $phoneUtil->parse($customer->phone, $customer->country);
             $isValid = $phoneUtil->isValidNumber($swissNumberProto);
-            if($isValid == false){
-                if($type == 1){
-                $customer->broadcast_number = NULL;
-                if($customer->phone != 0){
-                    $customer->phone = (int)$customer->phone * -1;
+            if ($isValid == false) {
+                if ($type == 1) {
+                    $customer->broadcast_number = null;
+                    if ($customer->phone != 0) {
+                        $customer->phone = (int) $customer->phone * -1;
+                    }
+                    $customer->update();
+                    \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
                 }
-                $customer->update();
-                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-                }
+
                 return false;
             }
         } catch (\libphonenumber\NumberParseException $e) {
-            if($type == 1){
-            $customer->broadcast_number = NULL;
-            if($customer->phone != 0){
-                $customer->phone = (int)$customer->phone * -1;
+            if ($type == 1) {
+                $customer->broadcast_number = null;
+                if ($customer->phone != 0) {
+                    $customer->phone = (int) $customer->phone * -1;
+                }
+                $customer->update();
+                \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
             }
-            $customer->update();
-            \Log::channel('customer')->debug('Customer Name :' . $customer->name . "\n Customer ID: " . $customer->id . "\nPhone Number Not Valid:" . $customer->phone . "\n");
-            }
+
             return false;
         }
 
         return $customer->phone;
     }
 
-    public static function broadcastSendingTimeCheck($time){
-        
+    public static function broadcastSendingTimeCheck($time)
+    {
         $now = $time;
 
         //Getting Start and end time from setting
         // $startTime = Setting::where('name','start_time')->first();
         // $endTime = Setting::where('name','end_time')->first();
-        
+
         $morning = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
         $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
-        
-        if (!$now->between($morning, $evening, true)) {
+
+        if (! $now->between($morning, $evening, true)) {
             $now->addDay();
             $now = Carbon::create($now->year, $now->month, $now->day, 8, 0, 0);
         }
-        
+
         return $now;
     }
 }

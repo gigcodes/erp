@@ -2,16 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Waybillinvoice;
-use App\CashFlow;
-use App\CronJobReport;
 use App\Email;
-use App\EmailAddress;
-use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Waybillinvoice;
 use Illuminate\Console\Command;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\IMAP\Client;
 
 /**
  * @author Sukhwinder <sukhwinder@sifars.com>
@@ -52,13 +47,12 @@ class FindWayBillDue extends Command
      */
     public function handle()
     {
-        
         $report = CronJobReport::create([
-            'signature'  => $this->signature,
+            'signature' => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
-        Waybillinvoice::where("status","!=","paid")->whereDate('due_date','<',Carbon::today())->update(['status'=>'due']);
+        Waybillinvoice::where('status', '!=', 'paid')->whereDate('due_date', '<', Carbon::today())->update(['status' => 'due']);
     }
 
     /**

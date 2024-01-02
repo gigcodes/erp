@@ -2,47 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Auth;
 use App\User;
+use App\Event;
 use App\Learning;
-use App\DailyActivitiesHistories;
+use Carbon\Carbon;
+use App\AssetsManager;
 use App\UserEvent\UserEvent;
+use Illuminate\Http\Request;
+use App\DailyActivitiesHistories;
 use App\UserEvent\UserEventAttendee;
 use App\UserEvent\UserEventParticipant;
-use Auth;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-
 
 class UserEventController extends Controller
 {
-
-    function index()
+    public function index()
     {
         $userId = Auth::user()->id;
-        $link = base64_encode('soloerp:' . $userId);
+        $expireTime = Carbon::now()->addMinutes(30)->toDateTimeString();
+        $link = base64_encode('soloerp:' . $userId . ":$expireTime");
+
         return view(
             'user-event.index',
             [
-                'link' => $link
+                'link' => $link,
             ]
         );
     }
 
-
-
     /**
      * list of user events as json
      */
-    function list(Request $request)
+    public function list(Request $request)
     {
-
         $userId = Auth::user()->id;
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(
                 [
-                    'message' => 'Not allowed'
+                    'message' => 'Not allowed',
                 ],
                 401
             );
@@ -50,6 +48,54 @@ class UserEventController extends Controller
 
         $start = explode('T', $request->get('start'))[0];
         $end = explode('T', $request->get('end'))[0];
+
+        $c_start = Carbon::parse($start);
+        $c_end = Carbon::parse($end);
+
+        $assetsmanager = AssetsManager::where([
+            'user_name' => $userId,
+            'active' => 1,
+            'payment_cycle' => 'Monthly',
+        ])->whereNotNull('due_date')->get();
+
+        if (count($assetsmanager) > 0) {
+            foreach ($assetsmanager as $key => $val) {
+                $c_due_date = Carbon::parse($val->due_date);
+                // dd($c_due_date, $c_start);
+                if ($c_due_date->lte($c_start) || $c_due_date->between($c_start, $c_end)) {
+                    $arr = explode('-', $val->due_date);
+                    if ($c_end->month - $c_start->month) {
+                    }
+                    for ($i = 0; $i < 2; $i++) {
+                        $arr[1] = $c_start->month + $i;
+                        $arr[0] = $c_start->year;
+                        if ($arr[1] == 13) {
+                            $arr[1] = 1;
+                            $arr[0]++;
+                        }
+                        $c_due_date = implode('-', $arr);
+                        $c_due_date = Carbon::parse($c_due_date);
+
+                        if ($c_start->lte($c_due_date) && $c_end->gte($c_due_date)) {
+                            $exist = UserEvent::where('asset_manager_id', $val->id)->where('date', $c_due_date->format('Y-m-d'))->count();
+
+                            if ($exist == 0) {
+                                $userEvent = new UserEvent;
+                                $userEvent->user_id = $val->user_name;
+                                $userEvent->subject = 'Payment Due';
+                                $userEvent->subject .= ' (Asset: ' . ($val->name ?? '-') . ", Provider name: $val->provider_name, Location: $val->location )";
+                                $userEvent->description = "Provider name: $val->provider_name, Location: $val->location";
+                                $userEvent->date = $c_due_date;
+                                $userEvent->start = $c_due_date;
+                                $userEvent->end = $c_due_date;
+                                $userEvent->asset_manager_id = $val->id;
+                                $userEvent->save();
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         $events = UserEvent::with(['attendees'])
             ->where('start', '>=', $start)
@@ -65,10 +111,9 @@ class UserEventController extends Controller
                     'date' => $event->date,
                     'start' => $event->start,
                     'end' => $event->end,
-                    'attendees' => $event->attendees
+                    'attendees' => $event->attendees,
                 ];
             });
-
 
         return response()->json($events);
     }
@@ -76,14 +121,14 @@ class UserEventController extends Controller
     /**
      * edit event
      */
-    function editEvent(Request $request, int $id)
+    public function editEvent(Request $request, int $id)
     {
         $userId = Auth::user()->id;
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(
                 [
-                    'message' => 'Not allowed'
+                    'message' => 'Not allowed',
                 ],
                 401
             );
@@ -94,10 +139,10 @@ class UserEventController extends Controller
 
         $userEvent = UserEvent::find($id);
 
-        if (!$userEvent) {
+        if (! $userEvent) {
             return response()->json(
                 [
-                    'message' => 'Event not found'
+                    'message' => 'Event not found',
                 ],
                 404
             );
@@ -106,7 +151,7 @@ class UserEventController extends Controller
         if ($userEvent->user_id != $userId) {
             return response()->json(
                 [
-                    'message' => 'Not allowed to edit event'
+                    'message' => 'Not allowed to edit event',
                 ],
                 401
             );
@@ -117,29 +162,29 @@ class UserEventController extends Controller
         $userEvent->save();
 
         // once user event has been stored create the event in daily planner
-        $dailyActivities = new \App\DailyActivity; 
-        if($userEvent->daily_activity_id > 0) {
-            $dailyActivities  = \App\DailyActivity::find($userEvent->daily_activity_id);
-            if(empty($dailyActivities)) {
+        $dailyActivities = new \App\DailyActivity;
+        if ($userEvent->daily_activity_id > 0) {
+            $dailyActivities = \App\DailyActivity::find($userEvent->daily_activity_id);
+            if (empty($dailyActivities)) {
                 $dailyActivities = new \App\DailyActivity;
             }
         }
 
-        $dailyActivities->time_slot = date("h:00 a",strtotime($userEvent->start)) . " - " .date("h:00 a",strtotime($userEvent->end));
-        $dailyActivities->activity  = $userEvent->subject;
-        $dailyActivities->user_id   = $userId;
-        $dailyActivities->for_date  = $date;
-        
-        if($dailyActivities->save()) {
-           $userEvent->daily_activity_id =  $dailyActivities->id;
-           $userEvent->save();
+        $dailyActivities->time_slot = date('h:00 a', strtotime($userEvent->start)) . ' - ' . date('h:00 a', strtotime($userEvent->end));
+        $dailyActivities->activity = $userEvent->subject;
+        $dailyActivities->user_id = $userId;
+        $dailyActivities->for_date = $date;
+
+        if ($dailyActivities->save()) {
+            $userEvent->daily_activity_id = $dailyActivities->id;
+            $userEvent->save();
         }
 
         // check first and vendors
-        $vendors = $request->get("vendors",[]);
-        UserEventParticipant::where("user_event_id",$userEvent->id)->delete();
-        if(!empty($vendors) && is_array($vendors)) {
-            foreach($vendors as $vendor) {
+        $vendors = $request->get('vendors', []);
+        UserEventParticipant::where('user_event_id', $userEvent->id)->delete();
+        if (! empty($vendors) && is_array($vendors)) {
+            foreach ($vendors as $vendor) {
                 $userEventParticipant = new UserEventParticipant;
                 $userEventParticipant->user_event_id = $userEvent->id;
                 $userEventParticipant->object = \App\Vendor::class;
@@ -151,87 +196,86 @@ class UserEventController extends Controller
         return response()->json([
             'message' => 'Event updated',
             'event' => [
-                'id' =>  $userEvent->id,
-                'title' =>  $userEvent->title,
-                'start' =>  $userEvent->start,
-                'end' => $userEvent->end
-            ]
+                'id' => $userEvent->id,
+                'title' => $userEvent->title,
+                'start' => $userEvent->start,
+                'end' => $userEvent->end,
+            ],
         ]);
     }
 
-    public function GetEditEvent( Request $request, int $id ){
+    public function GetEditEvent(Request $request, int $id)
+    {
         $id = $request->id;
-        if ( empty( $id ) ) {
+        if (empty($id)) {
             return response()->json([
-                    'message' => 'Not allowed'
-            ],401);
+                'message' => 'Not allowed',
+            ], 401);
         }
 
         $edit = UserEvent::where('daily_activity_id', $id)->with('attendees')->first();
-        if( empty( $edit ) ){
-            return redirect()->back()->with('error','Not record found');
+        if (empty($edit)) {
+            return redirect()->back()->with('error', 'Not record found');
         }
 
-        $vendor = UserEventParticipant::where('user_event_id',$edit->id)->pluck('object_id')->toArray();
-        return view('dailyplanner.edit-event',compact('edit','vendor'));
+        $vendor = UserEventParticipant::where('user_event_id', $edit->id)->pluck('object_id')->toArray();
+
+        return view('dailyplanner.edit-event', compact('edit', 'vendor'));
     }
 
-    public function UpdateEvent( Request $request ){
-
+    public function UpdateEvent(Request $request)
+    {
         $validated = $request->validate([
-            'date'    => 'required',
-            'time'    => 'required',
+            'date' => 'required',
+            'time' => 'required',
             'subject' => 'required',
         ]);
-        
-        $date           = $request->get('date');
-        $time           = $request->get('time');
-        $subject        = $request->get('subject');
-        $description    = $request->get('description');
+
+        $date = $request->get('date');
+        $time = $request->get('time');
+        $subject = $request->get('subject');
+        $description = $request->get('description');
         $contactsString = $request->get('contacts');
-        
+
         $start = $date . ' ' . $time;
         $end = strtotime($start . ' + 1 hour');
         $start = strtotime($start);
 
-
-        $userEvent = UserEvent::findorFail( $request->edit_id );
+        $userEvent = UserEvent::findorFail($request->edit_id);
         $userEvent->subject = $subject;
-        $userEvent->description = ($description) ? $description : "";
+        $userEvent->description = ($description) ? $description : '';
         $userEvent->date = $date;
 
         if (isset($time)) {
             $start = strtotime($date . ' ' . $time);
-            $end   = strtotime($date . ' ' . $time . ' + 1 hour');
+            $end = strtotime($date . ' ' . $time . ' + 1 hour');
             $userEvent->start = date('Y-m-d H:i:s', $start);
             $userEvent->end = date('Y-m-d H:i:s', $end);
         }
 
         $userEvent->save();
 
-        $dailyActivities = \App\DailyActivity::findorFail( $request->daily_activity_id );
-        $dailyActivities->time_slot = date("h:00a",strtotime($userEvent->start)) . " - " .date("h:00a",strtotime($userEvent->end));
-        $dailyActivities->activity  = $userEvent->subject;
-        $dailyActivities->for_date  = $date;
-        $dailyActivities->for_datetime  = $date . ' ' . $time;
+        $dailyActivities = \App\DailyActivity::findorFail($request->daily_activity_id);
+        $dailyActivities->time_slot = date('h:00a', strtotime($userEvent->start)) . ' - ' . date('h:00a', strtotime($userEvent->end));
+        $dailyActivities->activity = $userEvent->subject;
+        $dailyActivities->for_date = $date;
+        $dailyActivities->for_datetime = $date . ' ' . $time;
         $dailyActivities->save();
-        
-        if( request('edit_next_recurring') == '1' ){
-            
+
+        if (request('edit_next_recurring') == '1') {
             $update = [
-                'activity'  => $userEvent->subject,
+                'activity' => $userEvent->subject,
                 'time_slot' => $dailyActivities->time_slot,
             ];
 
-            $now_str      = now()->format('Y-m-d');
-            $future_event = \App\DailyActivity::where('parent_row',$request->daily_activity_id )->where('for_date', '>', $now_str)->update( $update );
-
+            $now_str = now()->format('Y-m-d');
+            $future_event = \App\DailyActivity::where('parent_row', $request->daily_activity_id)->where('for_date', '>', $now_str)->update($update);
         }
-        
-        $vendors = $request->get("vendors",[]);
-        if(!empty($vendors) && is_array($vendors)) {
+
+        $vendors = $request->get('vendors', []);
+        if (! empty($vendors) && is_array($vendors)) {
             UserEventParticipant::where('user_event_id', $userEvent->id)->delete();
-            foreach($vendors as $vendor) {
+            foreach ($vendors as $vendor) {
                 $userEventParticipant = new UserEventParticipant;
                 $userEventParticipant->user_event_id = $userEvent->id;
                 $userEventParticipant->object = \App\Vendor::class;
@@ -241,23 +285,24 @@ class UserEventController extends Controller
         }
         $history = [
             'daily_activities_id' => $request->daily_activity_id,
-            'title'               => 'Event Edit',
-            'description'         => 'Event edit by '.Auth::user()->name,
+            'title' => 'Event Edit',
+            'description' => 'Event edit by ' . Auth::user()->name,
         ];
-        DailyActivitiesHistories::insert( $history );
-        return redirect()->back()->with('success','success');
+        DailyActivitiesHistories::insert($history);
+
+        return redirect()->back()->with('success', 'success');
     }
 
     /**
      * Stop notification
      */
-    function stopEvent( Request $request ){
-        
+    public function stopEvent(Request $request)
+    {
         $id = $request->parent_id;
-        if (!$id) {
+        if (! $id) {
             return response()->json(
                 [
-                    'message' => 'Not allowed'
+                    'message' => 'Not allowed',
                 ],
                 401
             );
@@ -265,49 +310,48 @@ class UserEventController extends Controller
 
         try {
             \App\DailyActivity::where('id', $id)->update(['status' => 'stop']);
-            \App\DailyActivity::where('parent_row', $id)->where('for_date' , '>=' , Carbon::now()->toDateTimeString())->delete();
+            \App\DailyActivity::where('parent_row', $id)->where('for_date', '>=', Carbon::now()->toDateTimeString())->delete();
             $history = [
                 'daily_activities_id' => $id,
-                'title'               => 'Event Stop',
-                'description'         => 'Event Stop by '.Auth::user()->name,
+                'title' => 'Event Stop',
+                'description' => 'Event Stop by ' . Auth::user()->name,
             ];
-            DailyActivitiesHistories::insert( $history );
+            DailyActivitiesHistories::insert($history);
+
             return response()->json([
-                "code"    => 200, 
+                'code' => 200,
                 'message' => 'Event stop successfully',
             ]);
         } catch (\Throwable $th) {
             $history = [
                 'daily_activities_id' => $id,
-                'title'               => 'Event Stop failed',
-                'description'         => $th->getMessage(),
+                'title' => 'Event Stop failed',
+                'description' => $th->getMessage(),
             ];
-            DailyActivitiesHistories::insert( $history );
+            DailyActivitiesHistories::insert($history);
+
             return response()->json([
-                "code"    => 500, 
+                'code' => 500,
                 'message' => $th->getMessage(),
             ]);
         }
-
     }
 
     /**
      * Create a new event
      */
-    function createEvent(Request $request)
+    public function createEvent(Request $request)
     {
         $userId = Auth::user()->id;
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(
                 [
-                    'message' => 'Not allowed'
+                    'message' => 'Not allowed',
                 ],
                 401
             );
         }
-
-
 
         $date = $request->get('date');
         $time = $request->get('time');
@@ -315,19 +359,19 @@ class UserEventController extends Controller
         $description = $request->get('description');
         $contactsString = $request->get('contacts');
 
-        $errors = array();
+        $errors = [];
 
         // date validations
-        if (!$date) {
+        if (! $date) {
             $errors['date'][] = 'Date is missing';
-        } else if (!preg_match('/^[0-9]{4}-((0[1-9])|(1[0|1|2]))-(0|1|2|3)[0-9]$/', $date)) {
+        } elseif (! preg_match('/^[0-9]{4}-((0[1-9])|(1[0|1|2]))-(0|1|2|3)[0-9]$/', $date)) {
             $errors['date'][] = 'Invalid date format';
-        } else if (!validateDate($date)) {
+        } elseif (! validateDate($date)) {
             $errors['date'][] = 'Invalid date';
         }
 
         if (isset($time)) {
-            if (!preg_match('/^(([0-1][0-9])|(2[0-3])):[0-5][0-9]$/', $time)) {
+            if (! preg_match('/^(([0-1][0-9])|(2[0-3])):[0-5][0-9]$/', $time)) {
                 $errors['time'] = 'Invalid time format';
             }
         }
@@ -336,31 +380,28 @@ class UserEventController extends Controller
             $errors['subject'][] = 'Subject is required';
         }
 
-        if ($request->type =='learning' && empty($request->users)) {
+        if ($request->type == 'learning' && empty($request->users)) {
             $errors['vendor'][] = 'Please select user';
         }
 
-        if ($request->type=='learning' && $request->has('users') && ( count($request->users) > 1))  {
+        if ($request->type == 'learning' && $request->has('users') && (count($request->users) > 1)) {
             $errors['vendor'][] = 'Please select one user';
         }
 
-
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return response()->json($errors, 400);
         }
-
 
         $start = $date . ' ' . $time;
         $for_datetime = $start;
         $end = strtotime($start . ' + 1 hour');
         $start = strtotime($start);
 
-        if($request->type == 'event')
-        {
+        if ($request->type == 'event') {
             $userEvent = new UserEvent;
             $userEvent->user_id = $userId;
             $userEvent->subject = $subject;
-            $userEvent->description = ($description) ? $description : "";
+            $userEvent->description = ($description) ? $description : '';
             $userEvent->date = $date;
 
             if (isset($time)) {
@@ -374,24 +415,24 @@ class UserEventController extends Controller
 
             // once user event has been stored create the event in daily planner
             $dailyActivities = new \App\DailyActivity;
-            $dailyActivities->time_slot = date("h:00a",strtotime($userEvent->start)) . " - " .date("h:00a",strtotime($userEvent->end));
-            $dailyActivities->activity  = $userEvent->subject;
-            $dailyActivities->user_id   = $userId;
-            $dailyActivities->for_date  = $date;
-            $dailyActivities->for_datetime    = $for_datetime;
-            $dailyActivities->repeat_type     = $request->repeat;
-            $dailyActivities->repeat_on       = $request->repeat_on;
-            $dailyActivities->repeat_end      = $request->ends_on;
+            $dailyActivities->time_slot = date('h:00a', strtotime($userEvent->start)) . ' - ' . date('h:00a', strtotime($userEvent->end));
+            $dailyActivities->activity = $userEvent->subject;
+            $dailyActivities->user_id = $userId;
+            $dailyActivities->for_date = $date;
+            $dailyActivities->for_datetime = $for_datetime;
+            $dailyActivities->repeat_type = $request->repeat;
+            $dailyActivities->repeat_on = $request->repeat_on;
+            $dailyActivities->repeat_end = $request->ends_on;
             $dailyActivities->repeat_end_date = $request->repeat_end_date;
-            $dailyActivities->timezone        = $request->timezone;
-            $dailyActivities->type            = 'event';
-            $dailyActivities->type_table_id   = $userEvent->id;
-            
-            if($dailyActivities->save()) {
+            $dailyActivities->timezone = $request->timezone;
+            $dailyActivities->type = 'event';
+            $dailyActivities->type_table_id = $userEvent->id;
+
+            if ($dailyActivities->save()) {
                 $dailyActivities->parent_row = $dailyActivities->id;
                 $dailyActivities->save();
-               $userEvent->daily_activity_id =  $dailyActivities->id;
-               $userEvent->save();
+                $userEvent->daily_activity_id = $dailyActivities->id;
+                $userEvent->save();
             }
 
             // save the attendees
@@ -408,9 +449,9 @@ class UserEventController extends Controller
                 $attendeesResponse[] = $attendeeDb->toArray();
             }
 
-            $vendors = $request->get("vendors",[]);
-            if(!empty($vendors) && is_array($vendors)) {
-                foreach($vendors as $vendor) {
+            $vendors = $request->get('vendors', []);
+            if (! empty($vendors) && is_array($vendors)) {
+                foreach ($vendors as $vendor) {
                     $userEventParticipant = new UserEventParticipant;
                     $userEventParticipant->user_event_id = $userEvent->id;
                     $userEventParticipant->object = \App\Vendor::class;
@@ -420,28 +461,27 @@ class UserEventController extends Controller
             }
             $history = [
                 'daily_activities_id' => $dailyActivities->id,
-                'title'               => 'Event create',
-                'description'         => "Event created by ".Auth::user()->name,
+                'title' => 'Event create',
+                'description' => 'Event created by ' . Auth::user()->name,
             ];
-            DailyActivitiesHistories::insert( $history );
+            DailyActivitiesHistories::insert($history);
 
-            \Log::error( 'Daily activities ::',DailyActivitiesHistories::where( 'daily_activities_id', $dailyActivities->id )->get()->toArray() );
+            \Log::error('Daily activities ::', DailyActivitiesHistories::where('daily_activities_id', $dailyActivities->id)->get()->toArray());
+
             return response()->json([
-                "code"    => 200, 
+                'code' => 200,
                 'message' => 'Event added successfully',
                 'event' => $userEvent->toArray(),
-                'attendees' => $attendeesResponse
+                'attendees' => $attendeesResponse,
             ]);
-        
-        }else{
-
-            $data['learning_user']       = Auth::id();
-            $data['learning_vendor']     = $request->users[0];
-            $data['learning_subject']    = $subject;
+        } else {
+            $data['learning_user'] = Auth::id();
+            $data['learning_vendor'] = $request->users[0];
+            $data['learning_subject'] = $subject;
             $data['learning_assignment'] = $description;
-            $data['learning_duedate']    = $request->date;
-            $data['cost']    = $request->cost;
-            $data['currency']    = $request->currency;
+            $data['learning_duedate'] = $request->date;
+            $data['cost'] = $request->cost;
+            $data['currency'] = $request->currency;
 
             $learning = Learning::create($data);
 
@@ -449,83 +489,86 @@ class UserEventController extends Controller
             $end = strtotime($date . ' ' . $time . ' + 1 hour');
 
             $dailyActivities = new \App\DailyActivity;
-            $dailyActivities->time_slot = date("h:00a",strtotime($start)) . " - " .date("h:00a",strtotime($end));
-            $dailyActivities->activity  = $learning->subject;
-            $dailyActivities->user_id   = $userId;
-            $dailyActivities->for_date  = $date;
-            $dailyActivities->for_datetime    = $for_datetime;
-            $dailyActivities->repeat_type     = $request->repeat;
-            $dailyActivities->repeat_on       = $request->repeat_on;
-            $dailyActivities->repeat_end      = $request->ends_on;
+            $dailyActivities->time_slot = date('h:00a', strtotime($start)) . ' - ' . date('h:00a', strtotime($end));
+            $dailyActivities->activity = $learning->subject;
+            $dailyActivities->user_id = $userId;
+            $dailyActivities->for_date = $date;
+            $dailyActivities->for_datetime = $for_datetime;
+            $dailyActivities->repeat_type = $request->repeat;
+            $dailyActivities->repeat_on = $request->repeat_on;
+            $dailyActivities->repeat_end = $request->ends_on;
             $dailyActivities->repeat_end_date = $request->repeat_end_date;
-            $dailyActivities->timezone        = $request->timezone;
-            $dailyActivities->type            = 'learning';
-            $dailyActivities->type_table_id   = $learning->id;
+            $dailyActivities->timezone = $request->timezone;
+            $dailyActivities->type = 'learning';
+            $dailyActivities->type_table_id = $learning->id;
 
-            if($dailyActivities->save()) {
+            if ($dailyActivities->save()) {
                 $dailyActivities->parent_row = $dailyActivities->id;
                 $dailyActivities->save();
             }
 
             return response()->json([
-                "code"    => 200, 
+                'code' => 200,
                 'message' => 'Learning added successfully',
             ]);
-        }    
+        }
     }
 
-    function removeEvent(Request $request, $id)
+    public function removeEvent(Request $request, $id)
     {
         $userId = Auth::user()->id;
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(
                 [
-                    'message' => 'Not allowed'
+                    'message' => 'Not allowed',
                 ],
                 401
             );
         }
 
         $result = UserEvent::where('id', $id)->where('user_id', $userId)->first();
-        if($result) {
-            $result->attendees()->delete();
+        if ($result) {
+            // $result->attendees()->delete(); // No need to delete this, Because now softdelete logic is using in user_events.
             $result->delete();
+
             return response()->json([
-                'message' => 'Event deleted:' . $result
+                'message' => 'Event deleted:' . $result,
             ]);
         }
 
         return response()->json([
             'message' => 'Failed to deleted',
-            404
+            404,
         ]);
     }
 
     /*
-             ____    _   _   ____    _       ___    ____ 
+             ____    _   _   ____    _       ___    ____
             |  _ \  | | | | | __ )  | |     |_ _|  / ___|
-            | |_) | | | | | |  _ \  | |      | |  | |    
-            |  __/  | |_| | | |_) | | |___   | |  | |___ 
+            | |_) | | | | | |  _ \  | |      | |  | |
+            |  __/  | |_| | | |_) | | |___   | |  | |___
             |_|      \___/  |____/  |_____| |___|  \____|
-                                                            
+
     */
 
     /**
      * show public calendar
      */
-    function publicCalendar($id)
+    public function publicCalendar($id)
     {
         $calendarId = base64_decode($id);
         $calendarUserId = explode(':', $calendarId)[1];
-
+        if (! Carbon::parse(explode(':', $calendarId, 3)[2])->gte(Carbon::now())) {
+            abort(404, 'Link expired');
+        }
         $user = User::find($calendarUserId, ['name']);
 
         return view(
             'user-event.public-calendar',
             [
                 'calendarId' => $id,
-                'user' => $user
+                'user' => $user,
             ]
         );
     }
@@ -533,7 +576,7 @@ class UserEventController extends Controller
     /**
      * events of the user without auth
      */
-    function publicEvents(Request $request, $id)
+    public function publicEvents(Request $request, $id)
     {
         $text = base64_decode($id);
         $calendarUserId = explode(':', $text)[1];
@@ -555,25 +598,25 @@ class UserEventController extends Controller
                     'date' => $event->date,
                     'start' => $event->start,
                     'end' => $event->end,
-                    'attendees' => $event->attendees
+                    'attendees' => $event->attendees,
                 ];
             });
+
         return response()->json($events);
     }
 
     /**
      * suggest timing for the invitation view
      */
-    function suggestInvitationTiming($invitationId)
+    public function suggestInvitationTiming($invitationId)
     {
-
         $attendee = UserEventAttendee::with('event')->find($invitationId);
 
         return view(
             'user-event.public-calendar-time-suggestion',
             [
                 'attendee' => $attendee,
-                'invitationId' => $invitationId
+                'invitationId' => $invitationId,
             ]
         );
     }
@@ -581,15 +624,15 @@ class UserEventController extends Controller
     /**
      * save suggested timing
      */
-    function saveSuggestedInvitationTiming(Request $request, $invitationId)
+    public function saveSuggestedInvitationTiming(Request $request, $invitationId)
     {
         UserEventAttendee::where('id', '=', $invitationId)
         ->update([
-            'suggested_time' => $request->get('time')
+            'suggested_time' => $request->get('time'),
         ]);
 
-        return redirect('/calendar/public/event/suggest-time/'.$invitationId)->with([
-            'message' => 'Saved data'
+        return redirect('/calendar/public/event/suggest-time/' . $invitationId)->with([
+            'message' => 'Saved data',
         ]);
     }
 }

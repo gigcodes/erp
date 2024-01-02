@@ -2,20 +2,15 @@
 
 namespace App\Services\Scrap;
 
-use App\Brand;
-use App\ScrapedProducts;
-use App\ScrapEntries;
-use App\Product;
-use App\Setting;
 use Storage;
-use Validator;
+use App\Brand;
+use App\Product;
+use App\ScrapEntries;
+use App\ScrapedProducts;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class DoubleFProductDetailsScraper extends Scraper
 {
-
     public function scrap()
     {
         $products = ScrapEntries::where('is_product_page', 1)->where('site_name', 'DoubleF')->take(5000)->get();
@@ -25,7 +20,8 @@ class DoubleFProductDetailsScraper extends Scraper
         }
     }
 
-    private function getSizes(HtmlPageCrawler $c) {
+    private function getSizes(HtmlPageCrawler $c)
+    {
 //        $sizes = $c->filter('script')->getIterator();
         $content = [];
 
@@ -55,16 +51,15 @@ class DoubleFProductDetailsScraper extends Scraper
 //        }
 
         return $content;
-
     }
 
-    public function doesProductExist($product) {
+    public function doesProductExist($product)
+    {
         $url = $product->url;
         $content = $this->getContent($url, 'GET', 'it', false);
         if ($content === '') {
             return false;
         }
-
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
@@ -74,6 +69,7 @@ class DoubleFProductDetailsScraper extends Scraper
             $props['sizes_prop'] = $this->getSizes($c);
             $product->properties = $props;
             $product->save();
+
             return true;
         }
 
@@ -82,15 +78,14 @@ class DoubleFProductDetailsScraper extends Scraper
 
     private function getProductDetails(ScrapEntries $scrapEntry)
     {
-
         $content = $this->getContent($scrapEntry->url, 'GET', 'it', false);
         if ($content === '') {
             $scrapEntry->delete();
+
             return;
         }
 
         echo "$scrapEntry->url \n";
-
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
@@ -101,25 +96,24 @@ class DoubleFProductDetailsScraper extends Scraper
         $description = $this->getDescription($c);
         $properties = $this->getProperties($c);
 
-
-        if (!$images || !$title) {
+        if (! $images || ! $title) {
             $scrapEntry->delete();
+
             return;
         }
 
         $brandId = $this->getBrandId($brand);
 
-        if (!$brandId) {
+        if (! $brandId) {
             $scrapEntry->delete();
+
             return;
         }
 
         $image = ScrapedProducts::where('sku', $sku)->orWhere('url', $scrapEntry->url)->first();
-        if (!$image) {
+        if (! $image) {
             $image = new ScrapedProducts();
         }
-
-
 
         $image->brand_id = $brandId;
         $image->sku = $sku;
@@ -137,7 +131,7 @@ class DoubleFProductDetailsScraper extends Scraper
         $image->save();
 
         $properties = $image->properties;
-        if (!isset($properties['Color code'])) {
+        if (! isset($properties['Color code'])) {
             return;
         }
         $colorCode = explode('-', $properties['Color code']);
@@ -146,11 +140,10 @@ class DoubleFProductDetailsScraper extends Scraper
         }
 
         $colorCode = $colorCode[1];
-        $sku2 = $image->sku.$colorCode;
+        $sku2 = $image->sku . $colorCode;
         $image->sku = $sku2;
 
         $image->save();
-
 
         $scrapEntry->is_scraped = 1;
         $scrapEntry->save();
@@ -158,16 +151,19 @@ class DoubleFProductDetailsScraper extends Scraper
 //        app('App\Services\Products\DoubleProductsCreator')->createDoubleProducts($image);
     }
 
-    private function getTitle(HtmlPageCrawler $c) {
+    private function getTitle(HtmlPageCrawler $c)
+    {
         try {
             $title = preg_replace('/\s\s+/', '', $c->filter('h1 div.name')->getInnerHtml());
         } catch (\Exception $exception) {
             $title = '';
         }
+
         return $title;
     }
 
-    private function getPrice(HtmlPageCrawler $c) {
+    private function getPrice(HtmlPageCrawler $c)
+    {
         try {
             $price = preg_replace('/\s\s+/', '', $c->filter('div.price-box span.price')->getInnerHtml());
         } catch (\Exception $exception) {
@@ -180,7 +176,8 @@ class DoubleFProductDetailsScraper extends Scraper
         return $price;
     }
 
-    private function getSku(HtmlPageCrawler $c) {
+    private function getSku(HtmlPageCrawler $c)
+    {
         try {
             $properties = $c->filter('div#tab1 ul li')->getIterator();
             $sku = '';
@@ -194,7 +191,6 @@ class DoubleFProductDetailsScraper extends Scraper
                     $sku = str_replace(' ', '', preg_replace('/\s\s+/', '', $sku));
                 }
             }
-
         } catch (\Exception $exception) {
             $sku = 'N/A';
         }
@@ -202,7 +198,8 @@ class DoubleFProductDetailsScraper extends Scraper
         return $sku;
     }
 
-    private function getDescription(HtmlPageCrawler $c) {
+    private function getDescription(HtmlPageCrawler $c)
+    {
         try {
             $title = preg_replace('/\s\s+/', '', strip_tags($c->filter('div#tab1 p')->getInnerHtml()));
         } catch (\Exception $exception) {
@@ -210,10 +207,12 @@ class DoubleFProductDetailsScraper extends Scraper
         }
 
         $title = str_replace('-', '\n', $title);
+
         return $title;
     }
 
-    private function getImages(HtmlPageCrawler $c) {
+    private function getImages(HtmlPageCrawler $c)
+    {
         $images = $c->filter('div.product-img-box a')->getIterator();
         $content = [];
 
@@ -231,6 +230,7 @@ class DoubleFProductDetailsScraper extends Scraper
         } catch (\Exception $exception) {
             $title = '';
         }
+
         return $title;
     }
 
@@ -238,10 +238,9 @@ class DoubleFProductDetailsScraper extends Scraper
     {
         $brand = Brand::where('name', $brandName)->first();
 
-        if (!$brand) {
+        if (! $brand) {
             return false;
         }
-
 
         return $brand->id;
     }
@@ -249,7 +248,7 @@ class DoubleFProductDetailsScraper extends Scraper
     private function downloadImages($data, $prefix = 'img'): array
     {
         $images = [];
-        foreach ($data as $key=>$datum) {
+        foreach ($data as $key => $datum) {
             try {
                 $datum = $this->getImageUrl($datum);
                 $imgData = file_get_contents($datum);
@@ -257,8 +256,8 @@ class DoubleFProductDetailsScraper extends Scraper
                 continue;
             }
 
-            $fileName = $prefix . '_' . md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }
@@ -266,11 +265,11 @@ class DoubleFProductDetailsScraper extends Scraper
         return $images;
     }
 
-    private function getProperties(HtmlPageCrawler $c) {
+    private function getProperties(HtmlPageCrawler $c)
+    {
         $sizes = $this->getSizes($c);
         $bread = $c->filter('ul.breadcrumbs li a')->getIterator();
         $propertiesData = ['size' => $sizes];
-
 
         $categoryTypes = [];
 
@@ -294,6 +293,7 @@ class DoubleFProductDetailsScraper extends Scraper
             $item = strip_tags($property->textContent);
             if (strpos($item, 'Made') !== false) {
                 $propertiesData['Made In'] = str_replace('Made in ', '', $item);
+
                 continue;
             }
 
@@ -303,7 +303,6 @@ class DoubleFProductDetailsScraper extends Scraper
             }
 
             $propertiesData[$item[0]] = trim($item[1]);
-
         }
 
         return $propertiesData;

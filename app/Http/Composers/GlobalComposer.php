@@ -1,17 +1,13 @@
 <?php
 
-
 namespace App\Http\Composers;
 
+use Route;
+use App\Permission;
+use App\PermissionRequest;
 use App\Helpers\PermissionCheck;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Request;
-use Route;
-use App\UserLog;
-use App\Permission;
-use App\PermissionRequest;
-
 
 class GlobalComposer
 {
@@ -34,23 +30,23 @@ class GlobalComposer
                         $genUrl = $model . '-' . $actions;
                     }
                 }
-                if (!isset($genUrl)) {
+                if (! isset($genUrl)) {
                     $genUrl = '';
                 }
                 $permission = Permission::where('route', $genUrl)->first();
-                if(isset($permission->route)){
+                if (isset($permission->route)) {
                     PermissionRequest::updateOrcreate([
-                        'user_id'           => Auth::user()->id,
-                        'permission_id'     => $permission->id,
+                        'user_id' => Auth::user()->id,
+                        'permission_id' => $permission->id,
                     ],
-                    [
-                        'user_id'           => Auth::user()->id,
-                        'permission_id'     => $permission->id,
-                        'request_date'      => date('Y-m-d H:i:s'),
-                        'permission_name'   => $permission->route,
-                    ]);
-                    echo 'unauthorized permission name '.$permission->route;
-                    die();
+                        [
+                            'user_id' => Auth::user()->id,
+                            'permission_id' => $permission->id,
+                            'request_date' => date('Y-m-d H:i:s'),
+                            'permission_name' => $permission->route,
+                        ]);
+                    echo 'unauthorized permission name ' . $permission->route;
+                    exit();
                 }
             }
         } else {

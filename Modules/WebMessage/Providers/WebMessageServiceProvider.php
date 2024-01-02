@@ -39,10 +39,10 @@ class WebMessageServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('webmessage.php'),
+            __DIR__ . '/../Config/config.php' => config_path('webmessage.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'webmessage'
+            __DIR__ . '/../Config/config.php', 'webmessage'
         );
     }
 
@@ -55,11 +55,11 @@ class WebMessageServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/webmessage');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/webmessage';
@@ -78,7 +78,7 @@ class WebMessageServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'webmessage');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'webmessage');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'webmessage');
         }
     }
 

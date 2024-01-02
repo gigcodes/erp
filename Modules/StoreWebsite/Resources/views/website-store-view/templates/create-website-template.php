@@ -20,10 +20,10 @@
 	            <select name="name" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		            	foreach($languages as $k => $l) {
-							echo "<option {{if data.name == '".strtolower($k)."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-						}
-					?>
+                        foreach ($languages as $k => $l) {
+                            echo "<option {{if data.name == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+                        }
+		?>
 		         </select>
 	         </div>
 		      <div class="form-group col-md-6">
@@ -35,11 +35,11 @@
 		         <select name="status" class="form-control">
 	            	<option value="">-- N/A --</option>
 		            <?php
-		            	$statuses = ["In active", "Active"];
-						foreach($statuses as $k => $l) {
-							echo "<option {{if data.status == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-						}
-					?>
+		$statuses = ['In active', 'Active'];
+		foreach ($statuses as $k => $l) {
+		    echo "<option {{if data.status == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+		}
+		?>
 		         </select>
 		      </div>
 		      <div class="form-group col-md-6">
@@ -48,14 +48,18 @@
 		      </div>
 		      <div class="form-group col-md-6">
 		         <label for="website_store_id">Website Store</label>
-		         <select name="website_store_id" class="form-control">
+		         <select name="website_store_id" class="form-control select2-vendor">
 	            	<option value="">-- N/A --</option>
 		            <?php
-						foreach($websiteStores as $k => $l) {
-							echo "<option {{if data.website_store_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-						}
-					?>
+		    foreach ($websiteStores as $k => $l) {
+		        echo "<option {{if data.website_store_id == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+		    }
+		?>
 		         </select>
+		      </div>
+			  <div class="form-group col-md-6">
+		         <label for="platform_id">Platform Id</label>
+		         <input type="text" name="platform_id" value="{{if data}}{{:data.platform_id}}{{/if}}" class="form-control" id="platform_id" placeholder="Platform Id">
 		      </div>
 		   </div>
 		   <div class="modal-footer">

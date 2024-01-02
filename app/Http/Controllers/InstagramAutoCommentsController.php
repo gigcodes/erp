@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\InstagramAutoComments;
 use App\TargetLocation;
 use Illuminate\Http\Request;
+use App\InstagramAutoComments;
 
 class InstagramAutoCommentsController extends Controller
 {
@@ -18,7 +18,6 @@ class InstagramAutoCommentsController extends Controller
     {
         $comments = InstagramAutoComments::orderBy('updated_at', 'DESC')->get();
         $countries = TargetLocation::all();
-
 
         return view('instagram.auto_comments.index', compact('comments', 'countries'));
     }
@@ -36,14 +35,13 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * Create a new comment for a country or gender
      */
     public function store(Request $request)
     {
         $this->validate($request, [
-            'text' => 'required'
+            'text' => 'required',
         ]);
 
         $comment = new InstagramAutoComments();
@@ -67,7 +65,7 @@ class InstagramAutoCommentsController extends Controller
     public function show($action, Request $request)
     {
         $this->validate($request, [
-            'comments' => 'required'
+            'comments' => 'required',
         ]);
 
         InstagramAutoComments::whereIn('id', $request->get('comments'))->delete();
@@ -92,27 +90,24 @@ class InstagramAutoCommentsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
      * Update the source, text and options
      */
     public function update(Request $request, $id)
     {
-
         $comment = InstagramAutoComments::findOrFail($id);
         $comment->comment = $request->get('text');
         $comment->source = $request->get('source');
         $comment->options = $request->get('options') ?? [];
         $comment->save();
 
-        return redirect()->action('InstagramAutoCommentsController@index')->with('message', 'Updated successfully!');
+        return redirect()->action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'index'])->with('message', 'Updated successfully!');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramAutoComments  $instagramAutoComments
      * @return \Illuminate\Http\Response
      */
     public function destroy(InstagramAutoComments $instagramAutoComments)

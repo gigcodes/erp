@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Marketing\WhatsappConfig;
 use Carbon\Carbon;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
+use App\Marketing\WhatsappConfig;
 
 class CheckWhatsAppActive extends Command
 {
@@ -40,8 +41,12 @@ class CheckWhatsAppActive extends Command
     public function handle()
     {
         try {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron was started to run']);
+
             // Check only active numbers which are not customer support numbers
             $numbers = WhatsappConfig::where('is_customer_support', '!=', 1)->where('status', 1)->get();
+
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'WhatsappConfig model query was finished']);
 
             // Set the current time
             $time = Carbon::now();
@@ -55,18 +60,23 @@ class CheckWhatsAppActive extends Command
                     if ($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()) {
                         continue;
                     }
-                    $phones  = ['+971569119192', '+31629987287'];
+                    $phones = ['+971569119192', '+31629987287'];
                     $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
 
                     foreach ($phones as $phone) {
                         // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
-                    }
 
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Send message successfully on phone:' . $phone]);
+                    }
                 }
             } else {
                 dump('We only check during the day');
+
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'No any messages send.']);
             }
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

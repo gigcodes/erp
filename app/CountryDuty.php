@@ -3,16 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-
 class CountryDuty extends Model
 {
-
     /**
      * @var string
-   
+
+     *
      * @SWG\Property(property="hs_code",type="string")
      * @SWG\Property(property="origin",type="string")
      * @SWG\Property(property="destination",type="string")
@@ -25,7 +25,6 @@ class CountryDuty extends Model
      * @SWG\Property(property="duty_group_id",type="string")
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
-
      */
     protected $fillable = [
         'hs_code',
@@ -39,6 +38,6 @@ class CountryDuty extends Model
         'vat_percentage',
         'duty_group_id',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 }

@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers\Api\v1;
 
+use App\Flow;
+use App\Product;
 use App\Customer;
 use App\ErpLeads;
-use App\Http\Controllers\Controller;
-use App\Product;
-use App\StoreWebsite;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use App\Flow;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
-
     public function __construct()
     {
         // $this->middleware('permission:customer');
@@ -32,19 +30,20 @@ class CustomerController extends Controller
             'item_info.*.qty' => 'required',
         ]);
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("customercart.failed.validation", 0, $default = "Please check validation errors !", request('lang_code'));
+            $message = $this->generate_erp_response('customercart.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
+
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
         $responseData = [];
 
-        $storeWebsite = \App\StoreWebsite::where("website", "like", $request->website)->first();
+        $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
 
         if ($storeWebsite) {
             $checkCustomer = Customer::where('email', $request->email)
                 ->where('store_website_id', $storeWebsite->id)
                 ->first();
-            if (!$checkCustomer) {
+            if (! $checkCustomer) {
                 $data = [
                     'name' => $request->name,
                     'email' => $request->email,
@@ -70,7 +69,7 @@ class CustomerController extends Controller
                     $erp_lead->size = $checkCustomer->size;
                     $erp_lead->gender = $checkCustomer->gender;
                     $erp_lead->qty = $item['qty'];
-                    $erp_lead->type = $request->get("type", 'add-to-cart');
+                    $erp_lead->type = $request->get('type', 'add-to-cart');
                     $erp_lead->min_price = $product->price;
                     $erp_lead->max_price = $product->price;
                     $erp_lead->save();
@@ -94,19 +93,20 @@ class CustomerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("reviews.failed.validation", 0, $default = "Please check validation errors !", request('lang_code'));
+            $message = $this->generate_erp_response('reviews.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
+
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
         $responseData = [];
 
-        $storeWebsite = \App\StoreWebsite::where("website", "like", $request->website)->first();
+        $storeWebsite = \App\StoreWebsite::where('website', 'like', $request->website)->first();
 
         if ($storeWebsite) {
             $checkCustomer = Customer::where('email', $request->email)
                 ->where('store_website_id', $storeWebsite->id)
                 ->first();
-            if (!$checkCustomer) {
+            if (! $checkCustomer) {
                 $data = [
                     'name' => $request->name,
                     'email' => $request->email,
@@ -123,13 +123,11 @@ class CustomerController extends Controller
             $input['comment'] = $request->comment;
             $input['status'] = 0;
             $reviews = \App\CustomerReview::create($input);
-			$flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
-			if($flowId != null and $checkCustomer->email != null) {
-				\App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
-				->where('template', 'flow#'.$flowId)->delete();
-			}
-			
-			
+            $flowId = Flow::where('flow_name', 'order_reviews')->pluck('id')->first();
+            if ($flowId != null and $checkCustomer->email != null) {
+                \App\Email::where('scheduled_at', '>=', Carbon::now())->where('email', $checkCustomer->email)
+                    ->where('template', 'flow#' . $flowId)->delete();
+            }
 
             if ($reviews) {
                 return response()->json(['status' => 'success', 'message' => 'Successfully Added'], 200);
@@ -137,8 +135,8 @@ class CustomerController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Please try again'], 400);
             }
         }
-        return response()->json(['status' => 'error', 'message' => 'Store website not found!'], 400);
 
+        return response()->json(['status' => 'error', 'message' => 'Store website not found!'], 400);
     }
 
     public function allReviews(Request $request)
@@ -151,7 +149,8 @@ class CustomerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $message = $this->generate_erp_response("reviews.failed.validation", 0, $default = "Please check validation errors !", request('lang_code'));
+            $message = $this->generate_erp_response('reviews.failed.validation', 0, $default = 'Please check validation errors !', request('lang_code'));
+
             return response()->json(['status' => 'failed', 'message' => $message, 'errors' => $validator->errors()], 400);
         }
 
@@ -161,7 +160,5 @@ class CustomerController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Please try again'], 400);
         }
-
     }
-
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\DeveloperMessagesAlertSchedules;
 use Illuminate\Http\Request;
+use App\DeveloperMessagesAlertSchedules;
 
 class DeveloperMessagesAlertSchedulesController extends Controller
 {
@@ -30,14 +30,13 @@ class DeveloperMessagesAlertSchedulesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $schedile = DeveloperMessagesAlertSchedules::first();
 
-        if (!$schedile) {
+        if (! $schedile) {
             $schedile = new DeveloperMessagesAlertSchedules();
         }
 
@@ -50,7 +49,6 @@ class DeveloperMessagesAlertSchedulesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
     public function show(DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
@@ -61,7 +59,6 @@ class DeveloperMessagesAlertSchedulesController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
     public function edit(DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
@@ -72,8 +69,6 @@ class DeveloperMessagesAlertSchedulesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)
@@ -84,7 +79,6 @@ class DeveloperMessagesAlertSchedulesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\DeveloperMessagesAlertSchedules  $developerMessagesAlertSchedules
      * @return \Illuminate\Http\Response
      */
     public function destroy(DeveloperMessagesAlertSchedules $developerMessagesAlertSchedules)

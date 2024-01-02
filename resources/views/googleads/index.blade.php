@@ -12,8 +12,9 @@
 </style>
 @endsection
 @section('content')
-    <div class="container" style="margin-top: 10px">
-    <h4>Google Ads (<span id="ads_count">{{$totalNumEntries}}</span>) for {{$groupname}} AdsGroup <button class="btn-image" onclick="window.location.href='/google-campaigns/{{$campaignId}}/adgroups';">Back to Ad groups</button></h4>
+{{--    <div class="container" style="margin-top: 10px">--}}
+    <div class="col-md-12">
+    <h4 class="page-heading">Google Ads (<span id="ads_count">{{$totalNumEntries}}</span>) for {{$groupname}} AdsGroup <button class="btn-image" onclick="window.location.href='/google-campaigns/{{$campaignId}}/adgroups';">Back to Ad groups</button></h4>
 
 
     <div class="pull-left">
@@ -56,9 +57,10 @@
     </div>
 
     
-    <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create">
-        <button type="submit" class="float-right mb-3">New Ads</button>
-    </form>    
+{{--    <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create">--}}
+{{--        <button type="submit" class="float-right mb-3">New Ads</button>--}}
+{{--    </form>    --}}
+        <button type="button" class="float-right custom-button btn mb-3 mr-3" data-toggle="modal" data-target="#adsmodal">New Ads</button>
 
         <table class="table table-bordered" id="ads-table">
             <thead>
@@ -103,6 +105,103 @@
         </table>
         {{ $ads->links() }}
     </div>
+
+<div class="modal fade" id="adsmodal" role="dialog" style="z-index: 3000;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="container">
+                <div class="page-header" style="width: 69%">
+                    <h2>Create Ad</h2>
+                </div>
+{{--                <form action="{{route('ads.craeteAd',['id'=> $campaignId , 'adgroups'=> $adGroupId])}}" method="POST">--}}
+                <form action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create" enctype="multipart/form-data" method="POST">
+                    @csrf
+                    <div class="form-group row">
+                        <label for="headline-part1" class="col-sm-2 col-form-label">Headline part 1</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="headline-part1" name="headlinePart1" placeholder="Headline">
+                            @if ($errors->has('headlinePart1'))
+                                <span class="text-danger">{{$errors->first('headlinePart1')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="headline-part2" class="col-sm-2 col-form-label">Headline part 2</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="headline-part2" name="headlinePart2" placeholder="Headline">
+                            @if ($errors->has('headlinePart2'))
+                                <span class="text-danger">{{$errors->first('headlinePart2')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="headline-part3" class="col-sm-2 col-form-label">Headline part 3</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="headline-part3" name="headlinePart3" placeholder="Headline">
+                            @if ($errors->has('headlinePart3'))
+                                <span class="text-danger">{{$errors->first('headlinePart3')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="description1" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="description1" name="description1" placeholder="Description">
+                            @if ($errors->has('description1'))
+                                <span class="text-danger">{{$errors->first('description1')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="description2" class="col-sm-2 col-form-label">Description 2</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="description2" name="description2" placeholder="Description">
+                            @if ($errors->has('description2'))
+                                <span class="text-danger">{{$errors->first('description2')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="finalUrl" class="col-sm-2 col-form-label">Final URL</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="finalUrl" name="finalUrl" placeholder="http://www.example.com">
+                            @if ($errors->has('finalUrl'))
+                                <span class="text-danger">{{$errors->first('finalUrl')}}</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="path1" class="col-sm-2 col-form-label">Path 1</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="path1" name="path1" placeholder="E.g path1 (for this kind of URL http://www.example.com/path1/)">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="path2" class="col-sm-2 col-form-label">Path 2</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="path2" name="path2" placeholder="E.g path2 (for this kind of URL http://www.example.com/path1/path2/)">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="ad-status" class="col-sm-2 col-form-label">Ad status</label>
+                        <div class="col-sm-6">
+                            <select class="browser-default custom-select" id="ad-status" name="adStatus" style="height: auto">
+                                <option value="0" selected>Enabled</option>
+                                <option value="1">Paused</option>
+                                {{-- <option value="2">Disabled</option> --}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-8">
+                            <button type="submit" class="mb-2 float-right">Create</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')

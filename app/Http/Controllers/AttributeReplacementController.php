@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\AttributeReplacement;
 use Illuminate\Http\Request;
+use App\AttributeReplacement;
 use Illuminate\Support\Facades\Auth;
 
 class AttributeReplacementController extends Controller
@@ -33,14 +33,13 @@ class AttributeReplacementController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $this->validate($request, [
             'field_identifier' => 'required',
-            'first_term' => 'required'
+            'first_term' => 'required',
         ]);
 
         $r = new AttributeReplacement();
@@ -52,7 +51,6 @@ class AttributeReplacementController extends Controller
         $r->save();
 
         return redirect()->back()->with('message', 'Added successfully!');
-
     }
 
     /**
@@ -64,9 +62,9 @@ class AttributeReplacementController extends Controller
     public function show($id, Request $request)
     {
         $r = AttributeReplacement::find($id);
-        if (!$r) {
+        if (! $r) {
             return response()->json([
-                'status' => 'success'
+                'status' => 'success',
             ]);
         }
 
@@ -74,14 +72,13 @@ class AttributeReplacementController extends Controller
         $r->save();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\AttributeReplacement  $attributeReplacement
      * @return \Illuminate\Http\Response
      */
     public function edit(AttributeReplacement $attributeReplacement)
@@ -92,8 +89,6 @@ class AttributeReplacementController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\AttributeReplacement  $attributeReplacement
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, AttributeReplacement $attributeReplacement)
@@ -104,7 +99,6 @@ class AttributeReplacementController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\AttributeReplacement  $attributeReplacement
      * @return \Illuminate\Http\Response
      */
     public function destroy(AttributeReplacement $attributeReplacement)

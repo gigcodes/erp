@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,52 +9,52 @@ use Illuminate\Database\Eloquent\Model;
 
 class Waybill extends Model
 {
-
-       /**
+    /**
      * @var string
-      * @SWG\Property(property="order_id",type="integer")
-      * @SWG\Property(property="customer_id",type="integer")
-      * @SWG\Property(property="waybills",type="string")
-      * @SWG\Property(property="box_length",type="string")
-      * @SWG\Property(property="box_width",type="string")
-      * @SWG\Property(property="box_height",type="string")
-      * @SWG\Property(property="volume_weight",type="string")
-      * @SWG\Property(property="package_slip",type="string")
-      * @SWG\Property(property="pickup_date",type="datetime")
-       * @SWG\Property(property="from_customer_id",type="integer")
-      * @SWG\Property(property="from_customer_name",type="string")
-      * @SWG\Property(property="from_city",type="string")
-      * @SWG\Property(property="from_country_code",type="string")
-      * @SWG\Property(property="from_customer_phone",type="string")
-      * @SWG\Property(property="from_customer_address_1",type="string")
-      * @SWG\Property(property="from_customer_address_2",type="string")
-      * @SWG\Property(property="from_customer_pincode",type="string")
-      * @SWG\Property(property="from_company_name",type="string")
-      * @SWG\Property(property="to_customer_id",type="integer")
-      * @SWG\Property(property="to_customer_name",type="string")
-      * @SWG\Property(property="to_city",type="string")
-      * @SWG\Property(property="to_country_code",type="string")
-      * @SWG\Property(property="to_customer_phone",type="string")
-      * @SWG\Property(property="to_customer_address_1",type="string")
-      * @SWG\Property(property="to_customer_address_2",type="string")
-      * @SWG\Property(property="to_customer_pincode",type="string")
-      * @SWG\Property(property="to_company_name",type="string")
-      * @SWG\Property(property="cost_of_shipment",type="string")
-      * @SWG\Property(property="duty_cost",type="string")
-      * @SWG\Property(property="pickuprequest",type="string")
+     *
+     * @SWG\Property(property="order_id",type="integer")
+     * @SWG\Property(property="customer_id",type="integer")
+     * @SWG\Property(property="waybills",type="string")
+     * @SWG\Property(property="box_length",type="string")
+     * @SWG\Property(property="box_width",type="string")
+     * @SWG\Property(property="box_height",type="string")
+     * @SWG\Property(property="volume_weight",type="string")
+     * @SWG\Property(property="package_slip",type="string")
+     * @SWG\Property(property="pickup_date",type="datetime")
+     * @SWG\Property(property="from_customer_id",type="integer")
+     * @SWG\Property(property="from_customer_name",type="string")
+     * @SWG\Property(property="from_city",type="string")
+     * @SWG\Property(property="from_country_code",type="string")
+     * @SWG\Property(property="from_customer_phone",type="string")
+     * @SWG\Property(property="from_customer_address_1",type="string")
+     * @SWG\Property(property="from_customer_address_2",type="string")
+     * @SWG\Property(property="from_customer_pincode",type="string")
+     * @SWG\Property(property="from_company_name",type="string")
+     * @SWG\Property(property="to_customer_id",type="integer")
+     * @SWG\Property(property="to_customer_name",type="string")
+     * @SWG\Property(property="to_city",type="string")
+     * @SWG\Property(property="to_country_code",type="string")
+     * @SWG\Property(property="to_customer_phone",type="string")
+     * @SWG\Property(property="to_customer_address_1",type="string")
+     * @SWG\Property(property="to_customer_address_2",type="string")
+     * @SWG\Property(property="to_customer_pincode",type="string")
+     * @SWG\Property(property="to_company_name",type="string")
+     * @SWG\Property(property="cost_of_shipment",type="string")
+     * @SWG\Property(property="duty_cost",type="string")
+     * @SWG\Property(property="pickuprequest",type="string")
      */
     protected $table = 'waybills';
 
     protected $fillable = [
-        'order_id', 
-        'customer_id', 
-        'awb', 
-        'box_length', 
-        'box_width', 
-        'box_height', 
-        'actual_weight', 
-        'volume_weight', 
-        'package_slip', 
+        'order_id',
+        'customer_id',
+        'awb',
+        'box_length',
+        'box_width',
+        'box_height',
+        'actual_weight',
+        'volume_weight',
+        'package_slip',
         'pickup_date',
         'from_customer_id',
         'from_customer_name',
@@ -86,7 +87,7 @@ class Waybill extends Model
      */
     public function order()
     {
-        return $this->belongsTo('App\Order', 'order_id');
+        return $this->belongsTo(\App\Order::class, 'order_id');
     }
 
     public function getDimensionAttribute()
@@ -96,18 +97,19 @@ class Waybill extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer', 'customer_id');
+        return $this->belongsTo(\App\Customer::class, 'customer_id');
     }
 
     public function waybill_track_histories()
     {
-        return $this->hasMany('App\waybillTrackHistories');
+        return $this->hasMany(\App\waybillTrackHistories::class);
     }
 
-    public static function PaymentMode(){
-        return array(
+    public static function PaymentMode()
+    {
+        return [
             'cash' => 'Cash',
-            'bank_transfer' => 'Bank Transfer'
-        );
+            'bank_transfer' => 'Bank Transfer',
+        ];
     }
 }

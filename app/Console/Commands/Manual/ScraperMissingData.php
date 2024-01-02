@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -41,12 +41,12 @@ class ScraperMissingData extends Command
     public function handle()
     {
         /*try {*/
-            $report = CronJobReport::create([
-                'signature'  => $this->signature,
-                'start_time' => Carbon::now(),
-            ]);
-            // Get one product per supplier
-            $sql = "
+        $report = CronJobReport::create([
+            'signature' => $this->signature,
+            'start_time' => Carbon::now(),
+        ]);
+        // Get one product per supplier
+        $sql = "
             SELECT
                 MAX(id),
                 website,
@@ -71,36 +71,36 @@ class ScraperMissingData extends Command
             GROUP BY
                 website
         ";
-            $results = \DB::select(DB::raw($sql));
+        $results = \DB::select(DB::raw($sql));
 
-            if ($results !== null) {
-                echo "website;SKU;URL;Brand;Gender;Category;Title;Description;Color;Sizes;Dimension;Images;Size System;Currency;Price;Discounted Price;Is Sale\n";
-                foreach ($results as $result) {
-                    // Get properties
-                    $properties = !empty($result->properties) ? unserialize($result->properties) : [];
+        if ($results !== null) {
+            echo "website;SKU;URL;Brand;Gender;Category;Title;Description;Color;Sizes;Dimension;Images;Size System;Currency;Price;Discounted Price;Is Sale\n";
+            foreach ($results as $result) {
+                // Get properties
+                $properties = ! empty($result->properties) ? unserialize($result->properties) : [];
 
-                    echo '"' . $result->website . '";' .
-                    '"' . $result->sku . '";' .
-                    '"' . $result->url . '";' .
-                    '"' . $result->brand_id . '";' .
-                    '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
-                    '"' . (!empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
-                    '"' . $result->title . '";' .
-                    '"' . str_replace('"', "'", $result->description) . '";' .
-                    '"' . (!empty($properties['color']) ? $properties['color'] : '') . '";' .
-                    '"' . (!empty($properties['sizes']) && is_array($properties['sizes']) ? implode('.', $properties['sizes']) : '') . '";' .
-                    '"' . (!empty($properties['dimension']) && is_array($properties['dimension']) ? implode(',', $properties['dimension']) : '') . '";' .
-                    '"' . (!empty($properties['images']) && is_array($properties['images']) ? implode(',', $properties['images']) : '') . '";' .
-                    '"' . $result->size_system . '";' .
-                    '"' . $result->currency . '";' .
-                    $result->price . ';' .
-                    $result->discounted_price . ';' .
-                    $result->is_sale . ';' .
-                        "\n";
-                }
+                echo '"' . $result->website . '";' .
+                '"' . $result->sku . '";' .
+                '"' . $result->url . '";' .
+                '"' . $result->brand_id . '";' .
+                '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
+                '"' . (! empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
+                '"' . $result->title . '";' .
+                '"' . str_replace('"', "'", $result->description) . '";' .
+                '"' . (! empty($properties['color']) ? $properties['color'] : '') . '";' .
+                '"' . (! empty($properties['sizes']) && is_array($properties['sizes']) ? implode('.', $properties['sizes']) : '') . '";' .
+                '"' . (! empty($properties['dimension']) && is_array($properties['dimension']) ? implode(',', $properties['dimension']) : '') . '";' .
+                '"' . (! empty($properties['images']) && is_array($properties['images']) ? implode(',', $properties['images']) : '') . '";' .
+                '"' . $result->size_system . '";' .
+                '"' . $result->currency . '";' .
+                $result->price . ';' .
+                $result->discounted_price . ';' .
+                $result->is_sale . ';' .
+                    "\n";
             }
+        }
 
-            $report->update(['end_time' => Carbon::now()]);
+        $report->update(['end_time' => Carbon::now()]);
         /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }*/

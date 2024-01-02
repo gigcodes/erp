@@ -17,7 +17,7 @@
                 <strong>Assign Keyword To Category/Lead Status/Order Status</strong>
             </div>
             <div class="panel-body">
-                <form action="{{ action('KeywordToCategoryController@store') }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\KeywordToCategoryController::class, 'store']) }}" method="post">
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
@@ -90,7 +90,7 @@
                             @endif
                         </td>
                         <td>
-                            <form method="post" action="{{ action('KeywordToCategoryController@destroy', $keyword->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\KeywordToCategoryController::class, 'destroy'], $keyword->id) }}">
                                 <button class="btn btn-image btn-xs">
                                     @csrf
                                     @method('DELETE')

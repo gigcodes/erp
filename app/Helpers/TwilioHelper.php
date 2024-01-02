@@ -17,14 +17,14 @@ class TwilioHelper
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
-            die;
+            exit;
         }
         curl_close($ch);
+
         return $result;
     }
 
-
-    public static function curlPostRequest($url, $post_params , $user_cred)
+    public static function curlPostRequest($url, $post_params, $user_cred)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -38,7 +38,7 @@ class TwilioHelper
             return curl_error($ch);
         }
         curl_close($ch);
+
         return $result;
     }
-
 }

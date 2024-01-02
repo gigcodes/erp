@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\OrderProduct;
-use App\CustomerCharity;
 use App\CashFlow;
-
+use App\OrderProduct;
+use Illuminate\Console\Command;
 
 class PostCharitiesAmountToCashflow extends Command
 {
@@ -41,65 +39,57 @@ class PostCharitiesAmountToCashflow extends Command
      */
     public function handle()
     {
-       
-        $date2=date('Y-m-d');
-        $date1=date('Y-m-d', mktime(0, 0, 0, date("m"), date("d")-7, date("Y")));
-        $co= OrderProduct::select('order_products.*','customer_charities.id as charity_id ')
-       ->join('customer_charities','customer_charities.product_id','order_products.product_id')
-       ->join('orders','orders.id','order_products.order_id')
-       ->whereRaw("date(orders.order_date) between date('$date1') and date('$date2')" )
+        $date2 = date('Y-m-d');
+        $date1 = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 7, date('Y')));
+        $co = OrderProduct::select('order_products.*', 'customer_charities.id as charity_id ')
+       ->join('customer_charities', 'customer_charities.product_id', 'order_products.product_id')
+       ->join('orders', 'orders.id', 'order_products.order_id')
+       ->whereRaw("date(orders.order_date) between date('$date1') and date('$date2')")
        ->get();
-       foreach($co as $o)   
-       {
-           $total=$o->order_price;
-           if($total > 0) {
-                $total=$total * 2 ;
-                $date=date("Y-m-d");
-                $total = number_format($total,2);
-                $user_id = !empty(auth()->id()) ? auth()->id() : 6;
-                $cf=CashFlow::where('cash_flow_able_id',$o->charity_id)->where('cash_flow_able_type','\App\CustomerCharity::class')->first();
-                if (!$cf)
-                {
+        foreach ($co as $o) {
+            $total = $o->order_price;
+            if ($total > 0) {
+                $total = $total * 2;
+                $date = date('Y-m-d');
+                $total = number_format($total, 2);
+                $user_id = ! empty(auth()->id()) ? auth()->id() : 6;
+                $cf = CashFlow::where('cash_flow_able_id', $o->charity_id)->where('cash_flow_able_type', '\App\CustomerCharity::class')->first();
+                if (! $cf) {
                     CashFlow::create([
-                            'date'                => $date,
-                            'amount'              => $total,
-                            'type'                => 'pending',
-                            'currency'            => $o->currency,
-                            'status'              => 1,
-                            'order_status'        => 'pending',
-                            'user_id'             => $o->charity_id,
-                            'updated_by'          => $user_id,
-                            'cash_flow_able_id'   => $o->charity_id,
-                            'cash_flow_able_type' => \App\CustomerCharity::class,
-                            'description'         => 'charities payment',
-                        ]);
-                       
-                        $template = \App\MailinglistTemplate::getMailTemplate('Charity Confirmation');
-                        $order= \App\Order::where('id',$o->order_id)->first();
-                        $emailClass = (new CharityConfirmation($order))->build();
-                        
-                        if ($template)
-                                {
-                                   
-                                    $email = \App\Email::create([
-                                        'model_id'        => $order->customer_id,
-                                        'model_type'      => \App\Customer::class,
-                                        'from'            =>  $emailClass->fromMailer,
-                                        'to'              => $email,
-                                        'subject'         => $emailClass->subject,
-                                        'message'         => $emailClass->render(),
-                                        'template'        => 'Charity Confirmation',
-                                        'additional_data' => '',
-                                        'status'          => 'pre-send',
-                                        'is_draft'        => 1,
-                                    ]);
-                                    \App\Jobs\SendEmail::dispatch($email);
-                                }
-                 }
+                        'date' => $date,
+                        'amount' => $total,
+                        'type' => 'pending',
+                        'currency' => $o->currency,
+                        'status' => 1,
+                        'order_status' => 'pending',
+                        'user_id' => $o->charity_id,
+                        'updated_by' => $user_id,
+                        'cash_flow_able_id' => $o->charity_id,
+                        'cash_flow_able_type' => \App\CustomerCharity::class,
+                        'description' => 'charities payment',
+                    ]);
 
-            }   
-       }
-       
-       
+                    $template = \App\MailinglistTemplate::getMailTemplate('Charity Confirmation');
+                    $order = \App\Order::where('id', $o->order_id)->first();
+                    $emailClass = (new CharityConfirmation($order))->build();
+
+                    if ($template) {
+                        $email = \App\Email::create([
+                            'model_id' => $order->customer_id,
+                            'model_type' => \App\Customer::class,
+                            'from' => $emailClass->fromMailer,
+                            'to' => $email,
+                            'subject' => $emailClass->subject,
+                            'message' => $emailClass->render(),
+                            'template' => 'Charity Confirmation',
+                            'additional_data' => '',
+                            'status' => 'pre-send',
+                            'is_draft' => 1,
+                        ]);
+                        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
+                    }
+                }
+            }
+        }
     }
 }

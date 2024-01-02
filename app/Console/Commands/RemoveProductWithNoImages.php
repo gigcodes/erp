@@ -38,18 +38,18 @@ class RemoveProductWithNoImages extends Command
     public function handle()
     {
         //
-        $products = \App\Product::where("is_barcode_check",1)->limit(10000)->get();
-        if(!$products->isEmpty()) {
-            foreach($products as $product) {
+        $products = \App\Product::where('is_barcode_check', 1)->limit(10000)->get();
+        if (! $products->isEmpty()) {
+            foreach ($products as $product) {
                 $medias = $product->getAllMediaByTag();
-                if(!$medias->isEmpty()) {
-                    foreach($medias as $t => $media) {
-                        if(!$media->isEmpty()) {
-                            foreach($media as $med) {
+                if (! $medias->isEmpty()) {
+                    foreach ($medias as $t => $media) {
+                        if (! $media->isEmpty()) {
+                            foreach ($media as $med) {
                                 $path = $med->getAbsolutePath();
-                                if(!file_exists($path)) {
+                                if (! file_exists($path)) {
                                     $med->delete();
-                                    echo $product->id." > $t > $path deleted";
+                                    echo $product->id . " > $t > $path deleted";
                                     echo PHP_EOL;
                                 }
                             }

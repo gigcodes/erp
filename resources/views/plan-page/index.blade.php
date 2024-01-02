@@ -9,11 +9,11 @@
 
 .edit-plan{background: transparent;color: #000;border:0;padding:10px 5px 5px 10px;font-size:15px;}
 .delete-btn{padding:7px 5px 5px;border:0;}
-.edit-plan:hover ,.add-sub-plan:hover { background: transparent; color: #000 !important; border: 0; }
-.add-sub-plan {background: transparent;color: #000;border:0;font-size:20px;padding:10px 5px 5px;}
-.edit-plan:focus, .add-sub-plan:focus,.delete-btn:focus { background: transparent; color: #000 !important; border: none; box-shadow: none; outline: 0; }
-.edit-plan:active, .add-sub-plan:active, .delete-btn:active { background-color: transparent !important; color: #000 !important; border: none; box-shadow: none !important; outline: 0 !important; }
-.add-sub-plan:focus-visible, .edit-sub-plan:focus-visible{ outline: 0; }
+.edit-plan:hover ,.add-sub-plan:hover, .add_plan_action_data:hover, .delete_field:hover{ background: transparent; color: #000 !important; border: 0; }
+.add-sub-plan,.add_plan_action_data,.delete_field {background: transparent;color: #000;border:0;font-size:20px;padding:10px 5px 5px;}
+.edit-plan:focus, .add-sub-plan:focus,.delete-btn:focus,.add_plan_action_data:focus,.delete_field:focus { background: transparent; color: #000 !important; border: none; box-shadow: none; outline: 0; }
+.edit-plan:active, .add-sub-plan:active, .delete-btn:active,.add_plan_action_data:active ,.delete_field:active { background-color: transparent !important; color: #000 !important; border: none; box-shadow: none !important; outline: 0 !important; }
+.add-sub-plan:focus-visible, .edit-sub-plan:focus-visible,.add_plan_action_data:focus-visible,.delete_field:focus-visible{ outline: 0; }
 .expand-2 > td:first-child { border-bottom: 0 !important; border-top: 0; }
 table#store_website-analytics-table tr td:last-child { width: 150px; }
 .r-date{width:95px;}
@@ -26,10 +26,16 @@ table th{font-weight: normal;font-size: 15px;color: #000;}
 table td{font-weight: normal;font-size: 14px;color: #757575;}
 td button.btn {padding: 0;}
 div#plan-action textarea {height: 200px;}
+.switch{position:relative;display:inline-block;width:29px;height:19px;margin-bottom:0;margin-right:11px}.actions-main-sub{vertical-align:middle;display:flex;align-items:center}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;-webkit-transition:.4s;transition:.4s}.slider:before{position:absolute;content:"";height:14px;width:14px;left:4px;bottom:3px;background-color:#fff;-webkit-transition:.4s;transition:.4s}input:checked+.slider{background-color:#2196f3}input:focus+.slider{box-shadow:0 0 1px #2196f3}input:checked+.slider:before{-webkit-transform:translateX(7px);-ms-transform:translateX(7px);transform:translateX(7px)}.slider.round{border-radius:34px}.slider.round:before{border-radius:50%}#loading-image{position:fixed;top:50%;left:50%;margin:-50px 0 0 -50px;z-index:60}
 </style>
+
+<div id="myDiv">
+    <img id="loading-image" src="/images/pre-loader.gif" style="display:none;" />
+</div>
 <div class="col-md-12 p-0">
   <h2 class="page-heading">Plans page</h2>
 </div>
+@include('partials.flash_messages')
 <div class="col-md-12">
 <div class="row">
     <div class="col-lg-12 margin-tb">
@@ -43,7 +49,7 @@ div#plan-action textarea {height: 200px;}
               <div class="form-group col-md-2 mr-3s mb-3 no-pd">
                   <input name="date" type="date" class="form-control" value="{{ request('date') }}" placeholder="Search.." style="width:100%;">
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                 <select class="form-control" name="typefilter">
                     <option value="">Select Type</option>
                     @foreach($typeList as $value )
@@ -51,15 +57,15 @@ div#plan-action textarea {height: 200px;}
                     @endforeach;
                 </select>
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                 <select class="form-control" name="categoryfilter">
-                    <option value="">Select Type</option>
+                    <option value="">Select Category</option>
                     @foreach($categoryList as $value )
                         <option value="{{$value->category}}">{{$value->category}}</option>
                     @endforeach;
                 </select>
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                   <select class="form-control" name="priority">
                       <option value="">Select priority</option>
                       <option value="high">High</option>
@@ -67,7 +73,7 @@ div#plan-action textarea {height: 200px;}
                       <option value="low">Low</option>
                   </select>
               </div>
-              <div class="form-group col-md-1 mr-3s no-pd">
+              <div class="form-group col-md-2 mr-3s no-pd">
                   <select class="form-control" name="status">
                       <option value="">Select status</option>
                       <option value="complete">complete</option>
@@ -76,6 +82,7 @@ div#plan-action textarea {height: 200px;}
               </div>
               <div class="col-md-1 no-pd">
               <button type="submit" class="btn mt-0 btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+              <a href="{{route('plan.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
               </div>
               
               <div class="col-md-4">
@@ -92,7 +99,6 @@ div#plan-action textarea {height: 200px;}
        
 </div>
 </div>
-@include('partials.flash_messages')
  <div class="col-md-12">
 <div class="table-responsive">
     <table class="table table-bordered" id="store_website-analytics-table"style="table-layout: fixed;">
@@ -103,14 +109,15 @@ div#plan-action textarea {height: 200px;}
                 <th width="6%">Category</th>
                 <th width="6%">Subject</th>
                 <th width="7%">Sub subject</th>
-                <th width="8%">Description</th>
-                <th width="5%">Priority</th>
-                <th width="5%">Budget</th>
-                <th width="4%">Basis</th>
-                <th width="7%">Implications</th>
                 <th width="8%">Solutions</th>
                 <th width="6%">DeadLine</th>
-                <th width="5%">status</th>
+                <th width="5%">Budget</th>
+                <th width="4%">Basic</th>
+                <th width="7%">Implications</th>
+                <th width="15%">Priority</th>
+                <th width="8%">Description</th>
+                <th width="15%">Remarks</th>
+                <th width="8%">status</th>
                 <th width="7%">Date</th>
                 <th width="8%">Action</th>
             </tr>
@@ -123,22 +130,40 @@ div#plan-action textarea {height: 200px;}
                 <td class="Website-task" style="vertical-align:middle">{{$record->category}}</td>
                 <td class="Website-task" style="vertical-align:middle">{{$record->subject}}</td>
                 <td class="Website-task" style="vertical-align:middle">{{$record->sub_subject}}</td>
-                <td width="15%" style="vertical-align:middle">
-                    <span class="toggle-title-box has-small" data-small-title="<?php echo substr($record->description, 0, 10).'..' ?>" data-full-title="<?php echo ($record->description) ? $record->description : '' ?>">
-                        <?php
-                            if($record->description) {
-                                echo (strlen($record->description) > 12) ? substr($record->description, 0, 10).".." : $record->description;
-                            }
-                         ?>
-                     </span>
-                </td>
-                <td style="vertical-align:middle">{{$record->priority}}</td>
+                <td style="display: flex; vertical-align: middle;"><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle ml-2"></i></button></td>
+                <td class="r-date" style="vertical-align:middle">{{$record->deadline}}</td>
                 <td style="vertical-align:middle">{{$record->budget}}</td>
                 <td class="Website-task"style="vertical-align:middle">{{$record->basis}}</td>
                 <td class="Website-task"style="vertical-align:middle">{{$record->implications}}</td>
-                <td style="display: flex; vertical-align: middle;"><input type="text" class="form-control solutions" name="solutions" data-id="{{$record->id}}"><button type="button" class="btn btn-image show-solutions" data-id="{{$record->id}}"><i class="fa fa-info-circle ml-2"></i></button></td>
-                <td class="r-date" style="vertical-align:middle">{{$record->deadline}}</td>
-                <td>{{$record->status}}</td>
+                <td style="vertical-align:middle">{{$record->priority}}</td>
+                <td width="15%" style="vertical-align:middle">
+                  <span class="toggle-title-box has-small" data-small-title="<?php echo substr($record->description, 0, 10).'..' ?>" data-full-title="<?php echo ($record->description) ? $record->description : '' ?>">
+                      <?php
+                          if($record->description) {
+                              echo (strlen($record->description) > 12) ? substr($record->description, 0, 10).".." : $record->description;
+                          }
+                       ?>
+                   </span>
+              </td>   
+                <td>
+                  <div style="width: 100%;">
+                    <div class="d-flex">
+                      <input type="text" name="remark_pop" class="form-control remark-plan{{$record->id}}" placeholder="Please enter remark" style="margin-bottom:5px;width:100%;display:inline;">
+                      <button type="button" class="btn btn-sm btn-image add_remark" title="Send message" data-record_id="{{$record->id}}">
+                          <img src="{{asset('images/filled-sent.png')}}">
+                      </button>
+                    <button data-record_id="{{$record->id}}" class="btn btn-xs btn-image show-plan-remark" title="Remark"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                    <select class="form-control plan-status" name="plan-status">
+                      <option value="">Please Select status</option>
+                      <option value="complete" {{ ($record->status == "complete") ? "selected" : "" }} data-id ="{{$record->id}}">complete</option>
+                      <option value="pending" {{ ($record->status == "pending") ? "selected" : "" }}  data-id ="{{$record->id}}">pending</option>
+                  </select>
+                  </td>
+              
                 <td class="r-date"style="vertical-align:middle">{{$record->date}}</td>
                 <td class="actions-main"style="vertical-align:middle">
                     <button type="button" class="btn mt-0 btn-secondary edit-plan" data-id="{{$record->id}}"><i class="fa fa-edit"></i></button>
@@ -153,35 +178,35 @@ div#plan-action textarea {height: 200px;}
                 </td>
             </tr>
             <tr class="expand-{{$record->id}} hidden">
-                <th colspan="9" style="border:none;"></th>
-                <th>Remark</th>
-                <th>description</th>
+                <th colspan="10" style="border:none;"></th>
                 <th>priority</th>
+                <th>description</th>
+                <th>Remark</th>
                 <th>status</th>
                 <th>date</th>
                 <th>Action</th>
                 @foreach( $record->subList( $record->id ) as $sublist)
                     <tr class="expand-{{$record->id}} hidden" >
-                        <td colspan="9" class="no-border"></td>
-                        <td width="10%">
-                            <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
-                                <?php
-                                    if($sublist->remark) {
-                                        echo (strlen($sublist->remark) > 12) ? substr($sublist->remark, 0, 10).".." : $sublist->remark;
-                                    }
-                                 ?>
-                             </span>
-                        </td>
-                        <td width="15%">
-                            <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->description, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->description) ? $sublist->description : '' ?>">
-                                <?php
-                                    if($sublist->description) {
-                                        echo (strlen($sublist->description) > 12) ? substr($sublist->description, 0, 10).".." : $sublist->description;
-                                    }
-                                 ?>
-                             </span>
-                        </td>
+                        <td colspan="10" class="no-border"></td>
                         <td>{{$sublist->priority}}</td>
+                        <td width="15%">
+                          <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->description, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->description) ? $sublist->description : '' ?>">
+                              <?php
+                                  if($sublist->description) {
+                                      echo (strlen($sublist->description) > 12) ? substr($sublist->description, 0, 10).".." : $sublist->description;
+                                  }
+                               ?>
+                           </span>
+                      </td>
+                        <td width="10%">
+                          <span class="toggle-title-box has-small" data-small-title="<?php echo substr($sublist->remark, 0, 10).'..' ?>" data-full-title="<?php echo ($sublist->remark) ? $sublist->remark : '' ?>">
+                              <?php
+                                  if($sublist->remark) {
+                                      echo (strlen($sublist->remark) > 12) ? substr($sublist->remark, 0, 10).".." : $sublist->remark;
+                                  }
+                               ?>
+                           </span>
+                      </td>
                         <td>{{$sublist->status}}</td>
                         <td>{{$sublist->date}}</td>
                         <td>
@@ -265,7 +290,7 @@ div#plan-action textarea {height: 200px;}
 </div>
 
 <div class="modal fade" id="plan-action" tabindex="-1" role="dialog" aria-labelledby="plan-action" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-lg" role="document" style="min-width: 80%;">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="plan-action">Plan Action</h5>
@@ -278,56 +303,8 @@ div#plan-action textarea {height: 200px;}
           <div class="modal-body">
             <div class="container-fluid">
                   @csrf
-                  <table class="table table-bordered">
-                    <tr>
-                      <td>
-                        <label  class="col-form-label">Strength</label>
-                        <textarea name="strength" class="form-control"></textarea>
-                      </td>
-                      <td>
-                        <label  class="col-form-label">Weakness</label>
-                        <textarea name="weakness" class="form-control"></textarea>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <label  class="col-form-label">Opportunity</label>
-                        <textarea name="opportunity" class="form-control"></textarea>
-                      </td>
-                      <td>
-                        <label  class="col-form-label">Threat</label>
-                        <textarea name="threat" class="form-control"></textarea>
-                      </td>
-                    </tr>
+                  <table class="table table-bordered planactionadd_content_table">
                   </table>
-                  <div class="row subject-field">
-                      <!-- <div class="col-md-6">
-                          <div class="form-group">
-                            <label  class="col-form-label">Strength</label>
-                            <textarea name="strength"></textarea>
-                          </div>
-                      </div> -->
-                      <!-- <div class="col-md-6">
-                          <div class="form-group">
-                            <label  class="col-form-label">Weakness</label>
-                            <textarea name="weakness"></textarea>
-                          </div>
-                      </div> -->
-                  </div>
-                  <div class="row subject-field">
-                      <!-- <div class="col-md-6">
-                          <div class="form-group">
-                            <label  class="col-form-label">Opportunity</label>
-                            <textarea name="opportunity"></textarea>
-                          </div>
-                      </div> -->
-                      <!-- <div class="col-md-6">
-                          <div class="form-group">
-                            <label  class="col-form-label">Threat</label>
-                            <textarea name="threat"></textarea>
-                          </div>
-                      </div> -->
-                  </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -441,7 +418,7 @@ div#plan-action textarea {height: 200px;}
                       <div class="col-md-6">
                           <div class="form-group">
                             <label  class="col-form-label">Subject:</label>
-                            <input type="text" name="subject" class="form-control" required="required">
+                            <input type="text" id="plan_sub" name="subject" class="form-control" required="required">
                           </div>
                       </div>
                       <div class="col-md-6">
@@ -643,41 +620,83 @@ div#plan-action textarea {height: 200px;}
   </div>
 </div>
 
+<div id="plan-list-remark-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title">Task Remark</h4>
+          </div>
+          <div class="modal-body">
+              <div class="col-md-12">
+                  <table class="table table-bordered">
+                      <thead>
+                      <tr>
+                          <th style="width:1%;">ID</th>
+                          <th style=" width: 12%">Update By</th>
+                          <th style="word-break: break-all; width:12%">Remark</th>
+                          <th style="width: 11%">Created at</th>
+                          <th style="width: 11%">Action</th>
+                      </tr>
+                      </thead>
+                      <tbody class="plan-reamrk-list-view">
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
 @endsection
 
 <script>
 
-$(document).on('click','.new-plan', function (event) {
-    $('#parent_id').val('');
-    $('#edit_id').val('');
-    $('.remark-field').addClass('hidden');
-    $('.subject-field').removeClass('hidden')
-    $('#planadd')[0].reset();
+    $(document).on('click','.new-plan', function (event) {
+        $('#parent_id').val('');
+        $('#edit_id').val('');
+        $('.remark-field').addClass('hidden');
+        $('.subject-field').removeClass('hidden')
+        $('#planadd')[0].reset();
 
-});
+    });
 
-$('#myModal').on('hidden.bs.modal', function () {
-  
-})
+    $('#myModal').on('hidden.bs.modal', function () {
 
-$(document).on('click', '.preview-attached-img-btn', function (e) {     
-    e.preventDefault();
-    var planId = $(this).data('id');
-    var expand = $('.expand-'+planId);
-    $(expand).toggleClass('hidden');
+    })
 
-});
-$(document).on('click','.add-sub-plan', function (event) {
-    var id = $(this).data('id');
-    $('#sub_edit_id').val('');
-    $('#sub_parent_id').val(id);
-    $('#sub_planadd')[0].reset();
-   
-});
+    $(document).on('click', '.preview-attached-img-btn', function (e) {
+        e.preventDefault();
+        var planId = $(this).data('id');
+        var expand = $('.expand-'+planId);
+        $(expand).toggleClass('hidden');
 
+    });
+
+    //change code to solve bug
+    $(document).on('click','.add-sub-plan', function (event) {
+        var id = $(this).data('id');
+        $('#sub_edit_id').val('');
+        // $('#sub_parent_id').val(id); //not using this modal
+        $('#parent_id').val(id);
+        $('#sub_planadd')[0].reset();
+        $("#plan_type").prop('required',false);
+        $("#plan_cat").prop('required',false);
+        $("#plan_sub").prop('required',false);
+        $('.remark-field').removeClass('hidden');
+        $('.subject-field').addClass('hidden');
+    });
+
+    //change code to solve bug
     $(document).on('click','.edit-plan', function (event) {
         $('.remark-field').addClass('hidden');
         $('.subject-field').removeClass('hidden')
+        $("#plan_type").prop('required',true);
+        $("#plan_cat").prop('required',true);
+        $("#plan_sub").prop('required',true);
+
         $('#planadd')[0].reset();
         var id = $(this).data('id');
         $('#parent_id').val('');
@@ -692,22 +711,29 @@ $(document).on('click','.add-sub-plan', function (event) {
                 $("#loading-image").show();
             }
         }).done(function (data) {
-            console.log(data);
+            $("#loading-image").hide();
             if(data.code == 200){
+                $('input[name="type"]').val(data.object.type);
+                $('input[name="category"]').val(data.object.category);
                 $('input[name="subject"]').val(data.object.subject);
                 $('input[name="sub_subject"]').val(data.object.sub_subject);
                 $('select[name="priority"]').val(data.object.priority).change();
                 $('select[name="status"]').val(data.object.status).change();
-                $('select[name="basis"]').val(data.object.basis).change();
+                // $('select[name="basis"]').val(data.object.basis).change();
+                $('input[name="basis"]').val(data.object.basis).change();
                 $('input[name="date"]').val(data.object.date);
                 $('input[name="budget"]').val(data.object.budget);
                 $('input[name="deadline"]').val(data.object.deadline);
+                $('input[name="implications"]').val(data.object.implications);
                 $('textarea[name="description"]').val(data.object.description);
                 $('textarea[name="remark"]').val(data.object.remark);
                 $('#parent_id').val(data.object.parent_id);
                 if( data.object.parent_id != null ){
+                    $("#plan_type").prop('required',false);
+                    $("#plan_cat").prop('required',false);
+                    $("#plan_sub").prop('required',false);
                     $('.remark-field').removeClass('hidden');
-                    $('.subject-field').addClass('hidden')
+                    $('.subject-field').addClass('hidden');
                 }
                 $('#myModal').modal('toggle');
             }else{
@@ -719,140 +745,309 @@ $(document).on('click','.add-sub-plan', function (event) {
       
     });
 
-$(document).ready(function () {
-    (function ($) {
-        $('#filter').keyup(function () {
-            var rex = new RegExp($(this).val(), 'i');
-            $('.searchable tr').hide();
-            $('.searchable tr').filter(function () {
-                return rex.test($(this).text());
-            }).show();
-        })
+    $(document).ready(function () {
+        (function ($) {
+            $('#filter').keyup(function () {
+                var rex = new RegExp($(this).val(), 'i');
+                $('.searchable tr').hide();
+                $('.searchable tr').filter(function () {
+                    return rex.test($(this).text());
+                }).show();
+            })
 
-        $(document).on("click",".find-records",function(e){
-            e.preventDefault();
-            var id = $(this).data("id");
+            $(document).on("click",".find-records",function(e){
+                e.preventDefault();
+                var id = $(this).data("id");
+                $.ajax({
+                    url: "/store-website-analytics/report/"+id,
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    $(".bd-report-modal-lg .modal-body").empty().html(data);
+                    $(".bd-report-modal-lg").modal("show");
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+            });
+
+        }(jQuery));
+    });
+
+    $(document).on("click",".toggle-title-box",function(ele) {
+        var $this = $(this);
+        if($this.hasClass("has-small")){
+            $this.html($this.data("full-title"));
+            $this.removeClass("has-small")
+        }else{
+            $this.addClass("has-small")
+            $this.html($this.data("small-title"));
+        }
+    });
+
+    $(document).on('change','.plan-status',function(e){
+      if($(this).val() != "" && ($('option:selected', this).attr('data-id') != "" || $('option:selected', this).attr('data-id') != undefined)){
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type : "POST",
+          url : "{{ route('plan.status.update') }}",
+          data : {
+            status : $('option:selected', this).val(),
+            plan_id : $('option:selected', this).attr('data-id')
+          },
+          success : function (response){
+             location.reload();
+             toastr['success'](response.message, 'success');
+          },
+          error : function (response){
+            toastr['error']("An error occurred");
+          }
+        })
+      }
+  });
+
+  $(document).on("click",".add_remark",function(e) {
+        e.preventDefault();
+        var thiss = $(this);
+        var plan_id = $(this).data('record_id');
+        var remark = $(`.remark-plan`+plan_id).val();
+        $.ajax({
+            type: "POST",
+            url: "{{ route('plan.reamrk.add') }}",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              plan_id : plan_id,
+              remark : remark,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
+                $("#loading-image").hide();
+                toastr['success'](response.message);
+        }).fail(function (response) {
+            $("#loading-image").hide();
+            toastr['error'](response.message);
+        });
+    });
+
+    $(document).on("click",".show-plan-remark",function(e) {
+        e.preventDefault();
+        var record_id = $(this).data('record_id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('plan.remark.list') }}",
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              recordId : record_id,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (response) {
+                $("#loading-image").hide();
+                $("#plan-list-remark-modal").modal("show");
+                $(".plan-reamrk-list-view").html(response.data);
+                toastr['success'](response.message);
+        }).fail(function (response) {
+            toastr['error'](response.message);
+        });
+    });
+
+    //old code
+    // $(document).on("click",".plan-action",function(ele) {
+    //   var id = $(this).data('id');
+    //   $("#plan-action").find('input[name="id"]').attr('value',id);
+    //   $.ajax({
+    //       url: "/plan/"+id+"/plan-action",
+    //       beforeSend: function () {
+    //           $("#loading-image").show();
+    //       }
+    //   }).done(function (data) {
+    //     console.log(data.strength);
+    //       $("#loading-image").hide();
+    //       $("#plan-action").find('textarea[name="strength"]').text(data.strength);
+    //       $("#plan-action").find('textarea[name="weakness"]').text(data.weakness);
+    //       $("#plan-action").find('textarea[name="opportunity"]').text(data.opportunity);
+    //       $("#plan-action").find('textarea[name="threat"]').text(data.threat);
+    //       $("#plan-action").find('input[name="id"]').attr('value',data.id);
+    //       $("#plan-action").modal("show");
+    //   }).fail(function (jqXHR, ajaxOptions, thrownError) {
+    //       alert('No response from server');
+    //   });
+    // });
+
+    //change code by new requirement
+    $(document).on("click",".plan-action",function(ele) {
+        var id = $(this).data('id');
+        $("#plan-action").find('input[name="id"]').attr('value',id);
+        var url = '{{ route("plan.action.addons", ":id") }}';
+        url = url.replace(':id', id);      
+        $.ajax({
+            url: url,
+            beforeSend: function () {
+                $("#loading-image").show();
+            }
+        }).done(function (data) {
+            $("#loading-image").hide();
+            $('.planactionadd_content_table').html(data);
+            $("#plan-action").modal("show");
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            $("#loading-image").hide();
+            alert('No response from server');
+        });
+    });
+    $(document).on("click",".show-solutions",function(ele) {
+      var id = $(this).data('id');
+      var url = '{{ route("plan.show.solutions", ":id") }}';
+      url = url.replace(':id', id);
+      $.ajax({
+          url: url,
+          beforeSend: function () {
+              $("#loading-image").show();
+          }
+      }).done(function (data) {
+          $("#loading-image").hide();
+          //show-plans-here
+          var $html='';
+          $.each(data, function(i, item) {
+              $html+="<tr>";
+              $html+="<td>"+item.solution+"</td>";
+              $html+="</tr>";
+          });
+          $('.show-plans-here').html($html)
+          $("#plan-solutions").modal("show");
+      }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          $("#loading-image").hide();
+          alert('No response from server');
+      });
+    });
+    $(document).on("keyup",".solutions",function(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+          if($(this).val().length > 0){
             $.ajax({
-                url: "/store-website-analytics/report/"+id,
+                type: 'POST',
+                url: "{{ route('plan.solution.store') }}",
+                data: {
+                  _token: "{{ csrf_token() }}",
+                  solution: $(this).val(),
+                  id: $(this).data('id')
+                },
                 beforeSend: function () {
                     $("#loading-image").show();
                 }
             }).done(function (data) {
                 $("#loading-image").hide();
-                $(".bd-report-modal-lg .modal-body").empty().html(data);
-                $(".bd-report-modal-lg").modal("show");
+              console.log(data.strength);
+                $("#plan-action").modal("hide");
+                toastr["success"]('Data save successfully.');
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
+                $("#loading-image").hide();
+                $("#plan-action").modal("hide");
+                toastr["error"]('An error occured!');
             });
-        });
-
-    }(jQuery));
-});
-
-$(document).on("click",".toggle-title-box",function(ele) {
-    var $this = $(this);
-    if($this.hasClass("has-small")){
-        $this.html($this.data("full-title"));
-        $this.removeClass("has-small")
-    }else{
-        $this.addClass("has-small")
-        $this.html($this.data("small-title"));
-    }
-});
-$(document).on("click",".plan-action",function(ele) {
-  var id = $(this).data('id');
-  $("#plan-action").find('input[name="id"]').attr('value',id);
-  $.ajax({
-      url: "/plan/"+id+"/plan-action",
-      beforeSend: function () {
-          $("#loading-image").show();
+          }
       }
-  }).done(function (data) {
-    console.log(data.strength);
-      $("#loading-image").hide();
-      $("#plan-action").find('textarea[name="strength"]').text(data.strength);
-      $("#plan-action").find('textarea[name="weakness"]').text(data.weakness);
-      $("#plan-action").find('textarea[name="opportunity"]').text(data.opportunity);
-      $("#plan-action").find('textarea[name="threat"]').text(data.threat);
-      $("#plan-action").find('input[name="id"]').attr('value',data.id);
-      $("#plan-action").modal("show");
-  }).fail(function (jqXHR, ajaxOptions, thrownError) {
-      alert('No response from server');
-  });
-});
-$(document).on("click",".show-solutions",function(ele) {
-  var id = $(this).data('id');
-  $.ajax({
-      url: "/plan/plan-action/solutions-get/"+id,
-      beforeSend: function () {
-          $("#loading-image").show();
-      }
-  }).done(function (data) {
-    console.log(data);
-      $("#loading-image").hide();
-      //show-plans-here
-      var $html='';
-      $.each(data, function(i, item) {
-          $html+="<tr>";
-          $html+="<td>"+item.solution+"</td>";
-          $html+="</tr>";
-      });
-      $('.show-plans-here').html($html)
-      $("#plan-solutions").modal("show");
-  }).fail(function (jqXHR, ajaxOptions, thrownError) {
-      alert('No response from server');
-  });
-});
-$(document).on("keyup",".solutions",function(event) {
-  if (event.keyCode === 13) {
-    event.preventDefault();
-      if($(this).val().length > 0){
+    });
+
+    //old code
+    {{--$(document).on("submit","#planactionadd",function(event) {--}}
+    {{--  event.preventDefault();--}}
+    {{--  $.ajax({--}}
+    {{--      type: 'POST',--}}
+    {{--      url: "/plan/plan-action/store",--}}
+    {{--      data: { --}}
+    {{--        _token: "{{ csrf_token() }}",--}}
+    {{--        form : $(this).serialize(),--}}
+    {{--        id: $(this).find('input[name="id"]').val(),--}}
+    {{--        strength: $(this).find('textarea[name="strength"]').val(),--}}
+    {{--        weakness: $(this).find('textarea[name="weakness"]').val(),--}}
+    {{--        opportunity: $(this).find('textarea[name="opportunity"]').val(),--}}
+    {{--        threat: $(this).find('textarea[name="threat"]').val(),--}}
+    {{--      },--}}
+    {{--      beforeSend: function () {--}}
+    {{--          $("#loading-image").show();--}}
+    {{--      }--}}
+    {{--  }).done(function (data) {--}}
+    {{--    console.log(data.strength);--}}
+    {{--      $("#plan-action").modal("hide");--}}
+    {{--      toastr["success"]('Data save successfully.');--}}
+    {{--  }).fail(function (jqXHR, ajaxOptions, thrownError) {--}}
+    {{--      $("#plan-action").modal("hide");--}}
+    {{--      toastr["error"]('No record found!');--}}
+    {{--  });--}}
+    {{--});--}}
+
+    //change code by new requirement
+    $(document).on("submit","#planactionadd",function(event) {
+        event.preventDefault();
+        let form = $('#planactionadd')[0];
+        let formData = new FormData(form);
         $.ajax({
             type: 'POST',
-            url: "/plan/plan-action/solutions-store",
-            data: { 
-              _token: "{{ csrf_token() }}",
-              solution: $(this).val(),
-              id: $(this).data('id')
-            },
+            url: "{{route('plan.action.store')}}",
+            data: formData,
+            contentType: false,
+            processData: false,
             beforeSend: function () {
                 $("#loading-image").show();
             }
         }).done(function (data) {
-          console.log(data.strength);
+            $("#loading-image").hide();
             $("#plan-action").modal("hide");
             toastr["success"]('Data save successfully.');
         }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            $("#loading-image").hide();
             $("#plan-action").modal("hide");
-            toastr["error"]('An error occured!');
+            toastr["error"]('No record found!');
         });
-      }
-  }
-});
-$(document).on("submit","#planactionadd",function(event) {
-  event.preventDefault();
-  $.ajax({
-      type: 'POST',
-      url: "/plan/plan-action/store",
-      data: { 
-        _token: "{{ csrf_token() }}",
-        form : $(this).serialize(),
-        id: $(this).find('input[name="id"]').val(),
-        strength: $(this).find('textarea[name="strength"]').val(),
-        weakness: $(this).find('textarea[name="weakness"]').val(),
-        opportunity: $(this).find('textarea[name="opportunity"]').val(),
-        threat: $(this).find('textarea[name="threat"]').val(),
-      },
-      beforeSend: function () {
-          $("#loading-image").show();
-      }
-  }).done(function (data) {
-    console.log(data.strength);
-      $("#plan-action").modal("hide");
-      toastr["success"]('Data save successfully.');
-  }).fail(function (jqXHR, ajaxOptions, thrownError) {
-      $("#plan-action").modal("hide");
-      toastr["error"]('No record found!');
-  });
-});
+    });
+
+    $(document).on("click",".delete_field",function() {
+        $(this).closest('.removable_class').remove();
+    });
+
+    $(document).on("click",".add_plan_action_data",function() {
+
+        let data_id = $(this).attr('data-id');
+        let field_name = '';
+        let field_name_active = '';
+        if(data_id == 1) {
+            field_name = 'plan_action_strength';
+            field_name_active = 'plan_action_strength_active';
+        }else if(data_id == 2) {
+            field_name = 'plan_action_weakness';
+            field_name_active = 'plan_action_weakness_active';
+        }else if(data_id == 3) {
+            field_name = 'plan_action_opportunity';
+            field_name_active = 'plan_action_opportunity_active';
+        }else {
+            field_name = 'plan_action_threat';
+            field_name_active = 'plan_action_threat_active';
+        }
+        create_plan_action_tr(field_name,field_name_active, data_id)
+    });
+
+    function create_plan_action_tr(field_name,field_name_active, data_id) {
+
+        let html = `<tr class="removable_class">
+                        <td style="vertical-align:middle" colspan="4">
+                        <input type="text" name="${field_name}[]" class="form-control">
+                        </td>
+                        <td class="actions-main actions-main-sub w-100" style="vertical-align:middle">
+                            <button type="button" class="btn btn-secondary btn-sm delete_field">-</button>
+                        </td>
+                    </tr>`;
+
+        $('.plan_action_tbody[data-id="'+ data_id +'"]').append(html);
+    }
 </script>

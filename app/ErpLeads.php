@@ -1,19 +1,20 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 
 class ErpLeads extends Model
 {
- /**
+    /**
      * @var string
-   
+
+     *
      * @SWG\Property(property="lead_status_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
@@ -29,10 +30,9 @@ class ErpLeads extends Model
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="created_at",type="datetime")
      * @SWG\Property(property="updated_at",type="datetime")
-   
-
      */
     use Mediable;
+
     protected $fillable = [
         'lead_status_id',
         'customer_id',
@@ -53,16 +53,16 @@ class ErpLeads extends Model
 
     public function status_changes()
     {
-        return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\ErpLeads')->latest();
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\ErpLeads::class)->latest();
     }
 
     public function storeWebsite()
     {
-        return $this->hasOne('App\StoreWebsite', "id","store_website_id");
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
     }
 
     public function customer()
     {
-        return $this->hasOne('App\Customer', 'id', 'customer_id');
+        return $this->hasOne(\App\Customer::class, 'id', 'customer_id');
     }
 }

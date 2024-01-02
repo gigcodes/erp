@@ -43,7 +43,7 @@ return [
     |
     */
 
-    'allowed_environments' => ['local', 'staging', 'testing'],
+    'allowed_environments' => ['local', 'staging', 'testing', 'production'],
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ return [
     |
     */
 
-   'skeletons' => [
+    'skeletons' => [
 
         'html' => [
 
@@ -244,6 +244,6 @@ return [
                 'welcome',
             ],
         ],
-   ],
+    ],
 
 ];

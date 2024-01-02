@@ -167,7 +167,8 @@
 								</td>
                                 <td>  
                                     <a id="delete-url" href="javascript:void(0)" data-value="{{ $key->id }}">Delete</a>
-                                </td>
+                                    <a id="run-current-url" href="javascript:void(0)" data-value="{{ $key->id }}">Run Current Page</a>
+		                        </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -395,7 +396,33 @@ $(document).on('click', '.expand-row-msg', function () {
                 }
             });
 	});
-	
+
+    $(document).on('click','#run-current-url',function(){
+		var rowid = $(this).attr('data-value');
+		$.ajax({
+                url: "/gtmetrix/run-current-url",
+                type: 'POST',
+                data : { _token: "{{ csrf_token() }}", rowid : rowid},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    if(result.code == 200) {
+                        $('#infinite-scroll-cashflow-inner').load(window.location.href+'#infinite-scroll-cashflow-inner', function() {
+							toastr["success"](result.message);
+						});
+                        
+                    }else{
+                        toastr["error"](result.message);
+                    }
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    toastr["error"]("Something went wrong please check log file");
+                }
+            });
+	});
 	$(document).on('click','.processToggle input',function(){
 		
 		var rowid = $(this).val();

@@ -7,38 +7,34 @@ use Illuminate\Http\Request;
 
 class BenchmarkController extends Controller
 {
-	public function create(){
+    public function create()
+    {
+        $benchmark = Benchmark::orderBy('for_date', 'DESC')->first();
 
+        $data = [];
 
-		$benchmark = Benchmark::orderBy('for_date', 'DESC')->first();
+        if (empty($benchmark)) {
+            $benchmark = new Benchmark();
 
-		$data = [];
+            foreach ($benchmark->getFillable() as $item) {
+                $data[$item] = 0;
+            }
+        } else {
+            $data = $benchmark->toArray();
+        }
 
-		if ( empty( $benchmark ) ) {
-			$benchmark = new Benchmark();
+        $data['for_date'] = date('Y-m-d');
 
-			foreach ( $benchmark->getFillable() as $item ) {
-				$data[ $item ] = 0;
-			}
-		}
-		else{
+        return view('activity.benchmark', $data);
+    }
 
-			$data = $benchmark->toArray();
-		}
+    public function store(Request $request)
+    {
+        $data = $request->all();
+        $data['for_date'] = date('Y-m-d');
 
-		$data['for_date'] = date( 'Y-m-d' );
+        Benchmark::updateOrCreate(['for_date' => date('Y-m-d')], $data);
 
-		return view('activity.benchmark',$data);
-	}
-
-	public function store(Request $request){
-
-		$data = $request->all();
-		$data['for_date'] = date( 'Y-m-d' );
-
-		Benchmark::updateOrCreate( [ 'for_date' => date( 'Y-m-d' ) ], $data );
-
-		return back()->with('status', 'Benchmark Updated');
-	}
-
+        return back()->with('status', 'Benchmark Updated');
+    }
 }

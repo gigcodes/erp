@@ -67,15 +67,21 @@
                 <th width="6%">Url</th>
                 <th width="6%">Store View</th>
                 <th width="10%">Site</th>
+                <th width="6%">Language</th>
                 <th width="3%">Active</th>
                 <th width="4%">Pushed</th>
+                <th width="8%">Status</th>
+                <th width="4%">Is Latest Version Pushed</th>
+                <th width="4%">Is Latest Version Translated</th>
+                <th width="5%">Is Pending Review Translations</th>
+                <th width="5%">Translation Approved by</th>
                 <th width="8%">Created at</th>
                 <th width="9%">Actions</th>
               </tr>
             </thead>
             <tbody>
                 {{props data}} 
-                  <tr>
+                  <tr style="background-color: {{:prop.colorcode}};">
                     <td><input type="checkbox" class="groups" name="groups[]" value="{{:prop.id}}"></td>
                     <td>&nbsp;{{:prop.id}}</td>
                     <td></td>
@@ -83,10 +89,27 @@
                     <td class="Website-task" title="{{:prop.url_key}}">{{:prop.url_key}}</td>
                     <td class="Website-task" title="{{:prop.stores}}">{{:prop.stores_small}}</td>
                     <td class="Website-task" title="{{:prop.store_website_name}}">{{:prop.store_website_name}}</td>
+                    <td class="Website-task" title="{{:prop.language}}">{{:prop.language}}</td>
                     <td>{{if prop.active == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative;">
+                            <select class="form-control select2 status-update" data-id="{{>prop.id}}" data-placeholder="Select Status" name="status_id">
+                                <option value="">Select Status</option>
+                                <?php $status = \App\Models\StoreWebsiteStatus::pluck('status_name', 'id')->toArray(); ?> 
+                                <?php foreach ($status as $id => $name): ?>
+                                    <option value="<?php echo $id; ?>" {{if prop.website_store_views_status_id == <?php echo $id; ?>}}selected{{/if}}><?php echo $name; ?></option>                 
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" title="Status history" data-id="{{>prop.id}}" class="btn btn- status-history" style="padding: 0px 1px !important; margin-left: 10px;">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </td>
                     <td>{{if prop.is_latest_version_pushed == "1"}}Yes{{else}}NO{{/if}}</td>
                     <td>{{if prop.is_latest_version_translated == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_flagged_translation == "1"}}Yes{{else}}NO{{/if}}</td>
+                    <td>{{if prop.is_flagged_translation != "1"}} {{:prop.approved_by}} {{/if}}</td>
                     <td>{{:prop.created_at}}</td>
                     <td>
                         <button type="button" title="Edit" data-id="{{>prop.id}}" class="btn btn-edit-template" style="padding: 0px 1px !important;">
@@ -104,9 +127,11 @@
                         <button type="button" title="History" data-id="{{>prop.id}}" class="btn btn-find-history"style="padding: 0px 1px !important;">
                             <i class="fa fa-globe" aria-hidden="true"></i>
                         </button>
+                        {{if !prop.translated_from}}
                         <button type="button" title="Language" data-id="{{>prop.id}}" class="btn btn-translate-for-other-language"style="padding: 0px 1px !important;">
                             <i class="fa fa-language" aria-hidden="true"></i>
                         </button>
+                        {{/if}}
                         <button type="button" title="Activities" data-id="{{>prop.id}}" class="btn btn-activities"style="padding: 0px 1px !important;">
                             <i class="fa fa-info-circle" aria-hidden="true"></i>
                         </button>

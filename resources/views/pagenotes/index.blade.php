@@ -20,21 +20,40 @@
 @section('content')
 <div class="row">
   <div class="col-lg-12 margin-tb">
-      <h2 class="page-heading">Page Notes</h2>
+      <h2 class="page-heading">
+        Page Notes
+        <div class="pull-right pr-3">
+        <a href="#" class="btn btn-xs update-customer btn-secondary" id="create_category">
+            Create Category
+        </a>
+    </div>
+      </h2>
   </div>
 
-    <!-- START - Purpose : Get Page Note - DEVTASK-4289 -->
-    <form method="get" action="{{ route('pageNotes.viewList') }}">
-    <div class="flex">
-        <div class="col">
-            <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
+    <div class="col-md-12">
+        <!-- START - Purpose : Get Page Note - DEVTASK-4289 -->
+        <form method="get" action="{{ route('pageNotes.viewList') }}">
+        <div class="row">
+            <div class="col-md-3">
+                <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
+            </div>
+            <div class="col-md-3">
+                <select class="form-control" name="category_id">
+                    <option value="">Select category</option>
+                    @foreach (\App\PageNotesCategories::get() as $category)
+                        <option value="{{ $category->id }}" <?php if($category->id == Request::get('category_id')) echo "selected"; ?>>{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                    <img src="/images/search.png" style="cursor: default;">
+                </button>
+                <a href="{{route('pageNotes.viewList')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+            </div>
         </div>
-        <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-            <img src="/images/search.png" style="cursor: default;">
-        </button>
-        <a href="{{route('pageNotes.viewList')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+        </form>
     </div>
-    </form>
     <!-- END - DEVTASK-4289 -->
  
   <div class="col-md-12">
@@ -43,7 +62,8 @@
         <table cellspacing="0" role="grid" class="page-notes table table-bordered datatable mdl-data-table dataTable page-notes" style="width:100%">
           <thead>
               <tr>
-                  <th width="5%">#</th>
+                  <th width="5%">S.No</th>
+                  <th width="8%">Title</th>
                   <th width="8%">Category</th>
                   <th width="60%">Note</th>
                   <th width="7%">User Name</th>
@@ -55,7 +75,8 @@
           <!-- START - Purpose : Get Data - DEVTASK-4289 -->
           @foreach($records as $key => $value)
               <tr>
-                  <td>{{$value->id}}</td>
+                  <td>{{$key+1}}</td>
+                  <td>{{$value->title}}</td>
                   <td>{{$value->category_name}}</td>
                   @if (strlen($value->note) > 200)
                       <td style="word-break: break-word;" data-log_message="{!!$value->note !!}" class="page-note-popup">{{ substr($value->note,0,200) }}...</td>
@@ -65,11 +86,19 @@
 {{--                      <p class="m-0">{!!$value->note !!}</p>--}}
                   <td>{{$value->name}}</td>
                   <td>{{ date('m-d  H:i', strtotime($value->created_at)) }}</td>
-                  <td><a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2">
+                  <td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$value->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
+              </tr>
+              <tr class="action-btn-tr-{{$value->id}} d-none">
+                <td>Action</td>
+                <td colspan="5">
+                    <a href="javascript:;" data-note-id = "{{$value->id}}" class="editor_edit btn-xs btn btn-image p-2">
                     <img src="/images/edit.png"></a>
                     <a data-note-id = "{{$value->id}}" href="javascript:;" class="editor_remove btn-xs btn btn-image p-2">
-                    <img src="/images/delete.png"></a></td>
-              </tr>
+                    <img src="/images/delete.png"></a>
+                </td>
+            </tr>
           @endforeach
           <!-- END - DEVTASK-4289 -->
           </tbody>
@@ -113,6 +142,8 @@
 
     </div>
 </div>
+
+@include("pagenotes.modal-createcategory")
 @endsection
 
 @section('scripts')
@@ -126,6 +157,36 @@
           $('#pageNotesModal').modal('show');
           $('#pageNotesModal p').text($(this).data('log_message'));
       })
+
+      $(document).on("click", "#create_category", function (e) {
+        e.preventDefault();
+        $("#createcategoryModal").modal("show");
+    });
+
+      $(document).on('submit', '#createcategoryModal', function (e) {
+            e.preventDefault();
+            var data = $('#createCategoryForm').serializeArray();
+            $.ajax({
+                url: "{{route('pageNotes.createCategory')}}",
+                type: 'POST',
+                data: data,
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    toastr['success']('Successful', 'success');
+                    $('#createcategoryModal').modal('hide');
+                    //window.location.reload();
+                },
+                error: function () {
+                    alert('This category is already exist.');
+                }
+            });
+        });
+
+    function Showactionbtn(id){
+      $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
 
     $(document).ready(function() {
       //START - Purpose : Comment Code - DEVTASK-4289
@@ -167,19 +228,19 @@
     $('#note').richText();
   });
 
-  $('.pagenote-scroll').jscroll({
+  // $('.pagenote-scroll').jscroll({
 
-    autoTrigger: true,
-    debug: true,
-    loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-    padding: 20,
-    nextSelector: '.pagination li.active + li a',
-    contentSelector: 'div.pagenote-scroll',
-    callback: function () {
-        $('ul.pagination').first().remove();
-        $('ul.pagination').hide();
-    }
-  });
+  //   autoTrigger: true,
+  //   debug: true,
+  //   loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+  //   padding: 20,
+  //   nextSelector: '.pagination li.active + li a',
+  //   contentSelector: 'div.pagenote-scroll',
+  //   callback: function () {
+  //       $('ul.pagination').first().remove();
+  //       $('ul.pagination').hide();
+  //   }
+  // });
   //END - DEVTASK-4289
 
   $(document).on('click', '.editor_edit', function () {

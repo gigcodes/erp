@@ -17,6 +17,7 @@
                 @endif
             </div>
         </div>
+        @if($campaign_channel_type != "MULTI_CHANNEL")
         <div class="form-group row">
             <label for="cpc-bid-micro-amount" class="col-sm-2 col-form-label">Bid ($)</label>
             <div class="col-sm-10">
@@ -26,6 +27,7 @@
                 @endif
             </div>
         </div>
+        @endif
         <div class="form-group row">
             <label for="ad-group-status" class="col-sm-2 col-form-label">Ad group status</label>
             <div class="col-sm-10">

@@ -2,13 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Order;
-use App\Wetransfer;
-use App\Website;
-use App\scraperImags;
 use Carbon\Carbon;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
+use App\scraperImags;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
 class scrappersImagesDelete extends Command
@@ -45,13 +41,13 @@ class scrappersImagesDelete extends Command
     public function handle()
     {
         $filesList = scraperImags::where('created_at', '<', Carbon::now()->subDays(2)->toDateTimeString())->pluck('img_url');
-        
+
         foreach ($filesList as $images) {
-            File::delete(  public_path('scrappersImages/'.$images) );
+            File::delete(public_path('scrappersImages/' . $images));
         }
-        
+
         $queuesList = scraperImags::where('created_at', '<', Carbon::now()->subDays(2)->toDateTimeString())->delete();
-        
+
         $this->output->write('Cron complated', true);
     }
 }

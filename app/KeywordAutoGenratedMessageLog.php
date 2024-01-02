@@ -3,25 +3,24 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Vendor;
-use App\Supplier;
 use seo2websites\ErpCustomer\ErpCustomer;
 
 class KeywordAutoGenratedMessageLog extends Model
 {
-    protected $fillable = ['model','model_id','keyword','keyword_match','message_sent_id','comment'];
+    protected $fillable = ['model', 'model_id', 'keyword', 'keyword_match', 'message_sent_id', 'comment'];
 
-    protected $appends = ["typeName"];
+    protected $appends = ['typeName'];
 
     public function getTypeNameAttribute()
     {
-        if ($this->model == 'App\Customer') {
+        if ($this->model == \App\Customer::class) {
             $typeName = @$this->customer->name;
-        } elseif ($this->model == 'App\Vendor') {
+        } elseif ($this->model == \App\Vendor::class) {
             $typeName = @$this->vendor->name;
         } else {
             $typeName = @$this->supplier->supplier;
         }
+
         return $typeName;
     }
 

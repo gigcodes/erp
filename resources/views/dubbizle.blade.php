@@ -71,7 +71,7 @@
                             </td>
                             <td>
                               <a href="{{ route('dubbizle.show', $post->id) }}" class="btn btn-image"><img src="/images/view.png" /></a>
-                                <a class="btn btn-sm btn-info" href="{{ action('DubbizleController@edit', $post->id) }}">
+                                <a class="btn btn-sm btn-info" href="{{ action([\App\Http\Controllers\DubbizleController::class, 'edit'], $post->id) }}">
                                     <i class="fa fa-edit"></i>
                                 </a>
                                 <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $post->id }}" data-frequency="{{ $post->frequency ?? '0' }}" data-reminder_message="{{ $post->reminder_message }}">
@@ -182,7 +182,7 @@
             let message = $('#reminder_message').val();
 
             $.ajax({
-                url: "{{action('DubbizleController@updateReminder')}}",
+                url: "{{action([\App\Http\Controllers\DubbizleController::class, 'updateReminder'])}}",
                 type: 'POST',
                 success: function() {
                     toastr['success']('Reminder updated successfully!');

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use App\ProductReference;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ProductReference;
 use Illuminate\Console\Command;
 
 class FillProductReference extends Command
@@ -43,28 +43,28 @@ class FillProductReference extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $products = Product::all();
 
             foreach ($products as $product) {
-                $reference             = new ProductReference;
+                $reference = new ProductReference;
                 $reference->product_id = $product->id;
-                $reference->sku        = $product->sku;
-                $reference->color      = $product->color;
+                $reference->sku = $product->sku;
+                $reference->color = $product->color;
                 $reference->save();
 
-                if (!empty($product->size)) {
+                if (! empty($product->size)) {
                     $sizes = explode(',', $product->size);
 
                     foreach ($sizes as $size) {
-                        $reference             = new ProductReference;
+                        $reference = new ProductReference;
                         $reference->product_id = $product->id;
-                        $reference->sku        = $product->sku;
-                        $reference->color      = $product->color;
-                        $reference->size       = $size;
+                        $reference->sku = $product->sku;
+                        $reference->color = $product->color;
+                        $reference->size = $size;
                         $reference->save();
                         dump($size);
                     }

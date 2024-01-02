@@ -40,6 +40,7 @@
     -->
     
     {{-- &nbsp;<a class="btn-secondary link-send-document" title="forward to" data-id="{{$record['id']}}" href="_blank"><i class="fa fa-forward" aria-hidden="true"></i></a> --}}
+    <a class="btn-secondary save-document-as" title="Save a copy of document in site assets" data-id="{{$record['id']}}"><i class="fa fa-forward" aria-hidden="true"></i></a>
     </td>
 </tr>
 @endforeach

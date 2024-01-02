@@ -38,22 +38,22 @@ class PushColorsToMagento extends Command
     public function handle()
     {
         //
-        $website    = \App\StoreWebsite::where("website_source", "magento")->where("api_token", "!=", "")->get();
+        $website = \App\StoreWebsite::where('website_source', 'magento')->where('api_token', '!=', '')->get();
         $colorsData = \App\ColorNamesReference::groupBy('erp_name')->get();
-        if (!$colorsData->isEmpty()) {
+        if (! $colorsData->isEmpty()) {
             foreach ($colorsData as $cd) {
-                echo "Color Started  : " . $cd->erp_name;
+                echo 'Color Started  : ' . $cd->erp_name;
                 foreach ($website as $web) {
-                    echo "Store Started  : " . $web->website;
-                    $checkSite = \App\StoreWebsiteColor::where("erp_color", $cd->erp_name)->where("store_website_id", $web->id)->where("platform_id", ">", 0)->first();
-                    if (!$checkSite) {
+                    echo 'Store Started  : ' . $web->website;
+                    $checkSite = \App\StoreWebsiteColor::where('erp_color', $cd->erp_name)->where('store_website_id', $web->id)->where('platform_id', '>', 0)->first();
+                    if (! $checkSite) {
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($cd->erp_name, $web);
-                        if (!empty($id)) {
-                            \App\StoreWebsiteColor::where("erp_color", $cd->erp_name)->where("store_website_id", $web->id)->delete();
-                            $swc                   = new \App\StoreWebsiteColor;
-                            $swc->erp_color        = $cd->erp_name;
+                        if (! empty($id)) {
+                            \App\StoreWebsiteColor::where('erp_color', $cd->erp_name)->where('store_website_id', $web->id)->delete();
+                            $swc = new \App\StoreWebsiteColor;
+                            $swc->erp_color = $cd->erp_name;
                             $swc->store_website_id = $web->id;
-                            $swc->platform_id      = $id;
+                            $swc->platform_id = $id;
                             $swc->save();
                         }
                     }

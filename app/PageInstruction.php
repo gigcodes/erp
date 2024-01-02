@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -10,6 +11,7 @@ class PageInstruction extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="page",type="strng")
      * @SWG\Property(property="instruction",type="string")
      * @SWG\Property(property="created_at",type="datetime")
@@ -21,7 +23,6 @@ class PageInstruction extends Model
         'instruction',
         'created_by',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-
 }

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Http\Request;
 use App\ScrapedProducts;
+use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class assignIncompleteProducts extends Command
 {
@@ -41,33 +41,34 @@ class assignIncompleteProducts extends Command
     {
         $products = ScrapedProducts::where(['cron_executed' => 0])->get();
         $pids = [];
-        foreach($products as $product){
+        foreach ($products as $product) {
             $missing = [];
-            if($product->properties == NULL){
-                $missing[] = "Category";
-                $missing[] = "Color";
-            }else{
-                if(isset($product->properties['category']) && $product->properties['category'] == NULL){
-                    $missing[] = "Category";
+            if ($product->properties == null) {
+                $missing[] = 'Category';
+                $missing[] = 'Color';
+            } else {
+                if (isset($product->properties['category']) && $product->properties['category'] == null) {
+                    $missing[] = 'Category';
                 }
-                if(isset($product->properties['color']) && $product->properties['color'] == NULL){
-                    $missing[] = "Color";   
+                if (isset($product->properties['color']) && $product->properties['color'] == null) {
+                    $missing[] = 'Color';
                 }
             }
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
                 'priority' => 1,
-                'issue' => implode(',', $missing)." missing in scapped products, whose website is ".$product->website." and supplier is ",// issue detail  
-                'status' => "Planned",
-                'module' => "Scraper", 
-                'subject' => implode(',', $missing)." missing in scapped products",// enter issue name  
-                'assigned_to' => 6
+                'issue' => implode(',', $missing) . ' missing in scapped products, whose website is ' . $product->website . ' and supplier is ', // issue detail
+
+                'status' => 'Planned',
+                'module' => 'Scraper',
+                'subject' => implode(',', $missing) . ' missing in scapped products', // enter issue name
+
+                'assigned_to' => 6,
             ]);
-            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+            app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
             $pids[] = $product->id;
         }
-        $update_scraped_products = ScrapedProducts::whereIn('id',$pids)->update('cron_executed',1);
-
+        $update_scraped_products = ScrapedProducts::whereIn('id', $pids)->update('cron_executed', 1);
     }
 }

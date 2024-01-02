@@ -40,30 +40,29 @@ class InsertPleskEmail extends Command
     {
         //
         $pleskHelper = new PleskHelper;
-        $domains     = $pleskHelper->getDomains();
-        if (!empty($domains)) {
+        $domains = $pleskHelper->getDomains();
+        if (! empty($domains)) {
             foreach ($domains as $domain) {
                 $mailAccounts = $pleskHelper->getMailAccounts($domain['id']);
-                if (!empty($mailAccounts)) {
+                if (! empty($mailAccounts)) {
                     foreach ($mailAccounts as $mail) {
-                        $fullEmail    = $mail['name'] . "@" . $domain['name'];
+                        $fullEmail = $mail['name'] . '@' . $domain['name'];
                         $emailAddress = \App\EmailAddress::where('username', $fullEmail)->first();
-                        if (!$emailAddress) {
-                            $address               = new \App\EmailAddress;
-                            $address->from_name    = $mail['name'];
+                        if (! $emailAddress) {
+                            $address = new \App\EmailAddress;
+                            $address->from_name = $mail['name'];
                             $address->from_address = $fullEmail;
-                            $address->driver       = 'smtp';
-                            $address->host         = "amourint.com";
-                            $address->port         = '465';
-                            $address->encryption   = 'ssl';
-                            $address->username     = $fullEmail;
-                            $address->password     = "";
+                            $address->driver = 'smtp';
+                            $address->host = 'amourint.com';
+                            $address->port = '465';
+                            $address->encryption = 'ssl';
+                            $address->username = $fullEmail;
+                            $address->password = '';
                             $address->save();
 
-                            echo $address->from_address . " Created succesfully";
+                            echo $address->from_address . ' Created succesfully';
                             echo PHP_EOL;
                         }
-
                     }
                 }
             }

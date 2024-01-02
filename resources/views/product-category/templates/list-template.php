@@ -98,7 +98,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::select("merge_category",\App\VendorCategory::pluck("title","id")->toArray(),null,["class" => "form-control select2-vendor-category merge-category"]); ?>
+					         	<?php echo Form::select('merge_category', \App\VendorCategory::pluck('title', 'id')->toArray(), null, ['class' => 'form-control select2-vendor-category merge-category']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">
@@ -133,7 +133,7 @@
 				    			<input type="hidden" name="supplier_id" value="{{:supplier_id}}">
 				    			<select class="form-control" name="user_id">
 				    				<option value="">-- Select User--</option>
-					    			<?php foreach(\App\User::pluck("name","id")->toArray() as $id => $user) { ?>
+					    			<?php foreach (\App\User::pluck('name', 'id')->toArray() as $id => $user) { ?>
 					    				<option {{if user_id == <?php echo $id; ?>}} selected {{/if}} value="<?php echo $id; ?>"><?php echo $user; ?></option>
 					    			<?php } ?>
 				    			</select>

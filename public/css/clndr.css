@@ -35,7 +35,6 @@
 
   -ms-user-select: none;
   /* IE10+ */
-
 }
 #full-clndr .clndr-controls .clndr-previous-button:hover,
 #full-clndr .clndr-controls .clndr-next-button:hover {
@@ -70,7 +69,7 @@
   color: #4f4f4f;
   background-color: #ebebeb;
   border-bottom: 2px solid white;
-  background-image: url('https://kylestetz.github.io/CLNDR/css/./triangle.svg');
+  background-image: url("https://kylestetz.github.io/CLNDR/css/./triangle.svg");
   background-size: cover;
   background-position: center;
 }
@@ -114,7 +113,6 @@
 
   -ms-user-select: none;
   /* IE10+ */
-
 }
 #mini-clndr {
   font-family: Asap, Helvetica, Arial;

@@ -1,6 +1,0 @@
-<?php
-
-// Extends 'de'
-return [
-    //
-];

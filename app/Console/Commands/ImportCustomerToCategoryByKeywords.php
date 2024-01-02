@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
-use App\KeywordToCategory;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\KeywordToCategory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -44,7 +44,7 @@ class ImportCustomerToCategoryByKeywords extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -70,17 +70,15 @@ class ImportCustomerToCategoryByKeywords extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 
     private function saveCustomerWithCategory($customer, $keywordToCategory)
     {
         DB::table('customer_with_categories')->where('customer_id', $customer->id)->delete();
         DB::table('customer_with_categories')->insert([
-            'customer_id'   => $customer->id,
+            'customer_id' => $customer->id,
             'category_type' => $keywordToCategory->category_type,
-            'model_id'      => $keywordToCategory->model_id,
+            'model_id' => $keywordToCategory->model_id,
         ]);
-
     }
 }

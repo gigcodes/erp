@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Helpers\OrderHelper;
-use App\OrderStatus;
-use App\OrderReport;
-use App\Order;
-use App\Refund;
 use Auth;
+use App\Order;
+use App\OrderReport;
+use App\OrderStatus;
+use App\Helpers\OrderHelper;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 
@@ -37,34 +36,34 @@ class OrderReportController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-      $this->validate($request, [
-        'status_id' => 'required',
-        'completion_date' => 'required'
-      ]);
+        $this->validate($request, [
+            'status_id' => 'required',
+            'completion_date' => 'required',
+        ]);
 
-      $report = new OrderReport;
+        $report = new OrderReport;
 
-      $report->status_id = $request->status_id;
-      $report->user_id = Auth::id();
+        $report->status_id = $request->status_id;
+        $report->user_id = Auth::id();
 
-      if ($request->order_id)
-        $report->order_id = $request->order_id;
-      else
-        $report->customer_id = $request->customer_id;
+        if ($request->order_id) {
+            $report->order_id = $request->order_id;
+        } else {
+            $report->customer_id = $request->customer_id;
+        }
 
-      $report->completion_date = $request->completion_date;
+        $report->completion_date = $request->completion_date;
 
-      $report->save();
+        $report->save();
 
-      // $order = Order::find($report->order_id);
-      //
-      // if ($order->sales_person) {
-      //   NotificationQueueController::createNewNotification([
+        // $order = Order::find($report->order_id);
+        //
+        // if ($order->sales_person) {
+        //   NotificationQueueController::createNewNotification([
         //      'type' => 'button',
         //      'message' => $order->client_name . ' - ' . $report->status,
         //      'timestamps' => ['+0 minutes'],
@@ -74,7 +73,7 @@ class OrderReportController extends Controller
         //      'sent_to' => $order->sales_person,
         //      'role' => '',
         //  ]);
-      // }
+        // }
 
         // NotificationQueueController::createNewNotification([
         //  'message' => $order->client_name . ' - ' . $report->status,
@@ -86,12 +85,13 @@ class OrderReportController extends Controller
         //  'role' => 'Admin',
         // ]);
 
-      return redirect()->back()->with('message', 'Order action was created successfully');
+        return redirect()->back()->with('message', 'Order action was created successfully');
     }
 
-    public function statusStore(Request $request) {
+    public function statusStore(Request $request)
+    {
         $this->validate($request, [
-            'status'    => 'required'
+            'status' => 'required',
         ]);
 
         $status = new OrderStatus;
@@ -103,46 +103,46 @@ class OrderReportController extends Controller
         return redirect()->back()->with('message', 'Order status was created successfully');
     }
 
-    public function orderRefundStatusMessage(Request $request){
+    public function orderRefundStatusMessage(Request $request)
+    {
+        $page = $request->page;
+        $paginate = 10;
+        //return 'asdfsfg';
+        $orders = DB::table('orders')
+        ->join('customers', 'orders.customer_id', 'customers.id')
+        ->select('orders.id', 'orders.is_flag', 'customer_id', 'orders.created_at as date', DB::raw("'order' as type"), 'customers.phone', 'customers.name', 'customers.email', 'order_status_id', 'estimated_delivery_date');
 
-      $page = $request->page;
-      $paginate = 10;
-      //return 'asdfsfg';
-      $orders = DB::table('orders')
-      ->join('customers','orders.customer_id','customers.id')
-      ->select('orders.id', 'orders.is_flag', 'customer_id','orders.created_at as date', DB::raw("'order' as type"),'customers.phone', 'customers.name', 'customers.email','order_status_id','estimated_delivery_date');
-
-      if($request->order_id && $request->order_id != null){
+        if ($request->order_id && $request->order_id != null) {
             $orders->where('orders.id', $request->order_id);
         }
-      if($request->customer_name && $request->customer_name != null){
-         $orders->where('customers.name','LIKE','%'.$request->customer_name.'%');
+        if ($request->customer_name && $request->customer_name != null) {
+            $orders->where('customers.name', 'LIKE', '%' . $request->customer_name . '%');
         }
 
-        if($request->flt_order_status && $request->flt_order_status != null){
-            $orders->where('order_status_id',$request->flt_order_status);
+        if ($request->flt_order_status && $request->flt_order_status != null) {
+            $orders->where('order_status_id', $request->flt_order_status);
         }
-        if($request->flt_estimate_date && $request->flt_estimate_date != null){
-            $orders->where('estimated_delivery_date','LIKE',$request->flt_estimate_date);
+        if ($request->flt_estimate_date && $request->flt_estimate_date != null) {
+            $orders->where('estimated_delivery_date', 'LIKE', $request->flt_estimate_date);
         }
 
-
-      $order_n_refunds = DB::table('return_exchanges')
-      ->join('customers','return_exchanges.customer_id','customers.id')
-      ->select('return_exchanges.id', 'is_flagged as is_flag','customer_id','return_exchanges.created_at as date', DB::raw("'refund' as type"),'customers.phone','customers.name','customers.email',DB::raw("'' as order_status_id"),DB::raw("return_exchanges.est_completion_date as estimated_delivery_date"));
-         if($request->order_id && $request->order_id != null){
-             $order_n_refunds->where('return_exchanges.id', $request->order_id);
-         }
-        if($request->customer_name && $request->customer_name != null){
-         $order_n_refunds->where('customers.name','LIKE','%'.$request->customer_name.'%');
+        $order_n_refunds = DB::table('return_exchanges')
+        ->join('customers', 'return_exchanges.customer_id', 'customers.id')
+        ->select('return_exchanges.id', 'is_flagged as is_flag', 'customer_id', 'return_exchanges.created_at as date', DB::raw("'refund' as type"), 'customers.phone', 'customers.name', 'customers.email', DB::raw("'' as order_status_id"), DB::raw('return_exchanges.est_completion_date as estimated_delivery_date'));
+        if ($request->order_id && $request->order_id != null) {
+            $order_n_refunds->where('return_exchanges.id', $request->order_id);
         }
-      $order_n_refunds = $order_n_refunds->union($orders)->orderBy('date',"DESC")->get();
+        if ($request->customer_name && $request->customer_name != null) {
+            $order_n_refunds->where('customers.name', 'LIKE', '%' . $request->customer_name . '%');
+        }
+        $order_n_refunds = $order_n_refunds->union($orders)->orderBy('date', 'DESC')->get();
         // dd($order_n_refunds);
-      $orderStatusList = OrderStatus::all();
-      // $slice = array_slice($refunds->toArray(), $paginate * ($page - 1), $paginate);
-      // $order_n_refunds = Paginator::make($slice, count($refunds), $paginate);
-      $order_status_list = OrderHelper::getStatus();
-      return view("orders.status-history", compact('order_n_refunds','order_status_list','orderStatusList'));
+        $orderStatusList = OrderStatus::all();
+        // $slice = array_slice($refunds->toArray(), $paginate * ($page - 1), $paginate);
+        // $order_n_refunds = Paginator::make($slice, count($refunds), $paginate);
+        $order_status_list = OrderHelper::getStatus();
+
+        return view('orders.status-history', compact('order_n_refunds', 'order_status_list', 'orderStatusList'));
     }
 
     public function setFlag(Request $request)
@@ -160,29 +160,30 @@ class OrderReportController extends Controller
         return response()->json(['is_flagged' => $return_exchanges->is_flag]);
     }
 
-    public function lastCommunicated($type = "any")
+    public function lastCommunicated($type = 'any')
     {
-        $q = $this->chatMessage()->whereNotIn("status", ['7', '8', '9', '10']);
+        $q = $this->chatMessage()->whereNotIn('status', ['7', '8', '9', '10']);
 
-        if (in_array($type, ['unread', 'unapproved','chatbot_unapproved'])) {
-            if($type == 'unread')  {
-              $type = 0;
-            }else if($type == 'chatbot_unapproved')  {
-              $type = 11;
-            }else{
-              $type = 1;
+        if (in_array($type, ['unread', 'unapproved', 'chatbot_unapproved'])) {
+            if ($type == 'unread') {
+                $type = 0;
+            } elseif ($type == 'chatbot_unapproved') {
+                $type = 11;
+            } else {
+                $type = 1;
             }
             $q = $q->where('chat_messages.status', $type);
-        }else if ($type == "last_communicated") {
-            $q = $q->where('chat_messages.message','!=', '')->where(function($q){
-              $q->where("group_id","<",0)->orWhere("group_id","")->orWhereNull("group_id");
+        } elseif ($type == 'last_communicated') {
+            $q = $q->where('chat_messages.message', '!=', '')->where(function ($q) {
+                $q->where('group_id', '<', 0)->orWhere('group_id', '')->orWhereNull('group_id');
             });
-        }else if ($type == "last_received") {
-            $q = $q->where('chat_messages.number','=', $this->phone)->where('chat_messages.message','!=', '');
-        } 
+        } elseif ($type == 'last_received') {
+            $q = $q->where('chat_messages.number', '=', $this->phone)->where('chat_messages.message', '!=', '');
+        }
 
-        return $q->orderBy("created_at", "DESC")->first();
+        return $q->orderBy('created_at', 'DESC')->first();
     }
+
     /**
      * Display the specified resource.
      *
@@ -208,7 +209,6 @@ class OrderReportController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

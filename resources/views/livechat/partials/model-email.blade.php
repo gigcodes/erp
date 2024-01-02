@@ -112,4 +112,22 @@
 
      </div>
 </div>
-    
+<!-- DEVTASK-22731 - START -->
+<div id="viewmorechatmessages" class="modal chat-list-view-more fade-in" role="dialog">
+     <div class="modal-dialog">        
+          <div class="modal-content">
+               <div class="modal-header">
+                    {{-- <h4 class="modal-title">soruce</h4> --}}
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+               </div>
+               <div class="modal-body" style="background-color: #999999;">
+                  <table class='table table-bordered ticket-list' >
+                    <tbody id="ticketData">
+
+                    </tbody>
+                  </table>
+               </div>
+          </div>
+     </div>
+</div>
+<!-- DEVTASK-22731 - END -->

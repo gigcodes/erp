@@ -28,7 +28,7 @@
                                 @endforeach
 
                                 <div class="form-group">
-                                    <form action="{{ action('SitejabberQAController@update', $sj->id) }}" method="post">
+                                    <form action="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'update'], $sj->id) }}" method="post">
                                         @csrf
                                         @method('put')
                                         <input type="text" name="reply" class="form-control" placeholder="Type reply...">

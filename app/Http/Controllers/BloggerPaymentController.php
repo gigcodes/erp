@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\BloggerPaymentCreated;
-use App\Helpers;
 use App\Blogger;
+use App\Helpers;
 use App\BloggerPayment;
 use Illuminate\Http\Request;
+use App\Events\BloggerPaymentCreated;
 
 class BloggerPaymentController extends Controller
 {
     public function index(Blogger $blogger)
     {
         $payments = $blogger->payments()->orderBy('payment_date')->paginate(50);
+
         return view('blogger.payments', [
             'payments' => $payments,
             'blogger' => $blogger,
@@ -47,6 +48,7 @@ class BloggerPaymentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t store blogger payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully added a blogger payment!');
     }
 
@@ -78,6 +80,7 @@ class BloggerPaymentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t update blogger payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully updated blogger payment!');
     }
 
@@ -89,6 +92,7 @@ class BloggerPaymentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t delete blogger payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully deleted blogger payment!');
     }
 }

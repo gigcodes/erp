@@ -10,7 +10,30 @@
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">System Size</h2>
+            <form method="get" action="{{route('system.size')}}">
+            <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+                <select class="form-control selectpicker" name="main_category_id[]" multiple title="Select Category" id="main_category_id" >
+                    <option value="">Select Category</option>
+                    @foreach($categories as $cat)
+                        @foreach($cat['subcategories'] as $subcat)
+                            <option value="{{$subcat->id}}">{{$subcat->title}} ({{$cat['parentcategory']}})</option>
+                        @endforeach
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-3" style="width: 200px;">
+                <input name="size" type="text" class="form-control"
+                       placeholder="Search ERP size" id="size">
+            </div>
+
+
+            <div class="col-md-2" style="display: flex !important;">
+                <button type="submit" style="margin-top: 2px;" class="btn btn-image" ><img src="/images/filter.png"/></button>
+                <a href="{{route('system.size')}}" style="margin-top: 2px;" class="btn btn-image" id="resetFilter" ><img src="/images/resend2.png"/></a>
+            </div>
+            </form>
             <div class="pull-right">
+                <a type="button" class="btn btn-secondary" href="{{route("system.size.exports")}}" >Export Data</a>
                 <button type="button" class="btn btn-secondary" id="sizemanagementmodelbtn" data-toggle="modal" data-target="#sizemanagement">System Size Management</button>
                 <button type="button" class="btn btn-secondary"  data-toggle="modal" data-target="#sizecountry">System Size </button>
             </div>
@@ -38,6 +61,7 @@
         <table class="table table-bordered" id="category-table">
             <thead>
                 <tr>
+                    <th>Main Category</th>
                     <th>Category</th>
                     <th>ERP Size</th>
                     <th>Sizes</th>
@@ -411,6 +435,36 @@ $(document).ready(function() {
 
         }
     }
-});  
+
+    $(document).on("click",".push-system-size",function() {
+        if(!confirm('Are you sure you want to push system size?')){
+            return false;
+        }
+
+        var $this = $(this);
+        $.ajax({
+            url: "{{ url('system/size/push') }}",
+            type: 'POST',
+            data: {
+            _token: "{{ csrf_token() }}",
+            systemSizeManagerId: $this.data("id")
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+        }).done( function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+                    toastr["success"](response.message);
+                    // location.reload();
+                }else{
+                toastr["error"]('Something went wrong!');
+                }
+        }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+        });
+    });
+});
+
 </script>
 @endsection

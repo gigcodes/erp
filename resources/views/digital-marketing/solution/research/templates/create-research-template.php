@@ -30,7 +30,7 @@
 		         <div class="form-group col-md-4">
 		            <label for="inputState">Priority?</label>
 		            <select name="priority" id="inputState" class="form-control">
-		               <?php foreach($priority as  $k => $s) { ?>
+		               <?php foreach ($priority as  $k => $s) { ?>
 		               		<option {{if data && data.priority == <?php echo $k; ?>}}selected{{/if}} value="<?php echo $k; ?>"><?php echo $s; ?></option>
 		               <?php } ?>
 		            </select>

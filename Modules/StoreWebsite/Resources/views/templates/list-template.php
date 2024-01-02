@@ -4,31 +4,32 @@
 		<table class="table table-bordered"style="table-layout: fixed;">
 		    <thead>
 		      <tr>
-		      	<th width="2%" class="Website-task"title="Id">Id</th>
-		        <th width="3%" class="Website-task"title="Title">Title</th>
-		        <th width="3%"class="Website-task"title="Website">Website</th>
-		        <th width="4%" class="Website-task"title="Country Duty">Country Duty</th>
-		        <th width="4%" class="Website-task"title="Description">Description</th>
-		        <th width="4%" class="Website-task"title="Service id">Service id</th>
-		        <th width="5%" class="Website-task"title="Remote software">Remote software</th>
-		        <th width="4%" class="Website-task"title="Facebook">Facebook</th>
-		        <th width="4%" class="Website-task"title="Instagram">Instagram</th>
-		        <th width="4%" class="Website-task"title="Published">Published</th>
-				<th width="4%" class="Website-task"title="FCM Key">FCM Key</th>
-				<th width="3%" class="Website-task"title="FCM Id">FCM Id</th>
-				<th width="3%" class="Website-task"title="Icon">Icon</th>
-		        <th width="12%"class="Website-task"title="Action">Action</th>
+		      	<th width="5%" class="Website-task"title="Id">Id</th>
+		        <th width="8%" class="Website-task"title="Title">Title</th>
+		        <th width="12%"class="Website-task"title="Website">Website</th>
+		        <th width="8%" class="Website-task"title="Country Duty">Country Duty</th>
+		        <th width="12%" class="Website-task"title="Description">Description</th>
+		        <th width="6%" class="Website-task"title="Service id">Service id</th>
+		        <th width="6%" class="Website-task-warp"title="Remote software">Remote software</th>
+		        <th width="6%" class="Website-task"title="Facebook">Facebook</th>
+		        <th width="6%" class="Website-task"title="Instagram">Instagram</th>
+		        <th width="6%" class="Website-task"title="Published">Published</th>
+				<th width="8%" class="Website-task"title="FCM Key">FCM Key</th>
+				<th width="8%" class="Website-task"title="FCM Id">FCM Id</th>
+				<th width="6%" class="Website-task"title="Icon">Icon</th>
+				<th width="4%" class="Website-task"title="Action">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td class="Website-task" title="{{:prop.title}}">{{:prop.title}}</td>
-			        <td class="Website-task"><b>Website :</b>{{:prop.website}}</td>
+			        <td class="Website-task-warp" title="{{:prop.title}}">{{:prop.title}}</td>
+			        <td class="Website-task-warp">{{:prop.website}}</td>
 			        <td class="Website-task">{{:prop.country_duty}}</td>
-			        <td class="Website-task">{{:prop.description}}</td>
+			        <td class="Website-task-warp">{{:prop.description}}</td>
 			        <td>{{:prop.mailing_service_id}}</td>
+			        <td>{{:prop.store_code_name}}</td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>
 			        	{{:prop.facebook}}
@@ -38,10 +39,16 @@
 			        	<i class="fa fa-comment show-instagram-remarks" data-id="{{>prop.id}}" data-value="{{:prop.instagram_remarks}}"></i>
 			        </td>
 					<td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
-					<td class="Website-task">{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td class="Website-task">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
-					<td>{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
-			        <td p-0>
+					<td class="Website-task-warp">{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td class="Website-task-warp">{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}}
+					{{if prop.icon !=null}} <img width="25px" height="25px" alt="" src="{{:prop.icon}}""> {{else}} {{/if}} </td>
+					<td>
+					    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{>prop.id}}')"><i class="fa fa-arrow-down"></i></button>
+					</td>
+			      </tr>
+			      <tr class="action-btn-tr-{{>prop.id}} d-none">
+                  <td class="font-weight-bold text-left" title="Action">Action</td>
+			      <td colspan="12" p-0>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template" style="padding:1px 0px;">
 			        		<i class="fa fa-edit" aria-hidden="true"></i>
 			        	</button>
@@ -54,41 +61,79 @@
 			        		<i class="fa fa-paperclip" aria-hidden="true"></i>
 			        	</button>
 
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands"style="padding:1px 0px;">	
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands"style="padding:1px 0px;">
 			        		<img width="15px" title="Attach Brands" src="/images/purchase.png">
 			        	</button>
 
 			        	<button type="button" data-id="{{>prop.id}}" class="btn"style="padding:1px 0px;">
-                                            <a href="/site-development/{{>prop.id}}">
-                                                    <img width="15px" title="Site Development" src="/images/project.png">
-                                            </a>
-                                        </button> 
+                            <a href="/site-development/{{>prop.id}}">
+                                    <img width="15px" title="Site Development" src="/images/project.png">
+                            </a>
+                        </button>
 
-                                        <button type="button" data-id="{{>prop.id}}" class="btn"style="padding:1px 0px;"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"style="color:gray;"></i></a></button> 
+                            <button type="button" data-id="{{>prop.id}}" class="btn"style="padding:1px 0px;"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"style="color:gray;"></i></a></button>
 
-                                        <button title="Social media strategy" type="button"  class="btn"style="padding:1px 0px;"><a href="/store-website/{{>prop.id}}/social-strategy" style="color:gray;"><i class="fa fa-fa"></i></a></button> 
+                            <button title="Social media strategy" type="button"  class="btn"style="padding:1px 0px;"><a href="/store-website/{{>prop.id}}/social-strategy" style="color:gray;"><i class="fa fa-fa"></i></a></button>
 
-                                        <button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"style="padding:1px 0px;"><a href="javascript:;"><i class="fa fa-external-link"style="color:gray;"></i></a></button> 
+                            <button title="Seo Format" data-id="{{>prop.id}}" type="button"  class="btn btn-seo-format"style="padding:1px 0px;"><a href="javascript:;"><i class="fa fa-external-link"style="color:gray;"></i></a></button>
 
-                                        <button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty"style="padding:1px 0px;">
-                                                <a href="javascript:;"style="color:gray;"><i class="fa fa-info-circle"></i></a>
-                                        </button> 
+                            <button title="store User history" data-id="{{>prop.id}}" type="button"  class="btn open-store-user-histoty"style="padding:1px 0px;">
+                                    <a href="javascript:;"style="color:gray;"><i class="fa fa-info-circle"></i></a>
+                            </button>
 
-                                        <button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history"style="padding:1px 0px;">
-                                                <a href="javascript:;"style="color:gray;"><i class="fa fa-history"></i></a>
-                                        </button>
-                                        
-                                        <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template"style="padding:1px 0px;">
-                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
-                                        </button>   
-										<button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history"style="padding:1px 0px;">
-                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-folder"></i></a>
-                                        </button> 
-										<button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master"style="padding:1px 0px;">
-                                            <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-refresh"></i></a>
-                                        </button> 				
+                            <button title="Store Reindexing" data-id="{{>prop.id}}" type="button"  class="btn open-store-reindex-history"style="padding:1px 0px;">
+                                    <a href="javascript:;"style="color:gray;"><i class="fa fa-history"></i></a>
+                            </button>
+
+                            <button title="Build Process" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-template"style="padding:1px 0px;">
+                                <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-simplybuilt"></i></a>
+                            </button>
+                            <button title="Build Process History" data-id="{{>prop.id}}" type="button"  class="btn open-build-process-history"style="padding:1px 0px;">
+                                <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-folder"></i></a>
+                            </button>
+                            <button title="Sync Stage To Master" data-id="{{>prop.id}}" type="button"  class="btn sync_stage_to_master"style="padding:1px 0px;">
+                                <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-refresh"></i></a>
+                            </button>
+                            <button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn response_history"style="padding:1px 0px;">
+                                <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+                            </button>
+                           <button type="button" class="btn btn-xs btn-image  load-duplicate-modal mt-1" data-target="#newDuplicate"  data-id="{{>prop.id}}" title="Duplicate store website"><i class="fa fa-copy"></i> </button>
+
+                           <button type="button" class="btn btn-xs btn-image  load-tag-modal mt-1" data-toggle="modal" data-target="#store-attach-tag"  data-id="{{>prop.id}}" title="Create Tag"><i class="fa fa-link"></i> </button>
+
+						   	<button type="button" class="btn btn-xs btn-image  btn-download-db-env mt-1"   data-id="{{>prop.id}}" data-type="db" title="Download Database">
+								<img src="/images/database-download-icon.png" style="color:gray;"> 
+								<span class="loader" style="display: none;">
+									<!-- Add your loading spinner icon here -->
+									<i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+								</span>
+							</button>
+
+						   	<button type="button" class="btn btn-xs btn-image  btn-download-db-env mt-1"   data-id="{{>prop.id}}" data-type="env" title="Download Env File">
+								<i class="fa fa-download"></i> 
+							</button>
+
+							<button type="button" class="btn btn-xs btn-image  btn-download-db-env-logs mt-1"   data-id="{{>prop.id}}" data-type="db" title="Download Database/Env Logs" style="color:gray;">
+								<i class="fa fa-info-circle"></i>
+							</button>
+
+                            {{if prop.is_dev_website == 1 }}
+                                <a style="padding:1px;" class="btn d-inline btn-image execute-bash-command-select-folder"  data-folder_name="{{>prop.site_folder}}" href="#" data-id="{{>prop.id}}" title="Execute Bash Command">
+                                    <img src="/images/send.png" style="color:gray; cursor: nwse-resize; width: 0px;">
+                                </a>
+                                <button title="Response History" data-id="{{>prop.id}}" type="button"  class="btn execute_bash_command_response_history"style="padding:1px 0px;">
+                                    <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-history"></i></a>
+                                </button>
+
+                            {{/if}}
+							<button title="Run File Permissions" data-id="{{>prop.id}}" type="button"  class="btn run_file_permissions" style="padding:1px 0px;">
+                                    <a href="javascript:void(0);"style="color:gray;"><i class="fa fa-file"></i></a>
+							</button>
+							<button title="Clear Cloudflare Caches" data-id="{{>prop.id}}" type="button"  class="btn btn-xs btn-image mt-1 clear_cloudflare_caches" style="padding:1px 0px;">
+								<img src="/images/clear_caches.png" style="color:gray;width: 20px !important;">
+							</button>
 			        </td>
-			      </tr>
+			        </tr>
 			    {{/props}}  
 		    </tbody>
 		</table>
@@ -157,7 +202,7 @@
 				</div>	
 			</div>
 		</div>
-	</div>			
+	</div>
 </script>
 
 <script type="text/x-jsrender" id="template-attached-brands">
@@ -473,9 +518,6 @@
 						<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-magento-user btn-sm" style="border:1px solid">
 							<i class="fa fa-trash" aria-hidden="true"></i>
 						</button>
-
-
-
 						        </td>
 						      </tr>
 						    {{/props}}  

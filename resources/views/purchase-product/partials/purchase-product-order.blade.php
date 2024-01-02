@@ -131,6 +131,7 @@ table tr td {
                                 <th width="6%">Cost Details</th>
                                 <th width="4%">Land cost</th>
                                 <th width="6%">Status</th>
+                                <th width="6%">Purchase Status</th>
                                 <th width="4%">Crea Date</th>
                                 <th width="5%">Action</th>
 
@@ -215,6 +216,16 @@ table tr td {
                                             <option {{$value->purchase_status == 'out_stock' ? 'selected' : ''}} value="out_stock">Out Stock</option>
                                         </select>
                                         <i class="fa fa-info-circle view_log color-gray" style="" title="Status Logs" aria-hidden="true" data-id="{{$value->pur_pro_id}}" data-name="Status"></i>
+                                   </div>
+                                </td>
+                                <td>
+                                    <div class="select">
+                                        <select class="form-control change_purchase_status" name="purchase_status" id="purchase_status" data-id="{{$value->pur_pro_id}}">
+                                            <option value="">Select Purchase Status</option>
+                                            @foreach ($purchaseStatuses as $id => $purchaseStatus)
+                                                <option value="{{ $id }}" {{$value->purchase_status_id == $id ? 'selected' : ''}}>{{ $purchaseStatus }}</option>
+                                            @endforeach
+                                        </select>
                                    </div>
                                 </td>
                                 @php
@@ -531,6 +542,38 @@ table tr td {
                 from : 'status',
                 status : status,
                 purchase_pro_id: purchase_pro_id,
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+    $(".change_purchase_status").change(function(){
+        var purchase_product_orders_id = $(this).data('id');
+        var purchase_status = $(this).val();
+
+        if(purchase_status == '')
+        {
+            toastr['error']('Status is Required');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('purchaseproductorders.purchase-status-change') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                purchase_status : purchase_status,
+                purchase_product_orders_id: purchase_product_orders_id,
             },
             dataType : "json",
             success: function (response) {

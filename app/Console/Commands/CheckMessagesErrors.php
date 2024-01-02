@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class CheckMessagesErrors extends Command
@@ -43,12 +43,12 @@ class CheckMessagesErrors extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $hour_ago = Carbon::now()->subHour();
-            $two_ago  = Carbon::now()->subHours(2);
+            $two_ago = Carbon::now()->subHours(2);
 
             $data = ChatMessage::whereNull('number')->where('approved', 1)->where('status', 2)->where('sent', 0)->whereBetween('created_at', [$two_ago, $hour_ago])->where(function ($query) {
                 $query->where('error_status', 0)->orWhere('error_status', 1);
@@ -79,9 +79,8 @@ class CheckMessagesErrors extends Command
 
                         if ($error == 1) {
                             try {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, $params['message'], false, $new_message->id);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, $params['message'], false, $new_message->id);
                             } catch (\Exception $e) {
-
                             }
                         }
                     }
@@ -97,9 +96,8 @@ class CheckMessagesErrors extends Command
 
                             if ($error == 1) {
                                 try {
-                                    app('App\Http\Controllers\WhatsAppController')->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), false, $new_message->id);
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithWhatsApp($chat_message->customer->phone, $chat_message->customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), false, $new_message->id);
                                 } catch (\Exception $e) {
-
                                 }
                             }
                         }
@@ -113,7 +111,7 @@ class CheckMessagesErrors extends Command
 
                     $chat_message->update([
                         'error_status' => $error,
-                        'created_at'   => Carbon::now(),
+                        'created_at' => Carbon::now(),
                     ]);
                 }
             }

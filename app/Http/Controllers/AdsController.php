@@ -2,81 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\GoogleAdsAccount;
-use App\GoogleAdsCampaign;
-use App\AdCampaign;
-use App\AdGroup;
 use App\Ad;
+use App\AdGroup;
 use App\AdAccount;
-
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Plank\Mediable\Mediable;
+use Carbon\Carbon;
+use App\AdCampaign;
+use App\GoogleAdsAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Google\AdsApi\AdWords\AdWordsServices;
-use Google\AdsApi\AdWords\AdWordsSession;
-use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\v201809\cm\BudgetService;
-use Google\AdsApi\AdWords\v201809\cm\CampaignService;
-use Google\AdsApi\AdWords\v201809\cm\OrderBy;
-use Google\AdsApi\AdWords\v201809\cm\Selector;
-use Google\AdsApi\AdWords\v201809\cm\Paging;
-use Google\AdsApi\AdWords\v201809\cm\SortOrder;
-use Google\AdsApi\Common\OAuth2TokenBuilder;
-use Google\AdsApi\AdWords\v201809\cm\Budget;
-use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
-use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelSubType;
-use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
-use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
-use Google\AdsApi\AdWords\v201809\cm\BudgetBudgetDeliveryMethod;
-use Google\AdsApi\AdWords\v201809\cm\BudgetOperation;
-use Google\AdsApi\AdWords\v201809\cm\Campaign;
-use Google\AdsApi\AdWords\v201809\cm\CampaignOperation;
-use Google\AdsApi\AdWords\v201809\cm\CampaignStatus;
-use Google\AdsApi\AdWords\v201809\cm\FrequencyCap;
-use Google\AdsApi\AdWords\v201809\cm\GeoTargetTypeSetting;
-use Google\AdsApi\AdWords\v201809\cm\GeoTargetTypeSettingNegativeGeoTargetType;
-use Google\AdsApi\AdWords\v201809\cm\GeoTargetTypeSettingPositiveGeoTargetType;
 use Google\AdsApi\AdWords\v201809\cm\Level;
-use Google\AdsApi\AdWords\v201809\cm\ManualCpcBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\TargetRoasBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\MaximizeConversionValueBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\TargetCpaBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\TargetSpendBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\ManualCpmBiddingScheme;
-use Google\AdsApi\AdWords\v201809\cm\AdServingOptimizationStatus;
-use Google\AdsApi\AdWords\v201809\cm\TargetingSetting;
-use Google\AdsApi\AdWords\v201809\cm\TargetingSettingDetail;
-use Google\AdsApi\AdWords\v201809\cm\ShoppingSetting;
 use Google\AdsApi\AdWords\v201809\cm\Money;
-use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
+use Google\AdsApi\AdWords\v201809\cm\Budget;
+use Google\AdsApi\AdWords\v201809\cm\CpcBid;
+use Google\AdsApi\Common\OAuth2TokenBuilder;
+use Google\AdsApi\AdWords\v201809\cm\Campaign;
 use Google\AdsApi\AdWords\v201809\cm\Operator;
 use Google\AdsApi\AdWords\v201809\cm\TimeUnit;
-use Google\AdsApi\AdWords\v201809\cm\Predicate;
-use Google\AdsApi\AdWords\v201809\cm\PredicateOperator;
-use Google\AdsApi\AdWords\v201809\cm\AdGroup as GoogleAdGroup;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAdRotationMode;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupOperation;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupStatus;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupService;
-use Google\AdsApi\AdWords\v201809\cm\CpcBid;
-use Google\AdsApi\AdWords\v201809\cm\ExpandedTextAd;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupAd;
-use Google\AdsApi\AdWords\v201809\cm\AdGroupAdOperation;
+use Google\AdsApi\AdWords\AdWordsSessionBuilder;
+use Google\AdsApi\AdWords\v201809\cm\FrequencyCap;
+use Google\AdsApi\AdWords\v201809\cm\BudgetService;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupService;
+use Google\AdsApi\AdWords\v201809\cm\ExpandedTextAd;
+use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
+use Google\AdsApi\AdWords\v201809\cm\BudgetOperation;
+use Google\AdsApi\AdWords\v201809\cm\CampaignService;
 use Google\AdsApi\AdWords\v201809\cm\AdGroupAdService;
-use Exception;
-use Carbon\Carbon;
-
-
+use Google\AdsApi\AdWords\v201809\cm\AdGroupOperation;
+use Google\AdsApi\AdWords\v201809\cm\CampaignOperation;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupAdOperation;
+use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
+use Google\AdsApi\AdWords\v201809\cm\ManualCpcBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\ManualCpmBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\TargetCpaBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\TargetRoasBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\AdGroup as GoogleAdGroup;
+use Google\AdsApi\AdWords\v201809\cm\TargetSpendBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\BudgetBudgetDeliveryMethod;
+use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
 
 class AdsController extends Controller
 {
     public function index(Request $request)
     {
-        $title  = "Ads";
-        $campigns = AdCampaign::select('id','campaign_name')->get();
-        $adaccounts = AdAccount::where('status','ENABLED')->get();
-        return view("ads.index", compact('title','campigns','adaccounts'));
+        $title = 'Ads';
+        $campigns = AdCampaign::select('id', 'campaign_name')->get();
+        $adaccounts = AdAccount::where('status', 'ENABLED')->get();
+
+        return view('ads.index', compact('title', 'campigns', 'adaccounts'));
     }
 
     public function records(Request $request)
@@ -85,39 +60,42 @@ class AdsController extends Controller
         // ->leftJoin("googleadsgroups as gg","gg.adgroup_google_campaign_id","gc.google_campaign_id")
         // ->leftJoin("googleads as ga","ga.google_adgroup_id","gg.google_adgroup_id");
 
-        $records = AdAccount::leftJoin("ad_campaigns as gc","gc.ad_account_id","ad_accounts.id")
-        ->leftJoin("ad_groups as gg","gg.campaign_id","gc.id")
-        ->leftJoin("ads as ga","ga.adgroup_id","gg.id")
-        ->select('ad_accounts.id','ad_accounts.account_name','ad_accounts.status','ad_accounts.created_at', 'gc.campaign_name','gc.data', 'ga.headlines');
+        $records = AdAccount::leftJoin('ad_campaigns as gc', 'gc.ad_account_id', 'ad_accounts.id')
+        ->leftJoin('ad_groups as gg', 'gg.campaign_id', 'gc.id')
+        ->leftJoin('ads as ga', 'ga.adgroup_id', 'gg.id')
+        ->select('ad_accounts.id', 'ad_accounts.account_name', 'ad_accounts.status', 'ad_accounts.created_at', 'gc.campaign_name', 'gc.data', 'ga.headlines');
 
-        $keyword = request("keyword");
-        if (!empty($keyword)) {
+        $keyword = request('keyword');
+        if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where("gg.group_name", "LIKE", "%$keyword%")
-                ->orWhere("gc.campaign_name", "LIKE", "%$keyword%")
-                ->orWhere("ga.headlines", "LIKE", "%$keyword%");
+                $q->where('gg.group_name', 'LIKE', "%$keyword%")
+                ->orWhere('gc.campaign_name', 'LIKE', "%$keyword%")
+                ->orWhere('ga.headlines', 'LIKE', "%$keyword%");
             });
         }
 
         $records = $records->get();
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
+
     //Ad Account functions start
-    public function saveaccount(Request $request){
+    public function saveaccount(Request $request)
+    {
         $this->validate($request, [
-            'account_name'      => 'required',
-            'config_file'       => 'required',
-            'status'            => 'required',
+            'account_name' => 'required',
+            'config_file' => 'required',
+            'status' => 'required',
         ]);
 
-        $accountArray = array(
-            'account_name'  => $request->account_name,
-            'note'          => $request->note,
-            'status'        => $request->status,
-        );
+        $accountArray = [
+            'account_name' => $request->account_name,
+            'note' => $request->note,
+            'status' => $request->status,
+        ];
         $googleadsAc = AdAccount::create($accountArray);
         $account_id = $googleadsAc->id;
-        if($request->file('config_file')){
+        if ($request->file('config_file')) {
             $uploadfile = MediaUploader::fromSource($request->file('config_file'))
                 ->toDestination('adsapi', $account_id)
                 ->upload();
@@ -125,22 +103,25 @@ class AdsController extends Controller
             $googleadsAc->config_file = $getfilename;
             $googleadsAc->save();
         }
+
         return redirect()->to('/ads')->with('actSuccess', 'GoogleAdwords account details added successfully');
     }
+
     //Ad Account functions end
-    public function savecampaign(Request $request){
+    public function savecampaign(Request $request)
+    {
         $adAccount = AdAccount::find($request->account_id);
         $budgetAmount = isset($request->data['budget_and_bidding']['budget']) ? $request->data['budget_and_bidding']['budget'] * 1000000 : 0;
         $campaignName = isset($request->camp_name) ? $request->camp_name : '';
         $channel_type = isset($request->data['type']) ? strtouper($request->data['type']) : 'SEARCH';
         $budgetName = isset($request->data['budget_and_bidding']['name']) ? $request->data['budget_and_bidding']['name'] : '';
-        $bidding_strategy_type = isset($request->data['budget_and_bidding']['bidding']['focus']) ? $request->data['budget_and_bidding']['bidding']['focus'] : ''; 
-        $txt_target_cpa = isset($request->data['budget_and_bidding']['bidding']['cpa']) ? $request->data['budget_and_bidding']['bidding']['cpa'] : ''; 
-        $txt_target_roas = isset($request->data['budget_and_bidding']['bidding']['roas']) ? $request->data['budget_and_bidding']['bidding']['roas'] : ''; 
-        $maximize_clicks = isset($request->data['budget_and_bidding']['bidding']['cpc']) ? $request->data['budget_and_bidding']['bidding']['cpc'] : ''; 
+        $bidding_strategy_type = isset($request->data['budget_and_bidding']['bidding']['focus']) ? $request->data['budget_and_bidding']['bidding']['focus'] : '';
+        $txt_target_cpa = isset($request->data['budget_and_bidding']['bidding']['cpa']) ? $request->data['budget_and_bidding']['bidding']['cpa'] : '';
+        $txt_target_roas = isset($request->data['budget_and_bidding']['bidding']['roas']) ? $request->data['budget_and_bidding']['bidding']['roas'] : '';
+        $maximize_clicks = isset($request->data['budget_and_bidding']['bidding']['cpc']) ? $request->data['budget_and_bidding']['bidding']['cpc'] : '';
 
-        $campaign_start_date = (isset($request->data['start_end_dated']['startdate']) && !empty($request->data['start_end_dated']['startdate'])) ? $request->data['start_end_dated']['startdate'] : Carbon::now()->format('Y-m-d');
-        $campaign_end_date = isset($request->data['start_end_dated']['enddate']) ? $request->data['start_end_dated']['enddate'] : ''; ;
+        $campaign_start_date = (isset($request->data['start_end_dated']['startdate']) && ! empty($request->data['start_end_dated']['startdate'])) ? $request->data['start_end_dated']['startdate'] : Carbon::now()->format('Y-m-d');
+        $campaign_end_date = isset($request->data['start_end_dated']['enddate']) ? $request->data['start_end_dated']['enddate'] : '';
         $tracking_template_url = isset($request->data['campaign_url']['tracking_tamplate']) ? $request->data['campaign_url']['tracking_tamplate'] : '';
         $final_url_suffix = isset($request->data['campaign_url']['final_url_suffix']) ? $request->data['campaign_url']['final_url_suffix'] : '';
 
@@ -157,11 +138,9 @@ class AdsController extends Controller
         $budgetService = $adWordsServices->get($session, BudgetService::class);
 
         $uniq_id = uniqid();
-        
+
         $budget = new Budget();
         $budget->setName($budgetName);
-
-
 
         $money = new Money();
         $money->setMicroAmount($budgetAmount);
@@ -170,7 +149,7 @@ class AdsController extends Controller
 
         $operations = [];
 
-         // Create a budget operation.
+        // Create a budget operation.
         $operation = new BudgetOperation();
         $operation->setOperand($budget);
         $operation->setOperator(Operator::ADD);
@@ -189,7 +168,6 @@ class AdsController extends Controller
         $campaign = new Campaign();
         $campaign->setName($campaignName);
 
-
         $campaign->setAdvertisingChannelType($this->getAdvertisingChannelType($channel_type)); //set channel Type
 
         $budget_id = $budget->getBudgetId();
@@ -205,7 +183,7 @@ class AdsController extends Controller
         //     $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_CPA);
         //     $biddingScheme = new TargetCpaBiddingScheme();
         //     $biddingScheme->setTargetCpa($txt_target_cpa);
-            
+
         // }
 
         // if($bidding_strategy_type=="TARGET_ROAS"){
@@ -226,13 +204,10 @@ class AdsController extends Controller
         //     $biddingScheme = new ManualCpmBiddingScheme();
         // }
 
-
-
         // You can optionally provide a bidding scheme in place of the type.
         $biddingStrategyConfiguration->setBiddingScheme($biddingScheme);
 
         $campaign->setBiddingStrategyConfiguration($biddingStrategyConfiguration);
-
 
         $networkSetting = new NetworkSetting();
         $networkSetting->setTargetGoogleSearch(true);
@@ -265,22 +240,23 @@ class AdsController extends Controller
         $addedCampaignId = $addedCampaign[0]->getId();
 
         $newCapaign = new AdCampaign();
-        $newCapaign->ad_account_id  = $request->account_id;
-        $newCapaign->goal           = $request->goal;
-        $newCapaign->type           = $request->type;
-        $newCapaign->campaign_name  = $request->camp_name;
-        $newCapaign->data           = json_encode($request->data);
-        $newCapaign->campaign_budget_id= $budget_id ;
-        $newCapaign->campaign_id= $addedCampaignId;
-        $newCapaign->campaign_response= json_encode($addedCampaign);
+        $newCapaign->ad_account_id = $request->account_id;
+        $newCapaign->goal = $request->goal;
+        $newCapaign->type = $request->type;
+        $newCapaign->campaign_name = $request->camp_name;
+        $newCapaign->data = json_encode($request->data);
+        $newCapaign->campaign_budget_id = $budget_id;
+        $newCapaign->campaign_id = $addedCampaignId;
+        $newCapaign->campaign_response = json_encode($addedCampaign);
         $newCapaign->save();
-        
+
         return redirect()->to('/ads')->with('actSuccess', 'Campaign details added successfully');
     }
-    public function savegroup(Request $request){
+
+    public function savegroup(Request $request)
+    {
         $adCampaign = AdCampaign::find($request->campaign);
         $adAccount = AdAccount::find($adCampaign->ad_account_id);
-
 
         $storagepath = storage_path('app/adsapi/' . $adAccount->id . '/' . $adAccount->config_file);
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
@@ -289,18 +265,14 @@ class AdsController extends Controller
 
         $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
 
-
-
         if (isset($request->adgroup)) {
             foreach ($request->adgroup as $key => $value) {
-
                 $microAmount = $value['budget'] * 1000000;
 
                 /// Create an ad group with required settings and specified status.
                 $adGroup = new GoogleAdGroup();
                 $adGroup->setCampaignId($adCampaign->campaign_id);
-                $adGroup->setName($value['name'].mt_rand());
-
+                $adGroup->setName($value['name'] . mt_rand());
 
                 // Set bids (required).
                 $bid = new CpcBid();
@@ -321,10 +293,9 @@ class AdsController extends Controller
                 $operation->setOperator(Operator::ADD);
                 $operations[] = $operation;
 
-
                 $result = $adGroupService->mutate($operations);
-                $addedGroup=$result->getValue();
-                $addedGroupId=$addedGroup[0]->getId();
+                $addedGroup = $result->getValue();
+                $addedGroupId = $addedGroup[0]->getId();
 
                 $newGroup = new AdGroup();
                 $newGroup->campaign_id = $request->campaign;
@@ -335,19 +306,25 @@ class AdsController extends Controller
                 $newGroup->keywords = $value['keywords'];
                 $newGroup->budget = $value['budget'];
                 $newGroup->google_ad_group_id = $addedGroupId;
-                $newGroup->google_ad_group_response = json_encode($addedGroup[0]);;
+                $newGroup->google_ad_group_response = json_encode($addedGroup[0]);
                 $newGroup->save();
             }
+
             return redirect()->to('/ads')->with('actSuccess', 'Ads group details added successfully');
-        }else{
+        } else {
             return redirect('/ads');
         }
     }
-    public function getgroups(Request $request){
-        $group = AdGroup::where('campaign_id',$request->input('id'))->get();
+
+    public function getgroups(Request $request)
+    {
+        $group = AdGroup::where('campaign_id', $request->input('id'))->get();
+
         return response()->json(['success' => true, 'message' => 'Group retrived', 'data' => $group]);
     }
-    public function adsstore(Request $request){
+
+    public function adsstore(Request $request)
+    {
         $adGroupp = AdGroup::find($request->adgroup);
         $adCampaign = AdCampaign::find($adGroupp->campaign_id);
         $adAccount = AdAccount::find($adCampaign->ad_account_id);
@@ -371,7 +348,6 @@ class AdsController extends Controller
         $expandedTextAd->setPath1('abc');
         $expandedTextAd->setPath2('def');
 
-
         // Create ad group ad.
         $adGroupAd = new AdGroupAd();
         $adGroupAd->setAdGroupId($adGroupp->google_ad_group_id);
@@ -388,11 +364,10 @@ class AdsController extends Controller
 
         // Add expanded text ads on the server.
         $result = $adGroupAdService->mutate($operations);
-        $addedAds=$result->getValue();
-        $addedAdsId=$addedAds[0]->getAd()->getId();
+        $addedAds = $result->getValue();
+        $addedAdsId = $addedAds[0]->getAd()->getId();
 
-
-        $newAd =  new Ad();
+        $newAd = new Ad();
         $newAd->campaign_id = $request->campaign;
         $newAd->adgroup_id = $request->adgroup;
         $newAd->finalurl = $request->finalurl;
@@ -407,33 +382,35 @@ class AdsController extends Controller
         $newAd->ad_id = $addedAdsId;
         $newAd->ad_response = json_encode($addedAds[0]);
         $newAd->save();
+
         return redirect()->to('/ads')->with('actSuccess', 'Ads details added successfully');
     }
-    public function getAdvertisingChannelType($v){
+
+    public function getAdvertisingChannelType($v)
+    {
         switch ($v) {
-            case "SEARCH":
+            case 'SEARCH':
                 return AdvertisingChannelType::SEARCH;
-              break;
+                break;
 
-            case "DISPLAY":
+            case 'DISPLAY':
                 return AdvertisingChannelType::DISPLAY;
-              break;
+                break;
 
-            case "SHOPPING":
+            case 'SHOPPING':
                 return AdvertisingChannelType::SHOPPING;
-              break;
+                break;
 
-            case "MULTI_CHANNEL":
+            case 'MULTI_CHANNEL':
                 return AdvertisingChannelType::MULTI_CHANNEL;
-              break;
-            
-            case "UNKNOWN":
+                break;
+
+            case 'UNKNOWN':
                 return AdvertisingChannelType::UNKNOWN;
-            break;
+                break;
 
             default:
                 return AdvertisingChannelType::SEARCH;
-          }
-
+        }
     }
 }

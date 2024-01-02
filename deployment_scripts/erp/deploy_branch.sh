@@ -8,15 +8,23 @@ then
 else
 	cd $scriptPath;
 	cd ../..
-	git checkout $BRANCH_NAME;
-	git reset --hard origin/$BRANCH_NAME
+	git reset --hard
+	git clean -fd
+	git pull origin
+	git checkout $BRANCH_NAME
 	git pull origin $BRANCH_NAME
+	git pull --rebase
 	./artisan migrate
 	echo $BRANCH_NAME;
-	if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]
-	then
-		composer update
-	else 
-		echo "Finished" 
-	fi
+        if [ ! -z $COMPOSER_UPDATE ] && [ $COMPOSER_UPDATE  == "true" ]
+        then
+                composer update
+                if [ $? -eq 0 ]; then
+                        echo "Composer update sucess"
+                else
+                        echo "Composer update fail"
+                fi
+        else
+                echo "composer update parameter not found" 
+        fi
 fi

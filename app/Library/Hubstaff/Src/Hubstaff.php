@@ -2,23 +2,22 @@
 
 namespace App\Library\Hubstaff\Src;
 
-use App\Library\Hubstaff\Src\Authentication\Token;
 use Storage;
+use App\Library\Hubstaff\Src\Authentication\Token;
 
 /**
  * Package is using for maintane hubstaff
  *
  * @phpcredits()  https://github.com/techsemicolon/hubstaffphp
- *
  */
-
 class Hubstaff
 {
-
     protected static $instance = null;
+
     private $accessToken;
 
-    public $HUBSTAFF_TOKEN_FILE_NAME = "hubstaff_tokens.json";
+    public $HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
+
     public $SEED_REFRESH_TOKEN;
 
     public function __construct()
@@ -29,7 +28,6 @@ class Hubstaff
 
     public static function getInstance()
     {
-
         if (is_null(self::$instance)) {
             self::$instance = new Hubstaff();
         }
@@ -39,7 +37,6 @@ class Hubstaff
 
     public function authenticate($generate = true)
     {
-
         /*if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
 
         }*/
@@ -56,10 +53,9 @@ class Hubstaff
 
     public function getRepository($repo)
     {
-
         $repo = ucwords(strtolower($repo));
         $repo = '\\App\\Library\\Hubstaff\\Src\\Repositories\\' . $repo;
+
         return new $repo($this->accessToken);
     }
-
 }

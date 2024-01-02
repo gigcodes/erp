@@ -2,18 +2,22 @@
 
 namespace App\Console\Commands;
 
-use App\DeveloperTask;
 use App\LogKeyword;
-use Illuminate\Console\Command;
+use App\DeveloperTask;
+use App\Helpers\LogHelper;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
-class errorAlertMessage extends Command
+class ErrorAlertMessage extends Command
 {
-    const CRON_ISSUE_MODULE_NAME = "268";
-    const CRON_ISSUE_PRIORITY    = 1;
-    const CRON_ISSUE_STATUS      = "Planned";
-    const DEFAULT_ASSIGNED_TO    = 1;
+    const CRON_ISSUE_MODULE_NAME = '268';
+
+    const CRON_ISSUE_PRIORITY = 1;
+
+    const CRON_ISSUE_STATUS = 'Planned';
+
+    const DEFAULT_ASSIGNED_TO = 1;
 
     //scrappersImagesDelete
     /**
@@ -47,12 +51,14 @@ class errorAlertMessage extends Command
      */
     public function handle()
     {
-        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-
-        $path         = storage_path('logs');
-        $fullPath     = $path . $filename;
-        $errSelection = [];
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
+            $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+
+            $path = storage_path('logs');
+            $fullPath = $path . $filename;
+            $errSelection = [];
+
             $content = File::get($fullPath);
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
             $logKeywords = LogKeyword::all();
@@ -61,31 +67,36 @@ class errorAlertMessage extends Command
                     foreach ($logKeywords as $key => $logKeyword) {
                         if (strpos(strtolower($value), strtolower($logKeyword->text)) !== false) {
                             $message = "You have error which matched the keyword  '" . $logKeyword->text . "'";
-                            $message .= " | " . $value;
-                            $subject          = "You have error which matched the keyword  '" . $logKeyword->text . "'";
-                            $hasAssignedIssue = DeveloperTask::where("subject", "like", "%{$subject}%")->whereDate("created_at", date("Y-m-d"))->where("is_resolved", 0)->first();
-                            if (!$hasAssignedIssue) {
+                            $message .= ' | ' . $value;
+                            $subject = "You have error which matched the keyword  '" . $logKeyword->text . "'";
+                            $hasAssignedIssue = DeveloperTask::where('subject', 'like', "%{$subject}%")->whereDate('created_at', date('Y-m-d'))->where('is_resolved', 0)->first();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'developer task query finished.']);
+                            if (! $hasAssignedIssue) {
                                 $requestData = new Request();
                                 $requestData->setMethod('POST');
                                 $requestData->request->add([
                                     'log_keyword_id' => $logKeyword->id,
-                                    'priority'    => self::CRON_ISSUE_PRIORITY,
-                                    'issue'       => $message,
-                                    'status'      => self::CRON_ISSUE_STATUS,
-                                    'module'      => self::CRON_ISSUE_MODULE_NAME,
-                                    'subject'     => $subject,
-                                    'assigned_to' => \App\Setting::get("cron_issue_assinged_to", self::DEFAULT_ASSIGNED_TO),
+                                    'priority' => self::CRON_ISSUE_PRIORITY,
+                                    'issue' => $message,
+                                    'status' => self::CRON_ISSUE_STATUS,
+                                    'module' => self::CRON_ISSUE_MODULE_NAME,
+                                    'subject' => $subject,
+                                    'assigned_to' => \App\Setting::get('cron_issue_assinged_to', self::DEFAULT_ASSIGNED_TO),
                                 ]);
-                                app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                                app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
                             }
-
                         }
                     }
                 }
             }
             $this->output->write('Cron Done', true);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
-            $this->output->write("Error is caught here! => " . $e->getMessage(), true);
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+
+            $this->output->write('Error is caught here! => ' . $e->getMessage(), true);
         }
     }
 }

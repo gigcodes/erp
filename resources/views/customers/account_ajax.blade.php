@@ -12,7 +12,8 @@
               <td>{{ $c->pincode }}</td>
               <td>{{ $c->country }}</td>
               <td>{{ $c->title }}</td>
-             
+              <td><a href="#" onClick="openInfo({{$c}})"><i class="fa fa-edit"></i></a>
+              <a href="#" onClick="showMessagePopup({{$c->id}})"><i class="fa fa-eye"></i></a></td>
             </tr>
           @endforeach
         

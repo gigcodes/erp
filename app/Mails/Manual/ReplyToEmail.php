@@ -6,7 +6,6 @@ use App\Email;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ReplyToEmail extends Mailable
 {
@@ -53,13 +52,11 @@ class ReplyToEmail extends Mailable
         $this->replyTo($emailToReply->to);
         $this->subject($subject);
 
-        $this->withSwiftMessage(function ($message) use($emailToReply)  {
+        $this->withSwiftMessage(function ($message) use ($emailToReply) {
             $references = $emailToReply->reference_id . '<' . $emailToReply->origin_id . '>';
             $message->getHeaders()->addTextHeader('In-Reply-To', $emailToReply->origin_id);
             $message->getHeaders()->addTextHeader('References', $references);
         });
-
-
 
         $userName = null;
         if ($emailToReply->model instanceof \App\Supplier) {
@@ -75,7 +72,7 @@ class ReplyToEmail extends Mailable
         return $this->view('emails.reply-to-email', [
             'msg' => $message,
             'originalEmailMsg' => $emailToReply->message,
-            'originalEmailInfo' => $originalEmailInfo
+            'originalEmailInfo' => $originalEmailInfo,
         ]);
     }
 }

@@ -7,7 +7,7 @@
                 <h4 class="modal-title">Send WhatsApp Document</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="{{action('WhatsAppController@sendMessage', 'document')}}" method="POST" enctype="multipart/form-data">
+            <form action="{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'document')}}" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <p>Enter Category Name</p>
                     <div class="form-group">

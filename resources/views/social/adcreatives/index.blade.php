@@ -9,17 +9,68 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    @include("social.adcreatives.history")
+
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  AdCreatives ({{ $adcreatives->total() }})<span class="count-text"></span></h2>
-            <div class="pull-right">
+            <div class="pull-right mr-4">
                 <a class="btn btn-secondary create-post">+</a>
+            </div>
+            <div class="pull-left ml-2 mb-3">
+                <form class="form-inline" action="{{route('social.adcreative.index')}}" method="GET">
+                    <div class="form-group mr-2">
+                        <input type="date" name="dae" id="date" class="form-control" style="width:250px !important" value="{{$_GET['date'] ?? '' }}">
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
+                            @foreach($adcreatives_data as $adcreative_config)
+                                @php
+                                    $config_name = App\Social\SocialConfig::where('id',$adcreative_config->config_id)->first();
+                                @endphp
+                                <option value="{{$config_name->id}}" {{ isset($_GET['config_name']) && in_array($config_name->id,$_GET['config_name']) ? 'selected' : '' }}>{{$config_name->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="name[]" data-placeholder="Ad Creative Name" id="name" style="width:250px !important" multiple>
+                            @foreach($adcreatives_data as $adcreative_value)
+                                <option value="{{$adcreative_value->name}}" {{ isset($_GET['name']) && in_array($adcreative_value->name,$_GET['name']) ? 'selected' : '' }}>{{$adcreative_value->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <button type="submit" class="btn btn-image3 btn-sm text-dark">
+                            <i class="fa fa-filter"></i>
+                        </button>
+                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
+                    </div>
+                </form>
             </div>
         </div>
 
         <br>
+        <div class="row ml-4 mb-2">
+            @include("social.header_menu")
+        </div>
+
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success">
+                <p>{{ $message }}</p>
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+
         <div class="col-lg-12 margin-tb">
 
             <div class="col-md-12 margin-tb">
@@ -28,6 +79,7 @@
                         <tr>
                             <th style="width:5%">Date</th>
                             <th style="width:10%">Config Name</th>
+                            <th style="width:10%">Website</th>
                             <th style="width:30%"> Name</th>
                             <th style="width:10%">Object Story Title</th>
                             <th style="width:5%">Live Status</th>
@@ -45,6 +97,9 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+
+    @include("social.adcreatives.history")
+
     <div id="create-modal" class="modal" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="record-content">

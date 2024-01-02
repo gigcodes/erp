@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\SimplyDutyCurrency;
-use Illuminate\Http\Request;
 use Response;
 use App\Setting;
+use App\LogRequest;
+use App\SimplyDutyCurrency;
+use Illuminate\Http\Request;
 
 class SimplyDutyCurrencyController extends Controller
 {
@@ -16,26 +17,26 @@ class SimplyDutyCurrencyController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->currency ){
-           $query = SimplyDutyCurrency::query();
-            
-           if(request('currency') != null){
+        if ($request->currency) {
+            $query = SimplyDutyCurrency::query();
+
+            if (request('currency') != null) {
                 $query->where('currency', request('currency'));
             }
-            
+
             $currencies = $query->paginate(Setting::get('pagination'));
-        }else{
+        } else {
             $currencies = SimplyDutyCurrency::paginate(Setting::get('pagination'));
         }
-        
-         if ($request->ajax()) {
+
+        if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('simplyduty.currency.partials.data', compact('currencies'))->render(),
-                'links' => (string)$currencies->render()
+                'links' => (string) $currencies->render(),
             ], 200);
-            }
+        }
 
-        return view('simplyduty.currency.index',compact('currencies'));
+        return view('simplyduty.currency.index', compact('currencies'));
     }
 
     /**
@@ -51,7 +52,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -62,7 +62,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function show(SimplyDutyCurrency $simplyDutyCurrency)
@@ -73,7 +72,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function edit(SimplyDutyCurrency $simplyDutyCurrency)
@@ -84,8 +82,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, SimplyDutyCurrency $simplyDutyCurrency)
@@ -96,7 +92,6 @@ class SimplyDutyCurrencyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SimplyDutyCurrency  $simplyDutyCurrency
      * @return \Illuminate\Http\Response
      */
     public function destroy(SimplyDutyCurrency $simplyDutyCurrency)
@@ -104,36 +99,42 @@ class SimplyDutyCurrencyController extends Controller
         //
     }
 
-    public function getCurrencyFromApi(){
-         $ch = curl_init();
-        
+    public function getCurrencyFromApi()
+    {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $ch = curl_init();
+        $url = 'https://www.api.simplyduty.com/api/Supporting/supported-currencies';
+
         // set url
-        curl_setopt($ch, CURLOPT_URL, "https://www.api.simplyduty.com/api/Supporting/supported-currencies");
+        curl_setopt($ch, CURLOPT_URL, $url);
 
         //return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
         // $output contains the output string
         $output = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($output), $httpcode, \App\Http\Controllers\SimplyDutyCurrencyController::class, 'getCurrencyFromApi');
 
         // close curl resource to free up system resources
-        curl_close($ch); 
+        curl_close($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         $currencies = json_decode($output);
-        
-        foreach($currencies as $currency){
+
+        foreach ($currencies as $currency) {
             $currency = $currency->CurrencyType;
-            $cur =  SimplyDutyCurrency::where('currency',$currency)->first();
-            if($cur != '' && $cur != null){
+            $cur = SimplyDutyCurrency::where('currency', $currency)->first();
+            if ($cur != '' && $cur != null) {
                 $cur->touch();
-            }else{
+            } else {
                 $currencySave = new SimplyDutyCurrency;
                 $currencySave->currency = $currency;
                 $currencySave->save();
             }
         }
 
-        return Response::json(array('success' => true)); 
+        return Response::json(['success' => true]);
     }
 
     /**
@@ -142,23 +143,26 @@ class SimplyDutyCurrencyController extends Controller
      *   tags={"Duty"},
      *   summary="Get currencies",
      *   operationId="get-currencies",
+     *
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
+     *
      *      @SWG\Parameter(
      *          name="mytest",
      *          in="path",
-     *          required=true, 
-     *          type="string" 
+     *          required=true,
+     *          type="string"
      *      ),
      * )
-     *
      */
-    public function sendCurrencyJson(){
+    public function sendCurrencyJson()
+    {
         $currencies = SimplyDutyCurrency::all();
-        foreach($currencies as $currency){
-            $currencyArray[] = array('CurrencyType'=> $currency->currency);
+        foreach ($currencies as $currency) {
+            $currencyArray[] = ['CurrencyType' => $currency->currency];
         }
+
         return json_encode($currencyArray);
     }
 }

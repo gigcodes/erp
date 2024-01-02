@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\GoogleServer;
-use Illuminate\Http\Request;
 use App\LogGoogleCse;
+use Illuminate\Http\Request;
 
 class GoogleServerController extends Controller
 {
@@ -16,8 +16,9 @@ class GoogleServerController extends Controller
     public function index(Request $request)
     {
         $googleServer = GoogleServer::paginate(15);
+
         return view('google-server.index', [
-            'googleServer' => $googleServer
+            'googleServer' => $googleServer,
         ]);
     }
 
@@ -34,18 +35,17 @@ class GoogleServerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
-            'key' => 'required|string|max:255'
+            'key' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
-        
+
         GoogleServer::create($data);
 
         return redirect()->route('google-server.index')->withSuccess('You have successfully saved a Google Server!');
@@ -54,7 +54,7 @@ class GoogleServerController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -65,19 +65,18 @@ class GoogleServerController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
-            'key' => 'required|string|max:255'
+            'key' => 'required|string|max:255',
         ]);
 
         $data = $request->except('_token');
-        
+
         GoogleServer::find($id)->update($data);
 
         return redirect()->back()->withSuccess('You have successfully updated a Google Server!');
@@ -86,7 +85,7 @@ class GoogleServerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -104,11 +103,10 @@ class GoogleServerController extends Controller
         $keyword = $request->keyword;
         $response = $request->response;
         $count = $request->count;
-        
-        
-        $responseString = 'Link: '.$response[$count]['link'] .'\n Display Link: '.$response[$count]['displayLink'].'\n Title : '.$response[$count]['title'].'\n Image Details: '.$response[$count]['image']['contextLink'].' Height:'. $response[$count]['image']['height'].' Width : '. $response[$count]['image']['width'].'\n ThumbnailLink '.$response[$count]['image']['thumbnailLink'];
 
-        $log =  new LogGoogleCse();
+        $responseString = 'Link: ' . $response[$count]['link'] . '\n Display Link: ' . $response[$count]['displayLink'] . '\n Title : ' . $response[$count]['title'] . '\n Image Details: ' . $response[$count]['image']['contextLink'] . ' Height:' . $response[$count]['image']['height'] . ' Width : ' . $response[$count]['image']['width'] . '\n ThumbnailLink ' . $response[$count]['image']['thumbnailLink'];
+
+        $log = new LogGoogleCse();
         $log->image_url = $url;
         $log->keyword = $keyword;
         $log->response = $responseString;

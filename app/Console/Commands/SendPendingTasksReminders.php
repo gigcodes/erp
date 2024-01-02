@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Task;
 use App\User;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class SendPendingTasksReminders extends Command
@@ -41,27 +42,32 @@ class SendPendingTasksReminders extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
 
             $tasks = Task::whereNull('is_completed')->whereRaw('tasks.id IN (SELECT task_id FROM task_users WHERE user_id IN (6, 7, 49, 56) AND type LIKE "%User%")')->get()->groupBy('assign_to');
-
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Task query finished.']);
             foreach ($tasks as $user_id => $data) {
                 $user = User::find($user_id);
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'User query finished.']);
 
                 if ($user) {
-                    $count   = count($data);
+                    $count = count($data);
                     $message = "Today You have $count pending tasks.";
 
                     dump("$user_id - $user->name has $count pending tasks");
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "$user_id - $user->name has $count pending tasks"]);
 
                     try {
-                        dump("Sending message");
+                        dump('Sending message');
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Sending message']);
 
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $message);
                     } catch (\Exception $e) {
                         dump($e->getMessage());
                     }
@@ -69,7 +75,11 @@ class SendPendingTasksReminders extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

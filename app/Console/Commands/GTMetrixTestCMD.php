@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Setting;
-use App\StoreViewsGTMetrix;
-use App\WebsiteStoreView;
 use Carbon\Carbon;
+use App\LogRequest;
+use App\CronJobReport;
+use App\WebsiteStoreView;
+use App\Helpers\LogHelper;
+use App\StoreViewsGTMetrix;
 use Illuminate\Console\Command;
 
 class GTMetrixTestCMD extends Command
@@ -42,28 +44,29 @@ class GTMetrixTestCMD extends Command
      */
     public function handle()
     {
-
         try {
             \Log::info('GTMetrix :: Daily cron start ');
-            $cronStatus = Setting::where('name', "gtmetrixCronStatus")->get()->first();
-            if (!empty($cronStatus)) {
+            $cronStatus = Setting::where('name', 'gtmetrixCronStatus')->get()->first();
+            if (! empty($cronStatus)) {
                 if ($cronStatus->val == 'stop') {
                     \Log::info('GTMetrix :: stopped');
+
                     return false;
                 }
             }
 
-            $cronType    = Setting::where('name', "gtmetrixCronType")->get()->first();
-            $cronRunTime = Setting::where('name', "gtmetrixCronRunDate")->get()->first();
+            $cronType = Setting::where('name', 'gtmetrixCronType')->get()->first();
+            $cronRunTime = Setting::where('name', 'gtmetrixCronRunDate')->get()->first();
 
-            if (!empty($cronRunTime) && !empty($cronType)) {
+            if (! empty($cronRunTime) && ! empty($cronType)) {
                 if ($cronRunTime->val != now()->format('Y-m-d') && $cronType->val != 'daily') {
                     \Log::info('GTMetrix :: cron run time false');
+
                     return false;
                 }
             }
 
-            if (!empty($cronType)) {
+            if (! empty($cronType)) {
                 if ($cronType->val == 'weekly') {
                     $nextDate = now()->addWeeks(1)->format('Y-m-d');
                 } else {
@@ -75,21 +78,21 @@ class GTMetrixTestCMD extends Command
 
             $this->nextCronRunTime($nextDate);
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             \Log::info('GTMetrix :: Daily cron start ');
             $storeViewList = WebsiteStoreView::whereNotNull('website_store_id')
             // ->where('website_store_views.id',977)
-                ->join("website_stores as ws", "ws.id", "website_store_views.website_store_id")
-                ->join("websites as w", "w.id", "ws.website_id")
-                ->join("store_websites as sw", "sw.id", "w.store_website_id")
-                ->groupBy("store_website_id")
-                ->select("website_store_views.code", "website_store_views.id", "sw.website", "sw.magento_url", "sw.id as store_website_id")
+                ->join('website_stores as ws', 'ws.id', 'website_store_views.website_store_id')
+                ->join('websites as w', 'w.id', 'ws.website_id')
+                ->join('store_websites as sw', 'sw.id', 'w.store_website_id')
+                ->groupBy('store_website_id')
+                ->select('website_store_views.code', 'website_store_views.id', 'sw.website', 'sw.magento_url', 'sw.id as store_website_id')
                 ->get()->toArray();
 
-            \Log::info('GTMetrix :: store website =>' . sizeof($storeViewList));
+            \Log::info('GTMetrix :: store website =>' . count($storeViewList));
 
             $request_too_many_pending = false;
 
@@ -105,44 +108,48 @@ class GTMetrixTestCMD extends Command
             //    StoreViewsGTMetrix::create( $create );
             // }
 
-            if (!empty($storeViewList)) {
+            if (! empty($storeViewList)) {
                 foreach ($storeViewList as $value) {
-
                     $webiteUrl = $value['magento_url'];
-                    $curl      = curl_init();
+                    $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+                    $curl = curl_init();
+                    $url = $webiteUrl . '/pub/sitemap/sitemap_gb_en.xml';
 
-                    curl_setopt_array($curl, array(
-                        CURLOPT_URL            => "$webiteUrl/pub/sitemap/sitemap_gb_en.xml",
+                    curl_setopt_array($curl, [
+                        CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING       => "",
-                        CURLOPT_TIMEOUT        => 30000,
-                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST  => "GET",
-                        CURLOPT_HTTPHEADER     => array(
+                        CURLOPT_ENCODING => '',
+                        CURLOPT_TIMEOUT => 30000,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => 'GET',
+                        CURLOPT_HTTPHEADER => [
                             // Set Here Your Requesred Headers
                             'Content-Type: application/json',
-                        ),
-                    ));
+                        ],
+                    ]);
                     $response = curl_exec($curl);
-                    $err      = curl_error($curl);
+                    $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                    LogRequest::log($startTime, $webiteUrl, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Console\Commands\GTMetrixTestCMD::class, 'handle');
+
+                    $err = curl_error($curl);
                     curl_close($curl);
+
                     //$create = array();
                     if ($err) {
                         \Log::info('GTMetrix :: Something went Wrong Not able to fetch sitemap url' . $err);
-                        echo "cURL Error #:" . $err;
+                        echo 'cURL Error #:' . $err;
                     } else {
                         if (preg_match('/<html[^>]*>/', $response)) {
-
-                            $siteData = array(
+                            $siteData = [
 
                                 'store_view_id' => $value['id'],
-                                'status'        => 'not_queued',
-                                'website_url'   => $webiteUrl . '/' . $value['code'],
-                            );
+                                'status' => 'not_queued',
+                                'website_url' => $webiteUrl . '/' . $value['code'],
+                            ];
 
                             $create[] = $siteData;
                             \Log::info("\nMessage:  Not found sitemap data");
-                        } else if (preg_match('/<\?xml[^?]*\?>/', $response)) {
+                        } elseif (preg_match('/<\?xml[^?]*\?>/', $response)) {
                             \Log::info("\nMessage: Site map data fetch succesfully");
                             $xml = simplexml_load_string($response);
                             //Convert into json
@@ -151,37 +158,32 @@ class GTMetrixTestCMD extends Command
                             $finalArray = json_decode($xmlToJson, true);
 
                             if ($finalArray) {
-                                $siteData = array(
+                                $siteData = [
 
                                     'store_view_id' => $value['id'],
-                                    'status'        => 'not_queued',
-                                    'website_url'   => $webiteUrl . '/' . $value['code'],
-                                );
+                                    'status' => 'not_queued',
+                                    'website_url' => $webiteUrl . '/' . $value['code'],
+                                ];
 
                                 \Log::info(print_r($siteData, true));
                                 $create[] = $siteData;
                                 foreach ($finalArray['url'] as $key => $valueExtra) {
-
-                                    $siteData = array(
+                                    $siteData = [
 
                                         'store_view_id' => $value['id'],
-                                        'status'        => 'not_queued',
-                                        'website_url'   => $valueExtra['loc'],
-                                    );
+                                        'status' => 'not_queued',
+                                        'website_url' => $valueExtra['loc'],
+                                    ];
 
                                     $create[] = $siteData;
-
                                 }
                             }
                             foreach ($create as $key => $value) {
                                 StoreViewsGTMetrix::create($value);
                             }
-
                         }
                         \Log::info('-cUrl:' . json_encode($create) . "\nMessage:  Fetch Succesfully");
-
                     }
-
                 }
             }
 
@@ -191,23 +193,25 @@ class GTMetrixTestCMD extends Command
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \Log::error('GTMetrix :: ' . $e->getMessage());
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 
     public function nextCronRunTime($date = null)
     {
-
-        $type = Setting::where('name', "gtmetrixCronRunDate")->get()->first();
+        $type = Setting::where('name', 'gtmetrixCronRunDate')->get()->first();
         if (empty($type)) {
-            $type['name'] = "gtmetrixCronRunDate";
-            $type['type'] = "date";
-            $type['val']  = $date;
+            $type['name'] = 'gtmetrixCronRunDate';
+            $type['type'] = 'date';
+            $type['val'] = $date;
             Setting::create($type);
         } else {
             $type->val = $date;
             $type->save();
         }
+
         return true;
     }
 }

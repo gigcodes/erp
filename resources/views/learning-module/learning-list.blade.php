@@ -24,7 +24,7 @@
             @endforeach
         </select>
     </td>
-    <td><div style="display: flex"><input type="text" class="form-control send-message-textbox" name="learning_subject" value="{{ $learning->learning_subject }}"> <img src="/images/filled-sent.png" class="updateSubject"style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
+    <td><div style="display: flex"><input type="text" class="form-control send-message-textbox" name="learning_subject" value="{{ $learning->learning_subject }}"> <img src="{{asset('/images/filled-sent.png')}}" class="updateSubject"style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
     <td>
         <select class="form-control updateModule" name="module">
             @foreach(App\LearningModule::where('parent_id',0)->get() as $module)
@@ -40,10 +40,10 @@
             @endforeach
         </select>
     </td>
-    <td><div style="display: flex"><input type="text" class="form-control send-message-textbox" name="learning_assignment" value="{{ $learning->learning_assignment }}" maxlength="15"> <img src="/images/filled-sent.png" class="updateAssignment" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
+    <td><div style="display: flex"><input type="text" class="form-control send-message-textbox" name="learning_assignment" value="{{ $learning->learning_assignment }}" maxlength="15"> <img src="{{asset('/images/filled-sent.png')}}" class="updateAssignment" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td>
 
     <td>
-        <div>
+        <div style="display: flex">
             <input style="min-width: 30px;" placeholder="E.Date" 
                 value="{{ $learning->learning_duedate }}" 
                 type="text" 
@@ -73,10 +73,10 @@
         <!-- class="expand-row" -->
       
        
-        <input type="text" class="form-control send-message-textbox" data-id="{{$learning->id}}" id="send_message_{{$learning->id}}" name="send_message_{{$learning->id}}" style="margin-bottom:5px;width:60%;display:inline;"/>
+        <input type="text" class="form-control send-message-textbox" data-id="{{$learning->id}}" id="send_message_{{$learning->id}}" name="send_message_{{$learning->id}}" style="margin-bottom:5px;width:70%;display:inline;"/>
        
-        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$learning->id}}" ><img src="/images/filled-sent.png"/></button>
-        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='learning' data-id="{{ $learning->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$learning->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='learning' data-id="{{ $learning->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
         {{-- <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;" data-id="{{$learning->id}}">
             <span class="td-mini-container-{{$learning->id}}" style="margin:0px;">
                             {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
@@ -94,15 +94,33 @@
             </span>
         </div>
     </td>
+
     <td>
-        {{-- @if ($special_learning->users->contains(Auth::id()) || $learning->assign_from == Auth::id()  || $learning->master_user_id == Auth::id()) --}}
-            <button type="button"  data-id="{{ $learning->id }}" class="btn btn-xs btn-file-upload pd-5 p-0">
-                <i class="fa fa-upload" aria-hidden="true"></i>
-            </button>
-        {{-- @endif --}}
-        {{-- @if ($special_learning->users->contains(Auth::id()) || ($learning->assign_from == Auth::id() && $learning->is_private == 0) || ($learning->assign_from == Auth::id() && $special_learning->contacts()->count() > 0) || Auth::id() == 6) --}}
-            <a href="{{ route('learning.show', $learning->id) }}" class="btn btn-xs btn-image pd-5 p-0" href=""><img src="{{asset('images/view.png')}}"/></a>
-        {{-- @endif --}}
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Learningbtn('{{$learning->id}}')"><i class="fa fa-arrow-down"></i></button>
     </td>
+
     {{-- <td><div style="display: flex"><input type="text" class="form-control send-message-textbox"> <img src="/images/filled-sent.png" style="cursor: pointer; object-fit: contain; height: auto; width: 16px; margin-left: 4px;"></div></td> --}}
 </tr>
+
+<tr>
+
+</tr>
+<tr class="action-learningbtn-tr-{{$learning->id}} d-none">
+    <td class="font-weight-bold">Action</td>
+    <td colspan="11">
+        {{-- @if ($special_learning->users->contains(Auth::id()) || $learning->assign_from == Auth::id()  || $learning->master_user_id == Auth::id()) --}}
+        <button type="button"  data-id="{{ $learning->id }}" class="btn btn-xs btn-file-upload pd-5 p-0">
+            <i class="fa fa-upload" aria-hidden="true"></i>
+        </button>
+        {{-- @endif --}}
+        {{-- @if ($special_learning->users->contains(Auth::id()) || ($learning->assign_from == Auth::id() && $learning->is_private == 0) || ($learning->assign_from == Auth::id() && $special_learning->contacts()->count() > 0) || Auth::id() == 6) --}}
+        <a href="{{ route('learning.show', $learning->id) }}" class="btn btn-xs btn-image pd-5 p-0 mt-auto" href=""><img src="{{asset('images/view.png')}}"/></a>
+        {{-- @endif --}}
+    </td>
+</tr>
+
+<script>
+    function Learningbtn(id){
+        $(".action-learningbtn-tr-"+id).toggleClass('d-none')
+    }
+</script>

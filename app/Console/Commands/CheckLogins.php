@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
+use Cache;
 use App\User;
 use App\UserLogin;
-use Cache;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
-use Log;
 
 class CheckLogins extends Command
 {
@@ -45,16 +44,15 @@ class CheckLogins extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            \Log::channel('customer')->info(Carbon::now() . " begin checking users logins");
+            \Log::channel('customer')->info(Carbon::now() . ' begin checking users logins');
             $users = User::all();
 
             foreach ($users as $user) {
                 if ($login = UserLogin::where('user_id', $user->id)->where('created_at', '>', Carbon::now()->format('Y-m-d'))->latest()->first()) {
-
                 } else {
                     $login = UserLogin::create(['user_id' => $user->id]);
                 }
@@ -62,17 +60,17 @@ class CheckLogins extends Command
                 if (Cache::has('user-is-online-' . $user->id)) {
                     if ($login->logout_at) {
                         UserLogin::create(['user_id' => $user->id, 'login_at' => Carbon::now()]);
-                    } else if (!$login->login_at) {
+                    } elseif (! $login->login_at) {
                         $login->update(['login_at' => Carbon::now()]);
                     }
                 } else {
-                    if ($login->created_at && !$login->logout_at) {
+                    if ($login->created_at && ! $login->logout_at) {
                         $login->update(['logout_at' => Carbon::now()]);
                     }
                 }
             }
 
-            \Log::channel('customer')->info(Carbon::now() . " end of checking users logins");
+            \Log::channel('customer')->info(Carbon::now() . ' end of checking users logins');
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

@@ -15,7 +15,7 @@
                     {{ Session::get('message') }}
                 </div>
             @endif
-            <form method="post" action="{{ action('SocialTagsController@store') }}">
+            <form method="post" action="{{ action([\App\Http\Controllers\SocialTagsController::class, 'store']) }}">
                 @csrf
                 <div class="form-group">
                     <label for="name">Tag Name</label>
@@ -39,9 +39,9 @@
                         <td>{{ $tag->name }}</td>
                         <td>
                             <a target="_new" href="https://www.facebook.com/hashtag/{{$tag->name}}" class="btn btn-primary">Show Facebook</a>&nbsp;
-                            <a target="_new" href="{{ action('SocialTagsController@show', $tag->id) }}" class="btn btn-warning">Show Instagram</a>&nbsp;
-                            <a href="{{ action('SocialTagsController@edit', $tag->id) }}" class="btn btn-info">Edit</a>&nbsp;
-                            <form style="display: inline" action="{{ action('SocialTagsController@destroy', $tag->id) }}" method="post">
+                            <a target="_new" href="{{ action([\App\Http\Controllers\SocialTagsController::class, 'show'], $tag->id) }}" class="btn btn-warning">Show Instagram</a>&nbsp;
+                            <a href="{{ action([\App\Http\Controllers\SocialTagsController::class, 'edit'], $tag->id) }}" class="btn btn-info">Edit</a>&nbsp;
+                            <form style="display: inline" action="{{ action([\App\Http\Controllers\SocialTagsController::class, 'destroy'], $tag->id) }}" method="post">
                                 @method('delete')
                                 @csrf
                                 <button class="btn btn-danger">Delete</button>

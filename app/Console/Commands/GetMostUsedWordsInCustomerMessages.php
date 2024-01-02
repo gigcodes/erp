@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\BulkCustomerRepliesKeyword;
+use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\BulkCustomerRepliesKeyword;
 
 class GetMostUsedWordsInCustomerMessages extends Command
 {
@@ -43,7 +43,7 @@ class GetMostUsedWordsInCustomerMessages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -84,18 +84,19 @@ class GetMostUsedWordsInCustomerMessages extends Command
         if ($keyword !== null) {
             $keyword->count = (int) $keyword->count + 1;
             $keyword->save();
-            echo "UPDATED: " . $word . " " . $keyword->count . "\n";
+            echo 'UPDATED: ' . $word . ' ' . $keyword->count . "\n";
+
             return;
         }
 
-        $keyword            = new BulkCustomerRepliesKeyword();
-        $keyword->value     = $word;
+        $keyword = new BulkCustomerRepliesKeyword();
+        $keyword->value = $word;
         $keyword->text_type = 'keyword';
         $keyword->is_manual = 0;
-        $keyword->count     = 1;
+        $keyword->count = 1;
         $keyword->save();
 
         // NEW
-        echo "NEW: " . $word . "\n";
+        echo 'NEW: ' . $word . "\n";
     }
 }

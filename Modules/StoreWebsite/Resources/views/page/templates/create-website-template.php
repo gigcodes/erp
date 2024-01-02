@@ -13,6 +13,44 @@
     background-color: #eeeeee;
     border-color: #e4e4e4;
   }
+  #iframe {
+    z-index: 99999;
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    /* Center the element vertically */
+    top: 0;
+    bottom: 0;
+    /* Center the element horizontally */
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.825);
+}
+#iframe > iframe {
+    width: 90%;
+    height: 80%;
+    overflow-y: scroll;
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    border: none;
+    outline: none;
+}
+.close-iframe-btn {
+    position: absolute;
+    top: 0; right: 0;
+    margin: 15px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    outline: none;
+    background: rgba(200,200,200, 1);
+}
+.close-iframe-btn span {
+    font-size: 29px;
+}
 </style>
 <div class="modal-content">
   <div class="modal-header">
@@ -27,9 +65,9 @@
       {{if data}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <select class="form-control globalSelect2" id="website-page-copy-to">
+          <select multiple class="form-control globalSelect2 select-searchable" id="website-page-copy-to" name="copy_to[]">
           <option value="">Copy To Page</option>
-            <?php foreach($pages as $k => $page) { ?>
+            <?php foreach ($pages as $k => $page) { ?>
               <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
             <?php } ?>
           </select>
@@ -46,9 +84,9 @@
 			{{/if}}
       <div class="form-row">
         <div class="form-group col-md-3">
-          <select name="page" class="form-control website-page-change">
+          <select name="page" class="form-control website-page-change select-searchable" id="website-page-change">
             <option value="">Copy From Page</option>
-              <?php foreach($pages as $k => $page) { ?>
+              <?php foreach ($pages as $k => $page) { ?>
                 <option value="<?php echo $k; ?>"><?php echo $page; ?></option>
               <?php } ?>
           </select>
@@ -56,7 +94,7 @@
         <div class="form-group col-md-3">
             <select name="language" class="form-control website-language-change">
               <option value="">Language</option>
-                <?php foreach($languages as $k => $language) { ?>
+                <?php foreach ($languages as $k => $language) { ?>
                   <option value="<?php echo $language; ?>"><?php echo $language; ?></option>
                 <?php } ?>
             </select> 
@@ -155,6 +193,17 @@
           <input type="text" name="platform_id" value="{{if data}}{{:data.platform_id}}{{/if}}" class="form-control" id="content_heading" placeholder="Enter Platform ID">
         </div>
       </div>
+
+      <select class="btn-edit-cms-page-select">
+        <?php
+        foreach ($storeWebsitesModel as $title => $url) {
+            if (!$url) {
+                continue;
+            }
+            echo "<option value='" . $url . "'>" . $title . '</option>';
+        }
+        ?>
+      </select>
               <div class="form-row">
                 <div class="form-group col-md-12 mb-0">
                   <label for="content" class="font-weight-normal">Content</label>
@@ -171,10 +220,10 @@
                      <select name="active" class="form-control store-website-change">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach([0 => "No", 1 => "Yes"] as $k => $l) {
-                                echo "<option {{if data.active == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
+                            foreach ([0 => 'No', 1 => 'Yes'] as $k => $l) {
+                                echo "<option {{if data.active == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
                             }
-                        ?>
+    ?>
                      </select>
                   </div>
                   <div class="form-group col-md-4">
@@ -182,10 +231,10 @@
                      <select name="language" class="form-control store-website-language">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach(\App\Language::pluck('name','name')->toArray() as $k => $l) {
-                                echo "<option {{if data.language == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-                            }
-                        ?>
+        foreach (\App\Language::pluck('name', 'name')->toArray() as $k => $l) {
+            echo "<option {{if data.language == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+        }
+    ?>
                      </select>
                   </div>
               </div>
@@ -195,13 +244,13 @@
                 {{else}}
                   <div class="form-group col-md-6">
                      <label for="store_website_id" class="font-weight-normal">Store website</label>
-                     <select name="store_website_id" class="form-control store-website-change">
+                     <select name="store_website_id" class="form-control store-website-change select-searchable">
                         <option value="">-- N/A --</option>
                         <?php
-                            foreach($storeWebsites as $k => $l) {
-                                echo "<option {{if data.store_website_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
-                            }
-                        ?>
+        foreach ($storeWebsites as $k => $l) {
+            echo "<option {{if data.store_website_id == '" . $k . "'}} selected {{/if}} value='" . $k . "'>" . $l . '</option>';
+        }
+    ?>
                      </select>
                   </div>
                   <div class="form-group col-md-6">
@@ -218,4 +267,22 @@
            </div>
           </form>
         </div>
+    <script>
+        $(document).on("click", ".open-iframe-btn", function (e) {
+            e.preventDefault();
+            $('#iframe').show();
+        });
+
+        $(document).on("click", ".close-iframe-btn", function (e) {
+            e.preventDefault();
+            $('#iframe').hide();
+        });
+
+        $('.btn-edit-cms-page-select').change(function (e) {
+            var url = $(this).val();
+            $('#iframe').show();
+
+            $("#iframe > iframe").attr("src", url + '/cms/page/edit/');
+        });
+    </script>
 </script> 

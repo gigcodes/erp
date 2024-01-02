@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Library\Watson\Language\Workspaces\V1\IntentService;
 
 class ImportWatsonIntents extends Command
 {
@@ -43,35 +43,35 @@ class ImportWatsonIntents extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $watson = new IntentService(
-                "apiKey",
-                "9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC"
+                'apiKey',
+                '9is8bMkHLESrkNJvcMNNeabUeXRGIK8Hxhww373MavdC'
             );
 
-            $workspaceId = "19cf3225-f007-4332-8013-74443d36a3f7";
+            $workspaceId = '19cf3225-f007-4332-8013-74443d36a3f7';
 
-            $result = $watson->getList($workspaceId, ['export' => "true"]);
+            $result = $watson->getList($workspaceId, ['export' => 'true']);
 
             $result = json_decode($result->getContent());
 
-            if (!empty($result->intents)) {
+            if (! empty($result->intents)) {
                 foreach ($result->intents as $intents) {
-                    $question = ChatbotQuestion::where("value", $intents->intent)->first();
-                    if (!$question) {
+                    $question = ChatbotQuestion::where('value', $intents->intent)->first();
+                    if (! $question) {
                         $question = ChatbotQuestion::create([
-                            "value"        => $intents->intent,
-                            "workspace_id" => $workspaceId,
+                            'value' => $intents->intent,
+                            'workspace_id' => $workspaceId,
                         ]);
                     }
 
-                    if (!empty($intents->examples)) {
+                    if (! empty($intents->examples)) {
                         foreach ($intents->examples as $example) {
                             ChatbotQuestionExample::updateOrCreate(
-                                ["chatbot_question_id" => $question->id, "question" => $example->text],
-                                ["text" => $example->text]
+                                ['chatbot_question_id' => $question->id, 'question' => $example->text],
+                                ['text' => $example->text]
                             );
                         }
                     }

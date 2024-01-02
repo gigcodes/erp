@@ -1,4 +1,4 @@
-# API Documentation
+# API Documentation Test
 
 This API uses `POST` request to communicate and HTTP [response codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) to indenticate status and errors. All responses come in standard JSON. All requests must include a `content-type` of `application/json` and the body must be valid JSON.
 
@@ -63,6 +63,7 @@ Content-Type: application/json
     "message": "Ticket #T20201009155741 created successfully"
 }
 ```
+
 Key : ticket.failed, ticket.failed.validation, ticket.failed.email_or_phone
 **Failed Response:**
 
@@ -150,6 +151,7 @@ Content-Type: application/json
     "lang_code":"ae_ar", // Enter language code
 }
 ```
+
 Key : giftcard.success
 
 **Successful Response:**
@@ -183,14 +185,16 @@ Content-Type: application/json
 GET https://erp.theluxuryunlimited.com/api/giftcards/check-giftcard-coupon-amount
 Accept: application/json
 Content-Type: application/json
-{   
+{
     "coupon_code" : "A1A22A111FFF333", //required, length maxminum 30, existing in gift_cards
-    "lang_code":"ae_ar", // Enter language code 
+    "lang_code":"ae_ar", // Enter language code
 }
 ```
+
 Key : giftcard.amount.success
 
 **Successful Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -203,6 +207,7 @@ Content-Type: application/json
     }
 }
 ```
+
 Key : giftcard.amount.failed, giftcard.amount.failed.validation
 
 **Failed Response:**
@@ -214,7 +219,7 @@ Key : giftcard.amount.failed, giftcard.amount.failed.validation
 }
 ```
 
-## Order status for a customer 
+## Order status for a customer
 
 **Request:**
 
@@ -224,9 +229,11 @@ Accept: application/json
 Content-Type: application/json
 'Authorization: Bearer (Requested_website_token)'
 ```
+
 Key : customer.order.success
 
 **Successful Response:**
+
 ```json
 Content-Type: application/json
 
@@ -303,6 +310,7 @@ Content-Type: application/json
     "message": "Email is absent in your request"
 }
 ```
+
 ## Buyback | Return | Exchange | Refund Check Product API
 
 **Request:**
@@ -320,43 +328,44 @@ Content-Type: application/json
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "status": "success",
-    "orders": {
-        "1": [
-            {
-                "product_name": "Dr. Osborne Harber",
-                "product_price": "0",
-                "sku": "6493033100078",
-                "product_id": 296561,
-                "order_id": "1"
-            },
-            {
-                "product_name": "Dr. Osborne Harber",
-                "product_price": "0",
-                "sku": "6493033100079",
-                "product_id": 296560,
-                "order_id": "1"
-            }
-        ],
-        "2": [
-            {
-                "product_name": "Dr. Osborne Harber",
-                "product_price": "0",
-                "sku": "6493033100080",
-                "product_id": 296569,
-                "order_id": "2"
-            }
-        ]
-    }
+  "status": "success",
+  "orders": {
+    "1": [
+      {
+        "product_name": "Dr. Osborne Harber",
+        "product_price": "0",
+        "sku": "6493033100078",
+        "product_id": 296561,
+        "order_id": "1"
+      },
+      {
+        "product_name": "Dr. Osborne Harber",
+        "product_price": "0",
+        "sku": "6493033100079",
+        "product_id": 296560,
+        "order_id": "1"
+      }
+    ],
+    "2": [
+      {
+        "product_name": "Dr. Osborne Harber",
+        "product_price": "0",
+        "sku": "6493033100080",
+        "product_id": 296569,
+        "order_id": "2"
+      }
+    ]
+  }
 }
 ```
-
 
 key : buyback.failed, buyback.failed.validation, buyback.failed.no_order_found
 
 **Failed Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -364,6 +373,7 @@ Content-Type: application/json
     "message": "Customer not found with this email !"
 }
 ```
+
 ## Create Buyback | Return | Exchange | Cancellation | Refund request API
 
 **Request:**
@@ -381,14 +391,15 @@ Content-Type: application/json
     "lang_code":"ae_ar", // Enter language code
 }
 ```
-For type expected value will be "return","exchange","buyback","refund", "cancellation"
 
+For type expected value will be "return","exchange","buyback","refund", "cancellation"
 
 Type : return, exchange, buyback, refund, cancellation
 
 key : [type].success
 
 **Successful Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -402,6 +413,7 @@ Type : return, exchange, buyback, refund, cancellation
 Key : [type].failed, [type].failed.validation, [type].failed.no_order_found
 
 **Failed Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -427,7 +439,9 @@ Content-Type: application/json
 
 key : price_compare.success
 ```
+
 **Successful Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -446,6 +460,7 @@ Content-Type: application/json
 key : price_compare.failed, price_compare.failed.validation, price_compare.failed.no_price_comparision
 
 **Failed Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -453,7 +468,6 @@ Content-Type: application/json
     "message": "No Category Found"
 }
 ```
-
 
 ## Affilates Api
 
@@ -482,10 +496,10 @@ Content-Type: application/json
 }
 ```
 
-
 key : affiliates.success
 
 **Successful Response:**
+
 ```json
 HTTP/1.1 200
 Content-Type: application/json
@@ -498,6 +512,7 @@ Content-Type: application/json
 key : affiliates.failed, affiliates.failed.validation
 
 **Failed Response:**
+
 ```json
 HTTP/1.1 500
 Content-Type: application/json
@@ -506,7 +521,6 @@ Content-Type: application/json
     "message": "unable to add affiliate !"
 }
 ```
-
 
 ## Magneto Customer Reference Store API
 
@@ -524,12 +538,13 @@ Content-Type: application/json
     "dob": "2020-10-23", //optional
     "wedding_anniversery": "2020-10-23", //optional
     "lang_code":"ae_ar", // Enter language code
-    
+
 }
 ```
 
 key : customer_reference.success
 **Successful Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -540,6 +555,7 @@ Content-Type: application/json
 
 key : customer_reference.403
 **Failed Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -558,85 +574,88 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "live_chat",
-    "email" : "bardam.yus@gmail.com", //optional if ticket_id is set 
+    "email" : "bardam.yus@gmail.com", //optional if ticket_id is set
     "ticket_id":"PWTCR", //optional if email is set
     "per_page":"10", //optional, default is 15
     "lang_code":"ae_ar", // Enter language code
 }
 ```
+
 **Successful Response:**
+
 ```json
 {
-    "status": "success",
-    "tickets": {
-        "current_page": 1,
-        "data": [
-            {
-                "id": 3,
-                "customer_id": 3008,
-                "name": "Bardambek Yusupov",
-                "email": "bardam.yus@gmail.com",
-                "ticket_id": "PWTCR",
-                "subject": "Task test",
-                "message": "Message: Hi",
-                "resolution_date": null,
-                "assigned_to": null,
-                "source_of_ticket": "live_chat",
-                "status_id": 1,
-                "date": "2020-08-25 03:26:31",
-                "created_at": "2020-09-11 13:48:23",
-                "updated_at": "2020-09-11 14:08:33",
-                "type_of_inquiry": null,
-                "last_name": null,
-                "country": null,
-                "phone_no": null,
-                "order_no": null,
-                "notify_on": null,
-                "amount": null,
-                "sku": null,
-                "brand": null,
-                "style": null,
-                "keyword": null,
-                "image": null,
-                "deleted_at": null,
-                "lang_code": null,
-                "status": "open",
-                "messages": [
-                    {
-                        "id": 1814762,
-                        "message": "test",
-                        "created_at": "2022-02-07 09:35:41"
-                    },
-                    {
-                        "id": 1814761,
-                        "message": "test",
-                        "created_at": "2022-02-07 09:34:03"
-                    },
-                    {
-                        "id": 1814760,
-                        "message": "test",
-                        "created_at": "2022-02-07 09:33:54"
-                    }
-                ]
-            }
-        ],
-        "first_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
-        "from": 1,
-        "last_page": 1,
-        "last_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
-        "next_page_url": null,
-        "path": "https://erpdev3.theluxuryunlimited.com/api/ticket/send",
-        "per_page": "10",
-        "prev_page_url": null,
-        "to": 1,
-        "total": 1
-    }
+  "status": "success",
+  "tickets": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 3,
+        "customer_id": 3008,
+        "name": "Bardambek Yusupov",
+        "email": "bardam.yus@gmail.com",
+        "ticket_id": "PWTCR",
+        "subject": "Task test",
+        "message": "Message: Hi",
+        "resolution_date": null,
+        "assigned_to": null,
+        "source_of_ticket": "live_chat",
+        "status_id": 1,
+        "date": "2020-08-25 03:26:31",
+        "created_at": "2020-09-11 13:48:23",
+        "updated_at": "2020-09-11 14:08:33",
+        "type_of_inquiry": null,
+        "last_name": null,
+        "country": null,
+        "phone_no": null,
+        "order_no": null,
+        "notify_on": null,
+        "amount": null,
+        "sku": null,
+        "brand": null,
+        "style": null,
+        "keyword": null,
+        "image": null,
+        "deleted_at": null,
+        "lang_code": null,
+        "status": "open",
+        "messages": [
+          {
+            "id": 1814762,
+            "message": "test",
+            "created_at": "2022-02-07 09:35:41"
+          },
+          {
+            "id": 1814761,
+            "message": "test",
+            "created_at": "2022-02-07 09:34:03"
+          },
+          {
+            "id": 1814760,
+            "message": "test",
+            "created_at": "2022-02-07 09:33:54"
+          }
+        ]
+      }
+    ],
+    "first_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "https://erpdev3.theluxuryunlimited.com/api/ticket/send?page=1",
+    "next_page_url": null,
+    "path": "https://erpdev3.theluxuryunlimited.com/api/ticket/send",
+    "per_page": "10",
+    "prev_page_url": null,
+    "to": 1,
+    "total": 1
+  }
 }
 ```
 
 key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
 
 **Failed Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -644,7 +663,8 @@ Content-Type: application/json
     "message": "Tickets not found for customer !"
 }
 ```
-##  send Ticket message
+
+## send Ticket message
 
 **Request:**
 
@@ -659,68 +679,71 @@ Content-Type: application/json
     "action":"send_messsage",
 }
 ```
+
 **Successful Response:**
+
 ```json
 {
-    "status": "success",
-    "tickets": {
-        "current_page": 1,
-        "data": [
-            {
-                "id": 3,
-                "customer_id": 3008,
-                "name": "Bardambek Yusupov",
-                "last_name": null,
-                "email": "bardam.yus@gmail.com",
-                "ticket_id": "PWTCR",
-                "subject": "Task test",
-                "message": "Message: Hi",
-                "assigned_to": null,
-                "source_of_ticket": "live_chat",
-                "status_id": 1,
-                "date": "2020-08-25 01:26:31",
-                "created_at": "2020-09-11 11:48:23",
-                "updated_at": "2020-09-11 12:08:33",
-                "type_of_inquiry": null,
-                "country": null,
-                "phone_no": null,
-                "order_no": null,
-                "status": "open",
-                "messages": [
-                    {
-                        "id": 1795378,
-                        "message": "Testing Message 12345",
-                        "created_at": "2022-02-07 19:49:26",
-                        "user_id": 6,
-                        "send_by": "Customer"
-                    },
-                    {
-                        "id": 1795377,
-                        "message": "Testing Message 12345",
-                        "created_at": "2022-02-07 19:47:45",
-                        "user_id": "",
-                        "send_by": "Admin"
-                    },
-                ]
-            }
-        ],
-        "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
-        "from": 1,
-        "last_page": 1,
-        "last_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
-        "next_page_url": null,
-        "path": "http://127.0.0.1:8000/api/ticket/send",
-        "per_page": 15,
-        "prev_page_url": null,
-        "to": 2,
-        "total": 2
-    }
+  "status": "success",
+  "tickets": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 3,
+        "customer_id": 3008,
+        "name": "Bardambek Yusupov",
+        "last_name": null,
+        "email": "bardam.yus@gmail.com",
+        "ticket_id": "PWTCR",
+        "subject": "Task test",
+        "message": "Message: Hi",
+        "assigned_to": null,
+        "source_of_ticket": "live_chat",
+        "status_id": 1,
+        "date": "2020-08-25 01:26:31",
+        "created_at": "2020-09-11 11:48:23",
+        "updated_at": "2020-09-11 12:08:33",
+        "type_of_inquiry": null,
+        "country": null,
+        "phone_no": null,
+        "order_no": null,
+        "status": "open",
+        "messages": [
+          {
+            "id": 1795378,
+            "message": "Testing Message 12345",
+            "created_at": "2022-02-07 19:49:26",
+            "user_id": 6,
+            "send_by": "Customer"
+          },
+          {
+            "id": 1795377,
+            "message": "Testing Message 12345",
+            "created_at": "2022-02-07 19:47:45",
+            "user_id": "",
+            "send_by": "Admin"
+          }
+        ]
+      }
+    ],
+    "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+    "next_page_url": null,
+    "path": "http://127.0.0.1:8000/api/ticket/send",
+    "per_page": 15,
+    "prev_page_url": null,
+    "to": 2,
+    "total": 2
+  }
 }
 ```
 
 key : ticket.send.failed, ticket.send.failed.validation, ticket.send.failed.ticket_or_email
 
 **Failed Response:**
+
 ```json
 Content-Type: application/json
 {
@@ -728,6 +751,7 @@ Content-Type: application/json
     "message": "Tickets not found for customer !"
 }
 ```
+
 ## Push Notifications API
 
 **Request:**
@@ -738,13 +762,14 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "WWW.SOLOLUXURY.COM", //required , exists in store websites
-    "token" : "sdsad2e232dsdsd", //required 
+    "token" : "sdsad2e232dsdsd", //required
     "lang_code":"ae_ar", // Enter language code
 }
 ```
 
 key : notification.success
 **Successful Response:**
+
 ```json
 HTTP/1.1 200
 {
@@ -756,6 +781,7 @@ HTTP/1.1 200
 key : notification.failed, notification.failed.validation
 
 **Failed Response:**
+
 ```json
 HTTP/1.1 500
 Content-Type: application/json
@@ -804,6 +830,7 @@ Content-Type: application/json
 key : influencer.success
 
 **Successful Response:**
+
 ```json
 HTTP/1.1 200
 Content-Type: application/json
@@ -816,6 +843,7 @@ Content-Type: application/json
 key : influencer.failed.validation, influencer.failed
 
 **Failed Response:**
+
 ```json
 HTTP/1.1 500
 Content-Type: application/json
@@ -826,7 +854,9 @@ Content-Type: application/json
 ```
 
 key : newsletter.success
+
 ## Newsletter Api
+
 ```json
 POST https://erp.theluxuryunlimited.com/api/mailinglist/add
 Accept: application/json
@@ -850,7 +880,6 @@ Content-Type: application/json
 }
 ```
 
-
 key : newsletter.failed, newsletter.failed.already_subscribed
 
 **Failed Response:**
@@ -864,6 +893,7 @@ Content-Type: application/json
 ```
 
 ## Fetch Customer credit
+
 ```json
 POST https://erp.theluxuryunlimited.com/api/fetch-credit-balance
 Accept: application/json
@@ -876,7 +906,9 @@ Content-Type: application/json
 Response
 {"message":"Credit Fetched Successfully",'code' => 200,"status":success,"data":{"credit_balance":400,"currency":INR}}
 ```
+
 ## save Customer credit
+
 ```json
 POST https://erp.theluxuryunlimited.com/api/deduct-credit
 Accept: application/json
@@ -890,7 +922,9 @@ Content-Type: application/json
 Response
 {"message":"Credit updated successfully","code":200,"status":"success"}
 ```
+
 ## add Customer credit
+
 ```json
 POST https://erp.theluxuryunlimited.com/api/add-credit
 Accept: application/json
@@ -904,7 +938,9 @@ Content-Type: application/json
 Response
 {"message":"Credit added successfully","code":200,"status":"success"}
 ```
+
 ## Store data into the laravel logs
+
 **Request:**
 
 ```json
@@ -913,12 +949,11 @@ Accept: application/json
 Content-Type: application/json
 {
     "message": "error-message",
-    "website": "Farfetch",  
+    "website": "Farfetch",
     "url": "https:\/\/www.farfetch.com\/mt\/shopping\/kids\/young-versace-crystal-logo-t-shirt-item-15339323.aspx?q=YC000346YA00019A1008",
     "lang_code":"ae_ar", // Enter language code
 }
 ```
-
 
 key : laravel.log.success
 **Successful Response:**
@@ -931,7 +966,6 @@ Content-Type: application/json
 }
 ```
 
-
 key : laravel.log.failed
 **Failed Response:**
 
@@ -943,7 +977,9 @@ Content-Type: application/json
     "message": "{message}"
 }
 ```
+
 ## Return response status for order ID if its returnable or cancelable
+
 **Request:**
 
 ```json
@@ -960,26 +996,29 @@ Content-Type: application/json
 Key : order.cancel.success
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "message": "Success",
-    "data": {
-        "order_id": "000000001",
-        "website": "www.veralusso.com",
-        "iscanceled": false,
-        "isrefund": true
-    }
+  "code": 200,
+  "message": "Success",
+  "data": {
+    "order_id": "000000001",
+    "website": "www.veralusso.com",
+    "iscanceled": false,
+    "isrefund": true
+  }
 }
 ```
+
 Key : order.cancel.failed, order.cancel.failed.website_missing
 
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "message": "data not found.",
-    "data": []
+  "code": 500,
+  "message": "data not found.",
+  "data": []
 }
 ```
 
@@ -992,7 +1031,7 @@ POST https://erp.theluxuryunlimited.com/api/magento/order-create
 Accept: application/json
 Content-Type: application/json
 {
-           
+
             "website": "WWW.SOLOLUXURY.COM",
             "lang_code":"ae_ar", // Enter language code
             "base_currency_code": "EUR",
@@ -1238,6 +1277,7 @@ Content-Type: application/json
             }
 }
 ```
+
 Key : magento.order.success
 
 **Successful Response:**
@@ -1264,6 +1304,7 @@ Content-Type: application/json
 ```
 
 ## Send screenshot from scraper
+
 **Request:**
 
 ```json
@@ -1273,23 +1314,27 @@ POST https://erp.theluxuryunlimited.com/api/scrape/send-screenshot
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "data": [],
-    "message": "Screenshot saved successfully"
+  "code": 200,
+  "data": [],
+  "message": "Screenshot saved successfully"
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
 ## Send position from scraper
+
 **Request:**
 
 ```json
@@ -1301,24 +1346,27 @@ POST https://erp.theluxuryunlimited.com/api/scrape/send-position
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "data": [],
-    "message": "History saved successfully"
-}
-```
-**Failed Response:**
-```json
-{
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 200,
+  "data": [],
+  "message": "History saved successfully"
 }
 ```
 
+**Failed Response:**
+
+```json
+{
+  "code": 500,
+  "data": [],
+  "message": "Error message"
+}
+```
 
 ## check auto restart scraper
+
 **Request:**
 
 ```json
@@ -1329,22 +1377,26 @@ GET https://erp.theluxuryunlimited.com/api/scraper/auto-restart?website=giglio
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "auto_restart": 1
+  "code": 200,
+  "auto_restart": 1
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
 ## set restart time on erp
+
 **Request:**
 
 ```json
@@ -1355,22 +1407,26 @@ GET https://erp.theluxuryunlimited.com/api/scraper/update-restart-time?website=g
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "auto_restart": 1
+  "code": 200,
+  "auto_restart": 1
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
 ## Check Return refund request
+
 **Request:**
 
 ```json
@@ -1383,21 +1439,24 @@ POST https://erp.theluxuryunlimited.com/api/order/check-return
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "message": "Success",
-    "data": {
-        "has_return_request": false
-    }
+  "code": 200,
+  "message": "Success",
+  "data": {
+    "has_return_request": false
+  }
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
@@ -1422,21 +1481,23 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/create
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "status": "200",
-    "message": "Wishlist created successfully"
-}
-```
-**Failed Response:**
-```json
-{
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "status": "200",
+  "message": "Wishlist created successfully"
 }
 ```
 
+**Failed Response:**
+
+```json
+{
+  "code": 500,
+  "data": [],
+  "message": "Error message"
+}
+```
 
 ## Remove wish list request
 
@@ -1454,21 +1515,23 @@ POST https://erp.theluxuryunlimited.com/api/wishlist/remove
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "status": "200",
-    "message": "Wishlist removed successfully"
-}
-```
-**Failed Response:**
-```json
-{
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "status": "200",
+  "message": "Wishlist removed successfully"
 }
 ```
 
+**Failed Response:**
+
+```json
+{
+  "code": 500,
+  "data": [],
+  "message": "Error message"
+}
+```
 
 ## Add address
 
@@ -1493,18 +1556,20 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_customer_data?website=w
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "status": "200"
-}
-```
-**Failed Response:**
-```json
-{
-    "code": 404
+  "status": "200"
 }
 ```
 
+**Failed Response:**
+
+```json
+{
+  "code": 404
+}
+```
 
 ## Store screenshot
 
@@ -1521,19 +1586,22 @@ POST https://erp.theluxuryunlimited.com/api/product-live-status
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "data": [],
-    "message": "Request has been stored successfully"
+  "code": 200,
+  "data": [],
+  "message": "Request has been stored successfully"
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
@@ -1550,18 +1618,21 @@ POST https://erp.theluxuryunlimited.com/api/out-of-stock-subscription
 ```
 
 **Successful Response:**
+
 ```json
 {
-    "code": 200,
-    "message": "Subscribed successfully."
+  "code": 200,
+  "message": "Subscribed successfully."
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Failed"
+  "code": 500,
+  "data": [],
+  "message": "Failed"
 }
 ```
 
@@ -1591,19 +1662,23 @@ POST https://erp.theluxuryunlimited.com/api/customer/add_cart_data
 ]
 }
 ```
+
 **Successful Response:**
+
 ```json
 {
-    "status": "200",
-    "message": "Successfully Added"
+  "status": "200",
+  "message": "Successfully Added"
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
@@ -1626,18 +1701,22 @@ POST https://erp.theluxuryunlimited.com/api/store_reviews
 "type" : "store-reviews",
 }
 ```
+
 **Successful Response:**
+
 ```json
 {
-    "status": "success",
-    "message": "Successfully Added"
+  "status": "success",
+  "message": "Successfully Added"
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": "error",
-    "message": "Error message"
+  "code": "error",
+  "message": "Error message"
 }
 ```
 
@@ -1658,104 +1737,164 @@ GET https://erp.theluxuryunlimited.com/api/all-reviews
 "type" : "get-reviews",
 }
 ```
+
 **Successful Response:**
+
 ```json
 {
-    "status": "200",
-    "data":[{
-            "id": 4,
-            "store_website_id": 2,
-            "platform_id": 1,
-            "email": "effertz.isadore@cremin.org",
-            "name": "test",
-            "stars": "3.5",
-            "comment": "Good Product",
-            "status": 1,
-            "deleted_at": null,
-            "created_at": "2021-10-17 19:38:32",
-            "updated_at": "2021-10-17 19:38:32",
-            "store_website": {
-                "id": 2,
-                "website": "www.lussolicious.com",
-                "title": "Lussolicious",
-                "description": "Copy of Solo Luxury to be built on 1.9",
-                "repository_id": null,
-                "cropper_color_name": null,
-                "cropper_color": null,
-                "is_published": 0,
-                "disable_push": 0,
-                "remote_software": "2",
-                "magento_url": null,
-                "stage_magento_url": null,
-                "dev_magento_url": null,
-                "magento_username": null,
-                "magento_password": null,
-                "api_token": null,
-                "stage_api_token": null,
-                "dev_api_token": null,
-                "instagram": null,
-                "instagram_remarks": null,
-                "facebook": null,
-                "facebook_remarks": null,
-                "country_duty": null,
-                "is_price_override": 0,
-                "deleted_at": null,
-                "created_at": "2020-05-15 15:36:22",
-                "updated_at": "2020-09-02 06:38:40",
-                "server_ip": null,
-                "username": "developer",
-                "password": "Uen1Fa?Eaza6Ti",
-                "staging_username": null,
-                "staging_password": null,
-                "mysql_username": null,
-                "mysql_password": null,
-                "mysql_staging_username": null,
-                "mysql_staging_password": null,
-                "website_source": "magento",
-                "push_web_id": null,
-                "icon": null,
-                "push_web_key": null,
-                "cropping_size": null,
-                "reference": null,
-                "build_name": null,
-                "repository": null,
-                "semrush_project_id": null,
-                "mailing_service_id": 1,
-                "website_url": "http://www.lussolicious.com"
-            }
-    }],
-    "message": "All reviews fetched successfully"
+  "status": "200",
+  "data": [
+    {
+      "id": 4,
+      "store_website_id": 2,
+      "platform_id": 1,
+      "email": "effertz.isadore@cremin.org",
+      "name": "test",
+      "stars": "3.5",
+      "comment": "Good Product",
+      "status": 1,
+      "deleted_at": null,
+      "created_at": "2021-10-17 19:38:32",
+      "updated_at": "2021-10-17 19:38:32",
+      "store_website": {
+        "id": 2,
+        "website": "www.lussolicious.com",
+        "title": "Lussolicious",
+        "description": "Copy of Solo Luxury to be built on 1.9",
+        "repository_id": null,
+        "cropper_color_name": null,
+        "cropper_color": null,
+        "is_published": 0,
+        "disable_push": 0,
+        "remote_software": "2",
+        "magento_url": null,
+        "stage_magento_url": null,
+        "dev_magento_url": null,
+        "magento_username": null,
+        "magento_password": null,
+        "api_token": null,
+        "stage_api_token": null,
+        "dev_api_token": null,
+        "instagram": null,
+        "instagram_remarks": null,
+        "facebook": null,
+        "facebook_remarks": null,
+        "country_duty": null,
+        "is_price_override": 0,
+        "deleted_at": null,
+        "created_at": "2020-05-15 15:36:22",
+        "updated_at": "2020-09-02 06:38:40",
+        "server_ip": null,
+        "username": "developer",
+        "password": "Uen1Fa?Eaza6Ti",
+        "staging_username": null,
+        "staging_password": null,
+        "mysql_username": null,
+        "mysql_password": null,
+        "mysql_staging_username": null,
+        "mysql_staging_password": null,
+        "website_source": "magento",
+        "push_web_id": null,
+        "icon": null,
+        "push_web_key": null,
+        "cropping_size": null,
+        "reference": null,
+        "build_name": null,
+        "repository": null,
+        "semrush_project_id": null,
+        "mailing_service_id": 1,
+        "website_url": "http://www.lussolicious.com"
+      }
+    }
+  ],
+  "message": "All reviews fetched successfully"
 }
 ```
+
 **Failed Response:**
+
 ```json
 {
-    "code": 500,
-    "data": [],
-    "message": "Error message"
+  "code": 500,
+  "data": [],
+  "message": "Error message"
 }
 ```
 
 ## Sync Transaction against any order id
+
 **Request**
+
 ```json
 post https://erp.theluxuryunlimited.com/api/order/sync-transaction
 {
-    "order_id":"ONN-Dec-2019-2001", 
+    "order_id":"ONN-Dec-2019-2001",
     "transaction_id":"testtransaction"
 }
 ```
+
 **Success Response:**
+
 ```Json
 {
     "message": "Transaction id updated successfully",
     "success": false
 }
 ```
+
 **Error Response:**
+
 ```json
 {
-    "message": "Issue in order",
-    "success": false
+  "message": "Issue in order",
+  "success": false
+}
+```
+
+## Add Update Log API
+
+**Request**
+
+```json
+post https://erp.theluxuryunlimited.com/api/updateLog
+{
+    "api_url":"www.google.com",
+    "device":"iPhone11",
+    "api_type":"POST",
+    "user_id":"nksndadna",
+    "header":{
+        "Content-Type":"application/json"
+    },
+    "app_version" : "1.0,1",
+    "other":" Any data add"
+}
+```
+
+**Success Response:**
+
+```Json
+{
+    "status": true,
+    "data": {
+        "api_url": "www.google.com",
+        "device": "iPhone11",
+        "api_type": "POST",
+        "user_id": "nksndadna",
+        "request_header": "{\"Content-Type\":\"application\\/json\"}",
+        "app_version": "1.0,1",
+        "other": "Any data add",
+        "updated_at": "2022-07-07 11:08:08",
+        "created_at": "2022-07-07 11:08:08",
+        "id": 3
+    }
+}
+```
+
+**Error Response:**
+
+```json
+{
+  "success": false,
+  "message": "Data not found"
 }
 ```

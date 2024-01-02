@@ -5,7 +5,6 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ActivityListings extends Mailable
 {
@@ -16,12 +15,11 @@ class ActivityListings extends Mailable
      *
      * @return void
      */
-
     public $data;
 
     public function __construct(array $data)
     {
-      $this->data = $data;
+        $this->data = $data;
     }
 
     /**

@@ -48,7 +48,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::select("merge_category",\App\VendorCategory::pluck("title","id")->toArray(),null,["class" => "form-control select2-vendor-category merge-category"]); ?>
+					         	<?php echo Form::select('merge_category', \App\VendorCategory::pluck('title', 'id')->toArray(), null, ['class' => 'form-control select2-vendor-category merge-category']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Jobs\PushToMagento;
 use App\Product;
 use Carbon\Carbon;
+use App\Jobs\PushToMagento;
 use Illuminate\Console\Command;
 
 class ManualQueueForMagento extends Command
@@ -45,7 +45,7 @@ class ManualQueueForMagento extends Command
         ini_set('memory_limit', '2048M');
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Get all products queued for AI

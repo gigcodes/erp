@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatbotDialogResponse;
-use App\ChatbotMessageLog;
-use App\ChatbotQuestionExample;
-use App\Library\Watson\Model as WatsonManager;
 use App\Setting;
+use App\WatsonJourney;
+use App\Jobs\ManageGoogle;
 use Illuminate\Http\Request;
+use App\ChatbotDialogResponse;
+use App\ChatbotQuestionExample;
 use Illuminate\Support\Facades\Validator;
+use App\Library\Watson\Model as WatsonManager;
 
 class ChatbotMessageLogsController extends Controller
 {
@@ -37,31 +38,30 @@ class ChatbotMessageLogsController extends Controller
         // Get paginated result
         $logListMagentos->select('chatbot_message_logs.*', 'customers.name as cname');
         $logListMagentos = $logListMagentos->paginate(Setting::get('pagination'));
-        $total_count     = $logListMagentos->total();
-        $allCategory     = \App\ChatbotCategory::all();
+        $total_count = $logListMagentos->total();
+        $allCategory = \App\ChatbotCategory::all();
         $allCategoryList = [];
         $watson_accounts = \App\WatsonAccount::all();
-        if (!$allCategory->isEmpty()) {
+        if (! $allCategory->isEmpty()) {
             foreach ($allCategory as $all) {
-                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+                $allCategoryList[] = ['id' => $all->id, 'text' => $all->name];
             }
         }
         // Show results
         if ($request->ajax()) {
             return view('chatboat_message_logs.index_ajax', compact('logListMagentos', 'total_count', 'allCategoryList', 'watson_accounts'))
-                ->with('success', \Request::Session()->get("success"));
+                ->with('success', \Request::Session()->get('success'));
         } else {
             return view('chatboat_message_logs.index', compact('logListMagentos', 'total_count', 'allCategoryList', 'watson_accounts'))
-                ->with('success', \Request::Session()->get("success"));
+                ->with('success', \Request::Session()->get('success'));
         }
-
     }
 
     public function chatbotMessageLogHistory(Request $request, $id)
     {
-        $response = \App\ChatbotMessageLogResponse::where("chatbot_message_log_id", $id)->get();
+        $response = \App\ChatbotMessageLogResponse::where('chatbot_message_log_id', $id)->get();
 
-        return view("chatboat_message_logs.history", compact('response'));
+        return view('chatboat_message_logs.history', compact('response'));
     }
 
     public function pushwaston(Request $request)
@@ -84,63 +84,67 @@ class ChatbotMessageLogsController extends Controller
 
         $result        = json_decode(WatsonManager::pushDialog($dialog->id));*/
 
-        $params                      = $request->all();
-       
-        $validator                   = Validator::make($params, [
-            'value'               => 'required|unique:chatbot_questions|max:255',
+        $params = $param = $request->all();
+
+        $validator = Validator::make($params, [
+            'value' => 'required|unique:chatbot_questions|max:255',
             'keyword_or_question' => 'required',
-            'watson_account'      => 'nullable',
+            'watson_account' => 'nullable',
         ]);
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "error" => $validator->errors()]);
+            return response()->json(['code' => 500, 'error' => $validator->errors()]);
         }
- $params["value"]             = str_replace(" ", "_", $params["value"]);
-        $params["watson_account_id"] = $request->watson_account;
+        $params['value'] = str_replace(' ', '_', $params['value']);
+        $params['watson_account_id'] = $request->watson_account;
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $validator = Validator::make($request->all(), [
-                'keyword'         => 'sometimes|nullable|string',
+                'keyword' => 'sometimes|nullable|string',
                 'suggested_reply' => 'required|min:3|string',
-                'sending_time'    => 'sometimes|nullable|date',
-                'repeat'          => 'sometimes|nullable|string',
-                'is_active'       => 'sometimes|nullable|integer',
+                'sending_time' => 'sometimes|nullable|date',
+                'repeat' => 'sometimes|nullable|string',
+                'is_active' => 'sometimes|nullable|integer',
             ]);
 
             if ($validator->fails()) {
-                return response()->json(["code" => 500, "error" => $validator->errors()]);
+                return response()->json(['code' => 500, 'error' => $validator->errors()]);
             }
         }
 
         $chatbotQuestion = \App\ChatbotQuestion::create($params);
-        if (!empty($params["question"])) {
-            foreach ($params["question"] as $qu) {
+        WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'question_created' => 1]);
+
+        if (! empty($params['question'])) {
+            foreach ($params['question'] as $qu) {
                 if ($qu) {
-                    $params["chatbot_question_id"]               = $chatbotQuestion->id;
-                    $chatbotQuestionExample                      = new ChatbotQuestionExample;
-                    $chatbotQuestionExample->question            = $qu;
+                    $params['chatbot_question_id'] = $chatbotQuestion->id;
+                    $chatbotQuestionExample = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->question = $qu;
                     $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                     $chatbotQuestionExample->save();
+                    WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'question_example_created' => 1]);
                 }
             }
         }
 
-// dd('001');
-        if (array_key_exists("types", $params) && $params["types"] != null && array_key_exists("type", $params) && $params["type"] != null) {
+        // dd('001');
+        if (array_key_exists('types', $params) && $params['types'] != null && array_key_exists('type', $params) && $params['type'] != null) {
             $chatbotQuestionExample = null;
-            if (!empty($params["value_name"])) {
-                $chatbotQuestionExample                      = new ChatbotQuestionExample;
-                $chatbotQuestionExample->question            = $params["value_name"];
+            if (! empty($params['value_name'])) {
+                $chatbotQuestionExample = new ChatbotQuestionExample;
+                $chatbotQuestionExample->question = $params['value_name'];
                 $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
-                $chatbotQuestionExample->types               = $params["types"];
+                $chatbotQuestionExample->types = $params['types'];
                 $chatbotQuestionExample->save();
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'question_example_created' => 1]);
             }
 
             if ($chatbotQuestionExample) {
-                $valueType                             = [];
-                $valueType["chatbot_keyword_value_id"] = $chatbotQuestionExample->id;
-                if (!empty($params["type"])) {
-                    foreach ($params["type"] as $value) {
+                $valueType = [];
+                $valueType['chatbot_keyword_value_id'] = $chatbotQuestionExample->id;
+                if (! empty($params['type'])) {
+                    foreach ($params['type'] as $value) {
                         if ($value != null) {
-                            $valueType["type"]        = $value;
+                            $valueType['type'] = $value;
                             $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
                             $chatbotKeywordValueTypes->fill($valueType);
                             $chatbotKeywordValueTypes->save();
@@ -150,14 +154,13 @@ class ChatbotMessageLogsController extends Controller
             }
         }
 
-// dd('2');
+        // dd('2');
         if ($request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
             $exploded = explode(',', $request->keyword);
 
             foreach ($exploded as $keyword) {
-
-                $chatbotQuestionExample                      = new ChatbotQuestionExample;
-                $chatbotQuestionExample->question            = trim($keyword);
+                $chatbotQuestionExample = new ChatbotQuestionExample;
+                $chatbotQuestionExample->question = trim($keyword);
                 $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                 $chatbotQuestionExample->save();
             }
@@ -168,16 +171,16 @@ class ChatbotMessageLogsController extends Controller
 
                     foreach ($customers as $customer) {
                         ScheduledMessage::create([
-                            'user_id'      => Auth::id(),
-                            'customer_id'  => $customer->id,
-                            'message'      => $chatbotQuestion->suggested_reply,
+                            'user_id' => Auth::id(),
+                            'customer_id' => $customer->id,
+                            'message' => $chatbotQuestion->suggested_reply,
                             'sending_time' => $request->sending_time,
                         ]);
                     }
                 }
             }
         }
-// dd('here');
+        // dd('here');
 
         if ($params['watson_account'] > 0) {
             $wotson_account_ids = \App\WatsonAccount::where('id', $request->watson_account)->get();
@@ -187,158 +190,212 @@ class ChatbotMessageLogsController extends Controller
 
         foreach ($wotson_account_ids as $id) {
             $data_to_insert[] = [
-                'suggested_reply'     => $params["suggested_reply"],
-                'store_website_id'    => $id->store_website_id,
+                'suggested_reply' => $params['suggested_reply'],
+                'store_website_id' => $id->store_website_id,
                 'chatbot_question_id' => $chatbotQuestion->id,
             ];
         }
         \App\ChatbotQuestionReply::insert($data_to_insert);
+        WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'question_reply_inserted' => 1]);
 
         if ($request->erp_or_watson == 'watson') {
             if ($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
-
                 \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $request->watson_account, $id->store_website_id));
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'response' => json_encode($result)]);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'question_pushed' => 1]);
                 $this->createdialog($request->value, $request->suggested_reply, $request->watson_account, $id->store_website_id);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'dialog_inserted' => 1]);
                 session()->flash('msg', 'Successfully done the operation.');
+
                 return redirect()->back();
             }
 
             if ($request->keyword_or_question == 'entity') {
-
                 \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
 
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $request->watson_account, $id->store_website_id));
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'response' => json_encode($result)]);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'question_pushed' => 1]);
                 $this->createdialog($request->value, $request->suggested_reply, $request->watson_account, $id->store_website_id);
+                WatsonJourney::updateOrCreate(['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id], ['chatbot_message_log_id' => $param['log_id'], 'question_id' => $chatbotQuestion->id, 'dialog_inserted' => 1]);
                 session()->flash('msg', 'Successfully done the operation.');
+
                 return redirect()->back();
             }
-
         }
-
     }
 
-    public function createdialog($name, $suggested_reply, $watson_account, $websiteId = null, $replyId= null)
+    public function watsonJourney()
+    {
+        $watsonJourney = WatsonJourney::whereNotNull('id')->paginate(30);
+
+        return view('chatboat_message_logs.journey', compact('watsonJourney'));
+    }
+
+    public function createdialog($name, $suggested_reply, $watson_account, $websiteId = null, $replyId = null)
     {
         $params = [
-            "name"             => $name,
-            "parent_id"        => 0,
-            "dialog_type"      => 'node',
-            "response_type"    => "standard",
-            "previous_sibling" => 0,
-            "store_website_id" => $websiteId,
-            "match_condition"  => '#' . $name,
-            "title"            => $name,
+            'name' => $name,
+            'parent_id' => 0,
+            'dialog_type' => 'node',
+            'response_type' => 'standard',
+            'previous_sibling' => 0,
+            'store_website_id' => $websiteId,
+            'match_condition' => '#' . $name,
+            'title' => $name,
         ];
 
-        $dialog                           = \App\ChatbotDialog::create($params);
-        $params["name"]                   = str_replace(" ", "_", $name);
-        $params["chatbot_dialog_id"]      = $dialog->id;
-        $params["response_type"]          = "text";
-        $params["value"]                  = $suggested_reply;
-        $params["message_to_human_agent"] = 1;
+        $dialog = \App\ChatbotDialog::create($params);
+        $params['name'] = str_replace(' ', '_', $name);
+        $params['chatbot_dialog_id'] = $dialog->id;
+        $params['response_type'] = 'text';
+        $params['value'] = $suggested_reply;
+        $params['message_to_human_agent'] = 1;
 
         $chatbotDialogResponse = new ChatbotDialogResponse;
         $chatbotDialogResponse->fill($params);
         $chatbotDialogResponse->save();
         $result = json_decode(WatsonManager::pushDialog($dialog->id, $suggested_reply, $replyId));
-		return $dialog;
+
+        return $dialog;
     }
 
+    public function pushQuickRepliesToWaston()
+    {
+        $replyCategories = \App\ReplyCategory::where('pushed_to_watson', 0)->get();
+        $params['watson_account'] = 0;
+        $params['keyword_or_question'] = 'intent';
+        $params['erp_or_watson'] = 'watson';
+        foreach ($replyCategories as $replyCategory) {
+            $replies = \App\Reply::where('category_id', $replyCategory['id'])->where('pushed_to_watson', 0)->orderBy('id', 'desc')->pluck('reply', 'id')->toArray();
+            foreach ($replies as $replyId => $reply) {
+                $params['value'] = str_replace(' ', '_', $replyCategory['name']);
+                //$params["suggested_reply"] = str_replace(" ", "_", $reply);
+                $params['suggested_reply'] = $reply;
 
-	public function pushQuickRepliesToWaston()
-    {	
-		$replyCategories = \App\ReplyCategory::where('pushed_to_watson', 0)->get();
-		$params["watson_account"] = 0;
-		$params['keyword_or_question'] = 'intent';
-		$params['erp_or_watson'] = 'watson';
-		foreach($replyCategories as $replyCategory) {
-			$replies = \App\Reply::where('category_id', $replyCategory['id'])->where('pushed_to_watson', 0)->orderBy('id', 'desc')->pluck( 'reply', 'id')->toArray();
-			foreach($replies as $replyId=>$reply) {
-				$params["value"] = str_replace(" ", "_", $replyCategory["name"]);
-				//$params["suggested_reply"] = str_replace(" ", "_", $reply);
-				$params["suggested_reply"] = $reply;
-				
-				//$chatbotQuestion = \App\ChatbotQuestion::create($params);
-				$chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
-				
-				$watson_account_ids = \App\WatsonAccount::all();
-				$data_to_insert = [];
-				foreach ($watson_account_ids as $id) {
-					$recordAvailable = \App\ChatbotQuestionReply::where([
-						'suggested_reply'     => $params["suggested_reply"],
-						'store_website_id'    => $id->store_website_id,
-						'chatbot_question_id' => $chatbotQuestion->id,
-					])->first();
-					
-					if($recordAvailable == null) {
-						$data_to_insert[] = [
-							'suggested_reply'     => $params["suggested_reply"],
-							'store_website_id'    => $id->store_website_id,
-							'chatbot_question_id' => $chatbotQuestion->id,
-						];
-					}
-				}
-				
-				\App\ChatbotQuestionReply::insert($data_to_insert);
+                //$chatbotQuestion = \App\ChatbotQuestion::create($params);
+                $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
 
-				\App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
-				$result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $params['watson_account'], $id->store_website_id));
-				$dialog = $this->createdialog($params["value"], $params["suggested_reply"], $params['watson_account'], $id->store_website_id, $replyId);
-				$replyCategory->update(['intent_id'=>$chatbotQuestion->id, 'dialog_id'=>$dialog->id, 'pushed_to_watson'=>1]);
-				\App\Reply::where('id', $replyId)->update(['pushed_to_watson'=>1]);
-			}
-		}
-		session()->flash('msg', 'Successfully done the operation.');
-		return redirect()->back();
+                $watson_account_ids = \App\WatsonAccount::all();
+                $data_to_insert = [];
+                foreach ($watson_account_ids as $id) {
+                    $recordAvailable = \App\ChatbotQuestionReply::where([
+                        'suggested_reply' => $params['suggested_reply'],
+                        'store_website_id' => $id->store_website_id,
+                        'chatbot_question_id' => $chatbotQuestion->id,
+                    ])->first();
+
+                    if ($recordAvailable == null) {
+                        $data_to_insert[] = [
+                            'suggested_reply' => $params['suggested_reply'],
+                            'store_website_id' => $id->store_website_id,
+                            'chatbot_question_id' => $chatbotQuestion->id,
+                        ];
+                    }
+                }
+
+                \App\ChatbotQuestionReply::insert($data_to_insert);
+
+                \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
+                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $params['watson_account'], $id->store_website_id));
+                $dialog = $this->createdialog($params['value'], $params['suggested_reply'], $params['watson_account'], $id->store_website_id, $replyId);
+                $replyCategory->update(['intent_id' => $chatbotQuestion->id, 'dialog_id' => $dialog->id, 'pushed_to_watson' => 1]);
+                \App\Reply::where('id', $replyId)->update(['pushed_to_watson' => 1]);
+            }
+        }
+        session()->flash('msg', 'Successfully done the operation.');
+
+        return redirect()->back();
     }
-	
-	public function pushRepyToWaston(Request $request) {
-		$input =  $request->input();
-		$params['keyword_or_question'] = 'intent';
-		$params['erp_or_watson'] = 'watson';
-		$reply = \App\Reply::where('id', $input['id'])->where('pushed_to_watson', 0)->first();
-		if($reply != null) {
-			$replyCategory = \App\ReplyCategory::where('id', $reply['category_id'])->first();
-			$params["value"] = str_replace(" ", "_", $replyCategory["name"]);
-			$params["suggested_reply"] = $reply['reply'];
-			
-			$chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
-			$params["watson_account"] = 0;
-		$watson_account_ids = \App\WatsonAccount::all();
-			$data_to_insert = [];
-			foreach ($watson_account_ids as $id) {
-				$recordAvailable = \App\ChatbotQuestionReply::where([
-					'suggested_reply'     => $params["suggested_reply"],
-					'store_website_id'    => $id->store_website_id,
-					'chatbot_question_id' => $chatbotQuestion->id,
-				])->first();
-					
-				if($recordAvailable == null) {
-					$data_to_insert[] = [
-						'suggested_reply'     => $params["suggested_reply"],
-						'store_website_id'    => $id->store_website_id,
-						'chatbot_question_id' => $chatbotQuestion->id,
-					];
-				}
-			}
-				
-			\App\ChatbotQuestionReply::insert($data_to_insert);
 
-			\App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
-			$result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $params['watson_account'], $id->store_website_id));
-			$dialog = $this->createdialog($params["value"], $params["suggested_reply"], $params['watson_account'], $id->store_website_id, $reply['id']);
-			$replyCategory->update(['intent_id'=>$chatbotQuestion->id, 'dialog_id'=>$dialog->id, 'pushed_to_watson'=>1]);
-			\App\Reply::where('id', $reply['id'])->update(['pushed_to_watson'=>1]);
-		}
-		return ['code'=>200, 'message'=>'Reply Pushed'];	
-	}
-	
-	public function replyLogs(Request $request){
-		$replyId = $request->get('id');
-		$logs = \App\ChatbotDialogErrorLog::where('reply_id', $replyId)->orderBy('id', 'desc')->get();
-		 return response()->json(['logs' => $logs]);
-	}
+    public function pushRepyToWaston(Request $request)
+    {
+        $input = $request->input();
+        $params['keyword_or_question'] = 'intent';
+        $params['erp_or_watson'] = 'watson';
+        $reply = \App\Reply::where('id', $input['id'])->where('pushed_to_watson', 0)->first();
+        if ($reply != null) {
+            $replyCategory = \App\ReplyCategory::where('id', $reply['category_id'])->first();
+            $params['value'] = str_replace(' ', '_', $replyCategory['name']);
+            $params['suggested_reply'] = $reply['reply'];
 
+            $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
+            $params['watson_account'] = 0;
+            $watson_account_ids = \App\WatsonAccount::all();
+            $data_to_insert = [];
+            foreach ($watson_account_ids as $id) {
+                $recordAvailable = \App\ChatbotQuestionReply::where([
+                    'suggested_reply' => $params['suggested_reply'],
+                    'store_website_id' => $id->store_website_id,
+                    'chatbot_question_id' => $chatbotQuestion->id,
+                ])->first();
+
+                if ($recordAvailable == null) {
+                    $data_to_insert[] = [
+                        'suggested_reply' => $params['suggested_reply'],
+                        'store_website_id' => $id->store_website_id,
+                        'chatbot_question_id' => $chatbotQuestion->id,
+                    ];
+                }
+            }
+
+            \App\ChatbotQuestionReply::insert($data_to_insert);
+
+            \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['watson_status' => 'Pending watson send']);
+            $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id, $params['watson_account'], $id->store_website_id));
+            $dialog = $this->createdialog($params['value'], $params['suggested_reply'], $params['watson_account'], $id->store_website_id, $reply['id']);
+            $replyCategory->update(['intent_id' => $chatbotQuestion->id, 'dialog_id' => $dialog->id, 'pushed_to_watson' => 1]);
+            \App\Reply::where('id', $reply['id'])->update(['pushed_to_watson' => 1]);
+        }
+
+        return ['code' => 200, 'message' => 'Reply Pushed'];
+    }
+
+    public function replyLogs(Request $request)
+    {
+        $replyId = $request->get('id');
+        $logs = \App\ChatbotDialogErrorLog::where('reply_id', $replyId)->orderBy('id', 'desc')->get();
+
+        return response()->json(['logs' => $logs]);
+    }
+
+    public function pushQuickRepliesToGoogle()
+    {
+        $replyCategories = \App\ReplyCategory::where('push_to_google', 0)->get()->chunk(5)->toArray();
+        $params['google_account_id'] = 0;
+        $params['keyword_or_question'] = 'intent';
+        foreach ($replyCategories as $replyCategory) {
+            foreach ($replyCategory as $value) {
+                $replies = \App\Reply::where('category_id', $value['id'])->where('pushed_to_google', 0)->orderBy('id', 'desc')->pluck('reply', 'id')->toArray();
+                foreach ($replies as $reply) {
+                    $params['value'] = str_replace(' ', '_', $value['name']);
+                    $params['suggested_reply'] = $reply;
+                    $chatbotQuestion = \App\ChatbotQuestion::updateOrCreate($params, $params);
+                    $data_to_insert = [];
+
+                    $recordAvailable = \App\ChatbotQuestionReply::where([
+                        'suggested_reply' => $params['suggested_reply'],
+                        'chatbot_question_id' => $chatbotQuestion->id,
+                    ])->first();
+
+                    if ($recordAvailable == null) {
+                        $data_to_insert[] = [
+                            'suggested_reply' => $params['suggested_reply'],
+                            'chatbot_question_id' => $chatbotQuestion->id,
+                        ];
+                    }
+                    \App\ChatbotQuestionReply::insert($data_to_insert);
+
+                    \App\ChatbotQuestion::where('id', $chatbotQuestion->id)->update(['google_status' => 'google sended']);
+
+                    ManageGoogle::dispatch($chatbotQuestion->id, $data_to_insert)->delay(Carbon::now()->addSeconds(120));
+                }
+            }
+        }
+        session()->flash('msg', 'Successfully done the operation.');
+
+        return redirect()->back();
+    }
 }

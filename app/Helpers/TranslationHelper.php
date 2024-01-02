@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-class TranslationHelper 
+class TranslationHelper
 {
     public static function translate($source, $target, $text)
     {
@@ -18,33 +18,33 @@ class TranslationHelper
     protected static function getSentencesFromJSON($json)
     {
         $sentencesArray = json_decode($json, true);
-        $sentences = "";
-        if(!$sentencesArray)
-        {
-            throw new \Exception("Google detected unusual traffic from your computer network, try again later (2 - 48 hours)");
+        $sentences = '';
+        if (! $sentencesArray) {
+            throw new \Exception('Google detected unusual traffic from your computer network, try again later (2 - 48 hours)');
         }
-        foreach ($sentencesArray["sentences"] as $s)
-        {
-            $sentences .= isset($s["trans"]) ? $s["trans"] : '';
+        foreach ($sentencesArray['sentences'] as $s) {
+            $sentences .= isset($s['trans']) ? $s['trans'] : '';
         }
+
         return $sentences;
     }
 
     protected static function requestTranslation($source, $target, $text)
     {
         //Free Google Translate Api
-        $url = "https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&ie=UTF-8"; //
-        $fields = array(
+        $url = 'https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&ie=UTF-8'; //
+        $fields = [
             'sl' => urlencode($source),
             'tl' => urlencode($target),
-            'q' => urlencode($text)
-        );
+            'q' => urlencode($text),
+        ];
 
-        if(strlen($fields['q'])>=5000)
-            throw new \Exception("Maximum number of characters exceeded: 5000");
-        
+        if (strlen($fields['q']) >= 5000) {
+            throw new \Exception('Maximum number of characters exceeded: 5000');
+        }
+
         // URL-ify the data for the POST
-        $fields_string = "";
+        $fields_string = '';
         foreach ($fields as $key => $value) {
             $fields_string .= $key . '=' . $value . '&';
         }
@@ -64,7 +64,7 @@ class TranslationHelper
         $result = curl_exec($ch);
         // Close connection
         curl_close($ch);
+
         return $result;
     }
-    
 }

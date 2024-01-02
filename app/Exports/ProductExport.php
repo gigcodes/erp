@@ -11,12 +11,13 @@ class ProductExport implements FromView
 
     public function __construct($data)
     {
-      $this->data = $data;
+        $this->data = $data;
     }
 
     public function view(): View
     {
-        $brands = \App\Brand::all()->pluck("name","id")->toArray();
-        return view('exports.products',["data" => $this->data,"brands" => $brands]);
+        $brands = \App\Brand::all()->pluck('name', 'id')->toArray();
+
+        return view('exports.products', ['data' => $this->data, 'brands' => $brands]);
     }
 }

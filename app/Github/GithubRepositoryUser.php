@@ -4,21 +4,23 @@ namespace App\Github;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GithubRepositoryUser extends Model{
-
+class GithubRepositoryUser extends Model
+{
     protected $fillable = [
         'id',
+        'github_organization_id',
         'github_repositories_id',
         'github_users_id',
-        'rights'
+        'rights',
     ];
 
-    public function githubUser(){
-        return $this->hasOne('App\Github\GithubUser', 'id', 'github_users_id');
+    public function githubUser()
+    {
+        return $this->hasOne(\App\Github\GithubUser::class, 'id', 'github_users_id');
     }
 
-    public function githubRepository(){
-        return $this->hasOne('App\Github\GithubRepository', 'id', 'github_repositories_id');
+    public function githubRepository()
+    {
+        return $this->hasOne(\App\Github\GithubRepository::class, 'id', 'github_repositories_id');
     }
-
 }

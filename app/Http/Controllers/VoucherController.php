@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
-use App\Currency;
-use App\DeveloperTask;
-use App\Events\VoucherApproved;
-use App\Payment;
-use App\PaymentMethod;
-use App\PaymentReceipt;
+use Auth;
 use App\Task;
 use App\Team;
 use App\User;
+use App\Payment;
 use App\Voucher;
+use App\Currency;
+use App\ChatMessage;
+use App\DeveloperTask;
+use App\PaymentMethod;
+use App\PaymentReceipt;
 use App\VoucherCategory;
-use Auth;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Events\VoucherApproved;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class VoucherController extends Controller
 {
@@ -30,13 +30,13 @@ class VoucherController extends Controller
         // dd($request->all());
         // $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
         // $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
-        $start         = $request->range_start ? $request->range_start : date("Y-m-d", strtotime('monday this week'));
-        $end           = $request->range_end ? $request->range_end : date("Y-m-d", strtotime('saturday this week'));
-        $selectedUser  = $request->user_id ? $request->user_id : null;
-        $status        = $request->status ? $request->status : 'Pending';
-        $tasks         = PaymentReceipt::with('chat_messages','user')->where('status', $status);
+        $start = $request->range_start ? $request->range_start : date('Y-m-d', strtotime('monday this week'));
+        $end = $request->range_end ? $request->range_end : date('Y-m-d', strtotime('saturday this week'));
+        $selectedUser = $request->user_id ? $request->user_id : null;
+        $status = $request->status ? $request->status : 'Pending';
+        $tasks = PaymentReceipt::with('chat_messages', 'user')->where('status', $status);
         // $tasks         = PaymentReceipt::where('status', $status);
-        $teammembers   = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user', 'team_user.team_id', '=', 'teams.id')->select(['team_user.user_id'])->get()->toArray();
+        $teammembers = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user', 'team_user.team_id', '=', 'teams.id')->select(['team_user.user_id'])->get()->toArray();
         $teammembers[] = Auth::user()->id;
         // if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
 
@@ -62,8 +62,8 @@ class VoucherController extends Controller
         // }
 
         $limit = request('limit');
-        if (!empty($limit)) {
-            if ($limit == "all") {
+        if (! empty($limit)) {
+            if ($limit == 'all') {
                 $limit = $tasks->count();
             }
         }
@@ -73,7 +73,7 @@ class VoucherController extends Controller
         // $allPayments =  Payment::pluck('amount','payment_receipt_id');
         // $allTask = Task::get();
         // $developerTask = DeveloperTask::get();
-        
+
         // $newAllTask =[];
         //     foreach($allTask as $task){
         //     $newAllTask[$task->id] = $task;
@@ -84,7 +84,6 @@ class VoucherController extends Controller
         //     $newAllDevTask[$task->id] = $task;
         //     }
 
-
         foreach ($tasks as $task) {
             $task->user;
 
@@ -92,40 +91,40 @@ class VoucherController extends Controller
             // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
             if ($totalPaid) {
                 $task->paid_amount = number_format($totalPaid, 2);
-                $task->balance     = $task->rate_estimated - $totalPaid;
-                $task->balance     = number_format($task->balance, 2);
+                $task->balance = $task->rate_estimated - $totalPaid;
+                $task->balance = number_format($task->balance, 2);
             } else {
                 $task->paid_amount = 0;
-                $task->balance     = $task->rate_estimated;
-                $task->balance     = number_format($task->balance, 2);
+                $task->balance = $task->rate_estimated;
+                $task->balance = number_format($task->balance, 2);
             }
             // $task->assignedUser;
             if ($task->task_id) {
-                $task->taskdetails      = Task::find($task->task_id);
+                $task->taskdetails = Task::find($task->task_id);
                 // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task_details;
                     if ($task->worked_minutes == null) {
                         $task->estimate_minutes = $task->taskdetails->approximate;
-                    }else{
+                    } else {
                         $task->estimate_minutes = $task->worked_minutes;
-                    } 
+                    }
                 }
-            } else if ($task->developer_task_id) {
-                $task->taskdetails      = DeveloperTask::find($task->developer_task_id);
+            } elseif ($task->developer_task_id) {
+                $task->taskdetails = DeveloperTask::find($task->developer_task_id);
                 // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                 $task->estimate_minutes = 0;
                 if ($task->taskdetails) {
                     $task->details = $task->taskdetails->task;
                     if ($task->worked_minutes == null) {
                         $task->estimate_minutes = $task->taskdetails->estimate_minutes;
-                    }else{
+                    } else {
                         $task->estimate_minutes = $task->worked_minutes;
                     }
                 }
             } else {
-                $task->details          = $task->remarks;
+                $task->details = $task->remarks;
                 $task->estimate_minutes = $task->worked_minutes;
             }
         }
@@ -145,10 +144,11 @@ class VoucherController extends Controller
         // paginate(Setting::get('pagination'));
         // $users_array = Helpers::getUserArray(User::all());
         $users = User::all();
+
         return view('vouchers.index', [
-            'tasks'        => $tasks,
-            'users'        => $users,
-            'user'         => $request->user,
+            'tasks' => $tasks,
+            'users' => $users,
+            'user' => $request->user,
             'selectedUser' => $selectedUser,
         ]);
     }
@@ -160,12 +160,12 @@ class VoucherController extends Controller
      */
     public function create()
     {
-        $voucher_categories          = VoucherCategory::where('parent_id', 0)->get();
+        $voucher_categories = VoucherCategory::where('parent_id', 0)->get();
         $voucher_categories_dropdown = VoucherCategory::attr(['name' => 'category_id', 'class' => 'form-control', 'placeholder' => 'Select a Category'])
             ->renderAsDropdown();
 
         return view('vouchers.create', [
-            'voucher_categories'          => $voucher_categories,
+            'voucher_categories' => $voucher_categories,
             'voucher_categories_dropdown' => $voucher_categories_dropdown,
         ]);
     }
@@ -173,7 +173,6 @@ class VoucherController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -181,21 +180,21 @@ class VoucherController extends Controller
         $this->validate($request, [
             'description' => 'required|min:3',
             'travel_type' => 'sometimes|nullable|string',
-            'amount'      => 'sometimes|nullable|numeric',
-            'paid'        => 'sometimes|nullable|numeric',
-            'date'        => 'required|date',
+            'amount' => 'sometimes|nullable|numeric',
+            'paid' => 'sometimes|nullable|numeric',
+            'date' => 'required|date',
         ]);
 
-        $data            = $request->except('_token');
+        $data = $request->except('_token');
         $data['user_id'] = Auth::id();
 
         $voucher = Voucher::create($data);
         //create chat message
         $params = [
-            'number'     => null,
-            'user_id'    => Auth::id(),
+            'number' => null,
+            'user_id' => Auth::id(),
             'voucher_id' => $voucher->id,
-            'message'    => $voucher->description . ' ' . $voucher->amount,
+            'message' => $voucher->description . ' ' . $voucher->amount,
         ];
         $message = ChatMessage::create($params);
 
@@ -229,34 +228,35 @@ class VoucherController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $task         = PaymentReceipt::where('id', $id)->first();
+        $task = PaymentReceipt::where('id', $id)->first();
+
         return response()->json($task);
-       
+
         //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        $voucher                     = Voucher::find($id);
-        $voucher_categories          = VoucherCategory::where('parent_id', 0)->get();
+        $voucher = Voucher::find($id);
+        $voucher_categories = VoucherCategory::where('parent_id', 0)->get();
         $voucher_categories_dropdown = VoucherCategory::attr(['name' => 'category_id', 'class' => 'form-control', 'placeholder' => 'Select a Category'])
             ->selected($voucher->category_id)
             ->renderAsDropdown();
 
         return view('vouchers.edit', [
-            'voucher'                     => $voucher,
-            'voucher_categories'          => $voucher_categories,
+            'voucher' => $voucher,
+            'voucher_categories' => $voucher_categories,
             'voucher_categories_dropdown' => $voucher_categories_dropdown,
         ]);
     }
@@ -264,24 +264,23 @@ class VoucherController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        if ($request->type == "partial") {
+        if ($request->type == 'partial') {
             $this->validate($request, [
                 'travel_type' => 'sometimes|nullable|string',
-                'amount'      => 'sometimes|nullable|numeric',
+                'amount' => 'sometimes|nullable|numeric',
             ]);
         } else {
             $this->validate($request, [
                 'description' => 'required|min:3',
                 'travel_type' => 'sometimes|nullable|string',
-                'amount'      => 'sometimes|nullable|numeric',
-                'paid'        => 'sometimes|nullable|numeric',
-                'date'        => 'required|date',
+                'amount' => 'sometimes|nullable|numeric',
+                'paid' => 'sometimes|nullable|numeric',
+                'date' => 'required|date',
             ]);
         }
 
@@ -289,7 +288,7 @@ class VoucherController extends Controller
 
         Voucher::find($id)->update($data);
 
-        if ($request->type == "partial") {
+        if ($request->type == 'partial') {
             return redirect()->back()->with('success', 'You have successfully updated cash voucher');
         }
 
@@ -329,7 +328,7 @@ class VoucherController extends Controller
 
     public function resubmit(Request $request, $id)
     {
-        $voucher           = Voucher::find($id);
+        $voucher = Voucher::find($id);
         $voucher->approved = 1;
         $voucher->resubmit_count += 1;
 
@@ -341,7 +340,7 @@ class VoucherController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -353,23 +352,24 @@ class VoucherController extends Controller
 
     public function userSearch()
     {
-        $term   = request()->get("q", null);
-        $search = User::where('name', 'LIKE', "%" . $term . "%")
-            ->orWhere('email', 'LIKE', "%" . $term . "%")->get();
+        $term = request()->get('q', null);
+        $search = User::where('name', 'LIKE', '%' . $term . '%')
+            ->orWhere('email', 'LIKE', '%' . $term . '%')->get();
+
         return response()->json($search);
     }
 
     public function createPaymentRequest(Request $request)
     {
         $this->validate($request, [
-            'user_id'  => 'required',
-            'date'     => 'required',
-            'amount'   => 'required',
+            'user_id' => 'required',
+            'date' => 'required',
+            'amount' => 'required',
             'currency' => 'required',
         ]);
 
-        $input                   = $request->except('_token');
-        $input['status']         = 'Pending';
+        $input = $request->except('_token');
+        $input['status'] = 'Pending';
         $input['rate_estimated'] = $input['amount'];
         PaymentReceipt::create($input);
         /*//create entry in table cash_flows
@@ -390,7 +390,8 @@ class VoucherController extends Controller
     public function paymentRequest()
     {
         $users = User::all();
-        return view("vouchers.payment-request", compact('users'));
+
+        return view('vouchers.payment-request', compact('users'));
     }
 
     public function viewPaymentModal($id)
@@ -400,25 +401,26 @@ class VoucherController extends Controller
             $task->userName = User::find($task->user_id)->name;
         }
         $paymentMethods = PaymentMethod::all();
-        $currencies     = Currency::get();
-        return view("vouchers.payment-modal", compact('task', 'paymentMethods', 'currencies'));
+        $currencies = Currency::get();
+
+        return view('vouchers.payment-modal', compact('task', 'paymentMethods', 'currencies'));
     }
 
     public function submitPayment($id, Request $request)
     {
         $this->validate($request, [
-            'date'              => 'required',
-            'amount'            => 'required',
-            'currency'          => 'required',
+            'date' => 'required',
+            'amount' => 'required',
+            'currency' => 'required',
             'payment_method_id' => 'required',
         ]);
         $preceipt = PaymentReceipt::find($id);
 
-        if (!$preceipt) {
+        if (! $preceipt) {
             return redirect()->back()->with('warning', 'Payment receipt not found');
         }
         $totalPaid = Payment::where('payment_receipt_id', $preceipt->id)->sum('amount');
-        $newTotal  = $totalPaid + $request->amount;
+        $newTotal = $totalPaid + $request->amount;
 
         if ($newTotal > $preceipt->rate_estimated) {
             return redirect()->back()->with('warning', 'Amount can not be greater than receipt amount');
@@ -426,11 +428,11 @@ class VoucherController extends Controller
 
         $input = $request->except('_token');
 
-        if (!is_numeric($input['payment_method_id'])) {
-            $paymentMethod = PaymentMethod::where("name", $input['payment_method_id'])->first();
-            if (!$paymentMethod) {
+        if (! is_numeric($input['payment_method_id'])) {
+            $paymentMethod = PaymentMethod::where('name', $input['payment_method_id'])->first();
+            if (! $paymentMethod) {
                 $paymentMethod = PaymentMethod::create([
-                    "name" => $input['payment_method_id'],
+                    'name' => $input['payment_method_id'],
                 ]);
                 $input['payment_method_id'] = $paymentMethod->id;
             } else {
@@ -438,17 +440,17 @@ class VoucherController extends Controller
             }
         }
 
-        $payment_method              = PaymentMethod::find($input['payment_method_id']);
+        $payment_method = PaymentMethod::find($input['payment_method_id']);
         $input['payment_receipt_id'] = $preceipt->id;
-        $message['message']          = "Admin has given the payment of Payment Receipt #" . $preceipt->id . " and amount " . $request->amount . " " . $request->currency . " through " . $payment_method->name . " \n Note: " . $request->note;
-        $message['user_id']          = $request->user_id;
-        $message['status']           = 1;
+        $message['message'] = 'Admin has given the payment of Payment Receipt #' . $preceipt->id . ' and amount ' . $request->amount . ' ' . $request->currency . ' through ' . $payment_method->name . " \n Note: " . $request->note;
+        $message['user_id'] = $request->user_id;
+        $message['status'] = 1;
 
         Payment::create($input);
         $request1 = new \Illuminate\Http\Request();
         $request1->replace($message);
 
-        $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1, 'user');
+        $sendMessage = app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request1, 'user');
         /*$cashData    = [
             'user_id'             => $request->user_id,
             'description'         => 'Vendor paid',
@@ -464,7 +466,7 @@ class VoucherController extends Controller
         if ($newTotal >= $preceipt->rate_estimated) {
             $preceipt->update(['status' => 'Done']);
             $cashdata['order_status'] = 'Done';
-            $cashdata['status']       = 1;
+            $cashdata['status'] = 1;
         }
         //create entry in table cash_flows
         //\DB::table('cash_flows')->insert($cashData);
@@ -476,7 +478,7 @@ class VoucherController extends Controller
     {
         $path = storage_path('tmp/uploads');
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             mkdir($path, 0777, true);
         }
 
@@ -487,31 +489,29 @@ class VoucherController extends Controller
         $file->move($path, $name);
 
         return response()->json([
-            'name'          => $name,
+            'name' => $name,
             'original_name' => $file->getClientOriginalName(),
         ]);
     }
 
     public function saveDocuments(Request $request)
     {
-
         $documents = $request->input('document', []);
-        if (!empty($documents)) {
+        if (! empty($documents)) {
             $receipt = PaymentReceipt::find($request->id);
 
             foreach ($request->input('document', []) as $file) {
-                $path  = storage_path('tmp/uploads/' . $file);
+                $path = storage_path('tmp/uploads/' . $file);
                 $media = MediaUploader::fromSource($path)
                     ->toDirectory('voucher/' . floor($request->id / config('constants.image_per_folder')))
                     ->upload();
                 $receipt->attachMedia($media, config('constants.media_tags'));
             }
 
-            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Done!']);
         } else {
-            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+            return response()->json(['code' => 500, 'data' => [], 'message' => 'No documents for upload']);
         }
-
     }
 
     public function listDocuments(Request $request, $id)
@@ -532,15 +532,15 @@ class VoucherController extends Controller
             if ($receipt->hasMedia(config('constants.media_tags'))) {
                 foreach ($receipt->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
-                        "id"                 => $media->id,
-                        'url'                => $media->getUrl(),
+                        'id' => $media->id,
+                        'url' => $media->getUrl(),
                         'payment_receipt_id' => $request->id,
                     ];
                 }
             }
         }
 
-        return response()->json(["code" => 200, "data" => $records]);
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     public function deleteDocument(Request $request)
@@ -549,44 +549,46 @@ class VoucherController extends Controller
             $media = \Plank\Mediable\Media::find($request->id);
             if ($media) {
                 $media->delete();
-                return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+
+                return response()->json(['code' => 200, 'message' => 'Document delete succesfully']);
             }
         }
 
-        return response()->json(["code" => 500, "message" => "No document found"]);
+        return response()->json(['code' => 500, 'message' => 'No document found']);
     }
 
     public function viewManualPaymentModal()
     {
-        $users          = User::all();
+        $users = User::all();
         $paymentMethods = PaymentMethod::all();
-        $currencies     = Currency::get();
-        return view("vouchers.manual-payment-modal", compact('users', 'paymentMethods', 'currencies'));
+        $currencies = Currency::get();
+
+        return view('vouchers.manual-payment-modal', compact('users', 'paymentMethods', 'currencies'));
     }
 
     public function manualPaymentSubmit(Request $request)
     {
         $this->validate($request, [
-            'date'              => 'required',
-            'user_id'           => 'required',
-            'amount'            => 'required',
-            'currency'          => 'required',
+            'date' => 'required',
+            'user_id' => 'required',
+            'amount' => 'required',
+            'currency' => 'required',
             'payment_method_id' => 'required',
         ]);
         $input = $request->except('_token');
 
-        $input['status']         = 'Pending';
+        $input['status'] = 'Pending';
         $input['rate_estimated'] = $input['amount'];
-        $input['remarks']        = $input['note'];
-        $paymentReceipt          = PaymentReceipt::create($input);
+        $input['remarks'] = $input['note'];
+        $paymentReceipt = PaymentReceipt::create($input);
 
         $input['payment_receipt_id'] = $paymentReceipt->id;
 
-        if (!is_numeric($input['payment_method_id'])) {
-            $paymentMethod = PaymentMethod::where("name", $input['payment_method_id'])->first();
-            if (!$paymentMethod) {
+        if (! is_numeric($input['payment_method_id'])) {
+            $paymentMethod = PaymentMethod::where('name', $input['payment_method_id'])->first();
+            if (! $paymentMethod) {
                 $paymentMethod = PaymentMethod::create([
-                    "name" => $input['payment_method_id'],
+                    'name' => $input['payment_method_id'],
                 ]);
                 $input['payment_method_id'] = $paymentMethod->id;
             } else {
@@ -610,37 +612,38 @@ class VoucherController extends Controller
 
     public function paidSelected(Request $request)
     {
-        $ids            = !empty($request->ids) ? $request->ids : [0];
-        $paymentReceipt = \App\PaymentReceipt::whereIn("id", $ids)->get();
+        $ids = ! empty($request->ids) ? $request->ids : [0];
+        $paymentReceipt = \App\PaymentReceipt::whereIn('id', $ids)->get();
 
         $paymentMethods = PaymentMethod::all();
-        $currencies     = Currency::get();
+        $currencies = Currency::get();
 
-        return view("vouchers.partials.modal-payment-receipt-paid", compact('paymentReceipt', 'currencies', 'paymentMethods'));
+        return view('vouchers.partials.modal-payment-receipt-paid', compact('paymentReceipt', 'currencies', 'paymentMethods'));
     }
 
     public function paidSelectedPaymentList(Request $request)
     {
-        $payments = \App\Payment::where("payment_receipt_id", $request->payment_receipt_id)->get();
-        return view("vouchers.partials.payment-receipt-list", compact('payments'));
+        $payments = \App\Payment::where('payment_receipt_id', $request->payment_receipt_id)->get();
+
+        return view('vouchers.partials.payment-receipt-list', compact('payments'));
     }
 
     public function payMultiple(Request $request)
     {
         $this->validate($request, [
-            'date'              => 'required',
-            'amount.*'          => 'required',
-            'currency'          => 'required',
+            'date' => 'required',
+            'amount.*' => 'required',
+            'currency' => 'required',
             'payment_method_id' => 'required',
         ]);
 
         $input = $request->except('_token');
 
-        if (!is_numeric($input['payment_method_id'])) {
-            $paymentMethod = PaymentMethod::where("name", $input['payment_method_id'])->first();
-            if (!$paymentMethod) {
+        if (! is_numeric($input['payment_method_id'])) {
+            $paymentMethod = PaymentMethod::where('name', $input['payment_method_id'])->first();
+            if (! $paymentMethod) {
                 $paymentMethod = PaymentMethod::create([
-                    "name" => $input['payment_method_id'],
+                    'name' => $input['payment_method_id'],
                 ]);
                 $input['payment_method_id'] = $paymentMethod->id;
             } else {
@@ -650,47 +653,46 @@ class VoucherController extends Controller
 
         $payment_method = PaymentMethod::find($input['payment_method_id']);
 
-        if (!empty($request->amount)) {
+        if (! empty($request->amount)) {
             foreach ($request->amount as $k => $amount) {
                 $preceipt = PaymentReceipt::find($k);
                 if ($preceipt) {
                     $totalPaid = Payment::where('payment_receipt_id', $preceipt->id)->sum('amount');
-                    $newTotal  = $totalPaid + $amount;
+                    $newTotal = $totalPaid + $amount;
 
                     $input['payment_receipt_id'] = $preceipt->id;
-                    $input['amount']             = $amount;
-                    $message['message']          = "Admin has given the payment of Payment Receipt #" . $preceipt->id . " and amount " . $amount . " " . $request->currency . " through " . $payment_method->name . " \n Note: " . $request->note;
-                    $message['user_id']          = $preceipt->user_id;
-                    $message['status']           = 1;
+                    $input['amount'] = $amount;
+                    $message['message'] = 'Admin has given the payment of Payment Receipt #' . $preceipt->id . ' and amount ' . $amount . ' ' . $request->currency . ' through ' . $payment_method->name . " \n Note: " . $request->note;
+                    $message['user_id'] = $preceipt->user_id;
+                    $message['status'] = 1;
 
                     Payment::create($input);
                     $request1 = new \Illuminate\Http\Request();
                     $request1->replace($message);
 
-                    $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1, 'user');
-                    $cashData    = [
-                        'user_id'             => $preceipt->user_id,
-                        'description'         => 'Vendor paid',
-                        'date'                => $request->input('date'),
-                        'amount'              => $newTotal,
-                        'type'                => 'paid',
-                        'cash_flow_able_type' => 'App\PaymentReceipt',
-                        'created_at'          => date("Y-m-d H:i:s"),
-                        'updated_by'          => \Auth::user()->id,
+                    $sendMessage = app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($request1, 'user');
+                    $cashData = [
+                        'user_id' => $preceipt->user_id,
+                        'description' => 'Vendor paid',
+                        'date' => $request->input('date'),
+                        'amount' => $newTotal,
+                        'type' => 'paid',
+                        'cash_flow_able_type' => \App\PaymentReceipt::class,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_by' => \Auth::user()->id,
                     ];
                     if ($newTotal >= $preceipt->rate_estimated) {
                         $preceipt->update(['status' => 'Done']);
                         $cashdata['order_status'] = 'Done';
-                        $cashdata['status']       = 1;
+                        $cashdata['status'] = 1;
                     }
                     //create entry in table cash_flows
                     \DB::table('cash_flows')->insert($cashData);
                 }
-
             }
         }
 
-        return response()->json(["code" => 200, "message" => "Payment paid successfully"]);
+        return response()->json(['code' => 200, 'message' => 'Payment paid successfully']);
     }
 
     public function paymentHistory(request $request)
@@ -698,7 +700,7 @@ class VoucherController extends Controller
         $task_id = $request->input('task_id');
         $html = '';
         $paymentData = \App\CashFlow::where('cash_flow_able_id', $task_id)
-            ->where('cash_flow_able_type', 'App\PaymentReceipt')
+            ->where('cash_flow_able_type', \App\PaymentReceipt::class)
             ->where('type', 'paid')
             ->orderBy('date', 'DESC')
             ->get();
@@ -714,6 +716,7 @@ class VoucherController extends Controller
 
                 $i++;
             }
+
             return response()->json(['html' => $html, 'success' => true], 200);
         } else {
             $html .= '<tr>';
@@ -723,7 +726,7 @@ class VoucherController extends Controller
             $html .= '<td></td>';
             $html .= '</tr>';
         }
-        return response()->json(['html' => $html, 'success' => true], 200);
 
+        return response()->json(['html' => $html, 'success' => true], 200);
     }
 }

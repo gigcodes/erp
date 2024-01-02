@@ -5,6 +5,36 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <style>
+  div.scrollable {
+       width: 80px;
+    height: 80px;
+    margin: 0;
+    padding: 0;
+    overflow: scroll;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+width: 5px;
+height: 5px;
+}
+
+::-webkit-scrollbar-track {
+background: #f5f5f5;
+border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+border-radius: 10px;
+background: #ccc;  
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: #999;  
+}
+
+</div>
 @endsection
 
 @section('content')
@@ -29,12 +59,12 @@
                     </select>
                   </div>
 
-                  <div class="form-group ml-4">
+                  <div class="form-group ml-4" style="width: 260px;">
                     <select class="form-control select2" name="store_website_id">
                       <option value="">Select a store</option>
 
                       @foreach ($store_website as $id => $website)
-                        <option value="{{ $website->id }}" {{ $website->id == $store ? 'selected' : '' }}>{{$website->title}} ({{$website->website_source}})</option>
+                        <option value="{{ $website->id }}" {{ $website->id == $store ? 'selected' : '' }}> ({{$website->website}})</option>
                       @endforeach
                     </select>
                   </div>
@@ -64,15 +94,18 @@
         </thead>
 
         <tbody>
+          <?php $i = 0; ?>
 			  @foreach ($store_order_statuses as $key => $status)
             <tr>
             <td>{{$status->order_status->status}}</td>
-            <td>{{$status->store_website->title}} ({{$status->store_website->website_source}})</td>
+            <td>{{$status->store_website->website}}</td>
             <td>{{($status->store_master_status) ? $status->store_master_status->label : "N/A"}}</td>
             <td>
-              <a class="btn btn-image edit-btn" data-id="{{ $status->id }}"><img src="/images/edit.png" /></a>
+              <a class="btn btn-image edit-btn" data-id="{{ $status->id }}"><img src="/images/edit.png" /></a>&nbsp;&nbsp;
+			    <button type="button" class="btn btn-xs show-status-history" title="Show status History" data-id="{{$status->id}}"><i class="fa fa-info-circle"></i></button>
             </td>
             </tr>
+            <?php $i++;?>
           @endforeach
         </tbody>
       </table>
@@ -112,6 +145,48 @@
       <!-- Modal content-->
       <div class="modal-content ">
         <div id="edit-new-content">
+        
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<div id="addStatusHistory" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+        <div id="add-new-status-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Status History</h4>
+				<button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+		  <div class="modal-body">
+          <div class="row">
+              <div class="col">
+                <div class="form-group">
+			<table class="table table-bordered" style="font-size: 12px;">
+				<thead>
+				  <tr>
+					<th>Request</th>
+					<th>Response</th>
+					<th>ERP status</th>
+					<th>Website</th>
+					<th>Website status</th>
+					<th>Changed ERP status</th>
+					<th>Changed Website</th>
+					<th>Changed Website status</th>
+					
+				  </tr>
+				</thead>
+				<tbody class="tbhstatus">
+
+				</tbody>
+			</table>
+			</div>
+			</div>
+			</div>
+			</div>
         
         </div>
       </div>
@@ -196,6 +271,99 @@ $('select.select2').select2({
     });
 
     
+
+    $(document).on("click",".show-status-history",function(e){
+       e.preventDefault();
+	   $("#edit-status").hide();
+       var $this = $(this);
+	   var id = $(this).attr("data-id");
+       $.ajax({
+          url: "/store-website/status/history?id="+id,
+          type: "get"
+        }).done(function(response) {
+			
+			$('.tbhstatus').html('')
+			
+			if(response.data.length >0){
+
+                var html ="";
+
+                $.each(response.data, function (i,item){
+                    console.log(item)
+					
+					if(item.request == null) {
+						var request = '';
+					} else {
+						var request = item.request
+					}
+					
+					if(item.response == null) {
+						var response = '';
+					} else {
+						var response = item.response
+					}
+					
+					if(item.old_order_status_id == null) {
+						var old_order_status_id = '';
+					} else {
+						var old_order_status_id = item.old_order_status_id
+					}
+					
+					if(item.old_store_website_id == null) {
+						var old_store_website_id = '';
+					} else {
+						var old_store_website_id = item.old_store_website_id
+					}
+					
+					if(item.old_store_master_status_id == null) {
+						var old_store_master_status_id = '';
+					} else {
+						var old_store_master_status_id = item.old_store_master_status_id
+					}
+					
+					
+					if(item.new_order_status_id == null) {
+						var new_order_status_id = '';
+					} else {
+						var new_order_status_id = item.new_order_status_id
+					}
+					
+					if(item.new_store_website_id == null) {
+						var new_store_website_id = '';
+					} else {
+						var new_store_website_id = item.new_store_website_id
+					}
+					
+					if(item.new_store_master_status_id == null) {
+						var new_store_master_status_id = '';
+					} else {
+						var new_store_master_status_id = item.new_store_master_status_id
+					}
+					
+                    html+="<tr>"
+                    html+=" <td><div class=scrollable>"+ request +"</div></td>"
+					html+=" <td><div class=scrollable>"+ response +"</div></td>"
+                    html+=" <td>"+ old_order_status_id +"</td>"
+                    html+=" <td>"+ old_store_website_id +"</td>"
+					html+=" <td>"+ old_store_master_status_id +"</td>"
+					
+					html+=" <td>"+ new_order_status_id +"</td>"
+					html+=" <td>"+ new_store_website_id +"</td>"
+					html+=" <td>"+ new_store_master_status_id +"</td>"
+
+                    html+="</tr>"
+                })
+
+                $('.tbhstatus').html(html)
+            }
+			
+          
+          $('#addStatusHistory').modal('show');
+           //$("#add-new-status-content").html(response); 
+        }).fail(function(errObj) {
+           $("#addStatusHistory").hide();
+        });
+    });
 
 
   </script>

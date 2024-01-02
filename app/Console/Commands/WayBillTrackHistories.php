@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Order;
-use App\Library\DHL\TrackShipmentRequest;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
+use App\Library\DHL\TrackShipmentRequest;
 
 class WayBillTrackHistories extends Command
 {
@@ -39,42 +39,41 @@ class WayBillTrackHistories extends Command
      * @return mixed
      */
     public function handle()
-    {   
-        $statuses = ['delivered','cancel'];
-        $orders = Order::join('order_statuses','order_statuses.id','=','orders.order_status_id')->whereNotIn('order_statuses.status', $statuses )->with(['waybill','waybill.waybill_track_histories'])->get();
+    {
+        $statuses = ['delivered', 'cancel'];
+        $orders = Order::join('order_statuses', 'order_statuses.id', '=', 'orders.order_status_id')->whereNotIn('order_statuses.status', $statuses)->with(['waybill', 'waybill.waybill_track_histories'])->get();
         //dd($orders);
-        foreach($orders as $order){
-
-            if($order->waybill != null && $order->waybill->awb){
+        foreach ($orders as $order) {
+            if ($order->waybill != null && $order->waybill->awb) {
                 $trackShipment = new TrackShipmentRequest;
                 $trackShipment->setAwbNumbers([$order->waybill->awb]);
-                $results    = $trackShipment->call();
-                $response   = $results->getResponse();
+                $results = $trackShipment->call();
+                $response = $results->getResponse();
                 dump($response);
-                foreach($response as $res){ 
-                    if(!empty($res->ShipmentInfo->ShipmentEvent->ArrayOfShipmentEventItem)) { 
-                        $i = 1; 
-                        foreach($res->ShipmentInfo->ShipmentEvent->ArrayOfShipmentEventItem as $shipmentEvent){
+                foreach ($response as $res) {
+                    if (! empty($res->ShipmentInfo->ShipmentEvent->ArrayOfShipmentEventItem)) {
+                        $i = 1;
+                        foreach ($res->ShipmentInfo->ShipmentEvent->ArrayOfShipmentEventItem as $shipmentEvent) {
                             $shipment[$i]['waybill_id'] = $order->waybill->id;
-                            $shipment[$i]['dat'] = $shipmentEvent->Date." ".$shipmentEvent->Time;
-                            $shipment[$i]['comment'] = $shipmentEvent->ServiceEvent->Description; 
-                            $shipment[$i]['location'] = $shipmentEvent->ServiceArea->Description; 
-                            if($order->waybill->waybill_track_histories == null || $order->waybill->waybill_track_histories->count() == 0 || $order->waybill->waybill_track_histories->last() != $shipmentEvent->ServiceArea->Description){
-                                if (!empty($message)) {
+                            $shipment[$i]['dat'] = $shipmentEvent->Date . ' ' . $shipmentEvent->Time;
+                            $shipment[$i]['comment'] = $shipmentEvent->ServiceEvent->Description;
+                            $shipment[$i]['location'] = $shipmentEvent->ServiceArea->Description;
+                            if ($order->waybill->waybill_track_histories == null || $order->waybill->waybill_track_histories->count() == 0 || $order->waybill->waybill_track_histories->last() != $shipmentEvent->ServiceArea->Description) {
+                                if (! empty($message)) {
                                     $requestData = new Request();
                                     $requestData->setMethod('POST');
                                     $params = [];
                                     $params['customer_id'] = $order->customer_id;
-                                    $params['message'] = "Your order with order ID ".$order->id." has been reached at ".$shipmentEvent->ServiceArea->Description." location.";
+                                    $params['message'] = 'Your order with order ID ' . $order->id . ' has been reached at ' . $shipmentEvent->ServiceArea->Description . ' location.';
                                     $params['status'] = 2;
                                     $requestData->request->add($params);
-                                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'priority');
+                                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'priority');
                                 }
                             }
-                            $i++; 
-                        } 
-                    } 
-                }  
+                            $i++;
+                        }
+                    }
+                }
             }
         }
     }

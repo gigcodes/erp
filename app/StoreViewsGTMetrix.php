@@ -2,13 +2,11 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Database\Eloquent\Model;
 
 class StoreViewsGTMetrix extends Model
 {
-
     use Mediable;
 
     /**
@@ -20,14 +18,14 @@ class StoreViewsGTMetrix extends Model
 
     protected $fillable = [
         'store_view_id',
-        'account_id', 
+        'account_id',
         'test_id',
         'status',
         'flag',
         'error',
         'report_url',
         'website_url',
-		'website_id',
+        'website_id',
         'html_load_time',
         'html_bytes',
         'page_load_time',
@@ -36,10 +34,10 @@ class StoreViewsGTMetrix extends Model
         'pagespeed_score',
         'yslow_score',
         'resources',
-        'pdf_file'
+        'pdf_file',
     ];
 
-     protected $casts = [
+    protected $casts = [
         'resources' => 'array',
     ];
 }

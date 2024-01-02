@@ -38,17 +38,16 @@ class FilterCompositionSpace extends Command
     public function handle()
     {
         //
-        \Log::info("Non breaking space issue started =>" .date("Y-m-d H:i:s"));
-        $compositions = \App\Compositions::all();
-        if(!$compositions->isEmpty()) {
-            foreach($compositions as $composition) {
-                $str = str_replace(" ", " ", $composition->name);
-                $composition->name =  $str;
+        \Log::info('Non breaking space issue started =>' . date('Y-m-d H:i:s'));
+        /*$compositions = \App\Compositions::all();
+        if (! $compositions->isEmpty()) {
+            foreach ($compositions as $composition) {
+                $str = str_replace(' ', ' ', $composition->name);
+                $composition->name = $str;
                 $composition->save();
             }
-        }
+        }*/
 
-        \Log::info("Non breaking space issue has been done =>" .date("Y-m-d H:i:s"));
-
+        \Log::info('Non breaking space issue has been done =>' . date('Y-m-d H:i:s'));
     }
 }

@@ -2,13 +2,11 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Database\Eloquent\Model;
 
 class StoreViewsGTMetrixUrl extends Model
 {
-
     use Mediable;
 
     /**
@@ -21,14 +19,19 @@ class StoreViewsGTMetrixUrl extends Model
     protected $fillable = [
         'account_id',
         'store_view_id',
-		'store_name',
+        'store_name',
         'website_url',
         'process',
         'created_at',
-		'updated_at'
+        'updated_at',
     ];
 
-     protected $casts = [
+    protected $casts = [
         'resources' => 'array',
     ];
+
+    public function account()
+    {
+        return $this->belongsTo(StoreGTMetrixAccount::class, 'account_id');
+    }
 }

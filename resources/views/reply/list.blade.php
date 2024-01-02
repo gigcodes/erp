@@ -3,25 +3,75 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Quick Replies List</h2>
-        <div class="pull-left">
-            <div class="row">
-                <div class="col-md-12 ml-sm-4">            
+        <h2 class="page-heading">Quick Replies List ({{ $replies->total() }})</h2>
+        <div class="pull">
+            <div class="row" style="margin:10px;">
+                <div class="col-12">
                     <form action="{{ route('reply.replyList') }}" method="get" class="search">
                         <div class="row">
-                            <div class="col-md-6 pd-sm">
-                                {{ Form::select("store_website_id", ["" => "-- Select Website --"] + \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control"]) }}
+                            <div class="col-md-2 pd-sm">
+                                {!! Form::label('store_website_id', 'Search Store Website', ['class' => 'form-control-label']) !!}
+                                {{ Form::select("store_website_id[]", \App\StoreWebsite::pluck('website','id')->toArray(),request('store_website_id'),["class" => "form-control globalSelect2", "multiple", "data-placeholder" => "Select Website"]) }}
                             </div>
-                            <div class="col-md-5 pd-sm">
+                            <!-- <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Parent Category', ['class' => 'form-control-label']) !!}
+                                {{ Form::select("category_id", ["" => "-- Select Category/Sub Category --"] + \App\ReplyCategory::pluck('name','id')->toArray(),request('category_id'),["class" => "form-control"]) }}
+                            </div> -->
+                            <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Search Parent Category', ['class' => 'form-control-label']) !!}
+                                <select class="form-control globalSelect2" style="width:100%" name="parent_category_ids[]" data-placeholder="Search Parent Category By Name.." multiple >
+                                    @if ($parentCategory)
+                                        @foreach($parentCategory as $key => $parentCategory)
+                                            <option value="{{ $parentCategory->id }}" @if(in_array($parentCategory->id, $parent_category)) echo selected @endif>{{ $parentCategory->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Search category', ['class' => 'form-control-label']) !!}
+                                <select class="form-control globalSelect2" style="width:100%" name="category_ids[]" data-placeholder="Search Category By Name.." multiple >
+                                    @if ($category)
+                                        @foreach($category as $key => $category)
+                                        <option value="{{ $key }}" @if(in_array($key, $category_ids)) echo selected @endif>{{ $category }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-2 pd-sm">
+                                {!! Form::label('category_id', 'Search SubCategory', ['class' => 'form-control-label']) !!}
+                                <select class="form-control globalSelect2" style="width:100%" name="sub_category_ids[]" data-placeholder="Search Sub Category By Name.." multiple >
+                                    @if ($subCategory)
+                                        @foreach($subCategory as $key => $subCategory)
+                                        <option value="{{ $key }}" @if(in_array($key, $sub_category_ids)) echo selected @endif>{{ $subCategory }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="col-md-2 pd-sm">
+                                <br>
                                 <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
                             </div>
-                            
-
-                            <div class="col-md-1 pd-sm">
-                                 <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
-                                    <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
-                            </div>
+                        <div class="col-md-2 pd-sm">
+                            <br>
+                            <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                                <img src="{{ asset('images/search.png') }}" alt="Search">
+                            </button>
+                            <a href="{{route('reply.replyList')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                        </div>
+                        <div class="">
+                            <br>
+                            <button type="submit" class="btn btn-primary search push_all_faq">
+                                Push FAQ
+                            </button>
+                            <a href="{{ route('reply.listing') }}" target="_blank" class="btn btn-primary">
+                                Reply Log
+                            </a>
+                            <button type="submit" class="btn btn-primary search push_multi_toggle">
+                                Add Flag
+                            </button>
+                            <button type="submit" class="btn btn-primary search push_multi_faq">
+                                Mulitiple Push FAQ
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -39,34 +89,143 @@
 <div class="tab-content ">
     <!-- Pending task div start -->
     <div class="tab-pane active" id="1">
-        <div class="row" style="margin:10px;"> 
+        <div class="row" style="margin:10px;">
             <div class="col-12">
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout: fixed;" id="quick-reply-list">
                         <tr>
-                            <th width="2%">ID</th>
-                            <th width="8%">Store website</th>
-                            <th width="10%">Category</th>
-                            <th width="15%">Reply</th>
+                            <th width="5%"></th>
+                            <th width="5%">ID</th>
+                            <th width="10%">Store website</th>
+                            <th width="9%">Parent Category</th>
+                            <th width="8%">Category </th>
+                            <th width="10%">Sub Category</th>
+                            <th width="10%">Reply</th>
                             <th width="7%">Model</th>
+                            <th width="5%">Intent Id</th>
                             <th width="7%">Updated On</th>
-                            <th width="10%">Is Pushed To Watson</th>
-                            <th width="4%">Action</th>
+                            <th width="9%">Is Pushed</th>
+                            <th width="9%">Is Pushed To Watson</th>
+                            <th width="9%">Is Translated</th>
+                            <th width="5%">Action</th>
                         </tr>
                         @foreach ($replies as $key => $reply)
-                            <tr>
+                            <tr class="quick-website-task-{{ $reply->id }}" data-id="{{ $reply->id }}">
+                                <td><input type="checkbox" name="replyCheckbox" class="replyCheckbox" value="{{ $reply->id }}" data-id="{{ $reply->id }}" data-select="true"></td>
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td class="Website-task" id="reply-store-website">{{ $reply->website }}</td>
-                                <td class="Website-task" id="reply_category_name">{{ $reply->parentList() }} > {{ $reply->category_name }}</td>
-                                <td style="cursor:pointer;" id="reply_text" class="change-reply-text Website-task" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">{{ $reply->reply }}</td>
-                                <td class="Website-task" id="reply_model">{{ $reply->model }}</td>
-                                <td id="reply_model">{{ $reply->created_at }}</td>
+                                <td class="expand-row" id="reply-store-website" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                        {{ strlen($reply->website) > 10 ? substr($reply->website, 0, 10).'...' : $reply->website }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->website}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_category_parent_first" style="word-break: break-all;">
+                                     <span class="td-mini-container">
+                                        {{ strlen($reply->parent_first) > 10 ? substr($reply->parent_first, 0, 8).'...' : $reply->parent_first }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->parent_first}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_category_parent_secound" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                        {{ strlen($reply->parent_secound) > 10 ? substr($reply->parent_secound, 0, 8).'...' : $reply->parent_secound }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->parent_secound}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_category_name" style="word-break: break-all;">
+                                     <span class="td-mini-container">
+                                        {{ strlen($reply->category_name) > 10 ? substr($reply->category_name, 0, 10).'...' : $reply->category_name }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->category_name}}
+                                    </span>
+                                </td>
+                                <td style="cursor:pointer; word-break: break-all;" id="reply_text" class="change-reply-text expand-row" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}">
+                                    <span class="td-mini-container">
+                                        {{ strlen($reply->reply) > 10 ? substr($reply->reply, 0, 10).'...' : $reply->reply }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->reply}}
+                                    </span>
+                                    <span class="edit-icon">
+                                        <i class="fa fa-pencil" data-id="{{ $reply->id }}" data-message="{{ $reply->reply }}"  style="float: right";></i>
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_model" style="word-break: break-all;">
+                                   <span class="td-mini-container">
+                                    {{ strlen($reply->model) > 10 ? substr($reply->model, 0, 6).'...' : $reply->model }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->model}}
+                                    </span>
+                                </td>
+                                <td class="expand-row" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                    {{ strlen($reply->intent_id ) > 10 ? substr($reply->intent_id , 0, 10).'...' : $reply->intent_id  }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->intent_id }}
+                                    </span>
+                                </td>
+                                <td class="expand-row" id="reply_model" style="word-break: break-all;">
+                                    <span class="td-mini-container">
+                                    {{ strlen($reply->created_at ) > 10 ? substr($reply->created_at , 0, 10).'...' : $reply->created_at  }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{$reply->created_at }}
+                                    </span>
+                                </td>
+                                <td>
+                                    @if($reply->is_pushed)
+                                        <span class="badge badge-success">True</span>
+                                    @else
+                                        <span class="badge badge-danger">False</span>
+                                    @endif
+                                </td>
+                                
                                 <td id="">@if($reply['pushed_to_watson'] == 0) No @else Yes @endif</td>
-                                <td id="reply_action">
+                                <td>
+                                    @if($reply->is_translate)
+                                        <span class="badge badge-success">True</span>
+                                    @else
+                                        <span class="badge badge-danger">False</span>
+                                    @endif
+                                </td>
+                                <td class="Website-task"title="">
+                                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$reply->id}}')"><i class="fa fa-arrow-down"></i></button>
+                                </td>
+                            </tr>
+                            
+                            <tr class="action-btn-tr-{{$reply->id}} d-none">
+                                <td>Action</td>
+                                <td id="reply_action"  colspan="10" >
                                     <i class="fa fa-eye show_logs" data-id="{{ $reply->id }}" style="color: #808080;"></i>
-                                  @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
-                                    <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    @if($reply['pushed_to_watson'] == 0)  <i  class="fa fa-upload push_to_watson" data-id="{{ $reply->id }}" style="color: #808080;"></i> @endif
+                                    @if(Auth::user()->isAdmin())
+                                     <i onclick="return confirm('Are you sure you want to delete this record?')" class="fa fa-trash fa-trash-bin-record" data-id="{{ $reply->reply_cat_id }}" style="color: #808080;"></i>
+                                    @endif
+                                    <!-- To push the FAQ Over every website using the API -->
+                                    
                                     <button type="button" class="btn btn-xs show-reply-history" title="Show Reply Update History" data-id="{{$reply->id}}" data-type="developer"><i class="fa fa-info-circle" style="color: #808080;"></i></button>
+                                    <button type="button" title="Flagged for Translate" data-reply_id="{{ $reply->id }}" data-is_flagged="<?php if($reply->is_flagged=='1') { echo '1'; } else { echo '0'; } ?>" onclick="updateTranslateReply(this)" class="btn" style="padding: 0px 1px;">
+                                        <?php if($reply->is_flagged == '1') { ?>
+                                        <i class="fa fas fa-toggle-on"></i>
+                                        <?php } else { ?>
+                                        <i class="fa fas fa-toggle-off"></i>
+                                        <?php } ?>
+                                    </button>
+
+                                    <button type="button" class="btn btn-xs show-reply-logs" title="Log of reply" data-id="{{$reply->id}}" data-type="developer">
+                                        <i class="fa fa-info-circle" style="color: #808080;"></i>
+                                    </button>
+                                    <i class="fa fa-upload  upload_faq" data-id="{{ $reply->id }}" title="Push To FAQ" style="color: #808080;"></i>
+
+
                                 </td>
                             </tr>
                         @endforeach
@@ -168,6 +327,42 @@
         </div>
     </div>
 </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="reply_logs">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reply Logs</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="reply_logs_data">
+                        <input type="hidden" class="reply_id">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Message</th>
+                                    <th>Type</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 
 $(document).on("click",".fa-trash-bin-record",function() {
@@ -180,10 +375,10 @@ $(document).on("click",".fa-trash-bin-record",function() {
           id: $this.data("id")
         },
         beforeSend: function() {
-            $("#loading-image").show();
+            $("#loading-image-preview").show();
         }
       }).done( function(response) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
             if(response.code == 200) {
                 toastr["success"](response.message);
                 location.reload();
@@ -191,7 +386,7 @@ $(document).on("click",".fa-trash-bin-record",function() {
                toastr["error"]('Record is unable to delete!');
             }
       }).fail(function(errObj) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
       });
 });
 
@@ -205,10 +400,10 @@ $(document).on("click",".push_to_watson",function() {
           id: $this.data("id")
         },
         beforeSend: function() {
-            $("#loading-image").show();
+            $("#loading-image-preview").show();
         }
       }).done( function(response) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
             if(response.code == 200) {
                 toastr["success"](response.message);
                 //location.reload();
@@ -216,7 +411,7 @@ $(document).on("click",".push_to_watson",function() {
                toastr["error"]('Unable to push!');
             }
       }).fail(function(errObj) {
-            $("#loading-image").hide();
+            $("#loading-image-preview").hide();
       });
 });
 
@@ -234,7 +429,11 @@ $(document).on('click', '.show-reply-history', function() {
     $.ajax({
         url: "{{ route('reply.replyhistory') }}",
         data: {id: issueId},
+        beforeSend: function () {
+            jQuery("#loading-image-preview").show();
+        },
         success: function (data) {
+            jQuery("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.histories, function(i, item) {
                     $('#reply_history_div table tbody').append(
@@ -246,6 +445,9 @@ $(document).on('click', '.show-reply-history', function() {
                         );
                 });
             }
+        },
+        error: function(er){
+            jQuery("#loading-image-preview").hide();
         }
     });
     $('#reply_history_modal').modal('show');
@@ -257,7 +459,11 @@ $(document).on('click', '.show_logs', function() {
     $.ajax({
         url: "{{ route('reply.replylogs') }}",
         data: {id: issueId},
+        beforeSend: function () {
+            jQuery("#loading-image-preview").show();
+        },
         success: function (data) {
+            jQuery("#loading-image-preview").hide();
             if(data != 'error') {
                 $.each(data.logs, function(i, item) {
                     $('#reply_logs_div table tbody').append(
@@ -269,9 +475,334 @@ $(document).on('click', '.show_logs', function() {
                         );
                 });
             }
+        },
+        error:function(err){
+            jQuery("#loading-image-preview").hide();
         }
     });
     $('#reply_logs_modal').modal('show');
 });
+
+$(document).on("click",".upload_faq",function() {
+    if(!confirm('Are you sure you want to push FAQ?')){
+        return false;
+    }
+
+    var $this = $(this);
+    $.ajax({
+        url: "{{ url('push/faq') }}",
+        type: 'POST',
+        data: {
+          _token: "{{ csrf_token() }}",
+          id: $this.data("id")
+        },
+        beforeSend: function() {
+            $("#loading-image-preview").show();
+        }
+      }).done( function(response) {
+            $("#loading-image-preview").hide();
+            if(response.code == 200) {
+                toastr["success"](response.message);
+                // location.reload();
+            }else{
+               toastr["error"]('Something went wrong!');
+            }
+      }).fail(function(errObj) {
+            $("#loading-image-preview").hide();
+      });
+});
+
+
+$(document).ready(function(){
+
+    $(document).on("click",".push_all_faq",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{ url('push/faq/all') }}",
+            type: 'POST',
+            data: {
+              _token: "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+                    toastr["success"](response.message);
+                    // location.reload();
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+    });
+    
+    //Paginate the logs as well
+    $(document).on("click","#reply_logs_data table tfoot a",function(e) {
+        e.preventDefault();
+        var id      =    $('#reply_logs_data .reply_id').val();
+        var url     =    $(this).attr('href');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+              _token:   "{{ csrf_token() }}",
+              id    :   id
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                
+                $("#loading-image-preview").hide();
+
+                if(response.code == 200) {
+
+                    var html    =   '';
+                    console.log(response);
+                    $.each(response.data.data,function(idnex, val){
+                        
+                        var formattedDate = new Date(val.created_at);
+                        var d = formattedDate.getDate();
+                        var m =  formattedDate.getMonth();
+                        m += 1;  // JavaScript months are 0-11
+                        var y = formattedDate.getFullYear();
+
+                        html    += '<tr><td>'+val.message+'</td><td>'+val.type+'</td><td>'+y +'/'+ m+'/' + d+'</td></tr>';
+
+                    })
+
+                    $('#reply_logs_data table tbody').html('');
+                    $('#reply_logs_data table tbody').html(html);
+                    $('#reply_logs_data table tfoot').html('');
+                    $('#reply_logs_data table tfoot').html(response.paginate);
+                    $('#reply_logs').modal('show');
+                    $("#reply_logs").animate({ scrollTop: 0 }, "slow");
+
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+
+    });
+
+    // Show reply logs
+    $(document).on("click",".show-reply-logs",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{ route('reply.show_logs') }}",
+            type: 'POST',
+            data: {
+              _token: "{{ csrf_token() }}",
+              id    :   $this.attr('data-id')
+            },
+            beforeSend: function() {
+                $("#loading-image-preview").show();
+            }
+          }).done( function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+
+                    var html    =   '';
+                    console.log(response);
+                    $.each(response.data.data,function(idnex, val){
+                        
+                        var formattedDate = new Date(val.created_at);
+                        var d = formattedDate.getDate();
+                        var m =  formattedDate.getMonth();
+                        m += 1;  // JavaScript months are 0-11
+                        var y = formattedDate.getFullYear();
+
+                        html    += '<tr><td>'+val.message+'</td><td>'+val.type+'</td><td>'+y +'/'+ m+'/' + d+'</td></tr>';
+
+                    })
+
+                    $('#reply_logs_data .reply_id').val('');
+                    $('#reply_logs_data .reply_id').val($this.attr('data-id'));
+                    $('#reply_logs_data table tbody').html('');
+                    $('#reply_logs_data table tbody').html(html);
+                    $('#reply_logs_data table tfoot').html('');
+                    $('#reply_logs_data table tfoot').html(response.paginate);
+                    $('#reply_logs').modal('show');
+
+                }else{
+                   toastr["error"]('Something went wrong!');
+                }
+          }).fail(function(errObj) {
+                $("#loading-image-preview").hide();
+          });
+    });
+    
+    
+})
+
+function updateTranslateReply(ele) {
+        let btn = jQuery(ele);
+        let reply_id = btn.data('reply_id');
+        let is_flagged = btn.data('is_flagged');
+        
+        
+        
+        //alert(is_flagged)
+
+        if (confirm(btn.data('is_flagged') == 1 ? 'Are you sure want unflagged this ?' : 'Are you sure want flagged this ?')) {
+            jQuery.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('reply.replytranslate') }}",
+                type: 'POST',
+                data: {
+                    reply_id: reply_id,
+                    is_flagged: is_flagged,
+                },
+                dataType: 'json',
+                beforeSend: function () {
+                    jQuery("#loading-image-preview").show();
+                },
+                success: function (res) {
+                    if(res.code == 200){
+                        toastr["success"](res.message);
+                    }
+                    else{
+                        toastr["error"](res.message);                    
+                    }
+                    jQuery("#loading-image-preview").hide();
+                    
+                    if (is_flagged == 1 && res.code == 200) {
+                        btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
+                        btn.find('.fa').addClass('fa-toggle-off');
+                        btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
+                    }
+                    else if(res.code == 200){
+                        btn.find('.fa').removeClass('fa-toggle-on fa-toggle-off');
+                        btn.find('.fa').addClass('fa-toggle-on');
+                        btn.data('is_flagged', is_flagged == 1 ? 0 : 1);
+                    }
+                },
+                error: function (res) {
+                    if (res.responseJSON != undefined) {
+                        toastr["error"](res.responseJSON.message);
+                    }
+                    jQuery("#loading-image-preview").hide();
+                }
+            });
+        }
+    }
+
+$(document).on('click', '#quick-reply-list .quick-website-task', function() {
+    var trclass = $(this).parent()[0].className;
+    $("."+trclass+" .quick-website-task").addClass("content-open-on-click");
+});
+function Showactionbtn(id) {
+    $(".action-btn-tr-" + id).toggleClass('d-none')
+}
+
+$(document).on('click', '.expand-row', function () {
+    var selection = window.getSelection();
+    if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+    }
+});
+
+    $(document).on('click', '.push_multi_toggle', function (e) {
+        e.preventDefault();
+        var selectedCheckboxes = [];
+        var replyIDs = [];
+
+        $('input[name="replyCheckbox"]:checked').each(function() {
+            var replyID = $(this).data('id');
+            var checkboxValue = $(this).val();
+
+            replyIDs.push(replyID);
+            selectedCheckboxes.push(checkboxValue);
+        });
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one checkbox.');
+            return;
+        }
+
+        var reply_ids = selectedCheckboxes.join(',');
+        // Instead of $('#multiple_file_id').val(selectedCheckboxes.join(',')), just store the value in a variable.
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('reply.mulitiple.flag') }}",
+            type: 'POST',
+            data: {
+                reply_ids: reply_ids, // Use the variable here to pass the reply_ids data.
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image-preview").show();
+            },
+            success: function (response) {
+                $("#loading-image-preview").hide();
+                toastr["success"](response.message);
+            },
+            error: function (xhr, status, error) {
+                // Handle the AJAX error response if needed.
+            },
+            complete: function () {
+                $("#loading-image-preview").hide();
+            }
+        });
+    });
+
+    $(document).on('click', '.push_multi_faq', function (e) {
+        e.preventDefault();
+        var selectedCheckboxes = [];
+        var replyIDs = [];
+
+        $('input[name="replyCheckbox"]:checked').each(function() {
+            var replyID = $(this).data('id');
+            var checkboxValue = $(this).val();
+
+            replyIDs.push(replyID);
+            selectedCheckboxes.push(checkboxValue);
+        });
+
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one checkbox.');
+            return;
+        }
+
+        var reply_ids = selectedCheckboxes.join(',');
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ url('push/faq/mulitiple') }}",
+            type: 'POST',
+            data: {
+                reply_ids: reply_ids, // Use the variable here to pass the reply_ids data.
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image-preview").show();
+            },
+            success: function (response) {
+                $("#loading-image-preview").hide();
+                toastr["success"](response.message);
+            },
+            error: function (xhr, status, error) {
+                // Handle the AJAX error response if needed.
+            },
+            complete: function () {
+                $("#loading-image-preview").hide();
+            }
+        });
+    });
 </script>
 @endsection

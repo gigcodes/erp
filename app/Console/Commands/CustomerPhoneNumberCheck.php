@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Customer;
-use App\Helpers\InstantMessagingHelper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Helpers\InstantMessagingHelper;
 
 class CustomerPhoneNumberCheck extends Command
 {
@@ -42,7 +42,7 @@ class CustomerPhoneNumberCheck extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $type = $this->argument('type');
@@ -65,7 +65,6 @@ class CustomerPhoneNumberCheck extends Command
                 }
             } elseif ($type == 'run') {
                 foreach ($customers as $customer) {
-
                     if ($customer->phone == null) {
                         continue;
                     }
@@ -86,6 +85,5 @@ class CustomerPhoneNumberCheck extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

@@ -1,21 +1,20 @@
 <?php
 
-
 namespace App\Services\Listing;
 
-
 use GuzzleHttp\Client;
-use Wa72\HtmlPageDom\HtmlPageCrawler;
 
 class Scrapper
 {
     private $request;
+
     public function __construct(Client $client)
     {
         $this->request = $client;
     }
 
-    public function getFromFarfetch($product) {
+    public function getFromFarfetch($product)
+    {
         $skus = $product->many_scraped_products()->pluck('original_sku')->toArray();
         $skus[] = $product->sku;
 
@@ -25,7 +24,7 @@ class Scrapper
                     'id' => $product->id,
                     'brand' => $product->brands->name,
                     'supplier' => $product->suppliers()->pluck('supplier')->toArray(),
-                    'sku' => $skus
+                    'sku' => $skus,
                 ],
             ]);
         } catch (\Exception $exception) {
@@ -34,7 +33,7 @@ class Scrapper
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        if (!isset($data['description'])) {
+        if (! isset($data['description'])) {
             return false;
         }
 
@@ -51,6 +50,5 @@ class Scrapper
         $product->save();
 
         return true;
-
     }
 }

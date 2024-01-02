@@ -15,7 +15,7 @@
                                 <strong>{{ $product->name }}</strong>
                                 <br>{{ $product->sku }}
                                 <br>{{ $product->is_on_sale ? 'ON SALE' : 'NO SALE' }}
-                                <br><a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                                <br><a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                                 <br><strong>{{ $product->product_category->title }}</strong>
                                 <br>
                                 <strong class="text-danger">Update Category If Incorrect:</strong>
@@ -49,8 +49,8 @@
                                 @if($product->crop_rejected_by != null)
                                     <br>INPORTANT :: <strong class="text-danger">Previous Rejection Reason: {{ $product->crop_remark }}</strong>
                                 @endif
-                                <form action="{{ action('ProductCropperController@rejectCrop', $product->id) }}">
-                                    <a href="{{ action('ProductCropperController@approveCrop', $product->id) }}{{'?'.$q}}" type="button" class="btn btn-secondary approvebtn">Approve</a>
+                                <form action="{{ action([\App\Http\Controllers\ProductCropperController::class, 'rejectCrop'], $product->id) }}">
+                                    <a href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'approveCrop'], $product->id) }}{{'?'.$q}}" type="button" class="btn btn-secondary approvebtn">Approve</a>
                                     <br><br>
                                     @if($q=='rejected=yes')
                                         <input type="hidden" name="rejected" value="yes">
@@ -74,7 +74,7 @@
                                     <button class="btn btn-danger">Reject</button>
                                     <br>
                                     @if($secondProduct)
-{{--                                        <a href="{{ action('ProductCropperController@showImageToBeVerified', $secondProduct->id) }}">Next Image</a>--}}
+{{--                                        <a href="{{ action([\App\Http\Controllers\ProductCropperController::class, 'showImageToBeVerified'], $secondProduct->id) }}">Next Image</a>--}}
                                     @endif
                                 </form>
                             </td>
@@ -99,7 +99,7 @@
         </div>
         <div class="col-md-12">
             <div style="margin: 0 auto; width: 100%">
-                <form action="{{ action('ProductCropperController@ammendCrop', $product->id) }}" method="post">
+                <form action="{{ action([\App\Http\Controllers\ProductCropperController::class, 'ammendCrop'], $product->id) }}" method="post">
                     @csrf
                     @foreach($product->media()->get() as $image)
 

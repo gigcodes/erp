@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Loggers\LogScraper;
 use Carbon\Carbon;
+use App\Loggers\LogScraper;
+use Illuminate\Console\Command;
 
 class LogScraperDelete extends Command
 {

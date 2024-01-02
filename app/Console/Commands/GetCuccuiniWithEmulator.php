@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Bots\CucLoginEmulator;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use App\CronJobReport;
+use Illuminate\Console\Command;
+use App\Services\Bots\CucLoginEmulator;
 
 class GetCuccuiniWithEmulator extends Command
 {
@@ -24,13 +24,14 @@ class GetCuccuiniWithEmulator extends Command
     protected $description = 'Command description';
 
     protected $country;
+
     protected $IP;
 
     public function handle(): void
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -60,7 +61,6 @@ class GetCuccuiniWithEmulator extends Command
         } catch (Exception $exception) {
             $content = ['', ''];
         }
-
     }
 
     public function doesProductExist($url): bool
@@ -84,7 +84,6 @@ class GetCuccuiniWithEmulator extends Command
 
     private function setCountry(): void
     {
-
         $this->country = 'IT';
     }
 

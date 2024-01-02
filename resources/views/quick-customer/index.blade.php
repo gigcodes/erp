@@ -6,8 +6,8 @@
 @section('large_content')
 @section('link-css')
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-<link href="/css/bootstrap-toggle.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
+<link href="{{asset('/css/bootstrap-toggle.min.css')}}" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{{asset('/css/dialog-node-editor.css')}}">
 @endsection
 <style type="text/css">
 	.preview-category input.form-control {
@@ -99,10 +99,11 @@
                     </div>
                 </form>
             </div>
-	    	<div class="col-md-2">
-                <button class="btn btn-secondary btn-xs btn-add-whatsapp-list pull-right mt-2">+ Whatsapp List</button>
+	    	<div class="col-md-2 pul text-right">
+                <button class="btn btn-secondary btn-xs btn-add-whatsapp-list mt-2">+ Whatsapp List</button>
+                <button type="button" class="btn btn-secondary btn-xs mt-2 text-white" data-toggle="modal" data-target="#customerCreateModal">+ Customer Create </button>
 		    </div>
-	    </div>	
+	    </div>
 		<div class="col-md-12 margin-tb" id="page-view-result">
 
 		</div>
@@ -218,19 +219,19 @@
     </div>
 </div>
 <?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
-
+@include('customers.partials.modal-customer-create')
 @include("quick-customer.templates.list-template")
 @include("partials.customer-new-ticket")
 @include('customers.partials.modal-category-brand')
-<script type="text/javascript" src="/js/jsrender.min.js"></script>
-<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
-<script src="/js/jquery-ui.js"></script>
-<script type="text/javascript" src="/js/common-helper.js"></script>
-<script type="text/javascript" src="/js/site-helper.js"></script>
-<script type="text/javascript" src="/js/quick-customer.js"></script>
-<script src="/js/bootstrap-toggle.min.js"></script>
-<script type="text/javascript" src="/js/jsrender.min.js"></script>
-<script type="text/javascript" src="/js/dialog-build.js"></script>
+<script type="text/javascript" src="{{asset('/js/jsrender.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('/js/jquery.validate.min.js')}}"></script>
+<script src="{{asset('/js/jquery-ui.js')}}"></script>
+<script type="text/javascript" src="{{asset('/js/common-helper.js')}}"></script>
+<script type="text/javascript" src="{{asset('/js/site-helper.js')}}"></script>
+<script type="text/javascript" src="{{asset('/js/quick-customer.js')}}"></script>
+<script src="{{asset('/js/bootstrap-toggle.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('/js/jsrender.min.js')}}"></script>
+<script type="text/javascript" src="{{asset('/js/dialog-build.js')}}"></script>
 
 <script type="text/javascript">
 	page.init({
@@ -240,7 +241,10 @@
 </script>
 
 <script type="text/javascript">
-	
+    function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
+
     $('.select-multiple').select2({width: '100%'});
 	$(document).on("click",".add_next_action",function() {
         siteHelpers.addNextAction($(this));

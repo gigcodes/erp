@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\PeopleNames;
 use App\PreAccount;
+use App\PeopleNames;
 use App\TargetLocation;
 use Illuminate\Http\Request;
 
@@ -22,7 +22,7 @@ class PreAccountController extends Controller
         $lastName = PeopleNames::inRandomOrder()->take(10)->get()->toArray();
         $countries = TargetLocation::all();
 
-        return view('pre.accounts', compact('accounts','firstName', 'lastName', 'countries'));
+        return view('pre.accounts', compact('accounts', 'firstName', 'lastName', 'countries'));
     }
 
     /**
@@ -38,20 +38,19 @@ class PreAccountController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $this->validate($request, [
             'email' => 'required|array',
-            'password' => 'required|array'
+            'password' => 'required|array',
         ]);
 
         $emails = $request->get('email');
 
-        foreach ($emails as $key=>$email) {
-            if (!$email) {
+        foreach ($emails as $key => $email) {
+            if (! $email) {
                 continue;
             }
             $account = new PreAccount();
@@ -78,7 +77,6 @@ class PreAccountController extends Controller
             $a->platform = 'pinterest';
             $a->dob = date('Y-m-d');
             $a->save();
-
         }
 
         return redirect()->back()->with('message', 'E-mail added successfully!');
@@ -87,7 +85,6 @@ class PreAccountController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
     public function show(PreAccount $preAccount)
@@ -98,7 +95,6 @@ class PreAccountController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
     public function edit(PreAccount $preAccount)
@@ -109,8 +105,6 @@ class PreAccountController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\PreAccount  $preAccount
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, PreAccount $preAccount)

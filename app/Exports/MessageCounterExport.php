@@ -2,14 +2,14 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class MessageCounterExport implements FromCollection, WithHeadings
 {
+    protected $header = null;
 
-        protected $header = null;
-        protected $data = null;
+    protected $data = null;
 
     public function __construct($header, $data)
     {
@@ -17,18 +17,16 @@ class MessageCounterExport implements FromCollection, WithHeadings
         $this->data = $data;
     }
 
-
-
     public function headings(): array
     {
         return [
-            $this->header
-            ];
+            $this->header,
+        ];
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         return collect($this->data);

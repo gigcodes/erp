@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class RestoreProductIfTheyHaveBeenCorrected extends Command
@@ -42,7 +42,7 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -53,14 +53,13 @@ class RestoreProductIfTheyHaveBeenCorrected extends Command
 //            ->where('is_listing_rejected', 1)
                 ->chunk(1000, function ($products) {
                     foreach ($products as $product) {
-                        $product->is_listing_rejected               = 0;
+                        $product->is_listing_rejected = 0;
                         $product->is_listing_rejected_automatically = 0;
                         $product->save();
 
                         dump('updated...');
                     }
-                })
-            ;
+                });
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

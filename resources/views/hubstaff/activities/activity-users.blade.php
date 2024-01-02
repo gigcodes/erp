@@ -118,7 +118,7 @@
                         <tr>
                             <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
                             <td class="expand-row-msg Website-task" data-name="userName" data-id="{{$index}}">
-                                <span class="show-short-userName-{{$index}}">{{ str_limit($user['userName'], 5, '..')}}</span>
+                                <span class="show-short-userName-{{$index}}">{{ Str::limit($user['userName'], 5, '..')}}</span>
                                 <span style="word-break:break-all;" class="show-full-userName-{{$index}} hidden Website-task">{{$user['userName']}}</span>
                             </td>
                             @php
@@ -200,7 +200,7 @@
                             <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
                             <td>{{$user['status']}}</td>
                             <td class="expand-row-msg" data-name="note" data-id="{{$index}}">
-                                <span class="show-short-note-{{$index}}">{{ str_limit($user['note'], 12, '...')}}</span>
+                                <span class="show-short-note-{{$index}}">{{ Str::limit($user['note'], 12, '...')}}</span>
 		                        <span style="word-break:break-all;" class="show-full-note-{{$index}} hidden">{{$user['note']}}</span>
                             </td>
                             @php

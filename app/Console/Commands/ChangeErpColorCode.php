@@ -38,23 +38,23 @@ class ChangeErpColorCode extends Command
     public function handle()
     {
         //
-        $colors = \App\ColorNamesReference::where('color_code','')->get();
-        if(!$colors->isEmpty()) {
-            foreach($colors as $color) {
+        $colors = \App\ColorNamesReference::where('color_code', '')->get();
+        if (! $colors->isEmpty()) {
+            foreach ($colors as $color) {
                 $str = self::stringToColorCode($color);
-                if(!empty($str)) {
+                if (! empty($str)) {
                     $color->color_code = $str;
                     $color->save();
                 }
             }
         }
-
     }
 
     public static function stringToColorCode($str)
     {
         $code = dechex(crc32($str));
         $code = substr($code, 0, 6);
+
         return $code;
     }
 }

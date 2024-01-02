@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class UpdateToryColor extends Command
@@ -29,7 +29,7 @@ class UpdateToryColor extends Command
     /**
      * Create a new command instance.
      *
-     * @param GebnegozionlineProductDetailsScraper $scraper
+     * @param  GebnegozionlineProductDetailsScraper  $scraper
      */
     public function __construct()
     {
@@ -45,7 +45,7 @@ class UpdateToryColor extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

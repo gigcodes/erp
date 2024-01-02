@@ -16,42 +16,42 @@
  * limitations under the License.
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\GoogleAddWord;
 
+use Illuminate\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use App\Http\Controllers\Controller;
+use Google\Auth\FetchAuthTokenInterface;
 use Google\AdsApi\AdWords\AdWordsServices;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
-use Google\AdsApi\AdWords\Query\v201809\ReportQueryBuilder;
-use Google\AdsApi\AdWords\Query\v201809\ServiceQueryBuilder;
-use Google\AdsApi\AdWords\Reporting\v201809\DownloadFormat;
-use Google\AdsApi\AdWords\Reporting\v201809\ReportDownloader;
 use Google\AdsApi\AdWords\ReportSettingsBuilder;
 use Google\AdsApi\AdWords\v201809\cm\CampaignService;
-use Google\Auth\FetchAuthTokenInterface;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
-use Illuminate\View\View;
+use Google\AdsApi\AdWords\Query\v201809\ReportQueryBuilder;
+use Google\AdsApi\AdWords\Reporting\v201809\DownloadFormat;
+use Google\AdsApi\AdWords\Query\v201809\ServiceQueryBuilder;
+use Google\AdsApi\AdWords\Reporting\v201809\ReportDownloader;
 
 class AdWordsApiController extends Controller
 {
-
     private static $REPORT_TYPE_TO_DEFAULT_SELECTED_FIELDS = [
         'CAMPAIGN_PERFORMANCE_REPORT' => [
             'CampaignId',
             'CampaignName',
             'CampaignStatus',
-            'AccountDescriptiveName'
+            'AccountDescriptiveName',
         ],
         'ADGROUP_PERFORMANCE_REPORT' => [
             'AdGroupId',
             'AdGroupName',
             'AdGroupStatus',
-            'CampaignId'
+            'CampaignId',
         ],
         'AD_PERFORMANCE_REPORT' => ['AdGroupId', 'AdGroupName', 'Id', 'AdType'],
         'ACCOUNT_PERFORMANCE_REPORT' => [
             'AccountDescriptiveName',
-            'ExternalCustomerId'
+            'ExternalCustomerId',
         ],
     ];
 
@@ -59,10 +59,6 @@ class AdWordsApiController extends Controller
      * Controls a POST and GET request that is submitted from the "Get All
      * Campaigns" form.
      *
-     * @param Request $request
-     * @param FetchAuthTokenInterface $oAuth2Credential
-     * @param AdWordsServices $adWordsServices
-     * @param AdWordsSessionBuilder $adWordsSessionBuilder
      * @return View
      */
     public function getCampaignsAction(
@@ -124,11 +120,9 @@ class AdWordsApiController extends Controller
      * Fetch campaigns using the provided campaign service, selected fields, the
      * number of entries per page and the specified page number.
      *
-     * @param Request $request
-     * @param CampaignService $campaignService
-     * @param string[] $selectedFields
-     * @param int $entriesPerPage
-     * @param int $pageNo
+     * @param  string[]  $selectedFields
+     * @param  int  $entriesPerPage
+     * @param  int  $pageNo
      * @return Collection
      */
     private function fetchCampaigns(
@@ -150,7 +144,7 @@ class AdWordsApiController extends Controller
         $results = [];
 
         $page = $campaignService->query("$query");
-        if (!empty($page->getEntries())) {
+        if (! empty($page->getEntries())) {
             $totalNumEntries = $page->getTotalNumEntries();
             $results = $page->getEntries();
         }
@@ -164,10 +158,6 @@ class AdWordsApiController extends Controller
      * Controls a POST and GET request that is submitted from the "Download
      * Report" form.
      *
-     * @param Request $request
-     * @param FetchAuthTokenInterface $oAuth2Credential
-     * @param AdWordsServices $adWordsServices
-     * @param AdWordsSessionBuilder $adWordsSessionBuilder
      * @return View
      */
     public function downloadReportAction(
@@ -189,7 +179,7 @@ class AdWordsApiController extends Controller
                         'clientCustomerId',
                         'reportType',
                         'entriesPerPage',
-                        'reportRange'
+                        'reportRange',
                     ]
                 )
             );
@@ -249,10 +239,9 @@ class AdWordsApiController extends Controller
      * Download a report of the specified report type and date range, selected
      * fields, and the number of entries per page.
      *
-     * @param string $reportType
-     * @param string $reportRange
-     * @param ReportDownloader $reportDownloader
-     * @param string[] $selectedFields
+     * @param  string  $reportType
+     * @param  string  $reportRange
+     * @param  string[]  $selectedFields
      * @return Collection
      */
     private function downloadReport(
@@ -287,6 +276,7 @@ class AdWordsApiController extends Controller
             // "view" can render this data properly.
             $row = $resultTable['row'];
             $row = count($row) > 1 ? $row : [$row];
+
             return collect($row);
         }
 

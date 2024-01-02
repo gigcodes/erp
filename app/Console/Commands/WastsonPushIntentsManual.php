@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Console\Command;
+use App\Library\Watson\Model as WatsonManager;
 
 class WastsonPushIntentsManual extends Command
 {
@@ -39,14 +39,13 @@ class WastsonPushIntentsManual extends Command
     public function handle()
     {
         //
-        $q = \App\ChatbotQuestion::where("erp_or_watson","watson")->whereNull("workspace_id")->where("value", "!=", "")->get();
-        if (!$q->isEmpty()) {
+        $q = \App\ChatbotQuestion::where('erp_or_watson', 'watson')->whereNull('workspace_id')->where('value', '!=', '')->get();
+        if (! $q->isEmpty()) {
             foreach ($q as $k) {
                 $result = WatsonManager::pushQuestion($k->id);
                 echo $result;
                 echo "\r\n";
             }
         }
-
     }
 }

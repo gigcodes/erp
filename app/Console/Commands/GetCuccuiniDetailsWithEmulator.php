@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
+use GuzzleHttp\Client;
 use App\ScrapedProducts;
+use Illuminate\Console\Command;
 use App\Services\Bots\CucProductDataEmulator;
 use App\Services\Bots\CucProductExistsEmulator;
-use Carbon\Carbon;
-use GuzzleHttp\Client;
-use Illuminate\Console\Command;
 
 class GetCuccuiniDetailsWithEmulator extends Command
 {
@@ -27,13 +27,14 @@ class GetCuccuiniDetailsWithEmulator extends Command
     protected $description = 'Command description';
 
     protected $country;
+
     protected $IP;
 
     public function handle(): void
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -67,7 +68,6 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     public function doesProductExist($product)
     {
-
         $url = 'http://shop.cuccuini.it/it/register.html';
 
         $duskShell = new CucProductExistsEmulator();
@@ -85,36 +85,34 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     private function setCountry(): void
     {
-
         $this->country = 'IT';
     }
 
     private function updateProductOnServer(ScrapedProducts $image)
     {
-
         $this->info('here saving to server');
-        $client   = new Client();
+        $client = new Client();
         $response = $client->request('POST', 'http://erp.sololuxury.co.in/api/sync-product', [
-//        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
+            //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
-                'sku'                 => $image->sku,
-                'website'             => $image->website,
-                'has_sku'             => $image->has_sku,
-                'title'               => $image->title,
-                'brand_id'            => $image->brand_id,
-                'description'         => $image->description,
-//                'images' => $this->imagesToDownload,
-                'price'               => $image->price,
-                'properties'          => $image->properties,
-                'url'                 => $image->url,
+                'sku' => $image->sku,
+                'website' => $image->website,
+                'has_sku' => $image->has_sku,
+                'title' => $image->title,
+                'brand_id' => $image->brand_id,
+                'description' => $image->description,
+                //                'images' => $this->imagesToDownload,
+                'price' => $image->price,
+                'properties' => $image->properties,
+                'url' => $image->url,
                 'is_property_updated' => 0,
-                'is_price_updated'    => 1,
-                'is_enriched'         => 0,
-                'can_be_deleted'      => 0,
+                'is_price_updated' => 1,
+                'is_enriched' => 0,
+                'can_be_deleted' => 0,
             ],
         ]);
 
-        if (!$response) {
+        if (! $response) {
             dd($response->getBody()->getContents());
         }
 

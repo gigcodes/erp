@@ -8,7 +8,7 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ action('ProductController@showListigByUsers') }}" method="get">
+            <form action="{{ action([\App\Http\Controllers\ProductController::class, 'showListigByUsers']) }}" method="get">
                 <strong>Date:</strong> <input name="date" type="date" class="d-inline form-control" style="width: 160px;" placeholder="Date" value="{{ Request::get('date') ?? date('Y-m-d') }}"> <button class="d-inline btn btn-secondary">Filter</button>
             </form>
         </div>
@@ -29,14 +29,14 @@
                         <td>{{ $user->total_acted }}</td>
                         <td>{{ $user->total_assigned - $user->total_acted }}</td>
                         <td>
-                            <form method="post" action="{{ action('UserController@unassignProducts', $user->user_id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\UserController::class, 'unassignProducts'], $user->user_id) }}">
                                 @csrf
                                 <input style="width: 50px;" name="number" type="number" min="1" max="{{ $user->total_assigned - $user->total_acted }}" value="{{ $user->total_assigned - $user->total_acted }}" placeholder="Number...">
                                 <button class="btn btn-xs btn-secondary">Unassign</button>
                             </form>
                         </td>
                         <td>
-                            <a href="{{ action('UserController@showAllAssignedProductsForUser', $user->user_id) }}">View History</a>
+                            <a href="{{ action([\App\Http\Controllers\UserController::class, 'showAllAssignedProductsForUser'], $user->user_id) }}">View History</a>
                         </td>
                     </tr>
                 @endforeach

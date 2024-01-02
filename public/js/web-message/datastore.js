@@ -1,4 +1,3 @@
-
 /*let user = {
 	id: 0,
 	name: "Anish",
@@ -120,29 +119,38 @@
 ];*/
 
 let MessageUtils = {
-	getByGroupId: (groupId) => {
-		return messages.filter(msg => msg.recvIsGroup && msg.recvId === groupId);
-	},
-	getByContactId: (contactId) => {
-		return messages.filter(msg => {
-			return !msg.recvIsGroup && ((msg.sender === user.id && msg.recvId === contactId) || (msg.sender === contactId && msg.recvId === user.id));
-		});
-	},
-	getMessages: () => {
-		return messages;
-	},
-	changeStatusById: (options) => {
-		messages = messages.map((msg) => {
-			if (options.isGroup) {
-				if (msg.recvIsGroup && msg.recvId === options.id) msg.status = 2;
-			} else {
-				if (!msg.recvIsGroup && msg.sender === options.id && msg.recvId === user.id) msg.status = 2;
-			}
-			return msg;
-		});
-	},
-	addMessage: (msg) => {
-		msg.id = messages.length + 1;
-		messages.push(msg);
-	}
+  getByGroupId: (groupId) => {
+    return messages.filter((msg) => msg.recvIsGroup && msg.recvId === groupId);
+  },
+  getByContactId: (contactId) => {
+    return messages.filter((msg) => {
+      return (
+        !msg.recvIsGroup &&
+        ((msg.sender === user.id && msg.recvId === contactId) ||
+          (msg.sender === contactId && msg.recvId === user.id))
+      );
+    });
+  },
+  getMessages: () => {
+    return messages;
+  },
+  changeStatusById: (options) => {
+    messages = messages.map((msg) => {
+      if (options.isGroup) {
+        if (msg.recvIsGroup && msg.recvId === options.id) msg.status = 2;
+      } else {
+        if (
+          !msg.recvIsGroup &&
+          msg.sender === options.id &&
+          msg.recvId === user.id
+        )
+          msg.status = 2;
+      }
+      return msg;
+    });
+  },
+  addMessage: (msg) => {
+    msg.id = messages.length + 1;
+    messages.push(msg);
+  },
 };

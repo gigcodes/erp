@@ -15,16 +15,68 @@
         #reason-select{
             display: none;
         }
+        .table-responsive {
+            overflow-x: auto !important;
+        }
     </style>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />  
 @endsection
 @section('content')
-<div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+<div class="col-md-12">
+
+    <div id="myDiv">
+        <img id="loading-image" src="{{asset('/images/pre-loader.gif')}}" style="display:none;"/>
     </div>
- <div class="row">
+    <div class="row">
+
         <div class="col-md-12">
-            <h1 class="text-center">Crop Reference Grid (<span id="total">{{ $products->total() }}</span>) ({{ $pendingProduct }}) ({{ $pendingCategoryProduct }})</h1>
+
+            <div class="text-center">
+                    <h2 class="page-heading">
+                        <a class="text-dark" data-toggle="collapse" href="#collapse1">Crop Reference Grid (<span id="total">{{ $total }}</span>) ({{ $pendingProduct }}) ({{ $pendingCategoryProduct }})</a>
+                    </h2>
+                </div>
+
+            <div class="pull-left">
+                <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
+
+                    <div class="form-group mr-3">
+                        <select data-placeholder="Status Type" class="form-control select-multiple2" name="status" id="status">
+                            <optgroup label="Status Type">
+                                <option value="0">Select Status</option>
+                                <option value="4">AutoCrop</option>
+                                <option value="18">Crop Rejected</option>
+                                <option value="12">Manual Image Upload</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3 mb-3">
+                        <select data-placeholder="Select Category" style="width: 250px" class="ajax-get-categories form-control " id="category" name="category[]">
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        <select data-placeholder="Product id" style="width: 250px; height: 10px" class="ajax-get-product-ids form-control " id="filter-id" name="filter_id[]">
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        <select data-placeholder="Select Brands" style="width: 250px" class="ajax-get-brands form-control " id="brand" name="brand[]">
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-3">
+                        <select data-placeholder="Select Supplier" style="width: 250px" class="ajax-get-supplier form-control " id="supplier" name="supplier[]">
+                        </select>
+                    </div>
+
+                    {{-- <button type="submit" class="btn btn-image"><img src="{{asset('/images/filter.png')}}"/></button> --}}
+                    <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="{{asset('/images/resend2.png')}}" /></button>
+                </form>
+            </div>
+
             <div class="pull-right">
                  <button onclick="addTask()" class="btn btn-secondary">Add Issue</button>
                  <button onclick="rejectImage()" class="btn btn-secondary">Reject Image</button>
@@ -45,75 +97,32 @@
                     <option value="Auto rejected">Image incorrect</option>
                 </select>
             </div>
-                <br>
-            <!--Product Search Input -->
-                <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
-                   
-                   <div class="form-group mr-3">
-                       <select data-placeholder="Product id" style="width: 200px" class="ajax-get-product-ids form-control " id="filter-id" name="id">
-                       </select>
-                    </div>
-                   <div class="form-group mr-3">
-                        <select data-placeholder="Status Type" class="form-control select-multiple2" name="status" id="status">
-                            <optgroup label="Status Type">
-                               <option value="0">Select Status</option>
-                               <option value="4">AutoCrop</option>
-                               <option value="18">Crop Rejected</option>
-                               <option value="12">Manual Image Upload</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                   <div class="form-group mr-3 mb-3">
-                       <select data-placeholder="Select Category" style="width: 300px" class="ajax-get-categories form-control " id="category" name="category[]">
-                       </select>
-                   </div>
-    
-                    <div class="form-group mr-3">
-                        <select data-placeholder="Select Brands" style="width: 300px" class="ajax-get-brands form-control " id="brand" name="brand[]">
-                        </select>
-                    </div>
-
-                    <div class="form-group mr-3">
-                        <select data-placeholder="Select Supplier" style="width: 300px" class="ajax-get-supplier form-control " id="supplier" name="supplier[]">
-                        </select>
-                    </div>
-
-                     
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                    <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
-                </form>
         </div>
-         
-      
+
         <div class="col-md-12">
             <div class="panel-group">
                 <div class="panel mt-5 panel-default">
+
                     <div class="panel-heading">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse1">Crop Stats</a>
+                            <a type="button" data-toggle="collapse" href="#collapse1">Crop Stats</a>
                         </h4>
                     </div>
+
                     <div id="collapse1" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div class="pull-right">
                             <form action="crop-references-grid" method="GET">
                                 <div class="form-group">
                                     <div class="row">
-                                        <div class="col-md-8">
-                                           
+                                        <div class="col-md-12 d-flex">
                                                 <div id="reportrange_phone" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                                         <input type="hidden" name="customer_range" id="customer_range">
                                                         <i class="fa fa-calendar"></i>&nbsp;
                                                         <span></span> <i class="fa fa-caret-down"></i>
                                                 </div>
-                   
+                                            <button class="btn btn-image" type="button"><img src="{{asset('/images/filter.png')}}" onclick="getCount()"></button>
                                         </div>
-
-                                        
-                                        <div class="col-md-1">
-                                         <button class="btn btn-image" type="button"><img src="/images/filter.png"/ onclick="getCount()"></button>
-                                     </div>
                                  </div>
                              </div>
                          </form>
@@ -136,14 +145,12 @@
             </div>
 
         </div>
-   
-
         
         <div class="col-md-12">
             <div class="table-responsive">
                 <table class="table-striped table-bordered table" id="log-table">
                     <thead>
-                    <tr>
+                    <tr style="width: auto;">
                         <th>ID <input type="checkbox" name="" id="globalCheckbox"></th>
                         <th>Pro. Id</th>
                         <th>Category</th>
@@ -163,6 +170,7 @@
                     </tbody>
                 </table>
             </div>
+            {!! $products->appends(Request::except('page'))->links() !!}
         </div>
 
         
@@ -234,6 +242,7 @@
         </div>
     </div>
 
+</div>
  @include('partials.modals.task-module')
  @include('partials.modals.large-image-modal')
    
@@ -249,16 +258,13 @@
              $(".select-multiple").multiselect();
              $(".select-multiple2").select2();
         });     
-
     function bigImg(img){
         $('#image_crop').attr('src',img);
         $('#largeImageModal').modal('show');
     }
-
     function normalImg(){
         $('#largeImageModal').modal('hide');
     }
-
     function addTask() {
        var id = [];
             $.each($("input[name='issue']:checked"), function(){
@@ -274,11 +280,10 @@
         }   
         
     }
-
     function refreshPage() {
          blank = ''
          $.ajax({
-            url: '/crop-references-grid',
+            url: '{{url('/crop-references-grid')}}',
             dataType: "json",
             data: {
                 blank : blank
@@ -302,7 +307,6 @@
             alert('No response from server');
         });
     }    
-
     $('#globalCheckbox').click(function(){
             if($(this).prop("checked")) {
                 $(".checkBox").prop("checked", true);
@@ -310,10 +314,8 @@
                 $(".checkBox").prop("checked", false);
             }                
         });
-
         var start = moment().subtract(29, 'days');
         var end = moment();
-
         function cs(start, end) {
             if(start.format('YYYY-MM-DD') == '1995-12-25'){
                 $('#reportrange_phone span').html(end.format('MMMM D, YYYY'));
@@ -322,7 +324,6 @@
             }
             $('#customer_range').val(start.format('YYYY/MM/DD')+' - '+end.format('YYYY/MM/DD'));
         }
-
         $('#reportrange_phone').daterangepicker({
             startDate: start,
             endDate: end,
@@ -344,7 +345,7 @@
         $(document).ready(function () {
 			$('#brand,#category,#crop,#supplier,#status,#filter-id').on('change', function () {
                 $.ajax({
-                    url: '/crop-references-grid',
+                    url: '{{url('/crop-references-grid')}}',
                     dataType: "json",
                     data: {
                         brand: $('#brand').val(),
@@ -363,18 +364,13 @@
                     console.log(data);
                     $("#total").text(data.total);
                     $("#log-table tbody").empty().html(data.tbody);
-                    if (data.links.length > 10) {
-                        $('ul.pagination').replaceWith(data.links);
-                    } else {
-                        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                    }
+                    $('ul.pagination').replaceWith(data.links);
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     $("#loading-image").hide();
                     alert('No response from server');
                 });
             });
         });
-
         function getCount(){
             $.ajax({
                     url: '/crop-references-grid',
@@ -397,17 +393,13 @@
                     alert('No response from server');
                 });
         }
-
         $(document).on('change', '.reject-cropping', function (event) {
             let pid = $(this).data('id');
             let remark = $(this).val();
-
             if (remark == 0 || remark == '0') {
                 return;
             }
-
             let self = this;
-
             $.ajax({
                 url: '/products/auto-cropped/' + pid + '/reject',
                 data: {
@@ -428,9 +420,7 @@
                     $(self).attr('disabled');
                 }
             });
-
         });
-
         function rejectImage(){
             var id = [];
             $.each($("input[name='issue']:checked"), function(){
@@ -442,16 +432,13 @@
                 $('#reason-select').show();
             }
         }
-
          $(document).on('change', '#reason-select', function (event) {
             let remark = $(this).val();
             $.each($("input[name='issue']:checked"), function(){
             if (remark == 0 || remark == '0') {
                 return;
             }
-
             pid = $(this).attr('data-id');
-
             $.ajax({
                 url: '/products/auto-cropped/' + pid + '/reject',
                 data: {
@@ -471,12 +458,9 @@
                     $(self).attr('disabled');
                 }
             });
-
             });
             $('#reason-select').hide();
-
         });
-
         $('.ajax-get-product-ids').select2({
             tags: true,
             multiple: true,
@@ -486,18 +470,15 @@
                 }
             }
         });
-
         const $brandsSelect = $('.ajax-get-brands'),
             $supplierSelect = $('.ajax-get-supplier'),
             $categoriesSelect = $('.ajax-get-categories');
-
         $brandsSelect.select2();
         $supplierSelect.select2();
         $categoriesSelect.select2();
-
         const ajaxGetSupplier = () => {
             return $.ajax({
-                url: '/crop-references-grid/getSupplier',
+                url: '{{url('/crop-references-grid/getSupplier')}}',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -513,10 +494,9 @@
                 }
             })
         }
-
         const ajaxGetCategories = () => {
             return $.ajax({
-                url: '/crop-references-grid/getCategories',
+                url: '{{url('/crop-references-grid/getCategories')}}',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -530,10 +510,9 @@
                 },
             })
         }
-
         const ajaxGetBrands = () => {
             return $.ajax({
-                url: '/crop-references-grid/getBrands',
+                url: '{{url('/crop-references-grid/getBrands')}}',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -549,21 +528,18 @@
                 },
             })
         }
-
         ajaxGetBrands().done((result)=>{
             $brandsSelect.select2({
                 multiple:true,
                 data:result.result
             })
         })
-
         ajaxGetSupplier().done((result)=>{
             $supplierSelect.select2({
                 multiple:true,
                 data:result.result
             })
         })
-
         ajaxGetCategories().done((result)=>{
             $categoriesSelect.select2({
                 data:result.result,
@@ -578,8 +554,6 @@
                 }
             })
         })
-
-
         $(document).on("click",".btn-instances-manage",function() {
             $.ajax({
                 url: '{{url('crop-references-grid/manage-instances')}}',
@@ -589,7 +563,6 @@
                 },
             });
         });
-
         $(document).on("click",".add-instance",function(e) {
             e.preventDefault();
             var $this = $(this);
@@ -602,7 +575,6 @@
                 },
             });
         });
-
         $(document).on("click",".btn-delete-manage-instances",function(e) {
             e.preventDefault();
             var $id = $(this).data("id");
@@ -617,7 +589,6 @@
                 },
             });
         });
-
         $(document).on("click",".btn-log-instances",function(e) {
             e.preventDefault();
             var $id = $(this).data("id");
@@ -635,7 +606,6 @@
                 },
             });
         });
-
        
         $(document).on("click",".btn-start-manage-instances",function(e) {
             e.preventDefault();
@@ -659,7 +629,6 @@
                 }
             });
         });
-
         $(document).on("click",".btn-stop-manage-instances",function(e) {
             e.preventDefault();
             var $id = $(this).data("id");
@@ -682,8 +651,6 @@
                 }
             });
         });
-
-
         $('#show-http-status').on('show.bs.modal', function (e) {
             $(this).find('.request-body').text(JSON.stringify($(e.relatedTarget).data('request')));
             $(this).find('.response-body').text(JSON.stringify($(e.relatedTarget).data('response')));
@@ -692,13 +659,11 @@
 	var isLoading = false;
 	//var page = 1;
 	$(document).ready(function () {
-
-		$(window).scroll(function() {
+		/*$(window).scroll(function() {
 			if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
 				loadMore();
 			}
-		});
-
+		});*/
 		function loadMore() {
 			if (isLoading)
 				return;
@@ -706,7 +671,7 @@
 			var $loader = $('.infinite-scroll-products-loader');
 			page = page + 1;
 			$.ajax({
-				url: '/crop-references-grid',
+				url: '{{url('/crop-references-grid')}}',
 				type: 'GET',
 				data: {
                     brand: $('#brand').val(),

@@ -17,9 +17,9 @@
                 @foreach($userProducts as $userProduct)
                     <tr>
                         <td>
-                            <a href="{{ action('ProductController@show', $userProduct->product->id) }}">{{ $userProduct->product->sku }}</a>
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $userProduct->product->id) }}">{{ $userProduct->product->sku }}</a>
                             <br>
-                            <a href="{{ action('ProductController@show', $userProduct->product->id) }}">{{ $userProduct->product->id }}</a>
+                            <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $userProduct->product->id) }}">{{ $userProduct->product->id }}</a>
                         </td>
                         <td>{{ $userProduct->product->name }}</td>
                         <td>{{ $userProduct->created_at ?? 'N/A' }}</td>

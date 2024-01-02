@@ -31,13 +31,13 @@
         <div class="row">
             <div class="col-md-12">
                 <br>
-                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{$images->total()}}</h5> 
+                <h5 class="product-attach-date" style="margin: 5px 0px;"> Number Of Images:{{count($images)}}</h5> 
 
                 <hr style="margin: 5px 0px;">
             </div>
         </div>
         <div class="image-1"> 
-        @if(!$images->isEmpty())
+        @if(!empty($images))
             @foreach($images as $image)
                     <?php $image = $image->toArray();?>
                     {{-- @foreach($imageM->scrapperImage->toArray() as $image) --}}
@@ -98,9 +98,12 @@
                                         @endforeach
                                         </div>
                                         <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <a class="btn btn-secondarys" href="{{$image['img_url']}}" target="_blank">Go to Url</a>  
+                                        <button class="btn btn-secondarys btn-add-action" data-toggle="modal" data-target="#bugtrackingCreateModal">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button></br>       
+                                        <a class="btn btn-secondarys" href="{{$image['img_url']}}" target="_blank">Go to Url</a></br>  
                                         @if($image['url'] != "")
-                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a>  
+                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a></br>  
                                         @endif
                                         {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
                                     </div>
@@ -121,9 +124,12 @@
                                             </div>
                                         </div>
                                         <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a> 
+                                        <button class="btn btn-secondarys btn-add-action" data-toggle="modal" data-target="#bugtrackingCreateModal">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button></br>
+                                        <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a> </br>
                                         @if($image['url'] != "")
-                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a>  
+                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a>  </br>
                                         @endif
                                         {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
                                     </div>
@@ -148,7 +154,9 @@
         <div class="col-md-12">No more Images</div>
         @endif
         <br>
+        @if(!empty($images))
         {{ $images->appends(request()->except('page'))->links() }}
+        @endif
     
 </div>
 <img class="infinite-scroll-products-loader center-block" src="{{env('APP_URL')}}/images/loading.gif" alt="Loading..." style="display: none" />

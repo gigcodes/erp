@@ -43,6 +43,7 @@
                 </div>
 		   </div>
 		   <div class="modal-footer">
+          <input id="selectAll" type="checkbox"><label for='selectAll'>Select All</label>
 		      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 		      <button type="button" data-id="{{if user}}{{:user.id}}{{/if}}" class="btn btn-secondary submit-permission" data-dismiss="modal">Submit</button>
 		   </div>

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\CaseCost;
-use App\Events\CaseBilled;
-use App\Events\CaseBillPaid;
-use App\Helpers;
-use App\Http\Requests\CreateCaseRequest;
+use App\User;
 use App\Lawyer;
+use App\Helpers;
+use App\CaseCost;
 use App\LegalCase;
 use App\ReplyCategory;
-use App\User;
+use App\Events\CaseBilled;
+use App\Events\CaseBillPaid;
 use Illuminate\Http\Request;
+use App\Http\Requests\CreateCaseRequest;
 
 class CaseController extends Controller
 {
@@ -19,7 +19,7 @@ class CaseController extends Controller
 
     public function __construct()
     {
-      //  $this->middleware('permission:case-all');
+        //  $this->middleware('permission:case-all');
         $this->data['statuses'] = ['Not Filed', 'Filed', 'Hearing', 'Differed', 'Settled', 'Closed'];
     }
 
@@ -27,8 +27,9 @@ class CaseController extends Controller
     {
         $this->data['cases'] = $case;
         $order_by = 'DESC';
-        if ($request->orderby == '')
+        if ($request->orderby == '') {
             $order_by = 'ASC';
+        }
 
         //TODO refactor search functionality...
         //use some searchable package..
@@ -64,6 +65,7 @@ class CaseController extends Controller
             $chat_message->select('id', 'message', 'case_id', 'status')->orderBy('id', 'desc');
         }, 'lawyer:id,name']);
         $this->data['cases'] = $this->data['cases']->paginate(50);
+
         return view('case.index', $this->data);
     }
 
@@ -71,17 +73,17 @@ class CaseController extends Controller
     {
         $case = new LegalCase($request->all());
         $case->save();
+
         return redirect()->route('case.index')->withSuccess('You have successfully saved a case!');
     }
 
     /**
-     * @param CreateCaseRequest $request
-     * @param LegalCase $case
      * @return mixed
      */
     public function update(CreateCaseRequest $request, LegalCase $case)
     {
         $case->fill($request->all())->save();
+
         return redirect()->route('case.index')->withSuccess('You have successfully saved a case!');
     }
 
@@ -98,12 +100,14 @@ class CaseController extends Controller
     public function destroy(LegalCase $case)
     {
         $case->delete();
+
         return redirect()->route('case.index')->withSuccess('You have successfully deleted a case');
     }
 
     public function getCosts(LegalCase $case, Request $request)
     {
         $costs = $case->costs;
+
         return response($costs);
     }
 
@@ -116,15 +120,15 @@ class CaseController extends Controller
         try {
             $payment = CaseCost::create($request->all());
             $case = LegalCase::find($request->case_id);
-            if($case)
-                event (new CaseBilled($case, $payment));
+            if ($case) {
+                event(new CaseBilled($case, $payment));
+            }
         } catch (\Exception $exception) {
             return response($exception->getMessage());
         }
 
         return response($payment);
     }
-
 
     public function costUpdate(CaseCost $case_cost, Request $request)
     {
@@ -136,10 +140,11 @@ class CaseController extends Controller
             $case_cost->paid_date = $request->get('paid_date');
             $case_cost->amount_paid = $request->get('amount_paid');
             $case_cost->save();
-            event (new CaseBillPaid($case_cost->case, $case_cost));
+            event(new CaseBillPaid($case_cost->case, $case_cost));
         } catch (\Exception $exception) {
             return response($exception->getMessage());
         }
+
         return response($case_cost);
     }
 }

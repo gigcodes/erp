@@ -2,18 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CashFlow;
-use App\CronJobReport;
-use App\Email;
-use App\EmailAddress;
-use App\EmailRunHistories;
-use App\Supplier;
 use Carbon\Carbon;
-use EmailReplyParser\Parser\EmailParser;
+use App\EmailAddress;
+use App\CronJobReport;
+use App\Jobs\FetchEmail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Webklex\IMAP\Client;
-use App\Jobs\FetchEmail;
 
 /**
  * @author Sukhwinder <sukhwinder@sifars.com>
@@ -55,17 +49,24 @@ class FetchAllEmails extends Command
     public function handle()
     {
         $report = CronJobReport::create([
-            'signature'  => $this->signature,
+            'signature' => $this->signature,
             'start_time' => Carbon::now(),
         ]);
+//        old code
+//        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
+//
+//        foreach ($emailAddresses as $emailAddress) {
+//            FetchEmail::dispatch($emailAddress)->onQueue('email');
+//        }
 
-        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
+        // new code added for optimising
+        EmailAddress::orderBy('id', 'asc')->chunk(100, function ($emailAddresses) {
+            foreach ($emailAddresses as $emailAddress) {
+                FetchEmail::dispatch($emailAddress)->onQueue('email');
+            }
+        });
 
-        foreach ($emailAddresses as $emailAddress) {
-            FetchEmail::dispatch($emailAddress)->onQueue('email');
-        }
-
-        $report->update(['end_time' => Carbon::now()]); 
+        $report->update(['end_time' => Carbon::now()]);
     }
 
     /**
@@ -75,6 +76,4 @@ class FetchAllEmails extends Command
      * @param [type] $email_list
      * @return array(model_id,miodel_type)
      */
-   
-
 }

@@ -1,177 +1,191 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
-    "keywords": [
-        "framework",
-        "laravel"
+  "name": "laravel/laravel",
+  "description": "The Laravel Framework.",
+  "keywords": [
+    "framework",
+    "laravel"
+  ],
+  "license": "MIT",
+  "type": "project",
+  "require": {
+    "php": "^7.3|^8.0",
+    "ext-bcmath": "*",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "barryvdh/laravel-ide-helper": "^2.8",
+    "barryvdh/laravel-snappy": "*",
+    "becker/laravel-zabbix-api": "^0.3.0",
+    "brotzka/laravel-dotenv-editor": "2.1.0",
+    "bugsnag/bugsnag-laravel": "^2.20",
+    "commerceguys/guzzle-oauth2-plugin": "*",
+    "doctrine/dbal": "^2.13",
+    "dompdf/dompdf": "1.0.2",
+    "elasticsearch/elasticsearch": "^8.10",
+    "facebook/graph-sdk": "~5.0",
+    "facebook/php-business-sdk": "^12.0.0",
+    "fruitcake/laravel-cors": "^2.0",
+    "giggsey/libphonenumber-for-php": "^8.11",
+    "google/apiclient": "^2.12.1",
+    "google/cloud-bigquery": "^1.23",
+    "google/cloud-dialogflow": "^1.3",
+    "google/cloud-translate": "^1.9",
+    "google/protobuf": "3.21.5",
+    "googleads/google-ads-php": "^19.0",
+    "googleads/googleads-php-lib": "^59.0",
+    "guzzlehttp/guzzle": "^6.3.1|^7.2.2",
+    "intellitrend/zabbixapi": "^3.2",
+    "intervention/image": "^2.5",
+    "iwasherefirst2/laravel-multimail": "^1.3",
+    "jenkins-khan/jenkins-api": "dev-master",
+    "kosinix/grafika": "^2.0",
+    "ksubileau/color-thief-php": "^1.4",
+    "laravel/framework": "^8.83",
+    "laravel/helpers": "^1.5",
+    "laravel/horizon": "*",
+    "laravel/passport": "^10.0",
+    "laravel/pint": "1.5.0",
+    "laravel/socialite": "*",
+    "laravel/telescope": "^4.14",
+    "laravel/tinker": "^2.5",
+    "laravel/ui": "^3.0",
+    "laravelcollective/html": "^6.2",
+    "lazyjsonmapper/lazyjsonmapper": "^1.6",
+    "league/color-extractor": "^0.3.2",
+    "league/csv": "^9.2",
+    "maatwebsite/excel": "^3.1",
+    "madnest/madzipper": "*",
+    "milon/barcode": "^9.0",
+    "mtcmedia/dhl-api": "^1.0",
+    "nunomaduro/laravel-console-dusk": "^1.0",
+    "nwidart/laravel-modules": "^5.1",
+    "ourcodeworld/name-that-color": "dev-master",
+    "philcook/gtmetrix": "^1.0",
+    "php-ai/php-ml": "*",
+    "phpoffice/phpspreadsheet": "^1.6",
+    "picqer/php-barcode-generator": "^0.3.0",
+    "plank/laravel-mediable": "*",
+    "plesk/api-php-lib": "^1.0",
+    "pragmarx/tracker": "^4.0",
+    "predis/predis": "^2.0",
+    "pusher/pusher-php-server": "5.0.3",
+    "qoraiche/laravel-mail-editor": "*",
+    "seo2websites/erp-customer": "dev-master",
+    "seo2websites/erp-excel-importer": "dev-master",
+    "seo2websites/google-vision": "dev-master",
+    "seo2websites/magento-helper": "dev-master",
+    "shweshi/laravel-unsplash-wrapper": "*",
+    "socialiteproviders/youtube": "^4.1",
+    "spatie/laravel-activitylog": "^4.1",
+    "spatie/laravel-analytics": "4.0.1",
+    "spatie/laravel-image-optimizer": "^1.6",
+    "spatie/laravel-permission": "^3.16",
+    "stichoza/google-translate-php": "^4.1",
+    "studio/laravel-totem": "*",
+    "symfony/css-selector": "^4.0",
+    "tanmuhittin/laravel-google-translate": "^2.0",
+    "techsemicolon/hubstaff": "^0.0.1",
+    "thujohn/twitter": "^2.3",
+    "tineye/tineye-api": "^1.0",
+    "twilio/sdk": "^6.28",
+    "tymon/jwt-auth": "^1.0",
+    "wa72/htmlpagedom": "^1.3",
+    "webklex/laravel-imap": "^2.0",
+    "webreinvent/laravel-nestable": "^0.0.3",
+    "willdurand/email-reply-parser": "^2.9",
+    "yajra/laravel-datatables-oracle": "^9.11",
+    "zircote/swagger-php": "2.*"
+  },
+  "require-dev": {
+    "barryvdh/laravel-debugbar": "^3.5",
+    "beyondcode/laravel-dump-server": "^1.5",
+    "facade/ignition": "^2.5",
+    "fakerphp/faker": "^1.9.1",
+    "filp/whoops": "^2.0",
+    "mockery/mockery": "^1.4.4",
+    "nunomaduro/collision": "*",
+    "overtrue/phplint": "^2.0",
+    "phpunit/phpunit": "^9.5.10"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Modules\\": "Modules/",
+      "InstagramAPI\\": "app/Library/mgp25/instagram-php/src",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    },
+    "files": [
+      "app/Helpers/common_functions.php",
+      "app/Helpers/semrush_helper.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "google/apiclient-services": [
+      "Playdeveloperreporting",
+      "YouTube"
+    ]
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:MMMagento/erp-excel-importer"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:MMMagento/google-vision"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:MMMagento/price-comparison-scraper"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:MMMagento/erp-customer"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:MMMagento/magento-helper"
+    },
+    {
+      "type": "vcs",
+      "url": "git@github.com:MMMagento/laravel-mail-editor.git"
+    }
+  ],
+  "scripts": {
+    "lint": "phplint --no-cache src/",
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
     ],
-    "license": "MIT",
-    "type": "project",
-    "require": {
-        "php": "^7.1.3",
-        "ext-json": "*",
-        "atayahmet/laravel-nestable": "^0.8.7",
-        "barryvdh/laravel-ide-helper": "^2.4",
-        "barryvdh/laravel-snappy": "*",
-        "brotzka/laravel-dotenv-editor": "2.1.0",
-        "brozot/laravel-fcm": "1.3.*",
-        "bugsnag/bugsnag-laravel": "^2.0",
-        "catzilla/zbar-wrapper": "^0.1.1",
-        "chumper/zipper": "^1.0",
-        "darkaonline/l5-swagger": "5.6.*",
-        "doctrine/dbal": "^2.9",
-        "dompdf/dompdf": "^0.8.3",
-        "facebook/graph-sdk": "~5.0",
-        "facebook/php-business-sdk": "^3.2",
-        "fideloper/proxy": "^4.0",
-        "giggsey/libphonenumber-for-php": "^8.11",
-        "google/apiclient": "^2.0",
-        "google/cloud-translate": "^1.9",
-        "googleads/google-ads-php": "master",
-        "googleads/googleads-php-lib": "48.0.0",
-        "guzzlehttp/guzzle": "^6.3",
-        "intervention/image": "^2.5",
-        "iwasherefirst2/laravel-multimail": "^1.3",
-        "jenkins-khan/jenkins-api": "dev-master",
-        "kosinix/grafika": "^2.0",
-        "ksubileau/color-thief-php": "^1.4",
-        "laravel/framework": "5.6.*",
-        "laravel/horizon": "v2.0.0",
-        "laravel/passport": "^6.0",
-        "laravel/tinker": "^1.0",
-        "laravelcollective/html": "^5.6",
-        "lazyjsonmapper/lazyjsonmapper": "^1.6",
-        "league/color-extractor": "^0.3.2",
-        "league/csv": "^9.2",
-        "maatwebsite/excel": "^3.1",
-        "macsidigital/zoom-laravel": "^1.0",
-        "milon/barcode": "^6.0",
-        "mtcmedia/dhl-api": "^1.0",
-        "nunomaduro/laravel-console-dusk": "^1.0",
-        "nwidart/laravel-modules": "^5.1",
-        "ourcodeworld/name-that-color": "dev-master",
-        "philcook/gtmetrix": "^1.0",
-        "php-ai/php-ml": "^0.8.0",
-        "phpoffice/phpspreadsheet": "^1.6",
-        "picqer/php-barcode-generator": "^0.3.0",
-        "plank/laravel-mediable": "^2.7",
-        "plesk/api-php-lib": "^1.0",
-        "pragmarx/tracker": "^4.0",
-        "pusher/pusher-http-laravel": "^4.2",
-        "pusher/pusher-php-server": "v3.0.1",
-        "qoraiche/laravel-mail-editor": "*",
-        "seo2websites/erp-customer": "dev-master",
-        "seo2websites/erp-excel-importer": "dev-master",
-        "seo2websites/google-vision": "dev-master",
-        "seo2websites/laravel-zoom": "dev-master",
-        "seo2websites/magento-helper": "dev-master",
-        "seo2websites/price-comparison-scraper": "dev-master",
-        "shweshi/laravel-unsplash-wrapper": "^3.0",
-        "skovmand/mailchimp-laravel": "^1.0",
-        "spatie/laravel-activitylog": "^2.8",
-        "spatie/laravel-analytics": "3.6.0",
-        "spatie/laravel-image-optimizer": "1.3",
-        "spatie/laravel-permission": "^2.13",
-        "stichoza/google-translate-php": "^4.1",
-        "studio/laravel-totem": "3.*",
-        "tanmuhittin/laravel-google-translate": "^2.0",
-        "techsemicolon/hubstaff": "^0.0.1",
-        "thujohn/twitter": "^2.2",
-        "tineye/tineye-api": "^1.0",
-        "twilio/sdk": "^6.28",
-        "wa72/htmlpagedom": "^1.3",
-        "webklex/laravel-imap": "^1.4",
-        "willdurand/email-reply-parser": "^2.9",
-        "yajra/laravel-datatables-oracle": "~8.0",
-        "zircote/swagger-php": "2.*"
-    },
-    "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.2",
-        "filp/whoops": "^2.0",
-        "fzaninotto/faker": "^1.4",
-        "mockery/mockery": "^1.0",
-        "nunomaduro/collision": "^2.0"
-    },
-    "autoload": {
-        "classmap": [
-            "database/seeds",
-            "database/factories"
-           
-        ],
-        "psr-4": {
-            "App\\": "app/",
-            "Modules\\": "Modules/",
-            "InstagramAPI\\": "vendors/mgp25/instagram-php/src"
-        },
-        "files": [
-            "Modules/BookStack/helpers.php",
-            "app/Helpers/common_functions.php",
-            "app/Helpers/semrush_helper.php"            
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "dont-discover": [
-                "laravel/dusk"
-            ]
-        }
-    },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/erp-excel-importer"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/google-vision"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/price-comparison-scraper"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/erp-customer"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/laravel-zoom"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/magento-helper"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/laravel-mail-editor.git"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:umeshghediya/google-ads-php"
-        }
+    "post-create-project-cmd": [
+      "@php artisan key:generate --ansi"
     ],
-    "scripts": {
-        "post-root-package-install": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-        ],
-        "post-create-project-cmd": [
-            "@php artisan key:generate"
-        ],
-        "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover"
-        ]
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover --ansi"
+    ],
+    "post-update-cmd": [
+      "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+    ]
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true,
+    "allow-plugins": {
+      "kylekatarnls/update-helper": true,
+      "php-http/discovery": true
     },
-    "config": {
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "optimize-autoloader": true
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "github-oauth": {},
+    "platform": {
+      "ext-pcntl": "8.0",
+      "ext-posix": "8.0"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

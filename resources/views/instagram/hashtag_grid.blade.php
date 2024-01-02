@@ -6,7 +6,7 @@
             <h1>Instagram HashTags Listing</h1>
             <div class="row">
                 <div class="col-md-4 offset-3">
-                    <form method="get" action="{{ action('InstagramController@hashtagGrid') }}">
+                    <form method="get" action="{{ action([\App\Http\Controllers\InstagramController::class, 'hashtagGrid']) }}">
                         <input type="text" name="query" id="query" class="form-control" placeholder="Search Hashtag..." value="{{ $request->get('query') }}">
                     </form>
                 </div>
@@ -106,7 +106,7 @@
                 let postId = $(this).attr('data-post-id');
                 let commentKey = $(this).attr('data-comment-key');
                 $.ajax({
-                    url: '{{action('InstagramController@deleteComment')}}',
+                    url: '{{action([\App\Http\Controllers\InstagramController::class, 'deleteComment'])}}',
                     data: {
                         post_id: postId,
                         comment_key: commentKey

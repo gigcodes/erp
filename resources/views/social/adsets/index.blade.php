@@ -14,13 +14,75 @@
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social  Adsets ({{ $adsets->total() }})<span class="count-text"></span></h2>
-            <div class="pull-right">
+            <div class="pull-right mr-2">
                 <a class="btn btn-secondary create-post">+</a>
+            </div>
+            <div class="pull-left ml-2 mb-3">
+                <form class="form-inline" action="{{route('social.adset.index')}}" method="GET">
+                    <div class="form-group mr-2">
+                        <input type="date" name="date" id="date" class="form-control" style="width:250px !important">
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="config_name[]" data-placeholder="Config Name" id="" style="width:250px !important" multiple>
+                            @foreach($adsets_data as $adset)
+                                @php
+                                    $config_name = App\Social\SocialConfig::where('id',$adset->config_id)->first();
+                                @endphp
+                                <option value="{{$config_name->id}}" {{ isset($_GET['config_name']) && in_array($config_name->id,$_GET['config_name']) ? 'selected' : '' }}>{{$config_name->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="campaign_name[]"  data-placeholder="Campaign Name" id="campaign_name" style="width:250px !important" multiple>
+                            @foreach($adsets_data as $adset)
+                                @php
+                                    $campaign = \App\Social\SocialCampaign::where('id',$adset->campaign_id)->first();
+                                @endphp
+                                @if($campaign)
+                                <option value="{{$campaign->id}}" {{ isset($_GET['campaign_name']) && in_array($campaign->id,$_GET['campaign_name']) ? 'selected' : '' }}>{{$campaign->name}}</option>
+                                @endif
+                                @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control globalSelect2" name="event[]" data-placeholder="Billing Event"  id="event" style="width:250px !important" multiple>
+                            @foreach($adsets_data as $adset)
+                                <option value="{{$adset->billing_event}}" {{ isset($_GET['event']) && in_array($adset->billing_event,$_GET['event']) ? 'selected' : '' }}>{{$adset->billing_event}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control" name="name" id="name" style="width:250px !important">
+                            <option value="">Adset Name</option>.
+                            @foreach($adsets_data as $adset)
+                                <option value="{{$adset->name}}" {{ isset($_GET['name']) && !empty($adset->name == $_GET['name']) ? 'selected' : '' }}>{{$adset->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <select class="form-control" name="status" id="status" style="width:250px !important">
+                            <option value="">Status</option>
+                            @foreach($adsets_data as $adset)
+                                <option value="{{$adset->status}}" {{ isset($_GET['status']) && !empty($adset->status == $_GET['status']) ? 'selected' : '' }}>{{$adset->status}}</option>
+                            @endforeach
+                            {{--                            {{ !empty($adset->status == $status)  ? 'selected' : '' }}--}}
+                        </select>
+                    </div>
+                    <div class="form-group mr-2">
+                        <button type="submit" class="btn btn-image3 btn-sm text-dark">
+                            <i class="fa fa-filter"></i>
+                        </button>
+                        <!-- <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/clear-filters.png"/></button>  -->
+                    </div>
+                </form>
             </div>
         </div>
 
         <br>
-        @include("social.header_menu")
+
+        <div class="row ml-4 mb-2">
+            @include("social.header_menu")
+        </div>
             
         @if ($message = Session::get('success'))
             <div class="alert alert-success">
@@ -47,6 +109,7 @@
                             <th style="width:5%">Date</th>
                             <th style="width:10%">Config Name</th>
                             <th style="width:10%">Campaign Name</th>
+                            <th style="width:10%">Website</th>
                             <th style="width:30%"> Name</th>
                             <th style="width:10%">Billing Event</th>
                             <th style="width:10%">Daily Budget</th>

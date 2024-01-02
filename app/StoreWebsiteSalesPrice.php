@@ -9,10 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class StoreWebsiteSalesPrice extends Model
 {
-    
     protected $fillable = [
-        'type', 'type_id', 'supplier_id', 'from_date', 'amount', 'to_date','created_by'
+        'type', 'type_id', 'supplier_id', 'from_date', 'amount', 'to_date', 'created_by',
     ];
-
-   
 }

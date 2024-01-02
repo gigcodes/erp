@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\Marketing;
 
+use Crypt;
+use Response;
 use App\ImQueue;
+use App\Setting;
+use App\CompetitorPage;
+use App\InstagramKeyword;
+use Illuminate\Http\Request;
 use App\Marketing\InstagramConfig;
 use App\Http\Controllers\Controller;
 use App\Services\Whatsapp\ChatApi\ChatApi;
-use Illuminate\Http\Request;
-use App\Setting;
-use App\InstagramKeyword;
-use Validator;
-use Crypt;
-use Response;
-use App\Customer;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use App\CompetitorPage;
 
 class InstagramConfigController extends Controller
 {
@@ -25,9 +22,7 @@ class InstagramConfigController extends Controller
      */
     public function index(Request $request)
     {
-
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-
             $query = InstagramConfig::query();
 
             //global search term
@@ -38,11 +33,9 @@ class InstagramConfigController extends Controller
                     ->orWhere('provider', 'LIKE', "%{$request->term}%");
             }
 
-
             if (request('date') != null) {
                 $query->whereDate('created_at', request('website'));
             }
-
 
             //if number is not null
             if (request('number') != null) {
@@ -65,7 +58,6 @@ class InstagramConfigController extends Controller
             }
 
             $instagramConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
-
         } else {
             $instagramConfigs = InstagramConfig::latest()->paginate(Setting::get('pagination'));
         }
@@ -73,17 +65,16 @@ class InstagramConfigController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('marketing.instagram-configs.partials.data', compact('instagramConfigs'))->render(),
-                'links' => (string)$instagramConfigs->render()
+                'links' => (string) $instagramConfigs->render(),
             ], 200);
         }
 
-        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
+        $competitors = CompetitorPage::select('id', 'name')->where('platform', 'instagram')->get();
 
         return view('marketing.instagram-configs.index', [
             'instagramConfigs' => $instagramConfigs,
             'competitors' => $competitors,
         ]);
-
     }
 
     /**
@@ -99,7 +90,6 @@ class InstagramConfigController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -128,7 +118,7 @@ class InstagramConfigController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\InstagramConfig $InstagramConfig
+     * @param  \App\InstagramConfig  $InstagramConfig
      * @return \Illuminate\Http\Response
      */
     public function show(InstagramConfig $InstagramConfig)
@@ -139,12 +129,11 @@ class InstagramConfigController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param \App\InstagramConfig $InstagramConfig
+     * @param  \App\InstagramConfig  $InstagramConfig
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request)
     {
-
         $this->validate($request, [
             'number' => 'required|max:13',
             'provider' => 'required',
@@ -167,8 +156,7 @@ class InstagramConfigController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\InstagramConfig $InstagramConfig
+     * @param  \App\InstagramConfig  $InstagramConfig
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, InstagramConfig $InstagramConfig)
@@ -179,23 +167,23 @@ class InstagramConfigController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\InstagramConfig $InstagramConfig
+     * @param  \App\InstagramConfig  $InstagramConfig
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
     {
         $config = InstagramConfig::findorfail($request->id);
         $config->delete();
-        return Response::json(array(
+
+        return Response::json([
             'success' => true,
-            'message' => 'Instagram Config Deleted'
-        ));
+            'message' => 'Instagram Config Deleted',
+        ]);
     }
 
     /**
      * Show history page
      *
-     * @param $id
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function history($id, Request $request)
@@ -207,7 +195,6 @@ class InstagramConfigController extends Controller
         $provider = $config->provider;
 
         if ($config->provider === 'py-whatsapp') {
-
             $data = ImQueue::whereNotNull('sent_at')->where('number_from', $config->number)->orderBy('sent_at', 'desc');
             if (request('term') != null) {
                 $data = $data->where('number_to', 'LIKE', "%{$request->term}%");
@@ -228,21 +215,16 @@ class InstagramConfigController extends Controller
     /**
      * Show queue page
      *
-     * @param $id
-     * @param Request $request
      * @return array|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-
     public function queue($id, Request $request)
     {
-
         $term = $request->term;
         $date = $request->date;
         $config = InstagramConfig::find($id);
         $number = $config->number;
         $provider = $config->provider;
         if ($config->provider === 'py-whatsapp') {
-
             $data = ImQueue::whereNull('sent_at')->with('marketingMessageTypes')->where('number_from', $config->number)->orderBy('created_at', 'desc');
             if (request('term') != null) {
                 $data = $data->where('number_to', 'LIKE', "%{$request->term}%");
@@ -255,30 +237,25 @@ class InstagramConfigController extends Controller
             $data = $data->get();
         } elseif ($config->provider === 'Chat-API') {
             $data = ChatApi::chatQueue($config->number);
-
         }
-/*        dd($data);*/
+        /*        dd($data);*/
         return view('marketing.instagram-configs.queue', compact('data', 'id', 'term', 'date', 'number', 'provider'));
     }
-
-    
 
     /**
      * Delete single queue
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroyQueue(Request $request)
     {
-
         $config = ImQueue::findorfail($request->id);
         $config->delete();
-        return Response::json(array(
-            'success' => true,
-            'message' => 'Instagram Config Deleted'
-        ));
 
+        return Response::json([
+            'success' => true,
+            'message' => 'Instagram Config Deleted',
+        ]);
     }
 
     /**
@@ -289,15 +266,16 @@ class InstagramConfigController extends Controller
     public function destroyQueueAll(Request $request)
     {
         $config = ImQueue::where('number_from', $request->id)->delete();
-        return Response::json(array(
+
+        return Response::json([
             'success' => true,
-            'message' => 'Instagram Configs Deleted'
-        ));
+            'message' => 'Instagram Configs Deleted',
+        ]);
     }
 
     public function keywordStore(Request $request)
     {
-        $keyword = InstagramKeyword::where('keyword',$request->keyword);
+        $keyword = InstagramKeyword::where('keyword', $request->keyword);
         if ($keyword->count() == 0) {
             $keyword = new InstagramKeyword;
             $keyword->keyword = $request->keyword;
@@ -309,7 +287,8 @@ class InstagramConfigController extends Controller
 
     public function keywordList(Request $request)
     {
-		$allKeywords = InstagramKeyword::get();
+        $allKeywords = InstagramKeyword::get();
+
         return response()->json(['data' => $allKeywords]);
     }
 
@@ -319,9 +298,7 @@ class InstagramConfigController extends Controller
         if ($keyword) {
             $keyword->delete();
         }
-        return response()->json(['id' => $request->id,'message' => "Keyword Deleted Successfully"]);
-    }
 
-   
-    
+        return response()->json(['id' => $request->id, 'message' => 'Keyword Deleted Successfully']);
+    }
 }

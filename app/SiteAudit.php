@@ -6,30 +6,34 @@ use Illuminate\Database\Eloquent\Model;
 
 class SiteAudit extends Model
 {
-	protected $table = "site_audit";
-    protected $fillable = ["project_id", "store_website_id","name","url","status","errors","warnings","notices","broken","blocked","redirected","healthy","haveIssues","haveIssuesDelta","defects","markups","depths","crawlSubdomains","respectCrawlDelay","canonical","user_agent_type","last_audit","last_failed_audit","next_audit","running_pages_crawled","running_pages_limit","pages_crawled","pages_limit","total_checks","errors_delta","warnings_delta","notices_delta","mask_allow","mask_disallow","removedParameters","excluded_checks"];
-	
-	public function semrushApis($apiName) {
-		$key = config('env.SEMRUSH_API');
-		$apis = [
-			'project_list'=>'https://api.semrush.com/management/v1/projects?key='.$key,
-			'site_audit'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key='.$key,
-			'site_audit_info'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/info?key='.$key,
-			'add_keywords'=>'https://api.semrush.com/management/v1/projects/{id}/keywords?key='.$key,
-			'site_issues'=>'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key='.$key
-		];
-		return $apis[$apiName];
-	}
-	
-	public function semrushApiResponses($apiResponse) {
-		$responses = [
-			'project_list'=>'{
+    protected $table = 'site_audit';
+
+    protected $fillable = ['project_id', 'store_website_id', 'name', 'url', 'status', 'errors', 'warnings', 'notices', 'broken', 'blocked', 'redirected', 'healthy', 'haveIssues', 'haveIssuesDelta', 'defects', 'markups', 'depths', 'crawlSubdomains', 'respectCrawlDelay', 'canonical', 'user_agent_type', 'last_audit', 'last_failed_audit', 'next_audit', 'running_pages_crawled', 'running_pages_limit', 'pages_crawled', 'pages_limit', 'total_checks', 'errors_delta', 'warnings_delta', 'notices_delta', 'mask_allow', 'mask_disallow', 'removedParameters', 'excluded_checks'];
+
+    public function semrushApis($apiName)
+    {
+        $key = config('env.SEMRUSH_API');
+        $apis = [
+            'project_list' => 'https://api.semrush.com/management/v1/projects?key=' . $key,
+            'site_audit' => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/launch?key=' . $key,
+            'site_audit_info' => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/info?key=' . $key,
+            'add_keywords' => 'https://api.semrush.com/management/v1/projects/{id}/keywords?key=' . $key,
+            'site_issues' => 'https://api.semrush.com/reports/v1/projects/{ID}/siteaudit/meta/issues?key=' . $key,
+        ];
+
+        return $apis[$apiName];
+    }
+
+    public function semrushApiResponses($apiResponse)
+    {
+        $responses = [
+            'project_list' => '{
 				"url": "mysite.com",
 				"tools": [],
 				"project_id": 643526670283248,
 				"project_name": "myproject"
 			}',
-			'site_audit_info'=>'{
+            'site_audit_info' => '{
 						"id":4594705336925861,
 						"name":"test",
 						"url":"semrush.com",
@@ -71,7 +75,7 @@ class SiteAudit extends Model
 						"removedParameters":["rr","r","p"],
 						"excluded_checks":null
 					}',
-			'site_issues'=>'{
+            'site_issues' => '{
 					"issues":[
 					{
 					"id":1,
@@ -85,8 +89,9 @@ class SiteAudit extends Model
 					"other_problem_link":"##count## more page on this site has 500 status code",
 					"desc_with_link":" ##count## pages  returned 5XX status code upon request"
 					}]
-					}'
-		];
-		return $responses[$apiResponse];
-	}
+					}',
+        ];
+
+        return $responses[$apiResponse];
+    }
 }

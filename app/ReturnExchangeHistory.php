@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReturnExchangeHistory extends Model
 {
-	 /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="return_exchange_id",type="integer")
      * @SWG\Property(property="status_id",type="integer")
      * @SWG\Property(property="user_id",type="integer")
@@ -25,6 +27,6 @@ class ReturnExchangeHistory extends Model
         'comment',
         'history_type',
         'new_value',
-        'old_value'
+        'old_value',
     ];
 }

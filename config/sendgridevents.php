@@ -60,5 +60,5 @@ return [
      * URL should be: https://yourwebsite.com/sendgrid/webhook?key=[url_secret_key]
      * If the key is not set, then it will not be checked.
      */
-    'url_secret_key' => ''
+    'url_secret_key' => '',
 ];

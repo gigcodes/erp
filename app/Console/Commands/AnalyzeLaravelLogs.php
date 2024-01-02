@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Github\GithubUser;
-use App\Issue;
-use App\LaravelGithubLog;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use Illuminate\Console\Command;
 use Storage;
+use App\Issue;
+use GuzzleHttp\Client;
+use App\LaravelGithubLog;
+use App\Github\GithubUser;
+use Illuminate\Console\Command;
+use GuzzleHttp\Exception\ClientException;
 
 class AnalyzeLaravelLogs extends Command
 {
@@ -49,18 +49,15 @@ class AnalyzeLaravelLogs extends Command
      */
     public function handle()
     {
-
-        $path =  base_path() . '/';
+        $path = base_path() . '/';
 
         $escaped = str_replace('/', '\/', $path);
 
-
-        $errorData = array();
+        $errorData = [];
 
         $files = Storage::disk('logs')->files();
 
         foreach ($files as $file) {
-
             $yesterday = strtotime('yesterday');
             $today = strtotime('today');
 
@@ -68,11 +65,11 @@ class AnalyzeLaravelLogs extends Command
 
             if ($yesterday > $time || $time >= $today) {
                 echo 'HERE' . PHP_EOL;
+
                 continue;
             }
 
             echo '====== Getting logs from file:' . $file . ' ======' . PHP_EOL;
-
 
             $content = Storage::disk('logs')->get($file);
 
@@ -84,22 +81,20 @@ class AnalyzeLaravelLogs extends Command
             $errorStackTrace = $matches[3];
 
             foreach ($timestamps as $index => $timestamp) {
-
-                $data =  array(
+                $data = [
                     'log_file_name' => $file,
                     'timestamp' => $timestamp,
                     'filename' => $filenames[$index],
-                    'stacktrace' => $errorStackTrace[$index]
-                );
+                    'stacktrace' => $errorStackTrace[$index],
+                ];
                 $errorData[] = $data;
             }
         }
 
-        echo '====== Got the following errors: ======'.PHP_EOL;
+        echo '====== Got the following errors: ======' . PHP_EOL;
         echo print_r($errorData, true) . PHP_EOL;
 
-
-        echo '====== Executing Github commands: ======'.PHP_EOL;
+        echo '====== Executing Github commands: ======' . PHP_EOL;
 
         foreach ($errorData as $key => $error) {
             $cmdReponse = [];
@@ -124,21 +119,20 @@ class AnalyzeLaravelLogs extends Command
         echo '== DATA ENTRIES == ' . PHP_EOL;
         echo print_r($errorData, true);
 
-        $newlyCreatedLogs  = [];
+        $newlyCreatedLogs = [];
 
         foreach ($errorData as $error) {
-
             $log = LaravelGithubLog::firstOrCreate(
                 [
                     'log_time' => $error['timestamp'],
                     'log_file_name' => $error['log_file_name'],
-                    'file' => $error['filename']
+                    'file' => $error['filename'],
                 ],
                 [
                     'commit' => $error['commit']['commit'],
-                    'author' =>  $error['commit']['author'],
+                    'author' => $error['commit']['author'],
                     'commit_time' => $error['commit']['date'],
-                    'stacktrace' => $error['stacktrace']
+                    'stacktrace' => $error['stacktrace'],
                 ]
             );
 
@@ -171,14 +165,12 @@ class AnalyzeLaravelLogs extends Command
         echo '====== Github User IDs ======' . PHP_EOL;
         echo print_r($githubUserIds, true) . PHP_EOL;
 
-
         $users = GithubUser::whereIn('id', $githubUserIds)->select(['id', 'user_id'])->get();
 
         echo print_r($users, true) . PHP_EOL;
 
         // create issue for the newly create log
         foreach ($newlyCreatedLogs as $log) {
-
             $issue = $log->file . PHP_EOL . PHP_EOL . $log->stacktrce;
             $subject = 'Exception in ' . $log->file;
 
@@ -196,7 +188,7 @@ class AnalyzeLaravelLogs extends Command
                 'issue' => $issue,
                 'priority' => 0,
                 'module' => '',
-                'subject' => $subject
+                'subject' => $subject,
             ]);
         }
 
@@ -209,29 +201,31 @@ class AnalyzeLaravelLogs extends Command
             if ($this->startsWith($line, 'Author: ')) {
                 $author = substr($line, strlen('Author: '));
                 $author = trim($author);
-            } else if ($this->startsWith($line, 'Date: ')) {
+            } elseif ($this->startsWith($line, 'Date: ')) {
                 $date = substr($line, strlen('Date: '));
                 $date = trim($date);
-            } else if ($this->startsWith($line, 'commit')) {
+            } elseif ($this->startsWith($line, 'commit')) {
                 $commit = substr($line, strlen('commit'));
                 $commit = trim($commit);
             }
         }
         if (isset($author) && isset($date)) {
             echo print_r(
-                array(
+                [
                     'author' => $author,
                     'date' => $date,
-                    'commit' => $commit
-                ),
+                    'commit' => $commit,
+                ],
                 true
             );
-            return array(
+
+            return [
                 'author' => $author,
                 'date' => $date,
-                'commit' => $commit
-            );
+                'commit' => $commit,
+            ];
         }
+
         return false;
     }
 
@@ -246,16 +240,19 @@ class AnalyzeLaravelLogs extends Command
                 return $decodedResponse->author->id;
             }
             echo 'COULD NOT FIND USER DETAILS FOR: ' . $commit . ' Error: Parsing response' . PHP_EOL;
+
             return false;
         } catch (ClientException $e) {
             echo 'COULD NOT FIND USER DETAILS FOR: ' . $commit . ' Error: ' . $e->getMessage() . PHP_EOL;
+
             return false;
         }
     }
 
-    function startsWith($string, $startString)
+    public function startsWith($string, $startString)
     {
         $len = strlen($startString);
-        return (substr($string, 0, $len) === $startString);
+
+        return substr($string, 0, $len) === $startString;
     }
 }

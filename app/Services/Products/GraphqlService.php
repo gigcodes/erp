@@ -2,15 +2,15 @@
 
 namespace App\Services\Products;
 
-use App\Http\Controllers\GoogleTranslateController;
 use App\Language;
 use App\Product_translation;
-use Illuminate\Support\Facades\Log;
 use App\ProductPushErrorLog;
+use Illuminate\Support\Facades\Log;
 
 class GraphqlService
 {
     private static $storeWebsiteUrl;
+
     private static $storeWebsitePwd;
 
     //register multiple translations by one call
@@ -23,12 +23,12 @@ class GraphqlService
 
         if ($localeExist) {
             $validLocales = self::getValidLocales()['validLocales'];
-            $localeDiffs  = self::getValidLocales()['localeDiffs'];
+            $localeDiffs = self::getValidLocales()['localeDiffs'];
 
-            $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
+            $endpoint = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
 
             $translations = self::generateTranslations($validLocales, $localeDiffs, $productId, $shopifyProductId);
-            if (!count($translations)) {
+            if (! count($translations)) {
                 $message = 'missing_product_translations: No translations found in product_translations 
                 table for product with id: ' . $productId;
                 self::addLogs($message);
@@ -53,8 +53,8 @@ class GraphqlService
             ';
 
             $vars = [
-                "resourceId"   => "gid://shopify/Product/$shopifyProductId",
-                "translations" => $translations
+                'resourceId' => "gid://shopify/Product/$shopifyProductId",
+                'translations' => $translations,
             ];
 
             $data = [];
@@ -81,31 +81,29 @@ class GraphqlService
                 echo 'Error:' . curl_error($ch);
             }
 
-            if(isset($website->id)) {
-               ProductPushErrorLog::log($endpoint,$productId, "mutation translationsRegister Shopify", 'success',$website->id,$data,$response);
+            if (isset($website->id)) {
+                ProductPushErrorLog::log($endpoint, $productId, 'mutation translationsRegister Shopify', 'success', $website->id, $data, $response);
             }
 
             $userErrors = isset($response['data']['translationsRegister']['userErrors']);
             if ($userErrors) {
                 foreach ($response['data']['translationsRegister']['userErrors'] as $error) {
                     $message = $error['code'] . ': ' . $error['message'];
-                    $message .= PHP_EOL .' Data: ' . print_r($error['field'], true);
+                    $message .= PHP_EOL . ' Data: ' . print_r($error['field'], true);
 
                     self::addLogs($message);
                 }
-
-            };
+            }
 
             curl_close($ch);
-
         } else {
             //add logs
             $result = false;
             $message = 'no_locales: No locales enabled in shopify store. Please visit:
-             '.self::$storeWebsiteUrl.'/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
+             ' . self::$storeWebsiteUrl . '/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
             self::addLogs($message);
-            if(isset($website->id)) {
-               ProductPushErrorLog::log(null,$productId, $message, 'error',$website->id);
+            if (isset($website->id)) {
+                ProductPushErrorLog::log(null, $productId, $message, 'error', $website->id);
             }
         }
 
@@ -114,7 +112,7 @@ class GraphqlService
 
     private static function getDataByCurl($query)
     {
-        $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
+        $endpoint = self::$storeWebsiteUrl . 'admin/api/2020-07/graphql.json'; //this is provided by graphcms
         $headers = [];
         $headers[] = 'Content-Type: application/graphql';
         $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
@@ -139,7 +137,7 @@ class GraphqlService
         return $result;
     }
 
-    private static function getValidLocales ()
+    private static function getValidLocales()
     {
         $data = ['success' => false];
         $languages = Language::pluck('locale')->toArray();
@@ -161,71 +159,65 @@ class GraphqlService
             $data = [
                 'validLocales' => array_intersect($shopLocales, $languages),
                 'localeDiffs' => $localeDiffs,
-                'success' => true
+                'success' => true,
             ];
         }
 
         return $data;
     }
 
-    private static function generateTranslations ($validLocales, $localeDiffs, $productId, $shopifyProductId)
+    private static function generateTranslations($validLocales, $localeDiffs, $productId, $shopifyProductId)
     {
-
         $translations = [];
 
         $productTranslations = Product_translation::where('product_id', $productId)
             ->whereIn('locale', $validLocales)
-            ->whereNotIn('locale',['en'])
+            ->whereNotIn('locale', ['en'])
             ->groupBy('locale')->get()->keyBy('locale')->toArray();
-
 
         if ($productTranslations) {
             $shopifyProduct = $shopLocalesData = self::retrieveDataByGrapql('getTitleDesc', ['shopifyProductId' => $shopifyProductId]);
             $hashTitle = hash('sha256', $shopifyProduct['data']['product']['title']);
-            $hashDesc  = hash('sha256', $shopifyProduct['data']['product']['description']);
-            $hashProductCategory  = hash('sha256', $shopifyProduct['data']['product']['productType']);
+            $hashDesc = hash('sha256', $shopifyProduct['data']['product']['description']);
+            $hashProductCategory = hash('sha256', $shopifyProduct['data']['product']['productType']);
 
-
-            foreach ($productTranslations as $data)
-            {
+            foreach ($productTranslations as $data) {
                 $titleData = [];
-                $descData  = [];
+                $descData = [];
 
                 //one for title
                 $titleData['locale'] = array_key_exists($data['locale'], $localeDiffs) ? $localeDiffs[$data['locale']] : $data['locale'];
-                $titleData['key']    = 'title';
-                $titleData['value']  = $data['title'];
+                $titleData['key'] = 'title';
+                $titleData['value'] = $data['title'];
                 $titleData['translatableContentDigest'] = $hashTitle;
 
                 //one for description
                 $descData['locale'] = array_key_exists($data['locale'], $localeDiffs) ? $localeDiffs[$data['locale']] : $data['locale'];
-                $descData['key']    = 'body_html';
-                $descData['value']  = $data['description'];
+                $descData['key'] = 'body_html';
+                $descData['value'] = $data['description'];
                 $descData['translatableContentDigest'] = $hashDesc;
 
                 $translations[] = $titleData;
                 $translations[] = $descData;
             }
 
-
             //start-DEVTASK-3272
-                
-                $translationsData = \App\Translations::where('text_original', $shopifyProduct['data']['product']['productType'])->get();
-                if (isset($hashProductCategory) && !empty($hashProductCategory) && $translationsData) {
-                    $titleData = [];
-                    foreach ($translationsData as $data) {
-                        //one for title
-                        $titleData['locale'] = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
-                        $titleData['key']    = 'productType';
-                        $titleData['value']  = $data['text'];
-                        $titleData['translatableContentDigest'] = $hashProductCategory;
 
-                        $translations[] = $titleData;
-                    }
+            $translationsData = \App\Translations::where('text_original', $shopifyProduct['data']['product']['productType'])->get();
+            if (isset($hashProductCategory) && ! empty($hashProductCategory) && $translationsData) {
+                $titleData = [];
+                foreach ($translationsData as $data) {
+                    //one for title
+                    $titleData['locale'] = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
+                    $titleData['key'] = 'productType';
+                    $titleData['value'] = $data['text'];
+                    $titleData['translatableContentDigest'] = $hashProductCategory;
+
+                    $translations[] = $titleData;
                 }
+            }
             //end-DEVTASK-3272
         }
-
 
         return $translations;
     }
@@ -246,7 +238,7 @@ class GraphqlService
                 break;
             case 'getTitleDesc': $query = '
             {
-                  product(id: "gid://shopify/Product/'."{$data['shopifyProductId']}".'") {
+                  product(id: "gid://shopify/Product/' . "{$data['shopifyProductId']}" . '") {
                     title
                     description
                     onlineStoreUrl
@@ -260,8 +252,7 @@ class GraphqlService
         return self::getDataByCurl($query);
     }
 
-
-    private static function addLogs ($message)
+    private static function addLogs($message)
     {
         Log::info($message);
     }

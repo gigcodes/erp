@@ -3,9 +3,9 @@
 namespace App\Events;
 
 use App\Payment;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
 
 class PaymentCreated
 {
@@ -16,7 +16,6 @@ class PaymentCreated
      *
      * @return void
      */
-
     public $payment;
 
     public function __construct(Payment $payment)

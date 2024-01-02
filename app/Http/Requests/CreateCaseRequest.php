@@ -24,9 +24,9 @@ class CreateCaseRequest extends FormRequest
     public function rules()
     {
         return [
-            'case_number'=>'required',
-            'for_against'=>'required',
-            'status'=>'required',
+            'case_number' => 'required',
+            'for_against' => 'required',
+            'status' => 'required',
         ];
     }
 }

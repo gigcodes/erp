@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Courier;
 use Illuminate\Http\Request;
-use \App\Courier;
 
 class CourierController extends Controller
 {
@@ -32,7 +32,6 @@ class CourierController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,12 +40,11 @@ class CourierController extends Controller
             'name' => 'required',
         ]);
 
-        $courier       = new Courier();
+        $courier = new Courier();
         $courier->name = $request->get('name');
         $courier->save();
 
         return redirect()->back()->with('message', 'Courier added successfully!');
-
     }
 
     /**
@@ -74,7 +72,6 @@ class CourierController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\KeywordToCategory  $keywordToCategory
      * @return \Illuminate\Http\Response
      */
@@ -99,5 +96,4 @@ class CourierController extends Controller
 
         return redirect()->back()->with('message', 'Courier deleted successfully!');
     }
-
 }

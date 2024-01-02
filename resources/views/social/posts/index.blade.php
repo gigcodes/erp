@@ -2,7 +2,19 @@
 
 
 @section('title', 'Social Posts')
-
+<style>
+     #loading-image {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: -50px 0px 0px -50px;
+        z-index: 60;
+    }
+    .carousel-inner.maincarousel img {
+        margin-top: 20px;
+    }
+  
+</style>
 @section('content')
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -10,12 +22,14 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     @include("social.posts.history")
+    @include("social.posts.translation-approve")
    
     <div class="row" id="common-page-layout">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
             <div class="pull-right">
-                <a class="btn btn-secondary create-post">+</a>
+                <!-- <a class="btn btn-secondary create-post">+</a> -->
+                <a class="btn btn-secondary btn-sm" href="{{ route('social.post.create',$id) }} ">+</a>
             </div>
         </div>
         @include("social.header_menu")
@@ -43,10 +57,12 @@
                 <div class="table-responsive">
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
-                            <th style="width:5%">Date</th>
+                            <th style="width:5%">Image</th>
+                            <th style="width:5%">Website</th>
+                            <th style="width:5%">Platform</th>
                             <th style="width:25%">Caption</th>
-                            <th style="width:30%">Post</th>
-                            <!-- <th style="width:10%">Image</th> -->
+                            <th style="width:30%">Hashtags</th>
+                            <th style="width:10%">Translation Approved & Post By</th>
                             <th style="width:10%">Posted on</th>
                             <th style="width:5%">Status</th>
                             <th style="width:5%">Action</th>
@@ -71,6 +87,14 @@
         </div>
     </div>
 
+    <div id="show-image-modal" class="modal" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" id="show-image-modal-data">
+                    
+            </div>
+        </div>
+    </div>
+
 
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
@@ -80,8 +104,11 @@
     </script>
 
     <script type="text/javascript">
+        
+      
+
         $(document).on("click",".account-history",function(e) {
-        e.preventDefault();
+            e.preventDefault();
             var post_id = $(this).data("id");
             $.ajax({
                 url: "{{ route('social.post.history') }}",
@@ -111,7 +138,62 @@
                     $("#loading-image").hide();
                 }
             });
-       });
+        });
+
+        $(document).on("click",".translation-approval",function(e) {
+            e.preventDefault();
+            var post_id = $(this).data("id");
+            $.ajax({
+                url: "{{ route('social.post.translationapproval') }}",
+                type: 'POST',
+                data : { "_token": "{{ csrf_token() }}", post_id : post_id },
+                dataType: 'json',
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    console.log(result);
+                    $("#loading-image").hide();
+                    
+                    document.getElementById("caption").value = result.data.caption;
+                    document.getElementById("post_id").value = result.data.post_id;
+                    document.getElementById("caption_trans").value = result.data.caption_trans;
+                    document.getElementById("hashtag").value = result.data.hashtag;
+                    document.getElementById("hashtag_trans").value = result.data.hashtag_trans;
+
+                    $("#TranslationApproval").modal("show");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                }
+            });
+        });
+    
+      
+
+       $(document).on("click",".post-delete",function(e) {
+        e.preventDefault();
+            var post_id = $(this).data("id");
+            if (confirm("Are you sure?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('social.post.postdelete') }}",
+                    data: {"_token": "{{ csrf_token() }}", "post_id": post_id},
+                    dataType: "json",
+                    success: function (message) {
+                        alert('Deleted Post');
+                    location.reload(true);
+                    }, error: function () {
+                        alert('Something went wrong');
+                    }
+
+                });
+            }
+            return false;
+
+           
+        });
+        
         $(document).on('click', '.create-post', function(e) {
              e.preventDefault();
             
@@ -122,8 +204,8 @@
                 url: $action_url,
                 dataType: 'html',
                 success: function(data) {
-                    $("#create-modal").modal('show');
-                    $("#record-content").html(data);
+                    // $("#create-modal").modal('show');
+                    // $("#record-content").html(data);
 
                 },
                 error: function(error) {},
@@ -172,11 +254,11 @@
 
 
 
-        $(window).scroll(function() {
-            if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
-                loadMore();
-            }
-        });
+        // $(window).scroll(function() {
+        //     if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
+        //         loadMore();
+        //     }
+        // });
 
         var isLoadingProducts;
 

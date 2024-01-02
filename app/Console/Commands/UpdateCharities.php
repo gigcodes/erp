@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Brand;
 use App\Vendor;
+use App\Product;
+use App\Category;
 use App\VendorCategory;
 use App\CustomerCharity;
-use App\Category;
-use App\Brand;
-use App\Product;
+use Illuminate\Console\Command;
 
 class UpdateCharities extends Command
 {
@@ -44,15 +44,15 @@ class UpdateCharities extends Command
     public function handle()
     {
         $vendor_category = VendorCategory::where('title', 'charity')->first();
-        if($vendor_category){
+        if ($vendor_category) {
             $vendors = Vendor::where('category_id', $vendor_category->id)->get()->toArray();
-            foreach($vendors as $v){
+            foreach ($vendors as $v) {
                 $customer_charity = CustomerCharity::where('name', $v['name'])->first();
                 unset($v['id']);
-                if($customer_charity){
+                if ($customer_charity) {
                     continue;
                 }
-                $charity = CustomerCharity::create($v); 
+                $charity = CustomerCharity::create($v);
                 $charity_category = Category::where('title', 'charity')->first();
                 $charity_brand = Brand::where('name', 'charity')->first();
                 $product = new Product();
@@ -66,7 +66,7 @@ class UpdateCharities extends Command
                 CustomerCharity::where('id', $charity->id)->update(['product_id' => $product->id]);
                 Product::where('id', $product->id)->update(['sku' => 'charity_' . $product->id]);
             }
-        }else{
+        } else {
             dump('charity category not exist!');
         }
     }

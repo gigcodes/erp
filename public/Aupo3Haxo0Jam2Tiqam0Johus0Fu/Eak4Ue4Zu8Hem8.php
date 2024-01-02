@@ -1,9 +1,9 @@
 <?php
 
-if ( isset($_GET['restart']) && $_GET['restart'] == 'yes' ) {
-    $cmd = 'sh ' . __dir__ . '/../../server_scripts/restart_db01.sh 2>&1';
+if (isset($_GET['restart']) && $_GET['restart'] == 'yes') {
+    $cmd = 'sh ' . __DIR__ . '/../../server_scripts/restart_db01.sh 2>&1';
 
-    $allOutput = array();
+    $allOutput = [];
     $allOutput[] = $cmd;
     $result = exec($cmd, $allOutput);
 

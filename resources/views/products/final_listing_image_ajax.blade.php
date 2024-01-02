@@ -54,14 +54,19 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                 </th>
             </tr>
         </thead>
-        <tbody>
+        <tbody productid="{{ $product->id }}">
             <tr>
                 <td>
                     
                     <div class="row"> 
                             @if(!$websiteList->isEmpty())
                                 @foreach($websiteList as $index => $site)
-                                    <div class="col-md-12" productid="{{ $product->id }}">
+                                    <div class="col-md-12 site_list_box" productid="{{ $product->id }}" siteid="{{ $site->id }}">
+                                            @php
+                                                $tag        = 'gallery_'.$site->cropper_color;
+                                                $testing    = false;
+                                            @endphp
+                                            @if ($product->hasMedia($tag))
                                             <h5 style="text-decoration: underline; width: 100%;">{{ $site->title }} {{ $site->id }}</h5>
                                             <div class="row">
                                                 <div class="col-md-12">
@@ -82,11 +87,7 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                     @endif
                                                 </div>   
                                             </div>
-                                            @php
-                                                $tag        = 'gallery_'.$site->cropper_color;
-                                                $testing    = false;
-                                            @endphp
-                                            @if ($product->hasMedia($tag))
+                                            
                                                 @foreach($product->getMedia($tag) as $media)
                                                     @if(strpos($media->filename, 'CROP') !== false || $testing == 1)
                                                         <?php
@@ -113,24 +114,32 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                                    </div>
                                                              </div>
                                                              <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
-                                                                <a href="javascript:;" title="Remove" class="btn btn-sm delete-thumbail-img"
-                                                                    data-product-id="{{ $product->id }}"
-                                                                    data-media-id="{{ $media->id }}">
-                                                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                                                </a>
-                                                                @php $gridSrc = asset('images/'.$gridImage); @endphp
-                                                                <a onclick="shortCrop('{{ $media->getUrl() }}','{{ $product->id }}','{{ $site->id }}','{{ $gridSrc }}')" 
-                                                                    class="btn btn-sm">
-                                                                    <i class="fa fa-crop" aria-hidden="true"></i>
-                                                                </a>
-                                                                @php 
-                                                                  
-                                                                   $md=\App\Mediables::where('mediable_type','App\Product')->where('mediable_id',$product->id)->where('media_id',$media->id)->first();
-
-                                                                @endphp
-                                                                @if($md)
-                                                                <input type="text" value="{{$md->order}}" onchange="changeordervalue('{{$md->media_id}}','{{$md->mediable_id}}',this.value);">
-                                                                @endif 
+                                                                
+                                                                <div class="col-md-4 p-0">
+                                                                    @php 
+                                                                    $md=\App\Mediables::where('mediable_type','App\Product')->where('mediable_id',$product->id)->where('media_id',$media->id)->first();
+                                                                    @endphp
+                                                                    @if($md)
+                                                                    <input type="text" value="{{$md->order}}" onchange="changeordervalue('{{$md->media_id}}','{{$md->mediable_id}}',this.value);" class="form-control">
+                                                                    @endif
+                                                                </div>
+                                                                
+                                                                <div class="col-md-4">
+                                                                    @php $gridSrc = asset('images/'.$gridImage); @endphp
+                                                                    <a onclick="shortCrop('{{ $media->getUrl() }}','{{ $product->id }}','{{ $site->id }}','{{ $gridSrc }}')" 
+                                                                        class="btn btn-sm">
+                                                                        <i class="fa fa-crop" aria-hidden="true"></i>
+                                                                    </a>
+                                                                </div>
+                                                                
+                                                                <div class="col-md-4">
+                                                                    <a href="javascript:;" title="Remove" class="btn btn-sm delete-thumbail-img"
+                                                                        data-product-id="{{ $product->id }}"
+                                                                        data-media-id="{{ $media->id }}">
+                                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                                    </a>
+                                                                </div>
+                                                                
                                                             </div>
                                                           </div>
                                                        </div>
@@ -138,7 +147,7 @@ $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
                                                 @endforeach
 
                                             @else
-                                                <span>There is no images for {{ $site->title }}</span>
+                                               {{-- <span>There is no images for {{ $site->title }}</span> --}}
                                             @endif
                                     </div>
                                 @endforeach

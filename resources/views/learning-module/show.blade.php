@@ -49,10 +49,22 @@
         .status-selection .multiselect {
             width : 100%;
         }
+        /*.select2-container--default{*/
+        /*    padding-left: 13px !important;*/
+        /*}*/
+        /*.select2-container--open{*/
+        /*    padding-left: 13px !important;*/
+        /*}*/
+        .globalSelect2
+        {
+            padding-left: 13px !important;
+        }
     </style>
 @endsection
 
 @section('large_content')
+<div class="col-md-12">
+
 
     <div class="row">
         <div class="col-lg-12 text-center">
@@ -79,11 +91,11 @@
     
     <div class="row mb-2">
         <div class="col-xs-12">
-            <form action="{{ action('LearningModuleController@createLearningFromSortcut') }}" method="POST" id="taskCreateForm">
+            <form action="{{ action([\App\Http\Controllers\LearningModuleController::class, 'createLearningFromSortcut']) }}" method="POST" id="taskCreateForm">
                 @csrf
               
                 <div class="row">
-                    <div class="col-xs-12 col-md-2 pd-2">
+                    <div class="col-xs-12 col-md-2 pd-2 pl-4">
                         <div class="form-group cls_learning_user">
                                 <!-- <strong>User :</strong> -->
                                 <select class="globalSelect2 form-control"  data-ajax="{{ route('select2.uservendor') }}" data-live-search="true" data-size="15" name="learning_user" data-placeholder="Choose a User" id="learning_user" required>
@@ -321,7 +333,7 @@
 
     <form action="" method="get">
         <div class="row">
-            <div class="col-md-2 pd-sm">
+            <div class="col-md-2 pd-sm p-0 pl-4" style="width: 150px">
                 <select class="form-control" name="user_id" id="user_id">
                     <option value="">Select User</option>
                     @foreach($users as $id=>$user)
@@ -330,7 +342,7 @@
                 </select>
             </div>
 
-            <div class="col-md-2 pd-sm">
+            <div class="col-md-2 pd-sm p-0 pl-2">
                 <!-- <input type="text" name="subject" placeholder="Subject" class="form-control" value="{{ request()->get('subject') }}"> -->
 
                 <select class="form-control" name="subject">
@@ -343,11 +355,11 @@
             </div>
 
             
-            <div class="col-md-2 pd-sm status-selection">
-                <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
+            <div class="col-md-2 pd-sm p-0 pl-2 status-selection">
+                <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control globalSelect2","multiple" => true , 'data-placeholder'=>'Select Status']); ?>
             </div>
 
-            <div class="col-md-2 pd-sm">
+            <div class="col-md-2 pd-sm p-0 pl-2">
                 <div class='input-group date' id="learning-overdue-datetime">
                     <input type='text' class="form-control input-sm" name="overduedate"  value="{{ request()->get('overduedate') }}"/>
                     <span class="input-group-addon">
@@ -356,7 +368,7 @@
                 </div>
             </div>
 
-             <div class="col-md-2 pd-sm">
+             <div class="col-md-2 pd-sm p-0 pl-2">
                 <select class="form-control updateModule" name="module">
                     <option value="">Select Module</option>
                     @foreach(App\LearningModule::where('parent_id',0)->orderBy('title')->get() as $module)
@@ -365,21 +377,16 @@
                 </select>
             </div>
 
-            <div class="col-md-2 pd-sm">
+            <div class="col-md-2 pd-sm p-0 pl-2">
                 <select class="form-control" name="submodule">
                     <option value="">Select SubModule</option>
                     @foreach(App\LearningModule::where('parent_id','!=',0)->orderBy('title')->get() as $submodule)
                         <option class="submodule" {{ request()->get('submodule') == $submodule->id ? 'selected' : '' }} value="{{ $submodule->id }}">{{ $submodule->title }}</option>
                     @endforeach
                 </select>
-            </div> 
+            </div>
 
-
-
-            
-            
-
-            <div class="col-md-1 pd-sm">
+            <div class="col-md-1 pd-sm p-0 pl-4">
                 <button type="submit" class="btn btn-image search">
                     <img src="{{ asset('images/search.png') }}" alt="Search">
                 </button>
@@ -401,15 +408,15 @@
                             <tr>
                                 <th width="2%">ID</th>
                                 <th width="4%">Date</th>
-                                <th width="10%">User</th>
-                                <th width="10%">Provider</th>
-                                <th width="14%">Subject</th>
-                                <th width="6%" class="category">Module</th>
-                                <th width="6%" class="category">Sub Module</th>
-                                <th width="14%">Assignment</th>
-                                <th width="9%">Due date</th>
+                                <th width="8%">User</th>
+                                <th width="8%">Provider</th>
+                                <th width="12%">Subject</th>
+                                <th width="8%" class="category">Module</th>
+                                <th width="8%" class="category">Sub Module</th>
+                                <th width="12%">Assignment</th>
+                                <th width="11%">Due date</th>
                                 <th width="10%">Status</th>
-                                <th width="33%">Communication</th>
+                                <th width="35%">Communication</th>
                                 <th width="5%">Action</th>
                             </tr>
                             </thead>
@@ -569,7 +576,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     
-    <script src="/js/bootstrap-multiselect.min.js"></script>
+    <script src="{{asset('/js/bootstrap-multiselect.min.js')}}"></script>
     <script>
         $(document).ready(function () {
 
@@ -977,7 +984,7 @@
             let id = $(this).val();  
 
             $.ajax({
-              url: "{{action('LearningCategoryController@getSubModule')}}",
+              url: "{{action([\App\Http\Controllers\LearningCategoryController::class, 'getSubModule'])}}",
               type: "POST",
              headers: {
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
@@ -1012,7 +1019,7 @@
             let self = textBox;
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'learning')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'learning')}}",
                 type: 'POST',
                 data: {
                     "issue_id": issueId,

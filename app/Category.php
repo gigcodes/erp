@@ -2,42 +2,41 @@
 
 namespace App;
 
-use App\SupplierCategoryCount;
-use App\StoreWebsiteCategory;
-use seo2websites\MagentoHelper\MagentoHelper;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Nestable\NestableTrait;
 use App\Helpers\ProductHelper;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
+use seo2websites\MagentoHelper\MagentoHelper;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 class Category extends Model
 {
+    const UNKNOWN_CATEGORIES = 143;
 
-    CONST UNKNOWN_CATEGORIES = 143;
-    CONST PUSH_TYPE = [
-        "0" => "Simple",
-        "1" => "Configurable"
+    const PUSH_TYPE = [
+        '0' => 'Simple',
+        '1' => 'Configurable',
     ];
 
     use NestableTrait;
-    
+
     protected $parent = 'parent_id';
+
     protected static $categories_with_childs = null;
+
     /**
      * @var string
+     *
      * @SWG\Property(property="id",type="integer")
      * @SWG\Property(property="title",type="string")
      * @SWG\Property(property="parent_id",type="integer")
      * @SWG\Property(property="status_after_autocrop",type="string")
      * @SWG\Property(property="magento_id",type="integer")
      * @SWG\Property(property="show_all_id",type="integer")
-
      */
-  
-    public $fillable = [ 'id','title', 'parent_id','status_after_autocrop','magento_id', 'show_all_id','need_to_check_measurement','need_to_check_size','ignore_category','push_type','category_segment_id'];
+    public $fillable = ['id', 'title', 'parent_id', 'status_after_autocrop', 'magento_id', 'show_all_id', 'need_to_check_measurement', 'need_to_check_size', 'ignore_category', 'push_type', 'category_segment_id', 'days_refund'];
 
     /**
      * Get the index name for the model.
@@ -46,90 +45,85 @@ class Category extends Model
      */
     public function childs()
     {
-        return $this->hasMany( __CLASS__, 'parent_id', 'id' );
+        return $this->hasMany(__CLASS__, 'parent_id', 'id');
     }
+
     public function childsOrderByTitle()
     {
-        return $this->hasMany( __CLASS__, 'parent_id', 'id' )->orderBy('title');
+        return $this->hasMany(__CLASS__, 'parent_id', 'id')->orderBy('title');
     }
 
     public function childLevelSencond()
     {
-        return $this->hasMany( __CLASS__, 'parent_id', 'id' );
+        return $this->hasMany(__CLASS__, 'parent_id', 'id');
     }
 
     public function parent()
     {
-        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public function parentC()
     {
-        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
     public function parentM()
     {
-        return $this->hasOne( 'App\Category', 'id', 'parent_id' );
+        return $this->hasOne(\App\Category::class, 'id', 'parent_id');
     }
 
-    public static function isParent( $id )
+    public static function isParent($id)
     {
-
-        $child_count = DB::table( 'categories as c' )
-            ->where( 'parent_id', $id )
+        $child_count = DB::table('categories as c')
+            ->where('parent_id', $id)
             ->count();
 
         return $child_count ? true : false;
     }
 
-
-    public static function website_name( $name )
+    public static function website_name($name)
     {
         $name = '"' . $name . '"';
-        $products = \App\ScrapedProducts::where("properties", "like", '%' . $name . '%')->select('website')->distinct()->get()->pluck('website')->toArray();
-        $web_name = implode(", ",$products);
+        $products = \App\ScrapedProducts::where('properties', 'like', '%' . $name . '%')->select('website')->distinct()->get()->pluck('website')->toArray();
+        $web_name = implode(', ', $products);
 
         return $web_name ? $web_name : '-';
     }
 
-
-    public static function hasProducts( $id )
+    public static function hasProducts($id)
     {
-
-        $products_count = DB::table( 'products as p' )
-            ->where( 'category', $id )
+        $products_count = DB::table('products as p')
+            ->where('category', $id)
             ->count();
 
         return $products_count ? true : false;
-
     }
 
+    public function categorySegmentId()
+    {
+        return $this->hasOne(CategorySegment::class, 'id', 'category_segment_id');
+    }
 
-        public function categorySegmentId()
-        {
-            return $this->hasOne(CategorySegment::class,'id','category_segment_id');
-        }
-
-        public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+    public static function getCategoryIdByKeyword($keyword, $gender = null, $genderAlternative = null)
     {
         // Set gender
-        if ( empty( $gender ) ) {
+        if (empty($gender)) {
             $gender = $genderAlternative;
         }
 
         // Check database for result
-        $dbResult = self::where( 'title', $keyword )->get();
+        $dbResult = self::where('title', $keyword)->get();
 
         // No result? Try where like
-        if ( $dbResult->count() == 0 ) {
-            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->whereNotIn("id",[self::UNKNOWN_CATEGORIES,1])->get();
+        if ($dbResult->count() == 0) {
+            $dbResult = self::where('references', 'like', '%' . $keyword . '%')->whereNotIn('id', [self::UNKNOWN_CATEGORIES, 1])->get();
             $matchIds = [];
             foreach ($dbResult as $db) {
-                if($db->references){
+                if ($db->references) {
                     $referenceArrays = explode(',', $db->references);
                     foreach ($referenceArrays as $referenceArray) {
-                        //reference 
+                        //reference
                         $referenceArray = preg_replace('/\s+/', '', $referenceArray);
                         $referenceArray = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $referenceArray);
 
@@ -145,80 +139,79 @@ class Category extends Model
                     }
                 }
             }
-            $dbResult = self::whereIn('id',$matchIds)->get();
+            $dbResult = self::whereIn('id', $matchIds)->get();
         }
-        
 
         // Still no result
-        if ( $dbResult === NULL ) {
+        if ($dbResult === null) {
             return 0;
         }
 
         // Just one result
-        if ( $dbResult->count() == 1 ) {
+        if ($dbResult->count() == 1) {
             // Check if the category has subcategories
             $dbSubResult = Category::where('parent_id', $dbResult->first()->id)->first();
             // No results?
-            if ( $dbSubResult == null ) {
+            if ($dbSubResult == null) {
                 // Return
                 return $dbResult->first()->id;
             }
         }
 
         // Checking the result by gender only works if the gender is set
-        if ( empty( $gender ) ) {
+        if (empty($gender)) {
             return 0;
         }
 
         // Check results
-        foreach ( $dbResult as $result ) {
+        foreach ($dbResult as $result) {
             // Get parent Id
             $parentId = $result->parent_id;
 
             // Return 0 for a top category
-            if ( $parentId == 0 ) {
+            if ($parentId == 0) {
                 return $result->id;
             }
 
             // Category directly under women? We don't want this - return 0
-            if ( $parentId == 2 && strtolower( $gender ) == 'women' ) {
+            if ($parentId == 2 && strtolower($gender) == 'women') {
                 return 0;
             }
 
             // Category directly under men? We don't want this - return 0
-            if ( $parentId == 3 && strtolower( $gender ) == 'men' ) {
+            if ($parentId == 3 && strtolower($gender) == 'men') {
                 return 0;
             }
 
-            if ( $parentId == 146 && strtolower( $gender ) == 'kids' ) {
+            if ($parentId == 146 && strtolower($gender) == 'kids') {
                 return 0;
             }
 
             // Other
-            if ( $parentId > 0 ) {
+            if ($parentId > 0) {
                 // Store category ID
                 $categoryId = $result->id;
 
                 // Get parent
-                $dbParentResult = Category::find( $result->parent_id );
+                $dbParentResult = Category::find($result->parent_id);
 
                 // No result
-                if ( $dbParentResult->count() == 0 ) {
+                if ($dbParentResult->count() == 0) {
                     return 0;
                 }
 
                 // Return correct result for women
-                if ( $dbParentResult->parent_id == 2 && strtolower( $gender ) == 'women' ) {
+                if ($dbParentResult->parent_id == 2 && strtolower($gender) == 'women') {
                     return $categoryId;
                 }
 
                 // Return correct result for men
-                if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                if ($dbParentResult->parent_id == 3 && strtolower($gender) == 'men') {
                     return $categoryId;
                 }
 
                 // Return correct result for kids
-                if ( $dbParentResult->parent_id == 146 && strtolower( $gender ) == 'kids' ) {
+                if ($dbParentResult->parent_id == 146 && strtolower($gender) == 'kids') {
                     return $categoryId;
                 }
             }
@@ -259,20 +252,19 @@ class Category extends Model
         return $categoryPath;
     }
 
-    public static function getCategoryTreeMagento( $id )
+    public static function getCategoryTreeMagento($id)
     {
         // Load new category model
         $category = new Category();
 
         // Create category instance
-        $categoryInstance = $category->find( $id );
+        $categoryInstance = $category->find($id);
 
         // Set empty category tree for holding categories
         $categoryTree = [];
 
         // Continue only if category is not null
-        if ( $categoryInstance !== NULL ) {
-
+        if ($categoryInstance !== null) {
             // Load initial category
             $categoryTree[] = $categoryInstance->magento_id;
 
@@ -280,16 +272,17 @@ class Category extends Model
             $parentId = $categoryInstance->parent_id;
 
             // Loop until we found the top category
-            while ( $parentId != 0 ) {
+            while ($parentId != 0) {
                 // find next category
-                $categoryInstance = $category->find( $parentId );
+                $categoryInstance = $category->find($parentId);
 
                 // Add category to tree
                 $categoryTree[] = $categoryInstance->magento_id;
 
                 // Add additional category to tree
-                if ( !empty( $categoryInstance->show_all_id ) )
+                if (! empty($categoryInstance->show_all_id)) {
                     $categoryTree[] = $categoryInstance->show_all_id;
+                }
 
                 // Set new parent ID
                 $parentId = $categoryInstance->parent_id;
@@ -297,67 +290,63 @@ class Category extends Model
         }
 
         // Return reverse array
-        return array_reverse( $categoryTree );
+        return array_reverse($categoryTree);
     }
 
-    public static function getCategoryTreeMagentoWithPosition( $id , $website , $needOrigin =  false)
+    public static function getCategoryTreeMagentoWithPosition($id, $website, $needOrigin = false)
     {
-
-        $categoryMulti = StoreWebsiteCategory::where('category_id',$id)->where('store_website_id',$website->id)->first();
+        $categoryMulti = StoreWebsiteCategory::where('category_id', $id)->where('store_website_id', $website->id)->first();
         // Load new category model
         $category = new Category();
 
         // Create category instance
-        $categoryInstance = $category->find( $id );
-
-
+        $categoryInstance = $category->find($id);
 
         // Set empty category tree for holding categories
         $categoryTree = [];
-     $topParent = ProductHelper::getTopParent($category->id);
+        $topParent = ProductHelper::getTopParent($id);
 
         // Continue only if category is not null
-        if ( $categoryInstance !== NULL && $categoryMulti) {
-
+        if ($categoryInstance !== null && $categoryMulti) {
             // Load initial category
-            if($needOrigin) {
-                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,'org_id'=>$categoryMulti->category_id,"topParent"=>$topParent];
-            }else{
-                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,"topParent"=>$topParent];
+            if ($needOrigin) {
+                $categoryTree[] = ['position' => 1, 'category_id' => $categoryMulti->remote_id, 'org_id' => $categoryMulti->category_id, 'topParent' => $topParent];
+            } else {
+                $categoryTree[] = ['position' => 1, 'category_id' => $categoryMulti->remote_id, 'topParent' => $topParent];
             }
 
             // Set parent ID
             $parentId = $categoryInstance->parent_id;
 
             // Loop until we found the top category
-            while ( $parentId != 0 ) {
+            while ($parentId != 0) {
                 // find next category
-                $categoryInstance = $category->find( $parentId );
+                $categoryInstance = $category->find($parentId);
 
-                $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
-                if($categoryMultiChild){
-                    if($categoryInstance->parent_id == 0){
-                        if($needOrigin) {
-                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
-                        }else{
+                $categoryMultiChild = StoreWebsiteCategory::where('category_id', $parentId)->where('store_website_id', $website->id)->first();
+                if ($categoryMultiChild) {
+                    if ($categoryInstance->parent_id == 0) {
+                        if ($needOrigin) {
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id, 'org_id' => $categoryMultiChild->category_id];
+                        } else {
                             $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
                         }
-                    }else{
-                        if($categoryInstance->parent_id == 0){
-                            if($needOrigin) {
-                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
-                            }else{
+                    } else {
+                        if ($categoryInstance->parent_id == 0) {
+                            if ($needOrigin) {
+                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id, 'org_id' => $categoryMultiChild->category_id];
+                            } else {
                                 $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
                             }
-                        }else{
-                            if($needOrigin) {
-                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
-                            }else{
+                        } else {
+                            if ($needOrigin) {
+                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id, 'org_id' => $categoryMultiChild->category_id];
+                            } else {
                                 $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id];
                             }
                         }
                     }
-                }else{
+                } else {
                     // Add additional category to tree
                     /*if ( !empty( $categoryInstance->show_all_id ) )
                         $categoryTree[] = $categoryInstance->show_all_id;*/
@@ -369,7 +358,7 @@ class Category extends Model
         }
 
         // Return reverse array
-        return array_reverse( $categoryTree );
+        return array_reverse($categoryTree);
     }
 
     public static function getCroppingGridImageByCategoryId($categoryId)
@@ -443,58 +432,62 @@ class Category extends Model
         ];
 
         $category = Category::find($categoryId);
-        if ( isset($category->title) ) {
+        if (isset($category->title)) {
             $catName = $category->title;
 
             if (array_key_exists($catName, $imagesForGrid)) {
-                return $imagesForGrid[ $catName ];
+                return $imagesForGrid[$catName];
             }
 
             if ($category->parent_id > 1) {
                 $category = Category::find($category->parent_id);
-                return $imagesForGrid[ trim($category->title) ] ?? '';
+
+                return $imagesForGrid[trim($category->title)] ?? '';
             }
         }
 
         return '';
     }
 
-    public function suppliercategorycount(){
-        return $this->hasOne(SupplierCategoryCount::class,'category_id','id');
+    public function suppliercategorycount()
+    {
+        return $this->hasOne(SupplierCategoryCount::class, 'category_id', 'id');
     }
 
     public static function list()
     {
-        return self::pluck("title","id")->toArray();
+        return self::pluck('title', 'id')->toArray();
     }
-    public static function pushStoreWebsiteCategory($categories, $stores){
-        $notInclude = [1,143,144];
-        
-        $categories    = Category::query()->whereIn("id",$categories)->orderBy("parent_id", "asc")->with('parent')->get();
-        $storeWebsites = \App\StoreWebsite::whereIn("id",$stores)->where("api_token", "!=", "")->where("website_source", "magento")->get();
 
-        if (!$categories->isEmpty()) {
+    public static function pushStoreWebsiteCategory($categories, $stores)
+    {
+        $notInclude = [1, 143, 144];
+
+        $categories = Category::query()->whereIn('id', $categories)->orderBy('parent_id', 'asc')->with('parent')->get();
+        $storeWebsites = \App\StoreWebsite::whereIn('id', $stores)->where('api_token', '!=', '')->where('website_source', 'magento')->get();
+
+        if (! $categories->isEmpty()) {
             foreach ($categories as $category) {
-                if (!$storeWebsites->isEmpty()) {
+                if (! $storeWebsites->isEmpty()) {
                     foreach ($storeWebsites as $store) {
                         $swi = $store->id;
                         try {
                             if ($category->parent_id == 0) {
                                 $case = 'single';
-                            } elseif (!empty($category->parentM) && $category->parentM->parent_id == 0) {
+                            } elseif (! empty($category->parentM) && $category->parentM->parent_id == 0) {
                                 $case = 'second';
-                            } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && $category->parentM->parentM->parent_id == 0) {
+                            } elseif (! empty($category->parentM) && ! empty($category->parentM->parentM) && $category->parentM->parentM->parent_id == 0) {
                                 $case = 'third';
-                            } elseif (!empty($category->parentM) && !empty($category->parentM->parentM) && !empty($category->parentM->parentM->parentM) && $category->parentM->parentM->parentM->parent_id == 0) {
+                            } elseif (! empty($category->parentM) && ! empty($category->parentM->parentM) && ! empty($category->parentM->parentM->parentM) && $category->parentM->parentM->parentM->parent_id == 0) {
                                 $case = 'fourth';
                             }
 
                             if ($case == 'single') {
-                                $data['id']       = $category->id;
-                                $data['level']    = 1;
-                                $data['name']     = ucwords($category->title);
+                                $data['id'] = $category->id;
+                                $data['level'] = 1;
+                                $data['name'] = ucwords($category->title);
                                 $data['parentId'] = 0;
-                                $parentId         = 0;
+                                $parentId = 0;
 
                                 $categ = MagentoHelper::createCategory($parentId, $data, $swi);
                                 $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
@@ -502,10 +495,10 @@ class Category extends Model
                                 ->where('remote_id', $categ)
                                 ->first();
                                 if (empty($checkIfExist)) {
-                                    $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id      = $category->id;
+                                    $storeWebsiteCategory = new StoreWebsiteCategory();
+                                    $storeWebsiteCategory->category_id = $category->id;
                                     $storeWebsiteCategory->store_website_id = $swi;
-                                    $storeWebsiteCategory->remote_id        = $categ;
+                                    $storeWebsiteCategory->remote_id = $categ;
                                     $storeWebsiteCategory->save();
                                 }
                             }
@@ -514,16 +507,15 @@ class Category extends Model
                             if ($case == 'second') {
                                 $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)
                                     ->where('category_id', $category->parentM->id)
-                                    ->where('remote_id','>',0)
+                                    ->where('remote_id', '>', 0)
                                     ->first();
                                 //if parent remote null then send to magento first
                                 if (empty($parentCategory)) {
-
-                                    $data['id']       = $category->parentM->id;
-                                    $data['level']    = 1;
-                                    $data['name']     = ucwords($category->parentM->title);
+                                    $data['id'] = $category->parentM->id;
+                                    $data['level'] = 1;
+                                    $data['name'] = ucwords($category->parentM->title);
                                     $data['parentId'] = 0;
-                                    $parentId         = 0;
+                                    $parentId = 0;
 
                                     $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
@@ -534,10 +526,10 @@ class Category extends Model
                                             ->first();
 
                                         if (empty($checkIfExist)) {
-                                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->parentM->id;
+                                            $storeWebsiteCategory = new StoreWebsiteCategory();
+                                            $storeWebsiteCategory->category_id = $category->parentM->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
-                                            $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
+                                            $storeWebsiteCategory->remote_id = $parentCategoryDetails;
                                             $storeWebsiteCategory->save();
                                         }
                                     }
@@ -546,25 +538,24 @@ class Category extends Model
                                     $parentRemoteId = $parentCategory->remote_id;
                                 }
 
-                                $data['id']       = $category->id;
-                                $data['level']    = 2;
-                                $data['name']     = ucwords($category->title);
+                                $data['id'] = $category->id;
+                                $data['level'] = 2;
+                                $data['name'] = ucwords($category->title);
                                 $data['parentId'] = $parentRemoteId;
 
                                 $categoryDetail = MagentoHelper::createCategory($parentRemoteId, $data, $swi);
 
                                 if ($categoryDetail) {
-
                                     $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $category->id)
                                         ->where('remote_id', $categoryDetail)
                                         ->first();
 
                                     if (empty($checkIfExist)) {
-                                        $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                        $storeWebsiteCategory->category_id      = $category->id;
+                                        $storeWebsiteCategory = new StoreWebsiteCategory();
+                                        $storeWebsiteCategory->category_id = $category->id;
                                         $storeWebsiteCategory->store_website_id = $swi;
-                                        $storeWebsiteCategory->remote_id        = $categoryDetail;
+                                        $storeWebsiteCategory->remote_id = $categoryDetail;
                                         $storeWebsiteCategory->save();
                                     }
                                 }
@@ -573,25 +564,23 @@ class Category extends Model
                             //if case third
                             if ($case == 'third') {
                                 //Find Parent
-                                $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id','>',0)->first();
+                                $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', '>', 0)->first();
 
                                 //Check if parent had remote id
                                 if (empty($parentCategory)) {
-
                                     //check for grandparent
-                                    $grandCategory       = Category::find($category->parentM->id);
+                                    $grandCategory = Category::find($category->parentM->id);
                                     $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $grandCategory->parentM->id)
-                                        ->where('remote_id','>',0)
+                                        ->where('remote_id', '>', 0)
                                         ->first();
 
                                     if (empty($grandCategoryDetail)) {
-
-                                        $data['id']       = $grandCategory->parentM->id;
-                                        $data['level']    = 1;
-                                        $data['name']     = ucwords($grandCategory->parentM->title);
+                                        $data['id'] = $grandCategory->parentM->id;
+                                        $data['level'] = 1;
+                                        $data['name'] = ucwords($grandCategory->parentM->title);
                                         $data['parentId'] = 0;
-                                        $parentId         = 0;
+                                        $parentId = 0;
 
                                         $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
@@ -602,17 +591,15 @@ class Category extends Model
                                                 ->first();
 
                                             if (empty($checkIfExist)) {
-                                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                                $storeWebsiteCategory->category_id      = $grandCategory->parentM->id;
+                                                $storeWebsiteCategory = new StoreWebsiteCategory();
+                                                $storeWebsiteCategory->category_id = $grandCategory->parentM->id;
                                                 $storeWebsiteCategory->store_website_id = $swi;
-                                                $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
+                                                $storeWebsiteCategory->remote_id = $grandCategoryDetails;
                                                 $storeWebsiteCategory->save();
                                             }
-
                                         }
 
                                         $grandRemoteId = $grandCategoryDetails;
-
                                     } else {
                                         $grandRemoteId = $grandCategoryDetail->remote_id;
                                     }
@@ -620,15 +607,15 @@ class Category extends Model
 
                                     $childCategoryE = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $category->parentM->id)
-                                        ->where('remote_id','>',0)
+                                        ->where('remote_id', '>', 0)
                                         ->first();
 
-                                    if(!$childCategoryE) {
-                                        $data['id']       = $category->parentM->id;
-                                        $data['level']    = 2;
-                                        $data['name']     = ucwords($category->parentM->title);
+                                    if (! $childCategoryE) {
+                                        $data['id'] = $category->parentM->id;
+                                        $data['level'] = 2;
+                                        $data['name'] = ucwords($category->parentM->title);
                                         $data['parentId'] = $grandRemoteId;
-                                        $parentId         = $grandRemoteId;
+                                        $parentId = $grandRemoteId;
 
                                         $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
@@ -638,20 +625,19 @@ class Category extends Model
                                             ->first();
 
                                         if (empty($checkIfExist)) {
-                                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->parentM->id;
+                                            $storeWebsiteCategory = new StoreWebsiteCategory();
+                                            $storeWebsiteCategory->category_id = $category->parentM->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
-                                            $storeWebsiteCategory->remote_id        = $childCategoryDetails;
+                                            $storeWebsiteCategory->remote_id = $childCategoryDetails;
                                             $storeWebsiteCategory->save();
                                         }
-
-                                    }else{
+                                    } else {
                                         $childCategoryDetails = $childCategoryE->remote_id;
-                                    } 
+                                    }
 
-                                    $data['id']       = $category->id;
-                                    $data['level']    = 3;
-                                    $data['name']     = ucwords($category->title);
+                                    $data['id'] = $category->id;
+                                    $data['level'] = 3;
+                                    $data['name'] = ucwords($category->title);
                                     $data['parentId'] = $childCategoryDetails;
 
                                     $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $swi);
@@ -662,41 +648,38 @@ class Category extends Model
                                             ->first();
 
                                         if (empty($checkIfExist)) {
-                                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->id;
+                                            $storeWebsiteCategory = new StoreWebsiteCategory();
+                                            $storeWebsiteCategory->category_id = $category->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
-                                            $storeWebsiteCategory->remote_id        = $categoryDetail;
+                                            $storeWebsiteCategory->remote_id = $categoryDetail;
                                             $storeWebsiteCategory->save();
                                         }
                                     }
                                 }
                             }
 
-
                             if ($case == 'fourth') {
                                 //Find Parent
-                                $main = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id','>',0)->first();
+                                $main = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', '>', 0)->first();
 
                                 //Check if parent had remote id
                                 if (empty($main)) {
-
                                     //check for grandparent
                                     $first = $category->parentM->parentM->parentM->id;
-                                    
+
                                     $storewebsiteFirst = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $first)
-                                        ->where('remote_id','>',0)
+                                        ->where('remote_id', '>', 0)
                                         ->first();
 
-                                    if(empty($storewebsiteFirst)) {
+                                    if (empty($storewebsiteFirst)) {
+                                        $firstModel = Category::find($first);
 
-                                        $firstModel = Category::find($first); 
-
-                                        $data['id']       = $firstModel->id;
-                                        $data['level']    = 1;
-                                        $data['name']     = ucwords($firstModel->title);
+                                        $data['id'] = $firstModel->id;
+                                        $data['level'] = 1;
+                                        $data['name'] = ucwords($firstModel->title);
                                         $data['parentId'] = 0;
-                                        $parentId         = 0;
+                                        $parentId = 0;
 
                                         $grandGrandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
@@ -707,35 +690,31 @@ class Category extends Model
                                                 ->first();
 
                                             if (empty($checkIfExist)) {
-                                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                                $storeWebsiteCategory->category_id      = $firstModel->id;
+                                                $storeWebsiteCategory = new StoreWebsiteCategory();
+                                                $storeWebsiteCategory->category_id = $firstModel->id;
                                                 $storeWebsiteCategory->store_website_id = $swi;
-                                                $storeWebsiteCategory->remote_id        = $grandGrandCategoryDetails;
+                                                $storeWebsiteCategory->remote_id = $grandGrandCategoryDetails;
                                                 $storeWebsiteCategory->save();
                                             }
-
                                         }
 
                                         $grandGrandRemoteId = $grandGrandCategoryDetails;
-                                    }else{
+                                    } else {
                                         $grandGrandRemoteId = $storewebsiteFirst->remote_id;
                                     }
 
-
-
-                                    $grandCategory       = Category::find($category->parentM->id);
+                                    $grandCategory = Category::find($category->parentM->id);
                                     $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $grandCategory->parentM->id)
-                                        ->where('remote_id','>',0)
+                                        ->where('remote_id', '>', 0)
                                         ->first();
 
                                     if (empty($grandCategoryDetail)) {
-
-                                        $data['id']       = $grandCategory->parentM->id;
-                                        $data['level']    = 2;
-                                        $data['name']     = ucwords($grandCategory->parentM->title);
+                                        $data['id'] = $grandCategory->parentM->id;
+                                        $data['level'] = 2;
+                                        $data['name'] = ucwords($grandCategory->parentM->title);
                                         $data['parentId'] = $grandGrandRemoteId;
-                                        $parentId         = $grandGrandRemoteId;
+                                        $parentId = $grandGrandRemoteId;
 
                                         $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
@@ -746,17 +725,15 @@ class Category extends Model
                                                 ->first();
 
                                             if (empty($checkIfExist)) {
-                                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                                $storeWebsiteCategory->category_id      = $grandCategory->parentM->id;
+                                                $storeWebsiteCategory = new StoreWebsiteCategory();
+                                                $storeWebsiteCategory->category_id = $grandCategory->parentM->id;
                                                 $storeWebsiteCategory->store_website_id = $swi;
-                                                $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
+                                                $storeWebsiteCategory->remote_id = $grandCategoryDetails;
                                                 $storeWebsiteCategory->save();
                                             }
-
                                         }
 
                                         $grandRemoteId = $grandCategoryDetails;
-
                                     } else {
                                         $grandRemoteId = $grandCategoryDetail->remote_id;
                                     }
@@ -764,15 +741,15 @@ class Category extends Model
 
                                     $childCategoryE = StoreWebsiteCategory::where('store_website_id', $swi)
                                         ->where('category_id', $category->parentM->id)
-                                        ->where('remote_id','>',0)
+                                        ->where('remote_id', '>', 0)
                                         ->first();
 
-                                    if(!$childCategoryE) {
-                                        $data['id']       = $category->parentM->id;
-                                        $data['level']    = 3;
-                                        $data['name']     = ucwords($category->parentM->title);
+                                    if (! $childCategoryE) {
+                                        $data['id'] = $category->parentM->id;
+                                        $data['level'] = 3;
+                                        $data['name'] = ucwords($category->parentM->title);
                                         $data['parentId'] = $grandRemoteId;
-                                        $parentId         = $grandRemoteId;
+                                        $parentId = $grandRemoteId;
 
                                         $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
@@ -782,20 +759,19 @@ class Category extends Model
                                             ->first();
 
                                         if (empty($checkIfExist)) {
-                                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->parentM->id;
+                                            $storeWebsiteCategory = new StoreWebsiteCategory();
+                                            $storeWebsiteCategory->category_id = $category->parentM->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
-                                            $storeWebsiteCategory->remote_id        = $childCategoryDetails;
+                                            $storeWebsiteCategory->remote_id = $childCategoryDetails;
                                             $storeWebsiteCategory->save();
                                         }
-
-                                    }else{
+                                    } else {
                                         $childCategoryDetails = $childCategoryE->remote_id;
-                                    } 
+                                    }
 
-                                    $data['id']       = $category->id;
-                                    $data['level']    = 4;
-                                    $data['name']     = ucwords($category->title);
+                                    $data['id'] = $category->id;
+                                    $data['level'] = 4;
+                                    $data['name'] = ucwords($category->title);
                                     $data['parentId'] = $childCategoryDetails;
 
                                     $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $swi);
@@ -806,16 +782,16 @@ class Category extends Model
                                             ->first();
 
                                         if (empty($checkIfExist)) {
-                                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                            $storeWebsiteCategory->category_id      = $category->id;
+                                            $storeWebsiteCategory = new StoreWebsiteCategory();
+                                            $storeWebsiteCategory->category_id = $category->id;
                                             $storeWebsiteCategory->store_website_id = $swi;
-                                            $storeWebsiteCategory->remote_id        = $categoryDetail;
+                                            $storeWebsiteCategory->remote_id = $categoryDetail;
                                             $storeWebsiteCategory->save();
                                         }
                                     }
                                 }
                             }
-                        }catch(\Exception $e) {
+                        } catch (\Exception $e) {
                             \Log::error($e);
                         }
                     }
@@ -827,12 +803,13 @@ class Category extends Model
     public static function ScrapedProducts($name)
     {
         $name = strtolower(str_replace('/', ',', $name));
-        return \App\ScrapedProducts::where('categories',$name)->count();
+
+        return \App\ScrapedProducts::where('categories', $name)->count();
     }
 
     public static function updateCategoryAuto($name)
     {
-        $expression = explode("/",$name);
+        $expression = explode('/', $name);
         $matched = null;
 
         $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
@@ -841,73 +818,69 @@ class Category extends Model
 
         $mainCategory = false;
 
-    // // dd($categoryy[0]);
-    // foreach($categoryy as $key=> $cat){
+        // // dd($categoryy[0]);
+        // foreach($categoryy as $key=> $cat){
 
-    //     self::$categories_with_childs[$cat->title] = $cat;
-    // }
-// dd(self::$categories_with_childs);
-        if(!empty($expression)) {
-            foreach($expression as $exr) {
-                foreach($liForMen as $li){
-                    if(strtolower($li) == strtolower($exr)) {
+        //     self::$categories_with_childs[$cat->title] = $cat;
+        // }
+        // dd(self::$categories_with_childs);
+        if (! empty($expression)) {
+            foreach ($expression as $exr) {
+                foreach ($liForMen as $li) {
+                    if (strtolower($li) == strtolower($exr)) {
                         $mainCategory = 3;
                     }
                 }
 
-                foreach($liForWoMen as $li){
-                    if(strtolower($li) == strtolower($exr)) {
+                foreach ($liForWoMen as $li) {
+                    if (strtolower($li) == strtolower($exr)) {
                         $mainCategory = 2;
                     }
                 }
 
-                foreach($liForKids as $li){
-                    if(strtolower($li) == strtolower($exr)) {
+                foreach ($liForKids as $li) {
+                    if (strtolower($li) == strtolower($exr)) {
                         $mainCategory = 146;
                     }
                 }
 
-                if(self::$categories_with_childs === null){
-                    
+                if (self::$categories_with_childs === null) {
                     self::$categories_with_childs = self::with('parentC.parentM')->get();
                 }
 
                 $category = [];
 
-                foreach(self::$categories_with_childs as $index => $single_category){
-                    
-                    if(strtolower($single_category->title) == strtolower($exr)){
+                foreach (self::$categories_with_childs as $index => $single_category) {
+                    if (strtolower($single_category->title) == strtolower($exr)) {
                         $category[] = $single_category;
                     }
-
                 }
-   
-                 if(!empty($category)) {
+
+                if (! empty($category)) {
                     $matched = $category;
-                 }
+                }
             }
         }
 
         // now check that last matched has more then three leavle
-        if($matched) { 
-            foreach($matched as $match) {
+        if ($matched) {
+            foreach ($matched as $match) {
                 $levelone = $match->parentC;
-                
-                if($levelone) {
-                    
-                    $leveltwo =  $levelone->parentM;
-                    if($leveltwo) {
-                        if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
+
+                if ($levelone) {
+                    $leveltwo = $levelone->parentM;
+                    if ($leveltwo) {
+                        if ($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
                             return $match;
                         }
-                        // now as this is matched we can send this category to that it is matched
-                    }else{
-                        if($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
+                    // now as this is matched we can send this category to that it is matched
+                    } else {
+                        if ($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
                             return $match;
                         }
                     }
-                }else{
-                    if($match->id == $mainCategory || $match->parent_id == $mainCategory) {
+                } else {
+                    if ($match->id == $mainCategory || $match->parent_id == $mainCategory) {
                         return $match;
                     }
                 }
@@ -920,55 +893,54 @@ class Category extends Model
     public static function updateCategoryAutoSpace($name)
     {
         //$expression = explode(" ",$name);
-        $categories = \App\Category::where("id","!=",143)->get();
+        $categories = \App\Category::where('id', '!=', 143)->get();
         $matchedWords = [];
-        foreach($categories as $cat) {
-            if(strpos(strtolower($name),strtolower($cat->title)) !== false) {
+        foreach ($categories as $cat) {
+            if (strpos(strtolower($name), strtolower($cat->title)) !== false) {
                 $matchedWords[$cat->id] = $cat->title;
-            }else{
-                $referencesWords = explode(",",$cat->references);
-                foreach($referencesWords as $referencesWord) {
-                    if(!empty($referencesWord)) {
-                        if(strpos(strtolower($name),strtolower($referencesWord)) !== false) {
+            } else {
+                $referencesWords = explode(',', $cat->references);
+                foreach ($referencesWords as $referencesWord) {
+                    if (! empty($referencesWord)) {
+                        if (strpos(strtolower($name), strtolower($referencesWord)) !== false) {
                             $matchedWords[$cat->id] = $cat->title;
                         }
                     }
                 }
-
             }
         }
 
         $latestMatch = $matchedWords;
 
         //ksort($matchedWords);
-        
+
         $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
         $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
         $liForKids = ['KIDS'];
 
         $mainCategory = false;
 
-        if(!empty($matchedWords)) {
-            foreach($matchedWords as $matchedWord) {
-                foreach($liForMen as $li){
-                    if(strtolower($li) == strtolower($matchedWord)) {
-                        if(!$mainCategory) {
+        if (! empty($matchedWords)) {
+            foreach ($matchedWords as $matchedWord) {
+                foreach ($liForMen as $li) {
+                    if (strtolower($li) == strtolower($matchedWord)) {
+                        if (! $mainCategory) {
                             $mainCategory = 3;
                         }
                     }
                 }
 
-                foreach($liForWoMen as $li){
-                    if(strtolower($li) == strtolower($matchedWord)) {
-                        if(!$mainCategory) {
+                foreach ($liForWoMen as $li) {
+                    if (strtolower($li) == strtolower($matchedWord)) {
+                        if (! $mainCategory) {
                             $mainCategory = 2;
                         }
                     }
                 }
 
-                foreach($liForKids as $li){
-                    if(strtolower($li) == strtolower($matchedWord)) {
-                        if(!$mainCategory) {
+                foreach ($liForKids as $li) {
+                    if (strtolower($li) == strtolower($matchedWord)) {
+                        if (! $mainCategory) {
                             $mainCategory = 146;
                         }
                     }
@@ -976,29 +948,28 @@ class Category extends Model
             }
         }
 
-        
         $rv = array_reverse($matchedWords, true);
-        
-        if(!empty($rv)) {
+
+        if (! empty($rv)) {
             foreach ($rv as $key => $value) {
                 $category = \App\Category::find($key);
-                if($category) {
+                if ($category) {
                     $levelone = $category->parentM;
-                    if($levelone) {
-                        $leveltwo =  $levelone->parentM;
-                        if($leveltwo) {
-                            if($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
+                    if ($levelone) {
+                        $leveltwo = $levelone->parentM;
+                        if ($leveltwo) {
+                            if ($leveltwo->id == $mainCategory || $leveltwo->parent_id == $mainCategory) {
                                 return $category;
                             }
-                            // now as this is matched we can send this category to that it is matched
-                        }else{
-                            if($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
+                        // now as this is matched we can send this category to that it is matched
+                        } else {
+                            if ($levelone->id == $mainCategory || $levelone->parent_id == $mainCategory) {
                                 return $category;
                             }
                         }
-                    }else{
-                        if($category ->id == $mainCategory || $category ->parent_id == $mainCategory) {
-                            return $category ;
+                    } else {
+                        if ($category->id == $mainCategory || $category->parent_id == $mainCategory) {
+                            return $category;
                         }
                     }
                 }
@@ -1008,99 +979,97 @@ class Category extends Model
         return false;
     }
 
-
     public function getSizeChart($websiteId = 0)
     {
         $sizeCharts = null;
-        if($this->id == 5) {
-           if($websiteId == 5) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-men-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 9) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-men-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 17) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-men-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 1) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-men-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 3) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-men-shoes-size-chart.jpg"; 
-           }
+        if ($this->id == 5) {
+            if ($websiteId == 5) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-men-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 9) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-men-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 17) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-men-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 1) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-men-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 3) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-men-shoes-size-chart.jpg';
+            }
         }
 
-        if($this->id == 41) {
-           if($websiteId == 5) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-women-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 9) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-women-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 17) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-women-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 1) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-women-shoes-size-chart.jpg"; 
-           }
-           if($websiteId == 3) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-women-shoes-size-chart.jpg"; 
-           }
+        if ($this->id == 41) {
+            if ($websiteId == 5) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-women-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 9) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-women-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 17) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-women-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 1) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-women-shoes-size-chart.jpg';
+            }
+            if ($websiteId == 3) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-women-shoes-size-chart.jpg';
+            }
         }
 
-        if($this->id == 40) {
-           if($websiteId == 5) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-womenswear-size-chart.jpg"; 
-           }
-           if($websiteId == 9) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-womenswear-size-chart.jpg"; 
-           }
-           if($websiteId == 17) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-womenswear-size-chart.jpg"; 
-           }
-           if($websiteId == 1) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-womenswear-size-chart.jpg"; 
-           }
-           if($websiteId == 3) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-womenswear-size-chart.jpg"; 
-           }
+        if ($this->id == 40) {
+            if ($websiteId == 5) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-womenswear-size-chart.jpg';
+            }
+            if ($websiteId == 9) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-womenswear-size-chart.jpg';
+            }
+            if ($websiteId == 17) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-womenswear-size-chart.jpg';
+            }
+            if ($websiteId == 1) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-womenswear-size-chart.jpg';
+            }
+            if ($websiteId == 3) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-womenswear-size-chart.jpg';
+            }
         }
 
-        if($this->id == 12) {
-           if($websiteId == 5) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-menswear-size-chart.jpg"; 
-           }
-           if($websiteId == 9) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-menswear-size-chart.jpg"; 
-           }
-           if($websiteId == 17) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-menswear-size-chart.jpg"; 
-           }
-           if($websiteId == 1) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-menswear-size-chart.jpg"; 
-           }
-           if($websiteId == 3) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-menswear-size-chart.jpg"; 
-           }
-
+        if ($this->id == 12) {
+            if ($websiteId == 5) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-menswear-size-chart.jpg';
+            }
+            if ($websiteId == 9) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-menswear-size-chart.jpg';
+            }
+            if ($websiteId == 17) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-menswear-size-chart.jpg';
+            }
+            if ($websiteId == 1) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-menswear-size-chart.jpg';
+            }
+            if ($websiteId == 3) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-menswear-size-chart.jpg';
+            }
         }
 
-        if($this->id == 180) {
-           if($websiteId == 5) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-kids-size-chart.jpg"; 
-           }
-           if($websiteId == 9) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-kids-size-chart.jpg"; 
-           }
-           if($websiteId == 17) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-kids-size-chart.jpg"; 
-           }
-           if($websiteId == 1) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-kids-size-chart.jpg"; 
-           }
-           if($websiteId == 3) {
-               $sizeCharts = "https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-kids-size-chart.jpg"; 
-           }
+        if ($this->id == 180) {
+            if ($websiteId == 5) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/AC/ac-kids-size-chart.jpg';
+            }
+            if ($websiteId == 9) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/BL/bl-kids-size-chart.jpg';
+            }
+            if ($websiteId == 17) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/VL/vl-kids-size-chart.jpg';
+            }
+            if ($websiteId == 1) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SOLO/solo-kids-size-chart.jpg';
+            }
+            if ($websiteId == 3) {
+                $sizeCharts = 'https://erp.theluxuryunlimited.com/images/size-chart-images/SN/sn-kids-size-chart.jpg';
+            }
         }
 
         return $sizeCharts;
@@ -1108,8 +1077,43 @@ class Category extends Model
 
     public function products()
     {
-        return $this->hasMany( Product::class, 'category', 'id' );
+        return $this->hasMany(Product::class, 'category', 'id');
     }
 
+    /**
+     * Static Function for generate a keyword sting with category and its sub category
+     * parent_id = 231 & 233 : 231 & 233 are ids of Root id called NEW and PREOWNED and we dont want t consider it in Sting
+     * id = 1, 143, 144, 211, 241, 366, 372 <- these are some unwanted ids od category which we dont want to keep in generated string
+     * ex: Select Category, Unknown Category, Ignore Category Reference, Ignore Category Reference,
+     * Level in this query is taken for we wanted to go deep till 4 levels for category and sub category
+     *
+     * @param  int  $level
+     */
+    public static function getCategoryHierarchyString($level = 4): array
+    {
+        $query = 'WITH RECURSIVE category_path AS(
+                        SELECT id, title, title AS generated_string, 1 AS level
+                        FROM categories
+                        WHERE parent_id IN (231, 233) AND id NOT IN (1, 143, 144, 211, 241, 366, 372)
+                        UNION ALL
+                    SELECT c.id, c.title, CONCAT(cp.generated_string, " ", c.title), cp.level + 1
+                    FROM categories c
+                    JOIN category_path cp ON  c.parent_id = cp.id
+                    WHERE cp.level < ' . $level . ')
+                    
+                    SELECT CONCAT(cp.generated_string, " ", ksv.keyword) AS combined_string
+                    FROM category_path cp
+                    CROSS JOIN keyword_search_variants ksv
+                    WHERE NOT EXISTS (
+                          SELECT 1 FROM categories c2
+                          WHERE c2.parent_id = cp.id
+                        )';
+
+        return DB::select($query);
+    }
+
+    public static function updateStatusIsHashtagsGeneratedCategories($category_id_arr)
+    {
+        \DB::table('categories')->whereIn('id', $category_id_arr)->where('is_hashtag_generated', 0)->update(['is_hashtag_generated' => 1]);
+    }
 }
- 

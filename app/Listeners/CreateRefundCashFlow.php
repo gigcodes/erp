@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\RefundCreated;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CreateRefundCashFlow
 {
@@ -21,7 +19,6 @@ class CreateRefundCashFlow
     /**
      * Handle the event.
      *
-     * @param  RefundCreated  $event
      * @return void
      */
     public function handle(RefundCreated $event)

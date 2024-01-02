@@ -2,12 +2,11 @@
 
 namespace App\Library\Product;
 
-use App\Category;
 use App\Product;
+use App\Category;
 
 class ProductSearch
 {
-
     public $params;
 
     public function __construct($params)
@@ -18,9 +17,9 @@ class ProductSearch
 
     /**
      * clean all params
+     *
      * @return []
      */
-
     public function cleanParams()
     {
         return array_filter($this->params);
@@ -28,16 +27,16 @@ class ProductSearch
 
     /**
      * find matched categories
+     *
      * @return []
      */
-
     public function matchedCategories($categoies)
     {
         $category_children = [];
 
         foreach ($categoies as $category) {
-            if($category == 1) {
-               continue;
+            if ($category == 1) {
+                continue;
             }
             $is_parent = Category::isParent($category);
             if ($is_parent) {
@@ -59,27 +58,24 @@ class ProductSearch
         }
 
         return $category_children;
-
     }
 
     /**
      * Get result
-     * @return []
      *
+     * @return []
      */
-
     public function getQuery()
     {
-
         $params = $this->params;
 
         // starting with new query
-        $products = (new Product())->newQuery()->whereNull("deleted_at")->whereNull('dnf')->latest();
+        $products = (new Product())->newQuery()->whereNull('deleted_at')->whereNull('dnf')->latest();
         //loop through params and add result
-        if (!empty($params)) {
+        if (! empty($params)) {
             foreach ($params as $key => $value) {
-                // 
-                if(empty($value)) {
+                //
+                if (empty($value)) {
                     continue;
                 }
 
@@ -92,10 +88,10 @@ class ProductSearch
                         $products = $products->whereIn('color', $value);
                         break;
 
-                    case 'category':    
+                    case 'category':
                         $matchedCategories = $this->matchedCategories($value);
-                        if(!empty($matchedCategories)) {
-                            $products          = $products->whereIn('category', $matchedCategories);
+                        if (! empty($matchedCategories)) {
+                            $products = $products->whereIn('category', $matchedCategories);
                         }
                         break;
 
@@ -113,14 +109,14 @@ class ProductSearch
 
                     case 'discounted_percentage_max':
                         $products = $products->where('discounted_percentage', '<=', $value);
-                        break;    
+                        break;
 
                     case 'supplier':
-                        $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (" . implode(',', $value) . "))");
+                        $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (' . implode(',', $value) . '))');
                         break;
 
                     case 'scrapper':
-                        $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (select supplier_id from scrapers where id in (" . implode(',', $value) . ")))");
+                        $products = $products->whereRaw('products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (select supplier_id from scrapers where id in (' . implode(',', $value) . ')))');
                         break;
 
                     case 'size':
@@ -138,13 +134,10 @@ class ProductSearch
                     case 'type':
 
                         if (count($value) > 1) {
-
-                            $products = $products->where(function ($query) use ($value) {
+                            $products = $products->where(function ($query) {
                                 $query->where('is_scraped', 1)->orWhere('status', 2);
                             });
-
                         } else {
-
                             if ($value[0] == 'scraped') {
                                 $products = $products->where('is_scraped', 1);
                             } elseif ($value[0] == 'imported') {
@@ -152,7 +145,6 @@ class ProductSearch
                             } else {
                                 $products = $products->where('isUploaded', 1);
                             }
-
                         }
 
                         break;
@@ -160,7 +152,7 @@ class ProductSearch
                     case 'date':
                         if ($value != '') {
                             if (isset($products)) {
-                                if (isset($params["type"][0]) && $params["type"][0] == 'uploaded') {
+                                if (isset($params['type'][0]) && $params['type'][0] == 'uploaded') {
                                     $products = $products->where('is_uploaded_date', 'LIKE', "%$value%");
                                 } else {
                                     $products = $products->where('created_at', 'LIKE', "%$value%");
@@ -201,49 +193,46 @@ class ProductSearch
                         }
                         break;
                     case 'without_category':
-                        $products = $products->where('category',"<=", 0);
+                        $products = $products->where('category', '<=', 0);
                         break;
                     case 'without_color':
-                            $products = $products->where('color',"=", null);
+                        $products = $products->where('color', '=', null);
                         break;
                     case 'without_composition':
-                        $products = $products->where('composition',"=", null);
-                        break;    
+                        $products = $products->where('composition', '=', null);
+                        break;
                     case 'source_of_search':
-                        if ($value == "attach_media") {
-                            $products = $products->join("mediables", function ($query) {
-                                $query->on("mediables.mediable_id", "products.id")->where("mediable_type", "App\Product");
+                        if ($value == 'attach_media') {
+                            $products = $products->join('mediables', function ($query) {
+                                $query->on('mediables.mediable_id', 'products.id')->where('mediable_type', \App\Product::class);
                             })->groupBy('products.id');
                         }
                         break;
                     case 'quick_sell_groups':
-                        if (!empty($value)) {
-                            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . implode(",", $value) . ") ))");
+                        if (! empty($value)) {
+                            $products = $products->whereRaw('(id in (select product_id from product_quicksell_groups where quicksell_group_id in (' . implode(',', $value) . ') ))');
                         }
                         break;
                     case 'final_approval':
-                        if (!empty($value) && strtolower($value) == "on") {
-                            $products = $products->where("status_id",\App\Helpers\StatusHelper::$finalApproval);
+                        if (! empty($value) && strtolower($value) == 'on') {
+                            $products = $products->where('status_id', \App\Helpers\StatusHelper::$finalApproval);
                         }
                         break;
-	                case 'is_on_sale';
-	                    $products = $products->where('is_on_sale', 1);
-	                    break;
+                    case 'is_on_sale':
+                        $products = $products->where('is_on_sale', 1);
+                        break;
                     default:
-                        # code...
+                        // code...
                         break;
                 }
             }
         }
 
         // check with product quick product
-        if(!isset($params["quick_product"]) || $params["quick_product"] != "true") {
+        if (! isset($params['quick_product']) || $params['quick_product'] != 'true') {
             $products = $products->whereRaw("(stock > 0 OR (supplier LIKE '%In-Stock%'))");
         }
 
-
         return $products;
-
     }
-
 }

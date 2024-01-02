@@ -2,20 +2,19 @@
 
 namespace App\Console\Commands;
 
-use App\Github\GitHubBranchState;
-use App\Helpers\GithubTrait;
 use Carbon\Carbon;
-use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use App\Helpers\GithubTrait;
 use Illuminate\Console\Command;
+use App\Github\GitHubBranchState;
+use App\Github\GithubOrganization;
 
 class LoadBranchState extends Command
 {
+    use GithubTrait;
 
-    use githubTrait;
+    // private $githubClient;
 
-    private $githubClient;
     /**
      * The name and signature of the console command.
      *
@@ -38,10 +37,10 @@ class LoadBranchState extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
-            'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
-        ]);
+        // $this->githubClient = new Client([
+        //     // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+        //     'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
+        // ]);
     }
 
     /**
@@ -53,52 +52,73 @@ class LoadBranchState extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            //
-            $repositoryIds = $this->getAllRepositoriesIds();
 
-            $repoBranches = [];
-            foreach ($repositoryIds as $repoId) {
-                $branchNames = $this->getBranchNamesOfRepository($repoId);
-                if (sizeof($branchNames) > 0) {
-                    $repoBranches[$repoId] = $branchNames;
+            $organizations = GithubOrganization::get();
+
+            foreach ($organizations as $organization) {
+                $organizationId = $organization->name;
+                $userName = $organization->username;
+                $token = $organization->token;
+
+                $repositoryIds = $this->getAllRepositoriesIds($organizationId, $userName, $token);
+
+                $repoBranches = [];
+                foreach ($repositoryIds as $repoId) {
+                    $this->info($repoId);
+                    $branchNames = $this->getBranchNamesOfRepository($userName, $token, $repoId);
+                    if (count($branchNames) > 0) {
+                        $repoBranches[$repoId] = $branchNames;
+                    }
+                }
+
+                $comparisons = [];
+                foreach ($repoBranches as $repoId => $branches) {
+                    foreach ($branches as $branch) {
+                        $this->info($branch);
+                        $comparison = $this->compareRepoBranches($userName, $token, $repoId, $branch);
+                        $filters = [
+                            'state' => 'all',
+                            'head' => $organizationId . ':' . $branch,
+                        ];
+                        $pullRequests = $this->pullRequests($userName, $token, $repoId, $filters);
+                        if (! empty($pullRequests) && count($pullRequests) > 0) {
+                            $pullRequest[$repoId][$branch] = $pullRequests[0];
+                        }
+                        $comparisons[$repoId][$branch] = $comparison;
+                    }
+                }
+
+                foreach ($comparisons as $repoId => $branches) {
+                    $branchNames = [];
+                    foreach ($branches as $branchName => $comparison) {
+                        $this->info($repoId . ' : ' . $branchName);
+                        GithubBranchState::updateOrCreate(
+                            [
+                                'repository_id' => $repoId,
+                                'branch_name' => $branchName,
+                            ],
+                            [
+                                'github_organization_id' => $organization->id,
+                                'repository_id' => $repoId,
+                                'branch_name' => $branchName,
+                                'ahead_by' => $comparison['ahead_by'],
+                                'behind_by' => $comparison['behind_by'],
+                                'status' => ! empty($pullRequest[$repoId]) && ! empty($pullRequest[$repoId][$branchName]) ? $pullRequest[$repoId][$branchName]['state'] : '',
+                                'last_commit_author_username' => $comparison['last_commit_author_username'],
+                                'last_commit_time' => $comparison['last_commit_time'],
+                            ]
+                        );
+                        $branchNames[] = $branchName;
+                    }
+                    GithubBranchState::where('repository_id', $repoId)
+                        ->whereNotIn('branch_name', $branchNames)
+                        ->delete();
                 }
             }
 
-            $comparisons = [];
-            foreach ($repoBranches as $repoId => $branches) {
-                foreach ($branches as $branch) {
-                    $comparison                    = $this->compareRepoBranches($repoId, $branch);
-                    $comparisons[$repoId][$branch] = $comparison;
-                }
-            }
-
-            foreach ($comparisons as $repoId => $branches) {
-                $branchNames = [];
-                foreach ($branches as $branchName => $comparison) {
-                    GithubBranchState::updateOrCreate(
-                        [
-                            'repository_id' => $repoId,
-                            'branch_name'   => $branchName,
-                        ],
-                        [
-                            'repository_id'               => $repoId,
-                            'branch_name'                 => $branchName,
-                            'ahead_by'                    => $comparison['ahead_by'],
-                            'behind_by'                   => $comparison['behind_by'],
-                            'last_commit_author_username' => $comparison['last_commit_author_username'],
-                            'last_commit_time'            => $comparison['last_commit_time'],
-                        ]
-                    );
-                    $branchNames[] = $branchName;
-                }
-                GithubBranchState
-                    ::where('repository_id', $repoId)
-                    ->whereNotIn('branch_name', $branchNames)
-                    ->delete();
-            }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
@@ -107,91 +127,119 @@ class LoadBranchState extends Command
         //echo print_r($comparisons, true);
     }
 
-    private function getAllRepositoriesIds()
+    private function connectGithubClient($userName, $token)
     {
-        //https://api.github.com/orgs/ludxb/repos
-        // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
-        $url      = 'https://api.github.com/orgs/' . config('env.GITHUB_ORG_ID') . '/repos';
-        $response = $this->githubClient->get($url);
+        $githubClient = new Client([
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
 
-        $repositories = json_decode($response->getBody()->getContents());
-
-        return array_map(
-            function ($repository) {
-                return $repository->id;
-            },
-            $repositories
-        );
+        return $githubClient;
     }
 
-    private function getBranchNamesOfRepository(int $repoId)
+    private function getAllRepositoriesIds($organizationId, $userName, $token)
     {
-        //https://api.github.com/repositories/:repoId/branches
+        $repositories = [];
 
-        $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
+        try {
+            //https://api.github.com/orgs/ludxb/repos
+            // $url      = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/repos';
+            $url = 'https://api.github.com/orgs/' . $organizationId . '/repos';
 
-        $headResponse = $this->githubClient->head($url);
+            $githubClient = $this->connectGithubClient($userName, $token);
 
-        $linkHeader = $headResponse->getHeader("Link");
-        /**
-         * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
-         */
+            $response = $githubClient->get($url);
 
+            $repositories = json_decode($response->getBody()->getContents());
 
-
-
-
-        $totalPages = 1;
-        if (sizeof($linkHeader) > 0) {
-            $lastLink = null;
-            $links = explode(',', $linkHeader[0]);
-            foreach ($links as $link) {
-                if (strpos($link, 'rel="last"') !== false) {
-                    $lastLink = $link;
-                    break;
-                }
-            }
-
-            //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
-            $linkWithAngularBrackets = explode(";", $lastLink)[0];
-            //<https://api.github.com/repositories/231925646/branches?page=4>
-            $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
-            //https://api.github.com/repositories/231925646/branches?page=4>
-            $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
-            //https://api.github.com/repositories/231925646/branches?page=4
-            $pageNumberString = explode('?', $linkWithPageNumber)[1];
-            //page=4
-            $totalPages = explode('=',  $pageNumberString)[1];
-
-            $totalPages = intval($totalPages);
-        }
-
-        $allBranchNames = [];
-        $page = 1;
-        while ($page <= $totalPages) {
-
-            $response = $this->githubClient->get($url . '?page=' . $page);
-
-            $branches = json_decode($response->getBody()->getContents());
-
-            $branchNames =  array_map(
-                function ($branch) {
-                    return $branch->name;
+            return array_map(
+                function ($repository) {
+                    return $repository->id;
                 },
-                $branches
+                $repositories
             );
-
-            $allBranchNames = array_merge(
-                $allBranchNames,
-                array_filter($branchNames, function ($name) {
-                    return $name != 'master';
-                })
-            );
-
-            $page++;
+        } catch(\Exception $e) {
+            //
         }
+
+        return $repositories;
+    }
+
+    private function getBranchNamesOfRepository($userName, $token, int $repoId)
+    {
+        $allBranchNames = [];
+        try {
+            //https://api.github.com/repositories/:repoId/branches
+            $url = 'https://api.github.com/repositories/' . $repoId . '/branches';
+            // $headResponse = $this->githubClient->head($url);
+
+            $githubClient = $this->connectGithubClient($userName, $token);
+
+            $headResponse = $githubClient->head($url);
+
+            $linkHeader = $headResponse->getHeader('Link');
+
+            /**
+             * <https://api.github.com/repositories/231925646/branches?page=4>; rel="prev", <https://api.github.com/repositories/231925646/branches?page=4>; rel="last", <https://api.github.com/repositories/231925646/branches?page=1>; rel="first"
+             */
+            $totalPages = 1;
+            $this->info($url);
+            $this->info(json_encode($linkHeader));
+            if (count($linkHeader) > 0) {
+                $lastLink = null;
+                $links = explode(',', $linkHeader[0]);
+                foreach ($links as $link) {
+                    if (strpos($link, 'rel="last"') !== false) {
+                        $lastLink = $link;
+                        break;
+                    }
+                }
+
+                //<https://api.github.com/repositories/231925646/branches?page=4>; rel="last"
+                $linkWithAngularBrackets = explode(';', $lastLink)[0];
+                //<https://api.github.com/repositories/231925646/branches?page=4>
+                $linkWithAngularBrackets = str_replace('<', '', $linkWithAngularBrackets);
+                //https://api.github.com/repositories/231925646/branches?page=4>
+                $linkWithPageNumber = str_replace('>', '', $linkWithAngularBrackets);
+                //https://api.github.com/repositories/231925646/branches?page=4
+                $pageNumberString = explode('?', $linkWithPageNumber)[1];
+                //page=4
+                $totalPages = explode('=', $pageNumberString)[1];
+
+                $totalPages = intval($totalPages);
+            }
+            $this->info('totalPages: ' . $totalPages);
+            $page = 1;
+            while ($page <= $totalPages) {
+                $this->info('page: ' . $page);
+
+                // $response = $this->githubClient->get($url . '?page=' . $page);
+
+                $response = $githubClient->get($url . '?page=' . $page);
+
+                $branches = json_decode($response->getBody()->getContents());
+
+                $branchNames = array_map(
+                    function ($branch) {
+                        return $branch->name;
+                    },
+                    $branches
+                );
+
+                $allBranchNames = array_merge(
+                    $allBranchNames,
+                    array_filter($branchNames, function ($name) {
+                        return $name != 'master';
+                    })
+                );
+
+                $page++;
+            }
+        } catch(\Exception $e) {
+            $this->info($e->getMessage());
+        }
+        $this->info(json_encode($allBranchNames));
+
         return $allBranchNames;
     }
-
-    
 }

@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Product;
-use File;
 
 class DeleteProductImages extends Command
 {
@@ -39,21 +37,21 @@ class DeleteProductImages extends Command
      */
     public function handle()
     {
-        $products = \App\Product::leftJoin("order_products as op","op.product_id","products.id")->where("stock","<=" ,0)
-            ->where("supplier","!=", "in-stock")
-            ->where("has_mediables",1)
-            ->havingRaw("op.product_id is null")
-            ->groupBy("products.id")
-            ->select(["products.*","op.product_id"])
+        $products = \App\Product::leftJoin('order_products as op', 'op.product_id', 'products.id')->where('stock', '<=', 0)
+            ->where('supplier', '!=', 'in-stock')
+            ->where('has_mediables', 1)
+            ->havingRaw('op.product_id is null')
+            ->groupBy('products.id')
+            ->select(['products.*', 'op.product_id'])
             ->get();
 
-        if(!$products->isEmpty()) {
-            foreach($products as $product) {
+        if (! $products->isEmpty()) {
+            foreach ($products as $product) {
                 $medias = $product->getAllMediaByTag();
-                if(!$medias->isEmpty()) {
-                    foreach($medias as $i => $media) {
-                        foreach($media as $m) {
-                            echo $m->getAbsolutePath(). " started to delete";
+                if (! $medias->isEmpty()) {
+                    foreach ($medias as $i => $media) {
+                        foreach ($media as $m) {
+                            echo $m->getAbsolutePath() . ' started to delete';
                             $m->delete();
                         }
                     }

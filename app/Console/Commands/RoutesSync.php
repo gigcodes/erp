@@ -2,11 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\LaravelLog;
 use App\Routes;
-use DB;
-use Exception;
+use Illuminate\Console\Command;
 
 class RoutesSync extends Command
 {
@@ -42,28 +39,26 @@ class RoutesSync extends Command
     public function handle()
     {
         try {
-			\Log::channel('errorlog')->info("Schedule Job Start : Routes Sync in DB ");
-			$method = 'GET';
-			$routes = \Route::getRoutes()->getRoutesByMethod();
+            \Log::channel('errorlog')->info('Schedule Job Start : Routes Sync in DB ');
+            $method = 'GET';
+            $routes = \Route::getRoutes()->getRoutesByMethod();
 
-			$routesByGET  = $routes[$method];
-			$routesByPOST = $routes['POST'];
-            
-            $AllRoutes = array_merge( $routesByGET, $routesByPOST );
+            $routesByGET = $routes[$method];
+            $routesByPOST = $routes['POST'];
 
-			foreach ($AllRoutes as $route ){
-				if (Routes::where('url', '=', $route->uri)->count() > 0) 
-				{	
-					continue;
-				}
-				\Log::channel('errorlog')->info("URL---".$route->uri);
-				Routes::create(['url' => $route->uri]);
-			}
-			
-			\Log::channel('errorlog')->info("Schedule Job End : Routes Sync in DB");
-		}
-		catch (\Exception $e) {
-            \Log::channel('errorlog')->info("EXCEPTION---".$e->getMessage());
+            $AllRoutes = array_merge($routesByGET, $routesByPOST);
+
+            foreach ($AllRoutes as $route) {
+                if (Routes::where('url', '=', $route->uri)->count() > 0) {
+                    continue;
+                }
+                \Log::channel('errorlog')->info('URL---' . $route->uri);
+                Routes::create(['url' => $route->uri]);
+            }
+
+            \Log::channel('errorlog')->info('Schedule Job End : Routes Sync in DB');
+        } catch (\Exception $e) {
+            \Log::channel('errorlog')->info('EXCEPTION---' . $e->getMessage());
         }
     }
 }

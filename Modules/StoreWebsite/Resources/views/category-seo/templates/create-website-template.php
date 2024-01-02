@@ -18,8 +18,8 @@
                       <label >Copy from</label>
                       <select class="form-control website-form-page">
                         <option value="">-- Select --</option>
-                          <?php foreach($categroy_seos_list as $item) { ?>
-                            <option value="<?php echo $item->id; ?>"><?php echo $item->id.' - '.$item->meta_title; ?></option>
+                          <?php foreach ($categroy_seos_list as $item) { ?>
+                            <option value="<?php echo $item->id; ?>"><?php echo $item->id . ' - ' . $item->meta_title; ?></option>
                           <?php } ?>
                       </select>
 					  <input type="checkbox" name="ctitle" id="ctitle"> <label for="ctitle"> Meta title </label>
@@ -31,8 +31,8 @@
 						<label for="store_copy_id">Copy to</label>
 						<select id="store_copy_id" class="form-control">
 							<option value="">-- Select --</option>
-							<?php foreach($categroy_seos_list as $item) { ?>
-								<option value="<?php echo $item->id; ?>"><?php echo $item->id.' - '.$item->meta_title; ?></option>
+							<?php foreach ($categroy_seos_list as $item) { ?>
+								<option value="<?php echo $item->id; ?>"><?php echo $item->id . ' - ' . $item->meta_title; ?></option>
 							<?php } ?>
 						</select>
 						<input type="checkbox" name="cttitle" id="cttitle"> <label for="cttitle"> Meta title </label>
@@ -50,7 +50,7 @@
                       <label for="category_id">Category</label>
                       <select name="category_id" class="form-control">
                         <option value="">-- Select --</option>
-                          <?php foreach($categories as $category) { ?>
+                          <?php foreach ($categories as $category) { ?>
                             <option {{if data.category_id == '<?php echo $category->id; ?>'}} selected {{/if}} value="<?php echo $category->id; ?>"><?php echo $category->title; ?></option>
                           <?php } ?>
                       </select>  
@@ -59,7 +59,7 @@
                       <label for="store_website_id">Store Website</label>
                       <select name="store_website_id" class="form-control">
                         <option value="">-- Select --</option>
-                          <?php foreach($store_list as $k => $store) { ?>
+                          <?php foreach ($store_list as $k => $store) { ?>
                             <option {{if data.store_website_id == '<?php echo $k; ?>'}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $store; ?></option>
                           <?php } ?>
                       </select>  
@@ -135,7 +135,7 @@
                     <label for="language">Language</label>
                     <select name="language_id" class="form-control website-language-change">
                       <option value="">-- Select --</option>
-                        <?php foreach($languages as $k => $language) { ?>
+                        <?php foreach ($languages as $k => $language) { ?>
                           <option value="<?php echo $k; ?>"><?php echo $language; ?></option>
                         <?php } ?>
                     </select> 

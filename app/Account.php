@@ -2,19 +2,18 @@
 
 namespace App;
 
+use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\ImQueue;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Plank\Mediable\Mediable;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 class Account extends Model
 {
-  /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="first_name",type="string")
      * @SWG\Property(property="last_name",type="string")
      * @SWG\Property(property="email",type="email")
@@ -29,37 +28,38 @@ class Account extends Model
      * @SWG\Property(property="gender",type="string")
      * @SWG\Property(property="proxy",type="string")
      */
+    use SoftDeletes;
 
-  use SoftDeletes;
-  use Mediable;
-  protected $fillable = [
-    'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender','proxy','last_cron_time'
-  ];
+    use Mediable;
 
-  public function reviews()
-  {
-    return $this->hasMany('App\Review');
-  }
+    protected $fillable = [
+        'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender', 'proxy', 'last_cron_time',
+    ];
 
-  public function thread()
-  {
-    return $this->hasMany('App\InstagramThread','account_id','id')->whereNotNull('instagram_user_id');
-  }
+    public function reviews()
+    {
+        return $this->hasMany(\App\Review::class);
+    }
 
-  public function has_posted_reviews()
-  {
-    $count = $this->hasMany('App\Review')->where('status', 'posted')->count();
+    //  public function thread()
+    //  {
+//    return $this->hasMany('App\InstagramThread','account_id','id')->whereNotNull('instagram_user_id');
+    //  }
 
-    return $count > 0;
-  }
+    public function has_posted_reviews()
+    {
+        $count = $this->hasMany(\App\Review::class)->where('status', 'posted')->count();
 
-  public function imQueueBroadcast()
-  {
-    return $this->hasMany(ImQueue::class,'number_from','last_name');
-  }
+        return $count > 0;
+    }
 
-  public function storeWebsite()
-  {
-      return $this->hasOne('\App\StoreWebsite','id','store_website_id');
-  }
+    public function imQueueBroadcast()
+    {
+        return $this->hasMany(ImQueue::class, 'number_from', 'last_name');
+    }
+
+    public function storeWebsite()
+    {
+        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
+    }
 }

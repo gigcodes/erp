@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Modules\WebMessage\Http\Controllers\WebMessageController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,11 +14,14 @@
 |
 */
 
-Route::prefix('web-message')->middleware('auth')->group(function() {
-    Route::get('/', 'WebMessageController@index');
-    Route::post('/send', 'WebMessageController@send');
-    Route::get('/message-list/{id}', 'WebMessageController@messageList');
-    Route::get('/status','WebMessageController@status');
-    Route::post('/action','WebMessageController@action');
-    Route::post('/user-action','WebMessageController@userAction'); 
+Route::group([
+    'prefix' => 'web-message',
+    'middleware' => 'auth',
+], function () {
+    Route::get('/', [WebMessageController::class, 'index']);
+    Route::post('/send', [WebMessageController::class, 'send']);
+    Route::get('/message-list/{id}', [WebMessageController::class, 'messageList']);
+    Route::get('/status', [WebMessageController::class, 'status']);
+    Route::post('/action', [WebMessageController::class, 'action']);
+    Route::post('/user-action', [WebMessageController::class, 'userAction']);
 });

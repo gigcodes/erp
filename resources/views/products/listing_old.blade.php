@@ -36,7 +36,7 @@
                   @foreach($messages as $message)
                     <tr>
                       <td>
-                        <a target="_new" href="{{ action('ProductController@show', $message->product_id) }}">
+                        <a target="_new" href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $message->product_id) }}">
                           {{ $message->product_id }}
                         </a>
                       </td>
@@ -152,7 +152,7 @@
           @endif
 
           <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button> &nbsp; <a
-                  href="{{ action('AttributeReplacementController@index') }}">Attribute Auto Edit</a>
+                  href="{{ action([\App\Http\Controllers\AttributeReplacementController::class, 'index']) }}">Attribute Auto Edit</a>
         </form>
       </div>
 
@@ -214,7 +214,7 @@
                   {{--                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
                   <br>
                   SKU: {{ $product->sku }}
-                    <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                    <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                     <div>
                       @if ($special_product->hasMedia(config('constants.media_tags')))
                         @foreach($special_product->getMedia(config('constants.media_tags')) as $media)
@@ -521,7 +521,7 @@
       let rejected = $("#reject_"+pid).is(':checked') ? 1 : 0;
 
       $.ajax({
-        url: '{{action('ProductController@addListingRemarkToProduct')}}',
+        url: '{{action([\App\Http\Controllers\ProductController::class, 'addListingRemarkToProduct'])}}',
         data: {
           product_id: pid,
           remark: remark,
@@ -562,7 +562,7 @@
       let rejected = $("#reject_"+pid).is(':checked') ? 1 : 0;
 
       $.ajax({
-        url: '{{action('ProductController@addListingRemarkToProduct')}}',
+        url: '{{action([\App\Http\Controllers\ProductController::class, 'addListingRemarkToProduct'])}}',
         data: {
           product_id: pid,
           remark: remark,

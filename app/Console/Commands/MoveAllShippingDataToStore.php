@@ -39,31 +39,30 @@ class MoveAllShippingDataToStore extends Command
     {
         //
         $shipping = \App\StoreWebsitesCountryShipping::all();
-        if (!$shipping->isEmpty()) {
+        if (! $shipping->isEmpty()) {
             foreach ($shipping as $s) {
                 $storeWebsite = $s->storeWebsiteDetails;
                 if ($storeWebsite) {
-
-                    $url     = $storeWebsite->magento_url . '/default/rest/all/V1/shippingcost/';
+                    $url = $storeWebsite->magento_url . '/default/rest/all/V1/shippingcost/';
                     $api_key = $storeWebsite->api_token;
 
                     $headers = [
                         'Authorization' => 'Bearer ' . $api_key,
-                        'Content-Type'  => 'application/json',
+                        'Content-Type' => 'application/json',
                     ];
 
-                    $pushMagentoArr = array(
+                    $pushMagentoArr = [
                         'shippingCountryCode' => $s->country_code,
                         'shippingCountryName' => $s->country_name,
-                        'shippingPrice'       => $s->price,
-                        'shippingCurrency'    => $s->currency,
-                    );
+                        'shippingPrice' => $s->price,
+                        'shippingCurrency' => $s->currency,
+                    ];
 
                     if ($s->ship_id) {
                         $url .= 'update';
-                        $pushMagentoArr['ship_id']              = $s->ship_id;
+                        $pushMagentoArr['ship_id'] = $s->ship_id;
                         $pushMagentoArr['updatedShippingPrice'] = $s->price;
-                        $response                               = \App\Helpers\GuzzleHelper::post($url, $pushMagentoArr, $headers);
+                        $response = \App\Helpers\GuzzleHelper::post($url, $pushMagentoArr, $headers);
                         if (isset($response[0]->status)) {
                             echo "{$s->country_name} updated for {$storeWebsite->website} Success";
                         } else {

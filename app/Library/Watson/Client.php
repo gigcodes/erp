@@ -16,8 +16,8 @@ class Client implements ClientInterface
     private $options = [
         'exceptions' => false,
         'headers' => [
-            'Accept' => 'application/json'
-        ]
+            'Accept' => 'application/json',
+        ],
     ];
 
     /**
@@ -26,7 +26,6 @@ class Client implements ClientInterface
      * @var \GuzzleHttp\Client
      */
     private $guzzle;
-
 
     /**
      * The SDK response instance
@@ -37,8 +36,9 @@ class Client implements ClientInterface
 
     public function __construct($username, $password)
     {
-        if ($username != null && $password != null)
+        if ($username != null && $password != null) {
             $this->setOptions(['auth' => [$username, $password]]);
+        }
 
         $this->setGuzzleInstance(new GuzzleClient());
         $this->setResponse(new Response());

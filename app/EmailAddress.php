@@ -5,14 +5,13 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\EmailAssign;
-use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class EmailAddress extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="from_name",type="string")
      * @SWG\Property(property="from_address",type="string")
      * @SWG\Property(property="driver",type="string")
@@ -26,10 +25,10 @@ class EmailAddress extends Model
      * @SWG\Property(property="password",type="datetime")
      * @SWG\Property(property="store_website_id",type="integer")
      */
-
     protected $fillable = [
         'from_name',
         'from_address',
+        'incoming_driver',
         'driver',
         'host',
         'port',
@@ -49,7 +48,7 @@ class EmailAddress extends Model
         'signature_logo',
         'signature_image',
         'signature_social',
-
+        'twilio_recovery_code',
     ];
 
     public function website()
@@ -69,7 +68,12 @@ class EmailAddress extends Model
 
     public function history_last_message()
     {
+        //dd('sdfdsf');
         return $this->hasOne(EmailRunHistories::class, 'email_address_id', 'id')->latest();
     }
 
+    public function history_last_message_error()
+    {
+        return $this->hasOne(EmailRunHistories::class, 'email_address_id', 'id')->where('is_success', 0)->latest();
+    }
 }

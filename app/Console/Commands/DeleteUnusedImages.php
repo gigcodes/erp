@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use File;
+use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DeleteUnusedImages extends Command
 {
@@ -43,19 +43,19 @@ class DeleteUnusedImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             dd('stap');
-            $file_types = array(
+            $file_types = [
                 'gif',
                 'jpg',
                 'jpeg',
                 'png',
-            );
+            ];
             $directory = public_path('uploads');
-            $files     = File::allFiles($directory);
+            $files = File::allFiles($directory);
 
             // dd($files);
 
@@ -66,10 +66,11 @@ class DeleteUnusedImages extends Command
 
                     if (DB::table('media')->where('filename', '=', $filename)->count()) {
                         dump('in-use');
+
                         continue; // continue if the picture is in use
                     }
 
-                    echo 'removed' . basename($file) . "<br />";
+                    echo 'removed' . basename($file) . '<br />';
                     unlink($file); // delete if picture isn't in use
                 }
             }
@@ -78,6 +79,5 @@ class DeleteUnusedImages extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

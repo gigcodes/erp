@@ -39,10 +39,10 @@ class ChatBotServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('chatbot.php'),
+            __DIR__ . '/../Config/config.php' => config_path('chatbot.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'chatbot'
+            __DIR__ . '/../Config/config.php', 'chatbot'
         );
     }
 
@@ -55,11 +55,11 @@ class ChatBotServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/chatbot');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/chatbot';
@@ -78,7 +78,7 @@ class ChatBotServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'chatbot');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'chatbot');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'chatbot');
         }
     }
 

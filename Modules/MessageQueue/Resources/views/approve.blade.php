@@ -138,11 +138,16 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
 </div>
-
-<div class="row">
+<div class="row mt-3">
+	<div class="col-11 ">
+		<button type="button" class="delete-all-record btn btn-xs btn-secondary my-3 mx-4" id="select-all-product">Delete All</button>
+	</div>
+</div>
+<div class="row row mt-3 mx-3">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
+				<th width="5%"><input type="checkbox" id="sugIdAll"/></th>  
 		      	<th width="5%">Id</th>
 		        <th width="10%">Customer Name</th>
 		        <th width="5%">Group</th>
@@ -155,6 +160,7 @@
 		    <tbody>
           @foreach($messageData as $data)
 			      <tr>
+					<td><Input type="checkbox" id="sugId[]" name="sugId[]" value="{{$data->id}}"/></td>
 			      	<td>{{$data->id}}</td>
 			      	<td>{{$data->name}}</td>
 			        <td>{{$data->group_id}}</td>
@@ -171,11 +177,58 @@
 		    </tbody>
 		</table>
 	</div>
+	{!! $messageData->links() !!}
 
 @endsection
 
 @section('scripts')
 <script>
+	$(function(){
+		$('#sugIdAll').click(function(){
+			var idchecked = $('input:checkbox').not(this).prop('checked', this.checked);
+			if($("#sugIdAll").prop('checked') == true){
+				//alert('Yes');
+			}
+		});
+	});
+	$('.delete-all-record').on('click', function(e) {
+
+		var val = [];
+		$('input[name="sugId[]"]:checkbox:checked').each(function(i, elem) {
+			val[i] = $(this).val();
+		});
+
+		if(val.length == 0) {
+			alert("Please select any one row you want to delete record!!!");
+			//confirm('Please select any letestrecord records?')
+		} else {
+			if(confirm('Are you sure really want to Delete records?')) {
+				e.preventDefault();
+				var ids = val.toString();
+				$.ajax({
+					url: '{{url("/message-queue/delete-chat")}}',
+					type:"get",
+					data: { 
+							"_token": $('meta[name="csrf-token"]').attr('content'),
+							ids : ids
+							},
+					dataType: 'json',
+				}).done(function (response) {
+					if(response.code == 200) {
+						toastr['success'](response.message);
+						location.reload();
+					}else{
+						errorMessage = response.message ? response.message : 'Record not found!';
+						toastr['error'](errorMessage);
+					}        
+				}).fail(function (response) {
+					toastr['error'](response.message);
+				});
+			}
+
+		}
+	});
+
     $(document).on('click', '#approve-group', function(e) {
         e.preventDefault();
         var group_id = $(this).data('group-id');

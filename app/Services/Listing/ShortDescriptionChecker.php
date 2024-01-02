@@ -1,17 +1,12 @@
 <?php
 
-
 namespace App\Services\Listing;
 
-
 use App\AttributeReplacement;
-use App\Brand;
-use App\Product;
 use App\Services\Grammar\GrammarBot;
 
 class ShortDescriptionChecker implements CheckerInterface
 {
-
     private $grammerBot;
 
     public function __construct(GrammarBot $bot)
@@ -19,7 +14,8 @@ class ShortDescriptionChecker implements CheckerInterface
         $this->grammerBot = $bot;
     }
 
-    public function check($product): bool {
+    public function check($product): bool
+    {
         $data = $product->short_description;
 //        dump($data);
         if (strlen($data) < 60) {
@@ -38,12 +34,10 @@ class ShortDescriptionChecker implements CheckerInterface
         }
 
         return false;
-
     }
 
     public function improvise($sentence, $data2 = null): string
     {
-
         //Remove words that needs to be removed...
         $sentence = strtolower($sentence);
         $replacements = AttributeReplacement::where('field_identifier', 'short_description')->get();
@@ -52,7 +46,7 @@ class ShortDescriptionChecker implements CheckerInterface
         }
 
         //Now remove special characters..
-        $characters = array (
+        $characters = [
             "\n",
             '\n',
             '&excl;',
@@ -91,17 +85,15 @@ class ShortDescriptionChecker implements CheckerInterface
             '&para;',
             '\\',
             '/',
-            '-'
-        )
-        ;
+            '-',
+        ];
 
         $sentence = strtolower($sentence);
 
         $sentence = str_replace($characters, ' ', $sentence);
-        $sentence = str_replace("&rsquo;", "'", $sentence);
-        $sentence = str_replace("&Eacute;", "E", $sentence);
-        $sentence = str_replace("&eacute;", "e", $sentence);
-
+        $sentence = str_replace('&rsquo;', "'", $sentence);
+        $sentence = str_replace('&Eacute;', 'E', $sentence);
+        $sentence = str_replace('&eacute;', 'e', $sentence);
 
         $thingsToRemove = ['Made In', 'Italy', 'Portugal', 'London', 'Madein'];
 
@@ -113,18 +105,19 @@ class ShortDescriptionChecker implements CheckerInterface
         $sentence = preg_replace('/(\d+)%(\w+)/', '', $sentence);
         $sentence = preg_replace('/(\d+)(\w+)/', '', $sentence);
 
-
         return $this->sentenceCase($sentence);
     }
 
-    private function sentenceCase($string) {
-        $sentences = preg_split('/([.?!]+)/', $string, -1,PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE);
+    private function sentenceCase($string)
+    {
+        $sentences = preg_split('/([.?!]+)/', $string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
         $newString = '';
         foreach ($sentences as $key => $sentence) {
-            $newString .= ($key & 1) == 0?
+            $newString .= ($key & 1) == 0 ?
                 ucfirst(strtolower(trim($sentence))) :
-                $sentence.' ';
+                $sentence . ' ';
         }
+
         return trim($newString);
     }
 }

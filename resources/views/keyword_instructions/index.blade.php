@@ -17,7 +17,7 @@
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <form action="{{ action('KeywordInstructionController@store') }}" method="post">
+                            <form action="{{ action([\App\Http\Controllers\KeywordInstructionController::class, 'store']) }}" method="post">
                                 @csrf
                                 <div class="form-group">
                                     <label for="keywords">Keywords</label>
@@ -73,10 +73,10 @@
                             {{ $keywordInstruction->remark }}
                         </td>
                         <td>
-                            <a class="btn btn-image" href="{{ action('KeywordInstructionController@edit', $keywordInstruction->id) }}">
+                            <a class="btn btn-image" href="{{ action([\App\Http\Controllers\KeywordInstructionController::class, 'edit'], $keywordInstruction->id) }}">
                                 <img src="{{ asset('images/edit.png') }}" alt="Edit" title="Edit">
                             </a>
-                            <form method="post" action="{{ action('KeywordInstructionController@destroy', $keywordInstruction->id) }}" class="d-inline">
+                            <form method="post" action="{{ action([\App\Http\Controllers\KeywordInstructionController::class, 'destroy'], $keywordInstruction->id) }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-image">

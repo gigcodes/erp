@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
-use File;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class SimplyDutyCountryWise extends Command
@@ -44,56 +43,55 @@ class SimplyDutyCountryWise extends Command
         return false;
         //try {
 
-            $report = CronJobReport::create([
-                'signature'  => $this->signature,
-                'start_time' => Carbon::now(),
-            ]);
+        $report = CronJobReport::create([
+            'signature' => $this->signature,
+            'start_time' => Carbon::now(),
+        ]);
 
+        $checkDate = date('Y-m-d', strtotime('2020-06-17'));
 
-            $checkDate = date("Y-m-d",strtotime("2020-06-17"));
+        // check daily hubstaff  level from activities
+        $activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members as hm', 'hm.hubstaff_user_id', 'hubstaff_activities.user_id')
+        ->join('users as u', 'u.id', 'hm.user_id')
+        ->whereDate('starts_at', $checkDate)
+        ->whereNotNull('hm.user_id')
+        ->groupBy('hubstaff_activities.user_id')
+        ->select([
+            \DB::raw('sum(hubstaff_activities.tracked) as total_track'),
+            \DB::raw('sum(hubstaff_activities.overall) as total_spent'),
+            'hm.*',
+            'hm.user_id as erp_user_id',
+            'u.name as user_name',
+            'u.phone as phone_number',
+        ])->get();
 
-            // check daily hubstaff  level from activities
-            $activities = \App\Hubstaff\HubstaffActivity::join("hubstaff_members as hm","hm.hubstaff_user_id","hubstaff_activities.user_id")
-            ->join("users as u","u.id","hm.user_id")
-            ->whereDate("starts_at",$checkDate)
-            ->whereNotNull("hm.user_id")
-            ->groupBy("hubstaff_activities.user_id")
-            ->select([
-                \DB::raw("sum(hubstaff_activities.tracked) as total_track"),
-                \DB::raw("sum(hubstaff_activities.overall) as total_spent"),
-                    "hm.*",
-                    "hm.user_id as erp_user_id",
-                    "u.name as user_name",
-                    "u.phone as phone_number"
-            ])->get();
-
-            if(!$activities->isEmpty()) {
-                foreach($activities as $act) {  
-                    $actualPercentage = (float)($act->total_spent * 100) / $act->total_track;
-                    // start to add report
-                    $hubsaffReport = [];
-                    if($act->min_activity_percentage > 0 && ($act->min_activity_percentage > $actualPercentage)) {
-                        $userMessage = "Your Daily activity for date ".$checkDate." is lower then ".$act->min_activity_percentage;
-                        \App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
-                        $hubsaffReport[] = $act->user_name." : Daily activity for date ".$checkDate." is lower then ".$act->min_activity_percentage;
-                    }
-
-                    $hsn = new \App\Hubstaff\HubstaffActivityNotification;
-                    $hsn->fill([
-                        "user_id" => $act->erp_user_id,
-                        "start_date" => $checkDate,
-                        "end_date" => $checkDate,
-                        "min_percentage" => (float)$act->min_activity_percentage,
-                        "actual_percentage" => (float)($act->total_spent * 100) / $act->total_track,
-                    ]);
-                    $hsn->save();
+        if (! $activities->isEmpty()) {
+            foreach ($activities as $act) {
+                $actualPercentage = (float) ($act->total_spent * 100) / $act->total_track;
+                // start to add report
+                $hubsaffReport = [];
+                if ($act->min_activity_percentage > 0 && ($act->min_activity_percentage > $actualPercentage)) {
+                    $userMessage = 'Your Daily activity for date ' . $checkDate . ' is lower then ' . $act->min_activity_percentage;
+                    \App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
+                    $hubsaffReport[] = $act->user_name . ' : Daily activity for date ' . $checkDate . ' is lower then ' . $act->min_activity_percentage;
                 }
 
-                $message = implode(PHP_EOL, $hubsaffReport);
-                \App\ChatMessage::sendWithChatApi('971502609192', null, $message);
+                $hsn = new \App\Hubstaff\HubstaffActivityNotification;
+                $hsn->fill([
+                    'user_id' => $act->erp_user_id,
+                    'start_date' => $checkDate,
+                    'end_date' => $checkDate,
+                    'min_percentage' => (float) $act->min_activity_percentage,
+                    'actual_percentage' => (float) ($act->total_spent * 100) / $act->total_track,
+                ]);
+                $hsn->save();
             }
 
-            $report->update(['end_time' => Carbon::now()]);
+            $message = implode(PHP_EOL, $hubsaffReport);
+            \App\ChatMessage::sendWithChatApi('971502609192', null, $message);
+        }
+
+        $report->update(['end_time' => Carbon::now()]);
 
         /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

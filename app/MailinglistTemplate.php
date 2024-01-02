@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class MailinglistTemplate extends Model
 {
-      /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="mail_class",type="string")
      * @SWG\Property(property="mail_tpl",type="string")
@@ -21,7 +23,7 @@ class MailinglistTemplate extends Model
      * @SWG\Property(property="category_id",type="integer")
      * @SWG\Property(property="store_website_id",type="integer")
      */
-    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id','from_email', 'auto_send', 'duration'];
+    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id', 'from_email', 'auto_send', 'duration', 'html_text'];
 
     public function file()
     {
@@ -44,7 +46,6 @@ class MailinglistTemplate extends Model
 
         if ($category) {
             return self::getTemplate($category, $store);
-
         }
 
         return false;
@@ -72,17 +73,16 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public static function getOrderStatusChangeTemplate($order_status,$store = null)
+    public static function getOrderStatusChangeTemplate($order_status, $store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', $order_status)->first();
 
         if ($category) {
             return self::getTemplate($category, $store);
         } else {
-            
-        $category_default = \App\MailinglistTemplateCategory::where('title', 'Order Status Change')->first();
-        return self::getTemplate($category_default, $store);
-            
+            $category_default = \App\MailinglistTemplateCategory::where('title', 'Order Status Change')->first();
+
+            return self::getTemplate($category_default, $store);
         }
     }
 
@@ -93,17 +93,16 @@ class MailinglistTemplate extends Model
         return self::getTemplate($category, $store);
     }
 
-    public static function getMailTemplate($order_status,$store = null)
+    public static function getMailTemplate($order_status, $store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', $order_status)->first();
 
         if ($category) {
             return self::getTemplate($category, $store);
         } else {
-            
-        $category_default = \App\MailinglistTemplateCategory::where('title', 'Ticket ACK')->first();
-        return self::getTemplate($category_default, $store);
-            
+            $category_default = \App\MailinglistTemplateCategory::where('title', 'Ticket ACK')->first();
+
+            return self::getTemplate($category_default, $store);
         }
     }
 
@@ -177,12 +176,12 @@ class MailinglistTemplate extends Model
     }
 
     public static function getTemplate($category, $store = null)
-    { 
-     	if ($store) {
+    {
+        if ($store) {
             return self::where('store_website_id', $store)->where('category_id', $category->id)->first();
-        } else { 
-		        return self::where(function($q) {
-                $q->whereNull('store_website_id')->orWhere('store_website_id','=',"")->orWhere('store_website_id',"<=",0);
+        } else {
+            return self::where(function ($q) {
+                $q->whereNull('store_website_id')->orWhere('store_website_id', '=', '')->orWhere('store_website_id', '<=', 0);
             })->where('category_id', $category->id)->first();
         }
     }
@@ -212,7 +211,7 @@ class MailinglistTemplate extends Model
     }
 
     public static function template($name, $store = null)
-    {   
+    {
         $category = \App\MailinglistTemplateCategory::where('title', $name)->first();
 
         if ($category) {
@@ -224,7 +223,7 @@ class MailinglistTemplate extends Model
     }
 
     public static function getBotEmailTemplate($store = null)
-    {   
+    {
         $category = \App\MailinglistTemplateCategory::where('title', 'botMail')->first();
 
         if ($category) {
@@ -234,17 +233,15 @@ class MailinglistTemplate extends Model
 
         return false;
     }
-    
-    public static function getReferAFirendTemplate($store = null) {
-        
+
+    public static function getReferAFirendTemplate($store = null)
+    {
         $category = \App\MailinglistTemplateCategory::where('title', 'Refer_a_frined')->first();
-        
+
         if ($category) {
             return self::getTemplate($category, $store);
         }
 
         return false;
-        
     }
-    
 }

@@ -12,12 +12,12 @@
         @endif
     </div>
     <div class= "col-md-12">
-        <form action="{{ action('CustomerCategoryController@update', $customerCategory->id) }}" method="post">
+        <form action="{{ action([\App\Http\Controllers\CustomerCategoryController::class, 'update'], $customerCategory->id) }}" method="post">
             @csrf
             @method('PUT')
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <a class="btn btn-secondary" href="{{ action('CustomerCategoryController@index') }}">Go Back</a> &nbsp; <strong>Edit: {{ $customerCategory->name }}</strong>
+                    <a class="btn btn-secondary" href="{{ action([\App\Http\Controllers\CustomerCategoryController::class, 'index']) }}">Go Back</a> &nbsp; <strong>Edit: {{ $customerCategory->name }}</strong>
                 </div>
                 <div class="panel-body">
                     <div class="row">

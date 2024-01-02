@@ -1,5 +1,5 @@
 <div id="emailToAllModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
 
         <!-- Modal content-->
         <div class="modal-content">
@@ -12,9 +12,9 @@
                 @csrf
 
                 <div class="modal-body">
-                    <div class="form-group">
                         <strong>Users</strong>
-                        <div class="form-group">
+                    <div class="form-group d-flex">
+                        <div class="form-group mr-3 mt-3">
                             <select class="form-control users" name="user_type">
                                 <option>Select User Type</option>
                                 <option value ="1">Users</option>
@@ -23,7 +23,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mt-3">
                             <select class="user_select_id" name="users[]" multiple class="form-control" >
                             </select>
                         </div>
@@ -33,7 +33,7 @@
                     </div>
                      <div class="form-group">
                         <strong>From Email</strong>
-                        <div class="form-group">
+                        <div class="form-group mt-3">
                             <select name="from_select_id"  class="form-control select2"style="width:300px">
                                 <option>Select From Email</option>
                                 @foreach ($emailAddresses as $key => $email )

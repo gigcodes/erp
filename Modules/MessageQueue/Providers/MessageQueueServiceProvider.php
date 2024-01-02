@@ -39,10 +39,10 @@ class MessageQueueServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('messagequeue.php'),
+            __DIR__ . '/../Config/config.php' => config_path('messagequeue.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'messagequeue'
+            __DIR__ . '/../Config/config.php', 'messagequeue'
         );
     }
 
@@ -55,11 +55,11 @@ class MessageQueueServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/messagequeue');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/messagequeue';
@@ -78,7 +78,7 @@ class MessageQueueServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'messagequeue');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'messagequeue');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'messagequeue');
         }
     }
 

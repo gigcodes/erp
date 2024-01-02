@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -14,7 +15,6 @@ class ProjectFileManager extends Model
         'name',
         'project_name',
         'size',
-        'parent'
+        'parent',
     ];
-
 }

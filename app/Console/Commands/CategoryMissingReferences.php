@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Category;
-use App\ScrapedProducts;
-use App\CronJobReport;
-use App\Loggers\LogScraper;
 use Carbon\Carbon;
-use Dompdf\Exception;
+use App\CronJobReport;
+use App\ScrapedProducts;
+use App\Helpers\LogHelper;
+use App\Loggers\LogScraper;
 use Illuminate\Console\Command;
 
 class CategoryMissingReferences extends Command
@@ -43,22 +43,25 @@ class CategoryMissingReferences extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             // Create cron job report
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Cron job report was added.']);
 
             // Set empty
             $arrUnknown = [];
 
             // Get all categories from log_scraper
-            $logScrapers = ScrapedProducts::join("brands as b","b.id","scraped_products.brand_id")
+            $logScrapers = ScrapedProducts::join('brands as b', 'b.id', 'scraped_products.brand_id')
             ->whereNotNull('category')
             ->whereNotIn('website', ['amrstore', 'antonia', 'baseblu', 'brunarosso', 'coltorti', 'doublef', 'giglio', 'griffo210', 'leam', 'les-market', 'lidiashopping', 'nugnes1920', 'savannahs', 'stilmoda', 'vinicio'])
-            ->select(["b.name as brand","website","category"])
+            ->select(['b.name as brand', 'website', 'category'])
             ->get(['website', 'brand', 'category']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scraped products was added.']);
             //$logScrapers = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
 
             // Loop over result
@@ -81,6 +84,7 @@ class CategoryMissingReferences extends Command
                     if ($exists == null) {
                         $exists = Category::where('references', 'LIKE', '%' . $lastCategory . '%')->first();
                     }
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Category query finished.']);
 
                     // Still null
                     if ($exists == null) {
@@ -101,11 +105,16 @@ class CategoryMissingReferences extends Command
             if ($unknownCategory != null && strlen($arrUnknown) > 0) {
                 $unknownCategory->references = $unknownCategory->references . ',' . $arrUnknown;
                 $unknownCategory->save();
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'Category saved.']);
             }
 
             // Update cron report
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime saved.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron job finished.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

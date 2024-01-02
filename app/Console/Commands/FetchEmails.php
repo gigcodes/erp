@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Email;
 use App\Supplier;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
+use Webklex\PHPIMAP\ClientManager;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
-use Webklex\IMAP\Client;
 
 class FetchEmails extends Command
 {
@@ -43,48 +44,52 @@ class FetchEmails extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $imap = new Client([
-                'host'          => env('IMAP_HOST_PURCHASE'),
-                'port'          => env('IMAP_PORT_PURCHASE'),
-                'encryption'    => env('IMAP_ENCRYPTION_PURCHASE'),
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
+            $cm = new ClientManager();
+            $imap = $cm->make([
+                'host' => env('IMAP_HOST_PURCHASE'),
+                'port' => env('IMAP_PORT_PURCHASE'),
+                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-                'username'      => env('IMAP_USERNAME_PURCHASE'),
-                'password'      => env('IMAP_PASSWORD_PURCHASE'),
-                'protocol'      => env('IMAP_PROTOCOL_PURCHASE'),
+                'username' => env('IMAP_USERNAME_PURCHASE'),
+                'password' => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
             ]);
 
             $imap->connect();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Client manager connected.']);
 
             // $supplier = Supplier::find($request->supplier_id);
             $suppliers = Supplier::whereHas('Agents')->orWhereNotNull('email')->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Supplier query finished.']);
 
             dump(count($suppliers));
 
             $types = [
                 'inbox' => [
                     'inbox_name' => 'INBOX',
-                    'direction'  => 'from',
-                    'type'       => 'incoming',
+                    'direction' => 'from',
+                    'type' => 'incoming',
                 ],
-                'sent'  => [
+                'sent' => [
                     'inbox_name' => 'INBOX.Sent',
-                    'direction'  => 'to',
-                    'type'       => 'outgoing',
+                    'direction' => 'to',
+                    'type' => 'outgoing',
                 ],
             ];
 
             foreach ($suppliers as $supplier) {
                 foreach ($types as $type) {
                     dump($type['type']);
-                    $inbox        = $imap->getFolder($type['inbox_name']);
+                    $inbox = $imap->getFolder($type['inbox_name']);
                     $latest_email = Email::where('type', $type['type'])->where('model_id', $supplier->id)->where(function ($query) {
-                        $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
+                        $query->where('model_type', \App\Supplier::class)->orWhere('model_type', \App\Purchase::class);
                     })->latest()->first();
 
                     if ($latest_email) {
@@ -120,12 +125,12 @@ class FetchEmails extends Command
                                         if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
                                             dump('NEW EMAIL First');
                                             $attachments_array = [];
-                                            $attachments       = $email->getAttachments();
+                                            $attachments = $email->getAttachments();
 
                                             $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                                                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                                                $path = "email-attachments/" . $attachment->name;
+                                                $path = 'email-attachments/' . $attachment->name;
 
                                                 if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -134,8 +139,8 @@ class FetchEmails extends Command
                                                     }
                                                 } elseif ($attachment->getExtension() == 'zip') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                        $excel             = $supplier->getSupplierExcelFromSupplierEmail();
-                                                        $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                        $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                        $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                         $attachments_array = $attachments;
                                                     }
                                                 }
@@ -143,21 +148,26 @@ class FetchEmails extends Command
                                                 $attachments_array[] = $path;
                                             });
 
+                                            $emailData = explode('@', $email->getFrom()[0]->mail);
+                                            $name = $emailData[0];
+
                                             $params = [
-                                                'model_id'        => $supplier->id,
-                                                'model_type'      => Supplier::class,
-                                                'type'            => $type['type'],
-                                                'seen'            => $email->getFlags()['seen'],
-                                                'from'            => $email->getFrom()[0]->mail,
-                                                'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                                'subject'         => $email->getSubject(),
-                                                'message'         => $content,
-                                                'template'        => 'customer-simple',
+                                                'model_id' => $supplier->id,
+                                                'model_type' => Supplier::class,
+                                                'type' => $type['type'],
+                                                'seen' => $email->getFlags()['seen'],
+                                                'from' => $email->getFrom()[0]->mail,
+                                                'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                                'subject' => $email->getSubject(),
+                                                'message' => $content,
+                                                'template' => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                                'created_at'      => $email->getDate(),
+                                                'created_at' => $email->getDate(),
+                                                'name' => $name,
                                             ];
 
                                             Email::create($params);
+                                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email added.']);
                                         }
                                     }
                                 } else {
@@ -179,12 +189,12 @@ class FetchEmails extends Command
                                             dump('NEW EMAIL Second');
 
                                             $attachments_array = [];
-                                            $attachments       = $email->getAttachments();
+                                            $attachments = $email->getAttachments();
 
                                             $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                                                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                                                $path = "email-attachments/" . $attachment->name;
+                                                $path = 'email-attachments/' . $attachment->name;
 
                                                 if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -193,8 +203,8 @@ class FetchEmails extends Command
                                                     }
                                                 } elseif ($attachment->getExtension() == 'zip') {
                                                     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                        $excel             = $supplier->getSupplierExcelFromSupplierEmail();
-                                                        $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                        $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                        $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                         $attachments_array = $attachments;
                                                     }
                                                 }
@@ -202,28 +212,33 @@ class FetchEmails extends Command
                                                 $attachments_array[] = $path;
                                             });
 
+                                            $emailData = explode('@', $email->getFrom()[0]->mail);
+                                            $name = $emailData[0];
+
                                             $params = [
-                                                'model_id'        => $supplier->id,
-                                                'model_type'      => Supplier::class,
-                                                'type'            => $type['type'],
-                                                'seen'            => $email->getFlags()['seen'],
-                                                'from'            => $email->getFrom()[0]->mail,
-                                                'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                                'subject'         => $email->getSubject(),
-                                                'message'         => $content,
-                                                'template'        => 'customer-simple',
+                                                'model_id' => $supplier->id,
+                                                'model_type' => Supplier::class,
+                                                'type' => $type['type'],
+                                                'seen' => $email->getFlags()['seen'],
+                                                'from' => $email->getFrom()[0]->mail,
+                                                'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                                'subject' => $email->getSubject(),
+                                                'message' => $content,
+                                                'template' => 'customer-simple',
                                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                                'created_at'      => $email->getDate(),
+                                                'created_at' => $email->getDate(),
+                                                'name' => $name,
                                             ];
 
                                             Email::create($params);
+                                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email added.']);
                                         }
                                     }
 
                                     $emails = $emails->merge($additional);
                                 }
                             }
-                        } else if ($supplier->agents()->count() == 1) {
+                        } elseif ($supplier->agents()->count() == 1) {
                             dump('1 Agent');
 
                             $emails = $inbox->messages()->where($type['direction'], $supplier->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
@@ -241,13 +256,13 @@ class FetchEmails extends Command
                                     dump('NEW EMAIL third');
 
                                     $attachments_array = [];
-                                    $attachments       = $email->getAttachments();
+                                    $attachments = $email->getAttachments();
 
                                     $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
                                         $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
 
                                         file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                                        $path = "email-attachments/" . $attachment->name;
+                                        $path = 'email-attachments/' . $attachment->name;
 
                                         if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
                                             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
@@ -256,29 +271,34 @@ class FetchEmails extends Command
                                             }
                                         } elseif ($attachment->getExtension() == 'zip') {
                                             if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                $excel             = $supplier->getSupplierExcelFromSupplierEmail();
-                                                $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
                                                 $attachments_array = $attachments;
                                             }
                                         }
                                         $attachments_array[] = $path;
                                     });
 
+                                    $emailData = explode('@', $email->getFrom()[0]->mail);
+                                    $name = $emailData[0];
+
                                     $params = [
-                                        'model_id'        => $supplier->id,
-                                        'model_type'      => Supplier::class,
-                                        'type'            => $type['type'],
-                                        'seen'            => $email->getFlags()['seen'],
-                                        'from'            => $email->getFrom()[0]->mail,
-                                        'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                        'subject'         => $email->getSubject(),
-                                        'message'         => $content,
-                                        'template'        => 'customer-simple',
+                                        'model_id' => $supplier->id,
+                                        'model_type' => Supplier::class,
+                                        'type' => $type['type'],
+                                        'seen' => $email->getFlags()['seen'],
+                                        'from' => $email->getFrom()[0]->mail,
+                                        'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'subject' => $email->getSubject(),
+                                        'message' => $content,
+                                        'template' => 'customer-simple',
                                         'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                        'created_at'      => $email->getDate(),
+                                        'created_at' => $email->getDate(),
+                                        'name' => $name,
                                     ];
 
                                     Email::create($params);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email added']);
                                 }
                             }
                         } else {
@@ -291,62 +311,69 @@ class FetchEmails extends Command
                         }
                     } else {
                         dump('No Agent just Supplier emails');
+                        if ($inbox) {
+                            $emails = $inbox->messages()->where($type['direction'], $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
 
-                        $emails = $inbox->messages()->where($type['direction'], $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                            $emails = $emails->leaveUnread()->get();
 
-                        $emails = $emails->leaveUnread()->get();
+                            foreach ($emails as $email) {
+                                if ($email->hasHTMLBody()) {
+                                    $content = $email->getHTMLBody();
+                                } else {
+                                    $content = $email->getTextBody();
+                                }
 
-                        foreach ($emails as $email) {
-                            if ($email->hasHTMLBody()) {
-                                $content = $email->getHTMLBody();
-                            } else {
-                                $content = $email->getTextBody();
-                            }
+                                if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                                    //dump('NEW EMAIL fourth');
 
-                            if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                                //dump('NEW EMAIL fourth');
+                                    $attachments_array = [];
+                                    $attachments = $email->getAttachments();
 
-                                $attachments_array = [];
-                                $attachments       = $email->getAttachments();
+                                    $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
+                                        $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                                        file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                        $path = 'email-attachments/' . $attachment->name;
 
-                                $attachments->each(function ($attachment) use (&$attachments_array, $supplier) {
-                                    $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                    file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                                    $path = "email-attachments/" . $attachment->name;
-
-                                    if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
-                                        if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                            $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                            ErpExcelImporter::excelFileProcess($attachment->name, $excel, $supplier->email);
+                                        if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
+                                            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                ErpExcelImporter::excelFileProcess($attachment->name, $excel, $supplier->email);
+                                            }
+                                        } elseif ($attachment->getExtension() == 'zip') {
+                                            if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
+                                                $excel = $supplier->getSupplierExcelFromSupplierEmail();
+                                                $attachments = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
+                                                $attachments_array = $attachments;
+                                            }
                                         }
-                                    } elseif ($attachment->getExtension() == 'zip') {
-                                        if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                            $excel             = $supplier->getSupplierExcelFromSupplierEmail();
-                                            $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
-                                            $attachments_array = $attachments;
-                                        }
-                                    }
 
-                                    $attachments_array[] = $path;
+                                        $attachments_array[] = $path;
+                                    });
 
-                                });
+                                    $emailData = explode('@', $email->getFrom()[0]->mail);
+                                    $name = $emailData[0];
 
-                                $params = [
-                                    'model_id'        => $supplier->id,
-                                    'model_type'      => Supplier::class,
-                                    'type'            => $type['type'],
-                                    'seen'            => $email->getFlags()['seen'],
-                                    'from'            => $email->getFrom()[0]->mail,
-                                    'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                    'subject'         => $email->getSubject(),
-                                    'message'         => $content,
-                                    'template'        => 'customer-simple',
-                                    'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                    'created_at'      => $email->getDate(),
-                                ];
+                                    $params = [
+                                        'model_id' => $supplier->id,
+                                        'model_type' => Supplier::class,
+                                        'type' => $type['type'],
+                                        'seen' => $email->getFlags()['seen'],
+                                        'from' => $email->getFrom()[0]->mail,
+                                        'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'subject' => $email->getSubject(),
+                                        'message' => $content,
+                                        'template' => 'customer-simple',
+                                        'additional_data' => json_encode(['attachment' => $attachments_array]),
+                                        'created_at' => $email->getDate(),
+                                        'name' => $name,
+                                    ];
 
-                                Email::create($params);
+                                    Email::create($params);
+                                    LogHelper::createCustomLogForCron($this->signature, ['message' => 'Email added.']);
+                                }
                             }
+                        } else {
+                            dump('empty inbox');
                         }
                     }
                 }
@@ -355,7 +382,11 @@ class FetchEmails extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

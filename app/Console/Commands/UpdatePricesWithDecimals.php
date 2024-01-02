@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Product;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class UpdatePricesWithDecimals extends Command
@@ -29,7 +28,7 @@ class UpdatePricesWithDecimals extends Command
     /**
      * Create a new command instance.
      *
-     * @param GebnegozionlineProductDetailsScraper $scraper
+     * @param  GebnegozionlineProductDetailsScraper  $scraper
      */
     public function __construct()
     {
@@ -45,7 +44,7 @@ class UpdatePricesWithDecimals extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -55,26 +54,24 @@ class UpdatePricesWithDecimals extends Command
             })->get();
 
             foreach ($products as $key => $product) {
-
                 $pmodel = \App\Product::find($product->product_id);
-                if($pmodel) {
-
+                if ($pmodel) {
                     $scPrice = str_replace('euro', '', $product->price);
 
                     $scPrice = preg_replace('/[^A-Za-z0-9\-]/', '', $scPrice);
 
                     $needToupdate = false;
                     if (strlen($scPrice) > 4 && strlen($scPrice) < 6) {
-                        $scPrice      = substr($scPrice, 0, 3);
-                        $scPrice      = $scPrice . ".00";
+                        $scPrice = substr($scPrice, 0, 3);
+                        $scPrice = $scPrice . '.00';
                         $needToupdate = true;
                     } elseif (strlen($scPrice) > 5 && strlen($scPrice) < 7) {
-                        $scPrice      = substr($scPrice, 0, 4);
-                        $scPrice      = $scPrice . ".00";
+                        $scPrice = substr($scPrice, 0, 4);
+                        $scPrice = $scPrice . '.00';
                         $needToupdate = true;
                     }
 
-                    dump("$key - Scraped Product - $product->sku and needToupdate : ".$needToupdate);
+                    dump("$key - Scraped Product - $product->sku and needToupdate : " . $needToupdate);
 
                     if ($needToupdate) {
                         if (is_numeric($scPrice)) {
@@ -88,20 +85,20 @@ class UpdatePricesWithDecimals extends Command
 
                         // Check for EUR to INR
                         $priceInr = 0;
-                        if (!empty($brand->euro_to_inr) && $brand) {
+                        if (! empty($brand->euro_to_inr) && $brand) {
                             $priceInr = (float) $brand->euro_to_inr * (float) trim($scPrice);
                         } else {
                             $priceInr = (float) \App\Setting::get('euro_to_inr') * (float) trim($scPrice);
                         }
 
-                        if (!empty($scPrice) && !empty($priceInr) && $brand) {
+                        if (! empty($scPrice) && ! empty($priceInr) && $brand) {
                             $priceEurSpecial = $scPrice - ($scPrice * $brand->deduction_percentage) / 100;
                             $priceInrSpecial = $priceInr - ($priceInr * $brand->deduction_percentage) / 100;
                         }
                         $oldPrice = $pmodel->price;
 
-                        $pmodel->price             = $scPrice;
-                        $pmodel->price_inr         = $priceInr;
+                        $pmodel->price = $scPrice;
+                        $pmodel->price_inr = $priceInr;
                         $pmodel->price_eur_special = $priceEurSpecial;
                         $pmodel->price_inr_special = $priceInrSpecial;
 
@@ -112,9 +109,6 @@ class UpdatePricesWithDecimals extends Command
                         $this->output->write($message);
                     }
                 }
-
-
-
             }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

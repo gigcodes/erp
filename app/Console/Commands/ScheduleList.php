@@ -3,12 +3,14 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
 
 class ScheduleList extends Command
 {
-    protected $signature   = 'schedule:list';
+    protected $signature = 'schedule:list';
+
     protected $description = 'List when scheduled commands are executed.';
 
     /**
@@ -18,8 +20,6 @@ class ScheduleList extends Command
 
     /**
      * ScheduleList constructor.
-     *
-     * @param Schedule $schedule
      */
     public function __construct(Schedule $schedule)
     {
@@ -35,11 +35,11 @@ class ScheduleList extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $events = array_map(function ($event) {
-
                 return [
-                    'cron'    => $event->expression,
+                    'cron' => $event->expression,
                     'command' => static::fixupCommand($event->command),
                 ];
             }, $this->schedule->events());
@@ -47,23 +47,26 @@ class ScheduleList extends Command
             //Getting artisan
             foreach ($events as $event) {
                 $schedule = $event['cron'];
-                $command  = explode(' ', $event['command']);
+                $command = explode(' ', $event['command']);
                 if (isset($command[1])) {
                     $signature = $command[1];
                     if ($signature != null) {
-
                         $detail = CronJob::where('signature', 'like', "%{$signature}%")->first();
                         if ($detail == null) {
-                            $cron              = new CronJob();
-                            $cron->signature   = $signature;
-                            $cron->schedule    = $schedule;
+                            $cron = new CronJob();
+                            $cron->signature = $signature;
+                            $cron->schedule = $schedule;
                             $cron->error_count = 0;
                             $cron->save();
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was saved.']);
                         }
                     }
                 }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
@@ -71,7 +74,6 @@ class ScheduleList extends Command
     /**
      * If it's an artisan command, strip off the PHP
      *
-     * @param $command
      * @return string
      */
     protected static function fixupCommand($command)
@@ -84,5 +86,4 @@ class ScheduleList extends Command
 
         return implode(' ', $parts);
     }
-
 }

@@ -15,36 +15,36 @@
                         <div class ="col-md-12 pl-2">
                             <form action="{{ route('jobs.list') }}" method="GET">
                                 <div class="col-md-2">
-                                    
+
                                     <?php echo Form::select('queue',["" => "-- Select Queue--"] + $listQueues,request('queue'),["class" => "form-control"]); ?>
                                 </div>
                                 <div class="col-md-2">
                                    
                                     <input type="text" class="form-control" id="payload" placeholder="Payload" name="payload" value="{{ request('payload') }}">
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-1">
                                   
-                                    <input type="date" class="form-control" id="reserved_date" name="reserved_date" value="{{ request('reserved_date') ? date('m/d/Y',strtotime(old('reserved_date'))) : null }}">
+                                    <input type="date" class="form-control" id="reserved_date" style="width: auto" name="reserved_date" value="{{ request('reserved_date') ? date('m/d/Y',strtotime(old('reserved_date'))) : null }}">
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-1">
                                    
-                                    <input type="date" class="form-control" id="available_date" name="available_date" value="{{ request ('available_date') ? date('m/d/Y',strtotime(old('available_date'))) : null }}">
+                                    <input type="date" class="form-control" id="available_date"style="width: auto"  name="available_date" value="{{ request ('available_date') ? date('m/d/Y',strtotime(old('available_date'))) : null }}">
                                 </div>
-                                <button class="btn btn-light col-md-2 " id="submit">
+                                <button class="btn btn-light col-md-1 ml-2" id="submit">
                                     <span class="fa fa-filter"></span> Filter Results
-                                </button>  
-                               <div class="col-md-2">
-                                  @csrf
-                                <button  style="background-color:#ffc9c9;" class="btn btn-light" id="checkboxsubmit">
-                                    <span class="fa fa-trash"></span> Delete All 
                                 </button>
-                                 <div class="col-md-2">
-                               <button class="btn btn-secondary" id="delete-selected">
+                                <div class="col-md-2 pull-right">
+                                  @csrf
+                                     <button  style="background-color:#ffc9c9;" class="btn btn-light" id="checkboxsubmit">
+                                        <span class="fa fa-trash"></span> Delete All
+                                    </button>
+                                     <div class="col-md-2">
+                                        <button class="btn btn-secondary" id="delete-selected">
                                 <span class="fa fa-trash"></span> Delete Selected
                             </button>
-                        </div>
-                           </form> 
-                        </div>
+                                     </div>
+                                </div>
+                           </form>
                     </div>
                     </div>
                 </div>
@@ -109,9 +109,9 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h4 class="modal-title">Job Detail</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Job Detail</h4>
                 </div>
                 <div class="modal-body">
                     <div class="col-md-12" id="payload-detail">
@@ -187,10 +187,13 @@
             try {
                 json=JSON.parse(payload);
                 type= typeof json;
+                console.log(type)
+                console.log(json)
+
+
                 if (type == "object")
-                
                 {
-                    var html="<b> Display Name </b>"+json['displayName']+"<br><b>Job</b> "+json['job']+"<br><b>maxTries</b> "+json['maxTries']+"<br><b>timeout</b> "+json['timeout']+"<br><b>timeoutAt</b> "+json['timeoutAt']+"<br><b>Data</b> "+JSON.stringify(json['data']);
+                    var html="<b> Display Name </b>"+json['displayName']+"<br><b>Job</b> "+json['job']+"<br><b>maxTries</b> "+json['maxTries']+"<br><b>timeout</b> "+json['timeout']+"<br><b>timeoutAt</b> "+json['timeoutAt']+"<br><b>Data</b><div style='word-break: break-all'>"+JSON.stringify(json['data'])+"<div>";
                     $("#payload-detail").html( html);
                 }
             }catch(err) {

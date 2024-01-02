@@ -2,10 +2,52 @@
     <div class="row">
         @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-2 pd-sm">
-                <select class="form-control" name="assigned_to" id="assigned_to">
-                    <option value="">Assigned To</option>
+                <label for="assiged users">Assigned User </label>
+                <select class="form-control select2" multiple name="assigned_to[]" id="assigned_to">
                     @foreach($users as $id=>$user)
-                        <option {{$request->get('assigned_to')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
+                        <option value="{{$id}}" 
+                            @if(is_array(request('assigned_to')) && in_array($id, request('assigned_to')))
+                            selected	
+                        @endif>{{ $user }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+        @if(auth()->user()->isReviwerLikeAdmin())
+            <div class="col-md-2 pd-sm">
+                <label for="assiged users">Lead Developer</label>
+                <select class="form-control select2", multiple name="master_user_id[]" id="master_user_id">
+                    @foreach($users as $id=>$user)
+                        <option value="{{$id}}" 
+                            @if(is_array(request('master_user_id')) && in_array($id, request('master_user_id')))
+                            selected	
+                        @endif>{{ $user }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+        @if(auth()->user()->isReviwerLikeAdmin())
+            <div class="col-md-2 pd-sm">
+                <label for="assiged users">Team lead</label>
+                <select class="form-control select2", multiple name="team_lead_id[]" id="team_lead_id">
+                    @foreach($users as $id=>$user)
+                    <option value="{{$id}}" 
+                    @if(is_array(request('team_lead_id')) && in_array($id, request('team_lead_id')))
+                    selected	
+                @endif>{{ $user }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+        @if(auth()->user()->isReviwerLikeAdmin())
+            <div class="col-md-2 pd-sm">
+                <label for="assiged users">Tester</label>
+                <select class="form-control select2", multiple name="tester_id[]" id="tester_id">
+                    @foreach($users as $id=>$user)
+                    <option value="{{$id}}" 
+                    @if(is_array(request('tester_id')) && in_array($id, request('tester_id')))
+                    selected	
+                @endif>{{ $user }}</option>
                     @endforeach
                 </select>
             </div>
@@ -28,7 +70,7 @@
             </select>
         </div>
         --}}
-        <div class="col-md-2 pd-sm">
+        <div class="col-md-2 pd-sm"><br>
             <select name="module" id="module_id" class="form-control">
                 <option value="">Module</option>
                 @foreach($modules as $module)
@@ -37,13 +79,13 @@
             </select>
         </div>
         
-        <div class="col-md-2 pd-sm">
+        <div class="col-md-2 pd-sm"><br>
             <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
         </div>
-        <div class="col-md-2 pd-sm status-selection">
+        <div class="col-md-2 pd-sm status-selection"><br>
             <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
         </div>
-        <div class="col-md-2 pd-sm">
+        <div class="col-md-2 pd-sm"><br>
             <select name="order" id="order_query" class="form-control">
                 <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
                 <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
@@ -52,7 +94,7 @@
                 
             </select>
         </div>
-        <div class="col-md-2 pd-sm">
+        <div class="col-md-2 pd-sm"><br>
             <select name="tasktype" id="tasktype" class="form-control">
                 <option {{$type == "all" ? 'selected' : ''}} value="all">All</option>
                 <option {{$type == "devtask" ? 'selected' : ''}} value="devtask">Devtask</option>
@@ -62,42 +104,13 @@
         </div>
         <div class="row" style="margin-top:10px;">
         <div class="col-md-2 pd-sm">
-        <div class="form-control">
-        <label class="for">Last Communicated &nbsp;&nbsp;
-        <?php echo Form::checkbox("last_communicated","on",request()->get('last_communicated', "off") == "on",["class" => ""]); ?>
-        </label>
+            <label class="for">
+                Last Communicated &nbsp;&nbsp;
+                <?php echo Form::checkbox("last_communicated","on",request()->get('last_communicated', "off") == "on", ["class" => "ml-2"]); ?>
+            </label>
         </div>
-        </div>
-        @if(auth()->user()->isReviwerLikeAdmin())
-            <div class="col-md-2 pd-sm">
-                <select class="form-control" name="master_user_id" id="master_user_id">
-                    <option value="">Lead Developer</option>
-                    @foreach($users as $id=>$user)
-                        <option {{$request->get('master_user_id')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
-                    @endforeach
-                </select>
-            </div>
-        @endif
-        @if(auth()->user()->isReviwerLikeAdmin())
-            <div class="col-md-2 pd-sm">
-                <select class="form-control" name="team_lead_id" id="team_lead_id">
-                    <option value="">Team lead</option>
-                    @foreach($users as $id=>$user)
-                        <option {{$request->get('team_lead_id')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
-                    @endforeach
-                </select>
-            </div>
-        @endif
-        @if(auth()->user()->isReviwerLikeAdmin())
-            <div class="col-md-2 pd-sm">
-                <select class="form-control" name="tester_id" id="tester_id">
-                    <option value="">Tester</option>
-                    @foreach($users as $id=>$user)
-                        <option {{$request->get('tester_id')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
-                    @endforeach
-                </select>
-            </div>
-        @endif
+        
+       
         <div class="col-md-2 pd-sm">
             <input placeholder="E. Date" type="text" class="form-control estimate-date_picker" id="estimate_date_picker" name="estimate_date" >
         </div>
@@ -130,6 +143,7 @@
              <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
                 <img src="{{ asset('images/search.png') }}" alt="Search">
             </button>
+            <a href="{{ url("development/list") }}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
             <input type="hidden" id="download" name="download" value="1">
         </div>
        

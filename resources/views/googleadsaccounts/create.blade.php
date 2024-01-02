@@ -19,6 +19,16 @@
         </div>
 
         <div class="form-group row">
+            <label for="google_customer_id" class="col-sm-2 col-form-label">Google Customer Id</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="google_customer_id" name="google_customer_id" placeholder="Google Customer Id">
+                @if ($errors->has('google_customer_id'))
+                <span class="text-danger">{{$errors->first('google_customer_id')}}</span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group row">
             <label for="store_websites" class="col-sm-2 col-form-label">Status</label>
             <div class="col-sm-10">
                 <select class="browser-default custom-select" id="store_websites" name="store_websites" style="height: auto">

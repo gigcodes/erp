@@ -2,16 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\DailyActivity;
 use App\Learning;
 use App\TaskStatus;
-use App\Exports\HourlyReportsExport;
-use App\Mails\Manual\HourlyReport;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-
-
 
 class ChangeDailyLearningStatus extends Command
 {
@@ -45,18 +38,14 @@ class ChangeDailyLearningStatus extends Command
      * @return mixed
      */
     public function handle()
-    {   
-        
-        $s=TaskStatus::where('name','planned')->first();
-        if ($s)
-          $sid=$s->id;
-        else
-           {
-              $sid=TaskStatus::insertGetId(['name'=>'planned']);
-           }  
-        $date=date("Y-m-d");   
-        Learning::whereRaw("date(completion_date)=date('$date')")->update(['status'=>$sid]);
-       
-
+    {
+        $s = TaskStatus::where('name', 'planned')->first();
+        if ($s) {
+            $sid = $s->id;
+        } else {
+            $sid = TaskStatus::insertGetId(['name' => 'planned']);
+        }
+        $date = date('Y-m-d');
+        Learning::whereRaw("date(completion_date)=date('$date')")->update(['status' => $sid]);
     }
 }

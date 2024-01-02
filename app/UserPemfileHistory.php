@@ -1,29 +1,41 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserPemfileHistory extends Model
 {
-	protected $table = 'user_pemfile_history';
+    use SoftDeletes;
 
-  protected $fillable = [
-    'user_id',
-    'server_name',
-    'username',
-    'action',
-    'created_by',
-    'extra',
-  ];
+    protected $table = 'user_pemfile_history';
 
-  public function user() {
-    return $this->belongsTo('App\User','user_id','id');
-  }
+    protected $fillable = [
+        'user_id',
+        'server_id',
+        'server_name',
+        'server_ip',
+        'username',
+        'public_key',
+        'access_type',
+        'user_role',
+        'pem_content',
+        'action',
+        'created_by',
+        'extra',
+    ];
 
-  public function createby() {
-    return $this->belongsTo('App\User','created_by','id');
-  }
+    public function user()
+    {
+        return $this->belongsTo(\App\User::class, 'user_id', 'id');
+    }
+
+    public function createby()
+    {
+        return $this->belongsTo(\App\User::class, 'created_by', 'id');
+    }
 }

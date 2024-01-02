@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Brand;
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
 use App\Setting;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class UpdateGnbPrice extends Command
@@ -31,7 +31,7 @@ class UpdateGnbPrice extends Command
     /**
      * Create a new command instance.
      *
-     * @param GebnegozionlineProductDetailsScraper $scraper
+     * @param  GebnegozionlineProductDetailsScraper  $scraper
      */
     public function __construct()
     {
@@ -47,7 +47,7 @@ class UpdateGnbPrice extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -121,20 +121,20 @@ class UpdateGnbPrice extends Command
 
                         $old_product->price = $price;
 
-                        if (!empty($brand->euro_to_inr)) {
+                        if (! empty($brand->euro_to_inr)) {
                             $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
                         } else {
                             $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
                         }
 
-                        $old_product->price_inr         = round($old_product->price_inr, -3);
+                        $old_product->price_inr = round($old_product->price_inr, -3);
                         $old_product->price_inr_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
 
                         $old_product->price_inr_special = round($old_product->price_inr_special, -3);
 
                         $old_product->save();
                     } else {
-                        dump("NO BRAND");
+                        dump('NO BRAND');
                     }
                 }
             }

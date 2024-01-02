@@ -51,6 +51,8 @@
 	<div class="col-lg-12 margin-tb p-0">
         <h2 class="page-heading mb-3">Return Exchange <span id="total-counter"></span>
 			<div class="pull-right pr-3">
+				<button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#returnexchangedatatablecolumnvisibilityList">Column Visiblity</button>
+
 				<a href="#" class="btn btn-xs btn-secondary delete-orders" id="bulk_delete">
 					Delete
 				</a>
@@ -60,6 +62,7 @@
 				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_status">
 					Create Status
 				</a>
+				<button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
 				<a href="#" class="btn btn-xs update-customer btn-secondary" id="create_refund">
 					Create Refund
 				</a>
@@ -168,6 +171,61 @@
 		</div>
 	</div>
 </div>
+
+<div id="update-status-message-tpl" class="modal fade" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<!-- Modal content-->
+		<div class="modal-content ">
+			<div class="modal-header ml-4 mr-4">
+				<h4 class="modal-title">Change Status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form action="" id="update-status-message-tpl-frm" method="POST">
+				@csrf
+				<input type="hidden" name="order_id" id="order-id-status-tpl" value="">
+				<input type="hidden" name="order_status_id" id="order-status-id-status-tpl" value="">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="col-md-2">
+								<strong>Message:</strong>
+							</div>
+							<div class="col-md-5">
+								<div class="form-group">
+									<textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"style="height: 35px;"></textarea>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-group d-flex">
+									<div class="checkbox">
+										<label><input class="msg_platform" onclick="loadpreview(this);"
+												type="checkbox" value="email">Email</label>
+									</div>
+									<div class="checkbox mt-3 ml-2">
+
+										<label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-8">
+								<div id="preview" style="display:none">
+
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer pb-0">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn custom-button update-status-with-message">Submit</button>
+						<!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
+						<!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
@@ -175,14 +233,14 @@
   	<div class="modal-dialog modal-lg" role="document">
   	</div>	
 </div>
-
+@include("return-exchange.column-visibility-modal")
 @include("return-exchange.templates.list-template")
 @include("return-exchange.templates.modal-emailToCustomer")
 @include("return-exchange.templates.modal-createstatus")
 @include("return-exchange.templates.modal-productDetails")
 @include("return-exchange.templates.create-refund")
 @include("return-exchange.templates.update-refund-modal")
-
+@include("return-exchange.partial.modal-status-color")
 @endsection
 
 @section('scripts')
@@ -193,11 +251,19 @@
 	<script src="/js/jquery-ui.js"></script>
 	<script type="text/javascript" src="/js/common-helper.js"></script>
 	<script type="text/javascript" src="/js/return-exchange.js"></script>
+	<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
 	<script type="text/javascript">
+
+		function Showactionbtn(id){
+	      	$(".action-btn-tr-"+id).toggleClass('d-none')
+	      	$("#asset_user_name").select2('destroy');
+	    }
+
 		msQueue.init({
 			bodyView : $("#return-exchange-page"),
 			baseUrl : "<?php echo url("/"); ?>"
 		});
+
 		$('#date_of_request').datetimepicker({
 		format: 'YYYY-MM-DD HH:mm'
 		});
@@ -223,6 +289,47 @@
 				});
     	});
 	});
+
+	$(document).on("click",".update-status-with-message",function(e) {
+          e.preventDefault();
+          console.log($("#email_from_mail").val());
+          console.log($("#email_to_mail").val());
+          var selected_array = [];
+          console.log(selected_array);
+          $('.msg_platform:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
+          
+          if(selected_array.length == 0){
+            alert('Please at least select one option');
+            return;
+          }else{
+            $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route("return-exchange.status-send-email")}}',
+            type: "post",
+            async : false,
+            data : {
+              id : $("#order-id-status-tpl").val(),
+              status : $("#order-status-id-status-tpl").val(),
+              sendmessage:'1',
+              message:$("#order-template-status-tpl").val(),
+              custom_email_content:$("#customEmailContent").val(),
+              from_mail:$("#email_from_mail").val(),
+              to_mail:$("#email_to_mail").val(),
+              order_via: selected_array,
+            }
+            }).done( function(response) {
+				toastr['success'](response.message);
+              $("#update-status-message-tpl").modal("hide");
+            }).fail(function(errObj) {
+              toastr['error'](errObj.responseText);
+           });
+          }
+          
+      });
 
 	    $(document).on('click', '.expand-row', function () {
 			var id = $(this).data('id');
@@ -320,7 +427,7 @@
 			});
 		});
 
-
+		CKEDITOR.replace('editableFile');
 		$(document).on('submit', '#updateRefundForm', function (e) {
 			e.preventDefault();
 			var data = $(this).serializeArray();
@@ -329,12 +436,14 @@
 				type: 'POST',
 				data: data,
 				success: function (response) {
+					alert('fgf');
 					toastr['success'](response.message, 'success');
 					$('#updateRefundModal').modal('hide');
 					$("#updateRefundForm").trigger("reset");
 					$("tr").find('.select-id-input').each(function () {
 					  if ($(this).prop("checked") == true) {
 						$(this).prop("checked", false);
+
 					  }
 					});
 					// window.location.reload();
@@ -422,15 +531,95 @@
           
         })
         $('.quickreply').on('change',function(){
-          var reply = $(this).find('option:selected').text();
-          var replyval = $(this).find('option:selected').attr('value');
-          if(replyval!=''){
-            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val(reply);
-          }else{
-            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
-          }
+			var reply = $(this).find('option:selected').text();
+			var replyval = $(this).find('option:selected').attr('value');
+			if(replyval!=''){
+				$(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val(reply);
+			}else{
+				$(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
+			}
         });
 		
+		$(document).on("change", '.return_exchange_status', function(event) { 
+   			//$('.return_exchange_status').on('change',function(){
+			
+        	var statusVal = $(this).val();
+			let exchange_id = $(this).data('id');
+			var oldStatusText = $(this).data('old_status_name');
+			var oldStatusId = $(this).data('old_status_id');
+			$.ajax({
+                type: "POST",
+                url: "{{route('returnexchange.update-status')}}",
+                data: {
+					return_exchange_status: statusVal,
+					id: exchange_id,
+					status_name: oldStatusText,
+					status_id: oldStatusId
+				},
+                headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+				if (response.code == 200) {
+					toastr['success']("Status updated successfully!", 'success');
+					$("#order-id-status-tpl").val(exchange_id);
+					$("#preview").html(response.data.preview);
+					CKEDITOR.replace( 'editableFile' );
+					$("#order-status-id-status-tpl").val(statusVal);
+					$("#order-template-status-tpl").val(response.data.template);
+					$(".msg_platform").prop('checked', false);
+					$("#update-status-message-tpl").modal("show");
+				} else {
+					toastr['error'](response.message, 'Error');
+				}
+			}).fail(function (response) {
+              $('.ajax-loader').hide();
+			  toastr['error'](response.message, 'Error');
+            });
+        });
+
+		function loadpreview(t)
+        {
+          $("#preview").hide();
+          if (t.checked == true){
+            $("#preview").show();
+          }
+        }
+
+
+		$(document).on("change", '.return_exchange_status_info', function(event) { 
+   			let exchange_id = $(this).data('id');
+			$.ajax({
+                type: "POST",
+                url: "{{route('returnexchange.update_status_log')}}",
+                data: {
+					id: exchange_id,
+				},
+                headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+				if (response.code == 200) {
+					$('#returnExchangeStatusInfotr')	
+					toastr['success']("Status Log listed successfully!", 'success');
+				} else {
+					toastr['error'](response.message, 'Error');
+				}
+			}).fail(function (response) {
+              $('.ajax-loader').hide();
+			  toastr['error'](response.message, 'Error');
+            });
+        });
 	</script>
 @endsection
 

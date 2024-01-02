@@ -39,18 +39,17 @@ class InsertStoreWebsiteShipping extends Command
     {
         //
         $simplycountry = \App\SimplyDutyCountry::all();
-        $storeWebsites = \App\StoreWebsite::where("api_token","!=","")->where("website_source","magento")->get();
+        $storeWebsites = \App\StoreWebsite::where('api_token', '!=', '')->where('website_source', 'magento')->get();
 
-        if(!$storeWebsites->isEmpty()) {
-            foreach($storeWebsites as $sW) {
-                foreach($simplycountry as $sc) {
+        if (! $storeWebsites->isEmpty()) {
+            foreach ($storeWebsites as $sW) {
+                foreach ($simplycountry as $sc) {
                     \App\StoreWebsitesCountryShipping::updateOrCreate(
                         ['country_code' => $sc->country_code, 'store_website_id' => $sW->id],
-                        ['country_name' => $sc->country_name, 'price' => "25", 'currency' => 'EUR']
+                        ['country_name' => $sc->country_name, 'price' => '25', 'currency' => 'EUR']
                     );
                 }
             }
         }
-
     }
 }

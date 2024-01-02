@@ -6,46 +6,49 @@ use Illuminate\Database\Eloquent\Model;
 
 class DisplayAdvertisingReport extends Model
 {
-    protected $table = "display_advertising_reports";
-    
+    protected $table = 'display_advertising_reports';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'store_website_id', 'tool_id', 'database','publisher_display_ads','advertisers','publishers','advertiser_display_ads','landing_pages','advertiser_display_ads_on_a_publishers_website','advertisers_rank','publishers_rank'
+        'store_website_id', 'tool_id', 'database', 'publisher_display_ads', 'advertisers', 'publishers', 'advertiser_display_ads', 'landing_pages', 'advertiser_display_ads_on_a_publishers_website', 'advertisers_rank', 'publishers_rank',
     ];
-    public function displayAdvertisingReportSemrushApis($domain, $db, $column=null) {
+
+    public function displayAdvertisingReportSemrushApis($domain, $db, $column = null)
+    {
         $key = env('KEY');
         $apis = [
-            'publisher_display_ads'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=publisher_text_ads',
+            'publisher_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_text_ads',
 
-            'advertisers'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=publisher_advertiser',
+            'advertisers' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_advertiser',
 
-            'publishers'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_publishers',
+            'publishers' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_publishers',
 
-            'advertiser_display_ads'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_text_ads',
+            'advertiser_display_ads' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_text_ads',
 
-            'landing_pages'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_landings',
+            'landing_pages' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_landings',
 
-            'advertiser_display_ads_on_a_publishers_website'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&advertiser_domain=ebay.com&publisher_domain=urbandictionary.com&type=advertiser_publisher_text_ads',
+            'advertiser_display_ads_on_a_publishers_website' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&advertiser_domain=ebay.com&publisher_domain=urbandictionary.com&type=advertiser_publisher_text_ads',
 
-            'advertisers_rank'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=advertiser_rank',
+            'advertisers_rank' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=advertiser_rank',
 
-            'publishers_rank'=>'https://api.semrush.com/analytics/da/v2/?action=report&key='.$key.'&domain='.$domain.'&type=publisher_rank'
+            'publishers_rank' => 'https://api.semrush.com/analytics/da/v2/?action=report&key=' . $key . '&domain=' . $domain . '&type=publisher_rank',
         ];
-        
-        if($column == null) {
+
+        if ($column == null) {
             return $apis;
         } else {
             return $apis[$column];
         }
     }
 
-    public function displayAdvertisingReportSemrushResponse($column) {
+    public function displayAdvertisingReportSemrushResponse($column)
+    {
         $apisResponse = [
-            'publisher_display_ads'=>"title;text;first_seen;last_seen;times_seen;visible_url
+            'publisher_display_ads' => "title;text;first_seen;last_seen;times_seen;visible_url
 Diabetes II Insulin;Get Complete Info on Diabetes Medication And
 Treatments.;1467072000000;1471478400000;985369;everydayhealth.com/Insulin
 FICA;Federally Insured Cash Account Official Site of the FICA
@@ -66,7 +69,7 @@ Tonight!;1459900800000;1468281600000;363474;hunts.com
 BANKSY MINI WALL MURAL;Banksy Mural on Concrete Texture 12x12x3, for Wall or Table
 Top;1466121600000;1468627200000;314699;designproject.net",
 
-            'advertisers'=>'domain;ads_count;first_seen;last_seen;times_seen
+            'advertisers' => 'domain;ads_count;first_seen;last_seen;times_seen
 stylewe.com;3243;1459900800000;1471046400000;13912898
 arabmatchmaking.com;13788;1459900800000;1468627200000;10674727
 facebook.com;145903;1369440000000;1468627200000;9581288
@@ -78,7 +81,7 @@ muslims4marriage.com;53663;1459900800000;1468627200000;1473834
 mogomogobuster.com;20;1461801600000;1468627200000;1240533
 newlife24h.com;6;1461456000000;1468540800000;1121633',
 
-            'publishers'=>'domain;ads_count;first_seen;last_seen;times_seen
+            'publishers' => 'domain;ads_count;first_seen;last_seen;times_seen
 thisnext.com;10837;1388880000000;1471910400000;888747
 antiquesnavigator.com;7410;1439424000000;1471910400000;518508
 antiques.com;7945;1459900800000;1471910400000;364953
@@ -90,7 +93,7 @@ blueridgenow.com;5130;1459900800000;1471910400000;137279
 christmas.com;5293;1459900800000;1471824000000;122658
 aquasupercenter.com;5045;1459900800000;1471910400000;121911',
 
-            'advertiser_display_ads'=>'title;text;first_seen;last_seen;times_seen;visible_url
+            'advertiser_display_ads' => 'title;text;first_seen;last_seen;times_seen;visible_url
 Dakota Digital Products »;Free shipping on U.S. orders $150+ Digital Dash/Gauges, Cruise
 Control;1461801600000;1471910400000;76233;stores.ebay.com/Phoenix-Tuning
 Star Wars Vintage Figures »;Huge selection of Vintage 1977-1985 Star Wars
@@ -111,7 +114,7 @@ Accessories;1459900800000;1471305600000;7828;stores.ebay.com/imperialsportbikes
 ACECLUB - eBay Stores;Welceom to ACECLUB. We carries auto parts, Mobil1 oil, LED strips
 etc.;1461801600000;1468972800000;7234;stores.ebay.com/aceclub',
 
-            'landing_pages'=>'target_url;first_seen;last_seen;times_seen;ads_count
+            'landing_pages' => 'target_url;first_seen;last_seen;times_seen;ads_count
 http://www.wayfair.com/gateway.php?refid=GX87595254316.Fixtures~&position=none&network=d&pcrid=87595254316&device=t&placement=profootballtalk.nbcsports.com&image=27571844;1465948800000;1471910400000;101584;1
 http://www.wayfair.com/gateway.php?refid=GX56855779276.lampsusa.com~&position=none&network=d&pcrid=56855779276&device=c&placement=lampsusa.com;1459900800000;1465862400000;53535;1
 http://www.wayfair.com/gateway.php?refid=GX49222149933.www.antiques.com~&position=none&network=d&pcrid=49222149933&device=t&placement=www.antiques.com;1459900800000;1471910400000;52003;1
@@ -123,7 +126,7 @@ http://www.wayfair.com/gateway.php?refid=GX87595254316.Fixtures~&position=none&n
 http://www.wayfair.com/gateway.php?refid=GX87595254316.Fixtures~&position=none&network=d&pcrid=87595254316&device=t&placement=www.celticslife.com&image=27571844;1468281600000;1471910400000;31344;1
 http://www.wayfair.com/gateway.php?refid=GX60014892162.www.antiquesnavigator.com~&position=none&network=d&pcrid=60014892162&device=t&placement=www.antiquesnavigator.com&image=14982740;1460073600000;1471824000000;28714;1',
 
-            'advertiser_display_ads_on_a_publishers_website'=>"title;text;first_seen;last_seen;times_seen;visible_url
+            'advertiser_display_ads_on_a_publishers_website' => "title;text;first_seen;last_seen;times_seen;visible_url
 Strip Curtains $99/roll »;Phthalate Free Clear PVC Save Energy &
 Money;1460160000000;1468627200000;415;ebay.com
 Kathymac Jewelry;Indian Jewelry,Silver Turquoise Pendants, Earrings, Fashion
@@ -145,60 +148,64 @@ mind.;1468195200000;1468540800000;74;ebay.com/itm/like/172037229785
 RPG Books Great Price;Low Prices on New RPG Books From Mongoose &
 StarFleet;1461974400000;1467936000000;69;ebay.com",
 
-            'advertisers_rank'=>'domain;ads_overall;text_ads_overall;media_ads_overall;first_seen;last_seen;times_seen;domain_overall
+            'advertisers_rank' => 'domain;ads_overall;text_ads_overall;media_ads_overall;first_seen;last_seen;times_seen;domain_overall
 ebay.com;2932;2658;274;1364342400000;1471910400000;848588;37213',
 
-            'publishers_rank'=>'domain;ads_overall;text_ads_overall;media_ads_overall;first_seen;last_seen;times_seen;domain_overall
-urbandictionary.com;1916819;1687303;229516;1368921600000;1471910400000;78970987;64985'
+            'publishers_rank' => 'domain;ads_overall;text_ads_overall;media_ads_overall;first_seen;last_seen;times_seen;domain_overall
+urbandictionary.com;1916819;1687303;229516;1368921600000;1471910400000;78970987;64985',
         ];
+
         return $apisResponse[$column];
     }
 
-    public function displayAdvertisingReportAhrefsApis($domain, $db, $column=null){
+    public function displayAdvertisingReportAhrefsApis($domain, $db, $column = null)
+    {
         $key = env('KEY');
         $apis = [
-            'publisher_display_ads' =>'',
+            'publisher_display_ads' => '',
 
-            'advertisers' =>'',
+            'advertisers' => '',
 
-            'publishers' =>'',
+            'publishers' => '',
 
-            'advertiser_display_ads' =>'',
+            'advertiser_display_ads' => '',
 
-            'landing_pages' =>'',
+            'landing_pages' => '',
 
-            'advertiser_display_ads_on_a_publishers_website' =>'',
+            'advertiser_display_ads_on_a_publishers_website' => '',
 
-            'advertisers_rank' =>'',
-            
-            'publishers_rank'=>''
-    ];
-        
-        if($column == null) {
+            'advertisers_rank' => '',
+
+            'publishers_rank' => '',
+        ];
+
+        if ($column == null) {
             return $apis;
         } else {
             return $apis[$column];
         }
     }
 
-    public function displayAdvertisingReportAhrefsResponse($column){
+    public function displayAdvertisingReportAhrefsResponse($column)
+    {
         $apisResponse = [
-        'publisher_display_ads' =>'',
+            'publisher_display_ads' => '',
 
-        'advertisers' =>'',
+            'advertisers' => '',
 
-        'publishers' =>'',
+            'publishers' => '',
 
-        'advertiser_display_ads' =>'',
+            'advertiser_display_ads' => '',
 
-        'landing_pages' =>'',
+            'landing_pages' => '',
 
-        'advertiser_display_ads_on_a_publishers_website' =>'',
+            'advertiser_display_ads_on_a_publishers_website' => '',
 
-        'advertisers_rank' =>'',
-        
-        'publishers_rank'=>''
+            'advertisers_rank' => '',
+
+            'publishers_rank' => '',
         ];
+
         return $apisResponse[$column];
     }
 }

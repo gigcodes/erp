@@ -37,6 +37,9 @@ class CreateErpLeadFromCancellationOrder extends Command
      */
     public function handle()
     {
+        if (! (\App\Setting::getErpLeadsCronSave())) {
+            exit('Disabled');
+        }
         try {
             $orders = \App\Order::where('order_status_id', \App\Helpers\OrderHelper::$cancel)->get();
             if ($orders) {
@@ -44,6 +47,7 @@ class CreateErpLeadFromCancellationOrder extends Command
                     $orderProduct = $order->order_product()->first();
                     $product = $orderProduct->products()->first();
                     $brand = \App\Brand::where('id', $product->id)->first();
+
                     $erpLeads = new \App\ErpLeads;
                     $erpLeads->fill([
                         'lead_status_id' => 4,
@@ -67,11 +71,8 @@ class CreateErpLeadFromCancellationOrder extends Command
                     $this->info('order id = ' . $order->id . ' create id = ' . $erpLeads->id . "\n");
                 }
             }
-
-            $message = $this->generate_erp_response("erp.lead.created.for.candellation.order.success", 0, $default = 'Successfully update!!', request('lang_code'));
-
+            $message = $this->generate_erp_response('erp.lead.created.for.candellation.order.success', 0, $default = 'Successfully update!!', request('lang_code'));
             echo $message;
-
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }

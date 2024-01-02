@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\ChatMessage;
-use App\DeveloperTask;
-use App\ErpPriority;
 use App\Issue;
 use Carbon\Carbon;
+use App\ChatMessage;
+use App\ErpPriority;
+use App\DeveloperTask;
 use Illuminate\Console\Command;
 
 class ImportIssues extends Command
@@ -44,11 +44,11 @@ class ImportIssues extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $issues = Issue::all();
-            $data   = array();
+            $data = [];
 
             foreach ($issues as $issue) {
 //            $data[] = array(
@@ -67,33 +67,33 @@ class ImportIssues extends Command
                 //                'created_at' => $issue->created_at
                 //            );
 
-                $developer_task                      = new DeveloperTask();
-                $developer_task->user_id             = $issue->user_id;
-                $developer_task->module_id           = $issue->module;
-                $developer_task->priority            = $issue->priority;
-                $developer_task->subject             = $issue->subject;
-                $developer_task->task                = $issue->issue;
-                $developer_task->status              = $issue->is_resolved == 1 ? 'Done' : 'Planned';
-                $developer_task->created_by          = !empty($issue->submitted_by) ? $issue->submitted_by : 6;
-                $developer_task->is_resolved         = $issue->is_resolved;
-                $developer_task->estimate_time       = $issue->estimate_time;
-                $developer_task->cost                = $issue->estimate_time;
-                $developer_task->task_type_id        = 3;
-                $developer_task->responsible_user_id = !is_null($issue->responsible_user_id) ? $issue->responsible_user_id : "";
-                $developer_task->created_at          = $issue->created_at;
+                $developer_task = new DeveloperTask();
+                $developer_task->user_id = $issue->user_id;
+                $developer_task->module_id = $issue->module;
+                $developer_task->priority = $issue->priority;
+                $developer_task->subject = $issue->subject;
+                $developer_task->task = $issue->issue;
+                $developer_task->status = $issue->is_resolved == 1 ? 'Done' : 'Planned';
+                $developer_task->created_by = ! empty($issue->submitted_by) ? $issue->submitted_by : 6;
+                $developer_task->is_resolved = $issue->is_resolved;
+                $developer_task->estimate_time = $issue->estimate_time;
+                $developer_task->cost = $issue->estimate_time;
+                $developer_task->task_type_id = 3;
+                $developer_task->responsible_user_id = ! is_null($issue->responsible_user_id) ? $issue->responsible_user_id : '';
+                $developer_task->created_at = $issue->created_at;
                 $developer_task->save();
                 $new_issue_id = $developer_task->id;
 
                 $chat_msg = ChatMessage::where('issue_id', $issue->id)->first();
-                if (!empty($chat_msg)) {
+                if (! empty($chat_msg)) {
                     $chat_msg->issue_id = $new_issue_id;
                     $chat_msg->save();
                 }
 
                 // need to move priority as well
-                $priority = ErpPriority::where("model_id", $issue->id)->where("model_type", Issue::class)->first();
+                $priority = ErpPriority::where('model_id', $issue->id)->where('model_type', Issue::class)->first();
                 if ($priority) {
-                    $priority->model_id   = $new_issue_id;
+                    $priority->model_id = $new_issue_id;
                     $priority->model_type = DeveloperTask::class;
                     $priority->save();
                 }

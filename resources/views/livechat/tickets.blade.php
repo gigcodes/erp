@@ -97,6 +97,16 @@
     tbody td{
         background: #ddd3;
     }
+    .select2-container .select2-search--inline .select2-search__field{
+        margin-top: 0px !important;
+    }
+    .select2-search--inline {
+    display: contents; /*this will make the container disappear, making the child the one who sets the width of the element*/
+}
+
+.select2-search__field:placeholder-shown {
+    width: 100% !important; /*makes the placeholder to be 100% of the width while there are no options selected*/
+}
 </style>
 @extends('layouts.app')
 
@@ -111,7 +121,7 @@
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
-
+                        <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#ltdatatablecolumnvisibilityList">Column Visiblity</button>
                     </div>
                 </div>
             </h2>
@@ -120,16 +130,16 @@
             <div class="form-group mb-3">
                 <div class="row">
                     <div class="col-md-2 pr-0 mb-3">
-                        <select class="form-control globalSelect2"  name="users_id" id="users_id">
-                            <option value="">Select Users</option>
+                        <select class="form-control globalSelect21"  name="users_id" id="users_id">
+                           
                             @foreach($users as $key => $user)
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2 pl-3  pr-0">
-                        <select class="form-control globalSelect2" name="ticket_id" id="ticket">
-                            <option value="">Select Ticket</option>
+                        <select class="form-control globalSelect22" name="ticket_id" id="ticket">
+                            
                             @foreach($data as $key => $ticket)
                             <option value="{{ $ticket->ticket_id }}">{{ $ticket->ticket_id }}</option>
                             @endforeach
@@ -137,11 +147,11 @@
                     </div>
 
                     <div class="col-md-2 pl-3 pr-0">
-                        <?php echo Form::select("status_id", ["" => "Select Status"]+\App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect2", "id" => "status_id"]); ?>
+                        <?php echo Form::select("status_id", \App\TicketStatuses::pluck("name", "id")->toArray(), request('status_id'), ["class" => "form-control globalSelect24", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2 pl-3 pr-0">
                         <div class='input-group date' id='filter_date'>
-                            <input type='text' class="form-control" id="date" name="date" value="" />
+                            <input placeholder="Select Date" type='text' class="form-control" id="date" name="date" value="" />
 
                             <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
@@ -150,9 +160,27 @@
                     </div>
 
                     <div class="col-md-2 pl-3 pr-0">
-                        <input name="term" type="text" class="form-control"
-                                value="{{ isset($term) ? $term : '' }}"
-                                placeholder="Name of User" id="term">
+                        <select class="form-control globalSelect23" name="term" id="term">
+                            
+                            @foreach($data as $key => $user_name)
+                                <option value="{{ $user_name->name }}">{{ $user_name->name }}</option>
+                            @endforeach
+                        </select>
+{{--                        <input name="term" type="text" class="form-control"--}}
+{{--                                value="{{ isset($term) ? $term : '' }}"--}}
+{{--                                placeholder="Name of User" id="term">--}}
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <select class="form-control globalSelect25" name="user_email" id="user_email">
+                            
+                            @foreach($data as $key => $user_email)
+                                <option value="{{ $user_email->email }}">{{ $user_email->email }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 pl-3 pr-0">
+                        <input name="user_message" type="text" class="form-control"
+                                    placeholder="Search Message" id="user_message">
                     </div>
                     <div class="col-md-2 pl-3 pr-3">
                         <input name="serach_inquiry_type" type="text" class="form-control"
@@ -179,24 +207,25 @@
                                 value="{{ isset($search_source) ? $search_source : '' }}"
                                 placeholder="Source." id="search_source">
                     </div>
-                    
+
                     <!-- <div class="col-md-2">
                         <input name="search_category" type="text" class="form-control"
                                 value="{{ isset($search_category) ? $search_category : '' }}"
                                 placeholder="Category" id="search_category">
                     </div> -->
                     <div>
-                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
+                    <button type="button" class="btn btn-image mt-2" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
                     <div >
-                        <button type="button" class="btn btn-image pl-0" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
+                        <button type="button" class="btn btn-image mt-2" id="resetFilter" onclick="resetSearch()"><img src="{{ asset('images/resend2.png')}}"/></button>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-image" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
+                        <button type="button" class="btn btn-image mt-2" id="send-message"><img src="{{ asset('images/whatsapp-logo.png')}}"/></button>
                     </div>
-
+                    <div>
+                        <button class="btn btn-xs btn-secondary mt-2" style="color:white;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                    </div>
                 </div>
-
 
 
             </div>
@@ -210,33 +239,95 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right infinite-scroll chat-list-table">
+    <div class="space-right chat-list-table">
 
-        <div class="table-responsive">
-            <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+        <div class="infinite-scroll" style="overflow-y: auto">
+            <table class="table table-bordered table-striped" style="font-size: 14px;">
                 <thead>
                 <tr>
-                    <th style="width: 2%;"></th>
-                    <th style="width: 4%;">Id</th>
-                    <th style="width: 5%;">Source</th>
-                    <th style="width: 5%;">Name</th>
-                    <th style="width: 5%;">Email</th>
-                    <th style="width: 5%;">Subject</th>
-                    <th style="width: 6%;">Message</th>
-                    <th style="width: 6%;">Asg name</th>
-                    <th style="width: 5%;">Brand</th>
-                    <th style="width: 5%;">Country</th>
-                    <th style="width: 5%;">Ord no</th>
-                    <th style="width: 6%;">Ph no</th>
-                    <th style="width: 13%;">Msg Box</th>
-                    <th style="width: 13%;">Resolution Date</th>
-                    <th style="width: 6%;">Status</th>
-                    <th style="width: 5%;">Created</th>
-                    <th style="width: 12%;">Action</th>
+                    @if(!empty($dynamicColumnsToShowLt))
+                        @if (!in_array('Checkbox', $dynamicColumnsToShowLt))
+                            <th></th>
+                        @endif
+                        @if (!in_array('Id', $dynamicColumnsToShowLt))
+                            <th>Id</th>
+                        @endif
+                        @if (!in_array('Source', $dynamicColumnsToShowLt))
+                            <th>Source</th>
+                        @endif
+                        @if (!in_array('Name', $dynamicColumnsToShowLt))
+                            <th>Name</th>
+                        @endif
+                        @if (!in_array('Email', $dynamicColumnsToShowLt))
+                            <th>Email</th>
+                        @endif
+                        @if (!in_array('Subject', $dynamicColumnsToShowLt))
+                            <th>Subject</th>
+                        @endif
+                        @if (!in_array('Message', $dynamicColumnsToShowLt))
+                            <th>Message</th>
+                        @endif
+                        @if (!in_array('Asg name', $dynamicColumnsToShowLt))
+                            <th>Asg name</th>
+                        @endif
+                        @if (!in_array('Brand', $dynamicColumnsToShowLt))
+                            <th>Brand</th>
+                        @endif
+                        @if (!in_array('Country', $dynamicColumnsToShowLt))
+                            <th>Country</th>
+                        @endif
+                        @if (!in_array('Ord no', $dynamicColumnsToShowLt))
+                            <th>Ord no</th>
+                        @endif
+                        @if (!in_array('Ph no', $dynamicColumnsToShowLt))
+                            <th>Ph no</th>
+                        @endif
+                        @if (!in_array('Msg Box', $dynamicColumnsToShowLt))
+                            <th>Msg Box</th>
+                        @endif
+                        @if (!in_array('Images', $dynamicColumnsToShowLt))
+                            <th>Images</th>
+                        @endif
+                        @if (!in_array('Resolution Date', $dynamicColumnsToShowLt))
+                            <th>Resolution Date</th>
+                        @endif
+                        @if (!in_array('Status', $dynamicColumnsToShowLt))
+                            <th>Status</th>
+                        @endif
+                        @if (!in_array('Created', $dynamicColumnsToShowLt))
+                            <th>Created</th>
+                        @endif
+                        @if (!in_array('Shortcuts', $dynamicColumnsToShowLt))
+                            <th>Shortcuts</th>
+                        @endif
+                        @if (!in_array('Action', $dynamicColumnsToShowLt))
+                            <th>Action</th>
+                        @endif
+                    @else
+                        <th></th>
+                        <th>Id</th>
+                        <th>Source</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Asg name</th>
+                        <th>Brand</th>
+                        <th>Country</th>
+                        <th>Ord no</th>
+                        <th>Ph no</th>
+                        <th>Msg Box</th>
+                        <th>Images</th>
+                        <th>Resolution Date</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Shortcuts</th>
+                        <th>Action</th>
+                    @endif
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">
-                @include('livechat.partials.ticket-list')
+                    @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
         </div>
@@ -244,12 +335,11 @@
 
     </div>
 
-
+    @include("livechat.partials.column-visibility-modal")
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
     @include('livechat.partials.modal_ticket_send_option')
-    
-
+    @include('livechat.partials.modal-status-color')
 
     <div id="AddStatusModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -341,7 +431,7 @@
               50% 50% no-repeat;display:none;">
     </div>
 
-	 <div id="ticketsEmails" class="modal fade" role="dialog">
+     <div id="ticketsEmails" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
 
@@ -349,27 +439,27 @@
                         <h4 class="modal-title">Emails sent</h4>
                     </div>
                     <div class="modal-body" >
-						<div class="table-responsive" style="margin-top:20px;">
-							<table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
-								<thead>
-								  <tr>
-									<th>Bulk <br> Action</th>
-									<th>Date</th>
-									<th>Sender</th>
-									<th>Receiver</th>
-									<th>Mail <br> Type</th>
-									<th>Subject</th>
-									<th>Body</th>
-									<th>Status</th>
-									<th>Draft</th>
-									<th>Action</th>
-								  </tr>
-								</thead>
-								<tbody id="ticketEmailData">
+                        <div class="table-responsive" style="margin-top:20px;">
+                            <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+                                <thead>
+                                  <tr>
+                                    <th>Bulk <br> Action</th>
+                                    <th>Date</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Mail <br> Type</th>
+                                    <th>Subject</th>
+                                    <th>Body</th>
+                                    <th>Status</th>
+                                    <th>Draft</th>
+                                    <th>Action</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="ticketEmailData">
 
-								</tbody>
-							  </table>
-						</div>
+                                </tbody>
+                              </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -413,6 +503,47 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 <script type="text/javascript">
+$( document ).ready(function() {
+    $(".globalSelect21").select2({
+        multiple: true,
+        placeholder: "Select Users",
+    });
+    $(".globalSelect22").select2({
+        multiple: true,
+        placeholder: "Select Ticket",
+    });
+    $(".globalSelect23").select2({
+        multiple: true,
+        placeholder: "Select User Name",
+    });
+    $(".globalSelect24").select2({
+        multiple: true,
+        placeholder: "Select Status",
+    });
+    $(".globalSelect25").select2({
+        multiple: true,
+        placeholder: "Select User Email",
+    });
+    $(".globalSelect26").select2({
+        multiple: true,
+        placeholder: "Select User Message",
+    });
+
+    /*$('.globalSelect21').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect22').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect23').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect24').val($('.globalSelect21 option:eq(1)').val()).trigger('change');
+    $('.globalSelect25').val($('option:eq(1)').val()).trigger('change');
+    $('.globalSelect26').val($('option:eq(1)').val()).trigger('change');*/
+
+    $("#user_email option").each(function() {
+        $(this).siblings('[value="'+ this.value +'"]').remove();
+    });
+    $("#term option").each(function() {
+        $(this).siblings('[value="'+ this.value +'"]').remove();
+    });
+});
+
 function opnMsg(email) {
       console.log(email);
       $('#emailSubject').html(email.subject);
@@ -437,14 +568,6 @@ function opnMsg(email) {
 
     }
 
-        var page = 1;
-        function getScrollTop() {
-            return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-        }
-        window.onscroll = function() {
-            if (getScrollTop() < getDocumentHeight() - window.innerHeight) return;
-            loadMore(++page);
-        };
 
         function getDocumentHeight() {
             const body = document.body;
@@ -456,70 +579,47 @@ function opnMsg(email) {
             );
         };
 
-		function showEmails(ticketId) {
-			$('#ticketEmailData').html('');
-		    $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){
-				$('#ticketEmailData').html(data);
-				$('#ticketsEmails').modal('show');
-		    });
-		}
-		function opnModal(message){
-		  $(document).find('#more-content').html(message);
-		}
-		$(document).on('click', '.resend-email-btn', function(e) {
-		    e.preventDefault();
-		    var $this = $(this);
-		    var type = $(this).data('type');
-			$.ajax({
-			  headers: {
-				  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			  },
-			  url: '/email/resendMail/'+$this.data("id"),
-			  type: 'post',
-			  data: {
-				type:type
-			  },
-				beforeSend: function () {
-					$("#loading-image").show();
-				},
-			}).done( function(response) {
-			  toastr['success'](response.message);
-			  $("#loading-image").hide();
-			}).fail(function(errObj) {
-			  $("#loading-image").hide();
-			});
-		});
-        function loadMore(page) {
-
-            var url = "/livechat/tickets?page="+page;
-
-            page = page + 1;
-            $.ajax({
-                url: url,
-                type: 'GET',
-                data: $('.form-search-data').serialize(),
-                beforeSend:function(){
-                        $('.infinite-scroll-products-loader').show();
-                },
-                success: function (data) {
-                    if (data == '') {
-                        $('.infinite-scroll-products-loader').hide();
-                    }
-                    $('.globalSelect2').select2();
-
-                    $('.infinite-scroll-products-loader').hide();
-
-                    $('.infinite-scroll-pending-inner').append(data.tbody);
-                },
-                error: function () {
-                    $('.infinite-scroll-products-loader').hide();
-                }
+        function showEmails(ticketId) {
+            $('#ticketEmailData').html('');
+            $.get(window.location.origin+"/tickets/emails/"+ticketId, function(data, status){
+                $('#ticketEmailData').html(data);
+                $('#ticketsEmails').modal('show');
             });
         }
+        function opnModal(message){
+          $(document).find('#more-content').html(message);
+        }
+        $(document).on('click', '.resend-email-btn', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var type = $(this).data('type');
+            $.ajax({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+              url: '/email/resendMail/'+$this.data("id"),
+              type: 'post',
+              data: {
+                type:type
+              },
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+            }).done( function(response) {
+              toastr['success'](response.message);
+              $("#loading-image").hide();
+            }).fail(function(errObj) {
+              $("#loading-image").hide();
+            });
+        });
+
 
     $(document).on('click', '.row-ticket', function () {
-        $('#viewmore #contentview').html($(this).data('content'));
-        $('#viewmore').modal("show");
+        /*DEVTASK-22731-START*/
+        ticket_id = $(this).data('ticket-id');
+        getTicketData(ticket_id);
+        $('#viewmorechatmessages').modal("show");
+        /*DEVTASK-22731-END*/
     });
 
 
@@ -538,56 +638,214 @@ function opnMsg(email) {
 
     });
 
+    /*DEVTASK-22731-START*/
+    $(document).on('click', '.editTicket', function () {
+        id = $(this).data('id');
+        $("#spanMsg_"+id).css('display','none');
+        $("#inputMsg_"+id).css('display','inline-block');
+        $("#txtMsg_"+id).css('display','inline-block');
+
+        $('#editTicket_'+id).css('display','none');
+        $("#updateTicket_"+id).css('display','inline-block');
+    });
+
+    
+    $(document).on('click', '.approveTicket', function () {
+        ticket_id = $(this).data('ticket-id');
+        id = $(this).data('id');
+        src = "{{url('livechat/tickets/approve-ticket')}}";
+        Swal.fire({
+            title: 'Do you want to send message to ticket?',
+                showDenyButton: true,
+                showCancelButton: false,
+                confirmButtonText: 'Yes',
+                denyButtonText: 'No',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method : "POST",
+                        url : src,
+                        data : {"id":id,"ticket_id":ticket_id},
+                        dataType : "json",
+                        success : function(response){
+                            getTicketData(ticket_id);
+                        },error : function(error){
+                            console.log(error);
+                        }
+                    });
+                } else if (result.isDenied) {
+                    
+                }
+            });
+    });
+
+    $(document).on('click', '.updateTicket', function () {
+        ticket_id = $(this).data('ticket-id');
+        message = $("#txtMsg_"+id).val();
+        id = $(this).data('id');
+        src = "{{url('livechat/tickets/update-ticket')}}";
+        $.ajax({
+            method : "POST",
+            url : src,
+            data : {"id":id,"ticket_id":ticket_id,"message":message},
+            dataType : "json",
+            success : function(response){
+                getTicketData(ticket_id);
+                $("#spanMsg_"+id).css('display','table-cell');
+                $("#inputMsg_"+id).css('display','none');
+                $('#editTicket_'+id).css('display','inline-block');
+                $("#updateTicket_"+id).css('display','none');
+            },error : function(error){
+                console.log(error);
+            }
+        });
+    });
+    /*DEVTASK-22731-END*/
 
    $('#filter_date').datetimepicker({
         format: 'YYYY-MM-DD'
     });
 
-    function submitSearch(){
-                //src = "{{url('whatsapp/pollTicketsCustomer')}}";
-                src = "{{url('livechat/tickets')}}";
-                term = $('#term').val();
-                erp_user = 152;
-                serach_inquiry_type = $('#serach_inquiry_type').val();
-                search_country = $('#search_country').val();
-                search_order_no = $('#search_order_no').val();
-                search_phone_no = $('#search_phone_no').val();
-                //search_category = $('#search_category').val();
-                ticket_id = $('#ticket').val();
-                status_id = $('#status_id').val();
-                date = $('#date').val();
-                users_id = $('#users_id').val();
-                search_source = $('#search_source').val();
-                $.ajax({
-                    url: src,
-                    dataType: "json",
-                    data: {
-                        erpUser:erp_user,
-                        term : term,
-                        serach_inquiry_type : serach_inquiry_type,
-                        search_country : search_country,
-                        search_order_no : search_order_no,
-                        search_phone_no : search_phone_no,
-                        ticket_id : ticket_id,
-                        status_id : status_id,
-                        date : date,
-                        users_id : users_id,
-                        search_source : search_source
-                    },
-                    beforeSend: function () {
-                        $("#loading-image").show();
-                    },
-                }).done(function (message) {
-                    $("#loading-image").hide();
-                    //location.reload();
-                    //alert(ticket_id);
-                    $('#ticket').val(ticket_id);
-                    $('#content_data').html(message.tbody);
-                    var rendered = renderMessage(message, tobottom);
-                }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                    alert('No response from server');
-                });
+   /*DEVTASK-22731-START*/
+    function getTicketData(ticket_id){
+        html = '';
+        button = '';
+        src = "{{url('livechat/tickets/ticket-data')}}";
+        $.ajax({
+            method : "POST",
+            url : src,
+            data : {"ticket_id":ticket_id},
+            dataType : "json",
+            success : function(response){
+                if(response.count > 0) {
+                    $("#viewmorechatmessages").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+                    $("#viewmorechatmessages").find(".modal-body").css({"background-color":"white"});
+                    $.each(response.data, function(k, v) {
+                        button = '';
+
+                        if(v['out'] == true) {
+                            html += '<tr style="background-color:grey !important">';
+                        } else {
+                            html += '<tr style="background-color:#999999 !important">';
+                        }
+                        html += '<td style="width:50%"><span class="copy_message'+v['id']+'"" id="spanMsg_'+v['id']+'">'+v['message']+'</span> <p id="inputMsg_'+v['id']+'"><input type="text" style="display:none" id="txtMsg_'+v['id']+'" value="'+v['message']+'"></p></td>';
+
+                        if (!v['approved'] && v['out'] == true) {
+
+                            button += "<a href='javascript:void(0)' title='Edit Message' id='editTicket_"+v['id']+"' data-id='"+v['id']+"' class='btn btn-xs btn-secondary editTicket'><i class='fa fa-edit' aria-hidden='true'></i></a> ";
+
+                            button += "<a href='javascript:void(0)' title='Update Message' style='display:none' id='updateTicket_"+v['id']+"' data-id='"+v['id']+"' data-ticket-id='"+ticket_id+"' class='btn btn-xs btn-secondary updateTicket'><i class='fa fa-save' aria-hidden='true'></i></a>";
+
+                            button += "<a href='javascript:void(0)' id='approveTicket_"+v['id']+"' title='Send Message To Ticket' data-id='"+v['id']+"' data-ticket-id='"+ticket_id+"' class='btn btn-xs btn-secondary approveTicket'><i class='fa fa-check' aria-hidden='true'></i></a>";
+
+                            button += "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + v['id'] + "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
+                        }
+
+                        if (v['status'] == 0 || v['status'] == 5 || v['status'] == 6) {
+
+                            if (v['status'] == 0) {
+                                button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + v['id'] + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+                            }
+
+                            if (v['status'] == 0 || v['status'] == 5) {
+                                button += '<a href="javascript:;" style="padding:4px!important;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' + v['id'] + '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
+                            }
+
+                            button += '&nbsp;<button title="forward"  class="btn btn-secondary btn-xs forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + v['id'] + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+v['id']+'" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+
+                        } else {
+                            if (v['error_status'] == 1) {
+                                button +="<a href='javascript:;' class='btn btn-xs btn-image fix-message-error' data-id='" + v['id'] + "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + v['id'] + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                            } else if (v['error_status'] == 2) {
+                                button += "<a href='javascript:;' class='btn btn-xs btn-secondary btn-image fix-message-error' data-id='" + v['id'] + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + v['id'] + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
+                            }
+
+                            button += '&nbsp;<button title="Forward" class="btn btn-xs btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + v['id'] + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+v['id']+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+                        }
+
+                        button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
+
+                        if(v['is_reviewed'] != 1) {
+                            button += '&nbsp;<button title="Mark as reviewed" class="btn btn-xs btn-secondary review-btn" data-id="' + v['id'] + '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
+                        }
+
+                        button += '<a title="Add Sop" href="javascript:;" data-toggle="modal" data-target="#Create-Sop-Shortcut" class="btn btn-xs btn-secondary ml-1 create_short_cut" data-category="'+v['sop_category']+'" data-name="'+v['sop_name']+'" data-message="'+v['sop_content']+'" data-id="' + v['id'] + '" data-msg="'+v['message']+'"><i class="fa fa-asterisk" data-message="'+v['message']+'" aria-hidden="true"></i></a>';
+
+                        button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + v['id'] + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
+
+                        button += '<a title="Copy Messages" href="javascript:;" class="btn btn-xs btn-secondary ml-1 btn-copy-messages" onclick="CopyToClipboard('+v['id']+')" data-message="'+v['message']+'" data-id="' + v['id'] + '"><i class="fa fa-copy" aria-hidden="true"></i></a>';
+
+                        html += '<td style="width:30%">'+button+'</td>';
+
+                        html += '<td style="width:40%">'+v['datetime']+'</td>';
+                        html += '</tr>';
+
+                    });
+                } else {
+                    html += '<tr>';
+                    html += '<td colspan="4">No Records Found</td>';
+                    html += '</tr>';
+                }
+                $("#ticketData").html(html);
+            },error : function(error){
+                console.log(error);
+            }
+        });
     }
+    /*DEVTASK-22731-END*/
+
+    function submitSearch(page = 1) {
+           //src = "{{url('whatsapp/pollTicketsCustomer')}}";
+            src = "{{ url('livechat/tickets') }}";
+            term = $('#term').val();
+            user_email = $('#user_email').val();
+            user_message = $('#user_message').val();
+            erp_user = 152;
+            serach_inquiry_type = $('#serach_inquiry_type').val();
+            search_country = $('#search_country').val();
+            search_order_no = $('#search_order_no').val();
+            search_phone_no = $('#search_phone_no').val();
+                //search_category = $('#search_category').val();
+            ticket_id = $('#ticket').val();
+            status_id = $('#status_id').val();
+            date = $('#date').val();
+            users_id = $('#users_id').val();
+            search_source = $('#search_source').val();
+            $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                erpUser: erp_user,
+                term: term,
+                user_email: user_email,
+                user_message: user_message,
+                serach_inquiry_type: serach_inquiry_type,
+                search_country: search_country,
+                search_order_no: search_order_no,
+                search_phone_no: search_phone_no,
+                ticket_id: ticket_id,
+                status_id: status_id,
+                date: date,
+                users_id: users_id,
+                search_source: search_source,
+                page: page // Include the page parameter in the data
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function (message) {
+        $("#loading-image").hide();
+        $('#ticket').val(ticket_id);
+        $('#content_data').html(message.tbody);
+        $('#pagination-container').html(message.links);
+        var rendered = renderMessage(message, tobottom);
+
+        // Update the URL in the browser's address bar
+        history.pushState(null, null, src + '?page=' + page);
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        alert('No response from server');
+    });
+}
 
     function resetSearch(){
         $("#loading-image").hide();
@@ -723,7 +981,7 @@ function opnMsg(email) {
             });
         }
         $(document).on('click', '.send-message1', function () {
-           
+
            var thiss = $(this);
            var data = new FormData();
            var ticket_id = $(this).data('ticketid');
@@ -753,8 +1011,8 @@ function opnMsg(email) {
             var i=0;
             $('.send_message_recepients:checked').each(function () {
                 checkedValue[i++] = $(this).val();
-            });   
-            data.append("send_ticket_options",checkedValue); 
+            });
+            data.append("send_ticket_options",checkedValue);
           //  alert(data);
 
             if (message.length > 0) {
@@ -954,6 +1212,310 @@ function opnMsg(email) {
           $("#loading-image").hide();
         });
     });
+    /*DEVTASK-22731-START*/
+    $(document).on('click', '.create_short_cut',function () {
+            $('.sop_description').val("");
+            let message = '';
+            message = $(this).attr('data-msg');
+            $('.sop_description').val(message);
+        });
+    /*DEVTASK-22731-START*/
+
+    // It is used to collapse action menu on right side of table
+    function Ticketsbtn(id){
+        $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
+    }
+
+    function Shortcutsbtn(id){
+        $(".action-shortcuts-tr-"+id).toggleClass('d-none')
+    }
+
+    // Load tickets on initial page load
+        $(document).ready(function() {
+        loadTickets('{{ Request::url() }}');
+    });
+
+   // Add an event listener to the pagination links
+   $(document).on('click', '#pagination-container .page-item .page-link', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        loadTickets(url);
+    });
+
+
+    function loadTickets(url) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            
+            success: function(response) {
+                $('#content_data').html(response.tbody);
+                $('#pagination-container').html(response.links);
+            },
+            error: function(xhr, status, error) {
+                alert('error')
+            }
+        });
+    }
+
+</script>
+
+<script type="text/javascript" src="/js/common-helper.js"></script>
+<script type="text/javascript">
+var siteHelpers = {
+            
+    quickCategoryAdd : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var textBox = ele.closest("div").find(".quick_category");
+        if (textBox.val() == "") {
+            alert("Please Enter Category!!");
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                name : textBox.val(),
+                quickCategoryId : quickCategoryId
+            },
+            url: "/add-reply-category"
+        };
+
+        if(quickCategoryId!=''){
+            siteHelpers.sendAjax(params,"afterQuickSubCategoryAdd");
+        } else {
+            siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+        }
+    },
+    afterQuickSubCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickSubCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    afterQuickCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    deleteQuickCategory : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickSubCategory : function(ele) {
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (quickSubCategory.val() == "") {
+            alert("Please Select Sub Category!!");
+            return false;
+        }
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete sub category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickSubCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickComment : function(ele) {
+        var quickComment = ele.closest("#shortcutsIds").find(".quickCommentEmail");
+        if (quickComment.val() == "") {
+            alert("Please Select Quick Comment!!");
+            return false;
+        }
+        var quickCommentId = quickComment.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete comment?")) {
+            return false;
+        }
+        var params = {
+            method : 'DELETE',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "/reply/" + quickCommentId,
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    pageReload : function(response) {
+        location.reload();
+    },
+    quickCommentAdd : function(ele) {
+        var textBox = ele.closest("div").find(".quick_comment");
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (textBox.val() == "") {
+            alert("Please Enter New Quick Comment!!");
+            return false;
+        }
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        var formData = new FormData();
+        formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+        formData.append("reply", textBox.val());
+        formData.append("category_id", quickCategoryId);
+        formData.append("sub_category_id", quickSubCategoryId);
+        formData.append("model", 'Approval Lead');
+        var params = {
+            method : 'post',
+            data : formData,
+            url: "/reply"
+        };
+        siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+    },
+    afterQuickCommentAdd : function(reply) {
+        $(".quick_comment").val('');
+        $('.quickCommentEmail').append($('<option>', {
+            value: reply,
+            text: reply
+        }));
+    },
+    changeQuickCategory : function (ele) {
+
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('value');
+
+        ele.closest("#shortcutsIds").find('.quickSubCategory').empty();
+        ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+            value: '',
+            text: 'Select Sub Category'
+        }));
+        dataValue.forEach(function (category) {
+            ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+                value: category.name,
+                text: category.name,
+                'data-id': category.id
+            }));
+        });
+
+        if (ele.val() != "") {
+            var replies = JSON.parse(ele.val());
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+            replies.forEach(function (reply) {
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply,
+                    'data-id': reply.id
+                }));
+            });
+        }
+    },
+    changeQuickComment : function (ele) {
+        $('#messageid_'+ele.attr('data-id')).val(ele.val());
+
+        var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
+        var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
+
+        $("#reply-message").val(senderName)
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+            $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+        }).fail(function(errObj) {
+        })
+        
+    },
+    changeQuickSubCategory : function (ele) {
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('id');
+
+        var userEmaillUrl = '/livechat-replise/'+dataValue;
+
+        $.ajax({        
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+
+            if(response!=''){
+                var replies = JSON.parse(response);
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: '',
+                    text: 'Quick Reply'
+                }));
+                replies.forEach(function (reply) {
+                    ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                        value: reply.reply,
+                        text: reply.reply,
+                        'data-id': reply.id
+                    }));
+                });
+            }
+            
+        }).fail(function(errObj) {
+        })
+    },
+};
+
+$.extend(siteHelpers, common);
+
+$(document).on('click', '.quick_category_add', function () {
+    siteHelpers.quickCategoryAdd($(this));
+});
+$(document).on('click', '.delete_category', function () {
+    siteHelpers.deleteQuickCategory($(this));
+});
+$(document).on('click', '.delete_sub_category', function () {
+    siteHelpers.deleteQuickSubCategory($(this));
+});
+$(document).on('click', '.delete_quick_comment', function () {
+    siteHelpers.deleteQuickComment($(this));
+});
+$(document).on('click', '.quick_comment_add', function () {
+    siteHelpers.quickCommentAdd($(this));
+});
+$(document).on('change', '.quickCategory', function () {
+    siteHelpers.changeQuickCategory($(this));
+});
+$(document).on('change', '.quickCommentEmail', function () {
+    siteHelpers.changeQuickComment($(this));
+});
+$(document).on('change', '.quickSubCategory', function () {
+    siteHelpers.changeQuickSubCategory($(this));
+});
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+});
 </script>
 @endsection
-

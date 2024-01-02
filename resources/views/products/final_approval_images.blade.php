@@ -143,7 +143,7 @@
                         href="{{ route('sop.index') }}?type=ListingApproved" class="pull-right">SOP</a>
             </h2>
 
-                <form class="product_filter" action="{{ action('ProductController@approvedListing') }}" method="GET">
+                <form class="product_filter" action="{{ action([\App\Http\Controllers\ProductController::class, 'approvedListing']) }}" method="GET">
                 <div class="row">
                     <div class="col-sm-1">
                         <div class="form-group">
@@ -1053,7 +1053,7 @@
                 return;
             }
             $.ajax({
-                url: '{{ action('WhatsAppController@sendMessage', 'vendor') }}',
+                url: '{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'vendor') }}',
                 type: 'POST',
                 data: {
                     vendor_id: userId,
@@ -1143,7 +1143,7 @@
         {{--    }--}}
         {{--    let self = this;--}}
         {{--    $.ajax({--}}
-        {{--        url: '{{action('ProductController@addListingRemarkToProduct')}}',--}}
+        {{--        url: '{{action([\App\Http\Controllers\ProductController::class, 'addListingRemarkToProduct'])}}',--}}
         {{--        data: {--}}
         {{--            product_id: pid,--}}
         {{--            remark: remark,--}}
@@ -2128,7 +2128,8 @@
             };
             $.ajax({
                 type: 'POST',
-                url: "{{ url('products') }}/" + $(this).data('id') + '/addListingRemarkToProduct',
+                {{--url: "{{ url('products') }}/" + $(this).data('id') + '/addListingRemarkToProduct',--}}
+                url: "{{ url('products') }}/addListingRemarkToProduct",
                 data: data
             }).done(function () {
             }).fail(function (response) {

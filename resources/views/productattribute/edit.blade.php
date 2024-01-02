@@ -279,7 +279,7 @@
                                           <td>{{ $q->size }}</td>
                                           <td>{{ ($q->supplier) ? $q->supplier->supplier : "Name" }}</td>
                                           <td>
-                                              <a href="{{ action('ProductAttributeController@delSizeQty', $q->id) }}">Delete</a>
+                                              <a href="{{ action([\App\Http\Controllers\ProductAttributeController::class, 'delSizeQty'], $q->id) }}">Delete</a>
                                           </td>
                                       </tr>
                                   @endforeach

@@ -2,13 +2,10 @@
 
 namespace App\Services\Bots;
 
-use App\Brand;
-use App\Console\Commands\Bots\Chrome;
-use App\ScrapEntries;
-use App\Services\Scrap\Scraper;
 use GuzzleHttp\Client;
-use NunoMaduro\LaravelConsoleDusk\Manager;
+use App\Services\Scrap\Scraper;
 use Wa72\HtmlPageDom\HtmlPageCrawler;
+use NunoMaduro\LaravelConsoleDusk\Manager;
 
 class Prada extends Scraper
 {
@@ -26,13 +23,12 @@ class Prada extends Scraper
     public function setProxyList(): void
     {
         $this->selectedProxy = [
-          'ip' => '123.136.62.162',
-          'port' => '8080'
+            'ip' => '123.136.62.162',
+            'port' => '8080',
         ];
     }
 
     private $data;
-
 
     public function emulate($command, $url, $commands = null)
     {
@@ -61,7 +57,7 @@ class Prada extends Scraper
             $forth = substr($skux, 9, 1);
             $fifth = substr($skux, 10, 3);
 
-            $trimmedSkus[] = $first .'_'. $second .'_'. $third . '_' . $forth . '_' . $fifth;
+            $trimmedSkus[] = $first . '_' . $second . '_' . $third . '_' . $forth . '_' . $fifth;
 
             $first = substr($skux, 0, 6);
             $second = substr($skux, 10, 3);
@@ -69,7 +65,7 @@ class Prada extends Scraper
             $forth = substr($skux, 6, 1);
             $fifth = substr($skux, 7, 3);
 
-            $trimmedSkus[] = $first .'_'. $second .'_'. $third . '_' . $forth . '_' . $fifth;
+            $trimmedSkus[] = $first . '_' . $second . '_' . $third . '_' . $forth . '_' . $fifth;
 
             foreach ($trimmedSkus as $trimmedSku) {
                 $defaultUrl = "https://www.prada.com/it/it/search.$trimmedSku.html";
@@ -103,13 +99,12 @@ class Prada extends Scraper
                                     ],
                                     'headers' => [
                                         'Accept' => 'application/json',
-                                    ]
+                                    ],
                                 ]);
 
                                 echo $response->getBody()->getContents();
                                 echo "\n";
                             }
-
                         } catch (Exception $exception) {
                             $self->data = false;
                         }
@@ -118,8 +113,6 @@ class Prada extends Scraper
                     $self->data = false;
                 }
             }
-
-
         }
 
         return $this->data;
@@ -129,12 +122,10 @@ class Prada extends Scraper
     {
         $driver = new Chrome($this->getSelectedProxy());
 
-
         $this->manager = new Manager(
             $driver
         );
     }
-
 
     public function getProxyList(): \Illuminate\Support\Collection
     {

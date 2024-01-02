@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use DB;
 use App\Scraper;
 use App\ScrapLog;
-use DB;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class FetchScrapeMissing extends Command
 {
@@ -64,7 +64,7 @@ class FetchScrapeMissing extends Command
 				')
             ->where('p.website', '<>', '')
             ->whereRaw(" date(created_at) = date('$date') ");
-        $scrapped_query = $scrapped_query->groupBy('p.website')->havingRaw("missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ");
+        $scrapped_query = $scrapped_query->groupBy('p.website')->havingRaw('missing_category > 1 or missing_color > 1 or missing_composition > 1 or missing_name > 1 or missing_short_description >1 ');
 
         $scrappedReportData = $scrapped_query->get();
         foreach ($scrappedReportData as $d) {
@@ -91,24 +91,24 @@ class FetchScrapeMissing extends Command
             $missingdata .= 'Missing Price - ' . $d->missing_price . ', ';
             $missingdata .= 'Missing Size - ' . $d->missing_size . ', ';
 
-            $scrapers = Scraper::where("scraper_name", $d->website)->get();
+            $scrapers = Scraper::where('scraper_name', $d->website)->get();
             foreach ($scrapers as $scrapperDetails) {
-                $hasAssignedIssue = \App\DeveloperTask::where("scraper_id", $scrapperDetails->id)
-                    ->whereNotNull("assigned_to")->where("is_resolved", 0)->first();
+                $hasAssignedIssue = \App\DeveloperTask::where('scraper_id', $scrapperDetails->id)
+                    ->whereNotNull('assigned_to')->where('is_resolved', 0)->first();
                 if ($hasAssignedIssue != null) {
                     $userName = \App\User::where('id', $hasAssignedIssue->assigned_to)->pluck('name')->first();
                     $requestData = new Request();
                     $requestData->setMethod('POST');
-                    $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => "Missing data", 'status' => 1]);
+                    $requestData->request->add(['issue_id' => $hasAssignedIssue->id, 'message' => 'Missing data', 'status' => 1]);
                     ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata]);
                     try {
-                        app('\App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
-                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata . " and message sent to " . $userName]);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'issue');
+                        ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => $missingdata . ' and message sent to ' . $userName]);
                     } catch (\Exception $e) {
                         ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Coundn't send message to " . $userName]);
                     }
                 } else {
-                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => "Not assigned to any user"]);
+                    ScrapLog::create(['scraper_id' => $scrapperDetails->id, 'type' => 'missing data', 'log_messages' => 'Not assigned to any user']);
                 }
             }
 
@@ -119,9 +119,6 @@ class FetchScrapeMissing extends Command
             } else {
                 DB::table('scraped_product_missing_log')->insert($data);
             }
-
         }
-
     }
-
 }

@@ -153,7 +153,7 @@
                     <td id="description">{{$value->email}}</td>
                     <td >{{$value->phone}}</td>
                     <td >{{$value->whatsapp_number}}</td>
-                    <td>@if(isset( $messageSentToCustomers[$value->id]) and $messageSentToCustomers[$value->id] == 1 ) Yes @else No @endif</td>
+                    <td>@if(in_array($value->id, $messageSentToCustomers)) Yes @else No @endif</td>
                     <td>
 					<label class="switch" style="margin: 0px">
                         <input type="checkbox" class="checkbox __toggle" value="{{$value->id}}"  data-id="{{$value->id}}" @if(in_array($value->id, $customerAdded)) checked @endif>

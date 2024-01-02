@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\BrandCategoryPriceRange;
+use App\Brand;
+use App\Setting;
 use App\Category;
 use App\CategorySegment;
-use App\ScrapedProducts;
-use App\ScrappedCategoryMapping;
-use App\ScrappedProductCategoryMapping;
-use App\Setting;
+use App\Jobs\CreateHashTags;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
+use App\KeywordSearchVariants;
+use App\BrandCategoryPriceRange;
+use App\ScrappedCategoryMapping;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Pagination\Paginator;
+use App\CategoryCancellationPolicyLog;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryController extends Controller
 {
-
     public function __construct()
     {
         // $this->middleware( 'permission:category-edit', [ 'only' => [ 'addCategory', 'edit', 'manageCategory', 'remove' ] ] );
@@ -32,56 +32,41 @@ class CategoryController extends Controller
      */
     public function manageCategory(Request $request)
     {
-
-       
-
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
 
-        $allCategories     = Category::all();
+        $allCategories = Category::all();
 
-        $selected_value  = $request->filter;
+        $selected_value = $request->filter;
 
-        if(isset($request->filter)){
-
-            $categories=  Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('title','like','%'.$request->filter.'%')->get();  
+        if (isset($request->filter)) {
+            $categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('title', 'like', '%' . $request->filter . '%')->get();
             $final_cat = [];
-            
-            foreach($categories as $key=> $cat){
-    
-                    if($cat->parentM){
-    
-                            if($cat->parentM->parentM){
-    
-                                if($cat->parentM->parentM->parentM){
-    
-                                    $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
-    
-                                }else{
-                                    $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
-    
-                                }
-                            }else{
-    
-                                $final_cat[$cat->parentM->id] = $cat->parentM;
-                            }
-                    }else{
-    
-                        $final_cat[$cat->id] = $cat;
+
+            foreach ($categories as $key => $cat) {
+                if ($cat->parentM) {
+                    if ($cat->parentM->parentM) {
+                        if ($cat->parentM->parentM->parentM) {
+                            $final_cat[$cat->parentM->parentM->parentM->id] = $cat->parentM->parentM->parentM;
+                        } else {
+                            $final_cat[$cat->parentM->parentM->id] = $cat->parentM->parentM;
+                        }
+                    } else {
+                        $final_cat[$cat->parentM->id] = $cat->parentM;
                     }
+                } else {
+                    $final_cat[$cat->id] = $cat;
+                }
             }
-                $categories = $final_cat;
-        }else{
-              
-
+            $categories = $final_cat;
+        } else {
             // $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
-            $categories        = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id',0)->orderBy('title');
-            $categories= $categories->get();
-
+            $categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id', 0)->orderBy('title');
+            $categories = $categories->get();
         }
 
         $old = $request->old('parent_id');
 
-        $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control' ])
+        $allCategoriesDropdown = Category::attr(['name' => 'parent_id', 'class' => 'form-control'])
             ->selected()
             ->renderAsDropdown();
 
@@ -89,13 +74,14 @@ class CategoryController extends Controller
             ->selected($old ? $old : 1)
             ->renderAsDropdown();
 
-        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit','selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);
+        return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit', 'selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);
     }
+
     public function manageCategory11(Request $request)
     {
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
-        $categories        = Category::where('parent_id', '=', 0)->withCount('childs')->get();
-        $allCategories     = Category::pluck('title', 'id')->all();
+        $categories = Category::where('parent_id', '=', 0)->withCount('childs')->get();
+        $allCategories = Category::pluck('title', 'id')->all();
 
         $old = $request->old('parent_id');
 
@@ -118,38 +104,53 @@ class CategoryController extends Controller
     public function addCategory(Request $request)
     {
         $this->validate($request, [
-            'title'       => 'required',
-            'magento_id'  => 'required|numeric',
+            'title' => 'required',
+            'magento_id' => 'required|numeric',
             'show_all_id' => 'numeric|nullable',
         ]);
-        $input    = $request->all();
+        $input = $request->all();
         // dd($input);
         $input['parent_id'] = empty($input['parent_id']) ? 0 : $input['parent_id'];
 
         Category::create($input);
+
+        $this->generateHashTagKeywords();
+
         return back()->with('success', 'New Category added successfully.');
+    }
+
+    public function generateHashTagKeywords()
+    {
+        $brandList = Brand::getAll();
+        $keywordVariants = KeywordSearchVariants::list();
+
+        /* Initialize queue for add hashtags */
+        $categoryList = Category::where('is_hashtag_generated', 0)->pluck('title', 'id')->chunk(1000)->toArray();
+
+        foreach ($categoryList as $chunk) {
+            CreateHashTags::dispatch(['data' => $chunk, 'user_id' => \Auth::user()->id, 'brand_list' => $brandList, 'keyword_variants' => $keywordVariants, 'type' => 'category'])->onQueue('generategooglescraperkeywords');
+        }
     }
 
     public function edit(Category $category, Request $request)
     {
-
-        $data                        = [];
-        $data['id']                  = $category->id;
-        $data['title']               = $category->title;
-        $data['magento_id']          = $category->magento_id;
-        $data['show_all_id']         = $category->show_all_id;
+        $data = [];
+        $data['id'] = $category->id;
+        $data['title'] = $category->title;
+        $data['magento_id'] = $category->magento_id;
+        $data['show_all_id'] = $category->show_all_id;
         $data['category_segment_id'] = $category->category_segment_id;
-        $data['category_segments']   = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
+        $data['category_segments'] = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
 
         if ($request->method() === 'POST') {
             $this->validate($request, [
-                'title'       => 'required',
-                'magento_id'  => 'required|numeric',
+                'title' => 'required',
+                'magento_id' => 'required|numeric',
                 'show_all_id' => 'numeric|nullable',
             ]);
 
-            $category->title       = $request->input('title');
-            $category->magento_id  = $request->input('magento_id');
+            $category->title = $request->input('title');
+            $category->magento_id = $request->input('magento_id');
             $category->show_all_id = $request->input('show_all_id');
             if ($request->has('category_segment_id')) {
                 $category->category_segment_id = $request->category_segment_id;
@@ -165,28 +166,26 @@ class CategoryController extends Controller
 
     public function remove(Request $request)
     {
-
         $category_instance = new Category();
-        $category          = $category_instance->find($request->input('edit_cat'));
+        $category = $category_instance->find($request->input('edit_cat'));
 
-        if($request->ajax()){
+        if ($request->ajax()) {
             if (Category::isParent($category->id)) {
-                return response()->json(['error-remove'=> 'Can\'t delete Parent category. Please delete all the childs first']);
+                return response()->json(['error-remove' => 'Can\'t delete Parent category. Please delete all the childs first']);
             }
-    
+
             if (Category::hasProducts($category->id)) {
-                return response()->json(['error-remove'=> 'Can\'t delete category is associated with products. Please remove all the association first']);
+                return response()->json(['error-remove' => 'Can\'t delete category is associated with products. Please remove all the association first']);
             }
-    
+
             if ($category->id == 1) {
-                return response()->json(['error-remove'=> 'Can\'t be delete']);
+                return response()->json(['error-remove' => 'Can\'t be delete']);
             }
 
             $title = $category->title;
             $category->delete();
 
-            return response()->json(['success-remove'=> $title . 'category Deleted']);
-
+            return response()->json(['success-remove' => $title . 'category Deleted']);
         }
 
         if (Category::isParent($category->id)) {
@@ -209,10 +208,9 @@ class CategoryController extends Controller
 
     public static function getCategoryTree($id)
     {
-
-        $category          = new Category();
+        $category = new Category();
         $category_instance = $category->find($id);
-        $categoryTree      = [];
+        $categoryTree = [];
 
         if ($category_instance == null) {
             return false;
@@ -220,13 +218,12 @@ class CategoryController extends Controller
 
         $parent_id = $category_instance->parent_id;
 
-        $categoryTree[]    = $category_instance->title;
+        $categoryTree[] = $category_instance->title;
 
         while ($parent_id != 0) {
-
             $category_instance = $category->find($parent_id);
-            $categoryTree[]    = $category_instance->title;
-            $parent_id         = $category_instance->parent_id;
+            $categoryTree[] = $category_instance->title;
+            $parent_id = $category_instance->parent_id;
         }
 
         return array_reverse($categoryTree);
@@ -235,7 +232,7 @@ class CategoryController extends Controller
     public static function brandMinMaxPricing()
     {
         // Get all data
-        $results = \Illuminate\Support\Facades\DB::select("
+        $results = \Illuminate\Support\Facades\DB::select('
             SELECT
                 categories.title,
                 categories.id as cat_id,
@@ -257,9 +254,7 @@ class CategoryController extends Controller
                 products.category
             ORDER BY
                 categories.title
-        ");
-
-
+        ');
 
         // Get all form data
         $resultsBrandCategoryPriceRange = BrandCategoryPriceRange::all();
@@ -300,20 +295,18 @@ class CategoryController extends Controller
 
     public static function getCategoryTreeMagentoIds($id)
     {
-
-        $category          = new Category();
+        $category = new Category();
         $category_instance = $category->find($id);
-        $categoryTree      = [];
+        $categoryTree = [];
 
         $categoryTree[] = $category_instance->magento_id;
-        $parent_id      = $category_instance->parent_id;
+        $parent_id = $category_instance->parent_id;
 
         while ($parent_id != 0) {
-
             $category_instance = $category->find($parent_id);
-            $categoryTree[]    = $category_instance->magento_id;
+            $categoryTree[] = $category_instance->magento_id;
 
-            if (!empty($category_instance->show_all_id)) {
+            if (! empty($category_instance->show_all_id)) {
                 $categoryTree[] = $category_instance->show_all_id;
             }
 
@@ -339,39 +332,37 @@ class CategoryController extends Controller
 
         $categories = Category::where('id', '>', 1)->where('parent_id', 0)->whereNotIn('id', [143, 144])->get();
 
-        $allStatus = ["" => "N/A"]+\App\Helpers\StatusHelper::getStatus();
+        $allStatus = ['' => 'N/A'] + \App\Helpers\StatusHelper::getStatus();
 
-        $allCategoriesDropdown = Category::attr(['name' => 'new_cat_id', 'class' => 'form-control new-category-update', 'style' => "width:100%"])->renderAsDropdown();
+        $allCategoriesDropdown = Category::attr(['name' => 'new_cat_id', 'class' => 'form-control new-category-update', 'style' => 'width:100%'])->renderAsDropdown();
 
         return view('category.references', compact('fillerCategories', 'categories', 'allStatus', 'allCategoriesDropdown'));
     }
 
     public function saveReferences(Request $request)
     {
-
         $categories = $request->get('category');
-        $info       = $request->get('info');
+        $info = $request->get('info');
 
-        if (!empty($info)) {
+        if (! empty($info)) {
             foreach ($info as $catId => $reference) {
-                list($catId, $reference) = explode("#", $reference);
-                $catId                   = str_replace("cat_", "", $catId);
-                $category                = Category::find($catId);
-                $category->references    = $reference;
+                [$catId, $reference] = explode('#', $reference);
+                $catId = str_replace('cat_', '', $catId);
+                $category = Category::find($catId);
+                $category->references = $reference;
                 $category->save();
             }
-
         } else {
             foreach ($categories as $catId => $reference) {
-                $catId                = str_replace("cat_", "", $catId);
-                $category             = Category::find($catId);
+                $catId = str_replace('cat_', '', $catId);
+                $category = Category::find($catId);
                 $category->references = implode(',', $reference);
                 $category->save();
             }
         }
 
         //if(request()->is("ajax")) {
-        return response()->json(["code" => 200]);
+        return response()->json(['code' => 200]);
         //}
 
         return redirect()->back()->with('message', 'Category updated successfully!');
@@ -379,19 +370,19 @@ class CategoryController extends Controller
 
     public function saveReference(Request $request)
     {
-        $oldCatId = $request->get("old_cat_id");
-        $newcatId = $request->get("new_cat_id");
-        $catName  = strtolower($request->get("cat_name"));
+        $oldCatId = $request->get('old_cat_id');
+        $newcatId = $request->get('new_cat_id');
+        $catName = strtolower($request->get('cat_name'));
 
         // assigned new category
         $newCategory = null;
         $oldCategory = null;
 
         // checking category id
-        if (!empty($oldCatId) && !empty($newcatId)) {
+        if (! empty($oldCatId) && ! empty($newcatId)) {
             $oldCategory = Category::find($oldCatId);
-            if (!empty($oldCategory)) {
-                $catArray = explode(",", $oldCategory->references);
+            if (! empty($oldCategory)) {
+                $catArray = explode(',', $oldCategory->references);
                 $catArray = array_map('strtolower', $catArray);
 
                 // check matched array we got
@@ -401,26 +392,25 @@ class CategoryController extends Controller
                 }
 
                 // update new category
-                $oldCategory->references = implode(",", array_unique(array_filter($catArray)));
+                $oldCategory->references = implode(',', array_unique(array_filter($catArray)));
                 $oldCategory->save();
             }
             // update with new category id
             $newCategory = Category::find($newcatId);
 
             if ($newCategory) {
-
-                $newCatArr               = explode(",", $newCategory->references);
-                $newCatArr               = array_map('strtolower', $newCatArr);
-                $newCatArr[]             = strtolower($catName);
-                $newCategory->references = implode(",", array_unique(array_filter($newCatArr)));
+                $newCatArr = explode(',', $newCategory->references);
+                $newCatArr = array_map('strtolower', $newCatArr);
+                $newCatArr[] = strtolower($catName);
+                $newCategory->references = implode(',', array_unique(array_filter($newCatArr)));
                 $newCategory->save();
 
                 // once we have new category id then we need to update all product from that old category
-                $products = \App\Product::where("category", $oldCatId)->select(["products.id", "products.sku"])->get();
-                if (!$products->isEmpty()) {
+                $products = \App\Product::where('category', $oldCatId)->select(['products.id', 'products.sku'])->get();
+                if (! $products->isEmpty()) {
                     foreach ($products as $product) {
                         $scraped_products = $product->many_scraped_products;
-                        if (!$scraped_products->isEmpty()) {
+                        if (! $scraped_products->isEmpty()) {
                             foreach ($scraped_products as $scraped_product) {
                                 if (isset($scraped_product->properties['category'])) {
                                     if (is_array($scraped_product->properties['category'])) {
@@ -436,29 +426,26 @@ class CategoryController extends Controller
                     }
                 }
             }
-
         }
 
-        return response()->json(["code" => 200, "data" => $newCategory]);
-
+        return response()->json(['code' => 200, 'data' => $newCategory]);
     }
 
     public function updateField(Request $request)
     {
-        $id    = $request->get("id");
-        $field = $request->get("_f");
-        $value = $request->get("_v");
+        $id = $request->get('id');
+        $field = $request->get('_f');
+        $value = $request->get('_v');
 
-        $category = Category::where("id", $id)->first();
+        $category = Category::where('id', $id)->first();
         if ($category) {
             $category->{$field} = $value;
             $category->save();
 
-            return response()->json(["code" => 200]);
+            return response()->json(['code' => 200]);
         }
 
-        return response()->json(["code" => 500]);
-
+        return response()->json(['code' => 500]);
     }
 
     public function saveForm(Request $request)
@@ -466,9 +453,9 @@ class CategoryController extends Controller
         $id = $request->id;
         if ($id != null) {
             $category = \App\Category::find($id);
-            if (!empty($category)) {
-                $findChild = \App\Category::whereNull("simplyduty_code")->where("parent_id", $category->id)->get();
-                if (!empty($findChild) && !$findChild->isEmpty()) {
+            if (! empty($category)) {
+                $findChild = \App\Category::whereNull('simplyduty_code')->where('parent_id', $category->id)->get();
+                if (! empty($findChild) && ! $findChild->isEmpty()) {
                     foreach ($findChild as $child) {
                         $child->simplyduty_code = $request->simplyduty_code;
                         $child->save();
@@ -479,8 +466,7 @@ class CategoryController extends Controller
             }
         }
 
-        return response()->json(["code" => 200, "message" => "Success"]);
-
+        return response()->json(['code' => 200, 'message' => 'Success']);
     }
 
     public function usedProducts(Request $request)
@@ -489,58 +475,127 @@ class CategoryController extends Controller
 
         if ($q) {
             // check the type and then
-           // $q        = '"' . $q . '"';
-            $q        =  str_replace('/', ',', $q);
-            $products = \App\ScrapedProducts::where("categories", $q)->join("products as p","p.id","scraped_products.product_id")
-			->where("p.stock",">",0)->groupBy('website')
-            ->select("scraped_products.*")
-            ->orderBy("scraped_products.created_at","desc")
+            // $q        = '"' . $q . '"';
+            $q = str_replace('/', ',', $q);
+            $products = \App\ScrapedProducts::where('categories', $q)->join('products as p', 'p.id', 'scraped_products.product_id')
+            ->where('p.stock', '>', 0)->groupBy('website')
+            ->select('scraped_products.*')
+            ->orderBy('scraped_products.created_at', 'desc')
             ->get();
 
-            $view = (string) view("compositions.preview-products", compact('products'));
-            return response()->json(["code" => 200, "html" => $view]);
+            $view = (string) view('compositions.preview-products', compact('products'));
+
+            return response()->json(['code' => 200, 'html' => $view]);
         }
 
-        return response()->json(["code" => 200, "html" => ""]);
+        return response()->json(['code' => 200, 'html' => '']);
     }
 
     public function affectedProduct(Request $request)
     {
-        $old  = $request->old_cat_id;
+        $old = $request->old_cat_id;
         $from = $request->cat_name;
-        $to   = $request->new_cat_id;
+        $to = $request->new_cat_id;
 
-        if (!empty($from)) {
+        if (! empty($from)) {
             // check the type and then
             $total = \App\ScrapedProducts::matchedCategory($from)->count();
-            return response()->json(["code" => 200, "total" => $total]);
+
+            return response()->json(['code' => 200, 'total' => $total]);
         }
     }
 
     public function affectedProductNew(Request $request)
     {
-        $old         = $request->old_cat_id;
-        $from        = $request->cat_name;
-        $to          = $request->new_cat_id;
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to = $request->new_cat_id;
         $wholeString = $request->wholeString;
 
-        if (!empty($from)) {
+        if (! empty($from)) {
             // check the type and then
             $total = \App\ScrapedProducts::matchedCategory($from)->count();
 
-            $view = (string) view("category.partials.affected-products", compact('total','old', 'from', 'to', 'wholeString'));
+            $view = (string) view('category.partials.affected-products', compact('total', 'old', 'from', 'to', 'wholeString'));
 
-            return response()->json(["code" => 200, "html" => $view]);
+            return response()->json(['code' => 200, 'html' => $view]);
+        }
+    }
 
+    public function categoryCancellationPolicyLog($categoryId = '', $changeParentId = '', $dayType = '', $dayChange = '', $dayOld = '')
+    {
+        return CategoryCancellationPolicyLog::create(
+            [
+                'category_id' => $categoryId,
+                'change_parent_id' => $changeParentId,
+                'day_type' => $dayType,
+                'day_change' => $dayChange,
+                'day_old' => $dayOld,
+                'status' => '1',
+            ]
+        );
+    }
+
+    public function updateCancelationPolicy(Request $request, $id)
+    {
+        if ($request->days_cancelation) {
+            \App\Category::where('id', $id)->update(['days_cancelation' => $request->days_cancelation]);
+            $this->categoryCancellationPolicyLog($id, $id, 'days_cancelation', $request->days_cancelation, $request->day_old);
+        }
+
+        if ($request->days_refund) {
+            $request->input('days_refund');
+            \App\Category::where('id', $id)->update(['days_refund' => $request->days_refund]);
+            $this->categoryCancellationPolicyLog($id, $id, 'days_refund', $request->days_refund, $request->day_old);
+        }
+
+        $sql = "select  id,
+                    title,
+                    parent_id
+            from    (select * from categories
+                    order by parent_id, id) categories,
+                    (select @pv := '" . $id . "') initialisation
+            where   find_in_set(parent_id, @pv) > 0
+            and     length(@pv := concat(@pv, ',', id))";
+        $results = \DB::select($sql);
+
+        foreach ($results as $result) {
+            if ($request->days_cancelation) {
+                \App\Category::where('id', $result->id)->update(['days_cancelation' => $request->days_cancelation]);
+                $this->categoryCancellationPolicyLog($result->id, $id, 'days_cancelation', $request->days_cancelation, $request->day_old);
+            }
+
+            if ($request->days_refund) {
+                $request->input('days_refund');
+                \App\Category::where('id', $result->id)->update(['days_refund' => $request->days_refund]);
+                $this->categoryCancellationPolicyLog($result->id, $id, 'days_refund', $request->days_refund, $request->day_old);
+            }
+        }
+
+        return response()->json(['success-remove' => 'Days Cancelation ' . $request->days_cancelation . ' updated successfully']);
+    }
+
+    public function getCategoryCancellationPolicyLog(Request $request)
+    {
+        $getCanPol = CategoryCancellationPolicyLog::where(
+            [
+                ['change_parent_id', '=', $request->category_id],
+                ['day_type', '=', $request->day_type],
+
+            ]
+        )->get();
+        if (! empty($getCanPol)) {
+            return response()->json(['code' => 200, 'data' => $getCanPol]);
+        } else {
+            return response()->json(['code' => 500, 'message' => 'Can not found Log']);
         }
     }
 
     public function updateCategoryReference(Request $request)
     {
-
         $loggedUser = $request->user();
 
-        if (!isset($request->wholeString)) {
+        if (! isset($request->wholeString)) {
             $request->merge(['wholeString' => $request->cat_name]);
         }
 
@@ -549,86 +604,160 @@ class CategoryController extends Controller
 
         if ($request->with_product == 'yes') {
             \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                "from"    => $scrappedCategory->cat_name,
-                "to"      => $selectedCategory->id,
-                "user_id" =>  $loggedUser->id,
-            ])->onQueue("supplier_products");
+                'from' => $scrappedCategory->cat_name,
+                'to' => $selectedCategory->id,
+                'user_id' => $loggedUser->id,
+            ])->onQueue('supplier_products');
         }
 
         \App\UserUpdatedAttributeHistory::create([
-            'old_value'      => $scrappedCategory->id,
-            'new_value'      => $selectedCategory->id,
+            'old_value' => $scrappedCategory->id,
+            'new_value' => $selectedCategory->id,
             'attribute_name' => 'category',
-            'attribute_id'   => $selectedCategory->id,
-            'user_id'        => \Auth::user()->id,
+            'attribute_id' => $selectedCategory->id,
+            'user_id' => \Auth::user()->id,
         ]);
 
         \App\UserUpdatedAttributeHistory::create([
-            'old_value'      => $scrappedCategory->id,
-            'new_value'      => $selectedCategory->id,
+            'old_value' => $scrappedCategory->id,
+            'new_value' => $selectedCategory->id,
             'attribute_name' => 'scraped-category',
-            'attribute_id'   => $scrappedCategory->id,
-            'user_id'        => \Auth::user()->id,
+            'attribute_id' => $scrappedCategory->id,
+            'user_id' => \Auth::user()->id,
         ]);
 
         $scrappedCategory->update([
             'category_id' => $selectedCategory->id,
-            'is_skip' => 1
+            'is_skip' => 1,
         ]);
 
-        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+        return response()->json(['code' => 200, 'message' => 'Your request has been pushed successfully']);
     }
 
     public function updateMultipleCategoryReference(Request $request)
     {
-       
         $loggedUser = $request->user();
 
         $selectedCategory = Category::find($request->to);
 
         foreach ($request->from as $f) {
-
             $scrappedCategory = json_decode($f);
 
             \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                "from"    => $scrappedCategory->name,
-                "to"      => $selectedCategory->id,
-                "user_id" => $loggedUser->id,
-            ])->onQueue("supplier_products");
+                'from' => $scrappedCategory->name,
+                'to' => $selectedCategory->id,
+                'user_id' => $loggedUser->id,
+            ])->onQueue('supplier_products');
 
             \App\UserUpdatedAttributeHistory::create([
-                'old_value'      => $scrappedCategory->id,
-                'new_value'      => $selectedCategory->id,
+                'old_value' => $scrappedCategory->id,
+                'new_value' => $selectedCategory->id,
                 'attribute_name' => 'category',
-                'attribute_id'   => $selectedCategory->id,
-                'user_id'        => $loggedUser->id,
+                'attribute_id' => $selectedCategory->id,
+                'user_id' => $loggedUser->id,
             ]);
 
             \App\UserUpdatedAttributeHistory::create([
-                'old_value'      => $scrappedCategory->id,
-                'new_value'      => $selectedCategory->id,
+                'old_value' => $scrappedCategory->id,
+                'new_value' => $selectedCategory->id,
                 'attribute_name' => 'scraped-category',
-                'attribute_id'   => $scrappedCategory->id,
-                'user_id'        => $loeggedUser->id,
+                'attribute_id' => $scrappedCategory->id,
+                'user_id' => $loggedUser->id,
             ]);
 
             ScrappedCategoryMapping::where('id', $scrappedCategory->id)->update([
                 'category_id' => $selectedCategory->id,
-                'is_skip' => 1
+                'is_skip' => 1,
             ]);
-        
         }
 
         return response()->json([
-            "code" => 200, 
-            "message" => "Your request has been pushed successfully"
+            'code' => 200,
+            'message' => 'Your request has been pushed successfully',
         ]);
+    }
+
+    public function newCategoryReferenceGroupBy(Request $request, $name, $threshold){
+
+                $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*')
+                ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
+                ->groupBy('scrapped_category_mappings.id')
+                ->groupBy('scrapped_category_mappings.name')
+                ->get()->filter(function ($scrapped_category_mapping) use ($name, $threshold) {
+                    similar_text(strtolower($scrapped_category_mapping->name), strtolower($name), $percentage);
+                    return $percentage >= $threshold * 100;
+                });
+
+                $categoryAll = Category::with('childs.childLevelSencond')
+                ->where('title', 'NOT LIKE', '%Unknown Category%')
+                ->where('magento_id', '!=', '0')
+                ->get();
+        
+                $categoryArray = [];
+                foreach ($categoryAll as $category) {
+                    $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
+                    $childs = $category->childs;
+                    foreach ($childs as $child) {
+                        $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
+                        $grandChilds = $child->childLevelSencond;
+                        if ($grandChilds != null) {
+                            foreach ($grandChilds as $grandChild) {
+                                $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
+                            }
+                        }
+                    }
+                }
+                $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+
+           return view('category.new-reference-group-listing', ['categories' => $scrapped_category_mapping, 'categoryAll' => $categoryArray, 'unKnownCategoryId' => $unKnownCategory->id]);
+
+    }
+
+
+    public function newCategoryReferenceGroup(Request $request){
+        
+        $categoryAll = Category::with('childs.childLevelSencond')
+        ->where('title', 'NOT LIKE', '%Unknown Category%')
+        //->where('title', '!=', 'Select Category')
+        ->where('magento_id', '!=', '0')
+        ->get();
+
+        $categoryArray = [];
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = [$category->title];
+            $childs = $category->childs;
+            foreach ($childs as $child) {
+                $categoryArray[] = [$child->title];
+                $grandChilds = $child->childLevelSencond;
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = [$grandChild->title];
+                    }
+                }
+            }
+        }
+
+        // Use array_map to extract the first element of each sub-array and convert to lowercase
+        $categories = array_map(function ($subArray) {
+            return strtolower($subArray[0]);
+        }, $categoryArray);
+
+        // Use array_unique to get unique values
+        $uniqueCategories = array_unique($categories);
+
+        // Convert unique values back to an array of arrays
+        $categoryAll = array_map(function ($category) {
+            return [ucwords($category)]; // Convert first letter to uppercase if needed
+        }, $uniqueCategories);
+
+        return view('category.new-reference-group', ['categoryAll' => $categoryAll]);
+
     }
 
     public function newCategoryReferenceIndex(Request $request)
     {
-        $users=[];
-        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $users = [];
+        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::selectRaw('scrapped_category_mappings.*, COUNT(scrapped_product_category_mappings.category_mapping_id) as total_products')
         ->leftJoin('scrapped_product_category_mappings', 'scrapped_category_mappings.id', '=', 'scrapped_product_category_mappings.category_mapping_id')
@@ -637,21 +766,20 @@ class CategoryController extends Controller
         ->orderBy('total_products', 'DESC')
         ->orderBy('is_skip', 'ASC');
 
-        if($request->search){
-            $scrapped_category_mapping->where('name', 'LIKE', '%'.$request->search.'%');
+        if ($request->search) {
+            $scrapped_category_mapping->where('name', 'LIKE', '%' . $request->search . '%');
         }
 
-        if(isset($request->is_skipped)) {
+        if (isset($request->is_skipped)) {
             $scrapped_category_mapping->where('is_skip', $request->is_skipped);
         }
         if ($request->user_id != null) {
-            $matchedArray= \App\UserUpdatedAttributeHistory::where([
+            $matchedArray = \App\UserUpdatedAttributeHistory::where([
                 'attribute_name' => 'scraped-category',
-                'user_id'        => $request->user_id,
+                'user_id' => $request->user_id,
             ])->pluck('attribute_id');
             $scrapped_category_mapping = $scrapped_category_mapping->whereIn('scrapped_category_mappings.id', $matchedArray);
-            $users=\App\User::where("id",$request->user_id)->select(['id','name'])->first();
-
+            $users = \App\User::where('id', $request->user_id)->select(['id', 'name'])->first();
         }
         $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
@@ -660,46 +788,44 @@ class CategoryController extends Controller
         $mappingCategory = $scrapped_category_mapping->toArray();
 
         $mappedProduct = DB::table('scrapped_product_category_mappings')
-        ->select('category_mapping_id','scrapped_product_category_mappings.product_id', 'scraped_products.website')
+        ->select('category_mapping_id', 'scrapped_product_category_mappings.product_id', 'scraped_products.website')
         ->leftJoin('scraped_products', 'scraped_products.id', '=', 'scrapped_product_category_mappings.product_id')
-        ->whereIn('category_mapping_id', array_column($mappingCategory['data'], 'id') )
+        ->whereIn('category_mapping_id', array_column($mappingCategory['data'], 'id'))
         ->get()
         ->toArray();
 
         $mappedData = [];
 
-        foreach($mappedProduct as $productM){
+        foreach ($mappedProduct as $productM) {
             $mappedData[$productM->category_mapping_id][] = $productM->website;
         }
 
-        foreach($scrapped_category_mapping as $index => $category){
+        foreach ($scrapped_category_mapping as $index => $category) {
             $scrapped_category_mapping[$index]->total_products = isset($mappedData[$category->id]) ? count($mappedData[$category->id]) : 0;
-            $scrapped_category_mapping[$index]->all_websites = isset($mappedData[$category->id]) ? implode('<br>',array_unique($mappedData[$category->id])) : '-';
+            $scrapped_category_mapping[$index]->all_websites = isset($mappedData[$category->id]) ? implode('<br>', array_unique($mappedData[$category->id])) : '-';
         }
 
-
-        $categoryAll   = Category::with('childs.childLevelSencond')
+        $categoryAll = Category::with('childs.childLevelSencond')
         ->where('title', 'NOT LIKE', '%Unknown Category%')
         ->where('magento_id', '!=', '0')
         ->get();
 
         $categoryArray = [];
         foreach ($categoryAll as $category) {
-            $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
-            $childs          = $category->childs;
+            $categoryArray[] = ['id' => $category->id, 'value' => $category->title];
+            $childs = $category->childs;
             foreach ($childs as $child) {
-                $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
-                $grandChilds     = $child->childLevelSencond;
+                $categoryArray[] = ['id' => $child->id, 'value' => $category->title . ' > ' . $child->title];
+                $grandChilds = $child->childLevelSencond;
                 if ($grandChilds != null) {
                     foreach ($grandChilds as $grandChild) {
-                        $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
+                        $categoryArray[] = ['id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title];
                     }
                 }
             }
         }
 
-        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' =>  true, 'unKnownCategoryId' => $unKnownCategory->id ,'scrapped_category_mapping' => $scrapped_category_mapping,'users'=>$users]);
-
+        return view('category.new-reference', ['categoryAll' => $categoryArray, 'need_to_skip_status' => true, 'unKnownCategoryId' => $unKnownCategory->id, 'scrapped_category_mapping' => $scrapped_category_mapping, 'users' => $users]);
     }
 
     /**
@@ -713,100 +839,97 @@ class CategoryController extends Controller
 
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
-        $items = $items->sortByDesc("cat_product_count");
+        $items = $items->sortByDesc('cat_product_count');
 
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 
     public function history(Request $request, $id)
     {
-        $type = $request->get("type","category");
-        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
-        return view("compositions.partials.show-update-history", compact('records'));
+        $type = $request->get('type', 'category');
+        $records = \App\UserUpdatedAttributeHistory::where('attribute_id', $id)->where('attribute_name', $type)->latest()->get();
+
+        return view('compositions.partials.show-update-history', compact('records'));
     }
 
     public function historyForScraper(Request $request, $id)
     {
-        $type = $request->get("type","category");
-        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $id)->where("attribute_name", $type)->latest()->get();
+        $type = $request->get('type', 'category');
+        $records = \App\UserUpdatedAttributeHistory::where('attribute_id', $id)->where('attribute_name', $type)->latest()->get();
         dd($records);
-        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
+
+        return view('compositions.partials.show-update-history-scrapeed', compact('records'));
     }
 
     public function ScraperUserHistory(Request $request)
     {
         $type = 'scraped-category';
-        $records = \App\UserUpdatedAttributeHistory::where("attribute_id", $request->id)->where("attribute_name", $request->type)->latest()->get();
-        return view("compositions.partials.show-update-history-scrapeed", compact('records'));
+        $records = \App\UserUpdatedAttributeHistory::where('attribute_id', $request->id)->where('attribute_name', $request->type)->latest()->get();
+
+        return view('compositions.partials.show-update-history-scrapeed', compact('records'));
     }
 
     public function deleteUnused()
     {
-        \Artisan::call("delete-categories:with-no-products");
+        \Artisan::call('delete-categories:with-no-products');
+
         return redirect()->back()->with('success', 'Your request has been finished successfully!');
     }
 
     public function fixAutoSuggested(Request $request)
     {
+        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name', 'category_id');
 
-        $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name','category_id');
-
-        if(!empty($request->show_auto_fix)){
-            $scrapped_category_mapping->whereNotNull('category_id')->where('is_auto_skip',0);
-        }else{
+        if (! empty($request->show_auto_fix)) {
+            $scrapped_category_mapping->whereNotNull('category_id')->where('is_auto_skip', 0);
+        } else {
             $scrapped_category_mapping->whereNull('category_id');
-
         }
-        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination')    );
+        $scrapped_category_mapping = $scrapped_category_mapping->paginate(Setting::get('pagination'));
 
         $links = [];
 
-        if (!$scrapped_category_mapping->isEmpty()) {
-
+        if (! $scrapped_category_mapping->isEmpty()) {
             foreach ($scrapped_category_mapping as $k => $category) {
-
                 $filter = \App\Category::updateCategoryAuto($category->name);
 
-                if(isset($request->show_auto_fix) &&  $request->show_auto_fix){
-                        $links[] = [
-                            "from_id" => $category->id,
-                            "from" => $category->name,
-                            "to"   =>  $category->category_id ,
-                        ];
-                }else{
+                if (isset($request->show_auto_fix) && $request->show_auto_fix) {
                     $links[] = [
-                        "from_id" => $category->id,
-                        "from" => $category->name,
-                        "to"   => ($filter) ? $filter->id : null,
+                        'from_id' => $category->id,
+                        'from' => $category->name,
+                        'to' => $category->category_id,
+                    ];
+                } else {
+                    $links[] = [
+                        'from_id' => $category->id,
+                        'from' => $category->name,
+                        'to' => ($filter) ? $filter->id : null,
                     ];
                 }
             }
         }
-        $is_auto_fix = !empty($request->show_auto_fix) ? true : false;
-        $view = (string) view("category.partials.preview-categories", compact('links','is_auto_fix'));
-        return response()->json(["code" => 200, "html" => $view]);
+        $is_auto_fix = ! empty($request->show_auto_fix) ? true : false;
+        $view = (string) view('category.partials.preview-categories', compact('links', 'is_auto_fix'));
 
+        return response()->json(['code' => 200, 'html' => $view]);
     }
 
     public function fixAutoSuggestedString(Request $request)
     {
-
         $loeggedUser = $request->user();
 
         $scrapped_category_mapping = ScrappedCategoryMapping::select('id', 'name')
         ->whereNull('category_id');
 
-        if($request->show_skipeed_btn_value == 'false') {
+        if ($request->show_skipeed_btn_value == 'false') {
             $scrapped_category_mapping->whereNull('category_id');
         }
 
         $scrapped_category_mapping = $scrapped_category_mapping->get();
         $links = [];
 
-        if (!$scrapped_category_mapping->isEmpty()) {
-
+        if (! $scrapped_category_mapping->isEmpty()) {
             foreach ($scrapped_category_mapping as $k => $category) {
-
                 $filter = \App\Category::updateCategoryAuto($category->name);
                 if ($filter) {
                     $links[$category->id] = ($filter) ? $filter->id : null;
@@ -814,239 +937,221 @@ class CategoryController extends Controller
             }
         }
 
-        $count=0;   
-        if (!empty($links)) {
+        $count = 0;
+        if (! empty($links)) {
             //$cat_name = array();
             foreach ($links as $scrappedCategoryId => $selectedCategoryId) {
-
                 if ($selectedCategoryId != 1) {
-
                     $scrappedCategory = ScrappedCategoryMapping::find($scrappedCategoryId);
                     $selectedCategory = Category::find($selectedCategoryId);
 
                     \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                        "from"    => $scrappedCategory->name,
-                        "to"      => $selectedCategory->id,
-                        "user_id" => $loeggedUser->id,
-                    ])->onQueue("supplier_products");
+                        'from' => $scrappedCategory->name,
+                        'to' => $selectedCategory->id,
+                        'user_id' => $loeggedUser->id,
+                    ])->onQueue('supplier_products');
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value'      => $scrappedCategory->id,
-                        'new_value'      => $selectedCategory->id,
+                        'old_value' => $scrappedCategory->id,
+                        'new_value' => $selectedCategory->id,
                         'attribute_name' => 'category',
-                        'attribute_id'   => $selectedCategory->id,
-                        'user_id'        => $loeggedUser->id,
+                        'attribute_id' => $selectedCategory->id,
+                        'user_id' => $loeggedUser->id,
                     ]);
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value'      => $scrappedCategory->id,
-                        'new_value'      => $selectedCategory->id,
+                        'old_value' => $scrappedCategory->id,
+                        'new_value' => $selectedCategory->id,
                         'attribute_name' => 'scraped-category',
-                        'attribute_id'   => $scrappedCategory->id,
-                        'user_id'        => $loeggedUser->id,
+                        'attribute_id' => $scrappedCategory->id,
+                        'user_id' => $loeggedUser->id,
                     ]);
 
-
-                  $isUpdtaed =   $scrappedCategory->update([
+                    $isUpdtaed = $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
                         'is_skip' => 1,
-                        'is_auto_fix'=>1,
+                        'is_auto_fix' => 1,
                     ]);
-                if($isUpdtaed){
-                    $count++;
-                }
-
+                    if ($isUpdtaed) {
+                        $count++;
+                    }
                 } else {
-                    ScrappedCategoryMapping::where('id', $scrappedCategoryId)->update(["is_skip" => 1]);
+                    ScrappedCategoryMapping::where('id', $scrappedCategoryId)->update(['is_skip' => 1]);
                 }
             }
         }
 
-
-
-
-        return response()->json(["code" => 200, "count"=>$count]);
+        return response()->json(['code' => 200, 'count' => $count]);
     }
 
     public function saveCategoryReference(Request $request)
     {
-
         $loeggedUser = $request->user();
 
-        $unKnownCategory   = Category::where('title', 'LIKE', '%Unknown Category%')->first();
+        $unKnownCategory = Category::where('title', 'LIKE', '%Unknown Category%')->first();
 
         $items = $request->updated_category;
-        if(!empty($items)) {
+        if (! empty($items)) {
             //$cat_name = array();
 
-            foreach($items as $scrappedCategoryId => $selectedCategoryId) {
-
-                if($selectedCategoryId != 1) {
-
+            foreach ($items as $scrappedCategoryId => $selectedCategoryId) {
+                if ($selectedCategoryId != 1) {
                     $scrappedCategory = ScrappedCategoryMapping::find($scrappedCategoryId);
                     $selectedCategory = Category::find($selectedCategoryId);
 
                     \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                        "from"    => $scrappedCategory->name,
-                        "to"      => $selectedCategory->id,
-                        "user_id" => $loeggedUser->id,
-                    ])->onQueue("supplier_products");
-                    
+                        'from' => $scrappedCategory->name,
+                        'to' => $selectedCategory->id,
+                        'user_id' => $loeggedUser->id,
+                    ])->onQueue('supplier_products');
+
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value'      => $scrappedCategory->id,
-                        'new_value'      => $selectedCategory->id,
+                        'old_value' => $scrappedCategory->id,
+                        'new_value' => $selectedCategory->id,
                         'attribute_name' => 'category',
-                        'attribute_id'   => $selectedCategory->id,
-                        'user_id'        => $loeggedUser->id,
+                        'attribute_id' => $selectedCategory->id,
+                        'user_id' => $loeggedUser->id,
                     ]);
 
                     \App\UserUpdatedAttributeHistory::create([
-                        'old_value'      => $scrappedCategory->id,
-                        'new_value'      => $selectedCategory->id,
+                        'old_value' => $scrappedCategory->id,
+                        'new_value' => $selectedCategory->id,
                         'attribute_name' => 'scraped-category',
-                        'attribute_id'   => $scrappedCategory->id,
-                        'user_id'        => $loeggedUser->id,
+                        'attribute_id' => $scrappedCategory->id,
+                        'user_id' => $loeggedUser->id,
                     ]);
 
                     $scrappedCategory->update([
                         'category_id' => $selectedCategory->id,
                         'is_skip' => 0,
-                        'is_auto_skip'=>!empty( $request->is_auto_fix )? 1:0
+                        'is_auto_skip' => ! empty($request->is_auto_fix) ? 1 : 0,
                     ]);
-
-                }else{
-                    ScrappedCategoryMapping::where('id', $scrappedCategoryId)->update(["is_skip" => 1]);
+                } else {
+                    ScrappedCategoryMapping::where('id', $scrappedCategoryId)->update(['is_skip' => 1]);
                 }
-
             }
-
         }
 
-        return response()->json(["code" => 200, "message" => "Category updated successfully"]);
+        return response()->json(['code' => 200, 'message' => 'Category updated successfully']);
     }
-
 
     public function childCategory(Request $request)
     {
-             $cat = Category::with('childs')->find($request->subCat);
-            $childs = $cat->childs;
+        $cat = Category::with('childs')->find($request->subCat);
+        $childs = $cat->childs;
 
-             if($childs){
-                 return response()->json($childs);
-             }else{
-                 return false;
-             }
-
-
+        if ($childs) {
+            return response()->json($childs);
+        } else {
+            return false;
+        }
     }
+
     public function childEditCategory(Request $request)
     {
+        $cat = Category::with(['childs.childLevelSencond', 'categorySegmentId'])->find($request->dataId);
 
-             $cat = Category::with(['childs.childLevelSencond','categorySegmentId'])->find($request->dataId);
-            
-             if($cat){
-                 return response()->json($cat);
-             }else{
-                 return false;
-             }
+        if ($cat) {
+            return response()->json($cat);
+        } else {
+            return false;
+        }
     }
-    public function updateCategory(Request $request,$id)
+
+    public function updateCategory(Request $request, $id)
     {
-            $category = Category::findOrFail($id);
+        $category = Category::findOrFail($id);
 
-            if ($request->has('title')) {
-            
-            $category->title       = $request->input('title');
+        if ($request->has('title')) {
+            $category->title = $request->input('title');
             $category->save();
-            return response()->json(['success-remove'=> $category->title . ' updated successfully']);
 
-            }
+            return response()->json(['success-remove' => $category->title . ' updated successfully']);
+        }
 
-            if ($request->has('magento_id')) {
-                $category->magento_id  = $request->input('magento_id');
+        if ($request->has('magento_id')) {
+            $category->magento_id = $request->input('magento_id');
             $category->save();
-            return response()->json(['success-remove'=> 'Magneto id of '.  $category->title . ' updated successfully']);
-            
-            }
 
-            if ($request->has('show_all_id')) {
-                $category->show_all_id = $request->input('show_all_id');
-                $category->save();
-                return response()->json(['success-remove'=>'Show all id of '.  $category->title . ' updated successfully']);
-            
-            }
-            if ($request->has('parent_id')) {
-                $category->parent_id = $request->parent_id;
-                $category->save();
-                return response()->json(['success-remove'=> 'Parent category '.  $category->title . ' updated successfully.Please refresh page']);
+            return response()->json(['success-remove' => 'Magneto id of ' . $category->title . ' updated successfully']);
+        }
 
-            }
-      
+        if ($request->has('show_all_id')) {
+            $category->show_all_id = $request->input('show_all_id');
+            $category->save();
 
-            
-            if ($request->has('category_segment_id')) {
-                $category->category_segment_id = $request->category_segment_id;
-                $category->save();
-                return response()->json(['success-remove'=> 'Category segment id of '.  $category->title . ' updated successfully']);
+            return response()->json(['success-remove' => 'Show all id of ' . $category->title . ' updated successfully']);
+        }
+        if ($request->has('parent_id')) {
+            $category->parent_id = $request->parent_id;
+            $category->save();
 
-            }
-            
-            if ($request->has('simplyduty_code')) {
-                // $category->simplyduty_code = $request->simplyduty_code;
-                $findChild = \App\Category::whereNull("simplyduty_code")->where("parent_id", $category->id)->get();
-                if (!empty($findChild) && !$findChild->isEmpty()) {
-                    foreach ($findChild as $child) {
-                        $child->simplyduty_code = $request->simplyduty_code;
-                        $child->save();
-                    }
+            return response()->json(['success-remove' => 'Parent category ' . $category->title . ' updated successfully.Please refresh page']);
+        }
+
+        if ($request->has('category_segment_id')) {
+            $category->category_segment_id = $request->category_segment_id;
+            $category->save();
+
+            return response()->json(['success-remove' => 'Category segment id of ' . $category->title . ' updated successfully']);
+        }
+
+        if ($request->has('simplyduty_code')) {
+            // $category->simplyduty_code = $request->simplyduty_code;
+            $findChild = \App\Category::whereNull('simplyduty_code')->where('parent_id', $category->id)->get();
+            if (! empty($findChild) && ! $findChild->isEmpty()) {
+                foreach ($findChild as $child) {
+                    $child->simplyduty_code = $request->simplyduty_code;
+                    $child->save();
                 }
-                $category->simplyduty_code = $request->simplyduty_code;
-                $category->save();
-                return response()->json(['success-remove'=> 'SH code of '.  $category->title . ' updated successfully']);
             }
+            $category->simplyduty_code = $request->simplyduty_code;
+            $category->save();
 
+            return response()->json(['success-remove' => 'SH code of ' . $category->title . ' updated successfully']);
+        }
 
-            if(isset($request->measurment)){
-                if ($request->has('need_to_check_measurement')) {
-                    $category->need_to_check_measurement =  1 ;
-                }else{
-                    $category->need_to_check_measurement =  0 ;
-                }
-                $category->save();
-                return response()->json(['success-remove'=> 'Check measurement of '.  $category->title . ' updated successfully']);
+        if (isset($request->measurment)) {
+            if ($request->has('need_to_check_measurement')) {
+                $category->need_to_check_measurement = 1;
+            } else {
+                $category->need_to_check_measurement = 0;
             }
-            
-            if(isset($request->checkSize)){
-                if ($request->has('need_to_check_size')) {
-                    $category->need_to_check_size =  1 ;
-                }else{
-                    $category->need_to_check_size =  0 ;
-                }
-                $category->save();
-                return response()->json(['success-remove'=> 'Check size of '.  $category->title . ' updated successfully']);
+            $category->save();
 
+            return response()->json(['success-remove' => 'Check measurement of ' . $category->title . ' updated successfully']);
+        }
+
+        if (isset($request->checkSize)) {
+            if ($request->has('need_to_check_size')) {
+                $category->need_to_check_size = 1;
+            } else {
+                $category->need_to_check_size = 0;
             }
+            $category->save();
 
-            if(isset($request->checkSizeChart)){
-                if ($request->has('size_chart_needed')) {
-                    $category->size_chart_needed =  1 ;
-                }else{
-                    $category->size_chart_needed =  0 ;
-                }
-                $category->save();
-                return response()->json(['success-remove'=> 'Check size chart of '.  $category->title . ' updated successfully']);
+            return response()->json(['success-remove' => 'Check size of ' . $category->title . ' updated successfully']);
+        }
 
+        if (isset($request->checkSizeChart)) {
+            if ($request->has('size_chart_needed')) {
+                $category->size_chart_needed = 1;
+            } else {
+                $category->size_chart_needed = 0;
             }
+            $category->save();
 
+            return response()->json(['success-remove' => 'Check size chart of ' . $category->title . ' updated successfully']);
+        }
     }
 
     public function updateMinMaxPriceDefault()
     {
         return abort(404);
-        if(!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
         }
-        
-        $results = \Illuminate\Support\Facades\DB::select("
+
+        $results = \Illuminate\Support\Facades\DB::select('
             SELECT
                 categories.title,
                 categories.id as cat_id,
@@ -1068,19 +1173,19 @@ class CategoryController extends Controller
                 products.category
             ORDER BY
                 categories.title
-        ");
+        ');
 
         $brandSegments = ['A', 'B', 'C'];
 
-        foreach($brandSegments as $bs) {
-            foreach($results as $r) {
-                $bsRange = BrandCategoryPriceRange::where('brand_segment' , $bs)->where('category_id' , $r->cat_id)->first(); 
-                if(!$bsRange) {
+        foreach ($brandSegments as $bs) {
+            foreach ($results as $r) {
+                $bsRange = BrandCategoryPriceRange::where('brand_segment', $bs)->where('category_id', $r->cat_id)->first();
+                if (! $bsRange) {
                     BrandCategoryPriceRange::updateOrCreate(
                         ['brand_segment' => $bs, 'category_id' => $r->cat_id],
-                        ['min_price' => 50,'max_price' => 10000]
+                        ['min_price' => 50, 'max_price' => 10000]
                     );
-                }else{
+                } else {
                     $bsRange->min_price = 50;
                     $bsRange->max_price = 10000;
                     $bsRange->save();
@@ -1088,18 +1193,19 @@ class CategoryController extends Controller
             }
         }
 
-        Echo "script done";
+        echo 'script done';
     }
 
-    public function changePushType(Request $request) 
+    public function changePushType(Request $request)
     {
         $category = \App\Category::find($request->category_id);
-        if($category) {
+        if ($category) {
             $category->push_type = $request->value;
             $category->save();
-            return response()->json(["code" => 200 , "message" => "Updated successfully"]);
-        }else{
-            return response()->json(["code" => 500 , "message" => "Category not found"]);
+
+            return response()->json(['code' => 200, 'message' => 'Updated successfully']);
+        } else {
+            return response()->json(['code' => 500, 'message' => 'Category not found']);
         }
     }
 
@@ -1113,21 +1219,22 @@ class CategoryController extends Controller
         $sourceCategoryId = $request->sourceCategoryId;
         $targetCategoryId = $request->targetCategoryId;
 
-        $categories     = Category::where('parent_id',$sourceCategoryId)->orderBy('title')->get();
-       
+        $categories = Category::where('parent_id', $sourceCategoryId)->orderBy('title')->get();
+
         $data = [];
-        
-        if($categories){
-            foreach($categories as $category){
+
+        if ($categories) {
+            foreach ($categories as $category) {
                 $data['child'][$category->id] = $category->toArray();
                 $insert_array = $category->toArray();
                 $insert_array['parent_id'] = $targetCategoryId;
                 $insert_array['magento_id'] = 0;
                 unset($insert_array['id']);
                 $pid = Category::insertGetId($insert_array);
-                $data['child'][$category->id]['child'] = $this->getChildData($category->id, $pid); 
+                $data['child'][$category->id]['child'] = $this->getChildData($category->id, $pid);
             }
         }
+
         return redirect()->route('category')
                 ->with('success-remove', 'Data Copyied Successfully');
     }
@@ -1139,10 +1246,10 @@ class CategoryController extends Controller
      */
     public function getChildData($parentId, $pid)
     {
-        $categories  = Category::where('parent_id',$parentId)->orderBy('title')->get();
+        $categories = Category::where('parent_id', $parentId)->orderBy('title')->get();
         $data = [];
-        if($categories){
-            foreach($categories as $category){
+        if ($categories) {
+            foreach ($categories as $category) {
                 $data[$category->id] = $category->toArray();
                 $insert_array = $category->toArray();
                 $insert_array['parent_id'] = $pid;
@@ -1150,8 +1257,9 @@ class CategoryController extends Controller
                 unset($insert_array['id']);
                 $newpid = Category::insertGetId($insert_array);
                 $data[$category->id]['child'] = $this->getChildData($category->id, $newpid);
-            } 
+            }
         }
+
         return $data;
     }
 }

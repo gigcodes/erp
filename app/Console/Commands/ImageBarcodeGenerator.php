@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\BarcodeMedia;
-use Carbon\Carbon;
 use File;
+use Carbon\Carbon;
+use App\BarcodeMedia;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ImageBarcodeGenerator extends Command
 {
@@ -24,13 +23,18 @@ class ImageBarcodeGenerator extends Command
      * @var string
      */
     protected $description = 'Add Barcode into product';
+
     public $brands;
+
     public $product;
 
-    const FONT_SIZE              = 20;
+    const FONT_SIZE = 20;
+
     const EXTENSION_SUPPORT_TYPE = '"gif","jpg","jpeg","png"';
-    const MEDIA_TYPE_TAG         = '"gallery","original","untagged"';
-    const LIMIT                  = 100;
+
+    const MEDIA_TYPE_TAG = '"gallery","original","untagged"';
+
+    const LIMIT = 100;
 
     /**
      * Create a new command instance.
@@ -50,18 +54,19 @@ class ImageBarcodeGenerator extends Command
     public function getSpecialPrice(\App\Product $product)
     {
         $special_price = (int) $product->price_special_offer > 0 ? (int) $product->price_special_offer : $product->price_inr_special;
-        $special_price = ($special_price > 0) ? $special_price : "";
+        $special_price = ($special_price > 0) ? $special_price : '';
+
         return $special_price;
     }
 
     public function getAutoMessageString(\App\Product $product)
     {
-        $auto_message = "";
+        $auto_message = '';
 
         if ($product) {
-            $brand_name    = $this->getBrandName($product);
+            $brand_name = $this->getBrandName($product);
             $special_price = $this->getSpecialPrice($product);
-            $auto_message  = $brand_name . "\n" . $product->name . "\n" . $special_price;
+            $auto_message = $brand_name . "\n" . $product->name . "\n" . $special_price;
         }
 
         return $auto_message;
@@ -69,17 +74,18 @@ class ImageBarcodeGenerator extends Command
 
     public function setMediaFilename($media)
     {
-        return md5($media->id) . "." . $media->extension;
+        return md5($media->id) . '.' . $media->extension;
     }
 
     public function getMediaPathSave($key)
     {
-        $path = public_path() . "/uploads/product-barcode/" . get_folder_number($key) . "/";
+        $path = public_path() . '/uploads/product-barcode/' . get_folder_number($key) . '/';
         File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
+
         return $path;
     }
 
-    public function createImageFromMediaWithBarcode($media, $barcodeString, $message = "")
+    public function createImageFromMediaWithBarcode($media, $barcodeString, $message = '')
     {
         $fontSize = self::FONT_SIZE;
 
@@ -98,46 +104,43 @@ class ImageBarcodeGenerator extends Command
     {
         $product = $this->product;
 
-        $medias        = $product->getMedia(config('constants.attach_image_tag'));
-        $auto_message  = $this->getAutoMessageString($product);
-        $barcodeString = \DNS1D::getBarcodePNGPath($product->id, "EAN13", 3, 77, array(1, 1, 1), true);
+        $medias = $product->getMedia(config('constants.attach_image_tag'));
+        $auto_message = $this->getAutoMessageString($product);
+        $barcodeString = \DNS1D::getBarcodePNGPath($product->id, 'EAN13', 3, 77, [1, 1, 1], true);
 
-        if (!$medias->isEmpty()) {
+        if (! $medias->isEmpty()) {
             foreach ($medias as $media) {
                 // set path
                 try {
-
                     $filename = pathinfo($media->filename, PATHINFO_FILENAME);
 
-                    $img         = $this->createImageFromMediaWithBarcode($media, $barcodeString, $auto_message);
+                    $img = $this->createImageFromMediaWithBarcode($media, $barcodeString, $auto_message);
                     $filenameNew = $this->setMediaFilename($media);
-                    $path        = $this->getMediaPathSave($product->id);
+                    $path = $this->getMediaPathSave($product->id);
 
                     $img->save($path . $filenameNew);
 
                     $barcodeMedia = BarcodeMedia::updateOrCreate([
-                        "media_id" => $media->id,
-                        "type"     => "product",
-                        "type_id"  => $product->id,
+                        'media_id' => $media->id,
+                        'type' => 'product',
+                        'type_id' => $product->id,
                     ], [
-                        "media_id" => $media->id,
-                        "type"     => "product",
-                        "type_id"  => $product->id,
-                        "name"     => $this->getBrandName($product) . "||" . $product->name,
-                        "price"    => $this->getSpecialPrice($product),
+                        'media_id' => $media->id,
+                        'type' => 'product',
+                        'type_id' => $product->id,
+                        'name' => $this->getBrandName($product) . '||' . $product->name,
+                        'price' => $this->getSpecialPrice($product),
                     ]);
 
                     $media = MediaUploader::fromSource($path . $filenameNew)
                         ->toDirectory('uploads/product-barcode/' . get_folder_number($product->id) . '/')
                     //->toDirectory($path)
-                        ->setOnDuplicateBehavior("replace")
+                        ->setOnDuplicateBehavior('replace')
                         ->upload();
                     $barcodeMedia->attachMedia($media, config('constants.media_barcode_tag'));
-
                 } catch (\Exception $e) {
-                    \Log::channel('productUpdates')->info($e->getMessage() . " || Product " . $product->id . " having issue in image barcode and image stored on : " . $media->getAbsolutePath());
+                    \Log::channel('productUpdates')->info($e->getMessage() . ' || Product ' . $product->id . ' having issue in image barcode and image stored on : ' . $media->getAbsolutePath());
                 }
-
             }
             // once prduct has been done then delete barcode string image
             File::delete(public_path($barcodeString));
@@ -153,18 +156,18 @@ class ImageBarcodeGenerator extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             $productId = $this->argument('product_id');
 
-            $file_types = array(
+            $file_types = [
                 'gif',
                 'jpg',
                 'jpeg',
                 'png',
                 'pdf',
-            );
+            ];
 
             /*$products = \App\Product::join("mediables as m",function($q){
             $q->on("m.mediable_id","products.id")
@@ -174,11 +177,11 @@ class ImageBarcodeGenerator extends Command
             ->select("products.*")
             ->limit(1)->get();*/
 
-            $whereString  = "where is_barcode_check is null and p.has_mediables = 1";
-            $havingClause = "having (total_image != total_barcode or total_barcode is null or bimage_name != bm_name or b_price > bm_price or b_price < bm_price)";
-            if (!empty($productId) && $productId > 0) {
-                $whereString  = " where p.id = " . $productId . " and p.has_mediables = 1";
-                $havingClause = "";
+            $whereString = 'where is_barcode_check is null and p.has_mediables = 1';
+            $havingClause = 'having (total_image != total_barcode or total_barcode is null or bimage_name != bm_name or b_price > bm_price or b_price < bm_price)';
+            if (! empty($productId) && $productId > 0) {
+                $whereString = ' where p.id = ' . $productId . ' and p.has_mediables = 1';
+                $havingClause = '';
             }
 
             //join media as m on m.id = md.media_id and extension in ('.self::EXTENSION_SUPPORT_TYPE.')
@@ -195,29 +198,28 @@ class ImageBarcodeGenerator extends Command
 
             $productIds = [];
 
-            if (!empty($productQuery)) {
+            if (! empty($productQuery)) {
                 foreach ($productQuery as $res) {
                     $productIds[] = $res->id;
                 }
             }
 
             // check all product ids exist
-            if (!empty($productIds)) {
-                $this->brands = \App\Brand::get()->pluck("name", "id")->toArray();
-                $products     = \App\Product::whereIn("id", $productIds)->get();
-                if (!$products->isEmpty()) {
+            if (! empty($productIds)) {
+                $this->brands = \App\Brand::get()->pluck('name', 'id')->toArray();
+                $products = \App\Product::whereIn('id', $productIds)->get();
+                if (! $products->isEmpty()) {
                     foreach ($products as $product) {
-                        echo $product->id . " Started at  " . date("Y-m-d H:i:s") . PHP_EOL;
-                        $this->product             = $product;
-                        $image                     = $this->insertImage($product);
+                        echo $product->id . ' Started at  ' . date('Y-m-d H:i:s') . PHP_EOL;
+                        $this->product = $product;
+                        $image = $this->insertImage($product);
                         $product->is_barcode_check = 1;
                         $product->save();
-                        echo $product->id . " Ended at  " . date("Y-m-d H:i:s") . PHP_EOL;
+                        echo $product->id . ' Ended at  ' . date('Y-m-d H:i:s') . PHP_EOL;
                     }
                 }
                 $report->update(['end_time' => Carbon::now()]);
             }
-
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }

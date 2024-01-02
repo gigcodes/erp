@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Jobs\PushToMagento;
-use App\MagentoSoapHelper;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\MagentoSoapHelper;
+use App\Jobs\PushToMagento;
 use Illuminate\Console\Command;
 
 class UploadProductsToMagento extends Command
@@ -44,7 +44,7 @@ class UploadProductsToMagento extends Command
         return false;
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

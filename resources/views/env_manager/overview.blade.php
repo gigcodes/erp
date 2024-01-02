@@ -16,10 +16,13 @@ All needed files are included within this file, so nothing could break if you ex
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Env Manager</h2>
-                      <input id="search-input" type="text" placeholder="Search..">
+                      <input id="env-search-input" type="text" placeholder="Search..">
+                  <div style="display: flex; font-weight: 500;"><div>Total:-</div><div id="total">@{{ entries.length > 0 ? entries.length : '' }}</div></div>
+                  @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
                     <button type="button" id="add-new" class="btn btn-primary float-right">
                         Add New
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -92,13 +95,18 @@ All needed files are included within this file, so nothing could break if you ex
                 <th>Sr No.</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_key') }}</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_value') }}</th>
+                  <th style="width: 20%">Description</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_options') }}</th>
                 </tr>
                 <tr v-for="(index,entry) in entries">
                   <td>@{{ index+1 }}</td>
                   <td style="word-wrap: anywhere;">@{{ entry.key }}</td>
                   <td style="word-wrap: anywhere;">@{{ entry.value }}</td>
+                  <td style="word-wrap: anywhere;">@{{ entry.description }}</td>
+
                   <td>
+                    @if(auth()->user()->isAdmin() || auth()->user()->isEnvManager())
+
                     <a href="javascript:;" @click="editEntry(entry)"
                     title="{{ trans('dotenv-editor::views.overview_table_popover_edit') }}">
                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
@@ -107,6 +115,9 @@ All needed files are included within this file, so nothing could break if you ex
                   title="{{ trans('dotenv-editor::views.overview_table_popover_delete') }}">
                   <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                 </a>
+                    @endif
+
+                    <div @click="copyData(entry)" style="cursor: pointer">Copy</div>
               </td>
             </tr>
           </table>
@@ -153,6 +164,10 @@ All needed files are included within this file, so nothing could break if you ex
                 <label for="editvalue">{!! trans('dotenv-editor::views.overview_edit_modal_value') !!}</label>
                 <input type="text" v-model="toEdit.value" id="editvalue" class="form-control">
               </div>
+              <div class="form-group">
+                <label for="editdescription">New Description</label>
+                <input type="text" v-model="toEdit.description" id="editdescription" class="form-control">
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -184,6 +199,7 @@ All needed files are included within this file, so nothing could break if you ex
             <!--<div class="panel-heading">
               <h2 class="panel-title">{!! __('dotenv-editor::views.addnew_title') !!}</h2>
             </div>-->
+
             <div class="panel-body">
               <p>
                 Here you can add a new key-value-pair to your current .env-file.
@@ -198,6 +214,19 @@ All needed files are included within this file, so nothing could break if you ex
                   <label for="newvalue">{!! __('dotenv-editor::views.addnew_label_value') !!}</label>
                   <input type="text" name="newvalue" id="newvalue" v-model="newEntry.value" class="form-control" required>
                 </div>
+                <div class="form-group">
+                  <label for="newkey">Description</label>
+                  <input type="text" name="description" id="description" v-model="newEntry.description" class="form-control" required>
+                </div>
+                @if(env('APP_ENV') === 'production')
+                <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
+                <label for="add-to-live">Add into Staging .env to</label><br>
+                @elseif(env('APP_ENV') === 'staging')
+              <input type="checkbox" id="add-to-live" name="add-to-live" value="1" style="height: 12px !important;">
+              <label for="add-to-live">Add into Production .env to</label><br>
+                  @endif
+                <div>
+
                 <button class="btn btn-default custom-close-modal" type="submit">
                   {!! __('dotenv-editor::views.addnew_button_add') !!}
                 </button>
@@ -328,6 +357,8 @@ All needed files are included within this file, so nothing could break if you ex
               <tr v-for="entry in details">
                 <td>@{{ entry.key }}</td>
                 <td>@{{ entry.value }}</td>
+                <td>@{{ entry.description }}</td>
+
               </tr>
             </table>
           </div>
@@ -400,7 +431,8 @@ All needed files are included within this file, so nothing could break if you ex
       ],
       newEntry: {
         key: "",
-        value: ""
+        value: "",
+        description: ""
       },
       details: {},
       currentBackup: {
@@ -420,8 +452,28 @@ All needed files are included within this file, so nothing could break if you ex
     methods: {
       loadEnv: function(){
         var vm = this;
+        var envDescription = [];
         this.loadButton = false;
+        $.ajax({
+          url: "/get-env-description",
+          type: "get",
+          success: function(response){
+            envDescription = response;
+            //window.location.reload();
+          },
+          error: function (request, status, error) {
+            console.log('ERROR: ',error);
+          }
+        })
         $.getJSON("/{{ $url }}/getdetails", function(items){
+          for (let i = 0; i < items.length; i++) {
+            const name = items[i].key;
+            const matchingObj = envDescription.find(obj => obj.key === name);
+            if (matchingObj) {
+              items[i].description = matchingObj.description;
+            }
+          }
+          console.log(items)
           vm.entries = items;
         });
       },
@@ -438,37 +490,42 @@ All needed files are included within this file, so nothing could break if you ex
         var vm = this;
         var newkey = this.newEntry.key;
         var newvalue = this.newEntry.value;
+        var newDescription = this.newEntry.description;
+        var checkedValue = $('#add-to-live:checked').val();
+
         $.ajax({
-          url: "/{{ $url }}/add",
+          url: "/api/add-env",
           type: "post",
           data: {
-            _token: this.token,
+            _token: "{!! csrf_token() !!}",
             key: newkey,
-            value: newvalue
+            value: newvalue,
+            description: newDescription,
+            addToLive: checkedValue ? checkedValue : false
           },
-          success: function(){
-            
+          success: function(response){
+            console.log(response);
             vm.entries.push({
               key: newkey,
               value: newvalue
             });
-            var msg = "{{ trans('dotenv-editor::views.new_entry_added') }}";
-            vm.showAlert("success", msg);
-            vm.alertsuccess = 1;
             $("#newkey").val("");
             vm.newEntry.key = "";
             vm.newEntry.value = "";
+            vm.newEntry.description = "";
             $("#newvalue").val("");
-            $('#newkey').focus();
-            $('#newkey').focus();
+            $("#description").val("");
+            toastr["success"]("Key added successfully", "Message");
             $("#add-new-modal").modal("hide");
             
             //window.location.reload();
           },
           error: function (request, status, error) {
-              alert(request.responseText);
+            console.log('ERROR: ',error);
           }
         })
+
+
       },
       editEntry: function(entry){
         this.toEdit = {};
@@ -478,12 +535,14 @@ All needed files are included within this file, so nothing could break if you ex
       updateEntry: function(){
         var vm = this;
         $.ajax({
-          url: "/{{ $url }}/update",
+          url: "/api/edit-env",
           type: "post",
           data: {
             _token: this.token,
             key: vm.toEdit.key,
-            value: vm.toEdit.value
+            value: vm.toEdit.value,
+            description: vm.toEdit.description,
+            server: "{{env('APP_ENV')}}"
           },
           success: function(){
             var msg = "{{ trans('dotenv-editor::views.entry_edited') }}";
@@ -531,6 +590,11 @@ All needed files are included within this file, so nothing could break if you ex
               alert(request.responseText);
           }
         })
+      },
+      copyData: function(entry){
+        let copyObj = entry.key +' : '+ entry.value
+        navigator.clipboard.writeText(copyObj);
+        toastr["success"]("Copy successfully", "Message");
       },
       deleteEntry: function(){
         var entry = this.toDelete;
@@ -593,7 +657,7 @@ All needed files are included within this file, so nothing could break if you ex
   })
   
 
-  $("#search-input").on("keyup", function() {
+  $("#env-search-input").on("keyup", function() {
     var value = $(this).val().toLowerCase();
     $("#env-table tr").filter(function() {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)

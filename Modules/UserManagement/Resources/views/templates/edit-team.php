@@ -13,17 +13,31 @@
                   <strong>Leader</strong>
                   <input type="text" value="{{:team.user.name}}" class="form-control" readonly>
 			</div>
+			<div class="form-group">
+                   <strong>Second Leader</strong>
+                   <input type="text" value="{{:second_users}}" class="form-control" readonly>
+            </div>
          <div class="form-group">
                   <strong>Members</strong>
                   {{props team.members}}
                      <input style="margin-top:5px;" type="text" value="{{:prop}}" class="form-control" readonly>
                   {{/props}}
-                  
 			</div>
 			<div class="form-group">
                   <strong>Team name</strong>
                   <input type="text" id="name" name="name" value="{{:team.name}}" class="form-control">
             </div>
+
+            <div class="form-group">
+                    <strong>Select Second Leader </strong>
+                    <select class="form-control" aria-label="Default select example" name="second_lead">
+                        <option>-- Select Second Leader --</option>
+                        {{props users}}
+                            <option value="{{>key}}" {{:~isMemberSelected(prop)}}>{{>prop}}</option>
+                        {{/props}}
+                    </select>
+		    </div>
+
            <div class="overflow-auto" id="collapse" style="height:400px;overflow-y:scroll;">
                     <strong>Members {{if totalMembers}} ({{:totalMembers}}) {{/if}}:</strong>
                     <input type="text" id="myInput" placeholder="Search for users.." class="form-control search-user">

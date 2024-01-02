@@ -96,7 +96,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::textarea("reason",null,["class" => "form-control"]); ?>
+					         	<?php echo Form::textarea('reason', null, ['class' => 'form-control']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">
@@ -130,7 +130,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::select("status",["0" => "Pending","1" => "Approved"],null,["class" => "form-control"]); ?>
+					         	<?php echo Form::select('status', ['0' => 'Pending', '1' => 'Approved'], null, ['class' => 'form-control']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">

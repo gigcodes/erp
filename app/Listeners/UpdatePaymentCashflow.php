@@ -13,13 +13,12 @@ class UpdatePaymentCashflow
      */
     public function __construct()
     {
-
     }
 
     /**
      * Handle the event.
      *
-     * @param object $event
+     * @param  object  $event
      * @return void
      */
     public function handle(PaymentCreated $event)

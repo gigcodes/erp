@@ -14,24 +14,23 @@ class InfluencerKeyword extends Model
         'name',
         'instagram_account_id',
         'wait_time',
-        'no_of_requets'
+        'no_of_requets',
     ];
 
     public function next()
     {
         // get next keyword
         return InfluencerKeyword::where('id', '>', $this->id)->orderBy('id', 'asc')->first();
-
     }
+
     public function previous()
     {
         // get previous  keyword
         return InfluencerKeyword::where('id', '<', $this->id)->orderBy('id', 'desc')->first();
-
     }
 
     public function instagramAccount()
     {
-        return $this->hasOne(\App\Account::class,'id','instagram_account_id');
+        return $this->hasOne(\App\Account::class, 'id', 'instagram_account_id');
     }
 }

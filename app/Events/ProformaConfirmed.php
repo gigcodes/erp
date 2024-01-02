@@ -3,13 +3,9 @@
 namespace App\Events;
 
 use App\Purchase;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class ProformaConfirmed
 {
@@ -21,7 +17,9 @@ class ProformaConfirmed
      * @return void
      */
     public $purchase;
+
     public $purchase_amount;
+
     public function __construct(Purchase $purchase, $purchase_amount)
     {
         $this->purchase = $purchase;

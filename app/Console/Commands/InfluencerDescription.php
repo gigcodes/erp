@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapInfluencer;
 use Carbon\Carbon;
+use App\ScrapInfluencer;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class InfluencerDescription extends Command
@@ -39,21 +40,23 @@ class InfluencerDescription extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
             $influencers = ScrapInfluencer::all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Scrap influencer query finished.']);
             foreach ($influencers as $influencer) {
                 //Getting the email
                 if (strpos($influencer->description, '.com') !== false) {
                     preg_match_all("/[\._a-zA-Z0-9-]+@[\._a-zA-Z0-9-]+/i", $influencer->description, $matches);
-                    if (isset($matches[0]) && !empty($matches[0])) {
+                    if (isset($matches[0]) && ! empty($matches[0])) {
                         $influencer->email = $matches[0][0];
                         $influencer->save();
                     }
-
                 }
 
                 //Country
@@ -81,10 +84,12 @@ class InfluencerDescription extends Command
                         }
                     }
                 }
-
             }
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime was updated.']);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

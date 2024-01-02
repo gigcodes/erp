@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\ScrapedProducts;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class SetFormattedPricingForScrapedProducts extends Command
@@ -25,7 +25,9 @@ class SetFormattedPricingForScrapedProducts extends Command
 
     // Today's euro values (16-08-2019)
     protected $euroInCny = 7.7978;
+
     protected $euroInGbp = 0.91033;
+
     protected $euroInUsd = 1.1076;
 
     /**
@@ -47,7 +49,7 @@ class SetFormattedPricingForScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Get all scraped products without formatted pricing
@@ -57,22 +59,21 @@ class SetFormattedPricingForScrapedProducts extends Command
                     // Check for price
                     $currency = $this->_getCurrencyFromPrice($scrapedProduct->price);
 
-                    if (!empty($currency) && !empty($scrapedProduct->price)) {
+                    if (! empty($currency) && ! empty($scrapedProduct->price)) {
                         // Update scraped product
                         if ($currency == 'EUR') {
                             $scrapedProduct->price_eur = $this->_getFormattedPrice($scrapedProduct->price);
                             $scrapedProduct->save();
                         } else {
                             // Set multiplier
-                            $multiplier                = 'euroIn' . ucfirst(strtolower($currency));
+                            $multiplier = 'euroIn' . ucfirst(strtolower($currency));
                             $scrapedProduct->price_eur = round($this->$multiplier * $this->_getFormattedPrice($scrapedProduct->price), 2);
                             $scrapedProduct->save();
                         }
                     } else {
-                        dump("Unable to detect currency and/or price: " . $scrapedProduct->price);
+                        dump('Unable to detect currency and/or price: ' . $scrapedProduct->price);
                         $scrapedProduct->price_eur = 0;
                         $scrapedProduct->save();
-
                     }
                 }
             });

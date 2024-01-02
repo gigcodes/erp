@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\VendorPaymentCreated;
-use App\Helpers;
-use App\Listeners\VendorPaymentCashFlow;
 use App\Vendor;
+use App\Helpers;
 use App\VendorPayment;
 use Illuminate\Http\Request;
+use App\Events\VendorPaymentCreated;
 
 class VendorPaymentController extends Controller
 {
     public function index(Vendor $vendor)
     {
         $payments = $vendor->payments()->orderBy('payment_date')->paginate(50);
+
         return view('vendors.payments', [
             'payments' => $payments,
             'vendor' => $vendor,
@@ -51,6 +51,7 @@ class VendorPaymentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t store vendor payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully added a vendor payment!');
     }
 
@@ -85,6 +86,7 @@ class VendorPaymentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t update vendor payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully updated vendor payment!');
     }
 
@@ -96,6 +98,7 @@ class VendorPaymentController extends Controller
         } catch (\Exception $exception) {
             return redirect()->back()->withErrors('Couldn\'t delete vendor payment');
         }
+
         return redirect()->back()->withSuccess('You have successfully deleted vendor payment!');
     }
 }

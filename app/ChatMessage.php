@@ -2,8 +2,9 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Elasticsearch\Elasticsearch;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -12,10 +13,10 @@ class ChatMessage extends Model
 {
     // this is guessing status since it is not declared anywhere so
     const MESSAGE_STATUS = [
-        "11" => "Watson Reply",
-        "5" => "Read",
-        "0" => "Unread",
-        "12" => "Suggested Images",
+        '11' => 'Watson Reply',
+        '5' => 'Read',
+        '0' => 'Unread',
+        '12' => 'Suggested Images',
     ];
 
     // auto reply including chatbot as well
@@ -28,16 +29,22 @@ class ChatMessage extends Model
     ];
 
     const CHAT_AUTO_BROADCAST = 8;
+
     const CHAT_AUTO_WATSON_REPLY = 11;
+
     const CHAT_SUGGESTED_IMAGES = 12;
+
     const CHAT_MESSAGE_APPROVED = 2;
 
     const ERROR_STATUS_SUCCESS = 0;
+
     const ERROR_STATUS_ERROR = 1;
+    const ELASTIC_INDEX = 'messages';
 
     use Mediable;
     /**
      * @var string
+     *
      * @SWG\Property(property="is_queue",type="boolean")
      * @SWG\Property(property="unique_id",type="integer")
      * @SWG\Property(property="lead_id",type="integer")
@@ -72,34 +79,31 @@ class ChatMessage extends Model
      * @SWG\Property(property="is_reviewed",type="boolean")
      * @SWG\Property(property="hubstaff_activity_summary_id",type="integer")
      * @SWG\Property(property="question_id",type="integer")
-
      */
 
     //Purpose - Add learning_id - DEVTASK-4020
     //Purpose : Add additional_data - DEVATSK-4236
-    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'charity_id', 'user_id', 'ticket_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id', 'old_id', 'message_application_id', 'is_chatbot', 'sent_to_user_id', 'site_development_id', 'social_strategy_id', 'store_social_content_id', 'quoted_message_id', 'is_reviewed', 'hubstaff_activity_summary_id', 'question_id', 'is_email', 'payment_receipt_id', 'learning_id', 'additional_data', 'hubstuff_activity_user_id', 'user_feedback_id', 'user_feedback_category_id', 'user_feedback_status', 'send_by', 'sop_user_id', 'message_en', 'from_email', 'to_email', 'email_id', 'scheduled_at','broadcast_numbers_id','flow_exit','task_time_reminder'];
 
+    protected $fillable = ['is_queue', 'unique_id', 'bug_id', 'test_case_id', 'test_suites_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'charity_id', 'user_id', 'ticket_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id', 'old_id', 'message_application_id', 'is_chatbot', 'sent_to_user_id', 'site_development_id', 'social_strategy_id', 'store_social_content_id', 'quoted_message_id', 'is_reviewed', 'hubstaff_activity_summary_id', 'question_id', 'is_email', 'payment_receipt_id', 'learning_id', 'additional_data', 'hubstuff_activity_user_id', 'user_feedback_id', 'user_feedback_category_id', 'user_feedback_status', 'send_by', 'sop_user_id', 'message_en', 'from_email', 'to_email', 'email_id', 'scheduled_at', 'broadcast_numbers_id', 'flow_exit', 'task_time_reminder', 'order_status', 'ui_check_id1', 'time_doctor_activity_summary_id', 'time_doctor_activity_user_id', 'message_type', 'is_audio', 'is_auto_simulator', 'send_by_simulator'];
 
-    protected $table = "chat_messages";
+    protected $table = 'chat_messages';
 
-    protected $dates = ['created_at', 'updated_at'];
-
-    protected $casts = array(
-        "approved" => "boolean",
-    );
+    protected $casts = [
+        'approved' => 'boolean',
+    ];
 
     /**
      * Send WhatsApp message via Chat-Api
-     * @param $number
-     * @param null $whatsAppNumber
-     * @param null $message
-     * @param null $file
+     *
+     * @param  null  $whatsAppNumber
+     * @param  null  $message
+     * @param  null  $file
      * @return bool|mixed
      */
     public static function sendWithChatApi($number, $whatsAppNumber = null, $message = null, $file = null)
     {
         // Get configs
-        $config = \Config::get("apiwha.instances");
+        $config = \Config::get('apiwha.instances');
 
         // Set instanceId and token
         if (isset($config[$whatsAppNumber])) {
@@ -131,19 +135,19 @@ class ChatMessage extends Model
         $curl = curl_init();
 
         // Set cURL options
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
             CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=" . $token,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
+            CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 300,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode($chatApiArray),
-            CURLOPT_HTTPHEADER => array(
-                "content-type: application/json",
-            ),
-        ));
+            CURLOPT_HTTPHEADER => [
+                'content-type: application/json',
+            ],
+        ]);
 
         // Get response
         $response = curl_exec($curl);
@@ -157,7 +161,8 @@ class ChatMessage extends Model
         // Check for errors
         if ($err) {
             // Log error
-            \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") cURL Error for number " . $number . ":" . $err);
+            \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') cURL Error for number ' . $number . ':' . $err);
+
             return false;
         } else {
             // Log curl response
@@ -167,13 +172,14 @@ class ChatMessage extends Model
             $result = json_decode($response, true);
 
             // Check for possible incorrect response
-            if (!is_array($result) || array_key_exists('sent', $result) && !$result['sent']) {
+            if (! is_array($result) || array_key_exists('sent', $result) && ! $result['sent']) {
                 // Log error
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Something was wrong with the message for number " . $number . ": " . $response);
+                \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Something was wrong with the message for number ' . $number . ': ' . $response);
+
                 return false;
             } else {
                 // Log successful send
-                \Log::channel('whatsapp')->debug("(file " . __FILE__ . " line " . __LINE__ . ") Message was sent to number " . $number . ":" . $response);
+                \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Message was sent to number ' . $number . ':' . $response);
             }
         }
 
@@ -182,7 +188,6 @@ class ChatMessage extends Model
 
     /**
      * Handle Chat-Api ACK-message
-     * @param $json
      */
     public static function handleChatApiAck($json)
     {
@@ -213,22 +218,23 @@ class ChatMessage extends Model
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function lawyer()
     {
-        return $this->belongsTo('App\Lawyer');
+        return $this->belongsTo(\App\Lawyer::class);
     }
 
     /**
      * Check if the message has received a broadcast price reply
+     *
      * @return bool
      */
     public function isSentBroadcastPrice()
     {
         // Get count
-        $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\ChatMessage')->where('type', 'broadcast-prices')->count();
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\ChatMessage::class)->where('type', 'broadcast-prices')->count();
 
         // Return true or false
         return $count > 0 ? true : false;
@@ -237,32 +243,31 @@ class ChatMessage extends Model
     public static function updatedUnreadMessage($customerId, $status = 0)
     {
         // if reply is not auto reply or the suggested reply from chat then only update status
-        if (!empty($status) && !in_array($status, self::AUTO_REPLY_CHAT)) {
-            self::where('customer_id', $customerId)->where("status", 0)->update(['status' => 5]);
+        if (! empty($status) && ! in_array($status, self::AUTO_REPLY_CHAT)) {
+            self::where('customer_id', $customerId)->where('status', 0)->update(['status' => 5]);
         }
-
     }
 
     public function taskUser()
     {
-        return $this->hasOne("\App\User", "id", "user_id");
+        return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
 
     public function user()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsTo(\App\User::class);
     }
 
     //START - Purpose : Add relationship - DEVTASK-4203
     public function chatmsg()
     {
-        return $this->hasOne("\App\ChatMessage", "user_id", "user_id")->latest();
+        return $this->hasOne(\App\ChatMessage::class, 'user_id', 'user_id')->latest();
     }
     //END - DEVTASK-4203
 
     public function sendTaskUsername()
     {
-        $name = "";
+        $name = '';
 
         if ($this->erp_user > 0) {
             $taskUser = $this->taskUser;
@@ -276,7 +281,7 @@ class ChatMessage extends Model
 
     public function sendername()
     {
-        $name = "";
+        $name = '';
 
         if ($this->user_id > 0) {
             $taskUser = $this->user;
@@ -290,90 +295,92 @@ class ChatMessage extends Model
 
     public static function pendingQueueGroupList($params = [])
     {
-        return self::where($params)->where("group_id", ">", 0)
-            ->pluck("group_id", "group_id")
+        return self::where($params)->where('group_id', '>', 0)
+            ->pluck('group_id', 'group_id')
             ->toArray();
     }
+
     public static function pendingQueueLeadList($params = [])
     {
-        return self::where($params)->where("lead_id", ">", 0)
-            ->pluck("lead_id", "lead_id")
+        return self::where($params)->where('lead_id', '>', 0)
+            ->pluck('lead_id', 'lead_id')
             ->toArray();
     }
+
     public static function getQueueLimit()
     {
-        $limit = \App\Setting::where("name", "is_queue_sending_limit")->first();
+        $limit = \App\Setting::where('name', 'is_queue_sending_limit')->first();
 
         return ($limit) ? json_decode($limit->val, true) : [];
     }
 
     public static function getQueueTime()
     {
-        $limit = \App\Setting::where("name", "is_queue_sending_time")->first();
+        $limit = \App\Setting::where('name', 'is_queue_sending_time')->first();
 
         return ($limit) ? json_decode($limit->val, true) : [];
     }
 
     public static function getStartTime()
     {
-        $limit = \App\Setting::where("name", "is_queue_send_start_time")->first();
+        $limit = \App\Setting::where('name', 'is_queue_send_start_time')->first();
 
         return ($limit) ? $limit->val : 0;
     }
 
     public static function getEndTime()
     {
-        $limit = \App\Setting::where("name", "is_queue_send_end_time")->first();
+        $limit = \App\Setting::where('name', 'is_queue_send_end_time')->first();
 
         return ($limit) ? $limit->val : 0;
     }
 
     public static function getSupplierForwardTo()
     {
-        $no = \App\Setting::where("name", "supplier_forward_message_no")->first();
+        $no = \App\Setting::where('name', 'supplier_forward_message_no')->first();
 
         return ($no) ? $no->val : 0;
     }
 
     public function chatBotReply()
     {
-        return $this->hasOne("\App\ChatBotReply", "chat_id", "id");
+        return $this->hasOne("\App\ChatBotReply", 'chat_id', 'id');
     }
 
     public function chatBotReplychat()
     {
-        return $this->hasOne(ChatbotReply::class, "replied_chat_id", "id");
+        return $this->hasOne(ChatbotReply::class, 'replied_chat_id', 'id');
     }
 
     public function chatBotReplychatlatest()
     {
-        return $this->hasMany(ChatbotReply::class, "replied_chat_id", "id");
+        return $this->hasMany(ChatbotReply::class, 'replied_chat_id', 'id');
     }
 
     public function suggestion()
     {
-        return $this->hasOne("App\SuggestedProduct", "chat_message_id", "id");
+        return $this->hasOne(\App\SuggestedProduct::class, 'chat_message_id', 'id');
     }
 
     public static function getLastImgProductId($customerId)
     {
-        return \App\ChatMessage::where("customer_id", $customerId)
-            ->whereNull("chat_messages.number")
-            ->whereNotIn("status", array_merge(self::AUTO_REPLY_CHAT, [2]))
-            ->select(["chat_messages.*"])
-            ->orderBy("chat_messages.created_at", "desc")
+        return \App\ChatMessage::where('customer_id', $customerId)
+            ->whereNull('chat_messages.number')
+            ->whereNotIn('status', array_merge(self::AUTO_REPLY_CHAT, [2]))
+            ->select(['chat_messages.*'])
+            ->orderBy('chat_messages.created_at', 'desc')
             ->first();
     }
 
     /**
      *  Get information by ids
+     *
      *  @param []
-     *  @return Mixed
+     *  @return mixed
      */
-
-    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    public static function getInfoByIds($ids, $fields = ['*'], $toArray = false)
     {
-        $list = self::whereIn("id", $ids)->select($fields)->get();
+        $list = self::whereIn('id', $ids)->select($fields)->get();
 
         if ($toArray) {
             $list = $list->toArray();
@@ -384,17 +391,17 @@ class ChatMessage extends Model
 
     /**
      *  Get information by ids
+     *
      *  @param []
-     *  @return Mixed
+     *  @return mixed
      */
-
     public static function getGroupImagesByIds($ids, $toArray = false)
     {
-        $list = \DB::table("mediables")
-            ->where("mediable_type", self::class)
-            ->whereIn("mediable_id", $ids)
-            ->groupBy("mediable_id")
-            ->select(["mediable_id", \DB::raw("group_concat(media_id) as image_ids")])
+        $list = \DB::table('mediables')
+            ->where('mediable_type', self::class)
+            ->whereIn('mediable_id', $ids)
+            ->groupBy('mediable_id')
+            ->select(['mediable_id', \DB::raw('group_concat(media_id) as image_ids')])
             ->get();
 
         if ($toArray) {
@@ -406,26 +413,26 @@ class ChatMessage extends Model
 
     /**
      *  Get information by ids
+     *
      *  @param []
-     *  @return Mixed
+     *  @return mixed
      */
-
-    public static function getInfoByObjectIds($field, $ids, $fields = ["*"], $params = [], $toArray = false)
+    public static function getInfoByObjectIds($field, $ids, $fields = ['*'], $params = [], $toArray = false)
     {
-        unset($_GET["page"]);
+        unset($_GET['page']);
         $list = self::whereIn($field, $ids)->where(function ($q) {
-            $q->whereNull("group_id")->orWhere("group_id", 0);
-        })->whereNotIn("status", self::EXECLUDE_AUTO_CHAT);
+            $q->whereNull('group_id')->orWhere('group_id', 0);
+        })->whereNotIn('status', self::EXECLUDE_AUTO_CHAT);
 
-        if (!empty($params["previous"]) && $params["previous"] == true && !empty($params["lastMsg"]) && is_numeric($params["lastMsg"])) {
-            $list = $list->where("id", "<", $params["lastMsg"]);
+        if (! empty($params['previous']) && $params['previous'] == true && ! empty($params['lastMsg']) && is_numeric($params['lastMsg'])) {
+            $list = $list->where('id', '<', $params['lastMsg']);
         }
 
-        if (!empty($params["next"]) && $params["next"] == true && !empty($params["lastMsg"])) {
-            $list = $list->where("id", ">", $params["lastMsg"]);
+        if (! empty($params['next']) && $params['next'] == true && ! empty($params['lastMsg'])) {
+            $list = $list->where('id', '>', $params['lastMsg']);
         }
 
-        $list = $list->orderBy("created_at", "desc")->select($fields)->paginate(10);
+        $list = $list->orderBy('created_at', 'desc')->select($fields)->paginate(10);
 
         if ($toArray) {
             $list = $list->items();
@@ -436,7 +443,7 @@ class ChatMessage extends Model
 
     public function vendor()
     {
-        return $this->belongsTo('App\Vendor', 'vendor_id');
+        return $this->belongsTo(\App\Vendor::class, 'vendor_id');
     }
 
     /**
@@ -448,16 +455,16 @@ class ChatMessage extends Model
     {
         $media = $this->getMedia(config('constants.attach_image_tag'))->first();
         if ($media) {
-            \Log::channel('customer')->info("Media image found for customer id : " . $customer->id);
+            \Log::channel('customer')->info('Media image found for customer id : ' . $customer->id);
             $log_comment = $log_comment . ' Media image found for customer with ID : ' . $customer->id;
-            $mediable = \DB::table("mediables")->where("media_id", $media->id)
-                ->where("mediable_type", \App\Product::class)
+            $mediable = \DB::table('mediables')->where('media_id', $media->id)
+                ->where('mediable_type', \App\Product::class)
                 ->first();
-            if (!empty($mediable)) {
+            if (! empty($mediable)) {
                 $log_comment = $log_comment . ' Mediable found for customer with ID : ' . $customer->id;
-                \Log::channel('customer')->info("Mediable for customer id : " . $customer->id);
+                \Log::channel('customer')->info('Mediable for customer id : ' . $customer->id);
                 try {
-                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
+                    app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
                     $log_comment = $log_comment . ' Mediable dispatched with ID : ' . $mediable->mediable_id;
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
@@ -479,14 +486,14 @@ class ChatMessage extends Model
     {
         $media = $this->getMedia(config('constants.attach_image_tag'))->first();
         if ($media) {
-            \Log::channel('customer')->info("Media image found for customer id : " . $customer->id);
-            $mediable = \DB::table("mediables")->where("media_id", $media->id)
-                ->where("mediable_type", \App\Product::class)
+            \Log::channel('customer')->info('Media image found for customer id : ' . $customer->id);
+            $mediable = \DB::table('mediables')->where('media_id', $media->id)
+                ->where('mediable_type', \App\Product::class)
                 ->first();
-            if (!empty($mediable)) {
-                \Log::channel('customer')->info("Mediable for customer id : " . $customer->id);
+            if (! empty($mediable)) {
+                \Log::channel('customer')->info('Mediable for customer id : ' . $customer->id);
                 try {
-                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
+                    app(\App\Http\Controllers\CustomerController::class)->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]), true);
                 } catch (\Exception $e) {
                     \Log::channel('customer')->info($e->getMessage());
                 }
@@ -497,13 +504,10 @@ class ChatMessage extends Model
     public function getRecieverUsername()
     {
         return $this->hasOne(\App\InstagramUsersList::class, 'id', 'instagram_user_id');
-
     }
 
     public function getSenderUsername()
     {
         return $this->hasOne(\App\Account::class, 'id', 'account_id');
-
     }
-
 }

@@ -6,7 +6,6 @@ use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendDailyActivityReport extends Mailable
 {
@@ -17,14 +16,18 @@ class SendDailyActivityReport extends Mailable
      *
      * @return void
      */
-     public $user;
-     public $time_slots;
+    public $user;
 
-     public function __construct(User $user, array $time_slots)
-     {
-       $this->user = $user;
-       $this->time_slots = $time_slots;
-     }
+    public $time_slots;
+
+    public $fromMailer;
+
+    public function __construct(User $user, array $time_slots)
+    {
+        $this->user = $user;
+        $this->time_slots = $time_slots;
+        $this->fromMailer = \App\Helpers::getFromEmail();
+    }
 
     /**
      * Build the message.
@@ -33,8 +36,8 @@ class SendDailyActivityReport extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
-                    // ->bcc('customercare@sololuxury.co.in')
+        return $this->from($this->fromMailer)
+                    // ->bcc($this->fromMailer)
                     ->subject('Daily Planner Report')
                     ->markdown('emails.daily-activity-report');
     }

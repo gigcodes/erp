@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class DeleteTotemJobEveryTime extends Command
@@ -37,19 +38,28 @@ class DeleteTotemJobEveryTime extends Command
      */
     public function handle()
     {
-        //
-        $jobs = \App\Job::where('payload','like',"%Totem%");
-        /*if(!empty($limit)) {
-            $jobs = $jobs->limit($limit);
-        }*/
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
+            $jobs = \App\Job::where('payload', 'like', '%Totem%');
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Job query finished .']);
+            /*if(!empty($limit)) {
+                $jobs = $jobs->limit($limit);
+            }*/
 
-        $jobs = $jobs->get();
+            $jobs = $jobs->get();
 
-        if(!$jobs->isEmpty()) {
-            foreach($jobs as $job) {
-                echo $job->id." started to delete \n";
-                $job->delete();
+            if (! $jobs->isEmpty()) {
+                foreach ($jobs as $job) {
+                    echo $job->id . " started to delete \n";
+                    LogHelper::createCustomLogForCron($this->signature, ['message' => "corn was started to delete \n"]);
+                    $job->delete();
+                }
             }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

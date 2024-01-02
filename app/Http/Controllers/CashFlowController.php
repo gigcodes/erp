@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\CashFlow;
-use App\File;
-use App\Helpers;
-use App\MonetaryAccount;
-use App\Purchase;
-use App\ReadOnly\CashFlowCategories;
-use App\Setting;
-use App\User;
 use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Storage;
+use App\File;
+use App\User;
+use App\Helpers;
+use App\Setting;
+use App\CashFlow;
+use App\Purchase;
 use Carbon\Carbon;
+use App\StoreWebsite;
+use App\MonetaryAccount;
+use Illuminate\Http\Request;
 use App\Loggers\HubstuffCommandLog;
+use App\ReadOnly\CashFlowCategories;
+use Illuminate\Support\Facades\Validator;
 use App\Loggers\HubstuffCommandLogMessage;
-
 
 class CashFlowController extends Controller
 {
@@ -28,90 +28,81 @@ class CashFlowController extends Controller
      */
     public function index(Request $request)
     {
+//        dd($request);
+
         $date_fornightly = Carbon::now()->format('d');
 
+        $cash_flow = CashFlow::with(['user', 'files', 'website']);
+        $website_name = StoreWebsite::get();
 
-        $cash_flow = CashFlow::with(['user', 'files']);
-        if ($request->type!='')
-            $cash_flow->where('type',$request->type);
-        if ($request->module_type!='')
-           {
-               if ($request->module_type=='order')
-                  {
-                    $cash_flow->where('cash_flow_able_type',\App\Order::class);
-                    if ($request->b_name!='')
-                        {
-                            $cash_flow->join('orders','cash_flows.cash_flow_able_id','orders.id');
-                            $cash_flow->join('customers','orders.customer_id','customers.id');
-                            $cash_flow->where('name','like',"%$request->b_name%");
-                        } 
+        if ($request->site_name != '') {
+            $cash_flow->join('store_website_orders', 'cash_flows.cash_flow_able_id', 'store_website_orders.order_id')->join('store_websites', 'store_websites.id', 'store_website_orders.website_id')->whereIn('store_websites.website', $request->site_name);
+        }
 
-                  } 
-               if ($request->module_type=='payment_receipt')
-                  {
-                            $cash_flow->where('cash_flow_able_type',\App\PaymentReceipt::class); 
-                            if ($request->b_name!='')
-                        {
-                            $cash_flow->join('payment_receipts','cash_flows.cash_flow_able_id','assets_manager.id');
-                            $cash_flow->where('remarks','like',"%$request->b_name%"); 
-                        }
-                  }  
-               if ($request->module_type=='assent_manager')
-                  {
-                        $cash_flow->where('cash_flow_able_type',\App\AssetsManager::class); 
-                        if ($request->b_name!='')
-                        {
-                        $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
-                        $cash_flow->where('name','like',"%$request->b_name%");
-                        }
-                  
-                         
-
-                  }  
-                  if ($request->module_type=='vendor_frequency')
-                  {
-                        $cash_flow->where('cash_flow_able_type',\App\HubstaffActivityByPaymentFrequency::class); 
-                        if ($request->b_name!='')
-                        {
-                     //   $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
-                     //   $cash_flow->where('name','like',"%$request->b_name%");
-                        }
-                  
-                         
-
-                  }      
-           }
-        
-        if ($request->daterange!='')
-        {
-            $date=explode("-", $request->daterange);
-            $datefrom=date('Y-m-d',strtotime($date[0]));
-            $dateto=date('Y-m-d',strtotime($date[1]));
+        if ($request->type != '') {
+            $cash_flow->where('type', $request->type);
+        }
+        if ($request->module_type != '') {
+            if ($request->module_type == 'order') {
+                $cash_flow->where('cash_flow_able_type', \App\Order::class);
+                if ($request->b_name != '') {
+                    $cash_flow->join('orders', 'cash_flows.cash_flow_able_id', 'orders.id');
+                    $cash_flow->join('customers', 'orders.customer_id', 'customers.id');
+                    $cash_flow->where('name', 'like', "%$request->b_name%");
+                }
+            }
+            if ($request->module_type == 'payment_receipt') {
+                $cash_flow->where('cash_flow_able_type', \App\PaymentReceipt::class);
+                if ($request->b_name != '') {
+                    $cash_flow->join('payment_receipts', 'cash_flows.cash_flow_able_id', 'assets_manager.id');
+                    $cash_flow->where('remarks', 'like', "%$request->b_name%");
+                }
+            }
+            if ($request->module_type == 'assent_manager') {
+                $cash_flow->where('cash_flow_able_type', \App\AssetsManager::class);
+                if ($request->b_name != '') {
+                    $cash_flow->join('assets_manager', 'cash_flows.cash_flow_able_id', 'assets_manager.id');
+                    $cash_flow->where('name', 'like', "%$request->b_name%");
+                }
+            }
+            if ($request->module_type == 'vendor_frequency') {
+                $cash_flow->where('cash_flow_able_type', \App\HubstaffActivityByPaymentFrequency::class);
+                if ($request->b_name != '') {
+                    //   $cash_flow->join('assets_manager','cash_flows.cash_flow_able_id','assets_manager.id');
+                    //   $cash_flow->where('name','like',"%$request->b_name%");
+                }
+            }
+        }
+        if ($request->hidden_daterange != '') {
+            $date = explode('-', $request->hidden_daterange);
+            $datefrom = date('Y-m-d', strtotime($date[0]));
+            $dateto = date('Y-m-d', strtotime($date[1]));
             $cash_flow->whereRaw("date(date) between date('$datefrom') and date('$dateto')");
         }
+
         $cash_flows = $cash_flow->orderBy('date', 'desc')->orderBy('cash_flows.id', 'desc')->paginate(Setting::get('pagination'));
-        $users      = User::select(['id', 'name', 'email'])->get();
+
+        $users = User::select(['id', 'name', 'email'])->get();
         $categories = (new CashFlowCategories)->all();
         //$orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount'])->orderBy('order_date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'order-page');
         $purchases = Purchase::with('products')->select(['id', 'created_at'])->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'purchase-page');
         //$vouchers = Voucher::orderBy('date', 'DESC')->paginate(Setting::get('pagination'), ['*'], 'voucher-page');
-        if ($request->ajax()) 
-        {
+        if ($request->ajax()) {
             return view('cashflows.index_page', [
                 'cash_flows' => $cash_flows,
-                'users'      => $users,
+                'users' => $users,
+                'website_name' => $website_name,
                 'categories' => $categories,
-                'purchases'  => $purchases,
+                'purchases' => $purchases,
             ]);
-        }
-        else
-        {
-        return view('cashflows.index', [
-            'cash_flows' => $cash_flows,
-            'users'      => $users,
-            'categories' => $categories,
-            'purchases'  => $purchases,
-        ]);
+        } else {
+            return view('cashflows.index', [
+                'cash_flows' => $cash_flows,
+                'users' => $users,
+                'website_name' => $website_name,
+                'categories' => $categories,
+                'purchases' => $purchases,
+            ]);
         }
     }
 
@@ -128,7 +119,6 @@ class CashFlowController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -136,13 +126,13 @@ class CashFlowController extends Controller
         $this->validate($request, [
             // 'user_id'               => 'required|integer',
             'cash_flow_category_id' => 'sometimes|nullable|integer',
-            'description'           => 'sometimes|nullable|string',
-            'date'                  => 'required',
-            'amount'                => 'required|integer',
-            'type'                  => 'required|string',
+            'description' => 'sometimes|nullable|string',
+            'date' => 'required',
+            'amount' => 'required|integer',
+            'type' => 'required|string',
         ]);
 
-        $data            = $request->except(['_token', 'file']);
+        $data = $request->except(['_token', 'file']);
         $data['user_id'] = Auth::id();
 
         $cash_flow = CashFlow::create($data);
@@ -151,11 +141,11 @@ class CashFlowController extends Controller
             foreach ($request->file('file') as $file) {
                 $filename = $file->getClientOriginalName();
 
-                $file->storeAs("files", $filename, 'uploads');
+                $file->storeAs('files', $filename, 'uploads');
 
-                $new_file             = new File;
-                $new_file->filename   = $filename;
-                $new_file->model_id   = $cash_flow->id;
+                $new_file = new File;
+                $new_file->filename = $filename;
+                $new_file->model_id = $cash_flow->id;
                 $new_file->model_type = CashFlow::class;
                 $new_file->save();
             }
@@ -174,18 +164,17 @@ class CashFlowController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -196,8 +185,7 @@ class CashFlowController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -208,7 +196,7 @@ class CashFlowController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -229,27 +217,27 @@ class CashFlowController extends Controller
 
     public function masterCashFlow(CashFlow $cashFlow, MonetaryAccount $account, Request $request)
     {
-        $cash_flows         = $cashFlow;
-        $capitals           = $account;
+        $cash_flows = $cashFlow;
+        $capitals = $account;
         $data['start_date'] = date('Y-m-d');
-        $data['end_date']   = date('Y-m-d');
-        $range_start        = $request->get('range_start');
-        $range_end          = $request->get('range_end');
+        $data['end_date'] = date('Y-m-d');
+        $range_start = $request->get('range_start');
+        $range_end = $request->get('range_end');
 
         $dates = [date('Y-m-d')];
         if ($range_start != '' && $range_end != '') {
-            $cash_flows                = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
+            $cash_flows = $cash_flows->whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59']);
             $added_capitals_in_between = MonetaryAccount::whereBetween('date', [$range_start . ' 00:00', $range_end . ' 23:59'])->get();
-            $data['start_date']        = $range_start;
-            $data['end_date']          = $range_end;
+            $data['start_date'] = $range_start;
+            $data['end_date'] = $range_end;
         }
 
-        if (!$range_start || !$range_end) {
-            $cash_flows                = $cash_flows->where('date', date('Y-m-d'));
+        if (! $range_start || ! $range_end) {
+            $cash_flows = $cash_flows->where('date', date('Y-m-d'));
             $added_capitals_in_between = MonetaryAccount::where('date', date('Y-m-d'))->get();
         }
-        $capitals        = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
-        $currencies      = Helpers::currencies();
+        $capitals = $capitals->where('date', '<', $data['start_date'] . ' 00:00')->get();
+        $currencies = Helpers::currencies();
         $opening_balance = [
             'total' => 0,
         ];
@@ -264,147 +252,130 @@ class CashFlowController extends Controller
                 } else {
                     $opening_balance[$currency] = $capital->currency == $currency_id ? $capital->amount : 0;
                 }
-
             }
         }
-        $data['currencies']                = $currencies;
-        $data['opening_balance']           = $opening_balance;
+        $data['currencies'] = $currencies;
+        $data['opening_balance'] = $opening_balance;
         $data['added_capitals_in_between'] = $added_capitals_in_between;
-        $data['transactions']              = collect($cash_flows->orderBy('date')->orderBy('type', 'desc')->orderBy('cash_flow_able_type')->get()->toArray());
+        $data['transactions'] = collect($cash_flows->orderBy('date')->orderBy('type', 'desc')->orderBy('cash_flow_able_type')->get()->toArray());
+
         return view('cashflows.master', $data);
     }
 
     public function doPayment(Request $request)
     {
-        $id = $request->get("cash_flow_id", 0);
+        $id = $request->get('cash_flow_id', 0);
 
         $validator = Validator::make($request->all(), [
             'cash_flow_id' => 'required',
-            'description'  => 'required',
-            'date'         => 'required',
-            'amount'       => 'required',
-            'type'         => 'required',
+            'description' => 'required',
+            'date' => 'required',
+            'amount' => 'required',
+            'type' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(["code" => 401, "data" => $validator->errors(), "message" => "Please fix validation errors"]);
+            return response()->json(['code' => 401, 'data' => $validator->errors(), 'message' => 'Please fix validation errors']);
         }
 
         if ($id > 0) {
             $cashflow = \App\CashFlow::find($id);
             if ($cashflow) {
-                $cashflow->erp_amount          = $request->amount;
-                $cashflow->type                = $request->type;
+                $cashflow->erp_amount = $request->amount;
+                $cashflow->type = $request->type;
                 $cashflow->monetary_account_id = $request->monetary_account_id;
-                $cashflow->updated_by          = auth()->user()->id;
-                $cashflow->status              = 1;
+                $cashflow->updated_by = auth()->user()->id;
+                $cashflow->status = 1;
                 if ($cashflow->erp_amount > 0) {
                     $cashflow->erp_eur_amount = \App\Currency::convert($cashflow->erp_amount, 'EUR', $cashflow->currency);
                 }
-                
+
                 $cashflow->save();
             }
 
-            return response()->json(["code" => 200, "data" => [], "message" => "Receipt Created successfully"]);
+            return response()->json(['code' => 200, 'data' => [], 'message' => 'Receipt Created successfully']);
         }
 
-        return response()->json(["code" => 500, "data" => [], "message" => "Cashflow requested id is not found"]);
+        return response()->json(['code' => 500, 'data' => [], 'message' => 'Cashflow requested id is not found']);
     }
 
-    public function getPaymentDetails(Request $request){
-        $cashflow_id=$request->id;
+    public function getPaymentDetails(Request $request)
+    {
+        $cashflow_id = $request->id;
         $cash_flow = CashFlow::find($cashflow_id);
-        
+
         $payment_receipts = [];
-        if($cash_flow){
-         $hubstaffActivityByPaymentFrequency = \App\HubstaffActivityByPaymentFrequency::where("id",$cash_flow->cash_flow_able_id)->first();
-         
-         if($hubstaffActivityByPaymentFrequency){
-             $payment_receipts = json_decode($hubstaffActivityByPaymentFrequency->payment_receipt_ids);
-             if(!empty($payment_receipts)){
-                $tasks         = \App\PaymentReceipt::with('chat_messages','user')->whereIn('id', $payment_receipts)->get();
-              
-                return view("cashflows.payment_receipts", compact('tasks'));
-             }
-         }   
+        if ($cash_flow) {
+            $hubstaffActivityByPaymentFrequency = \App\HubstaffActivityByPaymentFrequency::where('id', $cash_flow->cash_flow_able_id)->first();
+
+            if ($hubstaffActivityByPaymentFrequency) {
+                $payment_receipts = json_decode($hubstaffActivityByPaymentFrequency->payment_receipt_ids);
+                if (! empty($payment_receipts)) {
+                    $tasks = \App\PaymentReceipt::with('chat_messages', 'user')->whereIn('id', $payment_receipts)->get();
+
+                    return view('cashflows.payment_receipts', compact('tasks'));
+                }
+            }
         }
     }
+
     public function getBnameList(Request $request)
     {
-         
-         $model_type=$request->model_type;
-         if ($model_type=='order')
-         {
-                $model_type="\App\Customer";
-                $rs=$model_type::get();
-                $data='';
-                foreach($rs as $r)
-                {
-                   
-                    $arr['name']=$r->name;
+        $model_type = $request->model_type;
+        if ($model_type == 'order') {
+            $model_type = \App\Customer::class;
+            $rs = $model_type::get();
+            $data = '';
+            foreach ($rs as $r) {
+                $arr['name'] = $r->name;
 
+                $data = $arr;
+            }
 
-                    $data=$arr;
+            return response()->json($data);
+        }
+        if ($model_type == 'assent_manager') {
+            $model_type = \App\AssetsManager::class;
+            $rs = $model_type::get();
+            $data = '';
+            foreach ($rs as $r) {
+                $arr['name'] = $r->name;
 
-                }
-                
-                return response()->json($data);
-         } 
-         if ($model_type=='assent_manager')
-         {
-                $model_type="\App\AssetsManager";
-                $rs=$model_type::get();
-                $data='';
-                foreach($rs as $r)
-                {
-                    $arr['name']=$r->name;
+                $data = $arr;
+            }
 
+            return response()->json($data);
+        }
 
-                    $data=$arr;
+        if ($model_type == 'payment_receipt') {
+            $model_type = \App\PaymentReceipt::class;
+            $rs = $model_type::get();
+            $data = '';
+            foreach ($rs as $r) {
+                $arr['name'] = $r->remarks;
 
-                }
-                
-                return response()->json($data);
-         } 
-         
-         if ($model_type=='payment_receipt')
-         {
-                $model_type="\App\PaymentReceipt";
-                $rs=$model_type::get();
-                $data='';
-                foreach($rs as $r)
-                {
-                    
-                    $arr['name']=$r->remarks;
+                $data = $arr;
+            }
 
-
-                    $data=$arr;
-
-                }
-                
-                return response()->json($data);
-         }  
+            return response()->json($data);
+        }
     }
+
     public function hubstuffCommandLog(Request $request)
     {
-       // dd("test");
-        if ( $request->created_at) {
-
+        // dd("test");
+        if ($request->created_at) {
             $query = HubstuffCommandLog::orderby('created_at', 'desc');
 
             if (request('created_at') != null) {
                 $query->whereDate('created_at', request('created_at'));
             }
-           
 
-            
             $paginate = (Setting::get('pagination') * 10);
-            $logs     = $query->paginate($paginate)->appends(request()->except(['page']));
+            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
         } else {
-
             $paginate = (Setting::get('pagination') * 10);
-            $logs     = HubstuffCommandLog::orderby('created_at', 'desc')->paginate($paginate);
-
+            $logs = HubstuffCommandLog::orderby('created_at', 'desc')->paginate($paginate);
         }
 
         if ($request->ajax()) {
@@ -417,19 +388,17 @@ class CashFlowController extends Controller
 
         return view('cashflows.hubstuff_command_log', compact('logs'));
     }
-    public function hubstuffCommandLogDetail(Request $request){
-		$messageLogs =  [];
-        $users =\App\User::pluck("name","id");
-			if(isset($request->id) and $request->id != 0){
-				$messageLogs = HubstuffCommandLogMessage::where('hubstuff_command_log_id', $request->id)->get();
-			/*	$messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')->leftJoin('users', 'users.id', '=', 'flow_log_messages.leads')
-				->select('flow_log_messages.*','sw.website as website', 'users.name as lead_name')->get();*/
-                
 
-            }
-	    
-        return view('cashflows.hubstuff_command_log_detail_data', compact('messageLogs','users'));
-    }    
+    public function hubstuffCommandLogDetail(Request $request)
+    {
+        $messageLogs = [];
+        $users = \App\User::pluck('name', 'id');
+        if (isset($request->id) and $request->id != 0) {
+            $messageLogs = HubstuffCommandLogMessage::where('hubstuff_command_log_id', $request->id)->get();
+            /*	$messageLogs = $messageLogs->leftJoin('store_websites as sw', 'sw.id', '=', 'flow_log_messages.store_website_id')->leftJoin('users', 'users.id', '=', 'flow_log_messages.leads')
+                ->select('flow_log_messages.*','sw.website as website', 'users.name as lead_name')->get();*/
+        }
 
+        return view('cashflows.hubstuff_command_log_detail_data', compact('messageLogs', 'users'));
+    }
 }
-    

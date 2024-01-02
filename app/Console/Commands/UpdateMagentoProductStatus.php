@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\CategoryController;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CategoryController;
 
 class UpdateMagentoProductStatus extends Command
 {
@@ -30,7 +30,7 @@ class UpdateMagentoProductStatus extends Command
     /**
      * Create a new command instance.
      *
-     * @param GebnegozionlineProductDetailsScraper $scraper
+     * @param  GebnegozionlineProductDetailsScraper  $scraper
      */
     public function __construct()
     {
@@ -46,17 +46,17 @@ class UpdateMagentoProductStatus extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $options = array(
-                'trace'              => true,
+            $options = [
+                'trace' => true,
                 'connection_timeout' => 120,
-                'wsdl_cache'         => WSDL_CACHE_NONE,
-            );
+                'wsdl_cache' => WSDL_CACHE_NONE,
+            ];
 
-            $proxy     = new \SoapClient(config('magentoapi.url'), $options);
+            $proxy = new \SoapClient(config('magentoapi.url'), $options);
             $sessionId = $proxy->login(config('magentoapi.user'), config('magentoapi.password'));
 
             // $magento_products = $proxy->catalogProductList($sessionId);
@@ -70,9 +70,9 @@ class UpdateMagentoProductStatus extends Command
             foreach ($products as $key => $product) {
                 // $product = Product::where('sku', 'RW0B0312VIT0RO')->first();
 
-                $error_message        = '';
+                $error_message = '';
                 $second_error_message = '';
-                $sku                  = $product->sku . $product->color;
+                $sku = $product->sku . $product->color;
 
                 try {
                     $magento_product = json_decode(json_encode($proxy->catalogProductInfo($sessionId, $sku)), true);
@@ -83,7 +83,7 @@ class UpdateMagentoProductStatus extends Command
                 // CONFIGURABLE PRODUCT DOESNT EXIST
                 if ($error_message == 'Product not exists.') {
                     $product->isUploaded = 0;
-                    $product->isFinal    = 0;
+                    $product->isFinal = 0;
 
                     dump("$key Product Doesnt Exist - $product->sku - status ($product->isUploaded)");
 
@@ -120,13 +120,13 @@ class UpdateMagentoProductStatus extends Command
                     $product->isUploaded = 1;
                     dump("$key CONFIGURABLE PRODUCT - $product->sku - status($product->isUploaded)");
 
-                    if (!empty($product->size)) {
+                    if (! empty($product->size)) {
                         // THERE ARE SIZES
 
                         $associated_skus = [];
-                        $new_variations  = 0;
-                        $sizes_array     = explode(',', $product->size);
-                        $categories      = CategoryController::getCategoryTreeMagentoIds($product->category);
+                        $new_variations = 0;
+                        $sizes_array = explode(',', $product->size);
+                        $categories = CategoryController::getCategoryTreeMagentoIds($product->category);
 
                         foreach ($sizes_array as $key2 => $size) {
                             $error_message = '';
@@ -143,42 +143,41 @@ class UpdateMagentoProductStatus extends Command
 
                                 // CREATE VARIATION
 
-                                $productData = array(
-                                    'categories'            => $categories,
-                                    'name'                  => $product->name,
-                                    'description'           => '<p></p>',
-                                    'short_description'     => $product->short_description,
-                                    'website_ids'           => array(1),
+                                $productData = [
+                                    'categories' => $categories,
+                                    'name' => $product->name,
+                                    'description' => '<p></p>',
+                                    'short_description' => $product->short_description,
+                                    'website_ids' => [1],
                                     // Id or code of website
-                                    'status'                => $magento_product['status'],
+                                    'status' => $magento_product['status'],
                                     // 1 = Enabled, 2 = Disabled
-                                    'visibility'            => 1,
+                                    'visibility' => 1,
                                     // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
-                                    'tax_class_id'          => 2,
+                                    'tax_class_id' => 2,
                                     // Default VAT
-                                    'weight'                => 0,
-                                    'stock_data'            => array(
+                                    'weight' => 0,
+                                    'stock_data' => [
                                         'use_config_manage_stock' => 1,
-                                        'manage_stock'            => 1,
-                                    ),
-                                    'price'                 => $product->price_eur_special,
+                                        'manage_stock' => 1,
+                                    ],
+                                    'price' => $product->price_eur_special,
                                     // Same price than configurable product, no price change
-                                    'special_price'         => $product->price_eur_discounted,
-                                    'additional_attributes' => array(
-                                        'single_data' => array(
-                                            array('key' => 'msrp', 'value' => $product->price),
-                                            array('key' => 'composition', 'value' => $product->composition),
-                                            array('key' => 'color', 'value' => $product->color),
-                                            array('key' => 'sizes', 'value' => $size),
-                                            array('key' => 'country_of_manufacture', 'value' => $product->made_in),
-                                            array('key' => 'brands', 'value' => BrandController::getBrandName($product->brand)),
-                                        ),
-                                    ),
-                                );
+                                    'special_price' => $product->price_eur_discounted,
+                                    'additional_attributes' => [
+                                        'single_data' => [
+                                            ['key' => 'msrp', 'value' => $product->price],
+                                            ['key' => 'composition', 'value' => $product->composition],
+                                            ['key' => 'color', 'value' => $product->color],
+                                            ['key' => 'sizes', 'value' => $size],
+                                            ['key' => 'country_of_manufacture', 'value' => $product->made_in],
+                                            ['key' => 'brands', 'value' => BrandController::getBrandName($product->brand)],
+                                        ],
+                                    ],
+                                ];
                                 // Creation of product simple
-                                $result         = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
+                                $result = $proxy->catalogProductCreate($sessionId, 'simple', 14, $sku . '-' . $size, $productData);
                                 $new_variations = 1;
-
                             } else {
                                 // SIMPLE PRODUCT EXISTS
 
@@ -204,9 +203,9 @@ class UpdateMagentoProductStatus extends Command
                             /**
                              * Configurable product
                              */
-                            $productData = array(
+                            $productData = [
                                 'associated_skus' => $associated_skus,
-                            );
+                            ];
                             // Creation of configurable product
                             $result = $proxy->catalogProductUpdate($sessionId, $sku, $productData);
                         }

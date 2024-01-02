@@ -59,6 +59,13 @@
         </div>
     </div>
 
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Expired Day:</strong>
+            {!! Form::number('expired_day', ($Notification->expired_day)?$Notification->expired_day:old('expired_day'), array('placeholder' => 'Expired day in number','class' => 'form-control','min'=>0)) !!}
+        </div>
+    </div>
+
     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
         <input type="hidden" name="id" value="{{$Notification->id}}">
         <button type="submit" class="btn btn-secondary">+</button>

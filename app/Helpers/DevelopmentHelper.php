@@ -6,9 +6,8 @@ use App\DeveloperTask;
 
 class DevelopmentHelper
 {
-    public static function getDeveloperTasks($developerId, $status = 'In Progress', $task_type)
+    public static function getDeveloperTasks($developerId, $status, $task_type)
     {
-
         // Get open tasks for developer
         $developerTasks = DeveloperTask::where('user_id', $developerId)
             ->join('task_types', 'task_types.id', '=', 'developer_tasks.task_type_id')
@@ -27,30 +26,30 @@ class DevelopmentHelper
     public static function scrapTypes()
     {
         return [
-            "1" => "Typescript",
-            "2" => "NodeJS Request/Cheerio",
-            "3" => "NodeJS Puppeteer",
-            "4" => "NodeJS Puppeteer with URL list",
-            "5" => "NodeJS Puppeteer Luminati with URL list",
-            "6" => "Py Scraper"
+            '1' => 'Typescript',
+            '2' => 'NodeJS Request/Cheerio',
+            '3' => 'NodeJS Puppeteer',
+            '4' => 'NodeJS Puppeteer with URL list',
+            '5' => 'NodeJS Puppeteer Luminati with URL list',
+            '6' => 'Py Scraper',
         ];
     }
 
     public static function scrapTypeById($id)
     {
-        if(!empty($id)) {
-            return isset(self::scrapTypes()[$id]) ? self::scrapTypes()[$id] : "";
+        if (! empty($id)) {
+            return isset(self::scrapTypes()[$id]) ? self::scrapTypes()[$id] : '';
         }
 
-        return "";
+        return '';
     }
 
     public static function needToApproveMessage()
     {
         $approveMessage = 0;
 
-        $approvalmodel  = \App\Setting::where("name","is_approve_message_btn")->first();
-        if($approvalmodel) {
+        $approvalmodel = \App\Setting::where('name', 'is_approve_message_btn')->first();
+        if ($approvalmodel) {
             $approveMessage = $approvalmodel->val;
         }
 

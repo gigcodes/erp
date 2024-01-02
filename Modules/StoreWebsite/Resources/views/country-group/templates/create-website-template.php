@@ -20,7 +20,7 @@
 		         <div class="form-group col-md-12">
 		            <label for="status">Group Country</label>
 		            <select name="country_code[]" class="form-control select2 option-mul-code-group" multiple="true" style="width:100%;">
-			            <?php foreach(\App\SimplyDutyCountry::getSelectList() as $k => $l){ ?>
+			            <?php foreach (\App\SimplyDutyCountry::getSelectList() as $k => $l) { ?>
 							<option
 							  {{if ~inArray('<?php echo $k ?>',data.items)}}
 							  	selected

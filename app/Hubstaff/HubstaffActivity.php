@@ -19,7 +19,7 @@ class HubstaffActivity extends Model
         'status',
         'paid',
         'is_manual',
-        'user_notes'
+        'user_notes',
     ];
 
     public static function getActivitiesForWeek($week, $year)
@@ -54,28 +54,28 @@ class HubstaffActivity extends Model
 
     public function developerTask()
     {
-        return $this->hasMany('App\DeveloperTask', 'hubstaff_task_id', 'task_id');
+        return $this->hasMany(\App\DeveloperTask::class, 'hubstaff_task_id', 'task_id');
     }
 
-
-    public static function getTrackedActivitiesBetween($start, $end,$user_id)
+    public static function getTrackedActivitiesBetween($start, $end, $user_id)
     {
-        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at','>=',$start)->whereDate('hubstaff_activities.starts_at','<=',$end)->where('hubstaff_members.user_id',$user_id)->where('hubstaff_activities.status',1)->where('hubstaff_activities.paid',0)
-        ->orderBy('hubstaff_activities.starts_at',"asc")
+        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=', $start)->whereDate('hubstaff_activities.starts_at', '<=', $end)->where('hubstaff_members.user_id', $user_id)->where('hubstaff_activities.status', 1)->where('hubstaff_activities.paid', 0)
+        ->orderBy('hubstaff_activities.starts_at', 'asc')
         ->select('hubstaff_activities.*')
         ->get();
     }
 
     /**
-     * Get all activites, 
+     * Get all activites,
      * which have approved and does not paid yet.
+     *
      * @return array
      */
     public static function getAllTrackedActivities()
     {
         return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
-            ->where('hubstaff_activities.status',1)
-            ->where('hubstaff_activities.paid',0)
+            ->where('hubstaff_activities.status', 1)
+            ->where('hubstaff_activities.paid', 0)
             ->orderBy('created_at', 'DESC')
             ->select('hubstaff_activities.*', 'hubstaff_members.user_id as hm_user_id')
             ->get();

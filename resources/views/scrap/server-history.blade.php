@@ -45,7 +45,7 @@
                                         $loops = $listOfServerUsed[$k][$totalServer];
                                         foreach($loops as $l) {
                                             ?>
-                                            <span class="show-short-error-{{$rndid}}">{{ str_limit($l['memory_string'], 13, '..')}}</span>
+                                            <span class="show-short-error-{{$rndid}}">{{ Str::limit($l['memory_string'], 13, '..')}}</span>
                                             <span style="word-break:break-all;" class="show-full-error-{{$rndid}} hidden">{{$l['memory_string']}}</span>
                                             <?php
                                             break;

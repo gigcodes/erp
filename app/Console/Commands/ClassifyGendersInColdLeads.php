@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
-use App\CronJobReport;
-use App\PeopleNames;
 use Carbon\Carbon;
+use App\PeopleNames;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class ClassifyGendersInColdLeads extends Command
@@ -43,7 +43,7 @@ class ClassifyGendersInColdLeads extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -56,7 +56,7 @@ class ClassifyGendersInColdLeads extends Command
                 try {
                     $gender = PeopleNames::whereRaw("INSTR('$coldLead->username', `name`) > 0")->orWhereRaw("INSTR('$coldLead->name', `name`) > 0")->where('name', '!=', '')->first();
                     if ($gender) {
-                        $gender           = $gender->gender;
+                        $gender = $gender->gender;
                         $coldLead->gender = $gender;
                     }
                 } catch (\Exception $exception) {

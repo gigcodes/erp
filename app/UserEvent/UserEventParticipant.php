@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserEventParticipant extends Model
 {
-
     public $timestamps = false;
 
     protected $fillable = [
@@ -18,7 +17,7 @@ class UserEventParticipant extends Model
     public function event()
     {
         return $this->belongsTo(
-            'App\UserEvent\UserEvent',
+            \App\UserEvent\UserEvent::class,
             'user_event_id',
             'id'
         );

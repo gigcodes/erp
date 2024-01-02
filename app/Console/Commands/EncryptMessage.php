@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\ChatMessage;
-use App\Customer;
 use App\PublicKey;
+use App\ChatMessage;
+use Illuminate\Console\Command;
 
 class EncryptMessage extends Command
 {
@@ -43,7 +42,7 @@ class EncryptMessage extends Command
         $customerChats = ChatMessage::whereNotNull('customer_id')->whereNotNull('message')->get();
         foreach ($customerChats as $customerChat) {
             $public = PublicKey::first();
-            if($public != null){
+            if ($public != null) {
                 $public = hex2bin($public->key);
                 $message = sodium_crypto_box_seal($customerChat->message, $public);
                 $customerChat->message = bin2hex($message);

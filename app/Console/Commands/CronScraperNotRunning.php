@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -44,12 +45,12 @@ class CronScraperNotRunning extends Command
         // Create cron job report
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             // Get all suppliers
-            $sql = "
+            $sql = '
             SELECT
                 s.id,
                 s.supplier,
@@ -74,7 +75,7 @@ class CronScraperNotRunning extends Command
                 last_update IS NULL
             ORDER BY
                 s.supplier
-        ";
+        ';
             $allSuppliers = DB::select($sql);
 
             // Do we have results?
@@ -85,23 +86,25 @@ class CronScraperNotRunning extends Command
                     $message = '[' . date('d-m-Y H:i:s') . '] Scraper not running: ' . $supplier->supplier;
 
                     // Output debug message
-                    dump("Scraper not running: " . $supplier->supplier);
+                    dump('Scraper not running: ' . $supplier->supplier);
 
                     // Try to send message
                     try {
                         // Output debug message
-                        dump("Sending message");
+                        dump('Sending message');
 
                         // Send message
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('34666805119', '971502609192', $message);
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi('971569119192', '971502609192', $message);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi('34666805119', '971502609192', $message);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi('971569119192', '971502609192', $message);
                     } catch (\Exception $e) {
                         // Output error
                         dump($e->getMessage());
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

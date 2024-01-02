@@ -5,7 +5,6 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AffiliateEmail extends Mailable
 {
@@ -16,14 +15,14 @@ class AffiliateEmail extends Mailable
      *
      * @return void
      */
-
     public $subject;
+
     public $message;
 
     public function __construct(string $subject, string $message)
     {
-      $this->subject = $subject;
-      $this->message = $message;
+        $this->subject = $subject;
+        $this->message = $message;
     }
 
     /**

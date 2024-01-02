@@ -2,8 +2,8 @@
 
 namespace App\Library\Instagram;
 
-use InstagramAPI\Request\People;
-use InstagramAPI\Instagram;
+//use InstagramAPI\Request\People;
+//use InstagramAPI\Instagram;
 
 class Helper
 {
@@ -22,17 +22,18 @@ class Helper
     {
         if ($seconds) {
             $hours = floor($seconds / 3600);
-            $mins  = floor($seconds / 60 % 60);
-            $secs  = floor($seconds % 60);
+            $mins = floor($seconds / 60 % 60);
+            $secs = floor($seconds % 60);
 
             return sprintf('%02d:%02d:%02d', $hours, $mins, $secs);
         }
+
         return '00:00:00';
     }
 
     public static function calc_bar($completed, $max)
     {
-        $max       = ($max <= 0 ? 1 : $max);
+        $max = ($max <= 0 ? 1 : $max);
         $completed = ($completed > $max ? $max : $completed);
 
         return round($completed * 100 / $max);
@@ -40,7 +41,7 @@ class Helper
 
     public static function setEnv($data)
     {
-        if (empty($data) || !is_array($data) || !is_file(base_path('.env'))) {
+        if (empty($data) || ! is_array($data) || ! is_file(base_path('.env'))) {
             return false;
         }
 
@@ -49,24 +50,22 @@ class Helper
         $env = explode("\n", $env);
 
         foreach ($data as $data_key => $data_value) {
-
             $updated = false;
 
             foreach ($env as $env_key => $env_value) {
-
                 $entry = explode('=', $env_value, 2);
 
                 // Check if new or old key
                 if ($entry[0] == $data_key) {
                     $env[$env_key] = $data_key . '=' . $data_value;
-                    $updated       = true;
+                    $updated = true;
                 } else {
                     $env[$env_key] = $env_value;
                 }
             }
 
             // Lets create if not available
-            if (!$updated) {
+            if (! $updated) {
                 $env[] = $data_key . '=' . $data_value;
             }
         }
@@ -78,24 +77,23 @@ class Helper
         return true;
     }
 
-    public static function getUserIdFromUsername($username, $loginUser = false, $loginPassword = false)
-    {
-        // Create instance
-        $instagram = new Instagram();
-        if(empty($loginUser)) {
-            $loginUser = "satyam_t";
-        }
-        if(empty($loginPassword)) {
-            $loginPassword = "Schoolrocks93";
-        }
-        // Login to Instagram
-        try {
-            $instagram->login($loginUser, $loginPassword);
-        }catch(Exception $e){
-            dd('Could Login to Account : '.$e->getMessage());
-        }
-        $profile = $instagram->people->getInfoByName($username)->asArray();
-        return $profile;
-    }
-
+//    public static function getUserIdFromUsername($username, $loginUser = false, $loginPassword = false)
+//    {
+//        // Create instance
+//        $instagram = new Instagram();
+//        if(empty($loginUser)) {
+//            $loginUser = "satyam_t";
+//        }
+//        if(empty($loginPassword)) {
+//            $loginPassword = "Schoolrocks93";
+//        }
+//        // Login to Instagram
+//        try {
+//            $instagram->login($loginUser, $loginPassword);
+//        }catch(Exception $e){
+//            dd('Could Login to Account : '.$e->getMessage());
+//        }
+//        $profile = $instagram->people->getInfoByName($username)->asArray();
+//        return $profile;
+//    }
 }

@@ -11,11 +11,11 @@ class ScrapReportExport implements FromView
 
     public function __construct($data)
     {
-      $this->data = $data;
+        $this->data = $data;
     }
 
     public function view(): View
     {
-        return view('exports.scrap-report',["reportData" => $this->data]);
+        return view('exports.scrap-report', ['reportData' => $this->data]);
     }
 }

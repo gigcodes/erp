@@ -16,8 +16,6 @@
 @endif
 
 
-
-
 @section('styles')
     <style>
         .results {
@@ -241,13 +239,16 @@
                     {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#sendAllModal">Send Message to All</button> --}}
                 @endif
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#mergeModal">Merge Customers</button>
-                <a class="btn btn-secondary" href="{{ route('customer.create') }}">+</a>
+{{--                    href="{{ route('customer.create') }}"--}}
+                <a type="button" class="btn btn-secondary" data-toggle="modal" data-target="#customerCreateModal">+</a>
                 <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
             </div>
         </div>
     </div>
 
     @include('customers.partials.modal-merge')
+
+    @include('customers.partials.modal-customer-create')
 
     {{-- @include('customers.partials.modal-send-to-all') --}}
 
@@ -359,11 +360,11 @@
                                 <button type="button" class="btn btn-image call-select popup" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png"/></button>
 
                                 <div class="numberSend" id="show{{ $customer->id }}">
-                                    <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}">
+                                    <select class="form-control call-twilio" data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}" data-auth-id="{{ Auth::id() }}">
                                         <option disabled selected>Select Number</option>
-                                        @foreach(\Config::get("twilio.caller_id") as $caller)
-                                            <option value="{{ $caller }}">{{ $caller }}</option>
-                                        @endforeach
+                                        @if ($customer->phone_number)
+                                            <option value="{{ $customer->phone_number }}">{{ $customer->phone_number }}</option>
+                                        @endif
                                     </select>
                                 </div>
 
@@ -603,7 +604,7 @@
                                     @foreach($orderProduct as $orderStat)
                                         @if($orderStat['product'])
                                             <li>
-                                                <a target="_new" href="{{ action('ProductController@show', $orderStat['product']['id'])  }}">{{ $orderStat['product']['id'] }}</a>
+                                                <a target="_new" href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $orderStat['product']['id'])  }}">{{ $orderStat['product']['id'] }}</a>
                                             </li>
                                         @endif
                                     @endforeach
@@ -1257,7 +1258,7 @@
             let message = $('#reminder_message').val();
 
             $.ajax({
-                url: "{{action('CustomerController@updateReminder')}}",
+                url: "{{action([\App\Http\Controllers\CustomerController::class, 'updateReminder'])}}",
                 type: 'POST',
                 success: function () {
                     toastr['success']('Reminder updated successfully!');
@@ -1301,7 +1302,7 @@
             let instructionId = $(this).attr('data-instructionId');
             let self = this;
             $.ajax({
-                url: '{{ action('InstructionController@verify') }}',
+                url: '{{ action([\App\Http\Controllers\InstructionController::class, 'verify']) }}',
                 type: 'post',
                 data: {
                     id: instructionId
@@ -2129,7 +2130,7 @@
                 return;
             }
             $.ajax({
-                url: '{{ action('CustomerController@search') }}',
+                url: '{{ action([\App\Http\Controllers\CustomerController::class, 'search']) }}',
                 data: {
                     keyword: keyword
                 },
@@ -2356,7 +2357,7 @@
             var customerId = $(this).data('customerid');
             var groupId = $('#group' + customerId).val();
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'quicksell_group_send')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'quicksell_group_send')}}",
                 type: 'POST',
                 data: {
                     groupId: groupId,
@@ -2384,6 +2385,7 @@
         $(document).on('click', '.call-select', function () {
             var id = $(this).data('id');
             $('#show' + id).toggle();
+            $(`#show${id} select option:first`).prop('selected', true);
             console.log('#show' + id);
         });
 

@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ScrapApiLog;
 use App\Scraper;
+use App\LogRequest;
+use App\ScrapApiLog;
 use Illuminate\Console\Command;
 
 class ScrapApiLogCommand extends Command
@@ -39,7 +40,7 @@ class ScrapApiLogCommand extends Command
      */
     public function handle()
     {
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         ScrapApiLog::where('created_at', '<', now()->subDays(7))->delete();
 
         $activeSuppliers = Scraper::with([
@@ -47,12 +48,12 @@ class ScrapApiLogCommand extends Command
                 $q->orderBy('id', 'desc');
             },
             'scrpRemark' => function ($q) {
-                $q->whereNull("scrap_field")->where('user_name', '!=', '')->orderBy('created_at', 'desc');
+                $q->whereNull('scrap_field')->where('user_name', '!=', '')->orderBy('created_at', 'desc');
             },
             'latestMessageNew' => function ($q) {
                 $q->whereNotIn('chat_messages.status', ['7', '8', '9', '10'])
                     ->take(1)
-                    ->orderBy("id", "desc");
+                    ->orderBy('id', 'desc');
             },
             'lastErrorFromScrapLogNew',
             'developerTaskNew',
@@ -62,14 +63,14 @@ class ScrapApiLogCommand extends Command
 
         ])
             ->withCount('childrenScraper')
-            ->join("suppliers as s", "s.id", "scrapers.supplier_id")
+            ->join('suppliers as s', 's.id', 'scrapers.supplier_id')
             ->where('supplier_status_id', 1)
-            ->whereIn("scrapper", [1, 2])
+            ->whereIn('scrapper', [1, 2])
             ->whereNull('parent_id')->get();
 
         foreach ($activeSuppliers as $key => $supplier) {
             $scraper = Scraper::find($supplier->id);
-            if (!$scraper->parent_id) {
+            if (! $scraper->parent_id) {
                 $name = $scraper->scraper_name;
             } else {
                 $name = $scraper->parent->scraper_name . '/' . $scraper->scraper_name;
@@ -84,27 +85,25 @@ class ScrapApiLogCommand extends Command
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
             $response = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $parameters = [];
+            LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($response), $httpcode, \App\Console\Commands\ScrapApiLogCommand::class, 'handle');
 
-            if (!empty($response)) {
-
+            if (! empty($response)) {
                 $response = json_decode($response);
 
-                if (!empty($response->log)) {
+                if (! empty($response->log)) {
                     $log = base64_decode($response->log);
 
-                    if (!empty($log)) {
-
+                    if (! empty($log)) {
                         $api_log = new ScrapApiLog;
                         $api_log->scraper_id = $scraper->id;
                         $api_log->server_id = $scraper->server_id;
                         $api_log->log_messages = $log;
                         $api_log->save();
                     }
-
                 }
-
             }
-
         }
     }
 }

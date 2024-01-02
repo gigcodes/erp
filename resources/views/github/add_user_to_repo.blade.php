@@ -4,7 +4,7 @@
 <h2 class="text-center">Add user to repository</h2>
 <div>
     {{Form::open(array('url' => '/github/add_user_to_repo', 'method' => 'POST'))}}
-    {{ Form::hidden('repo_name', Input::old('repo_name')) }}
+    {{ Form::hidden('repoId', $repoId) }}
     <div class="form-group">
         {{ Form::label('username', 'Users') }}
         {{ Form::select('username', $users, null , array('class' => 'form-control'))  }}

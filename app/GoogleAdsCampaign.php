@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -11,7 +12,8 @@ class GoogleAdsCampaign extends Model
 {
     /**
      * @var string
-    
+
+     *
      * @SWG\Property(property="google_campaign_id",type="integer")
      * @SWG\Property(property="default_phone",type="integer")
      * @SWG\Property(property="campaign_name",type="string")
@@ -33,10 +35,12 @@ class GoogleAdsCampaign extends Model
      * @SWG\Property(property="ad_rotation",type="sting")
      * @SWG\Property(property="campaign_response",type="sting")
      * @SWG\Property(property="status",type="sting")
+     * @SWG\Property(property="type",type="sting")
      */
-    protected $table    = 'googlecampaigns';
-    
+    protected $table = 'googlecampaigns';
+
     protected $fillable = [
+        'google_customer_id',
         'account_id',
         'google_campaign_id',
         'campaign_name',
@@ -56,25 +60,42 @@ class GoogleAdsCampaign extends Model
         'ad_rotation',
         'campaign_response',
         'status',
+        'app_id',
+        'app_store',
+        'type',
     ];
 
     const CAHANNEL_TYPE = [
-        "UNKNOWN"       => "Unknown",
-        "SEARCH"        => "SEARCH",
-        "DISPLAY"       => "DISPLAY",
-        "SHOPPING"      => "SHOPPING",
-        "MULTI_CHANNEL" => "MULTI_CHANNEL",
+        'UNKNOWN' => 'Unknown',
+        'SEARCH' => 'SEARCH',
+        'DISPLAY' => 'DISPLAY',
+        'SHOPPING' => 'SHOPPING',
+        'MULTI_CHANNEL' => 'MULTI_CHANNEL',
     ];
 
     const CAHANNEL_SUB_TYPE = [
-        "UNKNOWN"                   => "Unknown",
-        "SEARCH_MOBILE_APP"         => "Search mobile app",
-        "DISPLAY_MOBILE_APP"        => "Display mobile app",
-        "SEARCH_EXPRESS"            => "Search Express",
-        "DISPLAY_EXPRESS"           => "Display Express",
-        "UNIVERSAL_APP_CAMPAIGN"    => "Universal app campaign",
-        "DISPLAY_SMART_CAMPAIGN"    => "Display smart campaign",
-        "DISPLAY_GMAIL_AD"          => "Display gmail ad",
+        'UNKNOWN' => 'Unknown',
+        'SEARCH_MOBILE_APP' => 'Search mobile app',
+        'DISPLAY_MOBILE_APP' => 'Display mobile app',
+        'SEARCH_EXPRESS' => 'Search Express',
+        'DISPLAY_EXPRESS' => 'Display Express',
+        'UNIVERSAL_APP_CAMPAIGN' => 'Universal app campaign',
+        'DISPLAY_SMART_CAMPAIGN' => 'Display smart campaign',
+        'DISPLAY_GMAIL_AD' => 'Display gmail ad',
     ];
 
+    public function googleAccount()
+    {
+        return $this->belongsTo(GoogleAdsAccount::class, 'account_id');
+    }
+
+    public function account()
+    {
+        return $this->hasOne(\App\GoogleAdsAccount::class, 'id', 'account_id');
+    }
+
+    public function target_languages()
+    {
+        return $this->hasMany(\App\Models\GoogleCampaignTargetLanguage::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
 }

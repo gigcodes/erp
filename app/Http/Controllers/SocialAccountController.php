@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\LogRequest;
 use App\SocialContact;
 use App\SocialWebhookLog;
 use Illuminate\Http\Request;
@@ -14,29 +15,27 @@ class SocialAccountController extends Controller
     public function inbox()
     {
         $socialContact = SocialContact::with('socialConfig', 'getLatestSocialContactThread')->get();
+
         return view('instagram.inbox', compact('socialContact'));
     }
 
     /**
      * List Message of specific user
-     * 
-     * @param Request $request
      */
     public function listMessage(Request $request)
     {
         try {
             $contactId = $request->id;
             $contact = SocialContact::with('socialConfig', 'socialContactThread')->findOrFail($contactId);
-            return response()->json(array('messages' => $contact));
+
+            return response()->json(['messages' => $contact]);
         } catch (\Exception $e) {
-            return response()->json(array('error' => $e->getMessage()), 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
     /**
      * Sending Message to Social contact user
-     * 
-     * @param Request $request
      */
     public function sendMessage(Request $request)
     {
@@ -47,12 +46,13 @@ class SocialAccountController extends Controller
             $data['message']['text'] = $input;
             $pageToken = $contact->socialConfig->page_token;
             $url = "https://graph.facebook.com/v12.0/me/messages?access_token={$pageToken}";
+            $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
             $curl = curl_init();
 
-            SocialWebhookLog::log(SocialWebhookLog::INFO, "Send message request", ['data' => $data]);
+            SocialWebhookLog::log(SocialWebhookLog::INFO, 'Send message request', ['data' => $data]);
 
-            curl_setopt_array($curl, array(
+            curl_setopt_array($curl, [
                 CURLOPT_URL => $url,
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
@@ -62,32 +62,35 @@ class SocialAccountController extends Controller
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => json_encode($data),
-                CURLOPT_HTTPHEADER => array(
-                    'Content-Type: application/json'
-                ),
-            ));
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                ],
+            ]);
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\SocialAccountController::class, 'sendMessage');
             curl_close($curl);
 
-
-            SocialWebhookLog::log(SocialWebhookLog::INFO, "Send message response", ['response' => $response, 'data' => $data]);
+            SocialWebhookLog::log(SocialWebhookLog::INFO, 'Send message response', ['response' => $response, 'data' => $data]);
 
             if ($httpcode == 200) {
-                SocialWebhookLog::log(SocialWebhookLog::INFO, "Message sent successfully", ['response' => $response, 'data' => $data]);
+                SocialWebhookLog::log(SocialWebhookLog::INFO, 'Message sent successfully', ['response' => $response, 'data' => $data]);
+
                 return response()->json([
-                    'message' => "Message sent successfully",
+                    'message' => 'Message sent successfully',
                 ]);
             } else {
                 $response = json_decode($response, true);
-                SocialWebhookLog::log(SocialWebhookLog::INFO, "Message not send", ['error' => $response['error']['message'], 'data' => $data]);
+                SocialWebhookLog::log(SocialWebhookLog::INFO, 'Message not send', ['error' => $response['error']['message'], 'data' => $data]);
+
                 return response()->json([
                     'message' => $response['error']['message'],
                 ], $httpcode);
             }
         } catch (\Exception $e) {
-            SocialWebhookLog::log(SocialWebhookLog::INFO, "Message not send", ['error' => $e->getMessage(), 'data' => $data]);
+            SocialWebhookLog::log(SocialWebhookLog::INFO, 'Message not send', ['error' => $e->getMessage(), 'data' => $data]);
+
             return response()->json([
                 'message' => $e->getMessage(),
             ], 500);

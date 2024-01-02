@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Benchmark;
-use App\CronJobReport;
-use App\Mails\Manual\ActivityListings;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use App\Mails\Manual\ActivityListings;
 
 class SendActivitiesListing extends Command
 {
@@ -45,12 +45,12 @@ class SendActivitiesListing extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $start = Carbon::now()->format('Y-m-d 00:00:00');
-            $end   = Carbon::now()->format('Y-m-d 23:59:00');
+            $end = Carbon::now()->format('Y-m-d 23:59:00');
 
             $results = DB::select('
                   SELECT causer_id,subject_type,COUNT(*) AS total FROM
@@ -88,15 +88,15 @@ class SendActivitiesListing extends Command
             $rows = [];
 
             foreach ($results as $result) {
-                $rows[$result->causer_id]['selection']    = 0;
-                $rows[$result->causer_id]['searcher']     = 0;
-                $rows[$result->causer_id]['attribute']    = 0;
-                $rows[$result->causer_id]['supervisor']   = 0;
+                $rows[$result->causer_id]['selection'] = 0;
+                $rows[$result->causer_id]['searcher'] = 0;
+                $rows[$result->causer_id]['attribute'] = 0;
+                $rows[$result->causer_id]['supervisor'] = 0;
                 $rows[$result->causer_id]['imagecropper'] = 0;
-                $rows[$result->causer_id]['lister']       = 0;
-                $rows[$result->causer_id]['approver']     = 0;
-                $rows[$result->causer_id]['inventory']    = 0;
-                $rows[$result->causer_id]['sales']        = 0;
+                $rows[$result->causer_id]['lister'] = 0;
+                $rows[$result->causer_id]['approver'] = 0;
+                $rows[$result->causer_id]['inventory'] = 0;
+                $rows[$result->causer_id]['sales'] = 0;
             }
 
             foreach ($results as $result) {
@@ -105,23 +105,23 @@ class SendActivitiesListing extends Command
 
             $total_data = [];
 
-            $total_data['selection']    = 0;
-            $total_data['searcher']     = 0;
-            $total_data['attribute']    = 0;
-            $total_data['supervisor']   = 0;
+            $total_data['selection'] = 0;
+            $total_data['searcher'] = 0;
+            $total_data['attribute'] = 0;
+            $total_data['supervisor'] = 0;
             $total_data['imagecropper'] = 0;
-            $total_data['lister']       = 0;
-            $total_data['approver']     = 0;
-            $total_data['inventory']    = 0;
-            $total_data['sales']        = 0;
+            $total_data['lister'] = 0;
+            $total_data['approver'] = 0;
+            $total_data['inventory'] = 0;
+            $total_data['sales'] = 0;
 
             foreach ($results2 as $result) {
                 $total_data[$result->subject_type] += $result->total;
             }
 
-            $data['results']    = $rows;
+            $data['results'] = $rows;
             $data['total_data'] = $total_data;
-            $data['benchmark']  = $benchmark[0];
+            $data['benchmark'] = $benchmark[0];
 
             Mail::to('yogeshmordani@icloud.com')->send(new ActivityListings($data));
 

@@ -39,10 +39,10 @@ class UserManagementServiceProvider extends ServiceProvider
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__.'/../Config/config.php' => config_path('usermanagement.php'),
+            __DIR__ . '/../Config/config.php' => config_path('usermanagement.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            __DIR__.'/../Config/config.php', 'usermanagement'
+            __DIR__ . '/../Config/config.php', 'usermanagement'
         );
     }
 
@@ -55,11 +55,11 @@ class UserManagementServiceProvider extends ServiceProvider
     {
         $viewPath = resource_path('views/modules/usermanagement');
 
-        $sourcePath = __DIR__.'/../Resources/views';
+        $sourcePath = __DIR__ . '/../Resources/views';
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ],'views');
+            $sourcePath => $viewPath,
+        ], 'views');
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/usermanagement';
@@ -78,7 +78,7 @@ class UserManagementServiceProvider extends ServiceProvider
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, 'usermanagement');
         } else {
-            $this->loadTranslationsFrom(__DIR__ .'/../Resources/lang', 'usermanagement');
+            $this->loadTranslationsFrom(__DIR__ . '/../Resources/lang', 'usermanagement');
         }
     }
 

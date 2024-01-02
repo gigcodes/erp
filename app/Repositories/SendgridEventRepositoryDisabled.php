@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Repositories;
-
 
 use App\SendgridEvent;
 
@@ -10,12 +8,11 @@ use App\SendgridEvent;
  * Class SendgridEventRepositoryDisabled
  * Class will mock the database.
  * No queries will be applied.
- * @package LaravelSendgridEvents\Repositories
  */
 class SendgridEventRepositoryDisabled implements SendgridEventRepositoryInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function exists($sg_event_id): bool
     {
@@ -23,7 +20,7 @@ class SendgridEventRepositoryDisabled implements SendgridEventRepositoryInterfac
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function create($event): SendgridEvent
     {
@@ -35,9 +32,9 @@ class SendgridEventRepositoryDisabled implements SendgridEventRepositoryInterfac
         $newEvent->sg_message_id = $event['sg_message_id'];
         $newEvent->payload = $event;
 
-        if (!empty($event['category'])) {
+        if (! empty($event['category'])) {
             $category = $event['category'];
-            if (gettype($category) === "string") {
+            if (gettype($category) === 'string') {
                 $newEvent->categories = [$category];
             } else {
                 $newEvent->categories = $category;

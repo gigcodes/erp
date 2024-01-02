@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\SkuColorReferences;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use DataTables;
-use Input;
 
 class SkuController extends Controller
 {
@@ -20,7 +17,7 @@ class SkuController extends Controller
             ->select('sku_color_references.*', 'brands.name');
 
         // Check for filters
-        if (!empty($request->get('brand', ''))) {
+        if (! empty($request->get('brand', ''))) {
             $data = $data->where('brands.name', 'like', '%' . $request->get('brand', '') . '%');
         }
 
@@ -31,7 +28,7 @@ class SkuController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('sku.color-codes-presult', compact('data'))->render(),
-                'links' => (string)$data->render()
+                'links' => (string) $data->render(),
             ], 200);
         }
 
@@ -42,9 +39,9 @@ class SkuController extends Controller
     public function colorCodesUpdate(Request $request)
     {
         // Check for required data
-        if ((int)$request->get('id') > 0 && !empty($request->get('color_code'))) {
+        if ((int) $request->get('id') > 0 && ! empty($request->get('color_code'))) {
             // Get color reference
-            $skuColorReference = SkuColorReferences::find((int)$request->get('id'));
+            $skuColorReference = SkuColorReferences::find((int) $request->get('id'));
 
             // We have a winner
             if ($skuColorReference != null) {

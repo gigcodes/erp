@@ -13,7 +13,6 @@
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     font-size: 14px;
     line-height: 1.42857143;
-    color: #333;
     background-color: #fff;
   }
 .ajax-loader{
@@ -53,8 +52,6 @@
 .table.table-bordered.order-table th a{
   color:black!important;
 }
-
-
 </style>
 @endsection
 
@@ -64,73 +61,86 @@
 		<img src="{{ asset('/images/loading2.gif') }}">
 		</div>
 	</div>
-
   <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Orders List ({{$totalOrders}})</h2>
         </div>
            <div class="col-10" style="padding-left:0px;">
-            <div >
+            <div>
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                
-                <div class="form-group col-md-3 pd-3">
+                <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Search keywords :</label>
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>
 
-                 <div class="form-group col-md-2 pd-3 status-select-cls">
-                  <select class="form-control select-multiple" name="status[]" multiple>
-                    <option value="">Select a Status</option>
-
-
-                     @foreach ($order_status_list as $id => $order_st)
-                      <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
-                    @endforeach
+                 <div class="form-group col-md-2 pd-3 status-select-cls select-multiple-checkbox">
+                    <label style=" float: left;">Select Order Status :</label>
+                  <select class="form-control select-multiple " name="status[]" multiple>
+                      @foreach ($order_status_list as $id => $order_st)
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                      @endforeach
                   </select>
                 </div>
 
-
                  <!-- <div class="form-group col-md-2 pd-3">
+                    <label style=" float: left;">Select Brands :</label>
                   <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
                 </div> -->
 
-
-                 <div class="form-group col-md-2 pd-3">
-                  <div class='input-group date' id='order-datetime'>
-                    <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
-
-
-                     <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                  </div>
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Advance :</label>
+                  <input style="width:100%;" name="advance_detail" type="text" class="form-control"
+                         value="{{ isset($advance_detail) ? $advance_detail : '' }}"
+                         placeholder="Search">
                 </div>
 
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Balance :</label>
+                  <input style="width:100%;" name="balance_amount" type="text" class="form-control"
+                         value="{{ isset($balance_amount) ? $balance_amount : '' }}"
+                         placeholder="Search">
+                </div>
+
+                 <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">Date :</label>
+                  <input type='date' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" style=" width: 100%;"/>
+                </div>
+
+                <div class="form-group col-md-1 pd-3">
+                    <label style=" float: left;">ETA :</label>
+                  <input type='date' class="form-control" name="estimated_delivery_date" value="{{ isset($estimated_delivery_date) ? $estimated_delivery_date : '' }}" style=" width: 100%;"/>
+                </div>
                    <div class="form-group col-md-2 pd-3">
-                  <div class="form-group ml-3">	
-                      <select class="form-control select2" name="store_website_id">
+                  <div class="form-group ml-3">
+                    <label style=" float: left;">Select Website :</label>
+                      <select class="form-control select2 globalSelect2" multiple="true" name="store_website_id[]" id="select2Multiple" >
                       <option value="">Select Site Name</option>
                       @forelse ($registerSiteList as $key => $item)
-                          <option value="{{ $key }}" {{ isset($store_site) && $store_site == $key ? 'selected' : '' }}>{{ $item }}</option>
+                          @if(isset($store_site) && in_array($key, $store_site))
+                                <option value="{{ $key }}" selected>{{ $item }}</option>
+                              @else
+                                <option value="{{ $key }}">{{ $item }}</option>
+                          @endif
                       @empty
                       @endforelse
                       </select>
                   </div>
                   </div>
-
                    <div class="form-group col-md-1 pd-3">
-                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                  <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
               </form>
-               
             </div>
              </div>
           <div class="col-md-2" style="padding:0px;">
                   <a class="btn btn-xs btn-secondary" href="{{ route('order.create') }}">+</a>
-                  <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-secondary btn-xs">Download</a>
+                  <a href="{{ action([\App\Http\Controllers\OrderController::class, 'downloadOrderInPdf'], Request::all()) }}" class="btn btn-secondary btn-xs">Download</a>
+                  <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#ordersdatatablecolumnvisibilityList
+                  ">Column Visiblity</button>
               </div>
-        </div>	
+        </div>
 <div class="row">
 @include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
@@ -146,60 +156,128 @@
             </div>
         <?php } ?>
       </div>
-    <?php } ?>  
+    <?php } ?>
 </div>
 
-
 <div class="row">
-        <div class="col-md-12" style="padding:0px;">
-            <div class="pull-right">
-              <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
-              <a href="#" class="btn btn-xs btn-secondary delete-orders">
-                            Archive
-              </a>
-              <a href="#" class="btn btn-xs update-customer btn-secondary">
-                            Update
-              </a>
-            </div>
-        </div>
+  <div class="col-md-12" style="padding:0px;">
+      <div class="pull-right">
+        <a href="#" class="btn btn-xs btn-secondary magento-order-status">Magento Order Status Mapping</a>
+        <a href="#" class="btn btn-xs btn-secondary delete-orders">Archive</a>
+        <a href="#" class="btn btn-xs update-customer btn-secondary">Update</a>
+        <button type="button" class="btn btn-xs btn-secondary order-status-listing" onclick="listStatusColor()">Add Color Code For Order Status</button>
     </div>
+  </div>
+</div>
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
-	<div class="table-responsive mt-2">
-      <table class="table table-bordered order-table table-condensed" style="border: 1px solid #5A6268 !important; color:black;">
+	<div class=" mt-2">
+      <table class="table table-bordered order-table table-condensed table-striped" style="border: 1px solid #5A6268 !important;">
         <thead>
         <tr>
             <th>Select</th>
-            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
-            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
-            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
-            <th >Site Name</th>
-            <th>Products</th>
-            <th class="Website-task" title="Est. Delivery Date"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Est. Delivery Date</a></th>
-            <th>Brands</th>
-            <th class="Website-task" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
-            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
-            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
-            {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
-            <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
-            {{-- <th >Message Status</th> --}}
-            {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
-            <th>Waybill</th>
-            <th>Price</th>
-            <th>Shipping</th>
-            <th>Duty</th>
-            <th >Action</th>
+
+            @if(!empty($dynamicColumnsToShowPostman))
+                @if (!in_array('ID', $dynamicColumnsToShowPostman))
+                    <th style="width: 7%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+                @endif
+
+                @if (!in_array('Date', $dynamicColumnsToShowPostman))
+                    <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
+                @endif
+
+                @if (!in_array('Client', $dynamicColumnsToShowPostman))
+                    <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
+                @endif
+
+                @if (!in_array('Site Name', $dynamicColumnsToShowPostman))
+                    <th >Site Name</th>
+                @endif
+
+                @if (!in_array('Products', $dynamicColumnsToShowPostman))
+                    <th >Products</th>
+                @endif
+
+                @if (!in_array('Eta', $dynamicColumnsToShowPostman))
+                    <th style="width: 5%;" title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
+                @endif
+
+                @if (!in_array('Brands', $dynamicColumnsToShowPostman))
+                    <th >Brands</th>
+                @endif
+
+                @if (!in_array('Order Status', $dynamicColumnsToShowPostman))
+                    <th style="width: 10%;" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
+                @endif
+
+                @if (!in_array('Order Product Status', $dynamicColumnsToShowPostman))
+                    <th title="Order Product Status">Order Product Status</th>
+                @endif
+
+                @if (!in_array('Product Status', $dynamicColumnsToShowPostman))
+                    <th title="Product Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Product Status</a></th>
+                @endif
+
+                @if (!in_array('Advance', $dynamicColumnsToShowPostman))
+                    <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
+                @endif
+
+                @if (!in_array('Balance', $dynamicColumnsToShowPostman))
+                    <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+                @endif
+
+                @if (!in_array('Waybill', $dynamicColumnsToShowPostman))
+                    <th>Waybill</th>
+                @endif
+
+                @if (!in_array('Price', $dynamicColumnsToShowPostman))
+                    <th>Price</th>
+                @endif
+
+                @if (!in_array('Shipping', $dynamicColumnsToShowPostman))
+                    <th>Shipping</th>
+                @endif
+
+                @if (!in_array('Duty', $dynamicColumnsToShowPostman))
+                    <th>Duty</th>
+                @endif
+                @if (!in_array('Action', $dynamicColumnsToShowPostman))
+                    <th>Action</th>
+                @endif
+            @else            
+                <th style="width: 7%;"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+                <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
+                <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
+                <th >Site Name</th>
+                <th>Products</th>
+                <th style="width: 7%;"title="Eta"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Eta</a></th>
+                <th>Brands</th>
+                <th style="width: 10%;" title="Order Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
+                <th title="Order Product Status">Order Product Status</th>
+                <th title="Product Status"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Product Status</a></th>
+                <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
+                <th><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+                {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
+                <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
+                {{-- <th >Message Status</th> --}}
+                {{-- <th ><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
+                <th>Waybill</th>
+                <th>Price</th>
+                <th>Shipping</th>
+                <th>Duty</th>
+                <th>Action</th>
+            @endif
          </tr>
         </thead>
 
         <tbody style="color:font-size: small;">
 			@foreach ($orders_array as $key => $order)
-      
+
              @php
                $extraProducts = [];
                $orderProductPrice = 0;
                $productQty = 0;
-               
+
                if(!$order->order_product->isEmpty())  {
                   foreach($order->order_product as $orderProduct) {
                     $extraProducts[] = [
@@ -213,11 +291,330 @@
 
                   }
                }
+               $order_items = \App\OrderProduct::where('order_id', $order->id)->get();
              @endphp
 
-             
-            <tr style="background:#f1f1f1;" class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
-              <td><span class="td-mini-container">
+            @foreach ($order_items as $items)
+            @if(!empty($dynamicColumnsToShowPostman))
+                <tr style="background-color: {{$order->status?->color}}"; class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
+                    
+                    <td class="text-center">
+                        <span class="td-mini-container">
+                            <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
+                        </span>
+                    </td>
+                    
+                    @if (!in_array('ID', $dynamicColumnsToShowPostman))
+                        <td class="table-hover-cell">
+                            <div class="form-inline " >
+                                @if ($order->is_priority == 1)
+                                <strong class="text-danger mr-1">!!!</strong>
+                                @endif
+                                <span class="td-mini-container">
+                                    <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,15) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id :
+                                    '' ?>">
+                                    <?php                            echo (strlen($order->order_id) > 15) ? substr($order->order_id, 0,15).".." : $order->order_id;
+                                    ?>
+                                    </span>
+                                </span>
+                            </div>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Date', $dynamicColumnsToShowPostman))
+                        <td class="Website-task" title="{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}">{{ Carbon\Carbon::parse($order->order_date)->format('d-m') }}</td>
+                    @endif
+
+                    @if (!in_array('Client', $dynamicColumnsToShowPostman))
+                        <td class="expand-row table-hover-cell Website-task" style="color:grey;">
+                            @if ($order->customer)
+                                <span class="td-mini-container">
+                                    <a style="color: #6c757d;" href="{{ route('customer.show', $order->customer->id) }}">{{ strlen($order->customer->name) > 15 ? substr($order->customer->name, 0, 13) . '...' : $order->customer->name }}</a>
+                                </span>
+                                <span class="td-full-container hidden">
+                                    <a style="color: #6c757d;" href="{{ route('customer.show', $order->customer->id) }}">{{ $order->customer->name }}</a>
+                                </span>
+                            @endif
+                        </td>
+                    @endif
+
+                    @if (!in_array('Site Name', $dynamicColumnsToShowPostman))
+                        <td class="expand-row table-hover-cell">
+                            @if ($order->storeWebsiteOrder)
+                                @if ($order->storeWebsiteOrder->storeWebsite)
+                                    @php
+                                    $storeWebsite = $order->storeWebsiteOrder->storeWebsite;
+                                    @endphp
+                                    <span class="td-mini-container">
+                                        <a style="color: #6c757d;" href="{{$storeWebsite->website}}" target="_blank">{{ strlen($storeWebsite->website) > 15 ? substr($storeWebsite->website, 0, 13) . '...' : $storeWebsite->website }}</a>
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        <a style="color: #6c757d;" href="{{$storeWebsite->website}}" target="_blank">{{ $storeWebsite->website }}</a>
+                                    </span>
+                                @endif
+                            @endif
+                        </td>
+                    @endif
+
+                    @if (!in_array('Products', $dynamicColumnsToShowPostman))
+                        <td class="expand-row table-hover-cell">
+                            @php $count = 0; @endphp
+                            <div class="d-flex">
+                                <div class="">
+                                @foreach ($order->order_product as $order_product)
+                                    @if ($order_product->product)
+                                        @if ($order_product->product->hasMedia(config('constants.attach_image_tag')) && $order_product->product->id == $items->product_id)
+                                            <span class="td-mini-container">
+                                                @if ($count == 0)
+                                                <?php 
+                                                foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?>
+                                                    <a data-fancybox="gallery" href="{{ $media->getUrl() }}">#{{$order_product->product->id}}<i class="fa fa-eye"></i></a>
+                                                    <a class="view-supplier-details" data-id="{{$order_product->id}}" href="javascript:;"><i class="fa fa-shopping-cart"></i></a>
+                                                    <br/>
+                                                    <?php break; } ?>
+                                                    @php ++$count; @endphp
+                                                    @endif
+                                                    </span>
+                                                    <span class="td-full-container hidden">
+                                                    @if ($count >= 1)
+                                                    <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?>
+                                                    <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW
+                                                    <?php break; } ?>
+                                                    #{{$order_product->product->id}}</a>
+                                                    @php $count++; @endphp
+                                                @endif
+                                            </span>
+                                        @endif
+                                    @endif
+                                @endforeach
+                            </div>
+                        </td>
+                    @endif
+
+                    @if (!in_array('Eta', $dynamicColumnsToShowPostman))
+                      <td>
+                        <div style="display:inline;">{{($order->estimated_delivery_date)?$order->estimated_delivery_date:'---'}}</div>
+
+                      <i style="color:#6c757d;" class="fa fa-pencil-square-o show-est-del-date" data-id="{{$order->id}}" data-new-est="{{($order->estimated_delivery_date)?$order->estimated_delivery_date:''}}" aria-hidden="true"></i>
+                      <i style="color:#6c757d;" class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
+
+                      </td>
+                  @endif
+
+                  @if (!in_array('Brands', $dynamicColumnsToShowPostman))
+                      <td class="Website-task">
+                        <?php
+                           $totalBrands = explode(",",$order->brand_name_list);
+                            if(count($totalBrands) > 1) {
+                              $str = 'Multi';
+                            }
+                            else {
+                              $str = $order->brand_name_list;
+                            }
+                        ?>
+                        <span style="font-size:14px;">{{$str}}</span>
+                      </td>
+                  @endif
+
+                  @if (!in_array('Order Status', $dynamicColumnsToShowPostman))
+              <td class="expand-row table-hover-cell">
+                <div class="form-group" style="margin-bottom:0px;">
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
+                            <optgroup label="Order Status">
+                              <option value="">Select Order Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                    </select>
+                </div>
+              </td>
+              @endif
+
+              @if (!in_array('Order Product Status', $dynamicColumnsToShowPostman))
+              <td class="expand-row table-hover-cell">
+                <div class="form-group" style="margin-bottom:0px;">
+                  <select data-placeholder="Order Product Status" class="form-control order-product-status-select" data-order_product_id={{$items->id}} >
+                            <optgroup label="Order Product Status">
+                              <option value="">Select Order Product Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    <option value="{{ $id }}" {{ $items->order_product_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                    </select>
+                </div>
+              </td>
+              @endif
+
+              @if (!in_array('Product Status', $dynamicColumnsToShowPostman))
+              <td class="expand-row table-hover-cell">
+                <div class="form-group" style="margin-bottom:0px;">
+                  <select data-placeholder="Product Status" class="form-control product_order_status_delivery" id="product_delivery_status" data-id={{$order->id}} data-order_product_item_id={{$items->id}} >
+                            <optgroup label="Product Status">
+                              <option value="">Select product Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    <option value="{{ $id }}" {{ $items->delivery_status == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                    </select>
+                </div>
+              </td>
+              @endif
+
+              @if (!in_array('Advance', $dynamicColumnsToShowPostman))
+                <td>{{ $order->advance_detail }}</td>
+                @endif
+
+                @if (!in_array('Balance', $dynamicColumnsToShowPostman))
+                <td>{{ $order->balance_amount }}</td>
+                @endif
+
+              {{-- <td></td>
+              <td></td> --}}
+              {{-- <td>{{ $order->action->status }}</td>
+              <td>{{ $order->action->completion_date ? Carbon\Carbon::parse($order->action->completion_date)->format('d-m') : '' }}</td> --}}
+
+              @if (!in_array('Waybill', $dynamicColumnsToShowPostman))
+              <td>
+                @if ($order->waybill)
+                  {{ $order->waybill->awb }}
+                @else
+                  -
+                @endif
+              </td>
+              @endif
+
+              @if (!in_array('Price', $dynamicColumnsToShowPostman))
+              <td>{{$orderProductPrice * $productQty}}</td>
+              @endif
+
+              @if (!in_array('Shipping', $dynamicColumnsToShowPostman))
+              <td>{{$duty_shipping[$order->id]['shipping']}}</td>
+              @endif
+
+              @if (!in_array('Duty', $dynamicColumnsToShowPostman))
+              <td>{{$duty_shipping[$order->id]['duty']}}</td>
+              @endif
+
+              @if (!in_array('Action', $dynamicColumnsToShowPostman))
+              <td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$items->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
+                @endif
+            </tr>
+            
+            <tr class="action-btn-tr-{{$items->id}} d-none">
+            <td>Action</td>
+            <td colspan="16">
+                <div class="align-items-center">
+                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht cancel-transaction-btn pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-close"></i>
+                    </a>
+                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht payment-history-btn pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-history"></i>
+                    </a>
+                    <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
+                        <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                    </a>
+                    <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
+                    <a class="btn btn-image send-invoice-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                        <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
+                    </a>
+                    <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5 btn-ht" href="{{ route('order.perview.invoice',$order->id) }}">
+                        <i class="fa fa-hourglass"></i>
+                    </a>
+                    @if ($order->waybill)
+                        <a title="Download Package Slip pd-5 btn-ht" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </a>
+                        <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
+                            <i class="fa fa fa-globe" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                        <i class="fa fa-truck" aria-hidden="true"></i>
+                    </a>
+
+                    <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+
+                    <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
+                        <i class="fa fa-address-card" aria-hidden="true"></i>
+                    </a>
+                    {{-- @can('order-edit')
+                    <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
+                    @endcan --}}
+
+                    {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
+                    <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
+                    {!! Form::close() !!}
+                    <?php
+                    if($order->auto_emailed)
+                    {
+                        $title_msg = "Resend Email";
+                    }
+                    else
+                    {
+                        $title_msg = "Send Email";
+                    }
+                    ?>
+                    <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="javascript:;">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    </a>
+                    @if(auth()->user()->checkPermission('order-delete'))
+                        {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
+                        <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
+                        {!! Form::close() !!}
+                    @endif
+                    @if(!$order->invoice_id)
+                        <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                    <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
+                        <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="btn btn-image pd-5 btn-ht send-email-common-btn" title="Send Mail" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
+                    <button type="button" class="btn btn-xs btn-image pd-5 btn load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @if($order->cust_email)
+                        <a class="btn btn-image pd-5 btn-ht" title="Order Mail PDF" href="{{route('order.generate.order-mail.pdf', ['order_id' => $order->id])}}">
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                        </a>
+                    @endif
+
+                    @if($order->invoice_id)
+                        <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
+                            <i class="fa fa-download"></i>
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    <button type="button" title="Payment history" class="btn btn-image pd-5 btn-ht magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                    <button type="button" title="Order Email send error" class="btn  btn-xs btn-image pd-5 email_exception_list" data-id="{{$order->id}}">
+                        <i style="color:#6c757d;" class="fa fa-info-circle" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                    </button>
+                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
+                        <img src="{{asset('/images/chat.png')}}" alt="">
+                    </button>
+                    <button type="button" title="Order SMS Send Log" class="btn  btn-xs btn-image pd-5 order_sms_send_log" data-id="{{$order->id}}">
+                      <img src="{{asset('/images/chat.png')}}" alt="">
+                  </button>
+                    <button type="button" title="Order return true" class="btn  btn-xs btn-image pd-5 order_return" data-status="1" data-id="{{$order->id}}">
+                        <i style="color:#6c757d;" class="fa fa-check" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                    </button>
+                    <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+          
+            @else
+            <tr style="background-color: {{$order->status?->color}}"; class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
+              <td class="text-center"><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
                   </span>
                 </td>
@@ -227,9 +624,9 @@
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
                   <span class="td-mini-container">
-                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,3) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id : 
+                  <span style="font-size:14px;" class="toggle-title-box has-small" data-small-title="<?php echo ($order->order_id) ? substr($order->order_id, 0,15) : '' ?>" data-full-title="<?php echo ($order->order_id) ? $order->order_id :
                   '' ?>">
-                        <?php                            echo (strlen($order->order_id) > 3) ? substr($order->order_id, 0,3).".." : $order->order_id;
+                        <?php                            echo (strlen($order->order_id) > 15) ? substr($order->order_id, 0,15).".." : $order->order_id;
                         ?>
                      </span>
                   </span>
@@ -261,57 +658,49 @@
                   @endif
                 @endif
               </td>
-              
-              <td class="expand-row table-hover-cell">	              
-                @php $count = 0; @endphp	               
-                <div class="d-flex">	               
+
+              <td class="expand-row table-hover-cell">
+                sdfsdfsd
+                @php $count = 0; @endphp
+                <div class="d-flex">
                   <div class="">
-                    @foreach ($order->order_product as $order_product)	                        
-                      @if ($order_product->product)	                      
-                        @if ($order_product->product->hasMedia(config('constants.attach_image_tag')))	                       
-                          <span class="td-mini-container">	                         
-                            @if ($count == 0)	                          
-                              <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
+                    @foreach ($order->order_product as $order_product)
+                      @if ($order_product->product)
+                        @if ($order_product->product->hasMedia(config('constants.attach_image_tag')) && $order_product->product->id == $items->product_id)
+                          <span class="td-mini-container">
+                            @if ($count == 0)
+                              <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?>
                                 <a data-fancybox="gallery" href="{{ $media->getUrl() }}">#{{$order_product->product->id}}<i class="fa fa-eye"></i></a>
                                 <a class="view-supplier-details" data-id="{{$order_product->id}}" href="javascript:;"><i class="fa fa-shopping-cart"></i></a>
                                 <br/>
                               <?php break; } ?>
-                              @php ++$count; @endphp	                        
-                            @endif	                     
-                          </span>	                        
-                          <span class="td-full-container hidden">	                        
-                            @if ($count >= 1)	   
-                              <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?> 
-                              <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW 
+                              @php ++$count; @endphp
+                            @endif
+                          </span>
+                          <span class="td-full-container hidden">
+                            @if ($count >= 1)
+                              <?php foreach($order_product->product->getMedia(config('constants.attach_image_tag')) as $media) { ?>
+                              <a data-fancybox="gallery" href="{{ $media->getUrl() }}">VIEW
                                <?php break; } ?>
                               #{{$order_product->product->id}}</a>
-                              @php $count++; @endphp	      
-                            @endif	                     
-                          </span>	                 
-                        @endif	                 
-                      @endif	             
-                    @endforeach	   
+                              @php $count++; @endphp
+                            @endif
+                          </span>
+                        @endif
+                      @endif
+                    @endforeach
 
-                    @php
-                      $productQty = count($order->order_product);     
-                    @endphp    
-                  </div>	    
-                  @if (($count - 1) > 1)	           
-                    <span class="ml-1">	         
-                      ({{ ($count - 1) }})	       
-                    </span>	           
-                  @endif	        
-                </div>	        
+                </div>
               </td>
               <td>
                 <div style="display:inline;">{{($order->estimated_delivery_date)?$order->estimated_delivery_date:'---'}}</div>
-               
+
               <i style="color:#6c757d;" class="fa fa-pencil-square-o show-est-del-date" data-id="{{$order->id}}" data-new-est="{{($order->estimated_delivery_date)?$order->estimated_delivery_date:''}}" aria-hidden="true"></i>
               <i style="color:#6c757d;" class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
-       
+
               </td>
               <td class="Website-task">
-                <?php 
+                <?php
                    $totalBrands = explode(",",$order->brand_name_list);
                     if(count($totalBrands) > 1) {
                       $str = 'Multi';
@@ -324,11 +713,35 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select order-status-select-{{$order->id}}" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
                                     <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                    </select>
+                </div>
+              </td>
+              <td class="expand-row table-hover-cell">
+                <div class="form-group" style="margin-bottom:0px;">
+                  <select data-placeholder="Order Product Status" class="form-control order-product-status-select" data-order_product_id={{$items->id}} >
+                            <optgroup label="Order Product Status">
+                              <option value="">Select Order Product Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    <option value="{{ $id }}" {{ $items->order_product_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                @endforeach
+                            </optgroup>
+                    </select>
+                </div>
+              </td>
+              <td class="expand-row table-hover-cell">
+                <div class="form-group" style="margin-bottom:0px;">
+                  <select data-placeholder="Product Status" class="form-control product_order_status_delivery" id="product_delivery_status" data-id={{$order->id}} data-order_product_item_id={{$items->id}} >
+                            <optgroup label="Product Status">
+                              <option value="">Select product Status</option>
+                                @foreach ($order_status_list as $id => $status)
+                                    <option value="{{ $id }}" {{ $items->delivery_status == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
                     </select>
@@ -351,91 +764,124 @@
               <td>{{$duty_shipping[$order->id]['shipping']}}</td>
               <td>{{$duty_shipping[$order->id]['duty']}}</td>
               <td>
-                <div class="d-flex">
-                 <button type="button" title="Payment history" class="btn payment-history-btn btn-xs pull-left" data-id="{{$order->id}}">
-                      <i class="fa fa-history"></i>
-                  </button>
-                  <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
-                    <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
-                  </a>
-                  <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
-                  <a class="btn btn-image send-invoice-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
-                    <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
-                  </a>
-                  <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5 btn-ht" href="{{ route('order.perview.invoice',$order->id) }}">
-                    <i class="fa fa-hourglass"></i>
-                  </a>
-                  @if ($order->waybill)
-                    <a title="Download Package Slip pd-5 btn-ht" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
-                        <i class="fa fa-download" aria-hidden="true"></i>
-                    </a>
-                    <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
-                        <i class="fa fa fa-globe" aria-hidden="true"></i>
-                    </a>
-                  @endif
-                  <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
-                    <i class="fa fa-truck" aria-hidden="true"></i>
-                  </a>
-
-                  <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
-
-                  <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
-                    <i class="fa fa-address-card" aria-hidden="true"></i>
-                  </a>
-                  {{-- @can('order-edit')
-                  <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
-                  @endcan --}}
-
-                  {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
-                  <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
-                  {!! Form::close() !!}
-                  <?php
-                  if($order->auto_emailed)
-                  {
-                    $title_msg = "Resend Email";
-                  }
-                  else
-                  {
-                    $title_msg = "Send Email"; 
-                  }
-                  ?>
-                  <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="javascript:;">
-                      <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                  </a>
-                  @if(auth()->user()->checkPermission('order-delete'))
-                    {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
-                    <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
-                    {!! Form::close() !!}
-                  @endif
-                  @if(!$order->invoice_id)
-                <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
-                     +
-                </a>
-                @endif
-                <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
-                     <i class="fa fa-product-hunt" aria-hidden="true"></i>
-                </a>
-                <button type="button" class="btn send-email-common-btn" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
-                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                @if($order->cust_email)
-                <a class="btn btn-image pd-5 btn-ht" href="{{route('order.generate.order-mail.pdf', ['order_id' => $order->id])}}">
-                  <i class="fa fa-file-pdf-o" aria-hidden="true"></i>      
-                </a>
-                @endif
-
-                @if($order->invoice_id)
-                <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
-                  <i class="fa fa-download"></i>
-               </a>
-                @endif
-                </div>
-              </td>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$items->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
             </tr>
+            <tr class="action-btn-tr-{{$items->id}} d-none">
+            <td>Action</td>
+            <td colspan="16">
+                <div class="align-items-center">
+                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht cancel-transaction-btn pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-close"></i>
+                    </a>
+                    <a type="button" title="Payment history" class="btn btn-image pd-5 btn-ht payment-history-btn pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-history"></i>
+                    </a>
+                    <a class="btn btn-image pd-5 btn-ht" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
+                        <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                    </a>
+                    <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
+                    <a class="btn btn-image send-invoice-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                        <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
+                    </a>
+                    <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5 btn-ht" href="{{ route('order.perview.invoice',$order->id) }}">
+                        <i class="fa fa-hourglass"></i>
+                    </a>
+                    @if ($order->waybill)
+                        <a title="Download Package Slip pd-5 btn-ht" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
+                            <i class="fa fa-download" aria-hidden="true"></i>
+                        </a>
+                        <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
+                            <i class="fa fa fa-globe" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                        <i class="fa fa-truck" aria-hidden="true"></i>
+                    </a>
+
+                    <a title="Preview Sent Mails" data-order-id="<?php echo $order->id; ?>" class="btn btn-image preview_sent_mails pd-5 btn-ht" href="javascript:;"  ><i class="fa fa-eye" aria-hidden="true"></i></a>
+
+                    <a title="View customer address" data-order-id="<?php echo $order->id; ?>"  class="btn btn-image customer-address-view pd-5 btn-ht" href="javascript:;"  >
+                        <i class="fa fa-address-card" aria-hidden="true"></i>
+                    </a>
+                    {{-- @can('order-edit')
+                    <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
+                    @endcan --}}
+
+                    {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
+                    <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
+                    {!! Form::close() !!}
+                    <?php
+                    if($order->auto_emailed)
+                    {
+                        $title_msg = "Resend Email";
+                    }
+                    else
+                    {
+                        $title_msg = "Send Email";
+                    }
+                    ?>
+                    <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="javascript:;">
+                        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    </a>
+                    @if(auth()->user()->checkPermission('order-delete'))
+                        {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
+                        <button type="submit" class="btn btn-image pd-5 btn-ht"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
+                        {!! Form::close() !!}
+                    @endif
+                    @if(!$order->invoice_id)
+                        <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </a>
+                    @endif
+                    <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
+                        <i class="fa fa-product-hunt" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="btn btn-image pd-5 btn-ht send-email-common-btn" title="Send Mail" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
+                    <button type="button" class="btn btn-xs btn-image pd-5 btn load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @if($order->cust_email)
+                        <a class="btn btn-image pd-5 btn-ht" title="Order Mail PDF" href="{{route('order.generate.order-mail.pdf', ['order_id' => $order->id])}}">
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                        </a>
+                    @endif
+
+                    @if($order->invoice_id)
+                        <a title="Download Invoice" class="btn btn-image" href="{{ route('order.download.invoice',$order->invoice_id) }}">
+                            <i class="fa fa-download"></i>
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-xs btn-image load-log-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Show Error Log"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    <button type="button" title="Payment history" class="btn btn-image pd-5 btn-ht magento-log-btn btn-xs pull-left" data-id="{{$order->id}}">
+                        <i class="fa fa-eye"></i>
+                    </button>
+                    <button type="button" title="Order Email send error" class="btn  btn-xs btn-image pd-5 email_exception_list" data-id="{{$order->id}}">
+                        <i style="color:#6c757d;" class="fa fa-info-circle" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                    </button>
+                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 order_email_send_log" data-id="{{$order->id}}">
+                        <img src="{{asset('/images/chat.png')}}" alt="">
+                    </button>
+                    <button type="button" title="Order SMS Send Log" class="btn  btn-xs btn-image pd-5 order_sms_send_log" data-id="{{$order->id}}">
+                      <img src="{{asset('/images/chat.png')}}" alt="">
+                  </button>
+                    <button type="button" title="Order return true" class="btn  btn-xs btn-image pd-5 order_return" data-status="1" data-id="{{$order->id}}">
+                        <i style="color:#6c757d;" class="fa fa-check" data-id="{{$order->id}}"  aria-hidden="true"></i>
+                    </button>
+                    <a title="Order return False" data-id="{{$order->id}}"  data-status="0" class="btn btn-image order_return pd-5 btn-ht">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" data-id="{{$order->id}}" data-order_product_item_id="{{$items->id}}" class="btn btn-xs btn-image pd-5 order-status-change-history" style="padding:1px 0px;">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </td>
+            </tr>
+            @endif
+            @endforeach
           @endforeach
         </tbody>
       </table>
 
-	{!! $orders_array->appends(Request::except('page'))->links() !!}
+	{{ $orders_array->appends(request()->except('page'))->links() }}
 	</div>
     </div>
     </div>
@@ -483,6 +929,192 @@
       </div>
     </div>
 
+    <div id="order-magento-history-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Order Status Change Log</h4>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-12">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Log Detail</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody class="order-magento-list">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="order_error_log" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title">Order Logs</h4>
+              </div>
+              <div class="modal-body">
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Order ID</th>
+                        <th style="width: 20%;">Log Type</th>
+                        <th style="width: 20%;">Error Log</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="order_logtd">
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div id="order_exception_error_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th style="width: 20%;">Error Log</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_errorlogtd">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_email_send_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Email Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Type</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Subject</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_emailsendlogtd">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_sms_send_log" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order SMS Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Number</th>
+                      <th>Message</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_smssendlogtd">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="order_payload_model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Order Logs</h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order ID</th>
+                      <th>Paylod</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order_payloadtd">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
     <div id="order-status-map" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -528,91 +1160,147 @@
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
       <div class="modal-content ">
-      <div class="modal-header">
-                    <h4 class="modal-title">Update Customers</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <div class="modal-header">
+            <h4 class="modal-title">Update Customers</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <form action="" id="customerUpdateForm" method="POST">
+          @csrf
+          <div class="modal-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Status:</strong>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
+                          <optgroup label="Order Status">
+                            <option value="">Select Order Status</option>
+                            @foreach ($order_status_list as $id => $status)
+                              <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
+                            @endforeach
+                          </optgroup>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <form action="" id="customerUpdateForm" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Status:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                      <select data-placeholder="Order Status" name="order_status" class="form-control select2" >
-                                              <optgroup label="Order Status">
-                                                <option value="">Select Order Status</option>
-                                                  @foreach ($order_status_list as $id => $status)
-                                                      <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
-                                                  @endforeach
-                                              </optgroup>
-                                      </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Add New Reply:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <input type="text" class="addnewreply" placeholder="add new reply">
-                                  <button class="btn btn-secondary addnewreplybtn">+</button>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Quick Reply:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <select class="quickreply">
-                                  <option value="">Select quick reply</option>
-                                  @if($quickreply)
-                                    @foreach($quickreply as $quickrep)
-                                      <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
-                                    @endforeach
-                                 @endif
-                                </select>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Message:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <textarea cols="45" class="form-control" name="customer_message"></textarea>
-                                </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="col-md-2">
-                                    <strong>Update type:</strong>
-                                </div>
-                                <div class="col-md-8">
-                                <div class="form-group">
-                                  <select name="update_type" class="form-control">
-                                    <option value="1">Only send message</option>
-                                    <option value="2">Send message and update status</option>
-                                  </select>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Add New Reply:</strong>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <input type="text" class="addnewreply" placeholder="add new reply">
+                      <button class="btn btn-secondary addnewreplybtn">+</button>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Update</button>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="col-md-2">
+                    <strong>Quick Reply:</strong>
+                  </div>
+                  <div class="col-md-8">
+                      <div class="form-group">
+                        <select class="quickreply">
+                          <option value="">Select quick reply</option>
+                          @if($quickreply)
+                            @foreach($quickreply as $quickrep)
+                              <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
+                            @endforeach
+                          @endif
+                      </select>
                     </div>
-                </form>
+                  </div>
+                </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Message:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <textarea cols="45" class="form-control" name="customer_message"></textarea>
+                      </div>
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2">
+                          <strong>Update type:</strong>
+                      </div>
+                      <div class="col-md-8">
+                      <div class="form-group">
+                        <select name="update_type" class="form-control">
+                          <option value="1">Only send message</option>
+                          <option value="2">Send message and update status</option>
+                        </select>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-secondary">Update</button>
+          </div>
+        </form>
       </div>
     </div>
+</div>
+
+
+<div id="product-update-status-message-tpl" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div class="modal-header ml-4 mr-4">
+          <h4 class="modal-title">Change Status</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <form action="" id="product-update-status-message-tpl-frm" method="POST">
+          @csrf
+          <input type="hidden" name="order_id" id="order-status-id-tpl" value="">
+          <input type="hidden" name="order_id" id="order-product-id-status-tpl" value="">
+          <input type="hidden" name="order_status_id" id="order-product-status-id-status-tpl" value="">
+          <input type="hidden" name="order_product_item_id" id="order_product_item_id" value="">
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-md-12">
+                    <div class="col-md-2">
+                        <strong>Message:</strong>
+                    </div>
+                    <div class="col-md-5">
+                      <div class="form-group">
+                        <textarea cols="45" class="form-control" id="order-product-template-status-tpl" name="message"style="height: 35px;"></textarea>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="form-group d-flex">
+                        <div class="checkbox">
+                          <label><input class="msg_platform" onclick="loadproductpreview(this);" type="checkbox" value="email">Email</label>
+                        </div>
+                        <div class="checkbox mt-3 ml-2">
+
+                          <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
+                        </div>
+                      </div>
+                  </div>
+                  <div class="col-md-8">
+                        <div id="product-preview" style="display:none">
+
+                        </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer pb-0">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn custom-button product-update-status-with-message">Submit</button>
+              <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
+              <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <div id="update-status-message-tpl" class="modal fade" role="dialog">
@@ -644,14 +1332,14 @@
                             <label><input class="msg_platform" onclick="loadpreview(this);" type="checkbox" value="email">Email</label>
                           </div>
                           <div class="checkbox mt-3 ml-2">
-                            
+
                             <label><input class="msg_platform" type="checkbox" value="sms">SMS</label>
                           </div>
                         </div>
                 </div>
                 <div class="col-md-8">
                        <div id="preview" style="display:none">
-                             
+
                        </div>
                 </div>
                 </div>
@@ -662,34 +1350,53 @@
                 <!-- <button type="button" class="btn btn-secondary update-status-with-message">With Message</button> -->
                 <!-- <button type="button" class="btn btn-secondary update-status-without-message">Without Message</button> -->
             </div>
+          </div>
         </form>
       </div>
     </div>
 </div>
-<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;
-    padding-right: 12px;
-    padding-bottom: 0px !important;">
-    <div class="modal-dialog" style="width: 100%;
-    max-width: none;
-    height: auto;
-    margin: 0;">
-      <div class="modal-content " style="
-    border: 0;
-    border-radius: 0;">
-      <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                    <div class="modal-body" id="common-contents">
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
+<div id="purchaseCommonModal" class="modal fade" role="dialog" style="padding-top: 0px !important;padding-right: 12px; padding-bottom: 0px !important;">
+  <div class="modal-dialog" style="width: 100%;max-width: none;height: auto;margin: 0;">
+    <div class="modal-content " style="border: 0;border-radius: 0;">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" id="common-contents">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
+  </div>
 </div>
 
 
+<div id="order-status-list-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <div>
+                  <h4 class="modal-title"><b>Order Status Color Listing</b></h4>
+              </div>
+              <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-lg-12">
+                      <div class="row">
+                          <div class="col-12" id="order-status-list-modal-html">
+
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
 <div id="estdelhistoryresponse"></div>
 @endsection
 @include('common.commonEmailModal')
@@ -702,28 +1409,38 @@
 @include('partials.modals.return-exchange-modal')
 @include('partials.modals.return-exchange-modal')
 @include('partials.modals.estimated-delivery-date-histories')
+@include('orders.partials.column-visibility-modal')
+@include('orders.order-status-change-history')
 @section('scripts')
-
-
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
-  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
+  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
   <script type="text/javascript">
     CKEDITOR.replace('editableFile');
+    CKEDITOR.replace('editableFileproduct');
+
   </script>
   <script type="text/javascript">
 
-  
-    $(document).on('click','.magento-order-status',function(event){ 
+    function Showactionbtn(id){
+      $(".action-btn-tr-"+id).toggleClass('d-none');
+    }
+
+    $(document).on('click','.magento-order-status',function(event){
       event.preventDefault();
       $('#order-status-map').modal('show');
     });
+
+    $(function() {
+      $(document).tooltip();
+    });
+    
     $(document).on("click",".toggle-title-box",function(ele) {
         var $this = $(this);
         if($this.hasClass("has-small")){
@@ -787,7 +1504,7 @@
       $(document).on("click",".btn-remove-item",function(){
           $(this).closest(".card-body").remove();
       });
-      
+
       	$(document).on("click",".customer-address-view",function() {
 			  console.log(this);
 			var order_id = $(this).data("order-id");
@@ -820,11 +1537,154 @@
 					$('#customer-address-modal').modal("show");
 					$("loading-image").hide();
 				}
-				
+
 			}).fail(function(errObj) {
 				alert("Could not find any data");
 			});
 		});
+
+
+    $(document).on("click",".email_exception_list",function() {
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{route("order.get.email.error.logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.order_id+`</td>`;
+              t += `<td>`+v.exception_error+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_exception_error_log").find("#order_errorlogtd").html(t);
+            $('#order_exception_error_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            toastr['error']('Could not find any error Log', 'Error');
+          }
+        }).fail(function(error) {
+          toastr['error']('Could not find any error Log', 'Error');
+        });
+		  });
+
+      $(document).on("click",".order_email_send_log",function() {
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{route("order.get.email.send.logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.model_id+`</td>`;
+              t += `<td>`+v.type+`</td>`;
+              t += `<td>`+v.from+`</td>`;
+              t += `<td>`+v.to+`</td>`;
+              t += `<td>`+v.subject+`</td>`;
+              t += `<td>`+v.message+`</td>`;
+              t += `<td>`+v.status+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_email_send_log").find("#order_emailsendlogtd").html(t);
+            $('#order_email_send_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            toastr['error']('Could not find any error Log', 'Error');
+          }
+        }).fail(function(error) {
+          toastr['error']('Could not find any error Log', 'Error');
+        });
+		  });
+
+    $(document).on("click",".order_sms_send_log",function() {
+      var order_id = $(this).data("id");
+      $.ajax({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "order/"+order_id+"/get-sms-send-logs",
+        type: "GET",
+        beforeSend: function() {
+          $("loading-image").show();
+        }
+      }).done( function(response) {
+        if(response.code == 200) {
+          var t = '';
+          $.each(response.data,function(k,v) {
+            t += `<tr><td>`+v.id+`</td>`;
+            t += `<td>`+v.order_id+`</td>`;
+            t += `<td>`+v.number+`</td>`;
+            t += `<td>`+v.message+`</td>`;
+            t += `<td>`+v.created_at+`</td></tr>`;
+          });
+
+          $("#order_sms_send_log").find("#order_smssendlogtd").html(t);
+          $('#order_sms_send_log').modal("show");
+          $("loading-image").hide();
+        } else if(response.code == 500){
+          toastr['error']('Could not find any logs', 'Warning');
+        }
+      }).fail(function(error) {
+        toastr['error']('Could not find any logs', 'Warning');
+      });
+    });
+
+    $(document).on("click",".load-log-modal",function() {
+			  console.log(this);
+        var order_id = $(this).data("id");
+        $.ajax({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: '{{url("order/get-error-logs")}}',
+          type: "post",
+          data : { order_id: order_id },
+          beforeSend: function() {
+            $("loading-image").show();
+          }
+        }).done( function(response) {
+          if(response.code == 200) {
+            var t = '';
+            $.each(response.data,function(k,v) {
+              t += `<tr><td>`+v.id+`</td>`;
+              t += `<td>`+v.order_id+`</td>`;
+              t += `<td>`+v.event_type+`</td>`;
+              t += `<td>`+v.log+`</td>`;
+              t += `<td>`+v.created_at+`</td></tr>`;
+            });
+
+            $("#order_error_log").find("#order_logtd").html(t);
+            $('#order_error_log').modal("show");
+            $("loading-image").hide();
+          } else if(response.code == 500){
+            alert(response.message);
+          }
+        }).fail(function(errObj) {
+          alert("Could not find any data");
+        });
+		  });
+
 
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
@@ -884,7 +1744,7 @@
                               </div>
                           </div>`;
               });
-              
+
               $("#generateAWBMODAL").find(".product-items-list").html(itemsHtml);
             }
 
@@ -898,7 +1758,7 @@
       $(document).on("click",".preview_sent_mails",function() {
 
           var id = $(this).data("order-id");
-          
+
           $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -927,21 +1787,24 @@
                       <td >`+v.from+`</td>
                       <td >`+v.to+`</td>
                       <td >`+v.subject+`</td>
-                      <td >`+v.message+`</td> 
+                      <td class="htmlgenerated`+k+`"></td>
                       <td >`+v.status+`</td>
                       <td >`+v.is_draft+`</td>
                       <td >`+v.error_message+`</td>
                     </tr>`;
 
                 });
-              
-              $("#previewSendMailsModal").find(".product-items-list").html(itemsHtml);
+
+              $(".product-items-list").html(itemsHtml);
+              $.each(items, function(k,v) {
+                $(".htmlgenerated"+k).html(v.message);
+              });
             }
 
             $("#previewSendMailsModal").modal("show");
 
             }
-            
+
           }).fail(function(errObj) {
               alert("Could not change status");
           });
@@ -974,10 +1837,10 @@
                   sendmessage:'1',
                 }
               }).done( function(response) {
-              
+
               }).fail(function(errObj) {
                 alert("Could not change status");
-              });    
+              });
             },
             No: function() {
               $.ajax({
@@ -1006,10 +1869,9 @@
           var message = 'Do you want to send message to customer for status change';
           ConfirmDialog(message,id,status);
       });*/
-
-      $(document).on("change",".order-status-select",function() {
+      $(document).on("click",".order-resend-popup",function() {
           var id = $(this).data("id");
-          var status = $(this).val();
+          var status = $(this).data('status_id');
           $("#preview").hide();
           $.ajax({
             headers: {
@@ -1018,7 +1880,7 @@
             url: "order/"+id+"/change-status-template",
             type: "post",
             data : {
-              order_id: id, 
+              order_id: id,
               order_status_id : status
             },
             beforeSend: function() {
@@ -1035,7 +1897,40 @@
               $(".msg_platform").prop('checked', false);
               $("#update-status-message-tpl").modal("show");
             }
-            
+
+          }).fail(function(errObj) {
+              alert("Could not change status");
+          });
+      });
+      $(document).on("change",".order-status-select",function() {
+          var id = $(this).data("id");
+          var status = $(this).val();
+          $("#preview").hide();
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/"+id+"/change-status-template",
+            type: "post",
+            data : {
+              order_id: id,
+              order_status_id : status
+            },
+            beforeSend: function() {
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+            $("loading-image").hide();
+            if(response.code == 200) {
+              $("#order-id-status-tpl").val(id);
+              $("#preview").html(response.preview);
+              CKEDITOR.replace( 'editableFile' );
+              $("#order-status-id-status-tpl").val(status);
+              $("#order-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
+              $("#update-status-message-tpl").modal("show");
+            }
+
           }).fail(function(errObj) {
               alert("Could not change status");
           });
@@ -1050,14 +1945,18 @@
           $('.msg_platform:checkbox:checked').each(function() {
             selected_array.push($(this).val());
           });
-          
-          if(selected_array.length == 0){
-            alert('Please at least select one option');
-            return;
-          }else{
+
+          // The below check is not need. If user not select email or sms, Just change the status only.. 
+          // if(selected_array.length == 0){
+          //   alert('Please at least select one option');
+          //   return;
+          // }else{
             $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             url: "/order/change-status",
-            type: "GET",
+            type: "post",
             async : false,
             data : {
               id : $("#order-id-status-tpl").val(),
@@ -1072,10 +1971,154 @@
             }).done( function(response) {
               $("#update-status-message-tpl").modal("hide");
             }).fail(function(errObj) {
-              alert("Could not change status");
-            });
+              toastr['error'](errObj.responseText);
+           });
+          // }
+
+      });
+
+      $(".order-product-status-select").change(function(){
+        var orderProductId = $(this).data('order_product_id');
+        var orderProductStatusId = $(this).val();
+
+        if(orderProductStatusId == '')
+        {
+            toastr['error']('Status is Required');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('order.order-product-status-change') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                orderProductStatusId : orderProductStatusId,
+                orderProductId: orderProductId,
+            },
+            dataType : "json",
+            success: function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.messages);
+                }else{
+                    toastr['error'](response.messages);
+                }
+            },
+            error: function () {
+                toastr['error']('Message not sent successfully!');
+            }
+        });
+    });
+
+      $(document).on("click", ".order_return", function(e) {
+
+        e.preventDefault();
+        let id = $(this).data("id");
+        let status = $(this).data("status");
+        $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "/order/change-return-status",
+            type: "post",
+            async : false,
+            data : {
+              id : id,
+              status : status
+            }
+            }).done( function(response) {
+              toastr['success'](response.message);
+            }).fail(function(errObj) {
+              toastr['error'](errObj.message);
+           });
+      });
+
+      $(document).on("change",".product_order_status_delivery",function() {
+
+          var id = $(this).data("id");
+          var product_item_id = $(this).data("order_product_item_id");
+          var status = $(this).val();
+
+          var order_status = $(".order-status-select-"+id).val();
+
+          $("#product-preview").hide();
+          $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/product/change-status-temp",
+            type: "post",
+            data : {
+              id : id,
+              order_id: id,
+              order_product_item_id: product_item_id,
+              order_status_id : status,
+              order_status : order_status,
+            },
+            beforeSend: function() {
+              $("loading-image").show();
+            }
+          }).done( function(response) {
+            $("loading-image").hide();
+            if(response.code == 200) {
+                
+              $("#order-status-id-tpl").val(order_status);
+              $("#order-product-id-status-tpl").val(id);
+              $("#product-preview").html(response.preview);
+              $("#order_product_item_id").val(product_item_id);
+              CKEDITOR.replace( 'editableFileproduct' );
+              $("#order-product-status-id-status-tpl").val(status);
+              $("#order-product-template-status-tpl").val(response.template);
+              $(".msg_platform").prop('checked', false);
+              $("#product-update-status-message-tpl").modal("show");
+            }
+
+          }).fail(function(errObj) {
+              alert("Could not change status"+errObj);
+          });
+      });
+
+      $(document).on("click",".product-update-status-with-message",function(e) {
+          e.preventDefault();
+          //console.log($("#email_from_mail").val());
+          //console.log($("#email_to_mail").val());
+          var selected_array = [];
+          console.log(selected_array);
+          $('.msg_platform:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
+
+          if(selected_array.length == 0){
+            alert('Please at least select one option');
+            return;
+          }else{
+            $.ajax({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "order/product/change-status",
+            type: "post",
+            async : false,
+            data : {
+              id : $("#order-product-id-status-tpl").val(),
+              order_product_item_id : $("#order_product_item_id").val(),
+              status : $("#order-product-status-id-status-tpl").val(),
+              sendmessage:'1',
+              message:$("#order-product-template-status-tpl").val(),
+              custom_email_content:$("#editableFileproduct").val(),
+              from_mail:$("#email_from_mail_product").val(),
+              to_mail:$("#email_to_mail_product").val(),
+              order_via: selected_array,
+              order_status_id : $("#order-status-id-tpl").val(),
+            }
+            }).done( function(response) {
+              $("#product-update-status-message-tpl").modal("hide");
+              toastr['success']('Product Status updated succesfully changed.');
+
+            }).fail(function(errObj) {
+              toastr['error'](errObj.responseText);
+           });
           }
-          
+
       });
 
       $(document).on("click",".update-status-without-message",function() {
@@ -1103,21 +2146,21 @@
         // buttonWidth: '100%',
         // includeSelectAllOption: true
       });
-	  
-	  
-	  $('ul.pagination').hide();
-		$('.infinite-scroll').jscroll({
-			autoTrigger: true,
-			// debug: true,
-			loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-			padding: 0,
-			nextSelector: '.pagination li.active + li a',
-			contentSelector: 'div.infinite-scroll',
-			callback: function () {
-				$('ul.pagination').first().remove();
-				$('ul.pagination').hide();
-			}
-		});
+
+
+	  // $('ul.pagination').hide();
+	// 	$('.infinite-scroll').jscroll({
+	// 		autoTrigger: true,
+	// 		// debug: true,
+	// 		loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+	// 		padding: 0,
+	// 		nextSelector: '.pagination li.active + li a',
+	// 		contentSelector: 'div.infinite-scroll',
+	// 		callback: function () {
+	// 			$('ul.pagination').first().remove();
+	// 			$('ul.pagination').hide();
+	// 		}
+	// 	});
     });
 
     $(document).on('click', '.change_message_status', function(e) {
@@ -1178,13 +2221,68 @@
            }else{
              toastr['error'](response.message);
            }
-           $("#loading-image").hide(); 
+           $("#loading-image").hide();
         }).fail(function(errObj) {
            $("#loading-image").hide();
         });
     });
 
-    $('.payment-history-btn').click(function(){
+    $('.cancel-transaction-btn').click(function(){
+          var order_id = $(this).data('id');
+          console.log(order_id);
+          //return false;
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.canceltransaction') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          //$('#payment-history-modal').find('.payment-history-list-view').html('');
+            if(response.success==true){
+              console.log(response);
+              message = JSON.parse(response.message);
+              alert(message.message);
+              //$('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+              //$('#payment-history-modal').modal('show');
+            }
+
+        }).fail(function(response) {
+          alert(response.responseJSON.message);
+        });
+      });
+
+      $('.magento-log-btn').click(function(){
+          var order_id = $(this).data('id');
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('order.magento.log.list') }}",
+            data: {
+              order_id:order_id,
+            },
+        }).done(response => {
+          $('.order-magento-list').html('');
+            if(response.code == '200' && response.data !=''){
+              $('.order-magento-list').html(response.data);
+              $('#order-magento-history-modal').modal('show');
+            } else {
+              alert('Could not fetch log list');
+            }
+
+        }).fail(function(response) {
+          alert('Could not fetch log list');
+        });
+      });
+
+ $('.payment-history-btn').click(function(){
+    event.stopPropagation();
+    event.stopImmediatePropagation();
           var order_id = $(this).data('id');
           $.ajax({
             type: 'POST',
@@ -1207,7 +2305,6 @@
           alert('Could not fetch payments');
         });
       });
-
     $(document).on("click",".send-order-email-btn",function(e){
        e.preventDefault();
        var $this = $(this);
@@ -1226,7 +2323,7 @@
            }else{
              toastr['error'](response.message);
            }
-           $("#loading-image").hide(); 
+           $("#loading-image").hide();
         }).fail(function(errObj) {
            $("#loading-image").hide();
         });
@@ -1240,15 +2337,11 @@
           type: "get"
         }).done(function(response) {
           $('#addInvoice').modal('show');
-           $("#add-invoice-content").html(response); 
+           $("#add-invoice-content").html(response);
         }).fail(function(errObj) {
            $("#addInvoice").hide();
         });
     });
-
-	
-	
-
 
     var selected_orders = [];
          $(document).on('click', '.selectedOrder', function () {
@@ -1307,7 +2400,7 @@
           }
           $('#updateCustomer').modal('show');
         });
-        
+
         $(document).on('submit', '#customerUpdateForm', function (e) {
                 e.preventDefault();
                 var data = $(this).serializeArray();
@@ -1348,6 +2441,24 @@
             }).fail(function (response) {});
         });
 
+        $(document).on('click', '.order_payload', function (e) {
+            $('#order_payload_model').modal('show');
+            $.ajax({
+              type: "POST",
+              url: "{{route('order.payload')}}",
+              data: {
+                order_id : $(this).data('id')
+              },
+              headers: {
+               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+            }).done(function (response) {
+              toastr[(response.code == 200) ?'success' : 'error'](response.message);
+              $("#order_payloadtd").html(response.data);
+            }).fail(function (response) {
+              toastr[(response.code == 200) ?'success' : 'error'](response.message);
+            });
+        });
         $(document).on("click","#return-exchange-form input[name='type']",function() {
             if($(this).val() == "refund") {
                 $("#return-exchange-form").find(".refund-section").show();
@@ -1408,7 +2519,7 @@
           }
             var form = $("#updateDelDateForm");
 			var data = form.serialize();
-			
+
             $.ajax({
                 type: form.attr("method"),
                 url: form.attr("action"),
@@ -1447,7 +2558,7 @@
               $('.ajax-loader').hide();
                 console.log(response);
             });
-          
+
         })
         $(document).on('click','.addnewreplybtn',function(e){
           e.preventDefault();
@@ -1479,7 +2590,7 @@
               $('.ajax-loader').hide();
                 console.log(response);
             });
-          
+
         })
         $('.quickreply').on('change',function(){
           var reply = $(this).find('option:selected').text();
@@ -1490,13 +2601,13 @@
             $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
           }
         });
-        
+
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here
           });
 
           $('#swtichForm').on('click',function(e){
-    
+
         var from_customer_id=$("#from_customer_name");
         var from_customer_city=$("#from_customer_city");
         var from_customer_country=$("#from_customer_country");
@@ -1540,11 +2651,11 @@
         from_customer_id.attr('id',customer_id.attr('id'));
         customer_id.attr('name',pre_from_customer_id_name);
         customer_id.attr('id',pre_from_customer_id_id); */
-        
+
         var pre_from_customer_name=$("#div_from_customer_name").html();
         $("#div_from_customer_name").html($("#div_to_customer_name").html());
         $("#div_to_customer_name").html(pre_from_customer_name);
-        
+
         var pre_from_customer_city=from_customer_city.val();
         from_customer_city.val(customer_city.val());
         customer_city.val(pre_from_customer_city);
@@ -1588,7 +2699,7 @@
         var pre_from_box_height=from_box_height.val();
         from_box_height.val(box_height.val());
         box_height.val(pre_from_box_height);
-        
+
         var pre_from_amount=from_amount.val();
         from_amount.val(amount.val());
         amount.val(pre_from_amount);
@@ -1596,7 +2707,7 @@
         var pre_from_currency=from_currency.val();
         from_currency.val(currency.val());
         currency.val(pre_from_currency);
-        
+
         var pre_from_pickup_time=from_pickup_time.val();
         from_pickup_time.val(pickup_time.val());
         pickup_time.val(pre_from_pickup_time);
@@ -1604,7 +2715,7 @@
         var pre_from_service_type=from_service_type.val();
         from_service_type.val(service_type.val());
         service_type.val(pre_from_service_type); */
-    
+
     });
 
     $(document).on('click', '.view-supplier-details', function(e) {
@@ -1639,7 +2750,7 @@
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveDiscount')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDiscount'])}}",
                 type: 'POST',
                 data: {
                   discount: discount,
@@ -1668,7 +2779,7 @@
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveFixedPrice')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveFixedPrice'])}}",
                 type: 'POST',
                 data: {
                   fixed_price: fixed_price,
@@ -1692,7 +2803,7 @@
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
-                url: "{{action('PurchaseProductController@saveDefaultSupplier')}}",
+                url: "{{action([\App\Http\Controllers\PurchaseProductController::class, 'saveDefaultSupplier'])}}",
                 type: 'POST',
                 data: {
                   supplier_id: supplier_id,
@@ -1712,6 +2823,13 @@
 
         });
 
+        function loadproductpreview(t)
+        {
+          $("#product-preview").hide();
+          if (t.checked == true){
+            $("#product-preview").show();
+          }
+        }
         function loadpreview(t)
         {
           $("#preview").hide();
@@ -1720,5 +2838,107 @@
           }
         }
 
+        function listStatusColor(pageNumber = 1) {
+          var button = document.querySelector('.order-status-listing');
+              $.ajax({
+                  url: '{{ route('order.status.color') }}',
+                  dataType: "json",
+                  data: {
+                      page:pageNumber,
+                  },
+                  beforeSend: function() {
+                  $("#loading-image-preview").show();
+              }
+              }).done(function(response) {
+                  $('#order-status-list-modal-html').empty().html(response.html);
+                  $('#order-status-list-modal').modal('show');
+                  renderOrderStatusPagination(response.data);
+                  $("#loading-image-preview").hide();
+              }).fail(function(response) {
+                  $('.loading-image-preview').show();
+                  console.log(response);
+              });
+        }
+
+        function renderOrderStatusPagination(response) {
+            var paginationContainer = $(".pagination-container-order-status");
+            var currentPage = response.current_page;
+            var totalPages = response.last_page;
+            var html = "";
+            var maxVisiblePages = 10;
+
+            if (totalPages > 1) {
+                html += "<ul class='pagination'>";
+                if (currentPage > 1) {
+                html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeOrderStatusPage(" + (currentPage - 1) + ")'>Previous</a></li>";
+                }
+                var startPage = 1;
+                var endPage = totalPages;
+
+                if (totalPages > maxVisiblePages) {
+                if (currentPage <= Math.ceil(maxVisiblePages / 2)) {
+                    endPage = maxVisiblePages;
+                } else if (currentPage >= totalPages - Math.floor(maxVisiblePages / 2)) {
+                    startPage = totalPages - maxVisiblePages + 1;
+                } else {
+                    startPage = currentPage - Math.floor(maxVisiblePages / 2);
+                    endPage = currentPage + Math.ceil(maxVisiblePages / 2) - 1;
+                }
+
+                if (startPage > 1) {
+                    html += "<li class='page-item'><a class='page-link' href='javascript:void(0);' onclick='changeOrderStatusPage(1)'>1</a></li>";
+                    if (startPage > 2) {
+                    html += "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                    }
+                }
+                }
+
+                for (var i = startPage; i <= endPage; i++) {
+                html += "<li class='page-item " + (currentPage == i ? "active" : "") + "'><a class='page-link' href='javascript:void(0);' onclick='changeOrderStatusPage(" + i + ")'>" + i + "</a></li>";
+                }
+                html += "</ul>";
+            }
+            paginationContainer.html(html);
+         }
+
+        function changeOrderStatusPage(pageNumber) {
+          listStatusColor(pageNumber);
+        }
+
+        $(document).on('click','.order-status-change-history',function(){
+            var order_id = $(this).data('id');
+            var product_item_id = $(this).data("order_product_item_id");
+            $.ajax({
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                method: "POST",
+                url: `{{ route('order.orderChangeStatusHistory') }}`,
+                dataType: "json",
+                data: {
+                    order_id: order_id,
+                    product_item_id:product_item_id
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        $.each(response.data, function(k, v) {
+                            html += "<tr>";
+                            html += "<td>" + (k + 1) + "</td>";
+                            html += "<td>" + v.order.order_id + "</td>";
+                            html += "<td>" + v.request + "</td>";
+                            html += "<td>" + v.response + "</td>";
+                            html += "<td>" + v.user.name + "</td>";
+                            html += "<td>" + v.created_at + "</td>";
+                            html += "</tr>";
+                        });
+                        $("#order-status-change-histories-list").find(".order-status-change-list-view").html(html);
+                        $("#order-status-change-histories-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
   </script>
 @endsection

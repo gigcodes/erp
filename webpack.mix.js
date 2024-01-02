@@ -1,4 +1,4 @@
-let mix = require('laravel-mix');
+let mix = require("laravel-mix");
 
 /*
  |--------------------------------------------------------------------------
@@ -11,4 +11,4 @@ let mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/assets/js/main.js', 'public/js');
+mix.js("resources/js/main.js", "public/js");

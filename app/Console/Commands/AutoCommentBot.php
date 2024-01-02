@@ -3,15 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\AutoCommentHistory;
-use App\AutoReplyHashtags;
-use App\Comment;
-use App\CronJobReport;
-use App\InstagramAutoComments;
-use App\Services\Instagram\Hashtags;
-use Illuminate\Console\Command;
-use InstagramAPI\Instagram;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\AutoReplyHashtags;
+//use App\InstagramAutoComments;
+//use App\Services\Instagram\Hashtags;
+use App\AutoCommentHistory;
+//use InstagramAPI\Instagram;
+use Illuminate\Console\Command;
 
 class AutoCommentBot extends Command
 {
@@ -50,7 +49,7 @@ class AutoCommentBot extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -71,16 +70,15 @@ class AutoCommentBot extends Command
             $posts = AutoCommentHistory::where('status', 1)->take(50)->get();
 
             foreach ($posts as $post) {
-
                 $country = $post->country;
 
-                $comment = new InstagramAutoComments();
+//                $comment = new InstagramAutoComments();
                 $account = Account::where('platform', 'instagram')->where('bulk_comment', 1);
 
                 if (strlen($country) >= 4) {
-                    $comment = $comment->where(function ($query) use ($country) {
-                        $query->where('country', $country)->orWhereNull('country');
-                    });
+//                    $comment = $comment->where(function ($query) use ($country) {
+//                        $query->where('country', $country)->orWhereNull('country');
+//                    });
                     $account = $account->where(function ($q) use ($country) {
                         $q->where('country', $country)->orWhereNull('country');
                     });
@@ -90,38 +88,38 @@ class AutoCommentBot extends Command
                 $caption = str_replace(['#', '@', '!', '-' . '/'], ' ', $caption);
                 $caption = explode(' ', $caption);
 
-                $comment = $comment->where(function ($query) use ($caption) {
-                    foreach ($caption as $i => $cap) {
-                        if (strlen($cap) > 3) {
-                            $cap = trim($cap);
-                            if ($i === 0) {
-                                $query = $query->where('options', 'LIKE', "%$cap%");
-                                continue;
-                            }
-                            $query = $query->orWhere('options', 'LIKE', "%$cap%");
-                        }
-                    }
-                });
+//                $comment = $comment->where(function ($query) use ($caption) {
+//                    foreach ($caption as $i => $cap) {
+//                        if (strlen($cap) > 3) {
+//                            $cap = trim($cap);
+//                            if ($i === 0) {
+//                                $query = $query->where('options', 'LIKE', "%$cap%");
+//                                continue;
+//                            }
+//                            $query = $query->orWhere('options', 'LIKE', "%$cap%");
+//                        }
+//                    }
+//                });
 
                 $account = $account->inRandomOrder()->first();
-                $comment = $comment->inRandomOrder()->first();
+//                $comment = $comment->inRandomOrder()->first();
 
-                if (!$comment) {
-                    $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
-                }
+//                if (!$comment) {
+//                    $comment = InstagramAutoComments::where('options', null)->orWhere('options', '[]')->inRandomOrder()->first();
+//                }
 
-                if (!isset($this->accounts[$account->id])) {
-                    $ig = new Instagram();
-                    echo $account->last_name . "\n";
-                    $ig->login($account->last_name, $account->password);
-                    $this->accounts[$account->id] = $ig;
-                }
+//                if (!isset($this->accounts[$account->id])) {
+//                    $ig = new Instagram();
+//                    echo $account->last_name . "\n";
+//                    $ig->login($account->last_name, $account->password);
+//                    $this->accounts[$account->id] = $ig;
+//                }
 
                 $this->accounts[$account->id]->media->comment($post->post_id, $comment->comment);
 
-                $post->status     = 0;
+                $post->status = 0;
                 $post->account_id = $account->id;
-                $post->comment    = $comment->comment;
+                $post->comment = $comment->comment;
                 $post->save();
 
                 sleep(5);
@@ -131,6 +129,5 @@ class AutoCommentBot extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

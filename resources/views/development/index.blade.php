@@ -743,7 +743,7 @@
             let user_id = $(this).val();
 
             $.ajax({
-                url: "{{ action('DevelopmentController@updateAssignee') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'updateAssignee']) }}",
                 type: 'POST',
                 data: {
                     task_id: taskId,
@@ -760,7 +760,7 @@
         $(document).on('click', '.complete-task', function () {
             let taskId = $(this).attr('data-id');
             $.ajax({
-                url: '{{ action('DevelopmentController@completeTask') }}',
+                url: '{{ action([\App\Http\Controllers\DevelopmentController::class, 'completeTask']) }}',
                 data: {
                     task_id: taskId,
                     _token: "{{csrf_token()}}"
@@ -776,7 +776,7 @@
         $(document).on('click', '.relist-task', function () {
             let taskId = $(this).attr('data-id');
             $.ajax({
-                url: '{{ action('DevelopmentController@relistTask') }}',
+                url: '{{ action([\App\Http\Controllers\DevelopmentController::class, 'relistTask']) }}',
                 data: {
                     task_id: taskId,
                     _token: "{{csrf_token()}}"
@@ -795,7 +795,7 @@
             let minutes = $('#progress_minute').val();
             let self = this;
             $.ajax({
-                url: '{{ action('DevelopmentController@moveTaskToProgress') }}',
+                url: '{{ action([\App\Http\Controllers\DevelopmentController::class, 'moveTaskToProgress']) }}',
                 type: 'post',
                 data: {
                     _token: "{{csrf_token()}}",
@@ -1344,7 +1344,7 @@
             let value = $(this).val();
 
             $.ajax({
-                url: "{{action('DevelopmentController@updateValues')}}",
+                url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'updateValues'])}}",
                 data: {
                     id: id,
                     type: 'module',
@@ -1372,7 +1372,7 @@
             let self = this;
 
             $.ajax({
-                url: "{{action('DevelopmentController@updateValues')}}",
+                url: "{{action([\App\Http\Controllers\DevelopmentController::class, 'updateValues'])}}",
                 data: {
                     id: id,
                     type: type,
@@ -1405,7 +1405,7 @@
             // }
 
             $.ajax({
-                url: "{{action('WhatsAppController@sendMessage', 'developer_task')}}",
+                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'developer_task')}}",
                 type: 'POST',
                 data: {
                     _token: "{{csrf_token()}}",
@@ -1444,7 +1444,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'openNewTaskPopup']) }}",
                 type: 'GET',
                 dataType: "JSON",
                 success: function (resp) {

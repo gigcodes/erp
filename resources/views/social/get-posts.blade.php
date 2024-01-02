@@ -109,7 +109,7 @@
                 var items = $(this).attr('data-comment-ids');
 
                 $.ajax({
-                    url: "{{ action('SocialController@getComments') }}",
+                    url: "{{ action([\App\Http\Controllers\SocialController::class, 'getComments']) }}",
                     data: {
                         items: items
                     },
@@ -145,7 +145,7 @@
                     var self = this;
                     var postId = $(this).attr('data-post-id');
                     $.ajax({
-                        url: "{{ action('SocialController@postComment') }}",
+                        url: "{{ action([\App\Http\Controllers\SocialController::class, 'postComment']) }}",
                         type: 'post',
                         dataType: 'json',
                         data: {

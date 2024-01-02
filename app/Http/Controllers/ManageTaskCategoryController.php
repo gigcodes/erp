@@ -15,26 +15,25 @@ class ManageTaskCategoryController extends Controller
      */
     public function index()
     {
-        $title = "Manage Task Category";
+        $title = 'Manage Task Category';
 
-        return view("manage-task-category.index", compact('title'));
-
+        return view('manage-task-category.index', compact('title'));
     }
 
     public function records()
     {
         $records = \App\TaskCategory::query();
 
-        $keyword = request("keyword");
-        if (!empty($keyword)) {
+        $keyword = request('keyword');
+        if (! empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where("title", "LIKE", "%$keyword%");
+                $q->where('title', 'LIKE', "%$keyword%");
             });
         }
 
         $records = $records->get();
 
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+        return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
     }
 
     public function save(Request $request)
@@ -46,29 +45,29 @@ class ManageTaskCategoryController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $outputString = "";
-            $messages     = $validator->errors()->getMessages();
+            $outputString = '';
+            $messages = $validator->errors()->getMessages();
             foreach ($messages as $k => $errr) {
                 foreach ($errr as $er) {
-                    $outputString .= "$k : " . $er . "<br>";
+                    $outputString .= "$k : " . $er . '<br>';
                 }
             }
-            return response()->json(["code" => 500, "error" => $outputString]);
+
+            return response()->json(['code' => 500, 'error' => $outputString]);
         }
 
-        $id = $request->get("id", 0);
+        $id = $request->get('id', 0);
 
         $records = TaskCategory::find($id);
 
-        if (!$records) {
+        if (! $records) {
             $records = new TaskCategory;
         }
 
         $records->fill($post);
         $records->save();
 
-        return response()->json(["code" => 200, "data" => $records]);
-
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     /**
@@ -84,7 +83,6 @@ class ManageTaskCategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -113,25 +111,23 @@ class ManageTaskCategoryController extends Controller
 
     /**
      * Edit Page
-     * @param  Request $request [description]
-     * @return
+     *
+     * @param  Request  $request [description]
      */
-
     public function edit(Request $request, $id)
     {
-        $modal = TaskCategory::where("id", $id)->first();
+        $modal = TaskCategory::where('id', $id)->first();
 
         if ($modal) {
-            return response()->json(["code" => 200, "data" => $modal]);
+            return response()->json(['code' => 200, 'data' => $modal]);
         }
 
-        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -153,60 +149,59 @@ class ManageTaskCategoryController extends Controller
 
     /**
      * delete Page
-     * @param  Request $request [description]
-     * @return
+     *
+     * @param  Request  $request [description]
      */
-
     public function delete(Request $request, $id)
     {
-        $taskCategory = TaskCategory::where("id", $id)->first();
+        $taskCategory = TaskCategory::where('id', $id)->first();
 
-        $isExist = \App\Task::where("category", $id)->first();
+        $isExist = \App\Task::where('category', $id)->first();
         if ($isExist) {
-            return response()->json(["code" => 500, "error" => "Category is assigned to task , Please update task before delete."]);
+            return response()->json(['code' => 500, 'error' => 'Category is assigned to task , Please update task before delete.']);
         }
 
         if ($taskCategory) {
             $taskCategory->delete();
-            return response()->json(["code" => 200]);
+
+            return response()->json(['code' => 200]);
         }
 
-        return response()->json(["code" => 500, "error" => "Wrong id!"]);
+        return response()->json(['code' => 500, 'error' => 'Wrong id!']);
     }
 
     public function mergeModule(Request $request)
     {
-        $toCategory   = $request->get("to_category");
-        $fromCategory = $request->get("from_category");
+        $toCategory = $request->get('to_category');
+        $fromCategory = $request->get('from_category');
 
         if (empty($toCategory)) {
-            return response()->json(["code" => 500, "error" => "Merge category is missing"]);
+            return response()->json(['code' => 500, 'error' => 'Merge category is missing']);
         }
 
         if (empty($fromCategory)) {
-            return response()->json(["code" => 500, "error" => "Please select category before select merge category"]);
+            return response()->json(['code' => 500, 'error' => 'Please select category before select merge category']);
         }
 
         if (in_array($toCategory, $fromCategory)) {
-            return response()->json(["code" => 500, "error" => "Merge category can not be same"]);
+            return response()->json(['code' => 500, 'error' => 'Merge category can not be same']);
         }
 
-        $taskCategory     = \App\TaskCategory::where("id", $toCategory)->first();
-        $allMergeCategory = \App\Task::whereIn("category", $fromCategory)->get();
+        $taskCategory = \App\TaskCategory::where('id', $toCategory)->first();
+        $allMergeCategory = \App\Task::whereIn('category', $fromCategory)->get();
 
         if ($taskCategory) {
             // start to merge first
-            if (!$allMergeCategory->isEmpty()) {
+            if (! $allMergeCategory->isEmpty()) {
                 foreach ($allMergeCategory as $amc) {
                     $amc->category = $taskCategory->id;
                     $amc->save();
                 }
             }
             // once all merged category store then delete that category from table
-            \App\TaskCategory::whereIn("id", $fromCategory)->delete();
+            \App\TaskCategory::whereIn('id', $fromCategory)->delete();
         }
 
-        return response()->json(["code" => 200, "data" => [], "messages" => "Category has been merged successfully"]);
+        return response()->json(['code' => 200, 'data' => [], 'messages' => 'Category has been merged successfully']);
     }
-
 }

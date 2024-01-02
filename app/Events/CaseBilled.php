@@ -3,13 +3,10 @@
 namespace App\Events;
 
 use App\LegalCase;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class CaseBilled
 {
@@ -21,7 +18,9 @@ class CaseBilled
      * @return void
      */
     public $case;
+
     public $bill;
+
     public function __construct(LegalCase $case, $bill)
     {
         $this->case = $case;

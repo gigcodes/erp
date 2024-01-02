@@ -2,16 +2,19 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 class BarcodeMedia extends Model
 {
     use Mediable;
+
     /**
      * @var string
+     *
      * @SWG\Property(property="media_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="type_id",type="integer")

@@ -11,7 +11,7 @@
                     alert("{{Session::get('message')}}")
                 </script>
             @endif
-            <form method="post" action="{{ action('KeywordsController@store') }}">
+            <form method="post" action="{{ action([\App\Http\Controllers\KeywordsController::class, 'store']) }}">
                 @csrf
                 <div class="row">
                     <div class="col-md-6">
@@ -43,7 +43,7 @@
                                 {{ $hashtag->text }}
                         </td>
                         <td>
-                            <form method="post" action="{{ action('KeywordsController@destroy', $hashtag->id) }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\KeywordsController::class, 'destroy'], $hashtag->id) }}">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-danger btn-sm">

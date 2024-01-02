@@ -32,7 +32,7 @@
                                     <img width="100" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '' }}" alt="Image">
                                 </td>
                                 <td>
-                                    <a class="btn btn-xs btn-secondary" href="{{ action('Products\ManualCroppingController@show', $product->id) }}">Manual Crop</a>
+                                    <a class="btn btn-xs btn-secondary" href="{{ action([\App\Http\Controllers\Products\ManualCroppingController::class, 'show'], $product->id) }}">Manual Crop</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -43,7 +43,7 @@
                     There are no products assigned to you at the moment. Click the button below to assign one.
                     <br>
                     <br>
-                    <a class="btn btn-secondary btn-sm" href="{{ action('Products\ManualCroppingController@assignProductsToUser') }}">Assign Products</a>
+                    <a class="btn btn-secondary btn-sm" href="{{ action([\App\Http\Controllers\Products\ManualCroppingController::class, 'assignProductsToUser']) }}">Assign Products</a>
                 </div>
             @endif
     </div>

@@ -1,22 +1,82 @@
-@php $imageCropperRole = Auth::user()->hasRole('ImageCropers'); @endphp
+@php 
+    $productLogScrappers = array();
+    $productDescriptions = array();
+    $productWebsites = array();
+    $productMoreSuppliers = array();
+
+    $imageCropperRole = Auth::user()->hasRole('ImageCropers'); 
+@endphp
 <table class="table table-bordered table-striped" style="table-layout:fixed;">
     <thead>
+
         <tr>
-            <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
-            <th style="width:8%">Product ID</th>
-            <th style="width:4%">Image</th>
-            <th style="width:7%">Brand</th>
-            <th style="width:20%">Category</th>
-            <th style="width:8%">Title</th>
-            <th style="width:9%"> Description</th>
-            <th style="width:8%">Composition</th>
-            <th style="width:8%">Color</th>
-            <th style="width:8%">Dimension</th>
-            <th style="width:7%">Sizes</th>
-            <th style="width:5%">Price</th>
-            <th style="width:8%">Action</th>
-            <th style="width:5%">Status</th>
-            <th style="width:5%">User</th>
+            @if(!empty($dynamicColumnsToShowPlf))
+                @if (!in_array('Checkbox', $dynamicColumnsToShowPlf))
+                    <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
+                @endif
+                @if (!in_array('Product ID', $dynamicColumnsToShowPlf))
+                    <th style="width:8%">Product ID</th>
+                @endif
+                @if (!in_array('Image', $dynamicColumnsToShowPlf))
+                    <th style="width:4%">Image</th>
+                @endif
+                @if (!in_array('Brand', $dynamicColumnsToShowPlf))
+                    <th style="width:7%">Brand</th>
+                @endif
+                @if (!in_array('Category', $dynamicColumnsToShowPlf))
+                    <th style="width:20%">Category</th>
+                @endif
+                @if (!in_array('Title', $dynamicColumnsToShowPlf))
+                    <th style="width:8%">Title</th>
+                @endif
+                @if (!in_array('Description', $dynamicColumnsToShowPlf))
+                    <th style="width:9%"> Description</th>
+                @endif
+                @if (!in_array('Composition', $dynamicColumnsToShowPlf))
+                    <th style="width:8%">Composition</th>
+                @endif
+                @if (!in_array('Color', $dynamicColumnsToShowPlf))
+                    <th style="width:8%">Color</th>
+                @endif
+                @if (!in_array('Dimension', $dynamicColumnsToShowPlf))
+                    <th style="width:8%">Dimension</th>
+                @endif
+                @if (!in_array('Sizes', $dynamicColumnsToShowPlf))
+                    <th style="width:7%">Sizes</th>
+                @endif
+                @if (!in_array('Price', $dynamicColumnsToShowPlf))
+                    <th style="width:5%">Price</th>
+                @endif
+                @if (!in_array('Status', $dynamicColumnsToShowPlf))
+                    <th style="width:5%">Status</th>
+                @endif
+                @if (!in_array('User', $dynamicColumnsToShowPlf))
+                    <th style="width:5%">User</th>
+                @endif
+                @if (!in_array('ID', $dynamicColumnsToShowPlf))
+                    <th style="width:5%">Stock</th>
+                @endif
+                @if (!in_array('Action', $dynamicColumnsToShowPlf))
+                    <th style="width:5%">Action</th>
+                @endif
+            @else 
+                <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
+                <th style="width:8%">Product ID</th>
+                <th style="width:4%">Image</th>
+                <th style="width:7%">Brand</th>
+                <th style="width:20%">Category</th>
+                <th style="width:8%">Title</th>
+                <th style="width:9%"> Description</th>
+                <th style="width:8%">Composition</th>
+                <th style="width:8%">Color</th>
+                <th style="width:8%">Dimension</th>
+                <th style="width:7%">Sizes</th>
+                <th style="width:5%">Price</th>
+                <th style="width:5%">Status</th>
+                <th style="width:5%">User</th>
+                <th style="width:5%">Stock</th>
+                <th style="width:5%">Action</th>
+            @endif
         </tr>
     </thead>
     <tbody>
@@ -50,10 +110,17 @@
                         </p>
                         <br/>
                         @php
-                            $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
+                            $logScrapers = array();
+                            $descriptions = \App\ScrapedProducts::select('description','website','validated','url','last_inventory_at')->where('sku', $product->sku)->get();
                         @endphp
                         @if ( $descriptions->count() > 0 )
                             @foreach ( $descriptions as $description )
+                                @php 
+                                    if($description->validated == 1){
+                                        $logScrapers[] = $description;
+                                    }
+                                @endphp
+
                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
                                     <hr/>
                                     <span class="same-color">
@@ -76,8 +143,10 @@
                             <hr/>
                         @endif
                         @php
+                            $productLogScrappers[$product->id] = $logScrapers;
+                            $productDescriptions[$product->id] = $descriptions;
+                            
                             //getting proper composition and hscode
-                            $composition = $product->commonComposition($product->category , $product->composition);
                             $hscode =  $product->hsCode($product->category , $product->composition);
                         @endphp
                         <p>
@@ -96,7 +165,7 @@
                         </p>
                         <p class="same-color">
                             View All:
-                            <strong>{{ isset($product->product_category->id) ? \App\Category::getCategoryPathById($product->product_category->id)  : '' }}</strong>
+                            <strong>{{ isset($product->categories->id) ? $categories_paths_array[$product->categories->id]  : '' }}</strong>
                             <br/>
                             View All:
                             <strong>{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>
@@ -119,9 +188,6 @@
                                 @endif
                             </p>
                         @endif
-                        @php
-                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
-                        @endphp
                         @if ($logScrapers)
                             <div>
                                 <br/>
@@ -144,258 +210,591 @@
                 </div>
             </td>
         </tr>
-        <tr id="product_{{ $product->id }}" class="">
-            <td> <input type="checkbox" class="affected_checkbox" name="products_to_update[]" data-id="{{$product->id}}"></td>
-            @php
-                $websiteArraysForProduct = \App\Helpers\ProductHelper::getStoreWebsiteName($product->id);
-            @endphp
-            <td class="table-hover-cell">
-                {{ $product->id }}
-                @if($product->croppedImages()->count() == count($websiteArraysForProduct))
-                    <span class="badge badge-success" >&nbsp;</span>
-                @else
-                    <span class="badge badge-warning" >&nbsp;</span>
+        @php
+            $status_color = new stdClass();
+            if(!empty($product->listing_remark)){
+                $status_color = \App\Models\ProductListingFinalStatus::where('status_name',$product->listing_remark)->first();
+            }       
+        @endphp
+        @if(!empty($dynamicColumnsToShowPlf))
+            <tr id="product_{{ $product->id }}" style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                @if (!in_array('Checkbox', $dynamicColumnsToShowPlf))
+                <td> <input type="checkbox" class="affected_checkbox" name="products_to_update[]" data-id="{{$product->id}}"></td>
                 @endif
-                @if(count($product->more_suppliers()) > 1)
-                    <button style="padding:0px;" type="button" class="btn-link"
-                    data-id="{{ $product->id }}" data-target="#product_suppliers_{{ $product->id }}"
-                    data-toggle="modal">View
-                    </button>
-                    @endif
-                <div>
-                @if($product->supplier_link)
-                    <a target="_new" title="{{ $product->sku }}" href="{{ $product->supplier_link }}">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
-                @else 
-                    <a title="{{ $product->sku }}" href="javascript:;">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
-                @endif
-                </div>
-            </td>
-            <td style="word-break: break-all; word-wrap: break-word">
-                <button type="button" class="btn-link quick-view_image__"
-                        data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
-                        data-toggle="modal">View
-                </button>
-            </td>
-
-            <td>
-                @if($product->brands)
-                    <a title="{{ $product->brands->name }}" href="javascript:;">{{ substr($product->brands->name, 0, 5) . (strlen($product->brands->name) > 5 ? '...' : '') }}</a>
-                @else
-                    N/A
-                @endif
-            </td>
-
-            <td class="table-hover-cell">
-                <?php
-                    $cat = [];
-                    $catM = $product->categories;
-                    if($catM) {
-                        $parentM = $catM->parent;
-                        $cat[]   = $catM->title;
-                        if($parentM) {
-                            $gparentM = $parentM->parent;
-                            $cat[]    = $parentM->title;
-                            if($gparentM) {
-                                $cat[] = $gparentM->title;
-                            }
-                        }
-                    }
-                ?>
-                @if (!$imageCropperRole)
-                    <div class="mt-1">
-                        <select class="form-control quick-edit-category select-multiple"
-                                name="Category" data-placeholder="Category"
-                                data-id="{{ $product->id }}">
-                            <option></option>
-                            @foreach ($category_array as $data)
-                                <option value="{{ $data['id'] }}" {{ $product->category == $data['id'] ? 'selected' : '' }} >{{ $data['title'] }}</option>
-                                @if(isset($data['child']) && is_array($data['child'])) 
-                                    @foreach ($data['child'] as $child)
-                                        <option value="{{ $child['id'] }}" {{ $product->category == $child['id'] ? 'selected' : '' }} >&nbsp;{{ $child['title'] }}</option>
-                                        @if(isset($child['child']) && is_array($child['child'])) 
-                                            @foreach ($child['child'] as $smchild)
-                                                <option value="{{ $smchild['id'] }}" {{ $product->category == $smchild['id'] ? 'selected' : '' }} >&nbsp;&nbsp;{{ $smchild['title'] }}</option>
-                                            @endforeach
-                                        @endif
-                                    @endforeach
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                    @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
-                        @foreach ( $product->log_scraper_vs_ai as $resultAi )
-                            @php $resultAi = json_decode($resultAi->result_ai); @endphp
-                            @if ( !empty($resultAi->category) )
-                                <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}"
-                                        data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, null ) }}"
-                                        class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }}
-                                    (AI)
-                                </button>
-                            @endif
-                        @endforeach
-                    @endif
-                @else
-                @endif
-                {{ implode(">",array_reverse($cat)) }}
-            </td>
-            <td class="table-hover-cell quick-edit-name quick-edit-name-{{ $product->id }}" data-id="{{ $product->id }}">
-                @if (!$imageCropperRole)
-                    <span class="quick-name">{{ $product->name }}</span>
-                    <input name="text" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
-                @else
-                    <span>{{ $product->name }}</span>
-                @endif
-            </td>
-             <td class="table-hover-cell">
-                <div class="quick-edit-description quick-edit-description-{{ $product->id }}" data-id="{{ $product->id }}">
-                    @if (!$imageCropperRole)
-                        <span class="quick-description">{{ $product->short_description}}</span>
-                        <textarea name="description" id="textarea_description_{{ $product->id }}"
-                                  class="form-control quick-edit-description-textarea hidden" rows="8"
-                                  cols="80">{{ $product->short_description }}</textarea>
-                    @else
-
-                        <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
-                        <span class="long-description-container hidden">
-                            <span class="description-container">{{ $product->short_description }}</span>
-                        </span>
-
-                    @endif
-                </div>
-                <div>
-                    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
-                            data-toggle="modal"><i class="fa fa-info-circle"></i></button>
-                </div>
-            </td>
-            <td class="table-hover-cell" data-id="{{ $product->id }}">
-                @if (!$imageCropperRole)
-                    @php
-                        $arrComposition = ['100% Cotton', '100% Leather', '100% Silk', '100% Wool', '100% Polyester', '100% Acetate', '100% Polyamide', 'Cotton', 'Leather', 'Silk', 'Wool', 'Polyester'];
-                        if(!in_array($product->composition , $arrComposition)){
-                                $arrComposition[] = $product->composition;
-                        }
-                        $i=1;
-                    @endphp
-                    <select class="form-control quick-edit-composition-select select-multiple mt-1"
-                            data-id="{{ $product->id }}"
-                            name="composition" data-placeholder="Composition">
-                        <option></option>
-                        @foreach ($arrComposition as $compositionValue)
-                            <option value="{{ $compositionValue }}" {{ $product->composition == $compositionValue ? 'selected' : '' }}>{{ $compositionValue }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <span class="quick-composition">{{ $product->composition }}</span>
-                @endif
-            </td>
-            <td class="table-hover-cell">
-                @if (!$imageCropperRole)
-                    <select id="quick-edit-color-{{ $product->id }}"
-                            class="form-control quick-edit-color select-multiple" name="color"
-                            data-id="{{ $product->id }}">
-                        @foreach ($colors as $color)
-                            <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    {{ $product->color }}
-                @endif
-            </td>
-
-
-            <td class="table-hover-cell">
-                @if (!$imageCropperRole)
-                    <span class="lmeasurement-container">
-                      <input type="text" name="measurement" class="form-control mt-1"
-                             value="{{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}">
-                    </span>
-                @endif
-            </td>
-            <td>
                 @php
-                    $size_array = explode(',', $product->size_eu);
+                    $websiteArrays = \App\Helpers\ProductHelper::getStoreWebsiteName('', $product);
+                    $productMoreSupplierList = $product->more_suppliers();
+
+                    $productWebsites[$product->id] = $websiteArrays;
+                    $productMoreSuppliers[$product->id] = $productMoreSupplierList;
                 @endphp
 
-                {{ isset($size_array[0]) ? $size_array[0] : '' }} {{ isset($size_array[1]) ? ', '.$size_array[1] :  '' }}
-            </td>
-            <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
-                @if (!$imageCropperRole)
-                    <span class="quick-price">{{ $product->price }}</span>
-                    <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
-                @else
-                    <span>EUR {{ $product->price }}</span>
-                @endif
-            </td>
-            <td class="action">
-                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
-                    @if ($product->is_approved == 0)
-                        <i style="cursor: pointer;" class="fa fa-check upload-magento" title="Approve" data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>
-                    @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                        <i style="cursor: pointer;" class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}" data-type="list" aria-hidden="true"></i>
-                    @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                        <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>
+                @if (!in_array('Product ID', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell">
+                    {{ $product->id }}
+                    @if(count($product->croppedImages) == count($websiteArrays))
+                        <span class="badge badge-success" >&nbsp;</span>
                     @else
-                        <i style="cursor: pointer;" class="fa fa-pencil upload-magento" title="Update" data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>
+                        <span class="badge badge-warning" >&nbsp;</span>
                     @endif
-                    @if ($product->product_user_id != null)
-                        {{ \App\User::find($product->product_user_id)->name }}
+                    @if(count($productMoreSupplierList) > 1)
+                        <button style="padding:0px;" type="button" class="btn-link"
+                        data-id="{{ $product->id }}" data-target="#product_suppliers_{{ $product->id }}"
+                        data-toggle="modal">View
+                        </button>
+                        @endif
+                    <div>
+                    @if($product->supplier_link)
+                        <a target="_new" title="{{ $product->sku }}" href="{{ $product->supplier_link }}">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
+                    @else 
+                        <a title="{{ $product->sku }}" href="javascript:;">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
                     @endif
-                    <i style="cursor: pointer;" class="fa fa-upload upload-single {{$auto_push_product == 0 ? '' : 'hide'}}" data-id="{{ $product->id }}" title="push to magento" aria-hidden="true"></i>
-                @else
-                    <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="submit_for_approval" aria-hidden="true"></i>
+                    </div>
+                </td>
                 @endif
-                <i style="cursor: pointer;" class="fa fa-tasks" data-toggle="modal" title="Activity"
-                   data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
-                <a href="javascript:;" data-product-id="{{$product->id}}" class="check-website-should-pushed">
-                    <i style="cursor: pointer;" class="fa fa-globe" data-toggle="modal" title="Website" data-target="#product-website-{{ $product->id }}" aria-hidden="true"></i>   
-                </a>   
-                <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"
-                   data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
-            </td>
-            <td>
-                <select class="form-control post-remark" id="post_remark_{{$product->id}}"
-                        data-id="{{$product->id}}" data-placeholder="Select Remark">
-                    <option></option>
-                    <option value="Category Incorrect" {{ $product->listing_remark == 'Category Incorrect' ? 'selected' : '' }} >
-                        Category Incorrect
-                    </option>
-                    <option value="Price Not Incorrect" {{ $product->listing_remark == 'Price Not Incorrect' ? 'selected' : '' }} >
-                        Price Not Correct
-                    </option>
-                    <option value="Price Not Found" {{ $product->listing_remark == 'Price Not Found' ? 'selected' : '' }} >
-                        Price Not Found
-                    </option>
-                    <option value="Color Not Found" {{ $product->listing_remark == 'Color Not Found' ? 'selected' : '' }} >
-                        Color Not Found
-                    </option>
-                    <option value="Category Not Found" {{ $product->listing_remark == 'Category Not Found' ? 'selected' : '' }} >
-                        Category Not Found
-                    </option>
-                    <option value="Description Not Found" {{ $product->listing_remark == 'Description Not Found' ? 'selected' : '' }} >
-                        Description Not Found
-                    </option>
-                    <option value="Details Not Found" {{ $product->listing_remark == 'Details Not Found' ? 'selected' : '' }} >
-                        Details Not Found
-                    </option>
-                    <option value="Composition Not Found" {{ $product->listing_remark == 'Composition Not Found' ? 'selected' : '' }} >
-                        Composition Not Found
-                    </option>
-                    <option value="Crop Rejected" {{ $product->listing_remark == 'Crop Rejected' ? 'selected' : '' }} >
-                        Crop Rejected
-                    </option>
-                    <option value="Other">Other</option>
-                </select>
-            </td>
-            <td>
-                <select class="form-control select-multiple approved_by" name="approved_by"
-                        id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
-                    <option></option>
-                    @foreach($users as $user)
-                        <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
-                    @endforeach
-                </select>
-            </td>
-        </tr>
+
+                @if (!in_array('Image', $dynamicColumnsToShowPlf))
+                <td style="word-break: break-all; word-wrap: break-word">
+                    <button type="button" class="btn-link quick-view_image__"
+                            data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
+                            data-toggle="modal">View
+                    </button>
+                </td>
+                @endif
+
+                @if (!in_array('Brand', $dynamicColumnsToShowPlf))
+                <td>
+                    @if($product->brands)
+                        <a title="{{ $product->brands->name }}" href="javascript:;">{{ substr($product->brands->name, 0, 5) . (strlen($product->brands->name) > 5 ? '...' : '') }}</a>
+                    @else
+                        N/A
+                    @endif
+                </td>
+                @endif
+
+                @if (!in_array('Category', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell">
+                    <?php
+                        $cat = [];
+                        $catM = $product->categories;
+                        if($catM) {
+                            $parentM = $catM->parent;
+                            $cat[]   = $catM->title;
+                            if($parentM) {
+                                $gparentM = $parentM->parent;
+                                $cat[]    = $parentM->title;
+                                if($gparentM) {
+                                    $cat[] = $gparentM->title;
+                                }
+                            }
+                        }
+                    ?>
+                    @if (!$imageCropperRole)
+                        <div class="mt-1">
+                            <select class="form-control quick-edit-category select-multiple"
+                                    name="Category" data-placeholder="Category"
+                                    data-id="{{ $product->id }}">
+                                <option></option>
+                                @foreach ($category_array as $data)
+                                    <option value="{{ $data['id'] }}" {{ $product->category == $data['id'] ? 'selected' : '' }} >{{ $data['title'] }}</option>
+                                    @if(isset($data['child']) && is_array($data['child'])) 
+                                        @foreach ($data['child'] as $child)
+                                            <option value="{{ $child['id'] }}" {{ $product->category == $child['id'] ? 'selected' : '' }} >&nbsp;{{ $child['title'] }}</option>
+                                            @if(isset($child['child']) && is_array($child['child'])) 
+                                                @foreach ($child['child'] as $smchild)
+                                                    <option value="{{ $smchild['id'] }}" {{ $product->category == $smchild['id'] ? 'selected' : '' }} >&nbsp;&nbsp;{{ $smchild['title'] }}</option>
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                            @foreach ( $product->log_scraper_vs_ai as $resultAi )
+                                @php $resultAi = json_decode($resultAi->result_ai); @endphp
+                                @if ( !empty($resultAi->category) )
+                                    <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}"
+                                            data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, null ) }}"
+                                            class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }}
+                                        (AI)
+                                    </button>
+                                @endif
+                            @endforeach
+                        @endif
+                    @else
+                    @endif
+                    {{ implode(">",array_reverse($cat)) }}
+                </td>
+                @endif
+
+                @if (!in_array('Title', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell quick-edit-name quick-edit-name-{{ $product->id }}" data-id="{{ $product->id }}">
+                    @if (!$imageCropperRole)
+                        <span class="quick-name">{{ $product->name }}</span>
+                        <input name="text" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+                    @else
+                        <span>{{ $product->name }}</span>
+                    @endif
+                </td>
+                @endif
+
+                @if (!in_array('Description', $dynamicColumnsToShowPlf))
+                 <td class="table-hover-cell">
+                    <div class="quick-edit-description quick-edit-description-{{ $product->id }}" data-id="{{ $product->id }}">
+                        @if (!$imageCropperRole)
+                            <span class="quick-description">{{ $product->short_description}}</span>
+                            <textarea name="description" id="textarea_description_{{ $product->id }}"
+                                      class="form-control quick-edit-description-textarea hidden" rows="8"
+                                      cols="80">{{ $product->short_description }}</textarea>
+                        @else
+
+                            <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                            <span class="long-description-container hidden">
+                                <span class="description-container">{{ $product->short_description }}</span>
+                            </span>
+
+                        @endif
+                    </div>
+                    <div>
+                        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
+                                data-toggle="modal"><i class="fa fa-info-circle"></i></button>
+                    </div>
+                </td>
+                @endif
+
+                @if (!in_array('Composition', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell" data-id="{{ $product->id }}">
+                    @if (!$imageCropperRole)
+                        @php
+                            $arrComposition = ['100% Cotton', '100% Leather', '100% Silk', '100% Wool', '100% Polyester', '100% Acetate', '100% Polyamide', 'Cotton', 'Leather', 'Silk', 'Wool', 'Polyester'];
+                            if(!in_array($product->composition , $arrComposition)){
+                                    $arrComposition[] = $product->composition;
+                            }
+                            $i=1;
+                        @endphp
+                        <select class="form-control quick-edit-composition-select select-multiple mt-1"
+                                data-id="{{ $product->id }}"
+                                name="composition" data-placeholder="Composition">
+                            <option></option>
+                            @foreach ($arrComposition as $compositionValue)
+                                <option value="{{ $compositionValue }}" {{ $product->composition == $compositionValue ? 'selected' : '' }}>{{ $compositionValue }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <span class="quick-composition">{{ $product->composition }}</span>
+                    @endif
+                </td>
+                @endif
+
+                @if (!in_array('Color', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell">
+                    @if (!$imageCropperRole)
+                        <select id="quick-edit-color-{{ $product->id }}"
+                                class="form-control quick-edit-color select-multiple" name="color"
+                                data-id="{{ $product->id }}">
+                            @foreach ($colors as $color)
+                                <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        {{ $product->color }}
+                    @endif
+                </td>
+                @endif
+
+                @if (!in_array('Dimension', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell">
+                    @if (!$imageCropperRole)
+                        <span class="lmeasurement-container">
+                          <input type="text" name="measurement" class="form-control mt-1"
+                                 value="{{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}">
+                        </span>
+                    @endif
+                </td>
+                @endif
+
+                @if (!in_array('Sizes', $dynamicColumnsToShowPlf))
+                <td>
+                    @php
+                        $size_array = explode(',', $product->size_eu);
+                    @endphp
+
+                    {{ isset($size_array[0]) ? $size_array[0] : '' }} {{ isset($size_array[1]) ? ', '.$size_array[1] :  '' }}
+                </td>
+                @endif
+
+                @if (!in_array('Price', $dynamicColumnsToShowPlf))
+                <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
+                    @if (!$imageCropperRole)
+                        <span class="quick-price">{{ $product->price }}</span>
+                        <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
+                    @else
+                        <span>EUR {{ $product->price }}</span>
+                    @endif
+                </td>
+                @endif
+
+
+                @if (!in_array('Status', $dynamicColumnsToShowPlf))
+                <td>
+                    <select class="form-control post-remark" id="post_remark_{{$product->id}}"
+                            data-id="{{$product->id}}" data-placeholder="Select Remark">
+                        <option></option>
+                        <option value="Category Incorrect" {{ $product->listing_remark == 'Category Incorrect' ? 'selected' : '' }} >
+                            Category Incorrect
+                        </option>
+                        <option value="Price Not Incorrect" {{ $product->listing_remark == 'Price Not Incorrect' ? 'selected' : '' }} >
+                            Price Not Correct
+                        </option>
+                        <option value="Price Not Found" {{ $product->listing_remark == 'Price Not Found' ? 'selected' : '' }} >
+                            Price Not Found
+                        </option>
+                        <option value="Color Not Found" {{ $product->listing_remark == 'Color Not Found' ? 'selected' : '' }} >
+                            Color Not Found
+                        </option>
+                        <option value="Category Not Found" {{ $product->listing_remark == 'Category Not Found' ? 'selected' : '' }} >
+                            Category Not Found
+                        </option>
+                        <option value="Description Not Found" {{ $product->listing_remark == 'Description Not Found' ? 'selected' : '' }} >
+                            Description Not Found
+                        </option>
+                        <option value="Details Not Found" {{ $product->listing_remark == 'Details Not Found' ? 'selected' : '' }} >
+                            Details Not Found
+                        </option>
+                        <option value="Composition Not Found" {{ $product->listing_remark == 'Composition Not Found' ? 'selected' : '' }} >
+                            Composition Not Found
+                        </option>
+                        <option value="Crop Rejected" {{ $product->listing_remark == 'Crop Rejected' ? 'selected' : '' }} >
+                            Crop Rejected
+                        </option>
+                        <option value="Other">Other</option>
+                    </select>
+                </td>
+                @endif
+
+                @if (!in_array('User', $dynamicColumnsToShowPlf))
+                <td>
+                    <select class="form-control select-multiple approved_by" name="approved_by"
+                            id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
+                        <option></option>
+                        @foreach($users as $user)
+                            <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                @endif
+
+                @if (!in_array('ID', $dynamicColumnsToShowPlf))
+                <td>
+                    {{ $product->stock ? 'Yes' : 'No' }}
+                </td>
+                @endif
+
+                @if (!in_array('Action', $dynamicColumnsToShowPlf))
+                <td class="action">
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$product->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
+                @endif
+            </tr>
+            @if (!in_array('Action', $dynamicColumnsToShowPlf))
+                <tr class="action-btn-tr-{{$product->id}} d-none">
+                    <td colspan="3">
+                        @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                            @if ($product->is_approved == 0)
+                                <i style="cursor: pointer;" class="fa fa-check upload-magento" title="Approve" data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>
+                            @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                                <i style="cursor: pointer;" class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}" data-type="list" aria-hidden="true"></i>
+                            @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                                <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>
+                            @else
+                                <i style="cursor: pointer;" class="fa fa-pencil upload-magento" title="Update" data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>
+                            @endif
+                            @if ($product->product_user_id != null)
+                                {{ \App\User::find($product->product_user_id)->name }}
+                            @endif
+                            <i style="cursor: pointer;" class="fa fa-upload upload-single {{$auto_push_product == 0 ? '' : 'hide'}}" data-id="{{ $product->id }}" title="push to magento" aria-hidden="true"></i>
+                        @else
+                            <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="submit_for_approval" aria-hidden="true"></i>
+                        @endif
+                        <i style="cursor: pointer;" class="fa fa-tasks" data-toggle="modal" title="Activity"
+                           data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
+                        <a href="javascript:;" data-product-id="{{$product->id}}" class="check-website-should-pushed">
+                            <i style="cursor: pointer;" class="fa fa-globe" data-toggle="modal" title="Website" data-target="#product-website-{{ $product->id }}" aria-hidden="true"></i>   
+                        </a>   
+                        <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"
+                           data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
+                    </td>
+                </tr>
+            @endif
+
+        @else
+            <tr id="product_{{ $product->id }}" style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                <td> <input type="checkbox" class="affected_checkbox" name="products_to_update[]" data-id="{{$product->id}}"></td>
+                @php
+                    $websiteArrays = \App\Helpers\ProductHelper::getStoreWebsiteName('', $product);
+                    $productMoreSupplierList = $product->more_suppliers();
+
+                    $productWebsites[$product->id] = $websiteArrays;
+                    $productMoreSuppliers[$product->id] = $productMoreSupplierList;
+                @endphp
+
+                <td class="table-hover-cell">
+                    {{ $product->id }}
+                    @if(count($product->croppedImages) == count($websiteArrays))
+                        <span class="badge badge-success" >&nbsp;</span>
+                    @else
+                        <span class="badge badge-warning" >&nbsp;</span>
+                    @endif
+                    @if(count($productMoreSupplierList) > 1)
+                        <button style="padding:0px;" type="button" class="btn-link"
+                        data-id="{{ $product->id }}" data-target="#product_suppliers_{{ $product->id }}"
+                        data-toggle="modal">View
+                        </button>
+                        @endif
+                    <div>
+                    @if($product->supplier_link)
+                        <a target="_new" title="{{ $product->sku }}" href="{{ $product->supplier_link }}">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
+                    @else 
+                        <a title="{{ $product->sku }}" href="javascript:;">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
+                    @endif
+                    </div>
+                </td>
+                <td style="word-break: break-all; word-wrap: break-word">
+                    <button type="button" class="btn-link quick-view_image__"
+                            data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
+                            data-toggle="modal">View
+                    </button>
+                </td>
+
+                <td>
+                    @if($product->brands)
+                        <a title="{{ $product->brands->name }}" href="javascript:;">{{ substr($product->brands->name, 0, 5) . (strlen($product->brands->name) > 5 ? '...' : '') }}</a>
+                    @else
+                        N/A
+                    @endif
+                </td>
+
+                <td class="table-hover-cell">
+                    <?php
+                        $cat = [];
+                        $catM = $product->categories;
+                        if($catM) {
+                            $parentM = $catM->parent;
+                            $cat[]   = $catM->title;
+                            if($parentM) {
+                                $gparentM = $parentM->parent;
+                                $cat[]    = $parentM->title;
+                                if($gparentM) {
+                                    $cat[] = $gparentM->title;
+                                }
+                            }
+                        }
+                    ?>
+                    @if (!$imageCropperRole)
+                        <div class="mt-1">
+                            <select class="form-control quick-edit-category select-multiple"
+                                    name="Category" data-placeholder="Category"
+                                    data-id="{{ $product->id }}">
+                                <option></option>
+                                @foreach ($category_array as $data)
+                                    <option value="{{ $data['id'] }}" {{ $product->category == $data['id'] ? 'selected' : '' }} >{{ $data['title'] }}</option>
+                                    @if(isset($data['child']) && is_array($data['child'])) 
+                                        @foreach ($data['child'] as $child)
+                                            <option value="{{ $child['id'] }}" {{ $product->category == $child['id'] ? 'selected' : '' }} >&nbsp;{{ $child['title'] }}</option>
+                                            @if(isset($child['child']) && is_array($child['child'])) 
+                                                @foreach ($child['child'] as $smchild)
+                                                    <option value="{{ $smchild['id'] }}" {{ $product->category == $smchild['id'] ? 'selected' : '' }} >&nbsp;&nbsp;{{ $smchild['title'] }}</option>
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                            @foreach ( $product->log_scraper_vs_ai as $resultAi )
+                                @php $resultAi = json_decode($resultAi->result_ai); @endphp
+                                @if ( !empty($resultAi->category) )
+                                    <button id="ai-category-{{ $product->id }}" data-id="{{ $product->id }}"
+                                            data-category="{{ \App\LogScraperVsAi::getCategoryIdByKeyword( $resultAi->category, $resultAi->gender, null ) }}"
+                                            class="btn btn-default btn-sm mt-2 ai-btn-category">{{ ucwords(strtolower($resultAi->category)) }}
+                                        (AI)
+                                    </button>
+                                @endif
+                            @endforeach
+                        @endif
+                    @else
+                    @endif
+                    {{ implode(">",array_reverse($cat)) }}
+                </td>
+                <td class="table-hover-cell quick-edit-name quick-edit-name-{{ $product->id }}" data-id="{{ $product->id }}">
+                    @if (!$imageCropperRole)
+                        <span class="quick-name">{{ $product->name }}</span>
+                        <input name="text" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}">
+                    @else
+                        <span>{{ $product->name }}</span>
+                    @endif
+                </td>
+                 <td class="table-hover-cell">
+                    <div class="quick-edit-description quick-edit-description-{{ $product->id }}" data-id="{{ $product->id }}">
+                        @if (!$imageCropperRole)
+                            <span class="quick-description">{{ $product->short_description}}</span>
+                            <textarea name="description" id="textarea_description_{{ $product->id }}"
+                                      class="form-control quick-edit-description-textarea hidden" rows="8"
+                                      cols="80">{{ $product->short_description }}</textarea>
+                        @else
+
+                            <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                            <span class="long-description-container hidden">
+                                <span class="description-container">{{ $product->short_description }}</span>
+                            </span>
+
+                        @endif
+                    </div>
+                    <div>
+                        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
+                                data-toggle="modal"><i class="fa fa-info-circle"></i></button>
+                    </div>
+                </td>
+                <td class="table-hover-cell" data-id="{{ $product->id }}">
+                    @if (!$imageCropperRole)
+                        @php
+                            $arrComposition = ['100% Cotton', '100% Leather', '100% Silk', '100% Wool', '100% Polyester', '100% Acetate', '100% Polyamide', 'Cotton', 'Leather', 'Silk', 'Wool', 'Polyester'];
+                            if(!in_array($product->composition , $arrComposition)){
+                                    $arrComposition[] = $product->composition;
+                            }
+                            $i=1;
+                        @endphp
+                        <select class="form-control quick-edit-composition-select select-multiple mt-1"
+                                data-id="{{ $product->id }}"
+                                name="composition" data-placeholder="Composition">
+                            <option></option>
+                            @foreach ($arrComposition as $compositionValue)
+                                <option value="{{ $compositionValue }}" {{ $product->composition == $compositionValue ? 'selected' : '' }}>{{ $compositionValue }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <span class="quick-composition">{{ $product->composition }}</span>
+                    @endif
+                </td>
+                <td class="table-hover-cell">
+                    @if (!$imageCropperRole)
+                        <select id="quick-edit-color-{{ $product->id }}"
+                                class="form-control quick-edit-color select-multiple" name="color"
+                                data-id="{{ $product->id }}">
+                            @foreach ($colors as $color)
+                                <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        {{ $product->color }}
+                    @endif
+                </td>
+
+
+                <td class="table-hover-cell">
+                    @if (!$imageCropperRole)
+                        <span class="lmeasurement-container">
+                          <input type="text" name="measurement" class="form-control mt-1"
+                                 value="{{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}">
+                        </span>
+                    @endif
+                </td>
+                <td>
+                    @php
+                        $size_array = explode(',', $product->size_eu);
+                    @endphp
+
+                    {{ isset($size_array[0]) ? $size_array[0] : '' }} {{ isset($size_array[1]) ? ', '.$size_array[1] :  '' }}
+                </td>
+                <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
+                    @if (!$imageCropperRole)
+                        <span class="quick-price">{{ $product->price }}</span>
+                        <input type="number" name="price" class="form-control quick-edit-price-input hidden" placeholder="100" value="{{ $product->price }}">
+                    @else
+                        <span>EUR {{ $product->price }}</span>
+                    @endif
+                </td>
+                <td>
+                    <select class="form-control post-remark" id="post_remark_{{$product->id}}"
+                            data-id="{{$product->id}}" data-placeholder="Select Remark">
+                        <option></option>
+                        <option value="Category Incorrect" {{ $product->listing_remark == 'Category Incorrect' ? 'selected' : '' }} >
+                            Category Incorrect
+                        </option>
+                        <option value="Price Not Incorrect" {{ $product->listing_remark == 'Price Not Incorrect' ? 'selected' : '' }} >
+                            Price Not Correct
+                        </option>
+                        <option value="Price Not Found" {{ $product->listing_remark == 'Price Not Found' ? 'selected' : '' }} >
+                            Price Not Found
+                        </option>
+                        <option value="Color Not Found" {{ $product->listing_remark == 'Color Not Found' ? 'selected' : '' }} >
+                            Color Not Found
+                        </option>
+                        <option value="Category Not Found" {{ $product->listing_remark == 'Category Not Found' ? 'selected' : '' }} >
+                            Category Not Found
+                        </option>
+                        <option value="Description Not Found" {{ $product->listing_remark == 'Description Not Found' ? 'selected' : '' }} >
+                            Description Not Found
+                        </option>
+                        <option value="Details Not Found" {{ $product->listing_remark == 'Details Not Found' ? 'selected' : '' }} >
+                            Details Not Found
+                        </option>
+                        <option value="Composition Not Found" {{ $product->listing_remark == 'Composition Not Found' ? 'selected' : '' }} >
+                            Composition Not Found
+                        </option>
+                        <option value="Crop Rejected" {{ $product->listing_remark == 'Crop Rejected' ? 'selected' : '' }} >
+                            Crop Rejected
+                        </option>
+                        <option value="Other">Other</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control select-multiple approved_by" name="approved_by"
+                            id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
+                        <option></option>
+                        @foreach($users as $user)
+                            <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    {{ $product->stock ? 'Yes' : 'No' }}
+                </td>
+                <td class="action">
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Showactionbtn('{{$product->id}}')"><i class="fa fa-arrow-down"></i></button>
+                </td>
+            </tr>
+            <tr class="action-btn-tr-{{$product->id}} d-none">
+                <td colspan="3"> 
+                    @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
+                        @if ($product->is_approved == 0)
+                            <i style="cursor: pointer;" class="fa fa-check upload-magento" title="Approve" data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>
+                        @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                            <i style="cursor: pointer;" class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}" data-type="list" aria-hidden="true"></i>
+                        @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                            <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>
+                        @else
+                            <i style="cursor: pointer;" class="fa fa-pencil upload-magento" title="Update" data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>
+                        @endif
+                        @if ($product->product_user_id != null)
+                            {{ \App\User::find($product->product_user_id)->name }}
+                        @endif
+                        <i style="cursor: pointer;" class="fa fa-upload upload-single {{$auto_push_product == 0 ? '' : 'hide'}}" data-id="{{ $product->id }}" title="push to magento" aria-hidden="true"></i>
+                    @else
+                        <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="submit_for_approval" aria-hidden="true"></i>
+                    @endif
+                    <i style="cursor: pointer;" class="fa fa-tasks" data-toggle="modal" title="Activity"
+                       data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
+                    <a href="javascript:;" data-product-id="{{$product->id}}" class="check-website-should-pushed">
+                        <i style="cursor: pointer;" class="fa fa-globe" data-toggle="modal" title="Website" data-target="#product-website-{{ $product->id }}" aria-hidden="true"></i>   
+                    </a>   
+                    <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"
+                       data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
+                </td>
+            </tr>
+        @endif
     @endforeach
     </tbody>
 </table>
@@ -495,7 +894,7 @@
                                 // Set opener URL
                                 $openerUrl = urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI']);
                             @endphp
-                            @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                            @if ( isset($product->log_scraper_vs_ai) && count($product->log_scraper_vs_ai) > 0 )
                                 <tr>
                                     <th>AI</th>
                                     <td></td>
@@ -547,9 +946,8 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        @php
-                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
-                        @endphp
+                        @php $logScrapers = $productLogScrappers[$product->id]; @endphp
+
                         @if ($logScrapers)
                             <div>
                                 <ul>
@@ -579,23 +977,23 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                    @php
-                        $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->first();
-                    @endphp
                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
-                        @if($anyCropExist)
+                        @if(isset($siteCroppedImages[$product->id]))
                             Reject All - Re Crop
                         @else 
                             All Rejected - Re Crop
                         @endif
                     </button>
                         @php 
-                            $websiteList = $product->getWebsites();
+                            $websiteArrays = $productWebsites[$product->id];
+                            $websiteList = $store_websites->whereIn('id', $websiteArrays);
                         @endphp
                         @if(!empty($websiteList))
                             @foreach($websiteList as $index => $site)
                                 @php 
-                                    $siteCroppedImage = \App\SiteCroppedImages::where('product_id', $product->id)->where('website_id' , $site->id)->first();
+                                    $productWebsiteArr = (isset($siteCroppedImages[$product->id]) ? explode(',', $siteCroppedImages[$product->id]) : array());
+
+                                    $websiteProductExist = (!empty($productWebsiteArr) && in_array($site->id, $productWebsiteArr) ? 1 : 0);
                                 @endphp
                                 <div class="product-slider {{$index == 0 ? 'd-block' : 'd-none'}}">
                                     <p style="text-align:center;">{{$site->title}}</p>
@@ -607,7 +1005,7 @@
                                             <div class="d-flex" style="float: right;">
                                                 <div class="form-group">
                                                     <button type="button" id="reject-product-cropping{{$site->id}}{{$product->id}}" data-site_id="{{$site->id}}" value="reject" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary reject-product-cropping">
-                                                        @if($siteCroppedImage)
+                                                        @if($websiteProductExist == 1)
                                                             <span>Reject</span>
                                                         @else 
                                                             <span>Rejected</span>
@@ -685,7 +1083,6 @@
                                             <button onclick="crop('{{ $siteImage }}','{{ $product->id }}','{{ $gridImage }}','{{ $site->id }}')"
                                                     class="btn btn-secondary">Crop
                                             </button>
-
                                         @endif
                                     </div>
                                     </div>
@@ -717,10 +1114,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @php
-                            $product = \App\Product::find($product->id);
-                            @endphp
-                    @foreach($product->more_suppliers() as $index => $supplier)
+                    @php $productMoreSupplierList = $productMoreSuppliers[$product->id]; @endphp
+
+                    @foreach($productMoreSupplierList as $index => $supplier)
                         <tr>
                             <td>{{$supplier->name}}</td>
                             <td><a target="_new" href="{{$supplier->link}}">Visit</a> </td>
@@ -745,9 +1141,8 @@
                             <span id="description{{ $product->id }}" class="same-color">{{ ucwords(strtolower(html_entity_decode($product->short_description))) }}</span>
                         </p>
                         <br/>
-                        @php
-                            $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
-                        @endphp
+                        @php $descriptions = $productDescriptions[$product->id]; @endphp
+
                         @if ( $descriptions->count() > 0 )
                             @foreach ( $descriptions as $description )
                                 @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
@@ -779,7 +1174,6 @@
                     </thead>
                     <tbody>
                     @php
-                    $product = \App\Product::find($product->id);
                     $attributes = \App\StoreWebsiteProductAttribute::join('store_websites','store_websites.id','store_website_product_attributes.store_website_id')->where('product_id', $product->id)->select('store_website_product_attributes.description','store_websites.title')->get();
                     @endphp
                     @foreach($attributes as $index => $att)

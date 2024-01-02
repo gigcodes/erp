@@ -11,7 +11,7 @@
     </div>
     <div class="row">
         <div class="col-md-12 mb-5">
-                <form method="get" action="{{ action('ColdLeadsController@showImportedColdLeads') }}">
+                <form method="get" action="{{ action([\App\Http\Controllers\ColdLeadsController::class, 'showImportedColdLeads']) }}">
                     <div class="row">
 
                     <div class="col-md-3">
@@ -67,7 +67,7 @@
             let leadId = $(this).attr('data-id');
 
             $.ajax({
-                url: '{{ action('ColdLeadsController@deleteColdLead') }}',
+                url: '{{ action([\App\Http\Controllers\ColdLeadsController::class, 'deleteColdLead']) }}',
                 data: {
                     lead_id: leadId
                 },
@@ -90,7 +90,7 @@
             let self = this;
 
             $.ajax({
-                url: "{{action('ColdLeadsController@addLeadToCustomer')}}",
+                url: "{{action([\App\Http\Controllers\ColdLeadsController::class, 'addLeadToCustomer'])}}",
                 data: {
                     cold_lead_id: leadId
                 },

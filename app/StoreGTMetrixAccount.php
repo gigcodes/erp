@@ -2,13 +2,11 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Illuminate\Database\Eloquent\Model;
 
 class StoreGTMetrixAccount extends Model
 {
-
     use Mediable;
 
     /**
@@ -19,13 +17,13 @@ class StoreGTMetrixAccount extends Model
     protected $table = 'store_gt_metrix_account';
 
     protected $fillable = [
-        'email', 
+        'email',
         'password',
         'account_id',
-        'status'
+        'status',
     ];
 
-     protected $casts = [
+    protected $casts = [
         'resources' => 'array',
     ];
 }

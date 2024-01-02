@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class SendFailedJobReports extends Command
@@ -39,16 +39,21 @@ class SendFailedJobReports extends Command
      */
     public function handle()
     {
-        $reportSubject = $this->signature."-".date("Y-M-D");
-        
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        $reportSubject = $this->signature . '-' . date('Y-M-D');
+
         try {
             $beforeFiveMin = Carbon::now()->subMinutes(5)->toDateTimeString();
-            $failedReports = \DB::table("failed_jobs")->where("failed_at",">",$beforeFiveMin)->get();
-            if(!$failedReports->isEmpty()) {
-                throw new \Exception("Error Processing jobs, Total Failed Jobs in last five min : ".$failedReports->count(), 1);
+            $failedReports = \DB::table('failed_jobs')->where('failed_at', '>', $beforeFiveMin)->get();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'failed jobs query finished.']);
+            if (! $failedReports->isEmpty()) {
+                throw new \Exception('Error Processing jobs, Total Failed Jobs in last five min : ' . $failedReports->count(), 1);
             }
-        } catch (\Exception $e) {
-            \App\CronJob::insertLastError($reportSubject, $e->getMessage());
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

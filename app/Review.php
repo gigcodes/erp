@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-  /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="account_id",type="integer")
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="posted_date",type="datetime")
@@ -19,27 +21,27 @@ class Review extends Model
      * @SWG\Property(property="platform",type="string")
      * @SWG\Property(property="title",type="string")
      */
-  protected $fillable = [
-    'account_id', 'customer_id', 'posted_date', 'review_link', 'review', 'serial_number', 'platform', 'title'
-  ];
+    protected $fillable = [
+        'account_id', 'customer_id', 'posted_date', 'review_link', 'review', 'serial_number', 'platform', 'title',
+    ];
 
-  public function review_schedule()
-  {
-    return $this->belongsTo('App\ReviewSchedule');
-  }
+    public function review_schedule()
+    {
+        return $this->belongsTo(\App\ReviewSchedule::class);
+    }
 
-  public function account()
-  {
-    return $this->belongsTo('App\Account');
-  }
+    public function account()
+    {
+        return $this->belongsTo(\App\Account::class);
+    }
 
-  public function customer()
-  {
-    return $this->belongsTo('App\Customer');
-  }
+    public function customer()
+    {
+        return $this->belongsTo(\App\Customer::class);
+    }
 
-  public function status_changes()
-	{
-		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\Review')->latest();
-	}
+    public function status_changes()
+    {
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\Review::class)->latest();
+    }
 }

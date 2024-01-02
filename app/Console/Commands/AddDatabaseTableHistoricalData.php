@@ -2,18 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use App\DatabaseHistoricalRecord;
 use App\DatabaseTableHistoricalRecord;
-use Illuminate\Support\Facades\DB;
 
 class AddDatabaseTableHistoricalData extends Command
 {
+    const MAX_REACH_LIMIT = 100;
 
-    CONST MAX_REACH_LIMIT = 100;
-    CONST MAX_REACH_TOTAL_LIMIT = 4096;
+    const MAX_REACH_TOTAL_LIMIT = 4096;
 
     /**
      * The name and signature of the console command.
@@ -48,22 +47,22 @@ class AddDatabaseTableHistoricalData extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             // get the historical data and store into the new table
-            $db = \DB::select('SELECT TABLE_NAME as "db_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="'.env('DB_DATABASE', 'solo').'" GROUP  BY TABLE_NAME'
+            $db = \DB::select('SELECT TABLE_NAME as "db_name", Round(Sum(data_length + index_length) / 1024, 1) as "db_size" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = "BASE TABLE" AND TABLE_SCHEMA="' . env('DB_DATABASE', 'solo') . '" GROUP  BY TABLE_NAME'
             );
 
-            $lastDb = DatabaseHistoricalRecord::where("database_name",env('DB_DATABASE', 'solo'))->latest()->first();
+            $lastDb = DatabaseHistoricalRecord::where('database_name', env('DB_DATABASE', 'solo'))->latest()->first();
 
-            if(!empty($db)) {
-                foreach($db as $d) {
+            if (! empty($db)) {
+                foreach ($db as $d) {
                     DatabaseTableHistoricalRecord::create([
-                        "database_name" => $d->db_name,
-                        "size" => $d->db_size,
-                        "database_id" => $lastDb->id,
+                        'database_name' => $d->db_name,
+                        'size' => $d->db_size,
+                        'database_id' => $lastDb->id,
                     ]);
                 }
             }

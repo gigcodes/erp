@@ -3,8 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Vendor;
-use App\Supplier;
 use seo2websites\ErpCustomer\ErpCustomer;
 
 /**
@@ -12,9 +10,9 @@ use seo2websites\ErpCustomer\ErpCustomer;
  */
 class BroadcastMessageNumber extends Model
 {
-    
     /**
      * @var string
+     *
      * @SWG\Property(property="broadcast_message_id",type="integer")
      * @SWG\Property(property="type_id",type="integer")
      * @SWG\Property(property="type",type="string")
@@ -23,29 +21,33 @@ class BroadcastMessageNumber extends Model
         'broadcast_message_id', 'type_id', 'type',
     ];
 
-    protected $appends = ["typeName"];
+    protected $appends = ['typeName'];
 
-    public function getTypeNameAttribute() {
-        if($this->type == 'App\Http\Controllers\App\Vendor'){
+    public function getTypeNameAttribute()
+    {
+        if ($this->type == 'App\Http\Controllers\App\Vendor') {
             $typeName = @$this->vendor->name;
-        }elseif($this->type == 'App\Http\Controllers\App\Supplier'){
+        } elseif ($this->type == 'App\Http\Controllers\App\Supplier') {
             $typeName = @$this->supplier->supplier;
-        }else{
+        } else {
             $typeName = @$this->customer->name;
         }
+
         return $typeName;
     }
 
-    public function customer() {
+    public function customer()
+    {
         return $this->belongsTo(ErpCustomer::class, 'type_id', 'id');
     }
 
-    public function vendor() {
+    public function vendor()
+    {
         return $this->belongsTo(Vendor::class, 'type_id', 'id');
     }
 
-    public function supplier() {
+    public function supplier()
+    {
         return $this->belongsTo(Supplier::class, 'type_id', 'id');
     }
-
 }

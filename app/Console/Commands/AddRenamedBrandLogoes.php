@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use Auth;
 use File;
 use App\BrandLogo;
-use Auth;
-
+use Illuminate\Console\Command;
 
 class AddRenamedBrandLogoes extends Command
 {
@@ -29,10 +28,6 @@ class AddRenamedBrandLogoes extends Command
      *
      * @return void
      */
-
-
-
-
     public function __construct()
     {
         parent::__construct();
@@ -47,31 +42,26 @@ class AddRenamedBrandLogoes extends Command
     {
         $path = public_path('brand_logo');
 
-                 BrandLogo::truncate();
-                    try{
-                     
-                        $files = File::allFiles($path);
-                        $fileNameArray = array();
-                        foreach($files as $key=>$file){
+        BrandLogo::truncate();
+        try {
+            $files = File::allFiles($path);
+            $fileNameArray = [];
+            foreach ($files as $key => $file) {
+                $fileName = basename($file);
 
-                            $fileName = basename($file);
+                $brand_logo = BrandLogo::where('logo_image_name', $fileName)->first();
 
-                        $brand_logo = BrandLogo::where('logo_image_name',$fileName)->first();
+                if (! $brand_logo) {
+                    // dump('asd');
 
-                        if(!$brand_logo){
-                            // dump('asd');
+                    $params['logo_image_name'] = $fileName;
+                    $params['user_id'] = Auth::id();
 
-                            $params['logo_image_name'] = $fileName;
-                            $params['user_id'] = Auth::id();
-            
-                            // dd($params);
-                            $log = BrandLogo::create($params);
-                        }
-                        }
-                    }catch(\Exception $e){
-                        
-                    }
-
-
+                    // dd($params);
+                    $log = BrandLogo::create($params);
+                }
+            }
+        } catch (\Exception $e) {
+        }
     }
 }

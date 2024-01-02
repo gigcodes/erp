@@ -101,7 +101,7 @@
                                 <?php echo implode("<br>", $textToSend); ?>
                             </div>
                             <div class="top-bottom">
-                                <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->id, "EAN13",3,77,array(1,1,1), true) . '" alt="barcode"   />';?>
+                                <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->id, "EAN13",3,77,[1,1,1], true) . '" alt="barcode"   />';?>
                             </div>
                             <img style="padding-top: 120px;" class="img-responsive img-fluid" src="<?php echo $path; ?>" />
                         </div>

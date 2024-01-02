@@ -10,16 +10,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class ColdLeadsImport implements ToCollection, WithHeadingRow
 {
-
     use Importable;
-    /**
-    * @param Collection $collection
-    */
+
     public function collection(Collection $collection)
     {
         foreach ($collection as $lead) {
             $name = $lead['name'];
-            $contact = (integer) $lead['contact_no'];
+            $contact = (int) $lead['contact_no'];
             $city = $lead['cities'];
 
             $coldLead = new ColdLeads();
@@ -36,7 +33,6 @@ class ColdLeadsImport implements ToCollection, WithHeadingRow
             $coldLead->save();
 
             dump($lead['sn']);
-
         }
     }
 }

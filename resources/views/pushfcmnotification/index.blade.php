@@ -57,6 +57,8 @@
                 <th>Text</th>
                 <th>Sent At</th>
                 <th>Sent On</th>
+                <th>Expired Day</th>
+                <th>Status</th>
                 <th>Created By</th>
                 <th>Updated At</th>
                 <th>Action</th>
@@ -126,9 +128,18 @@
 
                                     <div class="col-md-12">
                                         <div class="form-group">
+                                            <strong>Sent At:</strong>
                                             {!! Form::text('sent_at', null, array('placeholder' => 'time to send notification at','class' => 'form-control', 'id' => 'sent_at_fcm_create')) !!}
                                         </div>
                                     </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <strong>Expired Day:</strong>
+                                            {!! Form::number('expired_day', null, array('placeholder' => 'Expired day in number','class' => 'form-control','min'=>0)) !!}
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -241,6 +252,13 @@
         }).fail(function() {
             $("#loading-image").hide();
             alert('Please check laravel log for more information')
+        });
+    });
+
+    $(function () {
+        $('#sent_at_fcm_create').datetimepicker({
+            format: 'Y-MM-DD HH:mm',
+            stepping: 5
         });
     });
 

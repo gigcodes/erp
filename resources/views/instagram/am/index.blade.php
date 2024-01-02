@@ -17,7 +17,7 @@
                     </div>
                     <div id="form_am" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
                         <div class="card-body">
-                            <form method="post" action="{{ action('InstagramAutomatedMessagesController@store') }}">
+                            <form method="post" action="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'store']) }}">
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-3">
@@ -128,10 +128,10 @@
                             <td class="text-center">{!! $reply->reusable ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
                             <td>{{ $reply->use_count>0 ? 'Used ('. $reply->use_count. ')' : 'Unused' }}</td>
                             <td>
-                                <form method="post" action="{{ action('InstagramAutomatedMessagesController@destroy', $reply->id) }}">
+                                <form method="post" action="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'destroy'], $reply->id) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <a class="btn btn-info" href="{{ action('InstagramAutomatedMessagesController@edit', $reply->id) }}">
+                                    <a class="btn btn-info" href="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'edit'], $reply->id) }}">
                                         <i class="fa fa-edit"></i>
                                     </a>
                                     <button class="btn btn-sm btn-danger">

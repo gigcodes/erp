@@ -7,12 +7,14 @@
 		      	<th width="2%">Id</th>
 		      	<th width="10%">Subject</th>
 		      	<th width="12%">StoreWebsite</th>
-		      	<th width="10%">Send On</th>
-		      	<th width="10%">Send At</th>
+		      	<th width="9%">Send On</th>
+		      	<th width="9%">Send At</th>
 		      	<th width="10%">Mail List</th>
+				<th width="10%">Mailing list Templates</th>
 		      	<th width="10%">Products</th>
-		      	<th width="10%">Updated by</th>
-		        <th width="5%">Action</th>
+		      	<th width="9%">Updated by</th>
+		      	<th width="9%">Language</th>
+		        <th width="8%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -25,10 +27,12 @@
 			      	<td>{{:prop.sent_on}}</td>
 			      	<td>{{:prop.sent_at}}</td>
 			      	<td>{{:prop.mailinglist_name}}</td>
+					  <td>{{:prop.mailinglist_template_name}}</td>
 			      	<td ><a href="javascript:;" class="show-more-image" style="color: #333;"data-attr="section_p_{{:prop.id}}">View All</a></td>
-			      	<td>{{:prop.updated_by}}</td>
+			      	<td>{{:prop.updated_by_name}}</td>
+					<td>{{:prop.language}}</td>
 			      	<td>
-                        <div style="width:126px;">
+                        <div>
                             <button type="button" data-id="{{>prop.id}}" class="btn p-1 btn-edit-template" >
                             	<img width="15px" title="Edit" src="/images/edit.png">
                             </button>
@@ -38,6 +42,11 @@
                             <a href="newsletters/{{>prop.id}}/preview" class="p-1" title="Preview" style="color: gray;">
                             	<i class="fa fa-globe " aria-hidden="true"></i>
                             </a>
+							{{if !prop.translated_from}}
+								<a href="newsletters/{{>prop.id}}/translate" data-id="{{>prop.id}}" class="p-1 btn-translate" title="Translate to other Language" style="color: gray;">
+									<i class="fa fa-language" aria-hidden="true"></i>
+								</a>
+							{{/if}}
                         </div>
 			        </td>
 			      </tr>

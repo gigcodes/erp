@@ -5,7 +5,6 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ShipmentEmail extends Mailable
 {
@@ -16,18 +15,20 @@ class ShipmentEmail extends Mailable
      *
      * @return void
      */
-
     public $subject;
+
     public $message;
+
     public $file_paths;
+
     public $customConfig;
 
     public function __construct(string $subject, string $message, array $file_paths, $customConfig = [])
     {
-      $this->subject = $subject;
-      $this->message = $message;
-      $this->file_paths = $file_paths;
-      $this->customConfig = $customConfig;
+        $this->subject = $subject;
+        $this->message = $message;
+        $this->file_paths = $file_paths;
+        $this->customConfig = $customConfig;
     }
 
     /**
@@ -39,7 +40,6 @@ class ShipmentEmail extends Mailable
     {
         $email = $this->subject($this->subject)
             ->text('emails.customers.email_plain', ['body_message' => $this->message]);
-
 
         /* if(!empty($this->customConfig)) {
             $email = $email->from($this->customConfig["from"]);
@@ -55,5 +55,4 @@ class ShipmentEmail extends Mailable
 
         return $email;
     }
-    
 }

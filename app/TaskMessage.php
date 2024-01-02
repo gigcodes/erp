@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskMessage extends Model
 {
-     protected $fillable = [ 'message_type', 'frequency', 'message'];
+    protected $fillable = ['message_type', 'frequency', 'message'];
 }

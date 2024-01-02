@@ -2,121 +2,130 @@
 
 namespace App\Http\Controllers;
 
-use App\LearningModule;
 use Auth;
+use App\LearningModule;
 use Illuminate\Http\Request;
 
 class LearningCategoryController extends Controller
 {
-	public function __construct() {
+    public function __construct()
+    {
+    }
 
-	}
+    public function index()
+    {
+        $data = LearningModule::latest()->get();
 
-	public function index(){
+        return view('task-module.category.index', compact('data'));
+    }
 
-		$data = LearningModule::latest()->get();
-		return view('task-module.category.index',compact('data'));
-	}
+    public function create()
+    {
+        $data = [];
+        $data['title'] = '';
+        $data['modify'] = 0;
 
-	public function create(){
+        return view('task-module.category.form', $data);
+    }
 
-		$data = [];
-		$data['title'] = '';
-		$data['modify'] = 0;
+    public function edit(LearningModule $learning_category)
+    {
+        $data = $learning_category->toArray();
+        $data['modify'] = 1;
 
-		return view('task-module.category.form',$data);
-	}
+        return view('task-module.category.form', $data);
+    }
 
-	public function edit(LearningModule $learning_category){
+    public function store(Request $request)
+    {
+        $this->validate($request, [
+            'title' => 'required_without:subcategory',
+        ]);
 
-		$data = $learning_category->toArray();
-		$data['modify'] = 1;
+        $is_approved = Auth::user()->hasRole('Admin') ? 1 : 0;
 
-		return view('task-module.category.form',$data);
-	}
+        if ($request->title != '') {
+            LearningModule::create(['title' => $request->title, 'is_approved' => $is_approved,  'parent_id' => 0]);
+        }
 
-	public function store(Request $request){
+        if ($request->parent_id != '' && $request->subcategory != '') {
+            LearningModule::create(['title' => $request->subcategory, 'parent_id' => $request->parent_id, 'is_approved' => $is_approved]);
+        }
 
-		$this->validate($request,[
-			'title' => 'required_without:subcategory'
-		]);
+        return redirect()->back()->with('success', 'Module created successfully');
+    }
 
-		$is_approved = Auth::user()->hasRole('Admin') ? 1 : 0;
+    public function getSubModule(Request $request)
+    {
+        if ($request->module_id) {
+            return LearningModule::where('is_approved', 1)->where('parent_id', $request->module_id)->get();
+        }
+    }
 
-		if ($request->title != '') {
-			LearningModule::create(['title' => $request->title, 'is_approved' => $is_approved,  'parent_id' => 0]);
-		}
+    public function changeStatus(Request $request)
+    {
+        $categories = LearningModule::all();
+        foreach ($categories as $cat) {
+            $cat->update(['is_active' => 0]);
+        }
+        foreach ($request->categoriesList as $category) {
+            LearningModule::where('id', $category)->update(['is_active' => 1]);
+        }
 
-		if ($request->parent_id != '' && $request->subcategory != '') {
-			LearningModule::create(['title' => $request->subcategory, 'parent_id' => $request->parent_id, 'is_approved' => $is_approved]);
-		}
+        return response()->json(['message' => 'Successful'], 200);
+    }
 
+    public function update(Request $request, LearningModule $learning_category)
+    {
+        $this->validate($request, [
+            'title' => 'required',
+        ]);
 
-		return redirect()->back()->with('success','Module created successfully');
-	}
-	public function getSubModule(Request $request) {
-		if($request->module_id){
-			return LearningModule::where('is_approved', 1)->where('parent_id', $request->module_id)->get();
-		}
-	}
-	public function changeStatus(Request $request) {
-		$categories = LearningModule::all();
-		foreach($categories as $cat) {
-			$cat->update(['is_active' => 0]);
-		}
-		foreach($request->categoriesList as $category) {
-			LearningModule::where('id',$category)->update(['is_active' => 1]);
-		}
-		return response()->json(['message' => 'Successful'],200);
-	}
+        $learning_category->update($request->all());
 
-	public function update(Request $request,LearningModule $learning_category){
+        return redirect()->route('learning_category.index')->with('success', 'Category udpated successfully');
+    }
 
-		$this->validate($request,[
-			'title' => 'required'
-		]);
+    public function approve(Request $request, $id)
+    {
+        $learning_category = LearningModule::find($id);
+        $learning_category->is_approved = 1;
+        $learning_category->save();
 
-		$learning_category->update($request->all());
+        if ($request->ajax()) {
+            return response('success', 200);
+        }
 
-		return redirect()->route('learning_category.index')->with('success','Category udpated successfully');
-	}
+        return redirect()->route('learning_category.index')->with('success', 'Category approved successfully');
+    }
 
-	public function approve(Request $request, $id){
-		$learning_category = LearningModule::find($id);
-		$learning_category->is_approved = 1;
-		$learning_category->save();
+    public function destroy(LearningModule $learning_category)
+    {
+        $learning_category->delete();
 
-		if ($request->ajax()) {
-			return response('success', 200);
-		}
+        return redirect()->route('learning_category.index')->with('success', 'Category deleted successfully');
+    }
 
-		return redirect()->route('learning_category.index')->with('success','Category approved successfully');
-	}
+    public static function getAllLearningModule()
+    {
+        $learning_category = LearningModule::all()->toArray();
+        $learning_category_new = [];
 
-	public function destroy(LearningModule $learning_category){
-		$learning_category->delete();
+        foreach ($learning_category as $item) {
+            $learning_category_new[$item['id']] = $item['title'];
+        }
 
-		return redirect()->route('learning_category.index')->with('success','Category deleted successfully');
-	}
+        return $learning_category_new;
+    }
 
-	public static function getAllLearningModule(){
+    public static function getCategoryNameById($id)
+    {
+        $learning_category = self::getAllLearningModule();
 
-		$learning_category = LearningModule::all()->toArray();
-		$learning_category_new = [];
+        if (! empty($learning_category[$id])) {
+            return $learning_category[$id];
+        }
 
-		foreach($learning_category as $item)
-			$learning_category_new[$item['id']] = $item['title'];
-
-		return $learning_category_new;
-	}
-
-	public static function getCategoryNameById($id){
-
-		$learning_category = self::getAllLearningModule();
-
-		if(!empty($learning_category[$id]))
-			return $learning_category[$id];
-
-		return '';
-	}
+        return '';
+    }
 }

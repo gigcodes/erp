@@ -2,17 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Notification;
 use App\Task;
 use App\TaskTypes;
-use App\Status;
-use App\Setting;
-use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\DB;
-
 
 class TaskTypesController extends Controller
 {
@@ -43,8 +35,6 @@ class TaskTypesController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\ScrapedProducts;
+use Illuminate\Console\Command;
 
 class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
 {
@@ -38,60 +38,58 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
      */
     public function handle()
     {
-        $products = ScrapedProducts::select('id','sku','properties')->whereNull('categories')->whereNull('color')->whereNull('composition')->orderBy('id','desc')->get();
+        $products = ScrapedProducts::select('id', 'sku', 'properties')->whereNull('categories')->whereNull('color')->whereNull('composition')->orderBy('id', 'desc')->get();
 
         foreach ($products as $product) {
             $properties = $product->properties;
 
-            dump('Start with Scraped Product with sku '.$product->sku);
-
+            dump('Start with Scraped Product with sku ' . $product->sku);
 
             $categoryForScrapedProducts = '';
             $colorForScrapedProducts = '';
             $compositionForScrapedProducts = '';
 
-            try{
-                if(isset($properties['category'])){
-                    if(is_array($properties['category'])){
-                        $categoryForScrapedProducts = implode(',',$properties['category']);
-                    }else{
+            try {
+                if (isset($properties['category'])) {
+                    if (is_array($properties['category'])) {
+                        $categoryForScrapedProducts = implode(',', $properties['category']);
+                    } else {
                         $categoryForScrapedProducts = $properties['category'];
                     }
-                }else{
-                   dump('Category not present in this properties'); 
+                } else {
+                    dump('Category not present in this properties');
                 }
-            }catch(\Exception $e){
+            } catch (\Exception $e) {
                 dump('Facing issue in category');
             }
-            
-            try{
+
+            try {
                 //color for scraperProducts for
-                if(isset($properties['color'])){
-                    if(is_array($properties['color'])){
-                        $colorForScrapedProducts = implode(',',$properties['color']);
-                    }else{
+                if (isset($properties['color'])) {
+                    if (is_array($properties['color'])) {
+                        $colorForScrapedProducts = implode(',', $properties['color']);
+                    } else {
                         $colorForScrapedProducts = $properties['color'];
                     }
-                }else{
-                    dump('Color not present in this properties'); 
+                } else {
+                    dump('Color not present in this properties');
                 }
-
-            }catch(\Exception $e){
+            } catch (\Exception $e) {
                 dump('Facing issue in color');
             }
-            
-            try{
+
+            try {
                 //compostion for scraped Products
-                if(isset($properties['material_used'])){
-                    if(is_array($properties['material_used'])){
-                        $compositionForScrapedProducts = implode(',',$properties['material_used']);
-                    }else{
+                if (isset($properties['material_used'])) {
+                    if (is_array($properties['material_used'])) {
+                        $compositionForScrapedProducts = implode(',', $properties['material_used']);
+                    } else {
                         $compositionForScrapedProducts = $properties['material_used'];
                     }
-                }else{
-                    dump('Composition not present in this properties'); 
+                } else {
+                    dump('Composition not present in this properties');
                 }
-            }catch(\Exception $e){
+            } catch (\Exception $e) {
                 dump('Facing issue in composition');
             }
 
@@ -99,8 +97,7 @@ class GetCateogryCompositonColorFromPropertiesFromScrapProducts extends Command
             $product->color = $colorForScrapedProducts;
             $product->composition = $compositionForScrapedProducts;
             $product->save();
-            dump('Details saved from properties to base field for id '.$product->id);
+            dump('Details saved from properties to base field for id ' . $product->id);
         }
-
     }
 }

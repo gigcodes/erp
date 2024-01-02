@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use DB;
-use Exception;
 use Illuminate\Console\Command;
 
 class CategoryUpdateFromHistory extends Command
@@ -40,23 +38,22 @@ class CategoryUpdateFromHistory extends Command
     public function handle()
     {
         //
-        $allProducts = \App\ProductCategoryHistory::where("product_id","!=",0)
-        ->groupBy("product_id")
-        ->orderBy("created_at","desc")
-        ->select(["product_id","category_id"])->get();
+        $allProducts = \App\ProductCategoryHistory::where('product_id', '!=', 0)
+        ->groupBy('product_id')
+        ->orderBy('created_at', 'desc')
+        ->select(['product_id', 'category_id'])->get();
 
-        if(!$allProducts->isEmpty()) {
-            foreach($allProducts as $allProduct) {
+        if (! $allProducts->isEmpty()) {
+            foreach ($allProducts as $allProduct) {
                 $product = $allProduct->product;
-                if($product) {
-                   $product->category = $allProduct->category_id;
-                   $product->save();
-                   echo $product->id." DONE".PHP_EOL;
-                   // save to product status history 
-                   \App\ProductStatus::pushRecord($allProduct->product_id,"MANUAL_CATEGORY");
+                if ($product) {
+                    $product->category = $allProduct->category_id;
+                    $product->save();
+                    echo $product->id . ' DONE' . PHP_EOL;
+                    // save to product status history
+                    \App\ProductStatus::pushRecord($allProduct->product_id, 'MANUAL_CATEGORY');
                 }
             }
         }
-
     }
 }

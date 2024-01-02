@@ -126,6 +126,16 @@
 			<form id="send_message" method="POST">
                 <input type="hidden" name="id" id="bid" value="">
 				<div class="modal-body">
+                    <div class="form-group">
+						<strong>Medium</strong>
+                        <select name="is_email" class="form-control" id="is_email">
+                            <option value="">Select Medium</option>
+                            <option value="0">Whatsapp</option>
+                            <option value="1">Email</option>
+                            <option value="2">Bulk notification</option>
+
+                        </select>
+					</div>
 					<div class="form-group">
 						<strong>Name</strong>
 						<input name="name" id="name" autocomplete="off" type="text" class="form-control"/>
@@ -146,7 +156,7 @@
 </div>
 
 <div id="add_type" class="modal fade" role="dialog">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg">
 
 		<!-- Modal content-->
 		<div class="modal-content">
@@ -192,8 +202,22 @@
 					<button type="submit" class="btn btn-secondary">Submit</button>
 				</div>
 			</form>
-		</div>
-
+		
+            <div class="table-responsive" style="margin-top:20px;overflow-x: auto !important; padding: 0 10px">
+                <table class="table table-bordered text-nowrap" id="massage-table">
+                    <thead>
+                        <tr>
+                            <th>ID </th> 
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="group-items-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
 	</div>
 </div>
 
@@ -400,10 +424,49 @@
 
 
         $(document).on('click', '.add_type', function () {
+            
             var id = $(this).data("message-id");
             var type = $(this).data("type");
             $("#tid").val(id);
             $("#type").val(type);
+
+            $.ajax({
+                type: "POST",
+                url: '{{route("get-send-message-group")}}',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id:id,
+                    type:type,
+                }
+            }).done(function (response) {
+
+                if(response.code == 200) {
+                    
+                    var items = response.data;
+                    $('.group-items-list').html('<tr><td colspan="4">No data found</td></tr>');
+                    if(items.length > 0) {
+                        var itemsHtml = '';
+                        $.each(items, function(k,v) {
+                            itemsHtml += `<tr class="in-background filter-message" id="tr`+v.id+`">
+                                <td >`+v.id+`</td>
+                                <td >`+v.typeName+`</td>
+                                <td >`+v.type+`</td>
+                                <td ><a data-route="" data-id="`+v.id+`" onclick="deleteType(`+v.id+`,event)" class="trigger-type-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a></td>
+                            </tr>`;
+                        });
+                        
+                        $('.group-items-list').html(itemsHtml);
+                    }
+                }
+            }).fail(function (response) {
+                $(thiss).text('No');
+
+                alert('Could not say No!');
+                console.log(response);
+            });
+
+
+            
             if(type=='supplier'){
                 $("#add_type .modal-title").text('Select Suppliers');
                 $("#suppliers").show();
@@ -425,6 +488,11 @@
         
         $("#send_message").submit(function (e) {
             e.preventDefault();
+            
+            if ($("#send_message").find("#is_email").val() == "") {
+                alert('Please select Medium ');
+                return false;
+            }
 
             if ($("#send_message").find("#name").val() == "") {
                 alert('Please type name ');
@@ -444,6 +512,7 @@
                     message: $("#send_message").find("#message_to_all_field").val(),
                     name: $("#send_message").find("#name").val(),
                     id:$("#send_message").find("#bid").val(),
+                    is_email:$("#send_message").find("#is_email").val(),
                 }
             }).done(function () {
                 //window.location.reload();

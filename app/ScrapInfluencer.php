@@ -1,17 +1,18 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
+use Illuminate\Database\Eloquent\Model;
 
 class ScrapInfluencer extends Model
 {
-
     /**
      * @var string
+     *
      * @SWG\Property(property="post_id",type="integer")
      * @SWG\Property(property="post_caption",type="string")
      * @SWG\Property(property="instagram_user_id",type="integer")
@@ -60,6 +61,6 @@ class ScrapInfluencer extends Model
         'interests',
         'work_at',
         'platform',
-        'profile_url'
+        'profile_url',
     ];
 }

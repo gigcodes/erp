@@ -20,7 +20,7 @@
             <h2 class="page-heading">Approved Products in Magento ({{ $products_count }} of which {{ $queueSize }} are still in queue)</h2>
 
             <div class="pull-left">
-                <form class="form-inline" action="{{ action('ProductController@approvedMagento') }}" method="GET">
+                <form class="form-inline" action="{{ action([\App\Http\Controllers\ProductController::class, 'approvedMagento']) }}" method="GET">
 
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control"
@@ -198,7 +198,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <h2 class="page-heading">
-                                            <a target="_new" href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                                            <a target="_new" href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                                         </h2>
                                         <table class="table table-striped table-bordered">
                                             <tr>
@@ -284,7 +284,7 @@
             }
 
             $.ajax({
-                url: '{{ action('WhatsAppController@sendMessage', 'vendor') }}',
+                url: '{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'vendor') }}',
                 type: 'POST',
                 data: {
                     vendor_id: userId,

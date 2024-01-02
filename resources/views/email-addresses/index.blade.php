@@ -6,7 +6,7 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Email Addresses List</h2>
+            <h2 class="page-heading">Email Addresses List ({{$emailAddress->total()}})</h2>
         </div>
     </div>
 
@@ -16,23 +16,58 @@
         <div class="col-xs-12 pl-5">
             <form class="form-search-data">
                 <div class="row">
-                    <div class="col-xs-12 col-md-3 pd-2">
+                    <div class="col-2 pd-2">
                         <div class="form-group cls_task_subject mb-0">
-                            <input type="text" name="keyword" placeholder="Search Keyword" class="form-control input-sm" value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" placeholder="Search Keyword" class="form-control" value="{{ request('keyword') }}">
                         </div>
                     </div>
+                    <div class="col-2 pd-2">
+                      <div class="form-group username mb-0">
+                          <input type="text" name="username" placeholder="Search User Name" class="form-control" value="{{ request('username') }}" list="username-lists">
+                        <datalist id="username-lists">
+                          @foreach($userEmails as $emailAdd)
+                            <option value="{{$emailAdd}}">
+                          @endforeach
+                        </datalist>
+                      </div>
+                    </div>
+                    <div class="col-2 pd-2">
+                      <div class="form-group status mb-0">
+                          <select name="status" class="form-control">
+                              <option value="">--Select Status--</option>
+                              <option value="0" @if(request('status') === 0) selected @endif>Error</option>
+                              <option value="1" @if(request('status') == 1) selected @endif>Success</option>
+                          </select>
+                      </div>
+                  </div>
+                    <div class="col-2 pd-2">
+                    <div class="form-group status mb-0">
+                      <Select name="website_id" class="form-control">
+                        <option value>-- Select Website --</option>
+                        @foreach ($allStores as $key => $val)
+                          <option value="{{ $val->id }}" @if(request('website_id') == $val->id) selected @endif>{{ $val->title }}</option>
+                        @endforeach
+                      </Select>
+                    </div>
+                    </div>
+                    <div class="col-1 pd-2">
+                    <div class="form-group status mb-0">
+                      <button type="submit" class="btn btn-xs mt-1 ml-3">
+                        <i class="fa fa-filter"></i>
+                      </button>
+                      <a href="/email-addresses" class="btn btn-image mt-auto" id=""><img src="{{asset('/images/resend2.png')}}" style="cursor: nwse-resize;"></a>
+                    </div>
+                    </div>
                     <!-- Language Selection -->
-                    <div class="col-xs-12 col-md-3 pd-2">
+                    <div class="col-3 d-flex" style=" justify-content: end !important;padding-right: 22px;">
                         <div class="form-group mb-0">
-                            <button type="submit" class="btn btn-xs mt-1 ml-3">
-                              <i class="fa fa-filter"></i>
-                            </button>
-                            <button class="btn btn-xs btn-secondary error-email-history ml-3">View Errors</button>
+                          <a href="{{route('email-addresses.run-histories-listing')}}" class="btn btn-xs btn-secondary" target="_blank">View Email Run Job </a>
+                  			   <a href="{{route('email-addresses.run-histories-truncate')}}" class="btn btn-xs btn-secondary" onclick="return confirm('{{ __('Are you sure you want to truncate the datas? Note : It will remove all the datas') }}')">Truncate Data ({{$runHistoriesCount}})</a>
+                            <button type="button" class="btn btn-xs btn-secondary error-email-history ml-3 ">View Errors</button>
                             <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#emailAddressModal">
-                              <i class="fa fa-plus"></i>
+                              <i class="fa fa-plus" style=" width:25px"></i>
                             </button>
-                        </div>
-
+                          </div>
                     </div>
                     <!-- Search Network -->
 
@@ -52,18 +87,21 @@
                     <button type="submit" class="btn btn-xs btn-secondary"> Generate password </button>
                 {{ Form::close() }}
             </div>
-            <div class="pull-left ml-3">
-                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#passwordCreateModal"><i class="fa fa-plus"></i></button>
+            <div class="pull-left pl-1">
+                <button type="button" class="btn btn-xs btn-secondary" style="width: 25px" data-toggle="modal" data-target="#passwordCreateModal"><i class="fa fa-plus"></i></button>
+            </div>
+            <div class="pull-left pl-1">
+              <button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#store-api-token">Email Update</button>
             </div>
         </div>
     </div>
 
-    <div class="mt-3 col-md-12">
+    <div class="mt-3 col-md-12 mb-5">
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th width="2%">ID</th>
-			      <th width="9%">Username</th>
+            <th width="9%">Username</th>
             <th width="9%">Password</th>
             <th width="7%">Rec Phone</th>
             <th width="7%">Rec Email</th>
@@ -74,23 +112,37 @@
             <th width="10%">Encryp</th>
             <th width="10%">Str Website</th>
             <th width="5%">Status</th>
-            <th width="14%">Action</th>
+            <th width="5%">Error Description</th>
+            <th width="5%">Action</th>
           </tr>
         </thead>
 
         <tbody class="pending-row-render-view infinite-scroll-cashflow-inner">
+          {{-- @foreach($users as $user)
+          <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
+          @endforeach --}}
           @foreach ($emailAddress as $server)
-            <tr>
+          @php $bgColor = ""; @endphp
+          @if ($server->history_last_message_error != "") 
+            @php $bgColor = "#f4aeae!important";  @endphp
+          @endif
+            <tr style="background-color:{{$bgColor}}">
                <td>
 				        <input type="checkbox" class="checkbox_ch" id="u{{ $server->id }}" name="userIds[]" value="{{ $server->id }}">
               </td>
               <td class="expand-row-msg" data-name="username" data-id="{{$server->id}}">
-                  <span class="show-short-username-{{$server->id}}">{{ str_limit($server->username, 12, '..')}}</span>
+                  <span class="show-short-username-{{$server->id}}">{{ Str::limit($server->username, 12, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-username-{{$server->id}} hidden">{{$server->username}}</span>
+                <button type="button"  class="btn btn-copy-username btn-sm float-right" data-id="{{$server->username}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
               </td>
               <td class="expand-row-msg" data-name="password" data-id="{{$server->id}}">
-                  <span class="show-short-password-{{$server->id}}">{{ str_limit($server->password, 10, '..')}}</span>
+                  <span class="show-short-password-{{$server->id}}">{{ Str::limit($server->password, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-password-{{$server->id}} hidden">{{$server->password}}</span>
+                <button type="button"  class="btn btn-copy-password btn-sm float-right" data-id="{{$server->password}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
               </td>
               <td>
                   {{ $server->recovery_phone }}
@@ -102,7 +154,7 @@
                   {{ $server->driver }}
               </td>
               <td class="expand-row-msg" data-name="host" data-id="{{$server->id}}">
-                  <span class="show-short-host-{{$server->id}}">{{ str_limit($server->host, 10, '..')}}</span>
+                  <span class="show-short-host-{{$server->id}}">{{ Str::limit($server->host, 10, '..')}}</span>
                   <span style="word-break:break-all;" class="show-full-host-{{$server->id}} hidden">{{$server->host}}</span>
               </td>
               <td>
@@ -110,6 +162,9 @@
               </td>
               <td>
                   {{ $server->send_grid_token??'N/A' }}
+                <button type="button"  class="btn btn-copy-token btn-sm float-right" data-id="{{$server->send_grid_token}}">
+                  <i class="fa fa-clone" aria-hidden="true"></i>
+                </button>
               </td>
               <td>
                   {{ $server->encryption }}
@@ -118,9 +173,18 @@
                   @if($server->website){{ $server->website->title }} @endif
               </td>
               <td>
-                @if($server->is_success == 1) {{ 'Success' }} @elseif(isset($server->is_success)) {{'Error'}} @else {{'-'}} @endif
+                @if($server->history_last_message->is_success ?? '' == 1) {{ 'Success' }} @elseif(isset($server->history_last_message->is_success)) {{'Error'}} @else {{'-'}} @endif
               </td>
               <td>
+                {{( isset($server->history_last_message) && isset($server->history_last_message->message) ) ? $server->history_last_message->message : '-'}}
+             </td>
+              <td>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="EmailAddressesbtn('{{$server->id}}')"><i class="fa fa-arrow-down"></i></button>
+              </td>
+            </tr>
+            <tr class="action-emailaddressesbtn-tr-{{$server->id}} d-none">
+              <td class="font-weight-bold">Action</td>
+              <td colspan="12">
                 <button type="button" class="btn btn-xs assign-users p-0 m-0 text-secondary mr-2"  title="Assign users"  data-toggle="modal" data-target="#assignUsersModal{{$server->id}}" data-email-id="{{ $server->id }}" data-users="{{json_encode($server->email_assignes)}}">
                   <i class="fa fa-plus"></i>
                 </button>
@@ -131,32 +195,33 @@
                   <i class="fa fa-eye"></i>
                 </button>
                 {!! Form::open(['method' => 'DELETE','route' => ['email-addresses.destroy', $server->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-xs p-0 m-0 text-secondary mr-2">
-                      <i class="fa fa-trash"></i>
-                    </button>
+                <button type="submit" class="btn btn-xs p-0 m-0 text-secondary mt-0 mr-2">
+                  <i class="fa fa-trash"></i>
+                </button>
                 {!! Form::close() !!}
-                <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts p-0 m-0 text-secondary mr-2" title="Show Account">
+                <a href="javascript:;" data-id="{{ $server->from_address }}" class="show-related-accounts text-secondary mr-2" title="Show Account">
                   <i class="fa fa-eye"></i>
                 </a>
                 <a href="javascript:;" onclick="sendtoWhatsapp({{ $server->id }})" title="Send to Whatsapp" class="btn btn-xs p-0 m-0 text-secondary mr-2">
+                  <i class="fa fa-send-o"></i>
+                </a>
+                <a href="javascript:;" data-id="{{$server->id}}"  title="run cron" class="btn btn-xs p-0 m-0 text-secondary mr-2 single-email-run-cron">
                   <i class="fa fa-send-o"></i>
                 </a>
                 <div id="sendToWhatsapp{{$server->id}}" class="modal fade" role="dialog">
                   <div class="modal-dialog">
                     <!-- Modal content-->
                     <div class="modal-content">
-                        <div class="modal-header">
-                          <h4 class="modal-title">Send to Whatsapp</h4>
-                          <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
+                      <div class="modal-header">
+                        <h4 class="modal-title">Send to Whatsapp</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      </div>
+                      <form action="{{ route('email.password.sendwhatsapp') }}" method="POST">
                         @csrf
                         <div class="modal-body">
                           <div class="form-group">
                             <select class="form-control" name="user_id">
-                              @foreach($users as $user)
-                              <option class="form-control" value="{{ $user->id }}">{{ $user->name }}</option>
-                              @endforeach
+                              {!!$uops!!}
                             </select>
                             <input type="hidden" name="id" value="{{ $server->id }}"/>
                             <input type="hidden" name="send_message" value="1">
@@ -167,18 +232,21 @@
                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                           <button type="submit" class="btn btn-secondary">Update</button>
                         </div>
-                        </form>
+                      </form>
                     </div>
                   </div>
                 </div>
+
+                <button style="padding:3px;" title="Email Auto Acknowledgement" type="button" class="btn btn-xs p-0 m-0 text-secondary mr-2 create-email-auto-acknowledgement" data-id="{{ $server->id }}"><i class="fa fa-envelope" aria-hidden="true"></i></button>
+
+                <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-xs p-0 m-0 text-secondary mr-2  count-email-acknowledgement" title="Email Auto Acknowledgement history" data-id="{{ $server->id }}"><i class="fa fa-info-circle"></i></button>
               </td>
             </tr>
-
-
 
           @endforeach
         </tbody>
       </table>
+      {{$emailAddress->links()}}
     </div>
     <img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
 
@@ -205,12 +273,12 @@
             </div>
             <div class="modal-body">
 
-          <div class="form-group">
+          <div class="form-group"> 
                   <strong>Users:</strong>
             <Select name="users[]" id="users" multiple class="form-control select-multiple globalSelect2">
               <option value = ''>None</option>
               @foreach ($users as $key => $val)
-                <option value="{{ $val->id }}" {{in_array($val->id,$assignids)?'selected':''}}>{{ $val->name }}</option>
+                <option value="{{ $val['id'] }}" {{in_array($val['id'],$assignids)?'selected':''}}>{{ $val['name'] }}</option>
               @endforeach
             </Select>
             @if ($errors->has('users'))
@@ -242,7 +310,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>From Name:</strong>
+              <strong>From Name<span class="text-danger">*</span>:</strong>
               <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
 
               @if ($errors->has('from_name'))
@@ -250,8 +318,13 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>From Address:</strong>
-              <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+              <strong>From Address<span class="text-danger">*</span>:</strong>
+              <input list="fromaddress-lists" type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
+              <datalist id="fromaddress-lists">
+                @foreach($fromAddresses as $fromAddress)
+                  <option value="{{$fromAddress}}">
+                @endforeach
+              </datalist>
 
               @if ($errors->has('from_address'))
                 <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
@@ -288,8 +361,8 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Driver:</strong>
-              <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
+              <strong>Driver<span class="text-danger">*</span>:</strong>
+              <input type="text" name="driver" class="form-control" value="{{ old('driver', $defaultDriver) }}" required>
 
               @if ($errors->has('driver'))
                 <div class="alert alert-danger">{{$errors->first('driver')}}</div>
@@ -298,16 +371,34 @@
           </div>
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>Host:</strong>
-              <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
+              <strong>Incoming Driver<span class="text-danger">*</span>:</strong>
+              <input type="text" name="incoming_driver" class="form-control" value="{{ old('incoming_driver', $defaultDriver) }}" required>
+
+              @if ($errors->has('incoming_driver'))
+                <div class="alert alert-danger">{{$errors->first('incoming_driver')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Outgoing Driver<span class="text-danger">*</span>:</strong>
+              <input type="text" name="driver" class="form-control" value="{{ old('driver', $defaultDriver) }}" required>
+
+              @if ($errors->has('driver'))
+                <div class="alert alert-danger">{{$errors->first('driver')}}</div>
+              @endif
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-4">
+              <strong>Host<span class="text-danger">*</span>:</strong>
+              <input type="text" name="host" class="form-control" value="{{ old('host', $defaultHost) }}" required>
 
               @if ($errors->has('host'))
                 <div class="alert alert-danger">{{$errors->first('host')}}</div>
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Port:</strong>
-              <input type="text" name="port" class="form-control" value="{{ old('port') }}" required>
+              <strong>Port<span class="text-danger">*</span>:</strong>
+              <input type="text" name="port" class="form-control" value="{{ old('port', $defaultPort) }}" required>
 
               @if ($errors->has('port'))
                 <div class="alert alert-danger">{{$errors->first('port')}}</div>
@@ -315,8 +406,8 @@
             </div>
 
             <div class="form-group col-md-4">
-              <strong>Encryption:</strong>
-              <input type="text" name="encryption" class="form-control" value="{{ old('encryption') }}" required>
+              <strong>Encryption<span class="text-danger">*</span>:</strong>
+              <input type="text" name="encryption" class="form-control" value="{{ old('encryption', $defaultEncryption) }}" required>
 
               @if ($errors->has('encryption'))
                 <div class="alert alert-danger">{{$errors->first('encryption')}}</div>
@@ -333,7 +424,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Username:</strong>
+              <strong>Username<span class="text-danger">*</span>:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
               @if ($errors->has('username'))
@@ -341,7 +432,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Password:</strong>
+              <strong>Password<span class="text-danger">*</span>:</strong>
               <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
               @if ($errors->has('password'))
@@ -387,6 +478,14 @@
 
               @if ($errors->has('signature_website'))
                 <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Twilio Recovery Code:</strong>
+              <input type="text" name="twilio_recovery_code" class="form-control" value="{{ old('twilio_recovery_code') }}">
+
+              @if ($errors->has('twilio_recovery_code'))
+                <div class="alert alert-danger">{{$errors->first('twilio_recovery_code')}}</div>
               @endif
             </div>
           </div>
@@ -523,7 +622,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="form-group col-md-4">
-              <strong>From Name:</strong>
+              <strong>From Name<span class="text-danger">*</span>:</strong>
               <input type="text" name="from_name" class="form-control" value="{{ old('from_name') }}" required>
 
               @if ($errors->has('from_name'))
@@ -531,7 +630,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>From Address:</strong>
+              <strong>From Address<span class="text-danger">*</span>:</strong>
               <input type="text" name="from_address" class="form-control" value="{{ old('from_address') }}" required>
 
               @if ($errors->has('from_address'))
@@ -568,8 +667,23 @@
                   <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
               @endif
             </div>
+            
+          </div>
+          <div class="row">
             <div class="form-group col-md-4">
-              <strong>Driver:</strong>
+              <strong>Incoming Driver<span class="text-danger">*</span>:</strong>
+              <Select name="incoming_driver" id="edit_incoming_driver" class="form-control required">
+                <option value = ''>Select Driver</option>
+                @foreach ($allIncomingDriver as $driver)
+                  <option value="{{ $driver }}">{{ $driver }}</option>
+                @endforeach
+              </Select>
+              @if ($errors->has('incoming_driver'))
+                <div class="alert alert-danger">{{$errors->first('incoming_driver')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Outgoing Driver<span class="text-danger">*</span>:</strong>
               <Select name="driver" id="edit_driver" class="form-control required">
                 <option value = ''>Select Driver</option>
                 @foreach ($allDriver as $driver)
@@ -582,8 +696,9 @@
             </div>
           </div>
           <div class="row">
+            
             <div class="form-group col-md-4">
-              <strong>Host:</strong>
+              <strong>Host<span class="text-danger">*</span>:</strong>
               <input type="text" name="host" class="form-control" value="{{ old('host') }}" required>
 
               @if ($errors->has('host'))
@@ -591,7 +706,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Port:</strong>
+              <strong>Port<span class="text-danger">*</span>:</strong>
               <Select name="port" id="edit_port" class="form-control required">
                 <option value = ''>Select Port</option>
                 @foreach ($allPort as $port)
@@ -604,7 +719,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Encryption:</strong>
+              <strong>Encryption<span class="text-danger">*</span>:</strong>
               <Select name="encryption" id="edit_encryption" class="form-control required">
                 <option value = ''>Select Encryption</option>
                 @foreach ($allEncryption as $encryption)
@@ -627,7 +742,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Username:</strong>
+              <strong>Username<span class="text-danger">*</span>:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
 
               @if ($errors->has('username'))
@@ -635,7 +750,7 @@
               @endif
             </div>
             <div class="form-group col-md-4">
-              <strong>Password:</strong>
+              <strong>Password<span class="text-danger">*</span>:</strong>
               <input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
 
               @if ($errors->has('password'))
@@ -650,7 +765,7 @@
                 <div class="alert alert-danger">{{$errors->first('signature_name')}}</div>
               @endif
             </div>
-         
+
             <div class="form-group col-md-4">
               <strong>Signature Title:</strong>
               <input type="text" name="signature_title" class="form-control" value="{{ old('signature_title') }}" >
@@ -681,6 +796,14 @@
 
               @if ($errors->has('signature_website'))
                 <div class="alert alert-danger">{{$errors->first('signature_website')}}</div>
+              @endif
+            </div>
+            <div class="form-group col-md-4">
+              <strong>Twilio Recovery Code:</strong>
+              <input type="text" name="twilio_recovery_code" class="form-control" value="{{ old('twilio_recovery_code') }}" >
+
+              @if ($errors->has('twilio_recovery_code'))
+                <div class="alert alert-danger">{{$errors->first('twilio_recovery_code')}}</div>
               @endif
             </div>
           </div>
@@ -750,23 +873,327 @@
          50% 50% no-repeat;display:none;">
 </div>
 
+<div class="modal fade" id="store-api-token" role="dialog">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><b>Store Api Token</b></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <div style="display:flex !important; float:right !important;"><input type="text" class="form-control email-address-search" name="search"
+                                                                                     placeholder="Search">
+                  &nbsp;
+                  <button style="display: inline-block;width: 10%"
+                          class="btn btn-sm btn-image btn-secondary btn-search-email-address">
+                    <img src="{{asset('/images/search.png')}}" style="cursor: default;">
+                  </button>
+                  &nbsp;
+                  <button style="display: inline-block;width: 10%"
+                          class="btn btn-sm btn-image btn-secondary btn-refresh-email-address">
+                    <img src="{{asset('/images/resend2.png')}}" style="cursor: default;">
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <form action="{{route('email.address.update')}}" method="post">
+                  <?php echo csrf_field(); ?>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="table-responsive mt-3">
+                        <table class="table table-bordered overlay email-address-table">
+                          <thead>
+                          <tr>
+                            <th>Id</th>
+                            <th width="50%">Email</th>
+                            <th width="50%">Password</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          @include('email-addresses.partials.email-address')
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-secondary submit float-right float-lg-right">Update</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div id="create-email-auto-acknowledgement" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="<?php echo route('email-addresses.create.acknowledgement'); ?>" method="post">
+                @csrf
+                <div class="modal-header">
+                    <h4 class="modal-title">Email Auto Acknowledgement</h4>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" type="hidden" name="email_addresses_id" id="email_addresses_id" />
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>Start Date:</strong>
+                            <input type="datetime-local" name="start_date" id="start_date" class="form-control start_date" value="" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <strong>End Date:</strong>
+                            <input type="datetime-local" name="end_date" id="end_date" class="form-control end_date" value="" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="">Message</label>
+                            <textarea id="ack_message" name="ack_message" class="form-control" ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="">Type</label>
+                            <select name="ack_status" class="form-control" id="ack_status">
+                                <option value="">--Select Status--</option>
+                                <option value="1">Auto</option>
+                                <option value="2">Manual</option>
+                          </select>
+                        </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-default create-acknowledgement">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="acknowledgement_statistics" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Email Acknowledgement statistics</h2>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body" id="acknowledgement_statistics_content">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Message</th>
+                                <th>Type</th>
+                                <th>Created Date</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
+
+
 @section('scripts')
-<script src="https://cdn.tiny.cloud/1/8lx26kd08fse8eckrno8tqi4pkf298s9d9hunvvzy4ri6ru4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-  tinymce.init({
-    selector: '#address',
-    menubar: false
-  });
-  tinymce.init({
-    selector: '#social',
-    menubar: false
-  });
-
-
+  function EmailAddressesbtn(id){
+    $(".action-emailaddressesbtn-tr-"+id).toggleClass('d-none')
+  }
 </script>
-  <script type="text/javascript">
+<script>
+    tinymce.init({
+        selector: '#address',
+        menubar: false
+    });
+    tinymce.init({
+        selector: '#social',
+        menubar: false
+    });
+    tinymce.init({
+        selector: '#ack_message',
+        menubar: false
+    });
+
+    $(document).on('click', '.create-email-auto-acknowledgement', function() {
+        var $this = $(this);
+        id = $(this).data("id");
+        $("#create-email-auto-acknowledgement").modal("show");
+        $('#email_addresses_id').val(id);
+    });
+
+    $(document).on("click", ".create-acknowledgement", function(e) {
+
+        var ack_message = tinymce.get('ack_message').getContent();
+        var start_date = $('#start_date').val();
+        var end_date = $('#end_date').val();
+        var email_addresses_id = $('#email_addresses_id').val();
+        var ack_status = $('#ack_status').val();
+
+        e.preventDefault();
+        var form = $(this).closest("form");
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                ack_message : ack_message,
+                start_date : start_date,
+                end_date : end_date,
+                email_addresses_id : email_addresses_id,
+                ack_status : ack_status,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    form[0].reset();
+                    toastr['success'](response.message);
+                    $("#create-email-auto-acknowledgement").modal("hide");
+                } else {
+                    toastr['error'](response.message);
+                }
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    });
+
+    $(document).on("click", ".count-email-acknowledgement", function() {
+
+        var $this = $(this);
+        var email_addresses_id = $(this).data("id");
+
+        $.ajax({
+            type: 'get',
+            url: 'email-addresses/countemailacknowledgement/' + email_addresses_id,
+            dataType: "json",
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            success: function(data) {
+                $("#acknowledgement_statistics").modal("show");
+                var table = `<div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Message</th>
+                            <th>Type</th>
+                            <th>Created Date</th>
+                        </tr>`;
+                for (var i = 0; i < data.EMailAcknowledgement.length; i++) {
+                    var ack_status = data.EMailAcknowledgement[i].ack_status;
+                    if (typeof ack_status == 1 ) {
+                        ack_status = 'Auto'
+                    } else {
+                        ack_status = 'Manual'
+                    };
+                    table = table + '<tr><td>' + data.EMailAcknowledgement[i].start_date + '</td><td>' +
+                        data.EMailAcknowledgement[i].end_date +
+                        '</td>';
+
+                    if(data.EMailAcknowledgement[i].ack_message!=null){
+                        table = table + '<td>' + data.EMailAcknowledgement[i].ack_message +'</td>';
+                    } else {
+                        table = table + '<td>--</td>';
+                    }
+
+                    table = table + '<td>' + ack_status +'</td><td>' + data.EMailAcknowledgement[i]
+                        .created_at +'</td>';
+
+                    table = table + '</tr>';
+                }
+                table = table + '</table></div>';
+                $("#loading-image").hide();
+                $(".modal").css("overflow-x", "hidden");
+                $(".modal").css("overflow-y", "auto");
+                $("#acknowledgement_statistics_content").html(table);
+            },
+            error: function(error) {
+                console.log(error);
+                $("#loading-image").hide();
+            }
+        });
+    });
+
+    $(document).on('click', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        console.log(name);
+        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
+
+    $(document).on('click','.btn-search-email-address',function(){
+      search = $('.email-address-search').val()
+      $.ajax({
+        url: "{{route('email.address.search')}}",
+        dataType: "json",
+        type: "GET",
+        data: {
+          search : search,
+        },
+        beforeSend: function () {
+          $("#loading-image").show();
+        },
+      }).done(function (data) {
+        $("#loading-image").hide();
+        $(".email-address-table tbody").empty().html(data.tbody);
+      });
+    });
+    $(document).on('click','.btn-refresh-email-address',function(){
+      search = '';
+      $.ajax({
+        url: "{{route('email.address.search')}}",
+        dataType: "json",
+        type: "GET",
+        data: {
+          search : search,
+        },
+        beforeSend: function () {
+          $("#loading-image").show();
+        },
+      }).done(function (data) {
+        $("#loading-image").hide();
+        $('.email-address-search').val('');
+        $(".email-address-table tbody").empty().html(data.tbody);
+      });
+    });
+
     $(document).on('click', '.expand-row-msg', function () {
       var name = $(this).data('name');
       var id = $(this).data('id');
@@ -800,14 +1227,25 @@
       $('#emailAddressEditModal').find('input[name="recovery_email"]').val(emailAddress.recovery_email);
 
       $('#emailAddressEditModal').find('input[name="signature_name"]').val(emailAddress.signature_name);
-	    $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
+      $('#emailAddressEditModal').find('input[name="signature_title"]').val(emailAddress.signature_title);
       $('#emailAddressEditModal').find('input[name="signature_email"]').val(emailAddress.signature_email);
       $('#emailAddressEditModal').find('input[name="signature_phone"]').val(emailAddress.signature_phone);
       $('#emailAddressEditModal').find('input[name="signature_website"]').val(emailAddress.signature_website);
+      $('#emailAddressEditModal').find('input[name="twilio_recovery_code"]').val(emailAddress.twilio_recovery_code);
       $('#emailAddressEditModal').find('textarea[name="signature_address"]').val(emailAddress.signature_address);
       $('#emailAddressEditModal').find('textarea[name="signature_social"]').val(emailAddress.signature_social);
-      $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
-      $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
+      $("#img1").hide();
+      $("#img2").hide();
+      if(emailAddress && emailAddress.signature_logo){
+        $("#img1").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_logo);
+        $("#img1").show();
+      }
+      if(emailAddress && emailAddress.signature_logo){
+        $("#img2").attr("src",  "{{url('/')}}/uploads/" + emailAddress.signature_image);
+        $("#img2").show();
+      }
+      
+      
       tinymce.init({
     selector: '#address1',
     menubar: false
@@ -819,7 +1257,9 @@
 
 	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
 
+    $('#edit_incoming_driver').val(emailAddress.incoming_driver).trigger('change');
     $('#edit_driver').val(emailAddress.driver).trigger('change');
+    $('#edit_port').val(emailAddress.port).trigger('change');
     $('#edit_port').val(emailAddress.port).trigger('change');
     $('#edit_encryption').val(emailAddress.encryption).trigger('change');
 
@@ -916,11 +1356,11 @@ function sendtoWhatsapp(password_id) {
         var page = 1;
         $(document).ready(function () {
 
-            $(window).scroll(function() {
+            /*$(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
                     loadMore();
                 }
-            });
+            });*/
 
             function loadMore() {
                 if (isLoading)
@@ -936,7 +1376,6 @@ function sendtoWhatsapp(password_id) {
                         $loader.show();
                     },
                     success: function (data) {
-
                         $loader.hide();
                         if('' === data.trim())
                             return;
@@ -953,6 +1392,58 @@ function sendtoWhatsapp(password_id) {
             }
         });
 
+        $(document).on("click",".btn-copy-password",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
+
+        $(document).on("click",".btn-copy-username",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
+
+        $(document).on("click",".btn-copy-token",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
+        $(document).on("click",".single-email-run-cron",function() {
+          var data = {
+            "_token": "{{ csrf_token() }}",
+            'id': $(this).attr('data-id'),
+          };
+          $.ajax({
+            type: 'POST',
+            url: '/email-addresses/single-email-run-cron',
+            data: data,
+            success: function(data) {
+              window.location.reload();
+              if(data.status = "success"){
+                toastr["success"](data.message);
+              }else{
+                toastr["error"]('Something went wrong');
+              }
+            },
+            error: function (response) {
+              window.location.reload();
+              toastr['error']("Something went wrong", 'error');
+            }
+          });
+        });
 
   </script>
 @endsection

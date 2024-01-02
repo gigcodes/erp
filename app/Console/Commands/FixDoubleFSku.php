@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class FixDoubleFSku extends Command
@@ -43,15 +43,15 @@ class FixDoubleFSku extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $products = ScrapedProducts::where('website', 'doubleF')->get();
             foreach ($products as $product) {
-                $sku        = $product->sku;
+                $sku = $product->sku;
                 $properties = $product->properties;
-                $colorCode  = null;
+                $colorCode = null;
                 if (isset($properties['Color code'])) {
                     $colorCode = explode('-', $properties['Color code']);
                     if (count($colorCode) !== 2) {
@@ -71,7 +71,7 @@ class FixDoubleFSku extends Command
                 }
 
                 $colorCode = $colorCode[1];
-                $sku2      = $sku . $colorCode;
+                $sku2 = $sku . $colorCode;
 
                 Product::where('sku', $sku)->update([
                     'sku' => $sku2,

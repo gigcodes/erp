@@ -74,7 +74,7 @@
         } ?>
         <div class="page" style="page-break-after:always;">
             <?php
-            $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', 'App\Product')->first();
+            $mediable = DB::table('mediables')->where('media_id', $subMedia->id)->where('mediable_type', \App\Product::class)->first();
             if ($mediable) {
                 $product_id = $mediable->mediable_id;
                 $product = App\Product::find($product_id);
@@ -113,7 +113,7 @@
                                 <?php echo implode("<br>", $textToSend); ?>
                             </div>
                             <div class="top-bottom">
-                                <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->id, "EAN13",3,77,array(1,1,1), true) . '" alt="barcode"   />';?>
+                                <?php echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->id, "EAN13",3,77,[1,1,1], true) . '" alt="barcode"   />';?>
                             </div>
                             <img style="padding-top: 120px;" class="img-responsive img-fluid" src="<?php echo $path; ?>" />
                         </div>

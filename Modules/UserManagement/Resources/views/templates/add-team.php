@@ -13,6 +13,15 @@
                   <strong>Name</strong>
                   <input type="text" id="name" name="name" class="form-control">
             </div>
+            <div class="form-group">
+                    <strong>Select Second Leader </strong>
+                    <select class="form-control" aria-label="Default select example" name="second_lead">
+                        <option>-- Select Second Leader --</option>
+                        {{props users}}
+                            <option value="{{>key}}">{{>prop}}</option>
+                        {{/props}}
+                    </select>
+		    </div>
 			<div class="overflow-auto" id="collapse" style="height:400px;overflow-y:scroll;">
                 <strong>Members:</strong>
                 <input type="text" id="myInput" placeholder="Search for users.." class="form-control search-user">

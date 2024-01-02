@@ -2,10 +2,9 @@
 
 namespace App\Mail;
 
-use App\Http\Controllers\Controller;
-use App\MailinglistTemplate;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use App\Http\Controllers\Controller;
 use Illuminate\Queue\SerializesModels;
 
 class SendReferralMail extends Mailable
@@ -15,14 +14,23 @@ class SendReferralMail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $referlink;
+
     public $referrer_email;
+
     public $referee_coupon;
+
     public $store_website_id;
+
     public $title;
+
     public $website;
+
     public $subject;
+
     public $fromMailer;
+
     public $controller;
+
     /**
      * Create a new message instance.
      *
@@ -30,14 +38,14 @@ class SendReferralMail extends Mailable
      */
     public function __construct($data)
     {
-        $this->subject = "Refer A friend - Luxury Erp";
-        $this->fromMailer = "customercare@sololuxury.co.in";
-        $this->referlink = isset($data['referlink']) ? $data['referlink'] : "";
-        $this->referrer_email = isset($data['referrer_email']) ? $data['referrer_email'] : "";
-        $this->referee_coupon = isset($data['referee_coupon']) ? $data['referee_coupon'] : "";
-        $this->store_website_id = isset($data['store_website_id']) ? $data['store_website_id'] : "";
-        $this->title = !empty($data['title']) ? $data['title'] : "";
-        $this->website = !empty($data['website']) ? $data['website'] : "";
+        $this->subject = 'Refer A friend - Luxury Erp';
+        $this->fromMailer = 'customercare@sololuxury.co.in';
+        $this->referlink = isset($data['referlink']) ? $data['referlink'] : '';
+        $this->referrer_email = isset($data['referrer_email']) ? $data['referrer_email'] : '';
+        $this->referee_coupon = isset($data['referee_coupon']) ? $data['referee_coupon'] : '';
+        $this->store_website_id = isset($data['store_website_id']) ? $data['store_website_id'] : '';
+        $this->title = ! empty($data['title']) ? $data['title'] : '';
+        $this->website = ! empty($data['website']) ? $data['website'] : '';
 
         $this->Controller = new Controller();
     }
@@ -49,7 +57,6 @@ class SendReferralMail extends Mailable
      */
     public function build()
     {
-
         if ($this->store_website_id) {
             $emailAddress = \App\EmailAddress::where('store_website_id', $this->store_website_id)->first();
             if ($emailAddress) {
@@ -69,7 +76,7 @@ class SendReferralMail extends Mailable
 
         $template = \App\MailinglistTemplate::getReferAFirendTemplate($this->store_website_id);
         if ($template) {
-            if (!empty($template->mail_tpl)) {
+            if (! empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($this->fromMailer)
                     ->subject($template->subject)
@@ -78,6 +85,7 @@ class SendReferralMail extends Mailable
                     ));
             } else {
                 $content = $template->static_template;
+
                 return $this->from($this->fromMailer)
                     ->subject($this->subject)
                     ->view('emails.blank_content', compact(
@@ -85,7 +93,5 @@ class SendReferralMail extends Mailable
                     ));
             }
         }
-
     }
-
 }

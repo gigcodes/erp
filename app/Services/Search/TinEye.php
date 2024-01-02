@@ -2,24 +2,23 @@
 
 namespace App\Services\Search;
 
-use App\Loggers\LogTineye;
 use tineye\api\TinEyeApi;
+use App\Loggers\LogTineye;
 
 class TinEye
 {
-
     private $_tinEyeApi = null;
 
-    function __construct()
+    public function __construct()
     {
         // Initiate API
         $this->_tinEyeApi = new TinEyeApi(
-            \Config::get("tineye.private_api_key"),
-            \Config::get("tineye.public_api_key")
+            \Config::get('tineye.private_api_key'),
+            \Config::get('tineye.public_api_key')
         );
     }
 
-    function searchByImage($url = '', $returnAsGoogle = false)
+    public function searchByImage($url = '', $returnAsGoogle = false)
     {
         // Check if construct worked
         if ($this->_tinEyeApi == null || empty($url)) {
@@ -27,30 +26,30 @@ class TinEye
         }
 
         // Send URL to API
-       try {
-           if (substr($url, 0, 4) != 'http' && file_exists($url)) {
-               $results = $this->_tinEyeApi->searchData(fopen($url, 'r'), 'filename.jpg');
-           } elseif (substr($url, 0, 4) != 'http') {
-               $results = $this->_tinEyeApi->searchUrl($url);
-           } else {
-               $results = [];
-           }
-       } catch (\Exception $e) {
-           // Set empty results
-           $results = [];
-       }
+        try {
+            if (substr($url, 0, 4) != 'http' && file_exists($url)) {
+                $results = $this->_tinEyeApi->searchData(fopen($url, 'r'), 'filename.jpg');
+            } elseif (substr($url, 0, 4) != 'http') {
+                $results = $this->_tinEyeApi->searchUrl($url);
+            } else {
+                $results = [];
+            }
+        } catch (\Exception $e) {
+            // Set empty results
+            $results = [];
+        }
 
-       if ( count($results)>0) {
-           // Store result
-           LogTineye::log($url, json_encode($results));
-       }
+        if (count($results) > 0) {
+            // Store result
+            LogTineye::log($url, json_encode($results));
+        }
 
 //        For testing
         /*$results = LogTineye::find(26);
         $results = json_decode($results->response);*/
 
         // TODO: Check for result count
-        if (!$returnAsGoogle) {
+        if (! $returnAsGoogle) {
             return $results;
         } else {
             return $this->_convertResultToMatchGoogleVision($url, json_decode(json_encode($results)));
@@ -77,7 +76,7 @@ class TinEye
 
         return [
             'pages' => $pages,
-            'pages_media' => $pagesMedia
+            'pages_media' => $pagesMedia,
         ];
     }
 }

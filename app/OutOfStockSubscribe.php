@@ -9,7 +9,7 @@ class OutOfStockSubscribe extends Model
     protected $fillable = [
         'customer_id',
         'product_id',
-		'website_id',
-        'status'
+        'website_id',
+        'status',
     ];
 }

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Hubstaff;
-use App\UserAvaibility;
 
 use Illuminate\Database\Eloquent\Model;
 

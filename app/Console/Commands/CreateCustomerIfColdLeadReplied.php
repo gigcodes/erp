@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Account;
-use App\CronJobReport;
-use App\Services\Instagram\Broadcast;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+//use App\Services\Instagram\Broadcast;
+use App\CronJobReport;
+use Illuminate\Console\Command;
 
 class CreateCustomerIfColdLeadReplied extends Command
 {
@@ -43,18 +43,18 @@ class CreateCustomerIfColdLeadReplied extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $accounts = Account::where('platform', 'instagram')->where('broadcast', 1)->get();
 
-            foreach ($accounts as $account) {
-                $b = new Broadcast();
-                $b->login($account);
-
-                $b->addColdLeadsToCustomersIfMessagIsReplied($account);
-            }
+//            foreach ($accounts as $account) {
+//                $b = new Broadcast();
+//                $b->login($account);
+//
+//                $b->addColdLeadsToCustomersIfMessagIsReplied($account);
+//            }
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

@@ -69,7 +69,7 @@
                 let post_id = $(this).attr('data-media-id');
 
                 $.ajax({
-                    url: "{{ action('InstagramController@getComments') }}",
+                    url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getComments']) }}",
                     data: {
                         post_id: post_id
                     },
@@ -126,7 +126,7 @@
                     let self = this;
                     let postId = $(this).attr('data-post-id');
                     $.ajax({
-                        url: "{{ action('InstagramController@postComment') }}",
+                        url: "{{ action([\App\Http\Controllers\InstagramController::class, 'postComment']) }}",
                         type: 'post',
                         dataType: 'json',
                         data: {

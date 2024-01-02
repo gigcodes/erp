@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\WebsiteStoreView;
+use Illuminate\Console\Command;
 
 class addWebsiteLangGroup extends Command
 {
@@ -39,20 +39,20 @@ class addWebsiteLangGroup extends Command
     public function handle()
     {
         $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
-        foreach($websiteStoreViews as $v){
+        foreach ($websiteStoreViews as $v) {
             dump($v->name . '_' . $v->code);
 
-            $postURL  = 'https://api.livechatinc.com/v3.2/configuration/action/create_group';
-    
+            $postURL = 'https://api.livechatinc.com/v3.2/configuration/action/create_group';
+
             $postData = [
-                'name' => $v->name . '_' . $v->code, 
+                'name' => $v->name . '_' . $v->code,
                 'agent_priorities' => [
-                    'buying@amourint.com' => 'normal'
-                ]
+                    'buying@amourint.com' => 'normal',
+                ],
             ];
-    
+
             $postData = json_encode($postData, true);
-            $result = app('App\Http\Controllers\LiveChatController')->curlCall($postURL, $postData, 'application/json', true, 'POST');
+            $result = app(\App\Http\Controllers\LiveChatController::class)->curlCall($postURL, $postData, 'application/json', true, 'POST');
             if ($result['err']) {
                 dump(['status' => 'errors', 'errorMsg' => $result['err']], 403);
             } else {
@@ -60,21 +60,21 @@ class addWebsiteLangGroup extends Command
                 if (isset($response->error)) {
                     dump(['status' => 'errors', $response], 403);
                 } else {
-                    $websiteStoreView = WebsiteStoreView::where("id", $v->id)->first();
-    
+                    $websiteStoreView = WebsiteStoreView::where('id', $v->id)->first();
+
                     if ($websiteStoreView) {
-                        $websiteStoreView->store_group_id = $response->id; 
+                        $websiteStoreView->store_group_id = $response->id;
                         $websiteStoreView->save();
                     }
                     dump(['status' => 'success', 'responseData' => $response, 'code' => 200], 200);
                 }
-            } 
+            }
         }
 
         $websiteStoreViews = WebsiteStoreView::whereNull('store_group_id')->get();
-        foreach($websiteStoreViews as $key => $v){
+        foreach ($websiteStoreViews as $key => $v) {
             $ref_websiteStoreView = WebsiteStoreView::where('name', $v->name)->where('code', $v->code)->first();
-            if($ref_websiteStoreView){
+            if ($ref_websiteStoreView) {
                 WebsiteStoreView::where('id', $v->id)->update(['store_group_id' => $ref_websiteStoreView->store_group_id]);
                 dump($v->id . ' is updated');
             }

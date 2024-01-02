@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Helpers\StatusHelper;
 use App\Product;
-use App\ScrapedProducts;
 use Carbon\Carbon;
+use App\ScrapedProducts;
+use App\Helpers\StatusHelper;
 use Illuminate\Console\Command;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GetProductImageForScraper extends Command
 {
@@ -44,18 +44,17 @@ class GetProductImageForScraper extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //Getting All Products
-            if (!empty($this->argument('website'))) {
+            if (! empty($this->argument('website'))) {
                 $scrapedProducts = ScrapedProducts::where('website', $this->argument('website'))->get();
             } else {
                 $scrapedProducts = ScrapedProducts::all();
             }
 
             foreach ($scrapedProducts as $scrapedProduct) {
-
                 //get products from scraped products
                 $product = $scrapedProduct->product;
 

@@ -2,81 +2,65 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Customer;
-use App\Helpers\InstantMessagingHelper;
-use App\Http\Controllers\Controller;
-use App\CustomerMarketingPlatform;
-use Illuminate\Http\Request;
+use App\Account;
 use App\Setting;
-use Auth;
-use Validator;
-use Response;
-use App\Order;
-use App\ApiKey;
-use App\ErpLeads;
-use App\ImQueue;
-use App\Marketing\WhatsappConfig;
-use App\ColdLeadBroadcasts;
-use App\CompetitorPage;
-
-use App\Account; 
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Marketing\MarketingPlatform;
 use App\Marketing\InstaAccAutomationForm;
 
 class AccountController extends Controller
 {
+    public function index($type, Request $request)
+    {
+        $query = Account::query();
 
-	public function index($type = null , Request $request)
-	{
-		$query = Account::query();
+        if ($type) {
+            $query = $query->where('platform', $type);
+        } else {
+            $type = '';
+        }
 
-		if($type){
-			$query = $query->where('platform',$type);
-		}else{
-			$type = '';
-		}
+        if ($request->platform) {
+            $query = $query->where('platform', $request->platform);
+        }
 
-		if($request->platform){
-			$query = $query->where('platform',$request->platform);
-		}
+        if ($request->term) {
+            $query = $query->where('last_name', 'LIKE', '%' . $request->term . '%')
+                            ->orWhere('email', 'LIKE', '%' . $request->term . '%')
+                            ->orWhere('platform', 'LIKE', '%' . $request->term . '%');
+        }
 
-		if($request->term){
-			$query = $query->where('last_name','LIKE','%'.$request->term.'%')
-							->orWhere('email','LIKE','%'.$request->term.'%')
-							->orWhere('platform','LIKE','%'.$request->term.'%');
-		}
+        if ($request->date) {
+            $query = $query->whereDate('created_at', $request->date);
+        }
 
-		if($request->date){
-			$query = $query->whereDate('created_at',$request->date);
-		}
+        $accounts = $query->orderBy('id', 'desc')->paginate(25);
 
-		$accounts = $query->orderBy('id','desc')->paginate(25);
-		
-		$platforms = MarketingPlatform::all();
-		$automation_form = [];
-		$automation_form['posts_per_day'] = Setting::get('posts_per_day');        
+        $platforms = MarketingPlatform::all();
+        $automation_form = [];
+        $automation_form['posts_per_day'] = Setting::get('posts_per_day');
         $automation_form['likes_per_day'] = Setting::get('likes_per_day');
         $automation_form['send_requests_per_day'] = Setting::get('send_requests_per_day');
         $automation_form['accept_requests_per_day'] = Setting::get('accept_requests_per_day');
         $automation_form['image_per_post'] = Setting::get('image_per_post');
 
-		$websites = \App\StoreWebsite::select('id','title')->get();
-		
-		if ($request->ajax()) {
+        $websites = \App\StoreWebsite::select('id', 'title')->get();
+
+        if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.accounts.partials.data', compact('accounts','type','platforms','websites', 'automation_form'))->render(),
-                'links' => (string)$accounts->render(),
+                'tbody' => view('marketing.accounts.partials.data', compact('accounts', 'type', 'platforms', 'websites', 'automation_form'))->render(),
+                'links' => (string) $accounts->render(),
                 'count' => $accounts->total(),
             ], 200);
         }
-		return view('marketing.accounts.index',compact('accounts','type','platforms','websites', 'automation_form'));	
-	}
 
+        return view('marketing.accounts.index', compact('accounts', 'type', 'platforms', 'websites', 'automation_form'));
+    }
 
-	public function store(Request $request)
-	{
-
-		$this->validate($request, [
+    public function store(Request $request)
+    {
+        $this->validate($request, [
             'username' => 'required',
             'password' => 'required',
             'email' => 'required:email',
@@ -84,38 +68,37 @@ class AccountController extends Controller
             'instance_id' => 'required',
             'token' => 'required',
             'platform' => 'required',
-		]);
+        ]);
 
-		$check = Account::where('platform',$request->platform)->where('last_name',$request->username)->first();
-		if($check){
-			return redirect()->back()->with('message', 'Account Already Exist');
-		}
-		$account = new Account;
-		$account->first_name = $request->username;
-		$account->last_name = $request->username;
-		$account->password = $request->password;
-		$account->email = $request->email;
-		$account->number = $request->number;
-		$account->provider = $request->provider;
-		$account->frequency = $request->frequency;
-		$account->is_customer_support = $request->customer_support;
-		$account->instance_id = $request->instance_id;
-		$account->token = $request->token;
-		$account->send_start = $request->send_start;
-		$account->send_end = $request->send_end;
-		$account->platform = $request->platform;
-		$account->status = $request->status;
-		$account->store_website_id = $request->website;
-		$account->proxy = $request->proxy;
-		$account->save();
-		
-		return redirect()->back()->with('message', 'Account Saved');	
-	}
+        $check = Account::where('platform', $request->platform)->where('last_name', $request->username)->first();
+        if ($check) {
+            return redirect()->back()->with('message', 'Account Already Exist');
+        }
+        $account = new Account;
+        $account->first_name = $request->username;
+        $account->last_name = $request->username;
+        $account->password = $request->password;
+        $account->email = $request->email;
+        $account->number = $request->number;
+        $account->provider = $request->provider;
+        $account->frequency = $request->frequency;
+        $account->is_customer_support = $request->customer_support;
+        $account->instance_id = $request->instance_id;
+        $account->token = $request->token;
+        $account->send_start = $request->send_start;
+        $account->send_end = $request->send_end;
+        $account->platform = $request->platform;
+        $account->status = $request->status;
+        $account->store_website_id = $request->website;
+        $account->proxy = $request->proxy;
+        $account->save();
 
+        return redirect()->back()->with('message', 'Account Saved');
+    }
 
-	public function edit(Request $request)
-	{
-		$this->validate($request, [
+    public function edit(Request $request)
+    {
+        $this->validate($request, [
             'username' => 'required',
             'password' => 'required',
             'email' => 'required:email',
@@ -123,37 +106,37 @@ class AccountController extends Controller
             'instance_id' => 'required',
             'token' => 'required',
             'platform' => 'required',
-		]);
+        ]);
 
-		$account = Account::find($request->id);
-		$account->first_name = $request->username;
-		$account->last_name = $request->username;
-		$account->password = $request->password;
-		$account->email = $request->email;
-		$account->number = $request->number;
-		$account->provider = $request->provider;
-		$account->frequency = $request->frequency;
-		$account->is_customer_support = $request->customer_support;
-		$account->instance_id = $request->instance_id;
-		$account->token = $request->token;
-		$account->send_start = $request->send_start;
-		$account->send_end = $request->send_end;
-		$account->platform = $request->platform;
-		$account->store_website_id = $request->website;
-		$account->proxy = $request->proxy;
-		$account->status = $request->status;
-		$account->save();
+        $account = Account::find($request->id);
+        $account->first_name = $request->username;
+        $account->last_name = $request->username;
+        $account->password = $request->password;
+        $account->email = $request->email;
+        $account->number = $request->number;
+        $account->provider = $request->provider;
+        $account->frequency = $request->frequency;
+        $account->is_customer_support = $request->customer_support;
+        $account->instance_id = $request->instance_id;
+        $account->token = $request->token;
+        $account->send_start = $request->send_start;
+        $account->send_end = $request->send_end;
+        $account->platform = $request->platform;
+        $account->store_website_id = $request->website;
+        $account->proxy = $request->proxy;
+        $account->status = $request->status;
+        $account->save();
 
-		return redirect()->back()->with('message', 'Account Updated');
-	}
+        return redirect()->back()->with('message', 'Account Updated');
+    }
 
-	public function automation(Request $request){
+    public function automation(Request $request)
+    {
+        foreach ($request->except('_token') as $key => $val) {
+            $setting1 = Setting::where('name', $key)->update(['val' => $val]);
+        }
 
-		foreach($request->except('_token') as $key=>$val){
-			$setting1 = Setting::where('name',$key)->update(['val'=>$val]);
-		}
-
-		// $automation_form = InstaAccAutomationForm::create($request->all());
-		return redirect()->back()->with('message', 'Automation form Updated');
-	}
+        // $automation_form = InstaAccAutomationForm::create($request->all());
+        return redirect()->back()->with('message', 'Automation form Updated');
+    }
 }

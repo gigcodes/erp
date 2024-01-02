@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,8 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Size extends Model
 {
-      /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="name",type="string")
      * @SWG\Property(property="magento_id",type="integer")
      */
@@ -18,7 +20,6 @@ class Size extends Model
 
     public function storeWebsitSize()
     {
-        return $this->hasMany(\App\StoreWebsiteSize::class, 'size_id' , 'id');
+        return $this->hasMany(\App\StoreWebsiteSize::class, 'size_id', 'id');
     }
-
 }

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -42,7 +42,7 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -68,7 +68,7 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
                             foreach ($patternArr as $pattern) {
                                 $matches = [];
                                 preg_match_all($pattern, strtolower($message->message), $matches);
-                                if (!empty($matches[1][0])) {
+                                if (! empty($matches[1][0])) {
                                     $customerParams['shoe_size'] = $matches[1][0];
                                     break;
                                 }
@@ -91,7 +91,7 @@ class UpdateShoeAndClothingSizeFromChatMessages extends Command
                         }
                         }*/
 
-                        if (!empty($customerParams)) {
+                        if (! empty($customerParams)) {
                             \App\Customer::where('id', $message->customer_id)->update($customerParams);
                         }
                     }

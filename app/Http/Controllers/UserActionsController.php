@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\ColdLeads;
-use App\Customer;
 use App\User;
+use App\Customer;
+use App\ColdLeads;
 use App\UserActions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use PragmaRX\Tracker\Tracker;
-use PragmaRX\Tracker\Vendor\Laravel\Models\Log;
 use PragmaRX\Tracker\Vendor\Laravel\Models\Session;
 
 class UserActionsController extends Controller
@@ -37,7 +35,6 @@ class UserActionsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -45,7 +42,7 @@ class UserActionsController extends Controller
         $this->validate($request, [
             'url' => 'required',
             'type' => 'required',
-            'data' => 'required'
+            'data' => 'required',
         ]);
 
         $action = new UserActions();
@@ -79,7 +76,7 @@ class UserActionsController extends Controller
             'customer.show' => 'Viewed A Customer Page',
             'cold-leads.index' => 'Viewed Cold Leads Page',
             'home' => 'Landed Homepage',
-            'purchase.index' => 'Viewed Purchase Page'
+            'purchase.index' => 'Viewed Purchase Page',
         ];
 
         $models = [
@@ -94,7 +91,6 @@ class UserActionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
     public function edit(UserActions $userActions)
@@ -105,8 +101,6 @@ class UserActionsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, UserActions $userActions)
@@ -117,7 +111,6 @@ class UserActionsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\UserActions  $userActions
      * @return \Illuminate\Http\Response
      */
     public function destroy(UserActions $userActions)

@@ -2,21 +2,19 @@
 
 namespace App\Services\Scrap;
 
+use Storage;
 use App\Brand;
-use App\ScrapedProducts;
-use App\ScrapEntries;
 use App\Product;
 use App\Setting;
+use App\ScrapEntries;
 use GuzzleHttp\Client;
-use Storage;
-use Validator;
-use Wa72\HtmlPageDom\HtmlPageCrawler;
+use App\ScrapedProducts;
 use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Wa72\HtmlPageDom\HtmlPageCrawler;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class GebnegozionlineProductDetailsScraper extends Scraper
 {
-
     private $imagesToDownload;
 
     public function scrap()
@@ -31,13 +29,13 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     {
         $products = ScrapedProducts::where('website', 'G&B')->get();
         foreach ($products as $product) {
-          if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
-            $old_product->delete();
-          }
+            if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
+                $old_product->delete();
+            }
 
-          if ($old_product = Product::where('sku', $product->sku)->first()) {
-            $old_product->delete();
-          }
+            if ($old_product = Product::where('sku', $product->sku)->first()) {
+                $old_product->delete();
+            }
         }
     }
 
@@ -46,68 +44,69 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $products = ScrapedProducts::where('has_sku', 1)->where('website', 'G&B')->get();
 
         foreach ($products as $product) {
-          if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
-            $old_product->sku = str_replace(' ', '', $product->sku);
-            $old_product->brand = $product->brand_id;
-            $old_product->supplier = 'G & B Negozionline';
-            $old_product->name = $product->title;
-            $old_product->short_description = $product->description;
-            $old_product->supplier_link = $product->url;
-            $old_product->stage = 3;
+            if ($old_product = Product::where('sku', str_replace(' ', '', $product->sku))->first()) {
+                $old_product->sku = str_replace(' ', '', $product->sku);
+                $old_product->brand = $product->brand_id;
+                $old_product->supplier = 'G & B Negozionline';
+                $old_product->name = $product->title;
+                $old_product->short_description = $product->description;
+                $old_product->supplier_link = $product->url;
+                $old_product->stage = 3;
 
-            $properties_array = $product->properties;
+                $properties_array = $product->properties;
 
-            if (array_key_exists('Details', $properties_array)) {
-              if (strpos($properties_array['Details'], 'Made in') !== false) {
-                $old_product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
+                if (array_key_exists('Details', $properties_array)) {
+                    if (strpos($properties_array['Details'], 'Made in') !== false) {
+                        $old_product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
 
-                $old_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
-              } else {
-                $old_product->composition = (string) $properties_array['Details'];
-              }
-            }
+                        $old_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
+                    } else {
+                        $old_product->composition = (string) $properties_array['Details'];
+                    }
+                }
 
-            if (array_key_exists('Color Code', $properties_array)) {
-              $old_product->color = $properties_array['Color Code'];
-            }
+                if (array_key_exists('Color Code', $properties_array)) {
+                    $old_product->color = $properties_array['Color Code'];
+                }
 
-            if (array_key_exists('Size & Fit', $properties_array)) {
-              $sizes = $properties_array['Size & Fit'];
-              if (strpos($sizes, 'Width:') !== false) {
-                preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+                if (array_key_exists('Size & Fit', $properties_array)) {
+                    $sizes = $properties_array['Size & Fit'];
+                    if (strpos($sizes, 'Width:') !== false) {
+                        preg_match_all('/Width: ([\d]+)/', $sizes, $match);
 
-                $old_product->lmeasurement = (int) $match[1][0];
-                $old_product->measurement_size_type = 'measurement';
-              }
+                        $old_product->lmeasurement = (int) $match[1][0];
+                        $old_product->measurement_size_type = 'measurement';
+                    }
 
-              if (strpos($sizes, 'Height:') !== false) {
-                preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+                    if (strpos($sizes, 'Height:') !== false) {
+                        preg_match_all('/Height: ([\d]+)/', $sizes, $match);
 
-                $old_product->hmeasurement = (int) $match[1][0];
-              }
+                        $old_product->hmeasurement = (int) $match[1][0];
+                    }
 
-              if (strpos($sizes, 'Depth:') !== false) {
-                preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+                    if (strpos($sizes, 'Depth:') !== false) {
+                        preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
 
-                $old_product->dmeasurement = (int) $match[1][0];
-              }
-            }
+                        $old_product->dmeasurement = (int) $match[1][0];
+                    }
+                }
 
-            $brand = Brand::find($product->brand_id);
+                $brand = Brand::find($product->brand_id);
 
-            $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
-            $old_product->price = $price;
-            if(!empty($brand->euro_to_inr))
-              $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
-            else
-              $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
+                $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
+                $old_product->price = $price;
+                if (! empty($brand->euro_to_inr)) {
+                    $old_product->price_inr = $brand->euro_to_inr * $old_product->price;
+                } else {
+                    $old_product->price_inr = Setting::get('euro_to_inr') * $old_product->price;
+                }
 
-    				$old_product->price_inr = round($old_product->price_inr, -3);
-    				$old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
+                $old_product->price_inr = round($old_product->price_inr, -3);
+                $old_product->price_special = $old_product->price_inr - ($old_product->price_inr * $brand->deduction_percentage) / 100;
 
-    				$old_product->price_special = round($old_product->price_special, -3);
+                $old_product->price_special = round($old_product->price_special, -3);
 
-            $old_product->save();
+                $old_product->save();
 
             // $old_product->detachMediaTags(config('constants.media_tags'));
             //
@@ -116,92 +115,94 @@ class GebnegozionlineProductDetailsScraper extends Scraper
             //   $media = MediaUploader::fromSource($path)->upload();
             //   $old_product->attachMedia($media,config('constants.media_tags'));
             // }
-          } else {
-            $new_product = new Product;
-            $new_product->sku = str_replace(' ', '', $product->sku);
-            $new_product->brand = $product->brand_id;
-            $new_product->supplier = 'G & B Negozionline';
-            $new_product->name = $product->title;
-            $new_product->short_description = $product->description;
-            $new_product->supplier_link = $product->url;
-            $new_product->stage = 3;
+            } else {
+                $new_product = new Product;
+                $new_product->sku = str_replace(' ', '', $product->sku);
+                $new_product->brand = $product->brand_id;
+                $new_product->supplier = 'G & B Negozionline';
+                $new_product->name = $product->title;
+                $new_product->short_description = $product->description;
+                $new_product->supplier_link = $product->url;
+                $new_product->stage = 3;
 
-            $properties_array = $product->properties;
+                $properties_array = $product->properties;
 
-            if (array_key_exists('Details', $properties_array)) {
-              if (strpos($properties_array['Details'], 'Made in') !== false) {
-                $new_product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
+                if (array_key_exists('Details', $properties_array)) {
+                    if (strpos($properties_array['Details'], 'Made in') !== false) {
+                        $new_product->made_in = str_replace('\n', '', substr($properties_array['Details'], strpos($properties_array['Details'], 'Made in') + 8));
 
-                $new_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
-               } else {
-                $new_product->composition = (string) $properties_array['Details'];
-              }
+                        $new_product->composition = str_replace('\n', ' ', substr($properties_array['Details'], 0, strpos($properties_array['Details'], 'Made in')));
+                    } else {
+                        $new_product->composition = (string) $properties_array['Details'];
+                    }
+                }
+
+                if (array_key_exists('Color Code', $properties_array)) {
+                    $new_product->color = $properties_array['Color Code'];
+                }
+
+                if (array_key_exists('Size & Fit', $properties_array)) {
+                    $sizes = $properties_array['Size & Fit'];
+                    if (strpos($sizes, 'Width:') !== false) {
+                        preg_match_all('/Width: ([\d]+)/', $sizes, $match);
+
+                        $new_product->lmeasurement = (int) $match[1][0];
+                        $new_product->measurement_size_type = 'measurement';
+                    }
+
+                    if (strpos($sizes, 'Height:') !== false) {
+                        preg_match_all('/Height: ([\d]+)/', $sizes, $match);
+
+                        $new_product->hmeasurement = (int) $match[1][0];
+                    }
+
+                    if (strpos($sizes, 'Depth:') !== false) {
+                        preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
+
+                        $new_product->dmeasurement = (int) $match[1][0];
+                    }
+                }
+
+                $brand = Brand::find($product->brand_id);
+
+                $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
+                $new_product->price = $price;
+
+                if (! empty($brand->euro_to_inr)) {
+                    $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+                } else {
+                    $new_product->price_inr = Setting::get('euro_to_inr') * $new_product->price;
+                }
+
+                $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
+
+                $new_product->price_inr = round($new_product->price_inr, -3);
+                $new_product->price_special = $new_product->price_inr - ($new_product->price_inr * $brand->deduction_percentage) / 100;
+
+                $new_product->price_special = round($new_product->price_special, -3);
+
+                $new_product->save();
+
+                foreach ($product->images as $image_name) {
+                    $path = public_path('uploads') . '/social-media/' . $image_name;
+                    $media = MediaUploader::fromSource($path)
+                                          ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                                          ->upload();
+                    $new_product->attachMedia($media, config('constants.media_tags'));
+                }
             }
-
-            if (array_key_exists('Color Code', $properties_array)) {
-              $new_product->color = $properties_array['Color Code'];
-            }
-
-            if (array_key_exists('Size & Fit', $properties_array)) {
-              $sizes = $properties_array['Size & Fit'];
-              if (strpos($sizes, 'Width:') !== false) {
-                preg_match_all('/Width: ([\d]+)/', $sizes, $match);
-
-                $new_product->lmeasurement = (int) $match[1][0];
-                $new_product->measurement_size_type = 'measurement';
-              }
-
-              if (strpos($sizes, 'Height:') !== false) {
-                preg_match_all('/Height: ([\d]+)/', $sizes, $match);
-
-                $new_product->hmeasurement = (int) $match[1][0];
-              }
-
-              if (strpos($sizes, 'Depth:') !== false) {
-                preg_match_all('/Depth: ([\d]+)/', $sizes, $match);
-
-                $new_product->dmeasurement = (int) $match[1][0];
-              }
-            }
-
-            $brand = Brand::find($product->brand_id);
-
-            $price = round(preg_replace('/[\&euro;€.]/', '', $product->price));
-            $new_product->price = $price;
-
-            if(!empty($brand->euro_to_inr))
-              $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
-            else
-              $new_product->price_inr = Setting::get('euro_to_inr') * $new_product->price;
-
-            $new_product->price_inr = $brand->euro_to_inr * $new_product->price;
-
-    				$new_product->price_inr = round($new_product->price_inr, -3);
-    				$new_product->price_special = $new_product->price_inr - ($new_product->price_inr * $brand->deduction_percentage) / 100;
-
-    				$new_product->price_special = round($new_product->price_special, -3);
-
-            $new_product->save();
-
-            foreach ($product->images as $image_name) {
-              $path = public_path('uploads') . '/social-media/' . $image_name;
-              $media = MediaUploader::fromSource($path)
-                                    ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
-                                    ->upload();
-              $new_product->attachMedia($media,config('constants.media_tags'));
-            }
-          }
         }
     }
 
-    public function updateSku() {
-
+    public function updateSku()
+    {
         $products = ScrapedProducts::where('has_sku', 0)->where('website', 'G&B')->take(10)->get();
 
         foreach ($products as $product) {
             $content = $this->getContent($product->url);
             if ($content === '') {
                 $product->delete();
+
                 return;
             }
 
@@ -215,14 +216,15 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
     }
 
-    public function updatePrice() {
-
+    public function updatePrice()
+    {
         $products = ScrapedProducts::where('is_price_updated', 0)->where('website', 'G&B')->take(10)->get();
 
         foreach ($products as $product) {
             $content = $this->getContent($product->url);
             if ($content === '') {
                 $product->delete();
+
                 return;
             }
 
@@ -236,14 +238,15 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
     }
 
-    public function updateProperties() {
-
+    public function updateProperties()
+    {
         $products = ScrapedProducts::where('is_property_updated', 0)->where('website', 'G&B')->take(10)->get();
 
         foreach ($products as $product) {
             $content = $this->getContent($product->url);
             if ($content === '') {
                 $product->delete();
+
                 return;
             }
 
@@ -262,9 +265,9 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $content = $this->getContent($url);
         if ($content === '') {
             $scrapEntry->delete();
+
             return;
         }
-
 
         $c = new HtmlPageCrawler($content);
         $title = $this->getTitle($c);
@@ -275,22 +278,22 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $price = $this->getPrice($c);
         $properties = $this->getProperties($c);
 
-
-        if (!$images || !$title) {
+        if (! $images || ! $title) {
             $scrapEntry->delete();
+
             return;
         }
 
         $brandId = $this->getBrandId($brand);
 
-
-        if (!$brandId) {
+        if (! $brandId) {
             $scrapEntry->delete();
+
             return;
         }
 
         $image = ScrapedProducts::where('sku', $sku)->orWhere('url', $scrapEntry->url)->first();
-        if (!$image) {
+        if (! $image) {
             $image = new ScrapedProducts();
         }
 
@@ -314,19 +317,22 @@ class GebnegozionlineProductDetailsScraper extends Scraper
 
 //        $this->updateProductOnServer($image);
 
-        app('App\Services\Products\GnbProductsCreator')->createGnbProducts($image);
+        app(\App\Services\Products\GnbProductsCreator::class)->createGnbProducts($image);
     }
 
-    private function getTitle(HtmlPageCrawler $c) {
+    private function getTitle(HtmlPageCrawler $c)
+    {
         try {
             $title = preg_replace('/\s\s+/', '', $c->filter('.product-title-name div.value p.title')->getInnerHtml());
         } catch (\Exception $exception) {
             $title = '';
         }
+
         return $title;
     }
 
-    private function getPrice(HtmlPageCrawler $c) {
+    private function getPrice(HtmlPageCrawler $c)
+    {
         try {
             $price = preg_replace('/\s\s+/', '', $c->filter('span.price')->getInnerHtml());
         } catch (\Exception $exception) {
@@ -336,7 +342,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         return $price;
     }
 
-    private function getSku(HtmlPageCrawler $c) {
+    private function getSku(HtmlPageCrawler $c)
+    {
         try {
             $sku = preg_replace('/\s\s+/', '', $c->filter('div.product-code div p')->getInnerHtml());
         } catch (\Exception $exception) {
@@ -348,16 +355,19 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         return $sku;
     }
 
-    private function getDescription(HtmlPageCrawler $c) {
+    private function getDescription(HtmlPageCrawler $c)
+    {
         try {
             $title = preg_replace('/\s\s+/', '', strip_tags($c->filter('div.description div.value')->getInnerHtml()));
         } catch (\Exception $exception) {
             $title = '';
         }
+
         return $title;
     }
 
-    private function getImages(HtmlPageCrawler $c) {
+    private function getImages(HtmlPageCrawler $c)
+    {
         $scripts = $c->filter('script')->getIterator();
         $content = '';
 
@@ -371,14 +381,11 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         $content = str_replace('var sizeGuideData = ', '', $content);
         $content = str_replace('}];', '}]', $content);
 
-
         $content = json_decode($content, true);
 
-
-        $content = array_map(function($item) {
+        $content = array_map(function ($item) {
             return $item['full'];
         }, $content);
-
 
         return $this->downloadImages($content, 'gnb');
     }
@@ -390,6 +397,7 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         } catch (\Exception $exception) {
             $title = '';
         }
+
         return $title;
     }
 
@@ -397,10 +405,9 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     {
         $brand = Brand::where('name', $brandName)->first();
 
-        if (!$brand) {
+        if (! $brand) {
             return false;
         }
-
 
         return $brand->id;
     }
@@ -409,15 +416,15 @@ class GebnegozionlineProductDetailsScraper extends Scraper
     {
         $this->imagesToDownload = $data;
         $images = [];
-        foreach ($data as $key=>$datum) {
+        foreach ($data as $key => $datum) {
             try {
                 $imgData = file_get_contents($datum);
             } catch (\Exception $exception) {
                 continue;
             }
 
-            $fileName = $prefix . '_' . md5(time()).'.png';
-            Storage::disk('uploads')->put('social-media/'.$fileName, $imgData);
+            $fileName = $prefix . '_' . md5(time()) . '.png';
+            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
 
             $images[] = $fileName;
         }
@@ -425,7 +432,8 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         return $images;
     }
 
-    private function isMaleOrFemale($url) {
+    private function isMaleOrFemale($url)
+    {
         $url = strtolower($url);
         if (strpos($url, 'donna') !== false || strpos($url, 'women') !== false) {
             return 'female';
@@ -438,18 +446,19 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         return 'male';
     }
 
-    private function getProperties(HtmlPageCrawler $c) {
-        $keys =  $c->filter('table#product-attribute-specs-table tbody th')->getIterator();
-        $values =  $c->filter('table#product-attribute-specs-table tbody td')->getIterator()->getArrayCopy();
+    private function getProperties(HtmlPageCrawler $c)
+    {
+        $keys = $c->filter('table#product-attribute-specs-table tbody th')->getIterator();
+        $values = $c->filter('table#product-attribute-specs-table tbody td')->getIterator()->getArrayCopy();
 
         $propertiesData = [];
 
-        foreach ($values as $index=>$property) {
-            $propertiesData[]  = preg_replace('/\s\s+/', '\n', strip_tags($property->textContent));
+        foreach ($values as $index => $property) {
+            $propertiesData[] = preg_replace('/\s\s+/', '\n', strip_tags($property->textContent));
         }
 
-        foreach ($keys as $index=>$property) {
-            $propertiesData[trim($property->textContent)]  = $propertiesData[$index] ?? '';
+        foreach ($keys as $index => $property) {
+            $propertiesData[trim($property->textContent)] = $propertiesData[$index] ?? '';
             if (isset($propertiesData[$index])) {
                 unset($propertiesData[$index]);
             }
@@ -476,10 +485,10 @@ class GebnegozionlineProductDetailsScraper extends Scraper
                 'is_property_updated' => 0,
                 'is_price_updated' => 1,
                 'is_enriched' => 0,
-            ]
+            ],
         ]);
 
-        if (!$response) {
+        if (! $response) {
             dd($response->getBody()->getContents());
         }
     }

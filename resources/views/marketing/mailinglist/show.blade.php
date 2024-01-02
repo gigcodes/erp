@@ -94,7 +94,7 @@
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Maililng list {{$list->name}} ({{$customers->total()}})</h2>
                     <div class="pull-left">
-                        <form action="{{route('mailingList.single', ['remoteId' => $list->remote_id, 'store_id' => $list->website_id])}}" method="GET">
+                        <form action="{{route('mailingList.single',$list->remote_id)}}" method="GET">
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-md-4">
@@ -204,11 +204,11 @@
                     <td>
                         <label class="switch" style="margin: 0px">
                             @if($value->do_not_disturb == 1)
-                                <input type="hidden" value="0" id="checkbox_value_dnd">
+                                <input type="hidden" value="0" id="checkbox_value_dnd_{{ $value->id }}">
                                 <input type="checkbox" class="checkbox" checked value="{{ $value->id }}"
-                                       onclick="disableDND({{ $value->id }})">
+                                       onclick="enableDND({{ $value->id }})">
                             @else
-                                <input type="hidden" value="1" id="checkbox_value_dnd">
+                                <input type="hidden" value="1" id="checkbox_value_dnd_{{ $value->id }}">
                                 <input type="checkbox" class="checkbox" value="{{ $value->id }}"
                                        onclick="enableDND({{ $value->id }})">
                             @endif
@@ -220,11 +220,11 @@
                             @if(in_array($value['id'], $contacts))
                                 <input type="hidden" id="checkbox_value_dnd">
                                 <input type="checkbox" class="checkbox" checked value="{{ $value->id }}"
-                                       onclick="disable({{$id}},'{{$value['email']}}')">
+                                       onclick="disable({{$id}},'{{$value['email']}}',{{ $value->id }})">
                             @else
                                 <input type="hidden" id="checkbox_value_dnd">
                                 <input type="checkbox" class="checkbox" value="{{ $value->id }}"
-                                       onclick="enable('{{$id}}','{{$value['email']}}')" id="marketing{{ $value->id }}">
+                                       onclick="enable('{{$id}}','{{$value['email']}}',{{ $value->id }})" id="marketing{{ $value->id }}">
                             @endif
                             <span class="slider round"></span>
                         </label>
@@ -292,7 +292,8 @@
                     id = this.value;
                     email = $(this).attr('data-email');
                     id_v = $(this).attr('data-id');
-                    $.ajax({
+                    $("#marketing"+id).trigger('click');
+                    /*$.ajax({
                         url: "{{ route('mailinglist.add.manual') }}",
                         dataType: "json",
                         data: {
@@ -306,8 +307,9 @@
                     }).done(function (data) {
                         $("#loading-image").hide();
                     }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        $("#loading-image").hide();
                         alert('No response from server');
-                    });
+                    });*/
                 });
                 // alert('Customer Updated');
             }
@@ -349,42 +351,49 @@
             }
         });
 
-            function disable(id, email) {
+            function disable(id, email,cid) {
                 $.ajax({
                     type: 'GET',
                     url: '/marketing/mailinglist/delete/' + id + '/' + email,
                     success: function (data) {
                         if (data.status == 'error') {
+                            $("#marketing" + cid).prop('checked', false);
                             alert('Something went wrong');
                         } else {
+                            $("#marketing" + cid).attr("onclick","enable('"+id+"','"+email+"','"+cid+"')");
                             alert('Customer removed');
                         }
                     },
                     error: function (data) {
+                        $("#marketing" + cid).prop('checked', false);
                         alert('Something went wrong');
                     }
                 });
             }
 
-            function enable(id, email) {
+            function enable(id, email,cid) {
                 $.ajax({
                     type: 'GET',
                     url: '/marketing/mailinglist/add/' + id + '/' + email,
                     success: function (data) {
                         if (data.status == 'error') {
+                            $("#marketing" + cid).prop('checked', false);
                             alert('Something went wrong');
                         } else {
+                            $("#marketing" + cid).attr("onclick","disable('"+id+"','"+email+"','"+cid+"')");
                             alert('Customer Added');
                         }
                     },
                     error: function (data) {
+                        $("#marketing" + cid).prop('checked', false);
                         alert('Something went wrong');
                     }
                 });
             }
 
             function enableDND(id) {
-                method = $('#checkbox_value_dnd').val();
+                var DNDCBid="#checkbox_value_dnd_"+id;
+                method = $(DNDCBid).val();
                 if (method == 1) {
                     $.ajax({
                         type: 'GET',
@@ -397,7 +406,7 @@
                             if (data.status == 'error') {
                                 // alert('Something went wrong');
                             } else {
-                                $('#checkbox_value_dnd').val('0');
+                                $(DNDCBid).val('0');
                                 alert('Customer Added to DND');
 
                             }
@@ -420,7 +429,7 @@
                             if (data.status == 'error') {
                                 //    alert('Something went wrong');
                             } else {
-                                $('#checkbox_value_dnd').val('1');
+                                $(DNDCBid).val('1');
                                 alert('Customer Removed From DND');
 
                             }

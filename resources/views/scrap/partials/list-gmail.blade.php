@@ -1,7 +1,7 @@
 @foreach($data as $key=>$datum)
                     <tr>
                         <td>{{ $key+1 }}</td>
-                        <td><a href="{{ $datum->page_url }}" target="_blank">Visit</a></td>
+                        <td>@if(isset($datum['gmailDataMedia']['page_url']))<a href="{{ $datum['gmailDataMedia']['page_url'] }}" target="_blank">Visit</a>@else <a href="{{ $datum->page_url }}" target="_blank">Visit</a> @endif</td>
                         <td>{{ $datum->sender }}</td>
                         <td>{{ $datum->received_at }}</td>
                         <td>

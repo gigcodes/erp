@@ -16,7 +16,7 @@
      }
      @endphp
 
-        <span class="show-short-brand-{{$suggested->id}}">{{ str_limit($brandList, 30, '...')}}</span>
+        <span class="show-short-brand-{{$suggested->id}}">{{ Str::limit($brandList, 30, '...')}}</span>
             <span style="word-break:break-all;" class="show-full-brand-{{$suggested->id}} hidden">{{$brandList}},</span>
     </td>
 
@@ -28,7 +28,7 @@
      }
      @endphp
 
-        <span class="show-short-category-{{$suggested->id}}">{{ str_limit($catList, 30, '...')}}</span>
+        <span class="show-short-category-{{$suggested->id}}">{{ Str::limit($catList, 30, '...')}}</span>
             <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
     </td>
     <td>

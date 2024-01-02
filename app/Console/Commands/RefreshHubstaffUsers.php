@@ -2,17 +2,18 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
+use App\Helpers\LogHelper;
+use Illuminate\Console\Command;
 use App\Hubstaff\HubstaffMember;
 use App\Library\Hubstaff\Src\Hubstaff;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Console\Command;
 
 class RefreshHubstaffUsers extends Command
 {
-
     public $HUBSTAFF_TOKEN_FILE_NAME;
+
     public $SEED_REFRESH_TOKEN;
+
     public $hubstaff;
 
     /**
@@ -49,14 +50,21 @@ class RefreshHubstaffUsers extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report was added.']);
             $this->refreshUserList();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'refresh user list finished.']);
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
@@ -68,55 +76,53 @@ class RefreshHubstaffUsers extends Command
         // 3. if users not recieved due to token failure refresh the token and retry
 
         // start hubstaff section from here
-        $hubstaff       = Hubstaff::getInstance();
-        try{
+        $hubstaff = Hubstaff::getInstance();
+        try {
             $this->hubstaff = $hubstaff->authenticate(false);
             $this->startGetUser();
-        }catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->hubstaff = $hubstaff->authenticate(true);
             $this->startGetUser();
         }
         // $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"),0,665240);
-
     }
 
     private function startGetUser($startId = 665240)
     {
         $organizationUsers = $this->hubstaff->getRepository('organization')->getOrgUsers(config('env.HUBSTAFF_ORG_ID'), 0, $startId);
 
-        if (!empty($organizationUsers->members)) {
+        if (! empty($organizationUsers->members)) {
             $record = count($organizationUsers->members);
-            echo "Total Record :" . $record;
+            echo 'Total Record :' . $record;
             foreach ($organizationUsers->members as $member) {
-                echo $member->user_id . " Record started";
+                echo $member->user_id . ' Record started';
                 echo PHP_EOL;
-                $memeberExist = HubstaffMember::where("hubstaff_user_id", $member->user_id)->first();
-                if (!$memeberExist) {
+                $memeberExist = HubstaffMember::where('hubstaff_user_id', $member->user_id)->first();
+                if (! $memeberExist) {
                     $userDetails = $this->hubstaff->getRepository('user')->getUserDetail($member->user_id);
-                    if (!empty($userDetails)) {
+                    if (! empty($userDetails)) {
                         $member->email = $userDetails->user->email;
                     }
 
-                    if (!empty($member->email)) {
-                        $userExist = \App\User::where("email", $member->email)->first();
+                    if (! empty($member->email)) {
+                        $userExist = \App\User::where('email', $member->email)->first();
                         HubstaffMember::create([
                             'hubstaff_user_id' => $member->user_id,
-                            'email'            => $member->email,
-                            'user_id'          => ($userExist) ? $userExist->id : null,
+                            'email' => $member->email,
+                            'user_id' => ($userExist) ? $userExist->id : null,
                         ]);
                     }
                 }
 
-                echo $member->user_id . " Record eneded";
+                echo $member->user_id . ' Record eneded';
                 echo PHP_EOL;
-                echo "Total Record Left :" . $record--;
+                echo 'Total Record Left :' . $record--;
                 echo PHP_EOL;
             }
 
-            if (!empty($organizationUsers->pagination) && !empty($organizationUsers->pagination->next_page_start_id)) {
+            if (! empty($organizationUsers->pagination) && ! empty($organizationUsers->pagination->next_page_start_id)) {
                 $this->startGetUser($organizationUsers->pagination->next_page_start_id);
             }
         }
-
     }
 }

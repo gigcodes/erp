@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\ScrapedProducts;
 use App\Category;
+use App\ScrapedProducts;
 use App\ScrappedCategoryMapping;
 use App\ScrappedProductCategoryMapping;
 
@@ -12,7 +12,6 @@ class ScrappedProductCategoryMappingObserver
     /**
      * Handle the ScrapedProducts "created" event.
      *
-     * @param  \App\ScrapedProducts  $scrapedproducts
      * @return void
      */
     public function created(ScrapedProducts $scrapedproducts)
@@ -24,7 +23,6 @@ class ScrappedProductCategoryMappingObserver
     /**
      * Handle the ScrapedProducts "updated" event.
      *
-     * @param  \App\ScrapedProducts  $scrapedproducts
      * @return void
      */
     public function updated(ScrapedProducts $scrapedproducts)
@@ -35,7 +33,6 @@ class ScrappedProductCategoryMappingObserver
     /**
      * Handle the ScrapedProducts "deleted" event.
      *
-     * @param  \App\ScrapedProducts  $scrapedproducts
      * @return void
      */
     public function deleted(ScrapedProducts $scrapedproducts)
@@ -46,7 +43,6 @@ class ScrappedProductCategoryMappingObserver
     /**
      * Handle the ScrapedProducts "restored" event.
      *
-     * @param  \App\ScrapedProducts  $scrapedproducts
      * @return void
      */
     public function restored(ScrapedProducts $scrapedproducts)
@@ -57,14 +53,12 @@ class ScrappedProductCategoryMappingObserver
     /**
      * Handle the ScrapedProducts "force deleted" event.
      *
-     * @param  \App\ScrapedProducts  $scrapedproducts
      * @return void
      */
     public function forceDeleted(ScrapedProducts $scrapedproducts)
     {
         //
     }
-
 
     protected function create($scrapedproducts)
     {
@@ -84,7 +78,7 @@ class ScrappedProductCategoryMappingObserver
                         $pro_arr[] = ['category_mapping_id' => $key,
                             'product_id' => $scrapedproducts->id
                         ];
-                    } 
+                    }
                 }
             }
 
@@ -93,6 +87,5 @@ class ScrappedProductCategoryMappingObserver
             }
         }
         */
-        
     }
 }

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use App\Marketing\MarketingPlatform;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Setting;
-use Validator;
 use Response;
+use App\Setting;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Marketing\MarketingPlatform;
 
 class MarketingPlatformController extends Controller
 {
@@ -18,38 +17,32 @@ class MarketingPlatformController extends Controller
      */
     public function index(Request $request)
     {
-        if($request->term || $request->date){
-
-        $query =  MarketingPlatform::query();
+        if ($request->term || $request->date) {
+            $query = MarketingPlatform::query();
 
             //global search term
-        if (request('term') != null) {
-            $query->where('name', 'LIKE', "%{$request->term}%");
+            if (request('term') != null) {
+                $query->where('name', 'LIKE', "%{$request->term}%");
             }
-        if (request('date') != null) {
-            $query->whereDate('created_at', request('website'));
-        }
-        
-        $platforms = $query->orderby('id','desc')->paginate(Setting::get('pagination')); 
+            if (request('date') != null) {
+                $query->whereDate('created_at', request('website'));
+            }
 
-        }else{
-          $platforms = MarketingPlatform::orderby('id','desc')->paginate(Setting::get('pagination'));   
+            $platforms = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
+        } else {
+            $platforms = MarketingPlatform::orderby('id', 'desc')->paginate(Setting::get('pagination'));
         }
 
         if ($request->ajax()) {
-        return response()->json([
-            'tbody' => view('marketing.platforms.partials.data', compact('platforms'))->render(),
-            'links' => (string)$platforms->render()
-        ], 200);
-    }
+            return response()->json([
+                'tbody' => view('marketing.platforms.partials.data', compact('platforms'))->render(),
+                'links' => (string) $platforms->render(),
+            ], 200);
+        }
 
-
-
-    return view('marketing.platforms.index', [
-      'platforms' => $platforms,
-    ]);
-
-
+        return view('marketing.platforms.index', [
+            'platforms' => $platforms,
+        ]);
     }
 
     /**
@@ -65,19 +58,18 @@ class MarketingPlatformController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-          $this->validate($request, [
-        'name'  => 'required|min:3|max:255',
-      ]);
+        $this->validate($request, [
+            'name' => 'required|min:3|max:255',
+        ]);
 
-      $data = $request->except('_token');
-      MarketingPlatform::create($data);
+        $data = $request->except('_token');
+        MarketingPlatform::create($data);
 
-      return redirect()->back()->withSuccess('You have successfully stored Marketing Platform');
+        return redirect()->back()->withSuccess('You have successfully stored Marketing Platform');
     }
 
     /**
@@ -100,11 +92,11 @@ class MarketingPlatformController extends Controller
     public function edit(Request $request)
     {
         $this->validate($request, [
-        'name'  => 'required|min:3|max:255',
+            'name' => 'required|min:3|max:255',
         ]);
         $platform = MarketingPlatform::findorfail($request->id);
-        $data = $request->except('_token','id');
-       $platform->update($data);
+        $data = $request->except('_token', 'id');
+        $platform->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed Marketing Platform');
     }
@@ -112,7 +104,6 @@ class MarketingPlatformController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\MarketingPlatform  $marketingPlatform
      * @return \Illuminate\Http\Response
      */
@@ -131,9 +122,10 @@ class MarketingPlatformController extends Controller
     {
         $platform = MarketingPlatform::findorfail($request->id);
         $platform->delete();
-        return Response::json(array(
+
+        return Response::json([
             'success' => true,
-            'message' => 'Marketing Platform Deleted'
-        ));
+            'message' => 'Marketing Platform Deleted',
+        ]);
     }
 }

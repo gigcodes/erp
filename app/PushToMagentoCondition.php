@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class PushToMagentoCondition extends Model
 {
-	protected $table = "push_to_magento_conditions";
+    protected $table = 'push_to_magento_conditions';
+
     protected $fillable = [
-        'condition', 
-        'description', 
+        'condition',
+        'description',
         'status',
-        'upteam_status'
-	];
+        'upteam_status',
+    ];
 }

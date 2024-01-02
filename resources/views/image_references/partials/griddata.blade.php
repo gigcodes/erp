@@ -1,11 +1,11 @@
 @foreach($products as $product)
-    <tr>
+    <div>
         @php
-            $productModel = $product->product
+            $productModel = $product->product;
         @endphp
         <td><input type="checkbox" name="issue" value="{{ $product->id }}" class="checkBox" data-id="{{ $product->product_id }}">
             {{ $product->id }}</td>
-        <td>{{ $product->product_id  }} <br><b> {{ ( $productModel->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
+        <td>{{ $product->product_id  }} <br><b> {{ (isset($productModel) && $productModel->status_id == 42 ) ? 'Auto reject' : null }}  </b></td>
         <td>@if($productModel) @if (isset($productModel->product_category)) {{ $productModel->product_category->title }} @endif @endif</td>
         <td>@if($productModel) {{ $productModel->supplier }} @endif</td>
         <td>@if($productModel)  @if ($productModel->brands) {{ $productModel->brands->name }} @endif @endif</td>
@@ -21,7 +21,12 @@
             }
         @endphp
         <td>{!! implode("</br>",$websites) !!}</td>
-        <td> <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')" style="max-width: 150px; max-height: 150px;"></td>
+
+        <td>
+            <div style="width: 100px;margin-top: 25px; display: inline-block;">
+{{--                <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')">--}}
+                <img src="{{ $product->media ? $product->media->getUrl() : 'http://localhost/erp/public/uploads/product/29/296559/123.webp' }}" alt="" height="100" width="100" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')">
+            </div>
         <td>
         @if($product->newMedia)
             <table class="table-striped table-bordered table" id="log-table">
@@ -29,9 +34,10 @@
                 <tr>
             @foreach($product->differentWebsiteImages as $images)
                 <td>
-                    <div style="width: 190px;margin: 0px;display: inline-block;">
+                    <div style="width: 100px;margin: 0px;display: inline-block;">
                         {{ ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : "N/A" }}
-                        <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+{{--                        <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">--}}
+                        <img src="{{ $images->newMedia ? "http://localhost/erp/public/uploads/product/29/296559/123.webp" : '' }}" alt="" height="100" width="100" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
                     </div>
                 </td>
             @endforeach

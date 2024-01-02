@@ -1,5 +1,6 @@
 @foreach ($suggestedProducts as $sp => $suggested)
     <tr>
+    <td id="sug_{{$suggested->id}}" class="sugClass"><Input type="checkbox" id="sugId[]" name="sugId[]" value="{{$suggested->id}}"/></td>
     <td>{{ \Carbon\Carbon::parse($suggested->last_attached)->format('d-m-y') }} </td>
     <td>{{$suggested->id}}</td>
     <td>{{$suggested->customer->name ?? ''}}</td>
@@ -12,7 +13,7 @@
      }
      @endphp
 
-        <span class="show-short-brand-{{$suggested->id}}">{{ str_limit($brandList, 30, '...')}}</span>
+        <span class="show-short-brand-{{$suggested->id}}">{{ Str::limit($brandList, 30, '...')}}</span>
             <span style="word-break:break-all;" class="show-full-brand-{{$suggested->id}} hidden">{{$brandList}},</span>
     </td>
 
@@ -24,7 +25,7 @@
      }
      @endphp
 
-        <span class="show-short-category-{{$suggested->id}}">{{ str_limit($catList, 30, '...')}}</span>
+        <span class="show-short-category-{{$suggested->id}}">{{ Str::limit($catList, 30, '...')}}</span>
             <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
     </td>
     <td>{{$suggested->platform ?? ''}}</td>
@@ -43,6 +44,8 @@
 
     <button title="Add more products" type="button" class="btn btn-xs btn-secondary add-more-products mr-3" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
 
+    <button title="show Log" type="button" class="btn btn-xs btn-image load-log mr-3" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><img src="/images/chat.png" alt="" style="cursor: nwse-resize; width: 0px;"></button>
+    
     <button title="Send Images" type="button" class="btn btn-image sendImageMessage no-pd" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><img src="/images/filled-sent.png" /></button>
     </td>
     </tr>

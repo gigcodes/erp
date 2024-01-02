@@ -14,7 +14,6 @@ class ErpLog extends Model
         'type',
         'response',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-
 }

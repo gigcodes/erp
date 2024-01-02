@@ -7,18 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class GithubGroup extends Model
 {
-
     protected $fillable = [
         'id',
-        'name'
+        'name',
     ];
-
-
 
     public function users()
     {
         return $this->belongsToMany(
-            'App\Github\GithubUser',
+            \App\Github\GithubUser::class,
             'github_group_members',
             'github_groups_id',
             'github_users_id'
@@ -28,14 +25,14 @@ class GithubGroup extends Model
     public function repositories()
     {
         return $this->belongsToMany(
-            'App\Github\GithubRepository',
+            \App\Github\GithubRepository::class,
             'github_repository_groups',
             'github_groups_id',
             'github_repositories_id'
         )->withPivot(['rights']);
     }
 
-    static function getGroupDetails($groupId)
+    public static function getGroupDetails($groupId)
     {
         $group = GithubGroup::find($groupId);
 
@@ -50,7 +47,7 @@ class GithubGroup extends Model
         return [
             'group' => $group,
             'repositories' => $repositories,
-            'users' => $users
+            'users' => $users,
         ];
     }
 }

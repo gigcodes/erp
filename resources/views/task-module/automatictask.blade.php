@@ -8,8 +8,6 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style type="text/css">
         .numberSend {
             width: 160px;
@@ -150,6 +148,55 @@
             width: 100%;
         }
 
+        .multiselect {
+            width: 200px;
+        }
+
+        .multiselect .selectBox {
+            position: relative;
+        }
+
+        .multiselect .selectBox select {
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .multiselect .overSelect {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .multiselect #checkboxes {
+            display: none;
+            border: 1px #dadada solid;
+            position: absolute;
+            z-index: 999;
+            background: #fff;
+            width: 200px;
+            padding: 5px;
+            color: black;
+        }
+
+        .multiselect #checkboxes label {
+            display: block;
+            color: #333;
+        }
+
+        .multiselect #checkboxes label input {
+            margin-right: 5px;
+        }
+
+        div.checkbox1 {
+            height: 250px;
+            overflow: scroll;
+
+            body {
+                height: 100%;
+            }
+
     </style>
 @endsection
 
@@ -159,38 +206,64 @@
     </div>
     <div class="row">
         <div class="col-md-12 p-0">
-            <h2 class="page-heading">Quick Dev Task</h2>
+            <h2 class="page-heading">{{ $title }} (<span id="filter_table_count"> {{ $count }} </span>) </h2>
         </div>
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
+
+
             <?php $base_url = URL::to('/'); ?>
             <div class=" cls_filter_box" style="margin-left: -13px;">
-                <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks') }}" method="GET">
-						<div class="col-md-2">
-							{{ Form::text('subject', $request->get('subject'), array('class'=>'form-control')) }}
+                {{-- <form class="form-inline form-search-data" action="{{ route('development.automatic.tasks_post') }}" method="POST"> --}}
+                @csrf
+                @if (auth()->user()->isReviwerLikeAdmin())
+
+                    <div class="row ml-1">
+                        <div class="col-md-3">
+                            <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}"
+                                placeholder="search" id="term">
                         </div>
-                   @if (auth()->user()->isReviwerLikeAdmin())
-                        <div class="col-md-2 pd-sm pd-rt">
-                            <select class="form-control" name="assigned_to" id="assigned_to">
-                                <option value="">Assigned To</option>
-                                @foreach ($users as $id => $user)
-                                    <option {{ $request->get('assigned_to') == $id ? 'selected' : '' }}
-                                        value="{{ $id }}">{{ $user }}</option>
-                                @endforeach
+
+                        <div class="col-md-3">
+                            <select id="task_status" class="form-control globalSelect2" name="task_status">
+                                <option value="">Select Task Status</option>
+                                @if (!empty($task_statuses))
+                                    @foreach ($task_statuses as $index => $status)
+                                        <option value="{{ $status->id }}">{{ $status->name }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
-                    @endif
-                  
-                  
-                    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image"
-                        id="show"><img src="<?php echo $base_url; ?>/images/filter.png" /></button>
-					<a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
-                       <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
-                    </a>   
-                    
-                </form>
-                
+
+                        <div class="col-md-3">
+                            <select id="assigned_to" class="form-control globalSelect2" name="assigned_to">
+                                <option value="">Select Assigned To</option>
+                                @if (!empty($task_statuses))
+                                    @foreach ($users as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-image" onclick="submitSearch()"><img
+                                    src="{{asset('/images/filter.png')}}" /></button>
+
+                            <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img
+                                    src="{{asset('/images/resend2.png')}}" /></button>
+
+                            <a data-toggle="modal" data-target="#reminderMessageModal" class="btn pd-5 task-set-reminder">
+                                <i class="fa fa-bell  red-notification " aria-hidden="true"></i>
+                            </a>
+                            <a class="btn btn-secondary assignTask" style="color:white;">Assign Task</a>
+                        </div>
+                    </div>
+
+                @endif
+
+                {{-- </form> --}}
             </div>
         </div>
 
@@ -199,33 +272,37 @@
     @include('partials.flash_messages')
     <div class="infinite-scroll">
         <div class="table-responsive mt-3">
-            <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
+            <table id="filter_table" class="table table-bordered table-striped"
+                style="table-layout:fixed;margin-bottom:0px;">
                 <thead>
                     <tr>
-                        <th width="7%">ID</th>
-                        <th width="5%">Website</th>
-                        <th width="9%">Subject</th>
-                        <th width="12%">Assigned To</th>
-                        <th width="10%">Tracked Time</th>
-                        <th width="9%">Estimated Time</th>
-                        <th width="12%">Delivery Date</th>
-                        <th width="20%">Communication</th>
-                        <th width="10%">Status</th>
+                        <th width="10px"><input type="checkbox" onchange="checkAll(this)" name="chk[]"></th>
+                        <th width="25px">ID</th>
+                        <th width="35px">Created At</th>
+                        <th width="40px">Website</th>
+                        <th width="25px">Parent Task</th>
+                        <th width="30px">Subject</th>
+                        <th width="40px">Assigned To</th>
+                        <th width="30px">Tracked Time</th>
+                        <th width="30px">Estimated Time</th>
+                        <th width="30px">Delivery Date</th>
+                        <th width="95px">Communication</th>
+                        <th width="35px">Status</th>
+                        <th width="30px">Action</th>
+
                     </tr>
                 </thead>
 
-                <tbody id="vendor-body">
-                    @foreach ($tasks as $key => $issue)
-                        @include("task-module.partials.flagsummarydata")
-                    @endforeach
+                <tbody class="infinite-scroll-pending-inner">
+                    @include('task-module.partials.flagsummarydata')
                 </tbody>
             </table>
         </div>
-        
+
     </div>
-    @include("development.partials.upload-document-modal")
-    @include("development.partials.time-tracked-modal")
-    @include("partials.plain-modal")
+    @include('development.partials.upload-document-modal')
+    @include('development.partials.time-tracked-modal')
+    @include('partials.plain-modal')
 
 
     <div id="python-action-history" class="modal fade" role="dialog">
@@ -233,7 +310,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Action History</h4>
-                   
+
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -294,10 +371,43 @@
             </div>
         </div>
     </div>
-@include("development.partials.time-history-modal")
-@include("task-module.partials.tracked-time-history")
-@include("development.partials.user_history_modal")
-<img class="infinite-scroll-products-loader center-block" src="{{asset('/images/loading.gif')}}" alt="Loading..." style="display: none" />
+
+    <div id="show-task-model-table" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Assign Task</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-inline form-search-data" action="{{ route('task.AssignMultipleTaskToUser') }}"
+                        method="POST">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-control mb-2 mr-sm-2 select2 col-md-10" id="user_assigned_to"
+                                    name="user_assigned_to" required>
+                                    <option value="">Assigned To</option>
+                                    @foreach ($users as $k => $_dev)
+                                        <option value="{{ $k }}">{{ $_dev }}</option>
+                                    @endforeach
+                                </select>
+                                <input type='hidden' name='taskIDs[]' id="tsk_id" value="">
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-secondary mb-2">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @include('development.partials.time-history-modal')
+    @include('task-module.partials.tracked-time-history')
+    @include('development.partials.user_history_modal')
+    <img class="infinite-scroll-products-loader center-block" src="{{ asset('/images/loading.gif') }}" alt="Loading..."
+        style="display: none" />
 
 
 @endsection
@@ -307,34 +417,102 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
     <script src="{{ asset('js/zoom-meetings.js') }}"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/js/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-    <script src="/js/bootstrap-multiselect.min.js"></script>
-	
-	<script>
-       $(document).on('click', '.task-submit-reminder', function () {
+
+    <script>
+
+        function Taskbtn(id){
+            $(".action-taskbtn-tr-"+id).toggleClass('d-none')
+        }
+
+        $(document).on('click', '.task-submit-reminder', function() {
             var task_message_form = $("#task_message_form").serialize();
             $.ajax({
-                url: "{{route('development.taskmessage')}}",
+                url: "{{ route('development.taskmessage') }}",
                 type: 'POST',
-				data: task_message_form,
-                success: function () {
+                data: task_message_form,
+                success: function() {
                     toastr['success']('message updated successfully!');
                 },
-                error: function (){
+                error: function() {
                     toastr['error']('Something went wrong, Please try again!');
                 }
             });
         });
-		
-		
+
+        function submitSearch() {
+            var src = `{{ route('development.automatic.tasks') }}`;
+            var term = $('#term').val();
+            var task_status = $('#task_status').val()
+
+            var assigned_to = $('#assigned_to').val();
+
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    term: term,
+                    assigned_to: assigned_to,
+                    task_status: task_status,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+            }).done(function(data) {
+                $("#loading-image").hide();
+                $("#filter_table tbody").empty().html(data.tbody);
+                $("#filter_table_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+
+        }
+
+        function resetSearch() {
+            src = `{{ route('development.automatic.tasks') }}`;
+            blank = '';
+            $.ajax({
+                url: src,
+                dataType: "json",
+                data: {
+                    blank: blank,
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+            }).done(function(data) {
+                $("#loading-image").hide();
+                $('#term').val('')
+                $('#task_status').val('')
+                $("#filter_table tbody").empty().html(data.tbody);
+                $("#filter_table_count").text(data.count);
+                if (data.links.length > 10) {
+                    $('ul.pagination').replaceWith(data.links);
+                } else {
+                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                }
+
+            }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        }
+
         var isLoading = false;
         var page = 1;
-        $(document).ready(function () {
-            
+        $(document).ready(function() {
+
             $(window).scroll(function() {
-                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {
                     loadMore();
                 }
             });
@@ -346,42 +524,49 @@
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
                 $.ajax({
-                    url: "{{url('development/flagtask')}}?ajax=1&page="+page,
+                    url: "{{ route('development.automatic.tasks') }}?ajax=1&page=" + page,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {
                         $loader.show();
                     },
-                    success: function (data) {  console.log(data);                   
+                    success: function(data) {
+                        console.log(data);
                         $loader.hide();
-                        $('#vendor-body').append(data); 
-						isLoading = false;
-						if(data == "") {
-							isLoading = true;
-						}						
-                        
+                        $("#filter_table tbody").append(data.tbody);
+                        $('#vendor-body').append(data);
+                        isLoading = false;
+                        if (data.tbody == "") {
+                            isLoading = true;
+                        }
+
                     },
-                    error: function () {
+                    error: function() {
                         $loader.hide();
                         isLoading = false;
                     }
                 });
-            }            
+            }
         });
 
-       
+        $(document).on("click", ".assignTask", function(e) {
+            e.preventDefault();
 
-  </script>  
-	
+            $IDs = $(".table input:checkbox:checked").map(function() {
+                return $(this).val();
+            }).get();
+
+            if ($IDs == '') {
+                alert('Please select any task');
+                return false;
+            }
+            var model = $("#show-task-model-table");
+            $("#tsk_id").val($IDs);
+            model.modal("show");
+        });
+    </script>
+
     <script type="text/javascript">
-	
-        $(document).ready(function() {
-            $(".multiselect").multiselect({
-                nonSelectedText: 'Please Select'
-            });
-        });
-
-
         $(document).on('click', '.expand-row-msg', function() {
             var id = $(this).data('id');
             console.log(id);
@@ -399,7 +584,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@assignMasterUser') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignMasterUser']) }}",
                 data: {
                     master_user_id: userId,
                     issue_id: id
@@ -424,7 +609,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@assignResponsibleUser') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignResponsibleUser']) }}",
                 data: {
                     responsible_user_id: userId,
                     issue_id: id
@@ -444,7 +629,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@assignUser') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'assignUser']) }}",
                 data: {
                     assigned_to: userId,
                     issue_id: id
@@ -469,7 +654,7 @@
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@changeModule') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'changeModule']) }}",
                 data: {
                     module_id: moduleID,
                     issue_id: id
@@ -489,7 +674,7 @@
             let self = this;
 
             $.ajax({
-                url: "{{ action('DevelopmentController@resolveIssue') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'resolveIssue']) }}",
                 data: {
                     issue_id: id,
                     is_resolved: status
@@ -641,7 +826,7 @@
             let reminder_last_reply = (reminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
             $.ajax({
-                url: "{{ action('VendorController@updateReminder') }}",
+                url: "{{ action([\App\Http\Controllers\VendorController::class, 'updateReminder']) }}",
                 type: 'POST',
                 success: function() {
                     toastr['success']('Reminder updated successfully!');
@@ -851,12 +1036,14 @@
                 alert('Could not load email');
             });
         });
+
         $(document).on("keyup", '.search_email_pop', function() {
             var value = $(this).val().toLowerCase();
             $(".speech-wrapper .bubble").filter(function() {
                 $(this).toggle($(this).find('.message').text().toLowerCase().indexOf(value) > -1)
             });
         });
+
         $(document).on('click', '.send-message', function() {
             var thiss = $(this);
             var data = new FormData();
@@ -896,6 +1083,7 @@
                 alert('Please enter a message first');
             }
         });
+
         $(document).on('click', '.send-message1', function() {
             var thiss = $(this);
             var data = new FormData();
@@ -935,12 +1123,13 @@
                 alert('Please enter a message first');
             }
         });
+
         $(document).on('change', '.update-category-user', function() {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
 
             $.ajax({
-                url: '{{ action('VendorController@assignUserToCategory') }}',
+                url: '{{ action([\App\Http\Controllers\VendorController::class, 'assignUserToCategory']) }}',
                 data: {
                     user_id: userId,
                     category_id: catId
@@ -966,7 +1155,7 @@
             <div class="col-md-2">
                 <button type="button" class="btn btn-image cc-delete-button"><img src="/images/delete.png"></button>
             </div>
-        </div>`;
+            </div>`;
 
             $('#cc-list').append(el);
         });
@@ -1165,7 +1354,7 @@
                     });
                 }
                 $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected")
-                .text());
+                    .text());
 
             });
 
@@ -1411,7 +1600,7 @@
 
         function sendImage(id) {
             $.ajax({
-                url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
                 type: 'POST',
                 data: {
                     issue_id: id,
@@ -1456,7 +1645,7 @@
 
                     $.ajax({
                         method: 'POST',
-                        url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                        url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
                         data: image_upload,
                         async: true,
                         contentType: false,
@@ -1490,7 +1679,7 @@
             var postData = new FormData(form[0]);
             $.ajax({
                 method: "post",
-                url: "{{ action('DevelopmentController@uploadDocument') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'uploadDocument']) }}",
                 data: postData,
                 processData: false,
                 contentType: false,
@@ -1510,7 +1699,7 @@
             var id = $(this).data("id");
             $.ajax({
                 method: "GET",
-                url: "{{ action('DevelopmentController@getDocument') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'getDocument']) }}",
                 data: {
                     id: id
                 },
@@ -1541,7 +1730,7 @@
             let self = textBox;
 
             $.ajax({
-                url: "{{ action('WhatsAppController@sendMessage', 'issue') }}",
+                url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'issue') }}",
                 type: 'POST',
                 data: {
                     "issue_id": issueId,
@@ -1568,145 +1757,54 @@
             });
         });
 
-
-        $(document).on('click', '.show-status-history', function() {
-            var data = $(this).data('history');
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#status_quick_history_modal table tbody').html('');
-            $.ajax({
-                url: "{{ route('development/status/history') }}",
-                data: {
-                    id: issueId,
-                    type : type
-                },
-                success: function(data) {
-                    if (data != 'error') {
-                        $.each(data, function(i, item) {
-                            if (item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            } else {
-                                var checked = '';
-                            }
-                            $('#status_quick_history_modal table tbody').append(
-                                '<tr>\
-                                            <td>' + moment(item['created_at']).format('DD/MM/YYYY') + '</td>\
-                                            <td>' + ((item['old_value'] != null) ? item['old_value'] : '-') + '</td>\
-                                            <td>' + item['new_value'] + '</td>\
-                                            <td>' + item['name'] + '</td>\
-                                        </tr>'
-                            );
-                        });
-                    }
-                }
-            });
-            $('#status_quick_history_modal').modal('show');
-        });
-
         //Popup for add new task
-        $(document).on('click', '#newTaskModalBtn', function () {
+        $(document).on('click', '#newTaskModalBtn', function() {
             if ($("#newTaskModal").length > 0) {
                 $("#newTaskModal").remove();
             }
 
             $.ajax({
-                url: "{{ action('DevelopmentController@openNewTaskPopup') }}",
+                url: "{{ action([\App\Http\Controllers\DevelopmentController::class, 'openNewTaskPopup']) }}",
                 type: 'GET',
                 dataType: "JSON",
-                success: function (resp) {
+                success: function(resp) {
                     console.log(resp);
                     if (resp.status == 'ok') {
                         $("body").append(resp.html);
                         $('#newTaskModal').modal('show');
-                        $('select.select2').select2({tags: true});
-                    }
-                }
-            });
-        });
-        $(document).on('click', '.show-user-history', function() {
-            var issueId = $(this).data('id');
-            var type =  $(this).data('type');
-            $('#user_history_div table tbody').html('');
-            $.ajax({
-                url: "{{ route('task/user/history') }}",
-                data: {id: issueId,type :type},
-                success: function (data) {
-                    
-                    $.each(data.users, function(i, item) {
-                            $('#user_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['user_type'] != null) ? item['user_type'] : '-') +'</td>\
-                                    <td>'+ ((item['old_name'] != null) ? item['old_name'] : '-') +'</td>\
-                                    <td>'+ ((item['new_name'] != null) ? item['new_name'] : '-') +'</td>\
-                                    <td>'+ item['updated_by']  +'</td>\
-                                </tr>'
-                            );
-                        });
-                }
-            });
-            $('#user_history_modal').modal('show');
-        });
-$(document).on('click', '.show-date-history', function() {
-            var data = $(this).data('history');
-            var type = $(this).data('type');
-
-            var issueId = $(this).data('id');
-            $('#date_history_modal table tbody').html('');
-            $.ajax({
-                url: "{{ route('development/date/history') }}",
-                data: {id: issueId,type:type},
-                success: function (data) {
-                    console.log(data);
-                    if(data != 'error') {
-                        $("#developer_task_id").val(issueId);
-                        $.each(data, function(i, item) {
-                            if(item['is_approved'] == 1) {
-                                var checked = 'checked';
-                            }
-                            else {
-                                var checked = ''; 
-                            }
-                            $('#date_history_modal table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_date" value="'+item['id']+'" '+checked+' class="approve_date"/></td>\
-                                </tr>'
-                            );
+                        $('select.select2').select2({
+                            tags: true
                         });
                     }
                 }
             });
-            $('#date_history_modal').modal('show');
         });
     </script>
-    
-<script>
-    $(document).on('change', '.assign-task-user', function () {
+
+    <script>
+        $(document).on('change', '.assign-task-user', function() {
             let id = $(this).attr('data-id');
             let userId = $(this).val();
             if (userId == '') {
                 return;
             }
             $.ajax({
-                url: "{{route('task.AssignTaskToUser')}}",
+                url: "{{ route('task.AssignTaskToUser') }}",
                 data: {
                     user_id: userId,
                     issue_id: id
                 },
-                success: function () {
+                success: function() {
                     toastr["success"]("User assigned successfully!", "Message")
                 },
-                error: function (error) {
+                error: function(error) {
                     toastr["error"](error.responseJSON.message, "Message")
-                    
+
                 }
             });
         });
 
-
-    $(document).on('click', '.flag-task', function () {
+        $(document).on('click', '.flag-task', function() {
             var task_id = $(this).data('id');
             var task_type = $(this).data('type');
             var thiss = $(this);
@@ -1717,12 +1815,12 @@ $(document).on('click', '.show-date-history', function() {
                 data: {
                     _token: "{{ csrf_token() }}",
                     task_id: task_id,
-                    task_type:task_type
+                    task_type: task_type
                 },
-                beforeSend: function () {
+                beforeSend: function() {
                     $(thiss).text('Flagging...');
                 }
-            }).done(function (response) {
+            }).done(function(response) {
                 if (response.is_flagged == 1) {
                     // var badge = $('<span class="badge badge-secondary">Flagged</span>');
                     //
@@ -1734,7 +1832,7 @@ $(document).on('click', '.show-date-history', function() {
                 }
 
                 // $(thiss).remove();
-            }).fail(function (response) {
+            }).fail(function(response) {
                 $(thiss).html('<img src="/images/unflagged.png" />');
 
                 alert('Could not flag task!');
@@ -1742,68 +1840,134 @@ $(document).on('click', '.show-date-history', function() {
                 console.log(response);
             });
         });
-    $(document).on('click', '.show-tracked-history', function() {
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#time_tracked_div table tbody').html('');
+
+        //START - Purpose : Remind , Revise button Events - DEVTASK-4354
+        $(document).on('click', '.remind_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val();
+            var userId = $('#approve-time-btn input[name="user_id"]').val();
+
+            $('#time_history_div table tbody').html('');
             $.ajax({
-                url: "{{ route('development/tracked/history') }}",
-                data: {id: issueId,type:type},
-                success: function (data) {
-                    if(data != 'error') {
-                        $.each(data.histories, function(i, item) {
-                            var sec = parseInt(item['total_tracked']);
-                            $('#time_tracked_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD-MM-YYYY') +'</td>\
-                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
-                                    <td>'+humanizeDuration(sec,'s')+'</td>\
-                                </tr>'
-                            );
-                        });
-                    }
+                url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
+                type: 'POST',
+                data: {
+                    id: issueId,
+                    user_id: userId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    toastr['success'](data.message, 'success');
                 }
             });
-            $('#time_tracked_modal').modal('show');
-    });
-     $(document).on('click', '.show-tracked-history_task', function() {
-            var issueId = $(this).data('id');
-            var type = $(this).data('type');
-            $('#time_tracked_div table tbody').html('');
-            $.ajax({
-                url: "{{ route('task.time.tracked.history') }}",
-                data: {id: issueId,type:type},
-                success: function (data) {
-                    console.log(data);
-                    if(data != 'error') {
-                        $.each(data.histories, function(i, item) {
-                            var sec = parseInt(item['total_tracked']);
-                            $('#time_tracked_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['starts_at_date']).format('DD-MM-YYYY') +'</td>\
-                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
-                                    <td>'+humanizeDuration(sec,'s')+'</td>\
-                                </tr>'
-                            );
-                        });
-                    }
-                }
-            });
-            $('#time_tracked_modal').modal('show');
+            $('#time_history_modal').modal('hide');
         });
+
+        $(document).on('click', '.revise_btn', function() {
+            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val();
+            var userId = $('#approve-time-btn input[name="user_id"]').val();
+
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.history.approve.sendMessage') }}",
+                type: 'POST',
+                data: {
+                    id: issueId,
+                    user_id: userId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    toastr['success'](data.message, 'success');
+                }
+            });
+            $('#time_history_modal').modal('hide');
+        });
+        //END - DEVTASK-4354
+
+        $(document).on('change', '.change-task-status', function() {
+
+            let id = $(this).attr('data-id');
+            let status = $(this).val();
+
+            $.ajax({
+                url: "{{ route('task.change.status') }}",
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                dataType: "json",
+                data: {
+                    'task_id': id,
+                    'status': status
+                },
+                success: function(response) {
+                    toastr["success"](response.message, "Message")
+                },
+                error: function(error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+
+                }
+            });
+
+        });
+
+        function checkAll(ele) {
+            var checkboxes = document.getElementsByClassName('rowCheckbox');
+            if (ele.checked) {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = true;
+                    }
+                }
+            } else {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    console.log(i)
+                    if (checkboxes[i].type == 'checkbox') {
+                        checkboxes[i].checked = false;
+                    }
+                }
+            }
+        }
+
+        var expanded = false;
+
+        function showSelectCheckboxes() {
+            var checkboxes = document.getElementById("checkboxes");
+            if (!expanded) {
+                checkboxes.style.display = "block";
+                expanded = true;
+            } else {
+                checkboxes.style.display = "none";
+                expanded = false;
+            }
+        }
+
+        $("#select_all").click(function() {
+            $(".devCheckbox").prop('checked', $(this).prop('checked'));
+        });
+
+        $(".devCheckbox").change(function() {
+            if ($('.devCheckbox:checked').length == $('.devCheckbox').length) {
+                $('#select_all').prop('checked', true);
+            } else {
+                $('#select_all').prop('checked', false);
+            }
+        });
+    </script>
+
+    <script>
         $(document).on('click', '.show-time-history-task', function() {
-            var data = $(this).data('history');
-            var userId = $(this).data('user_id');
-            var issueId = $(this).data('id');
+            var data = $(this).attr('data-history');
+            var userId = $(this).attr('data-user_id');
+            var issueId = $(this).attr('data-id');
             $('#time_history_div table tbody').html('');
 
             //START - Purpose : Display Hide Remind, Revise Button - DEVTASK-4354
             const hasText = $(this).siblings('input').val();
 
-            if(!hasText || hasText == 0){
+            if (!hasText || hasText == 0) {
                 $('#time_history_modal .revise_btn').prop('disabled', true);
                 $('#time_history_modal .remind_btn').prop('disabled', false);
-            }else{
+            } else {
                 $('#time_history_modal .revise_btn').prop('disabled', false);
                 $('#time_history_modal .remind_btn').prop('disabled', true);
             }
@@ -1811,8 +1975,10 @@ $(document).on('click', '.show-date-history', function() {
 
             $.ajax({
                 url: "{{ route('task.time.history') }}",
-                data: {id: issueId},
-                success: function (data) {
+                data: {
+                    id: issueId
+                },
+                success: function(data) {
                     // if(data != 'error') {
                     //     $.each(data, function(i, item) {
                     //         $('#time_history_div table tbody').append(
@@ -1825,91 +1991,184 @@ $(document).on('click', '.show-date-history', function() {
                     //     });
                     // }
 
-                    if(data != 'error') {
+                    if (data != 'error') {
                         $('input[name="developer_task_id"]').val(issueId);
                         $.each(data, function(i, item) {
-                            if(item['is_approved'] == 1) {
+                            if (item['is_approved'] == 1) {
                                 var checked = 'checked';
-                            }
-                            else {
-                                var checked = ''; 
+                            } else {
+                                var checked = '';
                             }
                             $('#time_history_div table tbody').append(
-                                '<tr>\
-                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
-                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
-                                </tr>'
+                                `<tr> 
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td> 
+                                    <td>${ ((item['old_value'] != null) ? item['old_value'] : '-') }</td> 
+                                    <td>${ item['new_value'] }</td><td>${ item['name'] } </td> 
+                                    <td><input type="radio" name="approve_time" value="${ item['id'] }" ${ checked } class="approve_time"/></td> 
+                                </tr>`
                             );
                         });
 
                         $('#time_history_div table tbody').append(
-                            '<input type="hidden" name="user_id" value="'+userId+'" class=" "/>'
-                        ); 
+                            '<input type="hidden" name="user_id" value="' + userId + '" class=" "/>'
+                        );
                     }
                 }
             });
             $('#time_history_modal').modal('show');
         });
-          //START - Purpose : Remind , Revise button Events - DEVTASK-4354
-          $(document).on('click', '.remind_btn', function() {
-            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
-            var userId = $('#approve-time-btn input[name="user_id"]').val();  
 
-            $('#time_history_div table tbody').html('');
+        $(document).on('click', '.show-status-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#status_quick_history_modal table tbody').html('');
             $.ajax({
-                url: "{{ route('task.time.history.approve.sendRemindMessage') }}",
-                type: 'POST',
-                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
-                success: function (data) {
-                    toastr['success'](data.message, 'success');
+                url: "{{ route('development/status/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    if (data != 'error') {
+                        $.each(data, function(i, item) {
+                            if (item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            } else {
+                                var checked = '';
+                            }
+                            $('#status_quick_history_modal table tbody').append(
+                                `<tr> 
+                                    <td>${ moment(item['created_at']).format('DD/MM/YYYY') } </td>
+                                    <td>${ (item['old_value'] != null) ? item['old_value'] : '-' }</td>
+                                    <td>${ item['new_value'] }</td>
+                                    <td>${ item['name'] }</td>
+                                </tr>`
+                            );
+                        });
+                    }
                 }
             });
-            $('#time_history_modal').modal('hide');
+            $('#status_quick_history_modal').modal('show');
         });
 
-        $(document).on('click', '.revise_btn', function() {
-            var issueId = $('#approve-time-btn input[name="developer_task_id"]').val(); 
-            var userId = $('#approve-time-btn input[name="user_id"]').val();  
-
-            $('#time_history_div table tbody').html('');
+        $(document).on('click', '.show-user-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#user_history_div table tbody').html('');
             $.ajax({
-                url: "{{ route('task.time.history.approve.sendMessage') }}",
-                type: 'POST',
-                data: {id: issueId, user_id: userId, _token: '{{csrf_token()}}' },
-                success: function (data) {
-                    toastr['success'](data.message, 'success');
+                url: "{{ route('task/user/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    $.each(data.users, function(i, item) {
+                        $('#user_history_div table tbody').append(
+                            `<tr> 
+                                <td>${ moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                <td>${ ((item['user_type'] != null) ? item['user_type'] : '-') }</td>
+                                <td>${ ((item['old_name'] != null) ? item['old_name'] : '-') }</td>
+                                <td>${ ((item['new_name'] != null) ? item['new_name'] : '-') }</td>
+                                <td>${ item['updated_by'] }</td>
+                            </tr>`
+                        );
+                    });
                 }
             });
-            $('#time_history_modal').modal('hide');
+            $('#user_history_modal').modal('show');
         });
-        //END - DEVTASK-4354
 
-        $(document).on('change', '.change-task-status', function () {
-         
-         let id = $(this).attr('data-id');  
-         let status=$(this).val();
+        $(document).on('click', '.show-date-history', function() {
+            var data = $(this).data('history');
+            var type = $(this).data('type');
 
-         $.ajax({
-           url: "{{route('task.change.status')}}",
-           type: "POST",
-          headers: {
-             'X-CSRF-TOKEN': "{{ csrf_token() }}"
-         },
-         dataType:"json",
-         data: { 'task_id' : id , 'status': status},
-             success: function (response) {
-                 toastr["success"](response.message, "Message")
-             },
-             error: function (error) {
-                 toastr["error"](error.responseJSON.message, "Message")
-                 
-             }
-         });
+            var issueId = $(this).data('id');
+            $('#date_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/date/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if (item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            } else {
+                                var checked = '';
+                            }
+                            $('#date_history_modal table tbody').append(
+                                `<tr>
+                                    <td>${moment(item['created_at']).format('DD/MM/YYYY') }</td>
+                                    <td>${((item['old_value'] != null) ? item['old_value'] : '-') }</td>
+                                    <td>${item['new_value'] }</td><td>${item['name']}</td>
+                                    <td><input type="radio" name="approve_date" value="${item['id'] }" ${checked } class="approve_date"/></td>
+                                 </tr>`
+                            );
+                        });
+                    }
+                }
+            });
+            $('#date_history_modal').modal('show');
+        });
 
-     });
+        $(document).on('click', '.show-tracked-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/tracked/history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(`<tr>
+                                    <td> ${ moment(item['created_at']).format('DD-MM-YYYY') }</td>
+                                    <td> ${ ((item['name'] != null) ? item['name'] : '') }</td>
+                                    <td> ${ humanizeDuration(sec, 's') }</td>
+                                </tr>`);
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
+        });
 
-
-
-</script>
+        $(document).on('click', '.show-tracked-history_task', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.tracked.history') }}",
+                data: {
+                    id: issueId,
+                    type: type
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(
+                                `<tr>
+                                    <td>${ moment(item['starts_at_date']).format('DD-MM-YYYY') }</td>
+                                    <td>${ ((item['name'] != null) ? item['name'] : '') }</td>
+                                    <td>${ humanizeDuration(sec, 's') }</td>
+                                </tr>`
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
+        });
+    </script>
 @endsection

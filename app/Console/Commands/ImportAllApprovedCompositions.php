@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Product;
+use Carbon\Carbon;
 use App\Compositions;
 use App\CronJobReport;
-use App\Product;
 use Illuminate\Console\Command;
-use Carbon\Carbon;
 
 class ImportAllApprovedCompositions extends Command
 {
@@ -43,7 +43,7 @@ class ImportAllApprovedCompositions extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -67,12 +67,10 @@ class ImportAllApprovedCompositions extends Command
 
                     dump('Adding ' . $cmp);
 
-                    $cmpr       = new Compositions();
+                    $cmpr = new Compositions();
                     $cmpr->name = trim($cmp);
                     $cmpr->save();
-
                 }
-
             }
 
             $report->update(['end_time' => Carbon::now()]);

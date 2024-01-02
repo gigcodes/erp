@@ -11,9 +11,8 @@ class DoubleFScraper extends Scraper
 {
     private const URL = [
         'woman' => 'https://www.thedoublef.com/it_en/woman/designers/',
-        'man' => 'https://www.thedoublef.com/it_en/man/designers/'
+        'man' => 'https://www.thedoublef.com/it_en/man/designers/',
     ];
-
 
     public function scrap(): void
     {
@@ -29,10 +28,10 @@ class DoubleFScraper extends Scraper
         }
     }
 
-    private function scrapPage($url, $hasProduct=true): void
+    private function scrapPage($url, $hasProduct = true): void
     {
         $scrapEntry = ScrapEntries::where('url', $url)->first();
-        if (!$scrapEntry) {
+        if (! $scrapEntry) {
             $scrapEntry = new ScrapEntries();
             $scrapEntry->title = $url;
             $scrapEntry->site_name = 'DoubleF';
@@ -42,6 +41,7 @@ class DoubleFScraper extends Scraper
 
         if ($hasProduct) {
             $this->getProducts($scrapEntry);
+
             return;
         }
 
@@ -52,27 +52,26 @@ class DoubleFScraper extends Scraper
 
         $urls = [];
 
-        foreach ($links as $key=>$link) {
+        foreach ($links as $key => $link) {
             $text = $link->firstChild->data;
             $text = trim(preg_replace('/\s\s+/', '', $text));
             $text = str_replace(' ', '-', strtolower($text));
             if ($text === '' || $text === 'designers') {
                 continue;
             }
-            $urls[$text.'_'.$key] = $link->getAttribute('href');
+            $urls[$text . '_' . $key] = $link->getAttribute('href');
         }
 
         foreach ($urls as $itemUrl) {
             $this->scrapPage($itemUrl);
         }
-
     }
 
-    private function getProducts(ScrapEntries $scrapEntriy ): void
+    private function getProducts(ScrapEntries $scrapEntriy): void
     {
         $date = date('Y-m-d');
         $allLinks = ScrapCounts::where('scraped_date', $date)->where('website', 'DoubleF')->first();
-        if (!$allLinks) {
+        if (! $allLinks) {
             $allLinks = new ScrapCounts();
             $allLinks->scraped_date = $date;
             $allLinks->website = 'DoubleF';
@@ -106,15 +105,13 @@ class DoubleFScraper extends Scraper
             $title = $this->getTitleFromProduct($product);
             $link = $this->getLinkFromProduct($product);
 
-
-            if (!$title || !$link) {
+            if (! $title || ! $link) {
                 continue;
             }
 
             $entry = ScrapEntries::where('title', $title)
                 ->orWhere('url', $link)
-                ->first()
-            ;
+                ->first();
 
             if ($entry) {
                 continue;
@@ -122,14 +119,12 @@ class DoubleFScraper extends Scraper
 
             echo "$link \n";
 
-
             $entry = new ScrapEntries();
             $entry->title = $title;
             $entry->url = $link;
             $entry->site_name = 'DoubleF';
             $entry->is_product_page = 1;
             $entry->save();
-
         }
 
 //        if ($pageNumber >= $totalPageNumber) {
@@ -140,10 +135,10 @@ class DoubleFScraper extends Scraper
 //            $scrapEntriy->is_scraped = 0;
 //            $scrapEntriy->save();
 //        }
-
     }
 
-    private function getTitleFromProduct($product) {
+    private function getTitleFromProduct($product)
+    {
         try {
             $description = preg_replace('/\s\s+/', '', $product->getElementsByTagName('h4')->item(0)->textContent);
         } catch (\Exception $exception) {
@@ -164,12 +159,12 @@ class DoubleFScraper extends Scraper
         return $link;
     }
 
-    private function getPaginationData( HtmlPageCrawler $c): array
+    private function getPaginationData(HtmlPageCrawler $c): array
     {
         $maxPageNumber = 1;
         $options = [
             'current_page_number' => 1,
-            'total_pages' => $maxPageNumber
+            'total_pages' => $maxPageNumber,
         ];
 
         $text = $c->filter('div.pages ol li.current span')->getInnerHtml();
@@ -179,11 +174,11 @@ class DoubleFScraper extends Scraper
         }
 
         $text = explode(' ', $text);
-        $maxPageNumber = $text[count($text)-1];
+        $maxPageNumber = $text[count($text) - 1];
 
         $options = [
             'current_page_number' => 0,
-            'total_pages' => $maxPageNumber
+            'total_pages' => $maxPageNumber,
         ];
 
         return $options;

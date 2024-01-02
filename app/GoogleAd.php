@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -9,10 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class GoogleAd extends Model
 {
-	   /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="googleads",type="string")
-       * @SWG\Property(property="adgroup_google_campaign_id",type="integer")
+     * @SWG\Property(property="adgroup_google_campaign_id",type="integer")
      * @SWG\Property(property="google_adgroup_id",type="integer")
      * @SWG\Property(property="google_ad_id",type="integer")
      * @SWG\Property(property="headline1",type="string")
@@ -25,8 +27,18 @@ class GoogleAd extends Model
      * @SWG\Property(property="path2",type="string")
      * @SWG\Property(property="ads_resposne",type="string")
      * @SWG\Property(property="status",type="string")
-   
      */
-    protected $table='googleads';
-    protected $fillable=['adgroup_google_campaign_id','google_adgroup_id','google_ad_id','headline1','headline2','headline3','description1','description2','final_url','path1','path2','ads_resposne','status'];
+    protected $table = 'googleads';
+
+    protected $fillable = ['google_customer_id', 'adgroup_google_campaign_id', 'google_adgroup_id', 'google_ad_id', 'headline1', 'headline2', 'headline3', 'description1', 'description2', 'final_url', 'path1', 'path2', 'ads_resposne', 'status'];
+
+    public function campaign()
+    {
+        return $this->belongsTo(\App\GoogleAdsCampaign::class, 'adgroup_google_campaign_id', 'google_campaign_id');
+    }
+
+    public function adgroup()
+    {
+        return $this->belongsTo(\App\GoogleAdsGroup::class, 'google_adgroup_id', 'google_adgroup_id');
+    }
 }

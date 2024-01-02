@@ -23,6 +23,112 @@
         form.chatbot .col{
             flex-grow: unset !important;
         }
+        .chatbot-form-1{
+            justify-content: space-between;
+        }
+        table th:not(.modal-dialog table th), table td:not(.modal-dialog table td){
+            white-space: nowrap;
+        }
+        .message-input-box{
+            width: 70%;
+        }
+        .message-input-box-icons{
+            width: 30%;
+        }
+        .chatboat-message-status {
+            width: 130px;
+        }
+        .chatboat-message-type{
+            width: 200px;
+        }
+        /* / Responsive styles / */
+        /* / // X-Small devices (portrait phones, less than 576px) / */
+        @media (max-width: 575.98px) { 
+            form.chatbot {
+                padding: 0 12px;
+                margin: 0 !important;
+            }
+            .chatboat-message-type {
+                width: 100% !important;
+            }
+            form.chatbot .chatbot-form-1 .col{
+                flex-grow: 1 !important;
+                padding: 0;
+            }
+            .chatbot-form-1 > div{
+                width: 100%;
+            }
+            .chatboat-message-status {
+                width: 100%;
+            }
+            .chatboat-message-type{
+                width: 100%;
+            }
+            .message-input-box{
+                width: 150px !important;
+            } 
+            .message-input-box-icons{
+                width: 100% !important;
+            }
+            .chatbot-form-1 button[type=submit]{
+                padding: 0;
+            }
+            .chatbot-send-field{
+                width: 100%;
+            }
+            .chatbot-send-field .select2.select2-container.select2-container--default{
+                width: 100% !important;
+
+            }
+        }
+
+        /* / // Small devices (landscape phones, 576px and up) / */
+        @media (min-width: 576px) and (max-width: 767.98px) { 
+            .message-input-box{
+                width: 150px !important;
+            } 
+            .message-input-box-icons{
+                width: 100% !important;
+            }
+        }
+
+        /* / // Medium devices (tablets, 768px and up) / */
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .message-input-box{
+                width: 150px !important;
+            } 
+            .message-input-box-icons{
+                width: 100% !important;
+            }
+        }
+
+        /* / // Large devices (desktops, 992px and up) / */
+        @media (min-width: 992px) and (max-width: 1199.98px) { 
+            .message-input-box, .message-input-box-icons{
+                width: 100% !important;
+            }
+        }
+
+        /* / // Extra large devices (large desktops, 1200px and up) / */
+        @media (min-width: 1200px) and (max-width: 1400.98px) {
+        
+        }
+
+        /* / // For 2k Monitors, (more than 1401 px) / */
+        @media(max-width: 1599.98px) {
+            .chatbot-form-1{
+                justify-content: start;
+                gap: 6px;
+            }
+        }
+
+        @media (min-width: 1600px) and (max-width: 2559.98px) {
+        
+        }
+
+        @media (min-width: 2560px) {
+
+        }
     </style>
     <div class="row m-0">
         <div class="col-lg-12 margin-tb p-0">
@@ -32,19 +138,15 @@
 
     <div class="row m-0">
         <div class="col-lg-12 margin-tb pl-3 pr-3" style="margin-bottom: 10px;">
-            <div class="pull-left">
+            <div class="">
                 <div class="form-inline">
-                    <form method="get" class="chatbot mr-3">
-                        <div class="row">
-
-
+                    <form method="get" class="chatbot mr-3 w-100">
+                        <div class="row chatbot-form-1" >
                             <div class="col pr-0">
                                 <?php echo Form::text("search", request("search", null), ["class" => "form-control", "placeholder" => "Enter input here.."]); ?>
                             </div>
-                           
-
-                            <div class="col">
-                                <select style="width: 130px !important" name="status" class="chatboat-message-status form-control">
+                            <div class="">
+                                <select name="status" class="chatboat-message-status form-control">
                                     <option value="">Select Status</option>
                                     <option value="1" {{request()->get('status') == '1' ? 'selected' : ''}}>
                                         Approved
@@ -54,41 +156,50 @@
                                     </option>
                                 </select>
                             </div>
+                            <div class="">
+                                <select name="message_type" class="chatboat-message-type form-control">
+                                    <option value="">Select Message Type</option>
+                                    <option value="email" {{request()->get('message_type') == 'email' ? 'selected' : ''}}>Email</option>
+                                    <option value="task" {{request()->get('message_type') == 'task' ? 'selected' : ''}}>Task</option>
+                                    <option value="dev_task" {{request()->get('message_type') == 'dev_task' ? 'selected' : ''}}>Dev Task</option>
+                                    <option value="ticket" {{request()->get('message_type') == 'ticket' ? 'selected' : ''}}>Ticket</option>
+                                </select>
+                            </div>
 
                             <!-- START - Purpose : Set unreplied messages - DEVATSK=4350 -->
-                            <div style="display: flex;align-items: center">
-                                
+                            <div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
+
                                     @if(isset($_REQUEST['unreplied_msg']) && $_REQUEST['unreplied_msg']== true)
                                         @php $check_status = 'checked'; @endphp
                                     @else
                                         @php $check_status = ''; @endphp
                                     @endif
-                               
+
                                 <input class="mt-0 mr-2" type="checkbox" id="unreplied_msg" name="unreplied_msg" {{$check_status}} value="true"> Unreplied Messages
                             </div>
-                            <div style="margin-left: 20px;display: flex;align-items: center">
+                            <div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                     @if(request("unread_message") == "true")
                                         @php $check_status = 'checked'; @endphp
                                     @else
                                         @php $check_status = ''; @endphp
                                     @endif
-                               
+
                                 <input class="mt-0 mr-2" type="checkbox" id="unread_message" name="unread_message" {{$check_status}} value="true"> Unread Messages
                             </div>
                             <!-- END - DEVATSK=4350 -->
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="customer" @if(request()->get('search_type') != null and in_array('customer', request()->get('search_type'))) checked @endif > Customer
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="vendor" @if(request()->get('search_type') != null and in_array('vendor', request()->get('search_type'))) checked @endif> Vendor
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="supplier" @if(request()->get('search_type') != null and in_array('supplier', request()->get('search_type'))) checked @endif> Supplier
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="task" @if(request()->get('search_type') != null and in_array('task', request()->get('search_type'))) checked @endif> Task
                             </div>
-							<div style="margin-left: 20px;display: flex;align-items: center">
+							<div style="display: flex;align-items: center" class="ml-sm-4 ml-0">
                                  <input class="mt-0 mr-2" type="checkbox"  name="search_type[]" value="dev_task" @if(request()->get('search_type') != null and in_array('dev_task', request()->get('search_type'))) checked @endif> Dev Task
                             </div>
 
@@ -97,30 +208,38 @@
                             </button>
                         </div>
                     </form>
-
-                
-                    <form method="post">
+                    <form method="post" class="pt-3 d-flex align-items-center chatbot-send-field">
                         <?php echo csrf_field(); ?>
-                        <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:250px;"]); ?>
+                        <?php echo Form::select("customer_id[]", [], null, ["class" => "form-control customer-search-select-box", "multiple" => true, "style" => "width:300px;"]); ?>
                         <button type="submit" style="display: inline-block;width: 10%"
                                 class="btn btn-sm btn-image btn-forward-images">
                             <i class="glyphicon glyphicon-send"></i>
                         </button>
                     </form>
+
+
+                    <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#chatbotmessagesdatatablecolumnvisibilityList">Column Visiblity</
+
+                    <div>
+                        @if($isElastic)
+                            <a class="btn btn-xs btn-secondary" href="{{ route('chatbot.messages.list') }}">Switch to Database</a>
+                        @else
+                            <a class="btn btn-xs btn-warning" href="{{ route('chatbot.messages.list') }}/elastic">Switch to Elastic data</a>
+                        @endif
+                    </div>
+
                 </div>
             </div>
 
         </div>
     </div>
 
-    <div class="row m-0">
-        <div class="col-md-12 pl-3 pr-3">
-            <div class="table-responsive-lg" id="page-view-result">
-                @include("chatbot::message.partial.list")
-            </div>
+    <div class="col-md-12 pl-3 pr-3">
+        <div class="table-responsive-lg" id="page-view-result">
+            @include("chatbot::message.partial.list")
         </div>
     </div>
-    
+
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -139,13 +258,62 @@
             </div>
         </div>
     </div>
+    <div id="record-voice-notes" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Record & Send Voice Message</h4>
+                </div>
+                <div class="modal-body" >
+                    <Style>
+                    #rvn_status:after {
+                        overflow: hidden;
+                        display: inline-block;
+                        vertical-align: bottom;
+                        -webkit-animation: ellipsis steps(4, end) 900ms infinite;
+                        animation: ellipsis steps(4, end) 900ms infinite;
+                        content: "\2026";
+                        /* ascii code for the ellipsis character */
+                        width: 0px;
+                        }
+
+                        @keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+
+                        @-webkit-keyframes ellipsis {
+                        to {
+                            width: 40px;
+                        }
+                        }
+                    </style>
+                    <input type="hidden" name="rvn_id" id="rvn_id" value="">
+                    <input type="hidden" name="rvn_tid" id="rvn_tid" value="">
+                    <button id="rvn_recordButton" class="btn btn-s btn-secondary">Start Recording</button>
+                    <button id="rvn_pauseButton" class="btn btn-s btn-secondary"disabled>Pause Recording</button>
+                    <button id="rvn_stopButton" class="btn btn-s btn-secondary"disabled>Stop Recording</button>
+                    <div id="formats">Format: start recording to see sample rate</div>
+                    <div id="rvn_status">Status: Not started...</div>
+                    <div id="recordingsList"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="rvn-btn-close-modal" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     @include("partials.customer-new-ticket")
+    @include("chatbot::message.partial.column-visibility-modal")
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
   50% 50% no-repeat;display:none;">
     </div>
     <script src="/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript" src="/js/jsrender.min.js"></script>
     <script type="text/javascript" src="/js/common-helper.js"></script>
+    <script type="text/javascript" src="/js/recorder.js"></script>
+    <script type="text/javascript" src="/js/record-voice-notes.js"></script>
     <script type="text/javascript">
 
         var callQuickCategory = function () {
@@ -188,7 +356,7 @@
                 var id = $this.select2({tags:true,"width" : 200}).find(":selected").data("id");
                 if(id == undefined) {
                     var quickCategory = $this.closest(".communication").find(".quickCategory");
-                    
+
                     if (quickCategory.val() == "") {
                         alert("Please Select Category!!");
                         return false;
@@ -242,6 +410,27 @@
             });
         });
 
+        $(document).on("click", ".messages-reindex", function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: "{{ route('chatbot.messages.reindex') }}",
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message, 'error');
+            });
+        });
+
         var getResults = function (href) {
             $.ajax({
                 type: 'GET',
@@ -261,6 +450,9 @@
                     }
                     if (removePage > 1) {
                         $("#page-view-result").find(".pagination").first().remove();
+                    }
+                    if (isMessagesPage() === true) {
+                        $("#page-view-result").empty();
                     }
                     $("#page-view-result").append(response.tpl);
                     callQuickCategory();
@@ -287,10 +479,24 @@
         });
 
         $(window).scroll(function () {
+            if (isMessagesPage() === true) {
+                return;
+            }
             if ($(window).scrollTop() > ($(document).height() - $(window).height() - 10)) {
                 $("#page-view-result").find(".pagination").find(".active").next().find("a").click();
             }
         });
+
+        var isMessagesPage = function()
+        {
+            let path = '/chatbot/messages';
+            let pathName = window.location.pathname;
+            if (pathName.indexOf(path) !== -1) {
+                return true;
+            }
+
+            return false;
+        }
 
         $(document).on("click", ".delete-images", function () {
 
@@ -388,20 +594,27 @@
             console.log('*****************************');
             var thiss = $(this);
             var data = new FormData();
-            
+
             var field = "customer_id";
             var tr  = $(this).closest("tr").find("td").first();
             var typeId = tr.data('customer-id');
             var id = $(this).data('id');
+            var page = tr.data('page');
+            console.log(page);
             var chatMessageReplyId = tr.data('chat-message-reply-id')
             var type = tr.data("context");
             var data_chatbot_id = tr.data('chatbot-id');
+            var is_audio=0;
+            if( $("#is_audio_"+id).length )  {
+                is_audio=$("#is_audio_"+id).val();
+            }
+            
             data.append("chat_id", id);
             console.log(type);
 
             var message= $('#message_'+id).val();
-          
-             
+
+
             if(parseInt(tr.data("vendor-id")) > 0) {
                 type = "vendor";
                 typeId = tr.data("vendor-id");
@@ -416,14 +629,20 @@
                 data.append("chat_reply_message_id", chatMessageReplyId)
                 //END - DEVTASK-4203
             }
-            
+
             var customer_id = typeId;
             //var message = thiss.closest(".cls_textarea_subbox").find("textarea").val();
-           
-            var message= $('#message_'+id).val();
-          
-            if(type === 'customer'){
 
+            var message= $('#message_'+id).val();
+
+
+            if(type === 'email'){
+                typeId = tr.data('email-id');
+                console.log("Email Id : ",typeId);
+                data.append("email_id", typeId);
+                data.append("message", message);
+                data.append("status", 1);
+            }else if(type === 'customer'){
                 data.append("customer_id", typeId);
                 data.append("message", message);
                 data.append("status", 1);
@@ -432,6 +651,7 @@
 
                 data.append('issue_id', typeId);
                 data.append("message", message);
+                data.append("is_audio", is_audio);
                 data.append("sendTo", 'to_developer');
                 data.append("status", 2)
                 data.append("chat_reply_message_id", chatMessageReplyId)
@@ -439,6 +659,7 @@
             }else if(type === 'issue'){
                 data.append('issue_id', typeId);
                 data.append("message", message);
+                data.append("is_audio", is_audio);
                 data.append("status", 1)
                 data.append("chat_reply_message_id", chatMessageReplyId)
             }
@@ -446,6 +667,7 @@
             else if(type === 'task'){
                 data.append('task_id', typeId);
                 data.append("message", message);
+                data.append("is_audio", is_audio);
                 data.append("status", 2)
                 data.append("sendTo", 'to_developer');
                 data.append("chat_reply_message_id", chatMessageReplyId)
@@ -468,7 +690,7 @@
                     data: { id : id ,
                         message : message,
                         from:'chatbot_replay',
-                    _token: "{{ csrf_token() }}" 
+                    _token: "{{ csrf_token() }}"
                     },
                 })
                 .done(function(data) {
@@ -477,7 +699,7 @@
                 })
             }
             //END - DEVTASK-18280
-            
+
 
             var add_autocomplete  = thiss.closest(".cls_textarea_subbox").find("[name=add_to_autocomplete]").is(':checked') ;
             data.append("add_autocomplete", add_autocomplete);
@@ -501,8 +723,12 @@
                         thiss.closest(".cls_textarea_subbox").find("textarea").val("");
                         toastr['success']("Message sent successfully", 'success');
 
+                        $(".pam-" + id).find(".user-input").each(function() {
+                            console.log(message, id);
+                            $(this).text(message);
+                        });
                     }).fail(function (errObj) {
-                       
+                        getResults("{{ route('chatbot.messages.list') }}?page=" + page);
                     });
                 }
             } else {
@@ -651,5 +877,30 @@
             $('#ticket_customer_id').val($(this).attr('data-customer_id'));
         });
 
+        $(document).on('click', '.create_short_cut',function () {
+            $('.sop_description').val("");
+            let message = '';
+            message = $(this).attr('data-msg');
+            $('.sop_description').val(message);
+        });
+        $( document ).ready(function() {
+            $(document).on('click', '.btn-trigger-rvn-modal',function () {
+                var id=$(this).attr('data-id')
+                var tid=$(this).attr('data-tid')
+                $("#record-voice-notes #rvn_id").val(id);
+                $("#record-voice-notes #rvn_tid").val(tid);
+                $("#record-voice-notes").modal("show");
+            });
+            $('#record-voice-notes').on('hidden.bs.modal', function () {
+                $("#rvn_stopButton").trigger("click");
+                $("#formats").html("Format: start recording to see sample rate");
+                $("#rvn_id").val(0);
+                $("#rvn_tid").val(0);
+                setTimeout(function () {
+                     $("#recordingsList").html('');
+                }, 2500);
+            })
+        });
+ 
     </script>
 @endsection

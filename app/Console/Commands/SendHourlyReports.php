@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\DailyActivity;
-use App\Exports\HourlyReportsExport;
-use App\Mails\Manual\HourlyReport;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Mails\Manual\HourlyReport;
+use App\Exports\HourlyReportsExport;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -46,14 +46,14 @@ class SendHourlyReports extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now  = Carbon::now();
+            $now = Carbon::now();
             $date = Carbon::now()->format('Y-m-d');
             $nine = Carbon::parse('09:00');
-            $one  = Carbon::parse('13:00');
+            $one = Carbon::parse('13:00');
             $four = Carbon::parse('16:00');
 
             if ($now->between($nine, $one)) {
@@ -81,7 +81,7 @@ class SendHourlyReports extends Command
                 ->get()->groupBy('user_id');
 
             if (count($daily_activities) > 0) {
-                $path = "hourly_reports/" . $date . "_hourly_reports.xlsx";
+                $path = 'hourly_reports/' . $date . '_hourly_reports.xlsx';
                 Excel::store(new HourlyReportsExport(), $path, 'files');
 
                 Mail::to('hr@sololuxury.co.in')
@@ -92,6 +92,5 @@ class SendHourlyReports extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

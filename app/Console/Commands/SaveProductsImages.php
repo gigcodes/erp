@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use GuzzleHttp\Cookie\CookieJar;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class SaveProductsImages extends Command
 {
@@ -46,9 +46,8 @@ class SaveProductsImages extends Command
         // Set memory limit
         ini_set('memory_limit', '256M');
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -73,16 +72,16 @@ class SaveProductsImages extends Command
 
             // dd(count($products));
             // $products = Product::where('is_without_image', 1)->where('sku', 'BE2007E00C001')->get();
-            $count      = 0;
+            $count = 0;
             $has_images = 0;
             foreach ($products as $key => $product) {
                 echo "$key - Found Product \n";
 
                 if ($product->hasMedia(config('constants.media_tags'))) {
-                    dump("Has Linked Images");
+                    dump('Has Linked Images');
                     $has_images++;
 
-                    // continue;
+                // continue;
                 } else {
                     $count++;
                     // continue;
@@ -123,7 +122,7 @@ class SaveProductsImages extends Command
 
                                     $formatted_final = str_replace('//foto', '/foto', $formatted_final);
 
-                                    $exploded_url     = explode('/', $formatted_final);
+                                    $exploded_url = explode('/', $formatted_final);
                                     $corrected_pieces = [];
                                     foreach ($exploded_url as $key => $piece) {
                                         if ($key == 0) {
@@ -149,7 +148,7 @@ class SaveProductsImages extends Command
                                         'cookies' => $cookieJar,
                                     ];
 
-                                    $response  = $guzzle->request('GET', $formatted_final, $params);
+                                    $response = $guzzle->request('GET', $formatted_final, $params);
                                     $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                     file_put_contents($file_path, $response->getBody()->getContents());
@@ -172,7 +171,7 @@ class SaveProductsImages extends Command
                                             'cookies' => $cookieJar,
                                         ];
 
-                                        $response  = $guzzle->request('GET', $formatted_final, $params);
+                                        $response = $guzzle->request('GET', $formatted_final, $params);
                                         $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                         file_put_contents($file_path, $response->getBody()->getContents());
@@ -195,7 +194,7 @@ class SaveProductsImages extends Command
                                                 'cookies' => $cookieJar,
                                             ];
 
-                                            $response  = $guzzle->request('GET', $formatted_final, $params);
+                                            $response = $guzzle->request('GET', $formatted_final, $params);
                                             $file_path = public_path() . '/uploads/' . '/one.jpg';
 
                                             file_put_contents($file_path, $response->getBody()->getContents());
@@ -223,7 +222,6 @@ class SaveProductsImages extends Command
                                 echo "$key - Couldn't upload image " . $e->getMessage() . " - $product->sku \n";
                                 echo "$image_path \n";
                             }
-
                         }
 
                         if ($product->is_without_image == 0) {

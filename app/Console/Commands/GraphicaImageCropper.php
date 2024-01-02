@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use Carbon\Carbon;
+use App\CronJobReport;
 use ColorThief\ColorThief;
 use Illuminate\Console\Command;
 
@@ -42,7 +42,7 @@ class GraphicaImageCropper extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -54,5 +54,4 @@ class GraphicaImageCropper extends Command
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
-
 }

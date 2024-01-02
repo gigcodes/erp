@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\InstructionCategory;
 use App\KeywordInstruction;
+use App\InstructionCategory;
 use Illuminate\Http\Request;
 
 class KeywordInstructionController extends Controller
@@ -35,16 +35,14 @@ class KeywordInstructionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $this->validate($request, [
             'keywords' => 'required|array',
-            'instruction_category' => 'required'
+            'instruction_category' => 'required',
         ]);
-
 
         $keywordInstruction = new KeywordInstruction();
         $keywordInstruction->keywords = $request->get('keywords');
@@ -52,13 +50,12 @@ class KeywordInstructionController extends Controller
         $keywordInstruction->remark = $request->get('remark') ?? 'N/A';
         $keywordInstruction->save();
 
-        return redirect()->action('KeywordInstructionController@index')->with('message', 'Keyword-instruction reference added successfully!');
+        return redirect()->action([\App\Http\Controllers\KeywordInstructionController::class, 'index'])->with('message', 'Keyword-instruction reference added successfully!');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      */
     public function show(KeywordInstruction $keywordInstruction)
@@ -69,12 +66,11 @@ class KeywordInstructionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      */
     public function edit(KeywordInstruction $keywordInstruction)
     {
-        if (!$keywordInstruction) {
+        if (! $keywordInstruction) {
             abort(404);
         }
 
@@ -86,15 +82,13 @@ class KeywordInstructionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\KeywordInstruction  $keywordInstruction
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, KeywordInstruction $keywordInstruction)
     {
         $this->validate($request, [
             'keywords' => 'required|array',
-            'instruction_category' => 'required'
+            'instruction_category' => 'required',
         ]);
 
         $keywordInstruction->keywords = $request->get('keywords');
@@ -103,14 +97,13 @@ class KeywordInstructionController extends Controller
         $keywordInstruction->save();
 
         return redirect()->back()->with('message', 'Keyword-instruction reference added successfully!');
-
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\KeywordInstruction $keywordInstruction
      * @return \Illuminate\Http\Response
+     *
      * @throws \Exception
      */
     public function destroy(KeywordInstruction $keywordInstruction)

@@ -5,7 +5,6 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DocumentEmail extends Mailable
 {
@@ -16,9 +15,10 @@ class DocumentEmail extends Mailable
      *
      * @return void
      */
-
     public $subject;
+
     public $message;
+
     public $file_paths;
 
     public function __construct(string $subject, string $message, array $file_paths)
@@ -43,14 +43,13 @@ class DocumentEmail extends Mailable
 
         if (count($this->file_paths) > 0) {
             foreach ($this->file_paths as $file_path) {
-                $path=storage_path('app/files/'.$file_path);
-                if(file_exists($path)){
+                $path = storage_path('app/files/' . $file_path);
+                if (file_exists($path)) {
                     $email->attach($path);
-               }
+                }
             }
         }
 
         return $email;
     }
-
 }

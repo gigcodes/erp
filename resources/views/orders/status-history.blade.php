@@ -91,7 +91,10 @@
          $chatMessage = Illuminate\Support\Facades\DB::table('chat_messages')->where('chat_messages.order_id','=', $order_n_refund->id)->where('chat_messages.message','!=', '')->orderBy("created_at", "DESC")->first();
          @endphp
          @if($chatMessage)
-         {{ substr($chatMessage->message,0,40) }}... <button type="button" class="btn btn-xs btn-secondary approve-messages review-btn" data-id="{{ $chatMessage->id }}"><i class="fa fa-check" aria-hidden="true"></i></button>
+         {{ substr($chatMessage->message,0,40) }}... 
+         @if(isset($chatMessage->is_reviewed) && $chatMessage->is_reviewed == 0)
+         <button type="button" title="Please review this" class="btn btn-xs btn-secondary approve-messages review-btn" data-id="{{ $chatMessage->id }}"><i class="fa fa-check" aria-hidden="true"></i></button>
+         @endif
          @endif
        </div>
           </td>
@@ -151,13 +154,30 @@
                             <strong>Message:</strong>
                         </div>
                         <div class="col-md-8">
-                        <div class="form-group">
-                          <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
-                        </div>
+                            <div class="form-group">
+                              <textarea cols="45" class="form-control" id="order-template-status-tpl" name="message"></textarea>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <div class="col-md-12">
+                      <div class="col-md-2">
+                      <div class="form-group">
+                          <div class="checkbox">
+                                                    <label><input class="msg_platform msg_platform_del" type="checkbox" value="email" id="del_date_email">Email</label>  
+                          </div>
+                          <div class="checkbox">
+                                                   <label><input class="msg_platform msg_platform_del" type="checkbox" value="sms">SMS</label>
+                          </div>
+                              
+                      </div>
+                      </div>
+                          
+                    </div>
+                    
+                   
+                
+        </div>
+      </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-secondary update-status-with-message">With Message</button>
@@ -165,8 +185,7 @@
             </div>
         </form>
       </div>
-    </div>
-</div>
+
 <div id="order-status-map" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -291,6 +310,10 @@
     });
   $(document).on("click",".update-status-with-message",function(e) {
           e.preventDefault();
+          var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           $.ajax({
             url: "/order/change-status",
             type: "GET",
@@ -300,6 +323,8 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'1',
               message:$("#order-template-status-tpl").val(),
+              order_via:selected_array,
+
             },
             beforeSend: function() {
               $("#loading-image").show();
@@ -316,6 +341,10 @@
 
       $(document).on("click",".update-status-without-message",function(e) {
           e.preventDefault();
+          var selected_array = [];
+          $('.msg_platform_del:checkbox:checked').each(function() {
+            selected_array.push($(this).val());
+          });
           $.ajax({
             url: "/order/change-status",
             type: "GET",
@@ -325,6 +354,7 @@
               status : $("#order-status-id-status-tpl").val(),
               sendmessage:'0',
               message:$("#order-template-status-tpl").html(),
+              order_via:selected_array,
             },
             beforeSend: function() {
               $("#loading-image").show();

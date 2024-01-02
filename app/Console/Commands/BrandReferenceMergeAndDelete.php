@@ -38,36 +38,34 @@ class BrandReferenceMergeAndDelete extends Command
      */
     public function handle()
     {
-        echo "Starting to add from here" . PHP_EOL;
+        echo 'Starting to add from here' . PHP_EOL;
 
         $count = Brand::count();
 
-        echo "Total brand found :" . $count . PHP_EOL;
+        echo 'Total brand found :' . $count . PHP_EOL;
 
         for ($i = 0; $i < $count; $i++) {
-
             if ($i == 0) {
                 $brand = Brand::first();
-            } else if ($lastBrand) {
-                $brand = Brand::where("id", ">", $lastBrand->id)->whereNull("deleted_at")->first();
+            } elseif ($lastBrand) {
+                $brand = Brand::where('id', '>', $lastBrand->id)->whereNull('deleted_at')->first();
             }
 
             if ($brand) {
                 // call the reference
                 $reference = explode(',', $brand->references);
                 foreach ($reference as $ref) {
-                    if (!empty($ref)) {
-
+                    if (! empty($ref)) {
                         $similarBrands = Brand::where('name', 'LIKE', $ref)->where(function ($q) {
-                            $q->where("references", "")->orWhereNull('references');
+                            $q->where('references', '')->orWhereNull('references');
                         })->where('id', '!=', $brand->id)->get();
 
                         foreach ($similarBrands as $similarBrand) {
-                            $product = \App\Product::where("brand", $similarBrand->id)->get();
-                            if (!$product->isEmpty()) {
+                            $product = \App\Product::where('brand', $similarBrand->id)->get();
+                            if (! $product->isEmpty()) {
                                 foreach ($product as $p) {
-                                    $lastBrandId   = $p->brand;
-                                    $p->brand      = $brand->id;
+                                    $lastBrandId = $p->brand;
+                                    $p->brand = $brand->id;
                                     $p->last_brand = $lastBrandId;
                                     $p->save();
                                     \Log::channel('productUpdates')->info("{$brand->id} updated with product" . $p->sku);
@@ -81,7 +79,7 @@ class BrandReferenceMergeAndDelete extends Command
             }
         }
 
-        die;
+        exit;
 
         /*$brands = Brand::all();
 

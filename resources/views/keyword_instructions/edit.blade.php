@@ -16,13 +16,13 @@
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">
-                                <strong><a class="btn btn-secondary" href="{{ action('KeywordInstructionController@index') }}">Back</a> &nbsp;Edit Instruction</strong>
+                                <strong><a class="btn btn-secondary" href="{{ action([\App\Http\Controllers\KeywordInstructionController::class, 'index']) }}">Back</a> &nbsp;Edit Instruction</strong>
                             </a>
                         </h4>
                     </div>
                     <div id="collapse1" class="panel-collapse">
                         <div class="panel-body">
-                            <form action="{{ action('KeywordInstructionController@update', $keywordInstruction->id) }}" method="post">
+                            <form action="{{ action([\App\Http\Controllers\KeywordInstructionController::class, 'update'], $keywordInstruction->id) }}" method="post">
                                 @csrf
                                 @method('PUT')
                                 <div class="form-group">

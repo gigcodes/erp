@@ -25,7 +25,7 @@
 	         	<label for="store_website_id">Store Website</label>
         		<select name="store_website_id" class="form-control">
         		<option value="">--SELECT-</option>
-        		<?php foreach(\App\StoreWebsite::pluck('website','id')->toArray() as $k => $v) {  ?>
+        		<?php foreach (\App\StoreWebsite::pluck('website', 'id')->toArray() as $k => $v) {  ?>
         			<option {{if data}} {{if data.store_website_id == "<?php echo $k; ?>"}} selected {{/if}} {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
         		<?php } ?>
         		</select>
@@ -34,8 +34,17 @@
 	         	<label for="mail_list_id">Mailing List</label>
         		<select name="mail_list_id" class="form-control">
         		<option value="">--SELECT-</option>
-        		<?php foreach(\App\Mailinglist::pluck('name','id')->toArray() as $k => $v) {  ?>
+        		<?php foreach (\App\Mailinglist::pluck('name', 'id')->toArray() as $k => $v) {  ?>
         			<option {{if data}} {{if data.mail_list_id == "<?php echo $k; ?>"}} selected {{/if}} {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
+        		<?php } ?>
+        		</select>
+        	</div>
+			<div class="form-group">
+	         	<label for="mail_list_temp_id">Mailing list Templates</label>
+        		<select name="mail_list_temp_id" class="form-control">
+        		<option value="">--SELECT-</option>
+        		<?php foreach (\App\MailinglistTemplate::pluck('name', 'id')->toArray() as $k => $v) {  ?>
+        			<option {{if data}} {{if data.mail_list_temp_id == "<?php echo $k; ?>"}} selected {{/if}} {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
         		<?php } ?>
         		</select>
         	</div>

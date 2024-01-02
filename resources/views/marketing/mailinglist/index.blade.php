@@ -60,8 +60,8 @@
                         <div class="form-group">
                             <select name="service_id" id="service_id" class="form-control">
                                 <option value="">Select Service</option>
-                                @foreach($services as $service)
-                                    <option value="{{$service->id}}">{{$service->name}}</option>
+                                @foreach($services as $key=>$service)
+                                    <option value="{{$key}}">{{$service}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -121,8 +121,9 @@
                 <th style="">Name</th>
                 <th style="">Website</th>
                 <th style="">Email</th>
-                <!--th style="">Service</th-->
+                <th style="">Service</th>
                 <th style="">RemoteID</th>
+                <th>Send Blue Account</th>
                 <th style="">Is Master</th>
                 <th style="">Spam Date</th>
                 <th style="">Actions</th>
@@ -133,12 +134,13 @@
                     <td>{{$value->name}}</td>
                     <td>@if($value->website) {{$value->website->title}} @endif</td>
                     <td>{{$value['email']}}</td>
-                    <!--td><?php //$value->service->name?></td-->
+                    <td><?php echo  (isset($services[$value->service_id]))?$services[$value->service_id]:'';?></td>
+                    <td>{{$value['send_in_blue_account']}}</td>
                     <td>{{$value['remote_id']}}</td>
                     <td>{{$value['is_master']}}</td>
                     <td>{{$value['spam_date']}}</td>
                     <td>
-                        <a href="{{route('mailingList.single', [ 'remoteID' => $value['remote_id'], 'store_id' => $value['website_id']])}}">
+                        <a href="{{route('mailingList.single',$value['remote_id'])}}">
                             <i class="fa fa-list"></i>
                         </a> 
                         <a href="javascript:;" data-href="{{route('mailingList.edit', $value['remote_id'])}}" class="edit_maillist">

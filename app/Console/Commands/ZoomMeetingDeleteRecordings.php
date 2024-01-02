@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Meetings\ZoomMeetings;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Helpers\LogHelper;
+use App\Meetings\ZoomMeetings;
 use Illuminate\Console\Command;
 
 class ZoomMeetingDeleteRecordings extends Command
@@ -44,19 +45,26 @@ class ZoomMeetingDeleteRecordings extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
 
-            $zoomKey    = $this->zoomkey;
+            $zoomKey = $this->zoomkey;
             $zoomSecret = $this->zoomsecret;
-            $meetings   = new ZoomMeetings();
-            $date       = Carbon::yesterday();
+            $meetings = new ZoomMeetings();
+            $date = Carbon::yesterday();
             $meetings->deleteRecordings($zoomKey, $zoomSecret, $date);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'delete meeting recordings.']);
             $report->update(['end_time' => Carbon::now()]);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'report endtime was updated.']);
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
         } catch (\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
         exit('Deleted zoom videos which are already downloaded in server.');

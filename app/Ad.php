@@ -11,6 +11,7 @@ class Ad extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="campaign_id",type="integer")
      * @SWG\Property(property="adgroup_id",type="integer")
      * @SWG\Property(property="finalurl",type="string")
@@ -38,7 +39,7 @@ class Ad extends Model
         'different_url_mobile',
         'mobile_final_url',
         'ad_id',
-        'ad_response'
+        'ad_response',
 
     ];
 }

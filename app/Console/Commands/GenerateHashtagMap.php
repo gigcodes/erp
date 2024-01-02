@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Explorer\InstagramExplorer;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Services\Explorer\InstagramExplorer;
 
 class GenerateHashtagMap extends Command
 {
@@ -41,7 +41,7 @@ class GenerateHashtagMap extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

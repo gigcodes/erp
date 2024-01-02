@@ -6,7 +6,7 @@
             <h2 class="page-heading">Sitejabber Accounts, Reviews & Q/A</h2>
         </div>
         <div class="col-md-12">
-            <form method="get" action="{{ action('SitejabberQAController@accounts') }}">
+            <form method="get" action="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'accounts']) }}">
                 <div class="row">
                     <div class="col-md-2">
                         <input class="form-control form-control-sm" type="date" value="{{$request->get('date')}}" name="date" id="date">
@@ -75,14 +75,14 @@
                                                 <strong>{{ $answer->title }}</strong><br>{{ $answer->review }}
                                             </div>
                                             @if($answer->status!= 'posted' && $answer->status!= 'posted_one')
-                                                <form method="post" action="{{ action('ReviewController@destroy', $answer->id) }}">
+                                                <form method="post" action="{{ action([\App\Http\Controllers\ReviewController::class, 'destroy'], $answer->id) }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <a href="{{ action('ReviewController@edit', $answer->id) }}" class="btn btn-sm btn-info">
+                                                    <a href="{{ action([\App\Http\Controllers\ReviewController::class, 'edit'], $answer->id) }}" class="btn btn-sm btn-info">
                                                         <i class="fa fa-edit"></i>
                                                     </a>
                                                     @if(!$answer->is_approved)
-                                                        <a title="Approve" href="{{ action('ReviewController@updateStatus', $answer->id) }}?id_approved=1" class="btn btn-sm btn-info">
+                                                        <a title="Approve" href="{{ action([\App\Http\Controllers\ReviewController::class, 'updateStatus'], $answer->id) }}?id_approved=1" class="btn btn-sm btn-info">
                                                             <i class="fa fa-check"></i>
                                                         </a>
                                                     @endif
@@ -102,7 +102,7 @@
                                                 </div>
                                                 <div id="form_am" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
                                                     <div class="card-body">
-                                                        <form action="{{ action('ReviewController@store') }}" method="post">
+                                                        <form action="{{ action([\App\Http\Controllers\ReviewController::class, 'store']) }}" method="post">
                                                             @csrf
                                                             <input type="hidden" name="account_id" value="{{ $sj->id }}">
                                                             <div class="form-group">
@@ -123,7 +123,7 @@
                                     @endif
                                 </td>
                                 <td class="text-center">{!! (isset($answer) && $answer->is_approved) ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>
-                                <td class="text-center"><a href="{{ action('SitejabberQAController@confirmReviewAsPosted', isset($answer) ? $answer->id : '') }}">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</a></td>
+                                <td class="text-center"><a href="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'confirmReviewAsPosted'], isset($answer) ? $answer->id : '') }}">{!! (isset($answer) && $answer->status =='posted') ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</a></td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -139,7 +139,7 @@
 {{--                            </div>--}}
 {{--                            <div id="form_amx" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">--}}
 {{--                                <div class="card-body">--}}
-{{--                                    <form action="{{ action('SitejabberQAController@store') }}" method="post">--}}
+{{--                                    <form action="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'store']) }}" method="post">--}}
 {{--                                        @csrf--}}
 {{--                                        <div class="form-group">--}}
 {{--                                            <label for="question">Question</label>--}}
@@ -190,7 +190,7 @@
 {{--                                <td class="text-center">{!! $sj->status==1 ? '<img src="/images/active.png" style="width:20px;">' : '<img src="/images/inactive.png" style="width:20px;">'!!}</td>--}}
 {{--                                <td>--}}
 {{--                                    <div class="form-group" style="width: 400px;">--}}
-{{--                                        <form action="{{ action('SitejabberQAController@update', $sj->id) }}" method="post">--}}
+{{--                                        <form action="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'update'], $sj->id) }}" method="post">--}}
 {{--                                            @csrf--}}
 {{--                                            @method('put')--}}
 {{--                                            <textarea type="text" name="reply" class="form-control" placeholder="Type reply..."></textarea>--}}
@@ -247,7 +247,7 @@
                             <td>{{ $remainingReviews }}</td>
                         </tr>
                     </table>
-{{--                    <form method="get" action="{{action('SitejabberQAController@edit', 'routines')}}">--}}
+{{--                    <form method="get" action="{{action([\App\Http\Controllers\SitejabberQAController::class, 'edit'], 'routines')}}">--}}
 {{--                        <div class="col-md-6">--}}
 {{--                            <div class="form-group">--}}
 {{--                                <label for="range">Post this number of reviews in a day</label>--}}
@@ -272,7 +272,7 @@
 {{--                    </form>--}}
                 </div>
                 <div class="tab-pane" id="templates" role="tabpanel" aria-labelledby="templates-tab">
-                    <form method="post" action="{{ action('SitejabberQAController@attachOrDetachReviews') }}">
+                    <form method="post" action="{{ action([\App\Http\Controllers\SitejabberQAController::class, 'attachOrDetachReviews']) }}">
                         <span class="form-group" style="display:inline-block;width: 85% !important;;">
                             <select class="form-control" name="action" id="action">
                                 <option value="attach">Attach</option>
@@ -423,7 +423,7 @@
 
                     $(this).attr('disabled', true);
                     $.ajax({
-                        url: '{{ action('SitejabberQAController@sendSitejabberQAReply') }}',
+                        url: '{{ action([\App\Http\Controllers\SitejabberQAController::class, 'sendSitejabberQAReply']) }}',
                         type: 'post',
                         data: {
                             comment: title,

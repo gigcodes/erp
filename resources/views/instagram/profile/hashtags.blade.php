@@ -17,17 +17,17 @@
                     <tr>
                         <td>{{ $key+1 }}</td>
                         <td>
-                            <a href="{{ action('HashtagController@showGrid', substr($hashtag, 1)) }}">
+                            <a href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], substr($hashtag, 1)) }}">
                                 {{ $hashtag }}
                             </a>
                         </td>
                         <td>
                             @if(in_array(substr($hashtag, 1), $hashlist))
-                                <form method="post" action="{{ action('HashtagController@destroy', substr($hashtag, 1)) }}">
-                                    <a class="btn btn-info" href="{{ action('HashtagController@showGrid', substr($hashtag, 1)) }}">
+                                <form method="post" action="{{ action([\App\Http\Controllers\HashtagController::class, 'destroy'], substr($hashtag, 1)) }}">
+                                    <a class="btn btn-info" href="{{ action([\App\Http\Controllers\HashtagController::class, 'showGrid'], substr($hashtag, 1)) }}">
                                         <i class="fa fa-eye"></i>
                                     </a>
-                                    <a class="btn btn-info" href="{{ action('HashtagController@edit', substr($hashtag, 1)) }}">
+                                    <a class="btn btn-info" href="{{ action([\App\Http\Controllers\HashtagController::class, 'edit'], substr($hashtag, 1)) }}">
                                         <i class="fa fa-info"></i>
                                     </a>
                                     @csrf
@@ -37,7 +37,7 @@
                                     </button>
                                 </form>
                             @else
-                                <form method="post" action="{{action('HashtagController@store')}}">
+                                <form method="post" action="{{action([\App\Http\Controllers\HashtagController::class, 'store'])}}">
                                     @csrf
                                     <input type="hidden" name="name" value="{{ substr($hashtag, 1) }}">
                                     <button class="btn btn-sm btn-success">
@@ -118,7 +118,7 @@
         // var nextPage = null;
         {{--$(document).ready(function() {--}}
         {{--    $.ajax({--}}
-        {{--        url: '{{action('InstagramProfileController@show', 1)}}?page=1',--}}
+        {{--        url: '{{action([\App\Http\Controllers\InstagramProfileController::class, 'show'], 1)}}?page=1',--}}
         {{--        success: function(response) {--}}
         {{--            console.log(response);--}}
         {{--            let instagramData = response[0];--}}

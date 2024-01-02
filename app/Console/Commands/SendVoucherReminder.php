@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Mails\Manual\VoucherReminder;
 use App\Voucher;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use App\Mails\Manual\VoucherReminder;
 
 class SendVoucherReminder extends Command
 {
@@ -44,11 +44,11 @@ class SendVoucherReminder extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $before   = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
+            $before = Carbon::now()->subDays(5)->format('Y-m-d 00:00:00');
             $vouchers = Voucher::where('date', '<=', $before)->get();
 
             foreach ($vouchers as $voucher) {

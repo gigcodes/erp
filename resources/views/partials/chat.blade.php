@@ -384,7 +384,8 @@ const instance_1 = AccountsSDK.init({
 	 response_type: "token",
 	onIdentityFetched: (error, data) => {
 		if (error){
-			console.log(error)
+			//alert(error.oauth_exception);
+			console.log(error.oauth_exception);
 		} 
 		if (data) {
 			console.log("User authorized!");
@@ -408,9 +409,6 @@ const instance_1 = AccountsSDK.init({
 			}catch{
 
 			}	
-			
-			
-			//console.log("License number: " + data.license);
 		}
 	}
 });
@@ -671,7 +669,7 @@ const createTable = (head,body,bodyElements)=>{
 			string += '<tr>'
 			for (let j in bodyElements){
 				string += '<td>'
-				string += body[i][bodyElements[j]] ? body[i][bodyElements[j]] : 'N/A'
+				string += body[i][bodyElements[j]] ? (typeof body[i][bodyElements[j]] == 'object' ? body[i][bodyElements[j]].website : body[i][bodyElements[j]]) : 'N/A'
 				string += '</td>';
 			}
 			string += '</tr>'

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -44,11 +44,11 @@ class CorrectProductPricing extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $sql = "
+            $sql = '
             SELECT
                 p.id,
                 p.sku,
@@ -72,7 +72,7 @@ class CorrectProductPricing extends Command
                 MAX(sp.price_eur) > 0
             ORDER BY
                 p.id
-        ";
+        ';
             $results = DB::select(DB::raw($sql));
 
             // Loop over result
@@ -81,7 +81,7 @@ class CorrectProductPricing extends Command
                 $product = Product::find($result->id);
 
                 // Log info and output info
-                $info = "Product " . $product->id . " with SKU " . $product->sku . " updated from EUR " . $product->price . " to EUR " . $result->new_price;
+                $info = 'Product ' . $product->id . ' with SKU ' . $product->sku . ' updated from EUR ' . $product->price . ' to EUR ' . $result->new_price;
                 Log::channel('productUpdates')->info($info);
                 dump($info);
 

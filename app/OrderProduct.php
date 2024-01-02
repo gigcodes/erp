@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,9 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderProduct extends Model
 {
-	 /**
+    /**
      * @var string
-	 * @SWG\Property(property="order_id",type="integer")
+     *
+     * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="sku",type="string")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="product_price",type="float")
@@ -21,89 +23,93 @@ class OrderProduct extends Model
      * @SWG\Property(property="supplier_discount_info_id",type="integer")
      * @SWG\Property(property="inventory_status_id",type="integer")
      */
-
     protected $fillable = [
-		'order_id',
-	    'sku',
-	    'product_id',
-	    'product_price',
+        'order_id',
+        'sku',
+        'product_id',
+        'product_price',
         'currency',
         'eur_price',
-	    'size',
-	    'color',
-      	'qty',
-		'purchase_status',
-		'supplier_discount_info_id',
-		'inventory_status_id'
+        'size',
+        'color',
+        'qty',
+        'purchase_status',
+        'supplier_discount_info_id',
+        'inventory_status_id',
     ];
 
     protected $appends = ['communication'];
 
-	public function order(){
+    public function order()
+    {
+        return $this->belongsTo(\App\Order::class, 'order_id', 'id');
+    }
 
-		return $this->belongsTo('App\Order','order_id','id');
-	}
+    public function product()
+    {
+        //		return $this->hasOne('App\Product',['sku','color'],['sku','color']);
+        return $this->hasOne(\App\Product::class, 'id', 'product_id');
+    }
 
-	public function product(){
+    public function order_product_details()
+    {
+        return $this->hasOne(\App\Product::class, 'id', 'product_id')->select('id', 'name');
+    }
 
-//		return $this->hasOne('App\Product',['sku','color'],['sku','color']);
-		return $this->hasOne('App\Product','id','product_id');
+    public function products()
+    {
+        return $this->hasMany(\App\Product::class, 'id', 'product_id');
+    }
 
-	}
+    public function purchase()
+    {
+        return $this->belongsTo(\App\Purchase::class);
+    }
 
-	public function products(){
-		return $this->hasMany('App\Product','id','product_id');
-	}
+    public function private_view()
+    {
+        return $this->hasOne(\App\PrivateView::class);
+    }
 
-  public function purchase()
-  {
-		return $this->belongsTo('App\Purchase');
-	}
+    public function is_delivery_date_changed()
+    {
+        $count = $this->hasMany(\App\CommunicationHistory::class, 'model_id')->where('model_type', \App\OrderProduct::class)->where('type', 'order-delivery-date-changed')->count();
 
-  public function private_view()
-  {
-		return $this->hasOne('App\PrivateView');
-	}
+        return $count > 0 ? true : false;
+    }
 
-  public function is_delivery_date_changed()
-	{
-		$count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\OrderProduct')->where('type', 'order-delivery-date-changed')->count();
+    public function messages()
+    {
+        return $this->hasMany(\App\Message::class, 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
+    }
 
-		return $count > 0 ? TRUE : FALSE;
-	}
+    public function whatsapps()
+    {
+        return $this->hasMany(\App\ChatMessage::class, 'order_id', 'order_id')->latest()->first();
+    }
 
-  public function messages()
-	{
-		return $this->hasMany('App\Message', 'moduleid', 'order_id')->where('moduletype', 'order')->latest()->first();
-	}
+    public function status_changes()
+    {
+        return $this->hasMany(\App\StatusChange::class, 'model_id')->where('model_type', \App\OrderProduct::class)->latest();
+    }
 
-	public function whatsapps()
-	{
-		return $this->hasMany('App\ChatMessage', 'order_id', 'order_id')->latest()->first();
-	}
+    public function getCommunicationAttribute()
+    {
+        $message = $this->messages();
+        $whatsapp = $this->whatsapps();
 
-  public function status_changes()
-	{
-		return $this->hasMany('App\StatusChange', 'model_id')->where('model_type', 'App\OrderProduct')->latest();
-	}
+        if ($message && $whatsapp) {
+            if ($message->created_at > $whatsapp->created_at) {
+                return $message;
+            }
 
-  public function getCommunicationAttribute()
-	{
-		$message = $this->messages();
-		$whatsapp = $this->whatsapps();
+            return $whatsapp;
+        }
 
-		if ($message && $whatsapp) {
-			if ($message->created_at > $whatsapp->created_at) {
-				return $message;
-			}
+        if ($message) {
+            return $message;
+        }
 
-			return $whatsapp;
-		}
-
-		if ($message) {
-			return $message;
-		}
-
-		return $whatsapp;
-	}
+        return $whatsapp;
+    }
 }

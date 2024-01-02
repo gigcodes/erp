@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,9 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class SimplyDutyCalculation extends Model
 {
-
-	/**
+    /**
      * @var string
+     *
      * @SWG\Property(property="hscode",type="string")
      * @SWG\Property(property="value",type="string")
      * @SWG\Property(property="duty",type="string")
@@ -34,6 +35,6 @@ class SimplyDutyCalculation extends Model
      *
      * @var array
      */
-    protected $fillable = ['hscode','value','duty','duty_rate','duty_hscode','duty_type','shipping','insurance','total',
-    'exchange_rate','currency_type_origin','currency_type_destination','duty_minimis','vat_minimis','vat_rate','vat'];
+    protected $fillable = ['hscode', 'value', 'duty', 'duty_rate', 'duty_hscode', 'duty_type', 'shipping', 'insurance', 'total',
+        'exchange_rate', 'currency_type_origin', 'currency_type_destination', 'duty_minimis', 'vat_minimis', 'vat_rate', 'vat', ];
 }

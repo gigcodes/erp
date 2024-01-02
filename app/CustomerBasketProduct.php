@@ -14,6 +14,7 @@ class CustomerBasketProduct extends Model
     /**
      * @var string
 
+     *
      * @SWG\Property(property="customer_basket_id",type="integer")
      * @SWG\Property(property="product_id",type="integer")
      * @SWG\Property(property="product_sku",type="string")
@@ -29,5 +30,4 @@ class CustomerBasketProduct extends Model
         'product_price',
         'product_currency',
     ];
-
 }

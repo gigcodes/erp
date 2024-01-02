@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class InstagramKeyword extends Model
 {
-    protected $fillable = 
+    protected $fillable =
     [
         'keyword',
     ];

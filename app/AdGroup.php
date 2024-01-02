@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AdGroup extends Model
 {
-	/**
+    /**
      * @var string
+     *
      * @SWG\Property(property="campaign_id",type="integer")
      * @SWG\Property(property="type",type="string")
      * @SWG\Property(property="group_name",type="string")
@@ -22,6 +23,6 @@ class AdGroup extends Model
      * @SWG\Property(property="google_ad_group_response",type="string")
      */
     protected $fillable = [
-        'campaign_id', 'type', 'group_name', 'url', 'keywords','budget','google_campaign_id','google_ad_group_id','google_ad_group_response',
+        'campaign_id', 'type', 'group_name', 'url', 'keywords', 'budget', 'google_campaign_id', 'google_ad_group_id', 'google_ad_group_response',
     ];
 }

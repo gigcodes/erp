@@ -11,14 +11,15 @@ class AutoRefreshController extends Controller
     {
         $pages = \App\AutoRefreshPage::query();
 
-        if($request->term) {
-            $pages = $pages->where("page","like","%".$request->term."%");
+        if ($request->term) {
+            $pages = $pages->where('page', 'like', '%' . $request->term . '%');
         }
 
         $pages = $pages->paginate(10);
 
         return view('auto-refresh-page.index', compact('pages'));
     }
+
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -27,9 +28,9 @@ class AutoRefreshController extends Controller
         ]);
 
         $params = [
-            "page"    => $request->get("page"),
-            "time"    => $request->get("time"),
-            "user_id" => \Auth::user()->id,
+            'page' => $request->get('page'),
+            'time' => $request->get('time'),
+            'user_id' => \Auth::user()->id,
         ];
 
         AutoRefreshPage::create($params);
@@ -41,10 +42,10 @@ class AutoRefreshController extends Controller
     {
         $autoRefresh = \App\AutoRefreshPage::find($id);
 
-        return view("auto-refresh-page.partials.edit", compact('autoRefresh'));
+        return view('auto-refresh-page.partials.edit', compact('autoRefresh'));
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         $this->validate($request, [
             'page' => 'required',
@@ -60,13 +61,16 @@ class AutoRefreshController extends Controller
 
         return redirect()->back()->withErrors('Please Provide with required data for update');
     }
-    public function delete(Request $request,$id)
+
+    public function delete(Request $request, $id)
     {
         $page = AutoRefreshPage::find($id);
         if ($page) {
             $page->delete();
+
             return redirect()->back()->withSuccess('Record deleted succesfully');
         }
+
         return redirect()->back()->withErrors('Record not found');
     }
 }

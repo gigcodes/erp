@@ -48,7 +48,7 @@
                     <td>{{ \Carbon\Carbon::parse($store->created_at)->format('d-m-y') }}</td>
                     <td>{{ $store->id }}</td>
                     <td class="expand-row-msg" data-name="storeWebsite" data-id="{{$store->id}}">
-                        <span class="show-short-storeWebsite-{{$store->id}}">{{ str_limit($list->storeWebsite->website, 30, '..')}}</span>
+                        <span class="show-short-storeWebsite-{{$store->id}}">{{ Str::limit($list->storeWebsite->website, 30, '..')}}</span>
                         <span style="word-break:break-all;" class="show-full-storeWebsite-{{$store->id}} hidden">{{ $list->storeWebsite->website ?? '' }}</span>
                     </td>
                     <td>{{ $store->name }}</td>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Session;
 
 class HomeController extends Controller
 {
@@ -31,29 +32,27 @@ class HomeController extends Controller
         //Read the favicon template from favicon.png
         //file from current directory
         //header('Content-type: image/png');
-        $im = imagecreatefrompng(public_path("favicon/favicon-30X30.png"));
-        $char = preg_split("/\s+/", $request->get("title","U"));
+        $im = imagecreatefrompng(public_path('favicon/favicon-30X30.png'));
+        $char = preg_split("/\s+/", $request->get('title', 'U'));
 
-        $words = explode(" ", $request->get("title","Home"));
-        $acronym = "";
+        $words = explode(' ', $request->get('title', 'Home'));
+        $acronym = '';
         $i = 1;
         foreach ($words as $w) {
-          if(isset($w[0])) {
-            $acronym .= $w[0];
-            if($i == 2) {
-              break;
+            if (isset($w[0])) {
+                $acronym .= $w[0];
+                if ($i == 2) {
+                    break;
+                }
+                $i++;
             }
-            $i++;
-          }
         }
 
-
-
         // create Image from file
-        $img = \Image::make(public_path("favicon/favicon-30X30.png"));
+        $img = \Image::make(public_path('favicon/favicon-30X30.png'));
         // use callback to define details
-        $img->text(strtoupper($acronym), 16, 8, function($font) {
-            $font->file(public_path("fonts/Arial.ttf"));
+        $img->text(strtoupper($acronym), 16, 8, function ($font) {
+            $font->file(public_path('fonts/Arial.ttf'));
             $font->size(20);
             $font->align('center');
             $font->valign('top');
@@ -61,6 +60,12 @@ class HomeController extends Controller
         });
 
         return $img->response('png');
+    }
 
+    public function logoutRefresh()
+    {
+        Session::flush();
+
+        return redirect(route('login'));
     }
 }

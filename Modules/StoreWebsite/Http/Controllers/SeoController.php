@@ -2,29 +2,28 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\StoreWebsite;
-use App\StoreWebsiteSeoFormat;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\StoreWebsiteSeoFormat;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Validator;
 
 class SeoController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
      * @return Response
      */
     public function index(Request $request, $id)
     {
-        $title = "Seo | Store Website";
-        $seoFormat = StoreWebsiteSeoFormat::where("store_website_id",$id)->first();
-        if(!$seoFormat) {
+        $title = 'Seo | Store Website';
+        $seoFormat = StoreWebsiteSeoFormat::where('store_website_id', $id)->first();
+        if (! $seoFormat) {
             $seoFormat = new StoreWebsiteSeoFormat;
             $seoFormat->store_website_id = $id;
         }
 
-        return response()->json(["code" => 200 , "data" => $seoFormat]);
+        return response()->json(['code' => 200, 'data' => $seoFormat]);
     }
 
     public function records(Request $request, $id)
@@ -62,9 +61,9 @@ class SeoController extends Controller
     {
         $post = $request->all();
 
-        $records = StoreWebsiteSeoFormat::where("store_website_id",$storeWebsiteId)->first();
+        $records = StoreWebsiteSeoFormat::where('store_website_id', $storeWebsiteId)->first();
 
-        if (!$records) {
+        if (! $records) {
             $records = new StoreWebsiteSeoFormat;
         }
 
@@ -72,25 +71,22 @@ class SeoController extends Controller
         $records->store_website_id = $storeWebsiteId;
         $records->save();
 
-        return response()->json(["code" => 200, "data" => $records]);
-
+        return response()->json(['code' => 200, 'data' => $records]);
     }
 
     /**
      * Edit Page
-     * @param  Request $request [description]
-     * @return
+     *
+     * @param  Request  $request [description]
      */
-
     public function edit(Request $request, $storeWebsiteId)
     {
-        $storeWebsiteSeo = StoreWebsiteSeoFormat::where("store_website_id", $storeWebsiteId)->first();
+        $storeWebsiteSeo = StoreWebsiteSeoFormat::where('store_website_id', $storeWebsiteId)->first();
 
         if ($storeWebsiteSeo) {
-            return response()->json(["code" => 200, "data" => $storeWebsiteSeo]);
+            return response()->json(['code' => 200, 'data' => $storeWebsiteSeo]);
         }
 
-        return response()->json(["code" => 500, "error" => "Wrong seo id!"]);
+        return response()->json(['code' => 500, 'error' => 'Wrong seo id!']);
     }
-
 }

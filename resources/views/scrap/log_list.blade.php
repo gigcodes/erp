@@ -28,6 +28,7 @@
 				<tr>
 					<th>Scrapper name</th>
 					<th>Log message</th>
+					<th>Reason</th>
 					<th>Type</th>
 					<th>Created at</th>
 				</tr>
@@ -37,6 +38,7 @@
 					<tr>
 						<td>{{ $log->scraper_name }}</td>
 						<td>{{ $log->log_messages }}</td>
+						<td>{{ $log->reason }}</td>
 						<td>{{ $log->type??'N/A' }}</td>
 						<td>{{ $log->created_at }}</td>
 					</tr>

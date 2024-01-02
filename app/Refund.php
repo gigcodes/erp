@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -12,6 +13,7 @@ class Refund extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="customer_id",type="integer")
      * @SWG\Property(property="order_id",type="integer")
      * @SWG\Property(property="type",type="string")
@@ -26,17 +28,17 @@ class Refund extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'customer_id', 'order_id', 'type', 'chq_number', 'awb', 'date_of_refund', 'date_of_issue', 'details', 'dispatch_date', 'date_of_request', 'credited'
+        'customer_id', 'order_id', 'type', 'chq_number', 'awb', 'date_of_refund', 'date_of_issue', 'details', 'dispatch_date', 'date_of_request', 'credited',
     ];
 
     public function customer()
     {
-        return $this->belongsTo('App\Customer');
+        return $this->belongsTo(\App\Customer::class);
     }
 
     public function order()
     {
-        return $this->belongsTo('App\Order');
+        return $this->belongsTo(\App\Order::class);
     }
 
     protected $dispatchesEvents = [

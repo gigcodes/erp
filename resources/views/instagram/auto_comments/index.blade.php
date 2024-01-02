@@ -12,7 +12,7 @@
         </div>
 
         <div class="p-5 col-md-12" style="background: #dddddd">
-            <form action="{{ action('InstagramAutoCommentsController@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'store']) }}" method="post">
                 <input type="hidden" name="gender" value="all">
                 <input type="hidden" name="source" value="default">
                 @csrf
@@ -52,7 +52,7 @@
         </div>
 
         <div class="col-md-12">
-            <form action="{{ action('InstagramAutoCommentsController@show', 'delete') }}">
+            <form action="{{ action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'show'], 'delete') }}">
                 <table class="table table-striped table-bordered">
                     <tr>
                         <th>S.N</th>
@@ -81,7 +81,7 @@
                             <td>{{ $reply->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <input value="{{$reply->id}}" type="checkbox" name="comments[]" id="comments">
-                                <a href="{{ action('InstagramAutoCommentsController@edit', $reply->id) }}" class="btn btn-info">
+                                <a href="{{ action([\App\Http\Controllers\InstagramAutoCommentsController::class, 'edit'], $reply->id) }}" class="btn btn-info">
                                     <i class="fa fa-edit"></i>
                                 </a>
                             </td>

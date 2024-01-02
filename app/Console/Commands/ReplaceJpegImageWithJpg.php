@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use Illuminate\Console\Command;
-use Plank\Mediable\Media;
 use Carbon\Carbon;
+use App\CronJobReport;
+use Plank\Mediable\Media;
+use Illuminate\Console\Command;
 
 class ReplaceJpegImageWithJpg extends Command
 {
@@ -40,17 +40,16 @@ class ReplaceJpegImageWithJpg extends Command
      */
     public function handle()
     {
-
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             $medias = Media::where('extension', 'jpeg')->get();
 
             foreach ($medias as $media) {
-                $absolutePath    = $media->getAbsolutePath();
+                $absolutePath = $media->getAbsolutePath();
                 $newAbsolutePath = substr($absolutePath, 0, -4) . 'jpg';
 
                 if (file_exists($absolutePath)) {

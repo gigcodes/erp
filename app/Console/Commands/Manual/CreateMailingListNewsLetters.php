@@ -2,22 +2,13 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
-
-
 use App\Customer;
-use App\CustomerMarketingPlatform;
-use App\Mailinglist;
-use App\MailinglistEmail;
-use App\MailingRemark;
-use App\Service;
-use App\StoreWebsite;
 use App\Language;
-use Carbon\Carbon;
+use App\LogRequest;
+use App\Mailinglist;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
-
+use Illuminate\Console\Command;
 
 class CreateMailingListNewsLetters extends Command
 {
@@ -57,17 +48,15 @@ class CreateMailingListNewsLetters extends Command
 
         foreach ($storeWebsites as $key => $website) {
             foreach ($languages as $index => $lang) {
+                $anyFound = Mailinglist::where(['language' => $lang->id, 'website_id' => $website->id])->first();
 
-                $anyFound = Mailinglist::where(['language'=>$lang->id,'website_id'=>$website->id])->first();
-
-                if(!$anyFound){
-                    $res = $this->createSendInBlueMailingList($website,$lang);
+                if (! $anyFound) {
+                    $res = $this->createSendInBlueMailingList($website, $lang);
                     /*if($res['code']==200){
                         $mess = $this->subscribeToNewsLetter($website->website,$website->title,$lang->code,$res['last_record_id']);
-                        
+
                     }*/
                 }
-
             }
         }
     }
@@ -77,7 +66,7 @@ class CreateMailingListNewsLetters extends Command
         $mailingListDetails = Mailinglist::find($mailingListId);
 
         $email = $mailingListDetails->email;
-        
+
         if($store_name==''){
             $store_name = null;
         }
@@ -98,7 +87,7 @@ class CreateMailingListNewsLetters extends Command
 
         if (!$customer) {
             $customer =  $this->create_customer( $email , $store_website->id, $store_name ,$lang_code );
-        } 
+        }
 
         // Step4
         $mailinglist = Mailinglist::where('website_id', $store_website->id)->get();
@@ -111,7 +100,7 @@ class CreateMailingListNewsLetters extends Command
         $customer->newsletter = 1;
         $customer->save();
 
-        
+
         $message = $this->generate_erp_response("newsletter.success", $store_website->id, $default = "Successfully added", request('lang_code'));
         return response()->json(["code" => 200, "message" => $message ]);
 
@@ -232,32 +221,37 @@ class CreateMailingListNewsLetters extends Command
         }
     }
 */
-    public function createSendInBlueMailingList($website=null,$lan=null){
-        
-        $return_response = array();
+    public function createSendInBlueMailingList($website = null, $lan = null)
+    {
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $return_response = [];
         $curl = curl_init();
         $data = [
-            "folderId" => 1,
-            "name" => $website->title,
+            'folderId' => 1,
+            'name' => $website->title,
         ];
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists",
+        $api_key = (isset($website->send_in_blue_api) && $website->send_in_blue_api != '') ? $website->send_in_blue_api : getenv('SEND_IN_BLUE_API');
+        $url = 'https://api.sendinblue.com/v3/contacts/lists';
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
+            CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_TIMEOUT => 0,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => array(
+            CURLOPT_HTTPHEADER => [
                 // "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "api-key: ".config('env.SEND_IN_BLUE_API'),
-                "Content-Type: application/json"
-            ),
-        ));
+                'api-key: ' . $api_key,
+                'Content-Type: application/json',
+            ],
+        ]);
 
         $response = curl_exec($curl);
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Console\Commands\CreateMailingListNewsLetters::class, 'createSendInBlueMailingList');
 
         if (curl_errno($curl)) {
             $return_response['code'] = 401;
@@ -269,25 +263,26 @@ class CreateMailingListNewsLetters extends Command
         curl_close($curl);
         \Log::info($response);
         $res = json_decode($response);
-		if(isset($res->id)) {
-			$last_record_id = Mailinglist::create([
-				'id' => $res->id,
-				'name' => $website->title,
-				'language' => $lan->id,
-				'website_id' => $website->id,
-				'service_id' => 1,
-				'remote_id' => $res->id,
-			]);
+        if (isset($res->id)) {
+            $last_record_id = Mailinglist::create([
+                'id' => $res->id,
+                'name' => $website->title,
+                'language' => $lan->id,
+                'website_id' => $website->id,
+                'service_id' => 1,
+                'remote_id' => $res->id,
+                'send_in_blue_api' => $website->send_in_blue_api,
+                'send_in_blue_account' => $website->send_in_blue_account,
+            ]);
 
-			$return_response['code'] = 200;
-			$return_response['msg'] = "success";
-			$return_response['last_record_id'] = $last_record_id->id;
-		} else{
-			 $return_response['code'] = 401;
+            $return_response['code'] = 200;
+            $return_response['msg'] = 'success';
+            $return_response['last_record_id'] = $last_record_id->id;
+        } else {
+            $return_response['code'] = 401;
             $return_response['msg'] = $res->message;
-		}
+        }
+
         return $return_response;
-
     }
-
 }

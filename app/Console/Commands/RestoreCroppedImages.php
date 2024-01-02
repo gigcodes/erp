@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
+use File;
 use App\Product;
 use Carbon\Carbon;
-use File;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class RestoreCroppedImages extends Command
@@ -43,7 +43,7 @@ class RestoreCroppedImages extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -57,6 +57,7 @@ class RestoreCroppedImages extends Command
                     if ($tc < 8) {
                         $product->is_image_processed = 0;
                         $product->save();
+
                         continue;
                     }
                     foreach ($product->getMedia(config('constants.media_tags')) as $key => $image) {
@@ -75,7 +76,6 @@ class RestoreCroppedImages extends Command
 
                     $product->is_image_processed = 0;
                     $product->save();
-
                 }
             }
 

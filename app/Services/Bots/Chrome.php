@@ -1,8 +1,8 @@
 <?php
 
 declare(strict_types=1);
-namespace App\Console\Commands\Bots;
 
+namespace App\Services\Bots;
 
 use Closure;
 use Laravel\Dusk\Chrome\SupportsChrome;
@@ -13,14 +13,12 @@ use NunoMaduro\LaravelConsoleDusk\Contracts\Drivers\DriverContract;
 
 class Chrome implements DriverContract
 {
-
     use SupportsChrome;
 
     private $proxy;
 
     /**
      * Chrome constructor.
-     * @param $proxy
      */
     public function __construct($proxy)
     {
@@ -47,17 +45,16 @@ class Chrome implements DriverContract
         $options = (new ChromeOptions)->addArguments(
             [
                 '--disable-gpu',
-//                '--headless',
+                //                '--headless',
                 '--enable-file-cookies',
-//                '--no-sandbox'
+                //                '--no-sandbox'
             ]
         );
 
         $proxy = $this->proxy;
         if (null !== $proxy) {
-
             $options->addArguments([
-                '--proxy-server=' . $proxy['ip'] . ':' . $proxy['port']
+                '--proxy-server=' . $proxy['ip'] . ':' . $proxy['port'],
             ]);
         }
 

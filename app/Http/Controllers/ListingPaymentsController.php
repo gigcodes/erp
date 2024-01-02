@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\ListingHistory;
-use App\ListingPayments;
 use App\User;
+use App\ListingPayments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +17,6 @@ class ListingPaymentsController extends Controller
      */
     public function index(Request $request)
     {
-
         // simply get stats for listing rejected or approved by user
         $histories = DB::table('listing_histories')
             ->selectRaw('
@@ -39,7 +37,6 @@ class ListingPaymentsController extends Controller
         $users = User::pluck('name', 'id')->toArray();
 
         return view('products.listing_payment', compact('histories', 'users', 'request'));
-
     }
 
     /**
@@ -55,7 +52,6 @@ class ListingPaymentsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      * Create the entry for the paid amount
      */
@@ -64,7 +60,7 @@ class ListingPaymentsController extends Controller
         $this->validate($request, [
             'date' => 'required',
             'amount' => 'required',
-            'user_id' => 'required'
+            'user_id' => 'required',
         ]);
 
         $amt = new ListingPayments();
@@ -81,7 +77,6 @@ class ListingPaymentsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function show(ListingPayments $listingPayments)
@@ -92,7 +87,6 @@ class ListingPaymentsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function edit(ListingPayments $listingPayments)
@@ -103,8 +97,6 @@ class ListingPaymentsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, ListingPayments $listingPayments)
@@ -115,7 +107,6 @@ class ListingPaymentsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\ListingPayments  $listingPayments
      * @return \Illuminate\Http\Response
      */
     public function destroy(ListingPayments $listingPayments)

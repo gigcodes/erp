@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Customer;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class SyncCustomersFromMagento extends Command
@@ -42,15 +42,15 @@ class SyncCustomersFromMagento extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $options = array(
-                'trace'              => true,
+            $options = [
+                'trace' => true,
                 'connection_timeout' => 120,
-                'wsdl_cache'         => WSDL_CACHE_NONE,
-            );
+                'wsdl_cache' => WSDL_CACHE_NONE,
+            ];
 
             $proxy = new \SoapClient(config('magentoapi.url'), $options);
             try {
@@ -62,8 +62,8 @@ class SyncCustomersFromMagento extends Command
                 //Loop through customers
                 if (count($magentoCustomers) > 0) {
                     foreach ($magentoCustomers as $k => $customer) {
-                        $customerId              = $customer['customer_id'];
-                        $customerEmail           = $customer['email'];
+                        $customerId = $customer['customer_id'];
+                        $customerEmail = $customer['email'];
                         $magentoCustomersAddress = json_decode(json_encode($proxy->customerAddressList($sessionId, $customerId)), true);
 
                         if (count($magentoCustomersAddress) > 0) {
@@ -72,8 +72,7 @@ class SyncCustomersFromMagento extends Command
                                     $customerPhone = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
 
                                     //Check if customer exists in ERP, with email and phone number
-                                    if (!$this->checkERPCustomer($customerEmail, $customerPhone)) {
-
+                                    if (! $this->checkERPCustomer($customerEmail, $customerPhone)) {
                                         $customerInfo = $this->setCustomer($customer, $customerAddress);
 
                                         //Add new customer to ERP
@@ -99,7 +98,7 @@ class SyncCustomersFromMagento extends Command
     /**
      * Check if customer exist in ERP.
      *
-     * @return boolean
+     * @return bool
      */
     public function checkERPCustomer($email, $phonenumber)
     {
@@ -116,14 +115,14 @@ class SyncCustomersFromMagento extends Command
      */
     public function setCustomer($customerInfo, $customerAddress)
     {
-        $customer            = [];
-        $customer['name']    = $customerInfo['firstname'] . ' ' . $customerInfo['lastname'];
-        $customer['email']   = $customerInfo['email'];
+        $customer = [];
+        $customer['name'] = $customerInfo['firstname'] . ' ' . $customerInfo['lastname'];
+        $customer['email'] = $customerInfo['email'];
         $customer['address'] = $customerAddress['street'];
-        $customer['city']    = $customerAddress['city'];
+        $customer['city'] = $customerAddress['city'];
         $customer['country'] = $customerAddress['country_id'];
         $customer['pincode'] = $customerAddress['postcode'];
-        $customer['phone']   = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
+        $customer['phone'] = $this->formatPhonenumber($customerAddress['telephone'], $customerAddress['country_id']);
 
         return $customer;
     }
@@ -131,18 +130,18 @@ class SyncCustomersFromMagento extends Command
     /**
      * Add new customer into ERP.
      *
-     * @return boolean
+     * @return bool
      */
     public function addNewCustomerToERP($customerInfo)
     {
-        $customer          = new Customer;
-        $customer->name    = $customerInfo['name'];
-        $customer->email   = $customerInfo['email'];
+        $customer = new Customer;
+        $customer->name = $customerInfo['name'];
+        $customer->email = $customerInfo['email'];
         $customer->address = $customerInfo['address'];
-        $customer->city    = $customerInfo['city'];
+        $customer->city = $customerInfo['city'];
         $customer->country = $customerInfo['country'];
         $customer->pincode = $customerInfo['pincode'];
-        $customer->phone   = $customerInfo['phone'];
+        $customer->phone = $customerInfo['phone'];
 
         $customer->save();
     }

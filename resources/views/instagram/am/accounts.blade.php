@@ -8,7 +8,7 @@
     </div>
     <div class="row pr-5 pl-5">
         <div class="p-4 col-md-12" style="background: #dddddd">
-            <form action="{{ action('InstagramController@store') }}" method="post">
+            <form action="{{ action([\App\Http\Controllers\InstagramController::class, 'store']) }}" method="post">
                 @csrf
                 <div class="row">
                     
@@ -76,7 +76,7 @@
             </form>
         </div>
         <div class="col-md-12 mt-4">
-            <form action="{{ action('InstagramController@accounts') }}" method="get">
+            <form action="{{ action([\App\Http\Controllers\InstagramController::class, 'accounts']) }}" method="get">
                 <div class="row">
                     <div class="col-md-3">
                         <input value="{{$request->get('query')}}" class="form-control" type="text" name="query" id="query" placeholder="Username or email..">
@@ -153,13 +153,13 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <a class="btn btn-image" href="{{ action('AccountController@test', $account->id) }}">
+                                            <a class="btn btn-image" href="{{ action([\App\Http\Controllers\AccountController::class, 'test'], $account->id) }}">
                                                 <i class="fa fa-check"></i>
                                             </a>
-                                            <a href="{{ action('InstagramController@edit', $account->id) }}" class="btn btn-image">
+                                            <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'edit'], $account->id) }}" class="btn btn-image">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a href="{{ action('InstagramController@deleteAccount', $account->id) }}" class="btn btn-image">
+                                            <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'deleteAccount'], $account->id) }}" class="btn btn-image">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </div>
@@ -201,17 +201,17 @@
                                 <td>
                                     <div>
                                         @if($account->is_seeding === 0 && !$account->broadcast && !$account->manual_comment && !$account->bulk_comment)
-                                            <a href="{{ action('AccountController@startAccountGrowth', $account->id) }}" class="btn btn-image" title="Start Growing">
+                                            <a href="{{ action([\App\Http\Controllers\AccountController::class, 'startAccountGrowth'], $account->id) }}" class="btn btn-image" title="Start Growing">
                                                 <i class="fa fa-play"></i>
                                             </a>
                                         @endif
-                                        <a class="btn btn-image" href="{{ action('AccountController@test', $account->id) }}">
+                                        <a class="btn btn-image" href="{{ action([\App\Http\Controllers\AccountController::class, 'test'], $account->id) }}">
                                             <i class="fa fa-check"></i>
                                         </a>
-                                        <a href="{{ action('InstagramController@edit', $account->id) }}" class="btn btn-image">
+                                        <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'edit'], $account->id) }}" class="btn btn-image">
                                             <i class="fa fa-pencil"></i>
                                         </a>
-                                        <a href="{{ action('InstagramController@deleteAccount', $account->id) }}" class="btn btn-image">
+                                        <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'deleteAccount'], $account->id) }}" class="btn btn-image">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                     </div>

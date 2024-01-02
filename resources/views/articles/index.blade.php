@@ -33,7 +33,7 @@
             <tr>
                 <td class="readmore">{{$article->id}}</td>
                 <td width="20%" data-id="{{ $article->id }}">
-					<span class="quick-title"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(str_limit($article->title, 10, '...'))); @endphp</a></span>
+					<span class="quick-title"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($article->title, 10, '...'))); @endphp</a></span>
 					<input name="article_title" type="text" class="form-control quick-edit-title-input hidden" placeholder="Title" value="{{ $article->title }}"/>
 					<button type="button" class="btn-link quick-edit-title" data-id="{{ $article->id }}">Edit</button>
 					@if (strlen(strip_tags($article->title)) > 10)
@@ -51,7 +51,7 @@
 					@endif
                 </td>
 				<td data-id="{{ $article->id }}">
-					<span class="quick-desc"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(str_limit($article->description, 80, '...'))); @endphp</a></span>
+					<span class="quick-desc"><a data-toggle="collapse" href="#collapse_domain-{{$key}}" class="collapsed" aria-expanded="false">@php echo htmlspecialchars_decode(stripslashes(Str::limit($article->description, 80, '...'))); @endphp</a></span>
 					<textarea name="article_desc" class="form-control quick-edit-desc-input hidden" placeholder="Description" cols="30" rows="10">{{$article->description}}</textarea>
 					{{-- <input name="article_title" type="text" class="form-control quick-edit-desc-input hidden" placeholder="Title" value="{{ $article->description }}"/> --}}
 					<button type="button" class="btn-link quick-edit-desc" data-id="{{ $article->id }}">Edit</button>

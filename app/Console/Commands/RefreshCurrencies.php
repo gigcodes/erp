@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Currency;
 use GuzzleHttp\Client;
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class RefreshCurrencies extends Command
@@ -39,33 +40,41 @@ class RefreshCurrencies extends Command
      */
     public function handle()
     {
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
+            $fixerApiKey = env('FIXER_API_KEY');
+            if (! isset($fixerApiKey)) {
+                echo 'FIXER_API_KEY not set in env';
 
-        $fixerApiKey = env('FIXER_API_KEY');
+                return;
+            }
 
-        if (!isset($fixerApiKey)) {
-            echo 'FIXER_API_KEY not set in env';
-            return;
-        }
+            //
+            $client = new Client;
+            $url = 'http://data.fixer.io/api/latest?base=EUR&access_key=' . $fixerApiKey;
 
-        //
-        $client = new Client;
-        $url = 'http://data.fixer.io/api/latest?base=EUR&access_key=' . $fixerApiKey;
+            $response = $client->get($url);
 
-        $response = $client->get($url);
+            $responseJson = json_decode($response->getBody()->getContents());
 
-        $responseJson = json_decode($response->getBody()->getContents());
+            $currencies = json_decode(json_encode($responseJson->rates), true);
 
-        $currencies = json_decode(json_encode($responseJson->rates), TRUE);
+            foreach ($currencies as $symbol => $rate) {
+                Currency::updateOrCreate(
+                    [
+                        'code' => $symbol,
+                    ],
+                    [
+                        'rate' => $rate,
+                    ]
+                );
+                LogHelper::createCustomLogForCron($this->signature, ['message' => 'currency rate saved.']);
+            }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
-        foreach ($currencies as $symbol => $rate) {
-            Currency::updateOrCreate(
-                [
-                    'code' => $symbol
-                ],
-                [
-                    'rate' => $rate
-                ]
-            );
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }

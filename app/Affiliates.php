@@ -3,7 +3,6 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\HashTag;
 
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
@@ -12,6 +11,7 @@ class Affiliates extends Model
 {
     /**
      * @var string
+     *
      * @SWG\Property(property="location",type="string")
      * @SWG\Property(property="hashtag_id",type="integer")
      * @SWG\Property(property="caption",type="string")
@@ -82,7 +82,7 @@ class Affiliates extends Model
         'postcode',
         'country',
         'type',
-        'store_website_id'
+        'store_website_id',
     ];
 
     public function hashTags()

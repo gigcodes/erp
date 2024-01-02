@@ -2,56 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ProformaConfirmed;
-use App\Vendor;
-use Dompdf\Dompdf;
-use App\Mails\Manual\ForwardEmail;
-use Illuminate\Http\Request;
-use App\Order;
-use App\OrderProduct;
-use App\Product;
-use App\Setting;
-use App\Purchase;
-use App\Customer;
-use App\Helpers;
-use App\ChatMessage;
-use App\User;
-use App\Comment;
-use App\Reply;
-use App\Message;
-use App\ReplyCategory;
-use App\CommunicationHistory;
+use Auth;
+use Storage;
+use App\File;
 use App\Task;
-use App\Remark;
+use App\User;
+use App\Agent;
 use App\Brand;
 use App\Email;
+use App\Order;
+use App\Reply;
+use App\Remark;
+use App\Comment;
+use App\Helpers;
+use App\Message;
+use App\Product;
+use App\Setting;
+use App\Category;
+use App\Customer;
+use App\Purchase;
+use App\Supplier;
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use App\ChatMessage;
 use App\PrivateView;
-use App\PurchaseDiscount;
+use App\OrderProduct;
 use App\StatusChange;
+use App\ReplyCategory;
+use App\LogExcelImport;
+use App\PurchaseDiscount;
 use App\Mail\CustomerEmail;
 use App\Mail\PurchaseEmail;
-use App\Supplier;
-use App\Agent;
-use App\File;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\CommunicationHistory;
+use App\ReadOnly\SupplierList;
+use App\Exports\PurchasesExport;
+use App\ReadOnly\PurchaseStatus;
+use App\Events\ProformaConfirmed;
+use App\Mails\Manual\ForwardEmail;
+use App\Mails\Manual\ReplyToEmail;
+use Illuminate\Support\Facades\DB;
+use Webklex\PHPIMAP\ClientManager;
 use App\Mails\Manual\PurchaseExport;
 use Illuminate\Support\Facades\Mail;
-use App\Exports\PurchasesExport;
-use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 use App\ReadOnly\OrderStatus as OrderStatus;
-use App\ReadOnly\SupplierList;
-use App\ReadOnly\PurchaseStatus;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Plank\Mediable\Media;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use Carbon\Carbon;
-use Storage;
-use Auth;
-use Webklex\IMAP\Client;
-use App\Mails\Manual\ReplyToEmail;
-use App\Category;
-use App\LogExcelImport;
+
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class PurchaseController extends Controller
 {
@@ -86,7 +86,7 @@ class PurchaseController extends Controller
             case 'communication':
                 $sortby = 'communication';
                 break;
-            default :
+            default:
                 $sortby = 'created_at';
         }
 
@@ -95,7 +95,7 @@ class PurchaseController extends Controller
                 $query->with([
                     'Order' => function ($q) {
                         $q->with('customer');
-                    }
+                    },
                 ]);
                 $query->with(['Product']);
             },
@@ -105,16 +105,15 @@ class PurchaseController extends Controller
                         $quer->with([
                             'Order' => function ($q) {
                                 $q->with('customer');
-                            }
+                            },
                         ]);
-                    }
+                    },
                 ]);
             },
-            'purchase_supplier'
+            'purchase_supplier',
         ]);
 
-
-        if (!empty($term)) {
+        if (! empty($term)) {
             $purchases = $purchases
                 ->orWhere('id', 'like', '%' . $term . '%')
                 ->orWhere('purchase_handler', Helpers::getUserIdByName($term))
@@ -124,7 +123,6 @@ class PurchaseController extends Controller
                     $query->where('sku', 'LIKE', "%$term%");
                 });
         }
-
 
         if ($sortby != 'communication') {
             $purchases = $purchases->orderBy($sortby, $orderby);
@@ -145,20 +143,19 @@ class PurchaseController extends Controller
         //
         // dd($purchases_new);
 
-
         $users = Helpers::getUserArray(User::all());
 
         $purchases_array = $purchases->select(['id', 'purchase_handler', 'supplier', 'supplier_id', 'status', 'created_at'])->get()->toArray();
         // dd($purchases_array);
         // if ($sortby == 'communication') {
         // 	if ($orderby == 'asc') {
-        // 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+        // 		$purchases_array = array_values(Arr::sort($purchases_array, function ($value) {
         // 				return $value['communication']['created_at'];
         // 		}));
         //
         // 		$purchases_array = array_reverse($purchases_array);
         // 	} else {
-        // 		$purchases_array = array_values(array_sort($purchases_array, function ($value) {
+        // 		$purchases_array = array_values(Arr::sort($purchases_array, function ($value) {
         // 				return $value['communication']['created_at'];
         // 		}));
         // 	}
@@ -169,7 +166,7 @@ class PurchaseController extends Controller
         $currentItems = array_slice($purchases_array, $perPage * ($currentPage - 1), $perPage);
 
         $purchases_array = new LengthAwarePaginator($currentItems, count($purchases_array), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         $purchase_data = [
@@ -183,38 +180,38 @@ class PurchaseController extends Controller
 
         foreach ($purchase_products as $product) {
             if (count($product->orderproducts) > 0) {
-                if ($product->orderproducts[ 0 ]->purchase_status != 'In Transit from Italy to Dubai' && $product->orderproducts[ 0 ]->purchase_status != 'Shipment Received in Dubai' && $product->orderproducts[ 0 ]->purchase_status != 'Shipment in Transit from Dubai to India' && $product->orderproducts[ 0 ]->purchase_status != 'Shipment Received in India') {
-                    $purchase_data[ '0' ] += 1;
+                if ($product->orderproducts[0]->purchase_status != 'In Transit from Italy to Dubai' && $product->orderproducts[0]->purchase_status != 'Shipment Received in Dubai' && $product->orderproducts[0]->purchase_status != 'Shipment in Transit from Dubai to India' && $product->orderproducts[0]->purchase_status != 'Shipment Received in India') {
+                    $purchase_data['0'] += 1;
                 }
 
-                if ($product->orderproducts[ 0 ]->purchase_status == 'In Transit from Italy to Dubai') {
-                    $purchase_data[ '1' ] += 1;
+                if ($product->orderproducts[0]->purchase_status == 'In Transit from Italy to Dubai') {
+                    $purchase_data['1'] += 1;
                 }
 
-                if ($product->orderproducts[ 0 ]->purchase_status == 'Shipment Received in Dubai') {
-                    $purchase_data[ '2' ] += 1;
+                if ($product->orderproducts[0]->purchase_status == 'Shipment Received in Dubai') {
+                    $purchase_data['2'] += 1;
                 }
 
-                if ($product->orderproducts[ 0 ]->purchase_status == 'Shipment in Transit from Dubai to India') {
-                    $purchase_data[ '3' ] += 1;
+                if ($product->orderproducts[0]->purchase_status == 'Shipment in Transit from Dubai to India') {
+                    $purchase_data['3'] += 1;
                 }
 
-                if ($product->orderproducts[ 0 ]->purchase_status == 'Shipment Received in India') {
-                    $purchase_data[ '4' ] += 1;
+                if ($product->orderproducts[0]->purchase_status == 'Shipment Received in India') {
+                    $purchase_data['4'] += 1;
                 }
             } else {
-                $purchase_data[ '0' ] += 1;
+                $purchase_data['0'] += 1;
             }
         }
 
         // dd($purchase_data);
 
         $suppliers = Supplier::select(['id', 'supplier'])->get();
-        $agents = Agent::where('model_type', 'App\Supplier')->get();
+        $agents = Agent::where('model_type', \App\Supplier::class)->get();
         $agents_array = [];
 
         foreach ($agents as $agent) {
-            $agents_array[ $agent->model_id ][ $agent->id ] = $agent->name . " - " . $agent->email;
+            $agents_array[$agent->model_id][$agent->id] = $agent->name . ' - ' . $agent->email;
         }
 
         if ($request->ajax()) {
@@ -229,53 +226,53 @@ class PurchaseController extends Controller
     public function purchaseGrid(Request $request, $page = null)
     {
         //DB::enableQueryLog();
-        $purchases = Db::select("select p.sku,p.id,pp.order_product_id from purchase_products as pp join products as p on p.id = pp.product_id");
+        $purchases = Db::select('select p.sku,p.id,pp.order_product_id from purchase_products as pp join products as p on p.id = pp.product_id');
 
         $not_include_products = [];
         $includedPurchases = [];
-        foreach ((array)$purchases as $product) {
+        foreach ((array) $purchases as $product) {
             if ($product->order_product_id > 0) {
                 $not_include_products[] = $product->order_product_id;
                 $includedPurchases[] = $product->id;
             }
         }
 
-        $skuNeed = Db::select("select p.id from order_products as op join products as p on p.id = op.product_id left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
-        $skuNeed = collect($skuNeed)->pluck("id")->toArray();
+        $skuNeed = Db::select('select p.id from order_products as op join products as p on p.id = op.product_id left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku');
+        $skuNeed = collect($skuNeed)->pluck('id')->toArray();
 
         $ignoreSku = array_diff($includedPurchases, $skuNeed);
-        $customerId = request()->get("customer_id", 0);
+        $customerId = request()->get('customer_id', 0);
 
-        if ($request->status[ 0 ] != null && $request->supplier[ 0 ] == null && $request->brand[ 0 ] == null) {
+        if ($request->status[0] != null && $request->supplier[0] == null && $request->brand[0] == null) {
             $status = $request->status;
             $status_list = implode("','", $request->status ?? []);
-            $orders = OrderProduct::join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.id", "order_products.product_id")
-                ->whereIn("o.order_status", $status)
+            $orders = OrderProduct::join('orders as o', 'o.id', 'order_products.order_id')
+                ->join('products as p', 'p.id', 'order_products.product_id')
+                ->whereIn('o.order_status', $status)
                 ->where('qty', '>=', 1);
 
             if ($customerId > 0) {
-                $orders = $orders->where("o.customer_id", $customerId);
+                $orders = $orders->where('o.customer_id', $customerId);
             }
 
-            $orders = $orders->select(["order_products.sku", "p.id"])->get();
+            $orders = $orders->select(['order_products.sku', 'p.id'])->get();
         }
         $status_list = implode("','", $request->status ?? []);
 
-        if ($request->supplier[ 0 ] != null) {
-            $supplier = $request->supplier[ 0 ];
+        if ($request->supplier[0] != null) {
+            $supplier = $request->supplier[0];
             $supplier_list = implode(',', $request->supplier);
 
-            if ($request->status[ 0 ] != null) {
+            if ($request->status[0] != null) {
                 $status_list = implode("','", $request->status);
 
-                $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id")
-                    ->join("products as p", "p.id", "order_products.product_id")
-                    ->join("product_suppliers as ps", "ps.product_id", "p.id")
-                    ->whereIn("o.order_status", $request->status)
-                    ->whereIn("ps.supplier_id", $request->supplier)->where('qty', '>=', 1);
+                $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join('orders as o', 'o.id', 'order_products.order_id')
+                    ->join('products as p', 'p.id', 'order_products.product_id')
+                    ->join('product_suppliers as ps', 'ps.product_id', 'p.id')
+                    ->whereIn('o.order_status', $request->status)
+                    ->whereIn('ps.supplier_id', $request->supplier)->where('qty', '>=', 1);
                 if ($customerId > 0) {
-                    $orders = $orders->where("o.customer_id", $customerId);
+                    $orders = $orders->where('o.customer_id', $customerId);
                 }
 
                 $orders = $orders->get();
@@ -287,37 +284,35 @@ class PurchaseController extends Controller
                   $qs->whereRaw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list))");
                 })->where('qty', '>=', 1)->get();*/
             } else {
-
-                $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id");
+                $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join('orders as o', 'o.id', 'order_products.order_id');
                 if ($page == 'canceled-refunded') {
-                    $orders = $orders->whereIn("o.order_status_id",[\App\Helpers\OrderHelper::$cancel,\App\Helpers\OrderHelper::$refundToBeProcessed]);
+                    $orders = $orders->whereIn('o.order_status_id', [\App\Helpers\OrderHelper::$cancel, \App\Helpers\OrderHelper::$refundToBeProcessed]);
                     /*$orders = $orders
                     ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");*/
-                    // ->whereHas('Order', function($q) {
-                    //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
-                    // });
+                // ->whereHas('Order', function($q) {
+                //   $q->whereIn('order_status', ['Cancel', 'Refund to be processed']);
+                // });
                 } elseif ($page == 'ordered') {
-
                 } elseif ($page == 'delivered') {
-                    $orders = $orders->whereIn("o.order_status_id",[\App\Helpers\OrderHelper::$delivered]);
+                    $orders = $orders->whereIn('o.order_status_id', [\App\Helpers\OrderHelper::$delivered]);
                     /*$orders = $orders
                     ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");*/
-                    // ->whereHas('Order', function($q) {
-                    //   $q->whereIn('order_status', ['Delivered']);
-                    // });
+                // ->whereHas('Order', function($q) {
+                //   $q->whereIn('order_status', ['Delivered']);
+                // });
                 } elseif ($page == 'non_ordered') {
-                    $orders = $orders->whereNotIn("o.order_status_id", [
+                    $orders = $orders->whereNotIn('o.order_status_id', [
                         \App\Helpers\OrderHelper::$followUpForAdvance,
                         \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                         \App\Helpers\OrderHelper::$advanceRecieved,
-                        \App\Helpers\OrderHelper::$prepaid
+                        \App\Helpers\OrderHelper::$prepaid,
                     ]);
                 } else {
-                    $orders = $orders->whereIn("o.order_status_id", [
+                    $orders = $orders->whereIn('o.order_status_id', [
                         \App\Helpers\OrderHelper::$followUpForAdvance,
                         \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                         \App\Helpers\OrderHelper::$advanceRecieved,
-                        \App\Helpers\OrderHelper::$prepaid
+                        \App\Helpers\OrderHelper::$prepaid,
                     ]);
 
                     /*$orders = $orders
@@ -325,9 +320,8 @@ class PurchaseController extends Controller
                     // ->whereHas('Order', function($q) {
                     //   $q->whereNotIn('order_status', ['Cancel', 'Refund to be processed', 'Delivered']);
                     // });
-
                 }
-                $orders = $orders->join("products as p", "p.id", "order_products.product_id")->join("product_suppliers as ps", "ps.product_id", "p.id")->whereIn("ps.supplier_id", $request->supplier)
+                $orders = $orders->join('products as p', 'p.id', 'order_products.product_id')->join('product_suppliers as ps', 'ps.product_id', 'p.id')->whereIn('ps.supplier_id', $request->supplier)
                     /*$orders = $orders
                     ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")*/
                     // ->whereHas('Product', function($q) use ($supplier_list) {
@@ -335,7 +329,7 @@ class PurchaseController extends Controller
                     // })
                     ->where('qty', '>=', 1);
                 if ($customerId > 0) {
-                    $orders = $orders->where("o.customer_id", $customerId);
+                    $orders = $orders->where('o.customer_id', $customerId);
                 }
 
                 $orders = $orders->get();
@@ -343,20 +337,19 @@ class PurchaseController extends Controller
             }
         }
 
+        if ($request->brand[0] != null) {
+            $brand = $request->brand[0];
 
-        if ($request->brand[ 0 ] != null) {
-            $brand = $request->brand[ 0 ];
-
-            if ($request->status[ 0 ] != null || $request->supplier[ 0 ] != null) {
+            if ($request->status[0] != null || $request->supplier[0] != null) {
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
-                    ->join("orders as o", "o.id", "order_products.order_id")
-                    ->join("products as p", "p.sku", "order_products.sku");
-                if ($request->status[ 0 ] != null) {
-                    $orders = $orders->whereIn("o.order_status", $request->status);
+                    ->join('orders as o', 'o.id', 'order_products.order_id')
+                    ->join('products as p', 'p.sku', 'order_products.sku');
+                if ($request->status[0] != null) {
+                    $orders = $orders->whereIn('o.order_status', $request->status);
                 }
                 $orders = $orders->where('brand', $brand)->where('qty', '>=', 1);
                 if ($customerId > 0) {
-                    $orders = $orders->where("o.customer_id", $customerId);
+                    $orders = $orders->where('o.customer_id', $customerId);
                 }
 
                 $orders = $orders->get();
@@ -394,26 +387,26 @@ class PurchaseController extends Controller
                   // });
                 }*/
 
-                $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id");
+                $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join('orders as o', 'o.id', 'order_products.order_id');
                 if ($page == 'canceled-refunded') {
-                    $orders = $orders->whereIn("o.order_status_id", [
+                    $orders = $orders->whereIn('o.order_status_id', [
                         \App\Helpers\OrderHelper::$cancel,
-                        \App\Helpers\OrderHelper::$refundToBeProcessed
+                        \App\Helpers\OrderHelper::$refundToBeProcessed,
                     ]);
                 } elseif ($page == 'ordered') {
                 } elseif ($page == 'delivered') {
-                    $orders = $orders->whereIn("o.order_status_id", [
-                        \App\Helpers\OrderHelper::$delivered
+                    $orders = $orders->whereIn('o.order_status_id', [
+                        \App\Helpers\OrderHelper::$delivered,
                     ]);
                 } elseif ($page == 'non_ordered') {
-                    $orders = $orders->whereNotIn("o.order_status_id", [
+                    $orders = $orders->whereNotIn('o.order_status_id', [
                         \App\Helpers\OrderHelper::$followUpForAdvance,
                         \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                         \App\Helpers\OrderHelper::$advanceRecieved,
                         \App\Helpers\OrderHelper::$prepaid,
                     ]);
                 } else {
-                    $orders = $orders->whereIn("o.order_status_id", [
+                    $orders = $orders->whereIn('o.order_status_id', [
                         \App\Helpers\OrderHelper::$followUpForAdvance,
                         \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                         \App\Helpers\OrderHelper::$advanceRecieved,
@@ -421,39 +414,38 @@ class PurchaseController extends Controller
                     ]);
                 }
 
-                $orders = $orders->join("products as p", "p.id", "order_products.product_id")->where('brand', $brand)->where('qty', '>=', 1);
+                $orders = $orders->join('products as p', 'p.id', 'order_products.product_id')->where('brand', $brand)->where('qty', '>=', 1);
                 if ($customerId > 0) {
-                    $orders = $orders->where("o.customer_id", $customerId);
+                    $orders = $orders->where('o.customer_id', $customerId);
                 }
 
                 $orders = $orders->get();
             }
         }
 
-
-        if (!empty($request->order_id)) {
+        if (! empty($request->order_id)) {
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
-                ->join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.id", "order_products.product_id");
+                ->join('orders as o', 'o.id', 'order_products.order_id')
+                ->join('products as p', 'p.id', 'order_products.product_id');
             if ($page == 'canceled-refunded') {
-                $orders = $orders->whereIn("o.order_status_id", [
+                $orders = $orders->whereIn('o.order_status_id', [
                     \App\Helpers\OrderHelper::$cancel,
-                    \App\Helpers\OrderHelper::$refundToBeProcessed
+                    \App\Helpers\OrderHelper::$refundToBeProcessed,
                 ]);
             } elseif ($page == 'ordered') {
             } elseif ($page == 'delivered') {
-                $orders = $orders->whereIn("o.order_status_id", [
-                    \App\Helpers\OrderHelper::$delivered
+                $orders = $orders->whereIn('o.order_status_id', [
+                    \App\Helpers\OrderHelper::$delivered,
                 ]);
             } elseif ($page == 'non_ordered') {
-                $orders = $orders->whereNotIn("o.order_status_id", [
+                $orders = $orders->whereNotIn('o.order_status_id', [
                     \App\Helpers\OrderHelper::$followUpForAdvance,
                     \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                     \App\Helpers\OrderHelper::$advanceRecieved,
                     \App\Helpers\OrderHelper::$prepaid,
                 ]);
             } else {
-                $orders = $orders->whereIn("o.order_status_id", [
+                $orders = $orders->whereIn('o.order_status_id', [
                     \App\Helpers\OrderHelper::$followUpForAdvance,
                     \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                     \App\Helpers\OrderHelper::$advanceRecieved,
@@ -462,10 +454,9 @@ class PurchaseController extends Controller
             }
 
             $orders = $orders->where('qty', '>=', 1)->where('o.id', '=', $request->order_id)->get();
-
         }
 
-        if ($request->status[ 0 ] == null && $request->supplier[ 0 ] == null && $request->brand[ 0 ] == null && empty($request->order_id)) {
+        if ($request->status[0] == null && $request->supplier[0] == null && $request->brand[0] == null && empty($request->order_id)) {
             /*if ($page == 'canceled-refunded') {
               $orders = OrderProduct::with('Order')
               ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");
@@ -489,27 +480,27 @@ class PurchaseController extends Controller
             }*/
 
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
-                ->join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.id", "order_products.product_id");
+                ->join('orders as o', 'o.id', 'order_products.order_id')
+                ->join('products as p', 'p.id', 'order_products.product_id');
             if ($page == 'canceled-refunded') {
-                $orders = $orders->whereIn("o.order_status_id", [
+                $orders = $orders->whereIn('o.order_status_id', [
                     \App\Helpers\OrderHelper::$cancel,
-                    \App\Helpers\OrderHelper::$refundToBeProcessed
+                    \App\Helpers\OrderHelper::$refundToBeProcessed,
                 ]);
             } elseif ($page == 'ordered') {
             } elseif ($page == 'delivered') {
-                $orders = $orders->whereIn("o.order_status_id", [
-                    \App\Helpers\OrderHelper::$delivered
+                $orders = $orders->whereIn('o.order_status_id', [
+                    \App\Helpers\OrderHelper::$delivered,
                 ]);
             } elseif ($page == 'non_ordered') {
-                $orders = $orders->whereNotIn("o.order_status_id", [
+                $orders = $orders->whereNotIn('o.order_status_id', [
                     \App\Helpers\OrderHelper::$followUpForAdvance,
                     \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                     \App\Helpers\OrderHelper::$advanceRecieved,
                     \App\Helpers\OrderHelper::$prepaid,
                 ]);
             } else {
-                $orders = $orders->whereIn("o.order_status_id", [
+                $orders = $orders->whereIn('o.order_status_id', [
                     \App\Helpers\OrderHelper::$followUpForAdvance,
                     \App\Helpers\OrderHelper::$proceedWithOutAdvance,
                     \App\Helpers\OrderHelper::$advanceRecieved,
@@ -519,7 +510,7 @@ class PurchaseController extends Controller
 
             $orders = $orders->where('qty', '>=', 1);
             if ($customerId > 0) {
-                $orders = $orders->where("o.customer_id", $customerId);
+                $orders = $orders->where('o.customer_id', $customerId);
             }
 
             $orders = $orders->get();
@@ -527,12 +518,11 @@ class PurchaseController extends Controller
             //$orders = $orders->select(['qty', 'sku'])->where('qty', '>=', 1)->get()->toArray();
         }
 
-
         $new_orders = [];
         $includedOrders = [];
         foreach ($orders as $order) {
-            array_push($new_orders, $order[ 'id' ]);
-            array_push($includedOrders, $order[ 'order_id' ]);
+            array_push($new_orders, $order['id']);
+            array_push($includedOrders, $order['order_id']);
         }
 
         $color = $request->get('color');
@@ -540,28 +530,27 @@ class PurchaseController extends Controller
         $products = Product::with([
             'orderproducts' => function ($query) use ($page, $not_include_products, $includedOrders, $color, $size) {
                 if ($page != 'ordered') {
-                    $query->whereNotIn("id", $not_include_products);
+                    $query->whereNotIn('id', $not_include_products);
                 }
                 $query->with([
                     'order' => function ($q) use ($includedOrders) {
-                        $q->with("customer");
-                        $q->whereIn("id", array_unique($includedOrders));
-                    }
+                        $q->with('customer');
+                        $q->whereIn('id', array_unique($includedOrders));
+                    },
                 ]);
 
-                if (!empty($color) && is_array($color)) {
+                if (! empty($color) && is_array($color)) {
                     $query = $query->whereIn('color', $color);
                 }
 
-                if (!empty($size)) {
+                if (! empty($size)) {
                     $query = $query->where('size', $size);
                 }
             },
             'purchases',
             'suppliers',
-            'brands'
+            'brands',
         ])->whereIn('id', $new_orders);
-
 
         if ($page == 'ordered') {
             $products = $products->whereHas('purchases', function ($query) {
@@ -571,7 +560,6 @@ class PurchaseController extends Controller
             $products = $products->whereNotIn('id', $ignoreSku);
         }
 
-
         $term = $request->input('term');
         $status = isset($status) ? $status : '';
         $supplier = isset($supplier) ? $supplier : '';
@@ -579,14 +567,14 @@ class PurchaseController extends Controller
         $order_status = (new OrderStatus)->all();
 
         foreach ($order_status as $key => $value) {
-            if (!$page) {
-                if (!in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
-                    unset($order_status[ $key ]);
+            if (! $page) {
+                if (! in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
+                    unset($order_status[$key]);
                 }
             } else {
                 if ($page == 'non_ordered') {
                     if (in_array($key, ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid'])) {
-                        unset($order_status[ $key ]);
+                        unset($order_status[$key]);
                     }
                 }
             }
@@ -614,10 +602,10 @@ class PurchaseController extends Controller
 
         $suppliers_array = [];
         foreach ($suppliers as $supp) {
-            $suppliers_array[ $supp->id ] = $supp->supplier;
+            $suppliers_array[$supp->id] = $supp->supplier;
         }
 
-        if (!empty($term)) {
+        if (! empty($term)) {
             $products = $products->where(function ($query) use ($term) {
                 return $query
                     ->orWhere('name', 'like', '%' . $term . '%')
@@ -689,15 +677,15 @@ class PurchaseController extends Controller
                     $customers[] = $order_product->order->customer;
                 }
 
-                if (!empty($order_product->order)) {
+                if (! empty($order_product->order)) {
                     $orderCount++;
-                    if (!empty($order_product->size)) {
+                    if (! empty($order_product->size)) {
                         $sizeArr[] = $order_product->size;
                     }
                 }
             }
 
-            if (!$orderCount) {
+            if (! $orderCount) {
                 continue;
             }
 
@@ -711,14 +699,14 @@ class PurchaseController extends Controller
 
             $supplier_msg_data = [];
             foreach ($supplier_msg as $key => $value) {
-                $supplier_msg_data[ $value->id ][ 'supplier' ] = $value->supplier;
+                $supplier_msg_data[$value->id]['supplier'] = $value->supplier;
 
-                if (!isset($data[ $value->id ][ 'chat_messages' ])) {
-                    $supplier_msg_data[ $value->id ][ 'chat_messages' ] = [];
+                if (! isset($data[$value->id]['chat_messages'])) {
+                    $supplier_msg_data[$value->id]['chat_messages'] = [];
                 }
 
-                if (!empty($value->chat_messages_id)) {
-                    $supplier_msg_data[ $value->id ][ 'chat_messages' ][] = [
+                if (! empty($value->chat_messages_id)) {
+                    $supplier_msg_data[$value->id]['chat_messages'][] = [
                         'message' => $value->message,
                         'created_at' => $value->created_at,
                     ];
@@ -726,45 +714,45 @@ class PurchaseController extends Controller
             }
             $productIds[] = $product->id;
 
-            $new_products[ $count ][ 'id' ] = $product->id;
-            $new_products[ $count ][ 'sku' ] = $product->sku;
-            $new_products[ $count ][ 'price' ] = $product->price;
-            $new_products[ $count ][ 'price_inr' ] = $product->price_inr;
-            $new_products[ $count ][ 'supplier' ] = $product->supplier;
-            $new_products[ $count ][ 'supplier_list' ] = $supplier_list;
-            $new_products[ $count ][ 'single_supplier' ] = $single_supplier;
-            $new_products[ $count ][ 'brand' ] = $product->brands ? $product->brands->name : 'No Brand';
-            $new_products[ $count ][ 'brand_id' ] = $product->brands ? $product->brands->id : '';
-            $new_products[ $count ][ 'category' ] = $product->category;
-            $new_products[ $count ][ 'image' ] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
-            $new_products[ $count ][ 'abs_img_url' ] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
-            $new_products[ $count ][ 'customer_id' ] = !empty($product->orderproducts->first()->order) ? (!empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
-            $new_products[ $count ][ 'customers' ] = $customers;
-            $new_products[ $count ][ 'customer_names' ] = '';
-            $new_products[ $count ][ 'order_products' ] = $product->orderproducts;
-            $new_products[ $count ][ 'order_price' ] = !empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
-            $new_products[ $count ][ 'order_date' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
-            $new_products[ $count ][ 'order_advance' ] = !empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
-            $new_products[ $count ][ 'supplier_msg' ] = $supplier_msg_data;
-            $new_products[ $count ][ 'size' ] = implode(',', array_unique($sizeArr));
+            $new_products[$count]['id'] = $product->id;
+            $new_products[$count]['sku'] = $product->sku;
+            $new_products[$count]['price'] = $product->price;
+            $new_products[$count]['price_inr'] = $product->price_inr;
+            $new_products[$count]['supplier'] = $product->supplier;
+            $new_products[$count]['supplier_list'] = $supplier_list;
+            $new_products[$count]['single_supplier'] = $single_supplier;
+            $new_products[$count]['brand'] = $product->brands ? $product->brands->name : 'No Brand';
+            $new_products[$count]['brand_id'] = $product->brands ? $product->brands->id : '';
+            $new_products[$count]['category'] = $product->category;
+            $new_products[$count]['image'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+            $new_products[$count]['abs_img_url'] = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getAbsolutePath() : '';
+            $new_products[$count]['customer_id'] = ! empty($product->orderproducts->first()->order) ? (! empty($product->orderproducts->first()->order->customer) ? $product->orderproducts->first()->order->customer->id : 'No Customer') : 'No Order';
+            $new_products[$count]['customers'] = $customers;
+            $new_products[$count]['customer_names'] = '';
+            $new_products[$count]['order_products'] = $product->orderproducts;
+            $new_products[$count]['order_price'] = ! empty($product->orderproducts->first()->product_price) ? $product->orderproducts->first()->product_price : 0;
+            $new_products[$count]['order_date'] = ! empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->order_date : 'No Order';
+            $new_products[$count]['order_advance'] = ! empty($product->orderproducts->first()->order) ? $product->orderproducts->first()->order->advance_detail : 'No Order';
+            $new_products[$count]['supplier_msg'] = $supplier_msg_data;
+            $new_products[$count]['size'] = implode(',', array_unique($sizeArr));
 
             $count++;
         }
 
-        $new_products = array_values(array_sort($new_products, function ($value) {
-            return $value[ 'order_date' ];
+        $new_products = array_values(Arr::sort($new_products, function ($value) {
+            return $value['order_date'];
         }));
 
         $new_products = array_reverse($new_products);
 
-        $suppliers_all = array();
+        $suppliers_all = [];
         $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp
             join scrapers sc on sc.scraper_name =  sp.website
             JOIN suppliers s ON s.id=sc.supplier_id 
             inner join order_products op on op.product_id = sp.product_id where last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)');
         $cnt = count($suppliersQuery);
 
-        if ($cnt > 0 && !empty($productIds)) {
+        if ($cnt > 0 && ! empty($productIds)) {
             $suppliers_all = DB::select('SELECT id, supplier, product_id
           FROM suppliers
           INNER JOIN (
@@ -795,13 +783,14 @@ class PurchaseController extends Controller
                 'status' => $status,
                 'supplier' => $supplier,
                 'brand' => $brand,
-                'page' => $page
+                'page' => $page,
             ]);
 
             $pdf = new Dompdf();
             $pdf->loadHtml($html);
             $pdf->render();
             $pdf->stream('orders.pdf');
+
             return;
         }
 
@@ -811,7 +800,7 @@ class PurchaseController extends Controller
 
         $totalSku = count($new_products);
         $new_products = new LengthAwarePaginator($currentItems, count($new_products), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
         //echo '<pre>'; print_r(dd(DB::getQueryLog())); echo '</pre>';//exit;
@@ -836,7 +825,7 @@ class PurchaseController extends Controller
             //'category_filter' => $category_filter,
             'categoryFilter' => $categoryFilter,
             'suppliers' => $suppliers,
-            'totalSku' => $totalSku
+            'totalSku' => $totalSku,
         ]);
     }
 
@@ -860,7 +849,7 @@ class PurchaseController extends Controller
             $purchase->save();
         }
 
-        $path = "purchase_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
+        $path = 'purchase_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
 
         Excel::store(new PurchasesExport($selected_purchases), $path, 'files');
 
@@ -871,12 +860,12 @@ class PurchaseController extends Controller
 
     public function sendExport(Request $request)
     {
-        $path = "purchase_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
-        $filename = Carbon::now()->format('Y-m-d-H-m-s') . "_purchases_export.xlsx";
+        $path = 'purchase_exports/' . Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
+        $filename = Carbon::now()->format('Y-m-d-H-m-s') . '_purchases_export.xlsx';
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $file->storeAs("purchase_exports", $filename, 'files');
+            $file->storeAs('purchase_exports', $filename, 'files');
         }
 
         $first_agent_email = '';
@@ -894,20 +883,26 @@ class PurchaseController extends Controller
         //Mail::to($agent->email)->cc($cc_agents_emails)->bcc('yogeshmordani@icloud.com')->send(new PurchaseExport($path, $request->subject, $request->message));
 
         $emailClass = (new PurchaseExport($path, $request->subject, $request->message))->build();
-
-        $email             = Email::create([
-            'model_id'         => $request->supplier_id,
-            'model_type'       => Supplier::class,
-            'from'             => 'buying@amourint.com',
-            'to'               => $first_agent_email,
-            'subject'          => $request->subject,
-            'message'          => $request->message,
-            'template'         => 'purchase-simple',
-            'additional_data'  => json_encode(['attachment' => $path]),
-            'status'           => 'pre-send',
+        $from_email = \App\Helpers::getFromEmail();
+        $email = Email::create([
+            'model_id' => $request->supplier_id,
+            'model_type' => Supplier::class,
+            'from' => $from_email,
+            'to' => $first_agent_email,
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'template' => 'purchase-simple',
+            'additional_data' => json_encode(['attachment' => $path]),
+            'status' => 'pre-send',
         ]);
 
-        \App\Jobs\SendEmail::dispatch($email);
+        \App\EmailLog::create([
+            'email_id' => $email->id,
+            'email_log' => 'Email initiated',
+            'message' => $email->to,
+        ]);
+
+        \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
 
         return redirect()->back()->withSuccess('You have successfully sent an email!');
     }
@@ -1003,7 +998,7 @@ class PurchaseController extends Controller
             foreach (json_decode($request->order_products) as $order_product_id) {
                 $order_product = OrderProduct::find($order_product_id);
                 $order_product->purchase_id = $id;
-                $order_product->batch_number = (int)$max_batch_number->batch_number + 1;
+                $order_product->batch_number = (int) $max_batch_number->batch_number + 1;
                 $order_product->save();
             }
         } else {
@@ -1034,7 +1029,7 @@ class PurchaseController extends Controller
                     'shipment_date' => $order_product->shipment_date,
                     'product_name' => $order_product->product->name,
                     'reschedule_count' => $order_product->reschedule_count,
-                    'is_order_priority' => $order_product->order->is_priority
+                    'is_order_priority' => $order_product->order->is_priority,
                 ];
             }
         }
@@ -1060,14 +1055,13 @@ class PurchaseController extends Controller
         // dd($purchase_data);
 
         return view('purchase.calendar', [
-            'purchase_data' => $purchase_data
+            'purchase_data' => $purchase_data,
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -1076,25 +1070,23 @@ class PurchaseController extends Controller
             'purchase_handler' => 'required',
             // 'supplier'          => 'required',
             //'products'          => 'required',
-            'order_products' => 'required'
+            'order_products' => 'required',
         ]);
-
 
         $supllierWise = [];
         $postOP = json_decode($request->order_products, true);
         $supplierWiseProducts = [];
 
-        if (!empty($postOP)) {
+        if (! empty($postOP)) {
             foreach ($postOP as $post) {
-                @list($opId, $supplierId) = explode("#", $post);
-                $supplierId = !empty($supplierId) ? $supplierId : 0;
-                $supplierWiseProducts[ $supplierId ][] = $opId;
+                @[$opId, $supplierId] = explode('#', $post);
+                $supplierId = ! empty($supplierId) ? $supplierId : 0;
+                $supplierWiseProducts[$supplierId][] = $opId;
             }
         }
 
-        if (!empty($supplierWiseProducts)) {
+        if (! empty($supplierWiseProducts)) {
             foreach ($supplierWiseProducts as $productList) {
-
                 // assing purchase supllier wise
                 $purchase = new Purchase;
                 $purchase->purchase_handler = $request->purchase_handler;
@@ -1104,24 +1096,22 @@ class PurchaseController extends Controller
                 // now store the order products
                 if ($purchase->save()) {
                     // find all order products
-                    $orderProducts = \App\OrderProduct::whereIn("id", $productList)->get();
+                    $orderProducts = \App\OrderProduct::whereIn('id', $productList)->get();
 
-                    if (!$orderProducts->isEmpty()) {
+                    if (! $orderProducts->isEmpty()) {
                         foreach ($orderProducts as $orderProduct) {
                             \App\PurchaseProduct::insert([
-                                "purchase_id" => $purchase->id,
-                                "product_id" => $orderProduct->product->id,
-                                "order_product_id" => $orderProduct->id
+                                'purchase_id' => $purchase->id,
+                                'product_id' => $orderProduct->product->id,
+                                'order_product_id' => $orderProduct->id,
                             ]);
 
                             $orderProduct->purchase_status = 'Pending Purchase';
                             $orderProduct->save();
-
                         }
                     }
                     // storing in product end
                 }
-
             }
         }
 
@@ -1136,7 +1126,7 @@ class PurchaseController extends Controller
         $order_product->reschedule_count += 1;
         $order_product->save();
 
-        if (!$order_product->is_delivery_date_changed()) {
+        if (! $order_product->is_delivery_date_changed()) {
             // Customer Message
             $params = [
                 'number' => null,
@@ -1148,8 +1138,8 @@ class PurchaseController extends Controller
             if ($order_product->private_view) {
                 $delivery_date = Carbon::parse($order_product->shipment_date)->format('d \of\ F');
                 $product_name = $order_product->product->name;
-                $params[ 'customer_id' ] = $order_product->private_view->customer_id;
-                $params[ 'message' ] = "Your product $product_name delivery time has been rescheduled. It will be delivered on $delivery_date";
+                $params['customer_id'] = $order_product->private_view->customer_id;
+                $params['message'] = "Your product $product_name delivery time has been rescheduled. It will be delivered on $delivery_date";
 
                 $chat_message = ChatMessage::create($params);
             }
@@ -1158,7 +1148,7 @@ class PurchaseController extends Controller
                 'model_id' => $order_product->id,
                 'model_type' => OrderProduct::class,
                 'type' => 'order-delivery-date-changed',
-                'method' => 'whatsapp'
+                'method' => 'whatsapp',
             ]);
         }
 
@@ -1168,43 +1158,43 @@ class PurchaseController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         $purchase = Purchase::find($id);
-        $data[ 'emails' ] = [];
-        $data[ 'comments' ] = Comment::with('user')->where('subject_id', $purchase->id)
+        $data['emails'] = [];
+        $data['comments'] = Comment::with('user')->where('subject_id', $purchase->id)
             ->where('subject_type', '=', Order::class)->get();
-        $data[ 'users' ] = User::all()->toArray();
-        $messages = Message::all()->where('moduleid', $purchase->id)->where('moduletype', '=', 'purchase')->sortByDesc("created_at")->take(10)->toArray();
-        $data[ 'messages' ] = $messages;
-        $data[ 'tasks' ] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->get()->toArray();
-        $data[ 'approval_replies' ] = Reply::where('model', 'Approval Purchase')->get();
-        $data[ 'internal_replies' ] = Reply::where('model', 'Internal Purchase')->get();
-        $data[ 'purchase_status' ] = (new PurchaseStatus)->all();
-        $data[ 'reply_categories' ] = ReplyCategory::all();
-        $data[ 'suppliers' ] = Supplier::all();
-        $data[ 'purchase_discounts' ] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->take(3)->get()->groupBy([
+        $data['users'] = User::all()->toArray();
+        $messages = Message::all()->where('moduleid', $purchase->id)->where('moduletype', '=', 'purchase')->sortByDesc('created_at')->take(10)->toArray();
+        $data['messages'] = $messages;
+        $data['tasks'] = Task::where('model_type', 'purchase')->where('model_id', $purchase->id)->get()->toArray();
+        $data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
+        $data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
+        $data['purchase_status'] = (new PurchaseStatus)->all();
+        $data['reply_categories'] = ReplyCategory::all();
+        $data['suppliers'] = Supplier::all();
+        $data['purchase_discounts'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->take(3)->get()->groupBy([
             function ($query) {
                 return Carbon::parse($query->created_at)->format('Y-m-d H:i:s');
             },
-            'product_id'
+            'product_id',
         ]);
 
-        $data[ 'purchase_discounts_rest' ] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->skip(3)->take(30)->get()->groupBy([
+        $data['purchase_discounts_rest'] = PurchaseDiscount::where('purchase_id', $id)->where('type', 'product')->latest()->skip(3)->take(30)->get()->groupBy([
             function ($query) {
                 return Carbon::parse($query->created_at)->format('Y-m-d H:i:s');
             },
-            'product_id'
+            'product_id',
         ]);
 
-        $data[ 'agents_array' ] = [];
+        $data['agents_array'] = [];
         $agents = Agent::all();
 
         foreach ($agents as $agent) {
-            $data[ 'agents_array' ][ $agent->model_id ][ $agent->id ] = $agent->name . " - " . $agent->email;
+            $data['agents_array'][$agent->model_id][$agent->id] = $agent->name . ' - ' . $agent->email;
         }
 
         return view('purchase.show', $data)->withOrder($purchase);
@@ -1214,12 +1204,12 @@ class PurchaseController extends Controller
     {
         $product = Product::find($id);
 
-        $data[ 'users' ] = User::all()->toArray();
-        $messages = Message::all()->where('moduleid', $product->id)->where('moduletype', '=', 'product')->sortByDesc("created_at")->take(10)->toArray();
-        $data[ 'messages' ] = $messages;
-        $data[ 'approval_replies' ] = Reply::where('model', 'Approval Purchase')->get();
-        $data[ 'internal_replies' ] = Reply::where('model', 'Internal Purchase')->get();
-        $data[ 'order_details' ] = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
+        $data['users'] = User::all()->toArray();
+        $messages = Message::all()->where('moduleid', $product->id)->where('moduletype', '=', 'product')->sortByDesc('created_at')->take(10)->toArray();
+        $data['messages'] = $messages;
+        $data['approval_replies'] = Reply::where('model', 'Approval Purchase')->get();
+        $data['internal_replies'] = Reply::where('model', 'Internal Purchase')->get();
+        $data['order_details'] = OrderProduct::where('sku', $product->sku)->get(['order_id', 'size']);
 
         return view('purchase.product-show', $data)->withProduct($product);
     }
@@ -1227,7 +1217,7 @@ class PurchaseController extends Controller
     public function productReplace(Request $request)
     {
         $old_product = Product::find($request->moduleid);
-        $new_product = Product::find(json_decode($request->images)[ 0 ]);
+        $new_product = Product::find(json_decode($request->images)[0]);
 
         foreach ($old_product->purchases as $purchase) {
             $purchase->products()->detach($old_product);
@@ -1270,7 +1260,7 @@ class PurchaseController extends Controller
     public function productCreateReplace(Request $request)
     {
         $this->validate($request, [
-            'sku' => 'required|unique:products'
+            'sku' => 'required|unique:products',
         ]);
 
         $product = new Product;
@@ -1286,7 +1276,7 @@ class PurchaseController extends Controller
         $brand = Brand::find($request->brand);
 
         if ($request->price) {
-            if (isset($request->brand) && !empty($brand->euro_to_inr)) {
+            if (isset($request->brand) && ! empty($brand->euro_to_inr)) {
                 $product->price_inr = $brand->euro_to_inr * $product->price;
             } else {
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
@@ -1300,11 +1290,11 @@ class PurchaseController extends Controller
 
         $product->save();
 
-  		$product->detachMediaTags(config('constants.media_tags'));
-  		$media = MediaUploader::fromSource($request->file('image'))
-                            ->toDirectory('product/'.floor($product->id / config('constants.image_per_folder')))
+        $product->detachMediaTags(config('constants.media_tags'));
+        $media = MediaUploader::fromSource($request->file('image'))
+                            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
                             ->upload();
-  		$product->attachMedia($media,config('constants.media_tags'));
+        $product->attachMedia($media, config('constants.media_tags'));
 
         $old_product = Product::find($request->product_id);
 
@@ -1336,7 +1326,7 @@ class PurchaseController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -1347,8 +1337,7 @@ class PurchaseController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -1365,7 +1354,7 @@ class PurchaseController extends Controller
             'model_type' => Purchase::class,
             'user_id' => Auth::id(),
             'from_status' => $purchase->status,
-            'to_status' => $request->status
+            'to_status' => $request->status,
         ]);
 
         $purchase->status = $request->status;
@@ -1427,7 +1416,7 @@ class PurchaseController extends Controller
                 }
             }
 
-            if (!$purchase->is_sent_in_dubai()) {
+            if (! $purchase->is_sent_in_dubai()) {
                 // Making task for Yogesh
                 $data = [
                     'task_subject' => 'Shipment to India',
@@ -1435,7 +1424,7 @@ class PurchaseController extends Controller
                     'is_statutory' => 0,
                     'assign_from' => Auth::id(),
                     'assign_to' => 6,
-                    'category' => 12
+                    'category' => 12,
                 ];
 
                 $task = Task::create($data);
@@ -1448,7 +1437,7 @@ class PurchaseController extends Controller
                     'user_id' => Auth::id(),
                     'message' => "These pcs: $product_names are available for shipment to India - confirm if urgency needed to drop for faster transit",
                     'approved' => 0,
-                    'status' => 1
+                    'status' => 1,
                 ];
 
                 $chat_message = ChatMessage::create($params);
@@ -1458,16 +1447,16 @@ class PurchaseController extends Controller
                 $stock_coordinators = User::role('Stock Coordinator')->get();
 
                 foreach ($stock_coordinators as $coordinator) {
-                    $params[ 'erp_user' ] = $coordinator->id;
+                    $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params[ 'message' ], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2
+                        'status' => 2,
                     ]);
                 }
 
@@ -1475,10 +1464,9 @@ class PurchaseController extends Controller
                     'model_id' => $purchase->id,
                     'model_type' => Purchase::class,
                     'type' => 'purchase-in-dubai',
-                    'method' => 'whatsapp'
+                    'method' => 'whatsapp',
                 ]);
             }
-
 
             // if ($product->orderproducts) {
             //   $product_names = '';
@@ -1535,7 +1523,7 @@ class PurchaseController extends Controller
         ];
 
         if ($request->status == 'Shipment in Transit from Dubai to India') {
-            if (!$purchase->is_sent_dubai_to_india()) {
+            if (! $purchase->is_sent_dubai_to_india()) {
                 $product_names = '';
 
                 if ($purchase->products) {
@@ -1550,11 +1538,11 @@ class PurchaseController extends Controller
 
                         if ($product->orderproducts) {
                             foreach ($product->orderproducts as $order_product) {
-                                $batch_number = $order_product->purchase_id . (array_key_exists($order_product->batch_number, $letters_array) ? $letters_array[ $order_product->batch_number ] : '');
+                                $batch_number = $order_product->purchase_id . (array_key_exists($order_product->batch_number, $letters_array) ? $letters_array[$order_product->batch_number] : '');
                                 $product_names .= "#$batch_number, ";
 
                                 if ($order_product->order && $order_product->order->customer) {
-                                    $product_information .= $order_product->order->customer->address . ", " . $order_product->order->customer->pincode . ", " . $order_product->order->customer->city . "; ";
+                                    $product_information .= $order_product->order->customer->address . ', ' . $order_product->order->customer->pincode . ', ' . $order_product->order->customer->city . '; ';
                                 }
                             }
                         }
@@ -1567,22 +1555,22 @@ class PurchaseController extends Controller
                     'user_id' => Auth::id(),
                     'message' => "These pcs: $product_names are expected to arrive in India - x + 2 days -pls. coordinate and arrange collection",
                     'approved' => 0,
-                    'status' => 1
+                    'status' => 1,
                 ];
 
                 $stock_coordinators = User::role('Stock Coordinator')->get();
 
                 foreach ($stock_coordinators as $coordinator) {
-                    $params[ 'erp_user' ] = $coordinator->id;
+                    $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params[ 'message' ], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2
+                        'status' => 2,
                     ]);
                 }
 
@@ -1592,22 +1580,22 @@ class PurchaseController extends Controller
                     'user_id' => Auth::id(),
                     'message' => "This: $product_information are expected to arrive in India - x + 2 days to you. - for delivery to the follow customers pls. coordinate",
                     'approved' => 0,
-                    'status' => 1
+                    'status' => 1,
                 ];
 
                 $coordinators = User::role('Delivery Coordinator')->get();
 
                 foreach ($coordinators as $coordinator) {
-                    $params[ 'erp_user' ] = $coordinator->id;
+                    $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params[ 'message' ], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2
+                        'status' => 2,
                     ]);
                 }
 
@@ -1615,13 +1603,13 @@ class PurchaseController extends Controller
                     'model_id' => $purchase->id,
                     'model_type' => Purchase::class,
                     'type' => 'purchase-dubai-to-india',
-                    'method' => 'whatsapp'
+                    'method' => 'whatsapp',
                 ]);
             }
         }
 
         if ($request->status == 'Shipment Received in India') {
-            if ($purchase->products && !$purchase->is_sent_in_mumbai()) {
+            if ($purchase->products && ! $purchase->is_sent_in_mumbai()) {
                 foreach ($purchase->products as $product) {
                     $supplier = Supplier::where('supplier', 'In-stock')->first();
 
@@ -1636,12 +1624,12 @@ class PurchaseController extends Controller
                             'user_id' => Auth::id(),
                             'approved' => 0,
                             'status' => 1,
-                            'message' => 'Your Order is received in India'
+                            'message' => 'Your Order is received in India',
                         ];
 
                         foreach ($product->orderproducts as $order_product) {
                             if ($order_product->order && $order_product->order->customer) {
-                                $params[ 'customer_id' ] = $order_product->order->customer->id;
+                                $params['customer_id'] = $order_product->order->customer->id;
 
                                 ChatMessage::create($params);
 
@@ -1661,31 +1649,31 @@ class PurchaseController extends Controller
                     'model_id' => $purchase->id,
                     'model_type' => Purchase::class,
                     'type' => 'purchase-in-mumbai',
-                    'method' => 'whatsapp'
+                    'method' => 'whatsapp',
                 ]);
 
                 // Message to Aliya about time ?
                 $params = [
                     'number' => null,
                     'user_id' => Auth::id(),
-                    'message' => "Orders are in India, please coordinate",
+                    'message' => 'Orders are in India, please coordinate',
                     'approved' => 0,
-                    'status' => 1
+                    'status' => 1,
                 ];
 
                 $coordinators = User::role('Delivery Coordinator')->get();
 
                 foreach ($coordinators as $coordinator) {
-                    $params[ 'erp_user' ] = $coordinator->id;
+                    $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params[ 'message' ], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2
+                        'status' => 2,
                     ]);
                 }
 
@@ -1693,24 +1681,24 @@ class PurchaseController extends Controller
                 $params = [
                     'number' => null,
                     'user_id' => Auth::id(),
-                    'message' => "Confirm Aliyas time if it is ok to hand over the products",
+                    'message' => 'Confirm Aliyas time if it is ok to hand over the products',
                     'approved' => 0,
-                    'status' => 1
+                    'status' => 1,
                 ];
 
                 $stock_coordinators = User::role('Stock Coordinator')->get();
 
                 foreach ($stock_coordinators as $coordinator) {
-                    $params[ 'erp_user' ] = $coordinator->id;
+                    $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params[ 'message' ], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2
+                        'status' => 2,
                     ]);
                 }
             }
@@ -1724,7 +1712,7 @@ class PurchaseController extends Controller
                         'model_type' => OrderProduct::class,
                         'user_id' => Auth::id(),
                         'from_status' => $order_product->purchase_status,
-                        'to_status' => $request->status
+                        'to_status' => $request->status,
                     ]);
                 }
 
@@ -1750,7 +1738,7 @@ class PurchaseController extends Controller
             'user_id' => Auth::id(),
             'approved' => 0,
             'status' => 1,
-            'message' => 'Your Product is not available with the Supplier. Please choose alternative'
+            'message' => 'Your Product is not available with the Supplier. Please choose alternative',
         ];
 
         foreach ($product->purchases as $purchase) {
@@ -1759,7 +1747,7 @@ class PurchaseController extends Controller
                     if ($related_product->id == $product->id) {
                         foreach ($product->orderproducts as $order_product) {
                             if ($order_product->order) {
-                                $params[ 'customer_id' ] = $order_product->order->customer->id;
+                                $params['customer_id'] = $order_product->order->customer->id;
 
                                 ChatMessage::create($params);
                             }
@@ -1775,16 +1763,16 @@ class PurchaseController extends Controller
     public function updatePercentage(Request $request, $id)
     {
         foreach ($request->percentages as $percentage) {
-            $product = Product::find($percentage[ 0 ]);
-            $product->percentage = $percentage[ 1 ];
+            $product = Product::find($percentage[0]);
+            $product->percentage = $percentage[1];
             $product->save();
 
             PurchaseDiscount::create([
                 'purchase_id' => $request->purchase_id,
-                'product_id' => $percentage[ 0 ],
-                'percentage' => $percentage[ 1 ],
+                'product_id' => $percentage[0],
+                'percentage' => $percentage[1],
                 'amount' => $request->amount,
-                'type' => $request->type
+                'type' => $request->type,
             ]);
         }
 
@@ -1816,7 +1804,7 @@ class PurchaseController extends Controller
         }
 
         if ($request->transaction_date != '') {
-            if (!$purchase->is_sent_awb_actions()) {
+            if (! $purchase->is_sent_awb_actions()) {
                 // Task to Sushil
                 $data = [
                     'task_subject' => 'Purchase Delivery',
@@ -1824,7 +1812,7 @@ class PurchaseController extends Controller
                     'is_statutory' => 0,
                     'assign_from' => Auth::id(),
                     'assign_to' => 7,
-                    'category' => 12
+                    'category' => 12,
                 ];
 
                 $task = Task::create($data);
@@ -1839,7 +1827,7 @@ class PurchaseController extends Controller
                     'status' => 2,
                     // 'task_id'      => $task->id,
                     'erp_user' => 6,
-                    'message' => "Products from Purchase ID $purchase->id are in transit"
+                    'message' => "Products from Purchase ID $purchase->id are in transit",
                 ];
 
                 $chat_message = ChatMessage::create($params);
@@ -1865,8 +1853,8 @@ class PurchaseController extends Controller
 
                             if ($order_product->order && $order_product->order->customer) {
                                 $shipment_days = Carbon::parse($order_product->shipment_date)->diffInDays(Carbon::now());
-                                $params[ 'customer_id' ] = $order_product->order->customer->id;
-                                $params[ 'message' ] = "Your product $product->name has been shipped from our Italy office and is expected to be delivered to you in $shipment_days days - account for weekend and holiday";
+                                $params['customer_id'] = $order_product->order->customer->id;
+                                $params['message'] = "Your product $product->name has been shipped from our Italy office and is expected to be delivered to you in $shipment_days days - account for weekend and holiday";
 
                                 $chat_message = ChatMessage::create($params);
 
@@ -1895,24 +1883,24 @@ class PurchaseController extends Controller
                     'user_id' => Auth::id(),
                     'message' => "These are the shipments that need to be delivered in the next 12 days and please ensure office boys are allocated and all travel bookings are made $delivery_information",
                     'approved' => 0,
-                    'status' => 1
+                    'status' => 1,
                 ];
 
                 $coordinators = User::role('Delivery Coordinator')->get();
 
                 foreach ($coordinators as $coordinator) {
-                    $params[ 'erp_user' ] = $coordinator->id;
+                    $params['erp_user'] = $coordinator->id;
                     $chat_message = ChatMessage::create($params);
 
                     $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
 
                     // throw new \Exception($coordinator->id);
 
-                    app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params[ 'message' ], null, $chat_message->id);
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
 
                     $chat_message->update([
                         'approved' => 1,
-                        'status' => 2
+                        'status' => 2,
                     ]);
                 }
 
@@ -1920,7 +1908,7 @@ class PurchaseController extends Controller
                     'model_id' => $id,
                     'model_type' => Purchase::class,
                     'type' => 'purchase-awb-generated',
-                    'method' => 'whatsapp'
+                    'method' => 'whatsapp',
                 ]);
             }
         }
@@ -1935,7 +1923,7 @@ class PurchaseController extends Controller
 
                 $full_name = $filename . '.' . $extension;
 
-                $file->storeAs("files", $full_name, 'files');
+                $file->storeAs('files', $full_name, 'files');
 
                 $new_file = new File;
                 $new_file->filename = $full_name;
@@ -1954,9 +1942,9 @@ class PurchaseController extends Controller
         $matched = 0;
         $total_amount = 0;
         foreach ($request->proformas as $data) {
-            $product = Product::find($data[ 0 ]);
+            $product = Product::find($data[0]);
             $discounted_price = round(($product->price - ($product->price * $product->percentage / 100)) / 1.22);
-            $proforma = $data[ 1 ];
+            $proforma = $data[1];
             $total_amount += $proforma;
             if (($proforma - $discounted_price) < 10) {
                 $matched++;
@@ -1973,14 +1961,14 @@ class PurchaseController extends Controller
         }
 
         return response()->json([
-            'proforma_confirmed' => $purchase->proforma_confirmed
+            'proforma_confirmed' => $purchase->proforma_confirmed,
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -2004,28 +1992,21 @@ class PurchaseController extends Controller
 
     public function getOrderProductsWithProductData($order_id)
     {
-
-
         $orderProducts = OrderProduct::where('order_id', '=', $order_id)->get()->toArray();
         $temp = [];
         foreach ($orderProducts as $key => $value) {
-
-            if (!empty($orderProducts[ $key ][ 'color' ])) {
-
-                $temp = Product::where('sku', '=', $orderProducts[ $key ][ 'sku' ])
-                    ->where('color', $orderProducts[ $key ][ 'color' ])->whereNotNull('supplier_link')
+            if (! empty($orderProducts[$key]['color'])) {
+                $temp = Product::where('sku', '=', $orderProducts[$key]['sku'])
+                    ->where('color', $orderProducts[$key]['color'])->whereNotNull('supplier_link')
                     ->get()->first();
-
             } else {
-
-                $temp = Product::where('sku', '=', $orderProducts[ $key ][ 'sku' ])->whereNotNull('supplier_link')
+                $temp = Product::where('sku', '=', $orderProducts[$key]['sku'])->whereNotNull('supplier_link')
                     ->get()->first();
             }
 
-            if (!empty($temp)) {
-
-                $orderProducts[ $key ][ 'product' ] = $temp;
-                $orderProducts[ $key ][ 'product' ][ 'image' ] = $temp->getMedia(config('constants.media_tags'))->first() ? $temp->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
+            if (! empty($temp)) {
+                $orderProducts[$key]['product'] = $temp;
+                $orderProducts[$key]['product']['image'] = $temp->getMedia(config('constants.media_tags'))->first() ? $temp->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
             }
         }
 
@@ -2038,146 +2019,152 @@ class PurchaseController extends Controller
 
     public function emailInbox(Request $request)
     {
-        $imap = new Client([
-            'host' => env('IMAP_HOST_PURCHASE'),
-            'port' => env('IMAP_PORT_PURCHASE'),
-            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
-            'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
-            'username' => env('IMAP_USERNAME_PURCHASE'),
-            'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE')
-        ]);
+        try {
+            $cm = new ClientManager();
+            $imap = $cm->make([
+                'host' => env('IMAP_HOST_PURCHASE'),
+                'port' => env('IMAP_PORT_PURCHASE'),
+                'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+                'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+                'username' => env('IMAP_USERNAME_PURCHASE'),
+                'password' => env('IMAP_PASSWORD_PURCHASE'),
+                'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
+            ]);
 
-        $imap->connect();
+            $imap->connect();
+            if ($request->supplier_id) {
+                $supplier = Supplier::find($request->supplier_id);
 
-        $supplier = Supplier::find($request->supplier_id);
+                if ($request->type == 'inbox') {
+                    $inbox_name = 'INBOX';
+                    $direction = 'from';
+                    $type = 'incoming';
+                } else {
+                    $inbox_name = 'INBOX.Sent';
+                    $direction = 'to';
+                    $type = 'outgoing';
+                }
 
-        if ($request->type == 'inbox') {
-            $inbox_name = 'INBOX';
-            $direction = 'from';
-            $type = 'incoming';
-        } else {
-            $inbox_name = 'INBOX.Sent';
-            $direction = 'to';
-            $type = 'outgoing';
-        }
+                $inbox = $imap->getFolder($inbox_name);
 
-        $inbox = $imap->getFolder($inbox_name);
+                $latest_email = Email::where('type', $type)->where('model_id', $supplier->id)->where(function ($query) {
+                    $query->where('model_type', \App\Supplier::class)->orWhere('model_type', \App\Purchase::class);
+                })->latest()->first();
 
-        $latest_email = Email::where('type', $type)->where('model_id', $supplier->id)->where(function ($query) {
-            $query->where('model_type', 'App\Supplier')->orWhere('model_type', 'App\Purchase');
-        })->latest()->first();
+                $latest_email_date = $latest_email
+                    ? Carbon::parse($latest_email->created_at)
+                    : Carbon::parse('1990-01-01');
 
-        $latest_email_date = $latest_email
-            ? Carbon::parse($latest_email->created_at)
-            : Carbon::parse('1990-01-01');
+                $supplierAgentsCount = $supplier->agents()->count();
 
-        $supplierAgentsCount = $supplier->agents()->count();
-
-        if ($supplierAgentsCount == 0) {
-            $emails = $inbox->messages()->where($direction, $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-            $emails = $emails->leaveUnread()->get();
-            $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails);
-        } else {
-            if ($supplierAgentsCount == 1) {
-                $emails = $inbox->messages()->where($direction, $supplier->agents[ 0 ]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-                $emails = $emails->leaveUnread()->get();
-
-                $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails);
-            } else {
-                foreach ($supplier->agents as $key => $agent) {
-                    if ($key == 0) {
-                        $emails = $inbox->messages()->where($direction, $agent->email)->where([
-                            ['SINCE', $latest_email_date->format('d M y H:i')]
-                        ]);
+                if ($supplierAgentsCount == 0) {
+                    $emails = $inbox->messages()->where($direction, $supplier->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                    $emails = $emails->leaveUnread()->get();
+                    $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails);
+                } else {
+                    if ($supplierAgentsCount == 1) {
+                        $emails = $inbox->messages()->where($direction, $supplier->agents[0]->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
                         $emails = $emails->leaveUnread()->get();
+
                         $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails);
                     } else {
-                        $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
-                        $additional = $additional->leaveUnread()->get();
-                        $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $additional);
-                        // $emails = $emails->merge($additional);
-                    }
-                }
-            }
-        }
-
-        $db_emails = $supplier->emails()->with('model')->where('type', $type)->get();
-
-        $emails_array = [];
-        $count = 0;
-        foreach ($db_emails as $key2 => $email) {
-
-            $dateCreated = $email->created_at->format('D, d M Y');
-            $timeCreated = $email->created_at->format('H:i');
-            $userName = null;
-            if ($email->model instanceof Supplier) {
-                $userName = $email->model->supplier;
-            } elseif ($email->model instanceof Customer) {
-                $userName = $email->model->name;
-            }
-            if($email->model_type == 'App\Supplier'){
-                $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
-
-                if (array_key_exists('attachment', $array)) {
-                    $attachment = json_decode($email->additional_data, true)[ 'attachment' ];
-                    if (is_array($attachment)) {
-                        foreach ($attachment as $attach) {
-                            $filename  = explode('/',$attach);
-                            $filename = explode('.',end($filename));
-                            if(end($filename) == 'xlsx' || end($filename) == 'xls'){
-                                $log = LogExcelImport::where('supplier_email',$supplier->email)->where('filename',$filename[0])->first();
-                                if($log != null){
-                                    if($log->status == 1){
-                                        $alert[] = 'Excel import process';
-                                    }elseif($log->status == 2){
-                                        $alert[] = 'Excel import created';
-                                    }elseif($log->status == 0){
-                                        $alert[] = 'Excel import error';
-                                    }
-
-                                }
+                        foreach ($supplier->agents as $key => $agent) {
+                            if ($key == 0) {
+                                $emails = $inbox->messages()->where($direction, $agent->email)->where([
+                                    ['SINCE', $latest_email_date->format('d M y H:i')],
+                                ]);
+                                $emails = $emails->leaveUnread()->get();
+                                $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails);
+                            } else {
+                                $additional = $inbox->messages()->where($direction, $agent->email)->since(Carbon::parse($latest_email_date)->format('Y-m-d H:i:s'));
+                                $additional = $additional->leaveUnread()->get();
+                                $this->createEmailsForEmailInbox($supplier, $type, $latest_email_date, $additional);
+                                // $emails = $emails->merge($additional);
                             }
                         }
                     }
                 }
+
+                $db_emails = $supplier->emails()->with('model')->where('type', $type)->get();
+
+                $emails_array = [];
+                $count = 0;
+                foreach ($db_emails as $key2 => $email) {
+                    $dateCreated = $email->created_at->format('D, d M Y');
+                    $timeCreated = $email->created_at->format('H:i');
+                    $userName = null;
+                    if ($email->model instanceof Supplier) {
+                        $userName = $email->model->supplier;
+                    } elseif ($email->model instanceof Customer) {
+                        $userName = $email->model->name;
+                    }
+                    if ($email->model_type == \App\Supplier::class) {
+                        $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
+
+                        if (array_key_exists('attachment', $array)) {
+                            $attachment = json_decode($email->additional_data, true)['attachment'];
+                            if (is_array($attachment)) {
+                                foreach ($attachment as $attach) {
+                                    $filename = explode('/', $attach);
+                                    $filename = explode('.', end($filename));
+                                    if (end($filename) == 'xlsx' || end($filename) == 'xls') {
+                                        $log = LogExcelImport::where('supplier_email', $supplier->email)->where('filename', $filename[0])->first();
+                                        if ($log != null) {
+                                            if ($log->status == 1) {
+                                                $alert[] = 'Excel import process';
+                                            } elseif ($log->status == 2) {
+                                                $alert[] = 'Excel import created';
+                                            } elseif ($log->status == 0) {
+                                                $alert[] = 'Excel import error';
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (! isset($alert)) {
+                        $alert = [];
+                    }
+                    $emails_array[$count + $key2]['id'] = $email->id;
+                    $emails_array[$count + $key2]['subject'] = $email->subject;
+                    $emails_array[$count + $key2]['seen'] = $email->seen;
+                    $emails_array[$count + $key2]['type'] = $email->type;
+                    $emails_array[$count + $key2]['date'] = $email->created_at;
+                    $emails_array[$count + $key2]['from'] = $email->from;
+                    $emails_array[$count + $key2]['to'] = $email->to;
+                    $emails_array[$count + $key2]['message'] = $email->message;
+                    $emails_array[$count + $key2]['cc'] = $email->cc;
+                    $emails_array[$count + $key2]['bcc'] = $email->bcc;
+                    $emails_array[$count + $key2]['alert'] = $alert;
+                    $emails_array[$count + $key2]['replyInfo'] = "On {
+                $dateCreated} at {
+                $timeCreated}, $userName <{
+                $email->from}> wrote:";
+                    $emails_array[$count + $key2]['dateCreated'] = $dateCreated;
+                    $emails_array[$count + $key2]['timeCreated'] = $timeCreated;
+                }
+
+                $emails_array = array_values(Arr::sort($emails_array, function ($value) {
+                    return $value['date'];
+                }));
+
+                $emails_array = array_reverse($emails_array);
+
+                $perPage = 10;
+                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
+                $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
+
+                $view = view('purchase.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
+
+                return response()->json(['emails' => $view]);
+            } else {
+                return response()->json(['message' => 'Something went wrong!'], 422);
             }
-            if(!isset($alert)){
-                $alert = [];
-            }
-            $emails_array[ $count + $key2 ][ 'id' ] = $email->id;
-            $emails_array[ $count + $key2 ][ 'subject' ] = $email->subject;
-            $emails_array[ $count + $key2 ][ 'seen' ] = $email->seen;
-            $emails_array[ $count + $key2 ][ 'type' ] = $email->type;
-            $emails_array[ $count + $key2 ][ 'date' ] = $email->created_at;
-            $emails_array[ $count + $key2 ][ 'from' ] = $email->from;
-            $emails_array[ $count + $key2 ][ 'to' ] = $email->to;
-            $emails_array[ $count + $key2 ][ 'message' ] = $email->message;
-            $emails_array[ $count + $key2 ][ 'cc' ] = $email->cc;
-            $emails_array[ $count + $key2 ][ 'bcc' ] = $email->bcc;
-            $emails_array[ $count + $key2 ][ 'alert' ] = $alert;
-            $emails_array[ $count + $key2 ][ 'replyInfo' ] = "On {
-        $dateCreated} at {
-        $timeCreated}, $userName <{
-        $email->from}> wrote:";
-            $emails_array[ $count + $key2 ][ 'dateCreated' ] = $dateCreated;
-            $emails_array[ $count + $key2 ][ 'timeCreated' ] = $timeCreated;
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Something went wrong!'], 422);
         }
-
-        $emails_array = array_values(array_sort($emails_array, function ($value) {
-            return $value[ 'date' ];
-        }));
-
-        $emails_array = array_reverse($emails_array);
-
-        $perPage = 10;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
-        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
-
-        $view = view('purchase.partials.email', ['emails' => $emails, 'type' => $request->type])->render();
-
-        return response()->json(['emails' => $view]);
     }
 
     private function createEmailsForEmailInbox($supplier, $type, $latest_email_date, $emails)
@@ -2191,7 +2178,7 @@ class PurchaseController extends Controller
 
                 $attachments->each(function ($attachment) use (&$attachments_array) {
                     file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                    $path = "email-attachments/" . $attachment->name;
+                    $path = 'email-attachments/' . $attachment->name;
                     $attachments_array[] = $path;
                 });
 
@@ -2199,14 +2186,14 @@ class PurchaseController extends Controller
                     'model_id' => $supplier->id,
                     'model_type' => Supplier::class,
                     'type' => $type,
-                    'seen' => $email->getFlags()[ 'seen' ],
-                    'from' => $email->getFrom()[ 0 ]->mail,
-                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[ 0 ]->mail : $email->getReplyTo()[ 0 ]->mail,
+                    'seen' => $email->getFlags()['seen'],
+                    'from' => $email->getFrom()[0]->mail,
+                    'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
                     'subject' => $email->getSubject(),
                     'message' => $content,
                     'template' => 'customer-simple',
                     'additional_data' => json_encode(['attachment' => $attachments_array]),
-                    'created_at' => $email->getDate()
+                    'created_at' => $email->getDate(),
                 ];
 
                 Email::create($params);
@@ -2512,7 +2499,7 @@ class PurchaseController extends Controller
         // $emails = collect($emails_array);
         // dd($emails);
 
-      $emails_array = array_values(array_sort($emails_array, function ($value) {
+      $emails_array = array_values(Arr::sort($emails_array, function ($value) {
         return $value['date'];
       }));
 
@@ -2555,7 +2542,7 @@ class PurchaseController extends Controller
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
             'username' => env('IMAP_USERNAME_PURCHASE'),
             'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE')
+            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -2581,17 +2568,17 @@ class PurchaseController extends Controller
 
             $attachments->each(function ($attachment) use (&$content) {
                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                $path = "email-attachments/" . $attachment->name;
+                $path = 'email-attachments/' . $attachment->name;
                 $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $path . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
             });
-            // dd($content);
+        // dd($content);
 
-            // if (count($attachments_array) > 0) {
-            //   foreach ($attachments_array as $attach) {
+        // if (count($attachments_array) > 0) {
+        //   foreach ($attachments_array as $attach) {
             //     $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
-            //   }
-            // }
-            // dd($attachments_array);
+        //   }
+        // }
+        // dd($attachments_array);
         } else {
             $email = Email::find($request->uid);
             $email->seen = 1;
@@ -2606,35 +2593,34 @@ class PurchaseController extends Controller
             $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
             if (array_key_exists('attachment', $array)) {
-                $attachment = json_decode($email->additional_data, true)[ 'attachment' ];
+                $attachment = json_decode($email->additional_data, true)['attachment'];
                 if (is_array($attachment)) {
                     $content = $email->message;
                     foreach ($attachment as $attach) {
-                        if($email->model_type == 'App\Supplier'){
+                        if ($email->model_type == \App\Supplier::class) {
                             $supplier = Supplier::find($email->model_id);
-                            if($supplier != null){
-                                $filename  = explode('/',$attach);
-                                $filename = explode('.',end($filename));
-                                if(end($filename) == 'xlsx' || end($filename) == 'xls'){
-                                    $log = LogExcelImport::where('supplier_email',$supplier->email)->where('filename',$filename[0])->first();
-                                    if($log != null){
-                                        if($log->status == 1){
+                            if ($supplier != null) {
+                                $filename = explode('/', $attach);
+                                $filename = explode('.', end($filename));
+                                if (end($filename) == 'xlsx' || end($filename) == 'xls') {
+                                    $log = LogExcelImport::where('supplier_email', $supplier->email)->where('filename', $filename[0])->first();
+                                    if ($log != null) {
+                                        if ($log->status == 1) {
                                             $alert = 'Excel import process';
-                                        }elseif($log->status == 2){
+                                        } elseif ($log->status == 2) {
                                             $alert = 'Excel import created';
-                                        }else{
+                                        } else {
                                             $alert = 'Excel import error';
                                         }
                                     }
-                                       
                                 }
                             }
                         }
-                        if(!isset($alert)){
+                        if (! isset($alert)) {
                             $alert = '';
                         }
                         $content .= " <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attach . "' /><button type='submit' class='btn-link'>Attachment</button>
-                        <button type='button' class='btn-secondary' onclick='processExcel(".$email->id.")' id='email".$email->id."' data-attached='" . $attach . "' >".$alert."</button></form>";
+                        <button type='button' class='btn-secondary' onclick='processExcel(" . $email->id . ")' id='email" . $email->id . "' data-attached='" . $attach . "' >" . $alert . '</button></form>';
                     }
                 } else {
                     $content = "$email->message <form action='" . route('purchase.download.attachments') . "' method='GET'><input type='hidden' name='path' value='" . $attachment . "' /><button type='submit' class='btn-link'>Attachment</button></form>";
@@ -2642,13 +2628,11 @@ class PurchaseController extends Controller
             } else {
                 $content = $email->message;
             }
-
         }
-
 
         return response()->json([
             'email' => $content,
-            'to_email' => isset($to_email) ? $to_email : ''
+            'to_email' => isset($to_email) ? $to_email : '',
         ]);
     }
 
@@ -2659,7 +2643,7 @@ class PurchaseController extends Controller
             'message' => 'required',
             'email.*' => 'required|email',
             'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email'
+            'bcc.*' => 'nullable|email',
         ]);
 
         $supplier = Supplier::find($request->supplier_id);
@@ -2671,7 +2655,7 @@ class PurchaseController extends Controller
                 foreach ($request->file('file') as $file) {
                     $filename = $file->getClientOriginalName();
 
-                    $file->storeAs("documents", $filename, 'files');
+                    $file->storeAs('documents', $filename, 'files');
 
                     $file_paths[] = "documents/$filename";
                 }
@@ -2687,7 +2671,7 @@ class PurchaseController extends Controller
                 $bcc = array_values(array_filter($request->bcc));
             }
 
-            if (is_array($emails) && !empty($emails)) {
+            if (is_array($emails) && ! empty($emails)) {
                 $to = array_shift($emails);
                 $cc = array_merge($emails, $cc);
 
@@ -2704,19 +2688,19 @@ class PurchaseController extends Controller
             } else {
                 return redirect()->back()->withErrors('Please select an email');
             }
-
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $supplier->id,
                 'model_type' => Supplier::class,
-                'from' => 'buying@amourint.com',
-                'to' => $request->email[ 0 ],
+                'from' => $from_email,
+                'to' => $request->email[0],
                 'seen' => 1,
                 'subject' => $request->subject,
                 'message' => $request->message,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ? : null,
-                'bcc' => $bcc ? : null
+                'cc' => $cc ?: null,
+                'bcc' => $bcc ?: null,
             ];
 
             Email::create($params);
@@ -2732,7 +2716,7 @@ class PurchaseController extends Controller
         $this->validate($request, [
             'purchase_id' => 'required|numeric',
             'email_id' => 'required|numeric',
-            'recipient' => 'required|email'
+            'recipient' => 'required|email',
         ]);
 
         $attachment = [];
@@ -2745,7 +2729,7 @@ class PurchaseController extends Controller
             'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
             'username' => env('IMAP_USERNAME_PURCHASE'),
             'password' => env('IMAP_PASSWORD_PURCHASE'),
-            'protocol' => env('IMAP_PROTOCOL_PURCHASE')
+            'protocol' => env('IMAP_PROTOCOL_PURCHASE'),
         ]);
 
         $imap->connect();
@@ -2767,16 +2751,16 @@ class PurchaseController extends Controller
             }
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->getSubject(), $content, $attachment));
-
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $purchase->id,
                 'model_type' => Purchase::class,
-                'from' => 'customercare@sololuxury.co.in',
+                'from' => $from_email,
                 'to' => $request->recipient,
-                'subject' => "Resent: " . $email->getSubject(),
+                'subject' => 'Resent: ' . $email->getSubject(),
                 'message' => $content,
                 'template' => 'customer-simple',
-                'additional_data' => json_encode(['attachment' => $attachment])
+                'additional_data' => json_encode(['attachment' => $attachment]),
             ];
         } else {
             $email = Email::find($request->email_id);
@@ -2784,26 +2768,26 @@ class PurchaseController extends Controller
             $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
 
             if (array_key_exists('attachment', $array)) {
-                $temp = json_decode($email->additional_data, true)[ 'attachment' ];
+                $temp = json_decode($email->additional_data, true)['attachment'];
             }
 
-            if (!is_array($temp)) {
+            if (! is_array($temp)) {
                 $attachment[] = $temp;
             } else {
                 $attachment = $temp;
             }
 
             Mail::to($request->recipient)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
-
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $purchase->id,
                 'model_type' => Purchase::class,
-                'from' => 'customercare@sololuxury.co.in',
+                'from' => $from_email,
                 'to' => $request->recipient,
                 'subject' => "Resent: $email->subject",
                 'message' => $email->message,
                 'template' => 'customer-simple',
-                'additional_data' => json_encode(['attachment' => $attachment])
+                'additional_data' => json_encode(['attachment' => $attachment]),
             ];
         }
 
@@ -2815,7 +2799,7 @@ class PurchaseController extends Controller
     public function emailReply(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'message' => 'required'
+            'message' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -2832,7 +2816,7 @@ class PurchaseController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'to.0' => 'required|email',
-            'to.*' => 'nullable|email'
+            'to.*' => 'nullable|email',
         ]);
 
         if ($validator->fails()) {
@@ -2853,7 +2837,7 @@ class PurchaseController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'supplier_id' => 'required',
-            'message' => 'required'
+            'message' => 'required',
         ]);
         $supplier_id = json_decode($request->input('supplier_id'));
 
@@ -2869,23 +2853,20 @@ class PurchaseController extends Controller
             $media = '';
             $product = Product::find($id);
             if ($product && $product->hasMedia(config('constants.media_tags'))) {
-                $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();;
+                $media = $product->getMedia(config('constants.media_tags'))->first()->getUrl();
             }
 
             $sku = isset($product->sku) ? $product->sku : '';
-            $size = !empty($request->get('size')) ? ' size ' . $request->get('size') : '';
+            $size = ! empty($request->get('size')) ? ' size ' . $request->get('size') : '';
 
             foreach ($suppliers_all as $supplier) {
-
                 if ($supplier->phone != '') {
-
-
                     $message = $request->input('message') . ' (' . $sku . ')' . $size;
 
                     try {
-                        dump("Sending message");
+                        dump('Sending message');
 
-                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $message, isset($media) && !empty($media) ? $media : null);
+                        app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($supplier->phone, $supplier->whatsapp_number, $message, isset($media) && ! empty($media) ? $media : null);
 
                         $params = [
                             'number' => $supplier->phone,
@@ -2893,16 +2874,15 @@ class PurchaseController extends Controller
                             'supplier_id' => $supplier->id,
                             'message' => $message,
                             'approved' => 0,
-                            'status' => 1
+                            'status' => 1,
                         ];
 
                         //DB::enableQueryLog(); // Enable query log
 
                         $chat_message = ChatMessage::create($params);
 
-                        $values = array('product_id' => $id, 'supplier_id' => $supplier->id, 'chat_message_id' => $chat_message->id);
+                        $values = ['product_id' => $id, 'supplier_id' => $supplier->id, 'chat_message_id' => $chat_message->id];
                         DB::table('purchase_product_supplier')->insert($values);
-
                     } catch (\Exception $e) {
                         dump($e->getMessage());
                     }
@@ -2925,14 +2905,14 @@ class PurchaseController extends Controller
             ->get();
         $data = [];
         foreach ($suppliers as $key => $value) {
-            $data[ $value->id ][ 'supplier' ] = $value->supplier;
+            $data[$value->id]['supplier'] = $value->supplier;
 
-            if (!isset($data[ $value->id ][ 'chat_messages' ])) {
-                $data[ $value->id ][ 'chat_messages' ] = [];
+            if (! isset($data[$value->id]['chat_messages'])) {
+                $data[$value->id]['chat_messages'] = [];
             }
 
-            if (!empty($value->chat_messages_id)) {
-                $data[ $value->id ][ 'chat_messages' ][] = [
+            if (! empty($value->chat_messages_id)) {
+                $data[$value->id]['chat_messages'][] = [
                     'message' => $value->message,
                     'created_at' => $value->created_at,
                 ];
@@ -2948,7 +2928,7 @@ class PurchaseController extends Controller
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
             'cc.*' => 'nullable|email',
-            'bcc.*' => 'nullable|email'
+            'bcc.*' => 'nullable|email',
         ]);
 
         if ($request->suppliers) {
@@ -2975,14 +2955,13 @@ class PurchaseController extends Controller
             })->where('has_error', 0)->get();
         }
 
-
         $file_paths = [];
 
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
                 $filename = $file->getClientOriginalName();
 
-                $file->storeAs("documents", $filename, 'files');
+                $file->storeAs('documents', $filename, 'files');
 
                 $file_paths[] = "documents/$filename";
             }
@@ -3007,19 +2986,19 @@ class PurchaseController extends Controller
             }
 
             $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths));
-
+            $from_email = \App\Helpers::getFromEmail();
             $params = [
                 'model_id' => $supplier->id,
                 'model_type' => Supplier::class,
-                'from' => 'buying@amourint.com',
+                'from' => $from_email,
                 'seen' => 1,
                 'to' => $supplier->default_email ?? $supplier->email,
                 'subject' => $request->subject,
                 'message' => $request->message,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ? : null,
-                'bcc' => $bcc ? : null,
+                'cc' => $cc ?: null,
+                'bcc' => $bcc ?: null,
             ];
 
             Email::create($params);
@@ -3030,23 +3009,20 @@ class PurchaseController extends Controller
 
     /**
      * Start to sync the products with order product id
-     *
-     *
      */
     public function syncOrderProductId()
     {
-        $recordsOldUpdate = Db::select("
+        $recordsOldUpdate = Db::select('
         select pp.id,pp.purchase_id, pp.product_id
         from purchase_products as pp join products as p on p.id = pp.product_id
         left join order_products as op on op.sku = p.sku
-        where pp.order_product_id != op.id");
+        where pp.order_product_id != op.id');
 
-        if (!empty($recordsOldUpdate)) {
+        if (! empty($recordsOldUpdate)) {
             foreach ($recordsOldUpdate as $records) {
                 // start
-                \App\PurchaseProduct::where('id', $records[ "id" ])->update(['order_product_id' => $records[ "order_product_id" ]]);
+                \App\PurchaseProduct::where('id', $records['id'])->update(['order_product_id' => $records['order_product_id']]);
             }
         }
     }
-
 }

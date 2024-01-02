@@ -3,14 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Brand;
-use App\CronJobReport;
 use App\Product;
-use App\ScrapedProducts;
-use App\Services\Bots\WebsiteEmulator;
 use App\Setting;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
+use App\Services\Bots\WebsiteEmulator;
 
 class GetGebnegozionlineProductDetailsWithEmulator extends Command
 {
@@ -29,13 +29,14 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
     protected $description = 'Command description';
 
     protected $country;
+
     protected $IP;
 
     public function handle(): void
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -50,7 +51,6 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
@@ -77,8 +77,8 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
     private function runFakeTraffic($url): void
     {
-        $url       = explode('/category', $url);
-        $url       = $url[0];
+        $url = explode('/category', $url);
+        $url = $url[0];
         $duskShell = new WebsiteEmulator();
 //        $duskShell->setProxyList();
         $this->setCountry('IT');
@@ -94,10 +94,10 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
             return;
         }
 
-        $image        = ScrapedProducts::where('sku', $content[1])->first();
+        $image = ScrapedProducts::where('sku', $content[1])->first();
         $image->price = $content[0];
         $image->save();
-        if (!$image) {
+        if (! $image) {
             return;
         }
 
@@ -106,41 +106,38 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
         }
 
         $this->updateDataOnProductsTable($image);
-
     }
 
     private function setCountry(): void
     {
-
         $this->country = 'IT';
     }
 
     private function updateProductOnServer(ScrapedProducts $image)
     {
-
         $this->info('here saving to server');
-        $client   = new Client();
+        $client = new Client();
         $response = $client->request('POST', 'http://erp.sololuxury.co.in/api/sync-product', [
-//        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
+            //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
-                'sku'                 => $image->sku,
-                'website'             => $image->website,
-                'has_sku'             => $image->has_sku,
-                'title'               => $image->title,
-                'brand_id'            => $image->brand_id,
-                'description'         => $image->description,
-//                'images' => $this->imagesToDownload,
-                'price'               => $image->price,
-                'properties'          => $image->properties,
-                'url'                 => $image->url,
+                'sku' => $image->sku,
+                'website' => $image->website,
+                'has_sku' => $image->has_sku,
+                'title' => $image->title,
+                'brand_id' => $image->brand_id,
+                'description' => $image->description,
+                //                'images' => $this->imagesToDownload,
+                'price' => $image->price,
+                'properties' => $image->properties,
+                'url' => $image->url,
                 'is_property_updated' => 0,
-                'is_price_updated'    => 1,
-                'is_enriched'         => 0,
-                'can_be_deleted'      => 0,
+                'is_price_updated' => 1,
+                'is_enriched' => 0,
+                'can_be_deleted' => 0,
             ],
         ]);
 
-        if (!$response) {
+        if (! $response) {
             dd($response->getBody()->getContents());
         }
 
@@ -177,13 +174,13 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
 
             $product->price = $price;
 
-            if (!empty($brand->euro_to_inr)) {
+            if (! empty($brand->euro_to_inr)) {
                 $product->price_inr = $brand->euro_to_inr * $product->price;
             } else {
                 $product->price_inr = Setting::get('euro_to_inr') * $product->price;
             }
 
-            $product->price_inr         = round($product->price_inr, -3);
+            $product->price_inr = round($product->price_inr, -3);
             $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
 
             $product->price_inr_special = round($product->price_inr_special, -3);

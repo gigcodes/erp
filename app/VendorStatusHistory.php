@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class VendorStatusHistory extends Model
 {
-
     /**
      * The table associated with the model.
      *
@@ -17,7 +16,7 @@ class VendorStatusHistory extends Model
     /**
      * Indicates if the model should be timestamped.
      *
-     * @var boolean
+     * @var bool
      */
     public $timestamps = true;
 
@@ -27,12 +26,14 @@ class VendorStatusHistory extends Model
      * @var array
      */
     protected $hidden = [];
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['vendor_id', 'user_id', 'status',];
+    protected $fillable = ['vendor_id', 'user_id', 'status'];
+
     /**
      * The attributes that aren't mass assignable.
      *

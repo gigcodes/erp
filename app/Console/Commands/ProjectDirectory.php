@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use App\ProjectFileManager;
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class ProjectDirectory extends Command
 {
@@ -39,49 +40,58 @@ class ProjectDirectory extends Command
      */
     public function handle()
     {
-        /*$cc = app()->make('App\Http\Controllers\ProjectFileManagerController');
-        app()->call([$cc, 'listTree'], []);*/
-        // start throgh tree program
-        $output = shell_exec("tree --du -h . -f -L 6 --sort=size|grep 'M]\|G]' | egrep -v '[0-9]*\.[0-9]M'");
-        if (!empty($output)) {
-            $lastFolder = null;
-            $this->info("Output : " . $output);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
+            /*$cc = app()->make('App\Http\Controllers\ProjectFileManagerController');
+            app()->call([$cc, 'listTree'], []);*/
+            // start throgh tree program
+            $output = shell_exec("tree --du -h . -f -L 6 --sort=size|grep 'M]\|G]' | egrep -v '[0-9]*\.[0-9]M'");
+            if (! empty($output)) {
+                $lastFolder = null;
+                $this->info('Output : ' . $output);
 
-
-            foreach (explode(PHP_EOL, $output) as $o) {
-                $directory = explode("]", $o);
-                if (isset($directory[0]) && isset($directory[1])) {
-                    $directoryStr = trim($directory[1]);
-                    $parent       = null;
-                    if (substr($directoryStr, 0, strlen($lastFolder)) == $lastFolder) {
-                        $parent = $lastFolder;
-                    }
-
-                    $size = explode(']', (explode('[', $o)[1]))[0];
-                    if(strpos($size,"G") !== false) {
-                      $size = str_replace("G", "", $size);
-                      $size = $size * 1024;
-                    }else if(strpos($size,"M") !== false){
-                      $size = str_replace("M", "", $size);
-                    }
-
-                    $projectManager = ProjectFileManager::where("name",$directoryStr)->first();
-                    if($projectManager) {
-                        $projectManager->size = trim($size);
-                        $projectManager->save();
-                        if(str_replace("M","",$projectManager->size) > str_replace("M","",$projectManager->notification_at) && !empty($projectManager->notification_at)) {
-                            $requestData = new Request(); 
-                            $requestData->setMethod('POST'); 
-                            $requestData->request->add([ 'priority' => 1, 'issue' => "Error With folder size {$directoryStr} which is more then {$projectManager->size} and expected size is {$projectManager->notification_at}", 'status' => "Planned", 'module' => "cron", 'subject' => "Error With folder size {$directoryStr}", 'assigned_to' => 6 ]); 
-                            app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+                foreach (explode(PHP_EOL, $output) as $o) {
+                    $directory = explode(']', $o);
+                    if (isset($directory[0]) && isset($directory[1])) {
+                        $directoryStr = trim($directory[1]);
+                        $parent = null;
+                        if (substr($directoryStr, 0, strlen($lastFolder)) == $lastFolder) {
+                            $parent = $lastFolder;
                         }
-                    }else{
-                        $ProjectFileManager = ProjectFileManager::create(['name' => $directoryStr, "project_name" => "erp", "size" => trim($size), "parent" => $parent]);
+
+                        $size = explode(']', (explode('[', $o)[1]))[0];
+                        if (strpos($size, 'G') !== false) {
+                            $size = str_replace('G', '', $size);
+                            $size = $size * 1024;
+                        } elseif (strpos($size, 'M') !== false) {
+                            $size = str_replace('M', '', $size);
+                        }
+
+                        $projectManager = ProjectFileManager::where('name', $directoryStr)->first();
+                        LogHelper::createCustomLogForCron($this->signature, ['message' => 'Project file manager query was finished.']);
+                        if ($projectManager) {
+                            $projectManager->size = trim($size);
+                            $projectManager->save();
+                            if (str_replace('M', '', $projectManager->size) > str_replace('M', '', $projectManager->notification_at) && ! empty($projectManager->notification_at)) {
+                                $requestData = new Request();
+                                $requestData->setMethod('POST');
+                                $requestData->request->add(['priority' => 1, 'issue' => "Error With folder size {$directoryStr} which is more then {$projectManager->size} and expected size is {$projectManager->notification_at}", 'status' => 'Planned', 'module' => 'cron', 'subject' => "Error With folder size {$directoryStr}", 'assigned_to' => 6]);
+                                app(\App\Http\Controllers\DevelopmentController::class)->issueStore($requestData, 'issue');
+                            }
+                        } else {
+                            $ProjectFileManager = ProjectFileManager::create(['name' => $directoryStr, 'project_name' => 'erp', 'size' => trim($size), 'parent' => $parent]);
+                            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Project file manager was added.']);
+                        }
+                        $lastFolder = $directoryStr;
                     }
-                    $lastFolder = $directoryStr;
                 }
             }
-        }
 
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
+
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

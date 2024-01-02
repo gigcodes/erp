@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Compositions;
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\Compositions;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetCompositiosFromScrapedData extends Command
@@ -38,16 +38,16 @@ class GetCompositiosFromScrapedData extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
             Product::where('composition', '')->orWhereNull('composition')->orderBy('created_at', 'DESC')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     $scrapedProducts = $product->many_scraped_products;
-                    $found           = false;
+                    $found = false;
                     foreach ($scrapedProducts as $scrapedProduct) {
-                        $property    = $scrapedProduct->properties;
+                        $property = $scrapedProduct->properties;
                         $composition = $property['composition'] ?? '';
                         if ($composition) {
                             dump($composition);
@@ -88,7 +88,6 @@ class GetCompositiosFromScrapedData extends Command
                             break;
                         }
                     }
-
                 }
             });
 
@@ -100,28 +99,29 @@ class GetCompositiosFromScrapedData extends Command
 
     private function getCompositionValuesFromRawData($scrapedProduct)
     {
-        $properties  = json_encode($scrapedProduct->properties);
+        $properties = json_encode($scrapedProduct->properties);
         $description = $scrapedProduct->description;
 
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $properties, $extractedData);
 
-        if (!$hasExtracted) {
+        if (! $hasExtracted) {
             $compositions = $this->getCompositionFromList($properties, $description);
+
             return $compositions;
         }
 
         $compositions = implode(', ', $extractedData[0]);
-        return $compositions;
 
+        return $compositions;
     }
 
     private function getCompositionFromList($properties, $description)
     {
-
         $hasExtracted = preg_match_all('/(\d+)% (\w+)/', $description, $extractedData);
 
         if ($hasExtracted) {
             dump('frommm desc..');
+
             return implode(', ', $extractedData[0]);
         }
 
@@ -150,7 +150,5 @@ class GetCompositiosFromScrapedData extends Command
         }
 
         return implode(', ', $allCompositions);
-
     }
-
 }

@@ -17,10 +17,10 @@
 		            <label for="store_website_id">Storewebsite</label>
 		            <select name="store_website_id" class="form-control">
 		            	<?php
-			            	foreach(\App\StoreWebsite::list() as $k => $l) {
-			            		echo "<option {{if data.store_website_id == $k}} selected {{/if}}  value='".$k."'>".$l."</option>";
-			            	}
-			             ?>
+                            foreach (\App\StoreWebsite::list() as $k => $l) {
+                                echo "<option {{if data.store_website_id == $k}} selected {{/if}}  value='" . $k . "'>" . $l . '</option>';
+                            }
+		?>
 			         </select>
 		         </div>
 		         {{if data && data.id}}
@@ -29,10 +29,10 @@
 			            <select name="brand_segment" class="form-control">
 			            	<option value="">-- Select --</option>
 				            <?php
-				            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
-				            		echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='".$k."'>".$l."</option>";
-				            	}
-				             ?>
+		       foreach (\App\Brand::BRAND_SEGMENT as $k => $l) {
+		           echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='" . $k . "'>" . $l . '</option>';
+		       }
+		?>
 				         </select>
 			         </div>
 		         {{else}}
@@ -41,10 +41,10 @@
 			            <select name="brand_segments[]" class="form-control select2" multiple="multiple">
 			            	<option value="">-- Select --</option>
 				            <?php
-				            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
-				            		echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='".$k."'>".$l."</option>";
-				            	}
-				             ?>
+		   foreach (\App\Brand::BRAND_SEGMENT as $k => $l) {
+		       echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='" . $k . "'>" . $l . '</option>';
+		   }
+		?>
 				         </select>
 			         </div>
 		         {{/if}}
@@ -52,15 +52,15 @@
 			         <div class="form-group col-md-6">
 			            <label for="category_ids">Category</label>
 			                <?php
-				            	echo $allCategoriesDropdown;
-				             ?>
+		   echo $allCategoriesDropdown;
+		?>
 				     </div>
 			     {{else}}
 			     	<div class="form-group col-md-6">
 			            <label for="category_id">Category</label>
 			                <?php
-				            	echo $allMultipleCategoriesDropdown;
-				             ?>
+		   echo $allMultipleCategoriesDropdown;
+		?>
 				     </div>
 			     {{/if}}
 		         {{if data && data.id}}
@@ -69,10 +69,10 @@
 			            <select name="country_code" class="form-control">
 			            	<option value="">-- N/A --</option>
 				            <?php
-								foreach(\App\SimplyDutyCountry::all() as $k => $l) {
-									echo "<option {{if data.country_code == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
-								}
-							?>
+		   foreach (\App\SimplyDutyCountry::all() as $k => $l) {
+		       echo "<option {{if data.country_code == '" . $l->country_code . "'}} selected {{/if}} value='" . $l->country_code . "'>" . $l->country_name . '</option>';
+		   }
+		?>
 				         </select>
 			         </div>
 		         {{else}}
@@ -81,10 +81,10 @@
 			            <select name="country_codes[]" class="form-control select2" multiple="multiple">
 			            	<option value="">-- N/A --</option>
 				            <?php
-								foreach(\App\SimplyDutyCountry::all() as $k => $l) {
-									echo "<option {{if data.country_code == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
-								}
-							?>
+		    foreach (\App\SimplyDutyCountry::all() as $k => $l) {
+		        echo "<option {{if data.country_code == '" . $l->country_code . "'}} selected {{/if}} value='" . $l->country_code . "'>" . $l->country_name . '</option>';
+		    }
+		?>
 				         </select>
 			         </div>
 		         {{/if}}

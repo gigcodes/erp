@@ -1,62 +1,54 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
-
 class ReadOnlyBase
 {
-	protected $data = [];
+    protected $data = [];
 
-	public function all(){
+    public function all()
+    {
+        return $this->data;
+    }
 
-		return $this->data;
-	}
+    public function get($id)
+    {
+        return $this->data[$id];
+    }
 
-	public function get($id){
+    public function getID($name)
+    {
+        foreach ($this->data as $key => $value) {
+            if ($key == $name) {
+                return $value;
+            }
+        }
 
-		return $this->data[$id];
-	}
+        return '';
+    }
 
-	public function getID($name){
+    public function getIDCaseInsensitive($name)
+    {
+        foreach ($this->data as $key => $value) {
+            if (strtoupper($key) == strtoupper($name)) {
+                return $value;
+            }
+        }
 
-		foreach ($this->data as $key => $value){
+        return '';
+    }
 
-			if($key == $name)
-				return $value;
-		}
+    public function getNameById($id)
+    {
+        foreach ($this->data as $key => $value) {
+            if ($value == $id) {
+                return $key;
+            }
+        }
 
-		return '';
-
-	}
-
-	public function getIDCaseInsensitive($name){
-
-		foreach ($this->data as $key => $value){
-
-			if( strtoupper($key) == strtoupper($name) )
-				return $value;
-		}
-
-		return '';
-
-	}
-
-
-	public function getNameById($id){
-
-		foreach ($this->data as $key => $value){
-
-			if($value == $id)
-				return $key;
-		}
-
-		return '';
-
-	}
-
-
-
+        return '';
+    }
 }

@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
 use App\Product;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class AttachProductIdOnScraperProductTables extends Command
 {
@@ -43,22 +39,21 @@ class AttachProductIdOnScraperProductTables extends Command
     public function handle()
     {
         // fetch first all order products and then attach the product id into that table
-        $scraperProduct = \App\ScrapedProducts::whereNull("product_id")->get();
-        
-        if(!$scraperProduct->isEmpty()) {
-            foreach($scraperProduct as $sp) {
-                $product = Product::where("sku",$sp->sku)->first();
-                if($product) {
+        $scraperProduct = \App\ScrapedProducts::whereNull('product_id')->get();
+
+        if (! $scraperProduct->isEmpty()) {
+            foreach ($scraperProduct as $sp) {
+                $product = Product::where('sku', $sp->sku)->first();
+                if ($product) {
                     $sp->product_id = $product->id;
-                }else{
+                } else {
                     $sp->product_id = 0;
-                    echo $sp->sku. " can not found in list".PHP_EOL;
+                    echo $sp->sku . ' can not found in list' . PHP_EOL;
                 }
                 $sp->save();
             }
-        }else {
-            echo "All product has been updated now from given table";
+        } else {
+            echo 'All product has been updated now from given table';
         }
-
     }
 }

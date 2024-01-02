@@ -2,27 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
+use App\Website;
+use App\LogRequest;
+use App\StoreWebsite;
+use App\WebsiteStore;
 use App\MagentoSetting;
+use App\WebsiteStoreView;
 use App\MagentoSettingLog;
+use Illuminate\Http\Request;
+use App\MagentoSettingStatus;
 use App\MagentoSettingNameLog;
 use App\MagentoSettingPushLog;
-use App\StoreWebsite;
-use App\Website;
-use App\WebsiteStore;
-use App\WebsiteStoreView;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\MagentoSettingValueHistory;
 
 class MagentoSettingsController extends Controller
 {
-
     public function index(Request $request)
     {
-
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $all_paths = MagentoSetting::groupBy('path')->get()->pluck('path', 'path')->toArray();
+        $all_names = MagentoSetting::groupBy('name')->get()->pluck('name', 'name')->toArray();
         $magentoSettings = MagentoSetting::with(
             'storeview.websiteStore.website.storeWebsite',
             'store.website.storeWebsite',
-            'website');
+            'website',
+            'fromStoreId', 'fromStoreIdwebsite');
 
         $magentoSettings->leftJoin('users', 'magento_settings.created_by', 'users.id');
         $magentoSettings->select('magento_settings.*', 'users.name as uname');
@@ -30,196 +36,251 @@ class MagentoSettingsController extends Controller
             $magentoSettings->where('scope', $request->scope);
         }
         $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
-            ->select('website', 'command', 'magento_setting_push_logs.created_at')->get();
-        if ($request->website) {
+            ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at')->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
 
-            if (empty($request->scope)) {
-                $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                })->orWhereHas('store.website.storeWebsite', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                })->orWhereHas('website', function ($q) use ($request) {
-                    $q->where('id', $request->website);
-                });
-            } else {
-                if ($request->scope == 'default') {
-                    $website_ids = StoreWebsite::where('id', $request->website)->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_ids ?? []);
-                } else if ($request->scope == 'websites') {
-                    $website_ids       = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
-                    $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
-                } else if ($request->scope == 'stores') {
-                    $website_ids            = Website::where('store_website_id', $request->website)->get()->pluck('id')->toArray();
-                    $website_store_ids      = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
-                    $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
-                    $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);
+        if (is_array($request->website)) {
+            foreach ($request->website as $website) {
+                if (empty($request->scope)) {
+                    $magentoSettings->whereHas('storeview.websiteStore.website.storeWebsite', function ($q) use ($website) {
+                        $q->where('id', $website);
+                    })->orWhereHas('store.website.storeWebsite', function ($q) use ($website) {
+                        $q->where('id', $website);
+                    })->orWhereHas('website', function ($q) use ($website) {
+                        $q->where('id', $website);
+                    });
+                } else {
+
+                    if ($request->scope == 'default') {
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_ids ?? []);
+
+                    } elseif ($request->scope == 'websites') {
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('store_website_id', $website_ids ?? []);
+
+                        // $website_ids = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        // $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        // $magentoSettings->whereIn('scope_id', $website_store_ids ?? []);
+
+                    } elseif ($request->scope == 'stores') {
+
+                        $website_ids = StoreWebsite::where('id', $website)->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('store_website_id', $website_ids ?? []);
+                        
+                        /*$website_ids = Website::where('store_website_id', $website)->get()->pluck('id')->toArray();
+                        $website_store_ids = WebsiteStore::whereIn('website_id', $website_ids ?? [])->get()->pluck('id')->toArray();
+                        $website_store_view_ids = WebsiteStoreView::whereIn('website_store_id', $website_store_ids ?? [])->get()->pluck('id')->toArray();
+                        $magentoSettings->whereIn('scope_id', $website_store_view_ids ?? []);*/
+                    }
                 }
+                //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
             }
-            //$pushLogs->where('magento_setting_push_logs.store_website_id', $request->website);
         }
 
-        if ($request->name != '') {
-            $magentoSettings->where('magento_settings.name', 'LIKE', '%' . $request->name . '%');
+        if (isset($request->name) && ! empty($request->name)) {
+            $magentoSettings->whereIn('magento_settings.name', $request->name);
         }
-        if ($request->path != '') {
-            $magentoSettings->where('magento_settings.path', 'LIKE', '%' . $request->path . '%');
+        if (isset($request->path) && ! empty($request->path)) {
+            $magentoSettings->whereIn('magento_settings.path', $request->path);
         }
-        $magentoSettings   = $magentoSettings->orderBy('magento_settings.created_at', 'DESC')->paginate(25);
-        $storeWebsites     = StoreWebsite::get();
-        $websitesStores    = WebsiteStore::get()->pluck('name')->unique()->toArray();
+        if ($request->status != '') {
+            $magentoSettings->where('magento_settings.status', 'LIKE', '%' . $request->status . '%');
+        }
+        if ($request->user_name != null and $request->user_name != 'undefined') {
+            $magentoSettings->whereIn('magento_settings.created_by', $request->user_name);
+        }
+
+        $magentoSettings = $magentoSettings->orderBy('magento_settings.id', 'DESC')->paginate(25);
+        $storeWebsites = StoreWebsite::get();
+        $websitesStores = WebsiteStore::get()->pluck('name')->unique()->toArray();
         $websiteStoreViews = WebsiteStoreView::get()->pluck('code')->unique()->toArray();
-        $data              = $magentoSettings;
-        $data              = $data->groupBy('store_website_id')->toArray();
-        $newValues         = [];
-        foreach ($data as $websiteId => $settings) {
-            $websiteUrl = StoreWebsite::where('id', $websiteId)->pluck('magento_url')->first();
-            if ($websiteUrl != null and $websiteUrl != '') {
-                $bits = parse_url($websiteUrl);
-                if (isset($bits['host'])) {
-                    $web = $bits['host'];
-                    if (!str_contains($websiteUrl, 'www')) {
-                        $web = 'www.' . $bits['host'];
-                    }
-                    $websiteUrl   = 'https://' . $web;
-                    $conf['data'] = [];
-                    foreach ($settings as $setting) {
-                        $conf['data'][] = ['path' => $setting['path'], 'scope' => $setting['scope'], 'scope_id' => $setting['scope_id']];
-                    }
-                    $curl = curl_init();
-                    // Set cURL options
-                    curl_setopt_array($curl, array(
-                        CURLOPT_URL            => $websiteUrl . "/rest/V1/configvalue/get",
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING       => "",
-                        CURLOPT_MAXREDIRS      => 10,
-                        CURLOPT_TIMEOUT        => 300,
-                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST  => "POST",
-                        CURLOPT_POSTFIELDS     => json_encode($conf),
-                        CURLOPT_HTTPHEADER     => array(
-                            "content-type: application/json",
-                        ),
-                    ));
+        $allUsers = User::where('is_active', '1')->get();
+        $magentoSettingStatuses = MagentoSettingStatus::all();
+        $data = $magentoSettings;
+        $data = $data->groupBy('store_website_id')->toArray();
+        $newValues = [];
 
-                    // Get response
-                    $response = curl_exec($curl);
-
-                    $response = json_decode($response, true);
-
-                    foreach ($settings as $key => $setting) {
-                        $newValues[$setting['id']] = isset($response[$key]) ? $response[$key]['value'] : null;
-                    }
-                    curl_close($curl);
-                }
-            }
+        $countList = MagentoSetting::all();
+        if (is_array($request->website) || $request->name || $request->path || $request->status || $request->scope) {
+            $counter = $magentoSettings->count();
+        } else {
+            $counter = $countList->count();
         }
-
+        //dd($magentoSettings);
         if ($request->ajax()) {
             return view('magento.settings.index_ajax', [
-                'magentoSettings'   => $magentoSettings,
-                'newValues'         => $newValues,
-                'storeWebsites'     => $storeWebsites,
-                'websitesStores'    => $websitesStores,
+                'magentoSettings' => $magentoSettings,
+                'newValues' => $newValues,
+                'storeWebsites' => $storeWebsites,
+                'websitesStores' => $websitesStores,
                 'websiteStoreViews' => $websiteStoreViews,
-                'pushLogs'          => $pushLogs,
+                'pushLogs' => $pushLogs,
+                'counter' => $counter,
+                'allUsers' => $allUsers,
+                'magentoSettingStatuses' => $magentoSettingStatuses,
+                'all_paths' => $all_paths,
+                'all_names' => $all_names,
             ]);
         } else {
-
             return view('magento.settings.index', [
-                'magentoSettings'   => $magentoSettings,
-                'newValues'         => $newValues,
-                'storeWebsites'     => $storeWebsites,
-                'websitesStores'    => $websitesStores,
+                'magentoSettings' => $magentoSettings,
+                'newValues' => $newValues,
+                'storeWebsites' => $storeWebsites,
+                'websitesStores' => $websitesStores,
                 'websiteStoreViews' => $websiteStoreViews,
-                'pushLogs'          => $pushLogs,
+                'pushLogs' => $pushLogs,
+                'counter' => $counter,
+                'allUsers' => $allUsers,
+                'magentoSettingStatuses' => $magentoSettingStatuses,
+                'all_paths' => $all_paths,
+                'all_names' => $all_names,
             ]);
+        }
+    }
+
+    public function getLogs(Request $request)
+    {
+        $storeWebsites = StoreWebsite::get();
+        $magentoSettings = MagentoSetting::get();
+        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        ->select('store_websites.website', 'magento_setting_push_logs.id', 'magento_setting_push_logs.command_output', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at', 'magento_setting_push_logs.store_website_id', 'magento_setting_push_logs.command_server', 'magento_setting_push_logs.job_id', 'magento_setting_push_logs.setting_id')
+        ->orderBy('magento_setting_push_logs.id', 'DESC');
+        if ($request->website) {
+            $pushLogs->where('store_website_id', $request->website);
+        }
+        if ($request->date) {
+            $pushLogs->whereDate('magento_setting_push_logs.created_at', $request->date);
+        }
+
+        $counter = MagentoSettingPushLog::select('*');
+        if ($request->website) {
+            $counter->where('store_website_id', $request->website);
+        }
+        if ($request->search_status) {
+            $pushLogs = $pushLogs->where('status', $request->search_status);
+        }
+        if ($request->search_url) {
+            $pushLogs = $pushLogs->where('command_server', 'LIKE', '%' . $request->search_url . '%');
+        }
+        if ($request->request_data) {
+            $pushLogs = $pushLogs->where('command', 'LIKE', '%' . $request->request_data . '%');
+        }
+        if ($request->request_setting) {
+            $pushLogs = $pushLogs->whereHas('setting', function ($query) use ($request) {
+                $query->where('name', 'LIKE', '%' . $request->request_setting . '%');
+            });
+        }
+
+        $pushLogs = $pushLogs->paginate(25)->withQueryString();
+
+        $counter = $counter->count();
+
+        return view('magento.settings.sync_logs', [
+            'pushLogs' => $pushLogs,
+            'storeWebsites' => $storeWebsites,
+            'counter' => $counter,
+            'magentoSettings' => $magentoSettings,
+        ]);
+    }
+
+    public function magentoSyncLogSearch(Request $request)
+    {
+        $pushLogs = MagentoSettingPushLog::leftJoin('store_websites', 'store_websites.id', '=', 'magento_setting_push_logs.store_website_id')
+        ->select('store_websites.website', 'magento_setting_push_logs.status', 'magento_setting_push_logs.command', 'magento_setting_push_logs.created_at');
+        if ($request->sync_date != '') {
+            $pushLogs = $pushLogs->whereDate('magento_setting_push_logs.created_at', date('Y-m-d', strtotime($request->sync_date)));
+        }
+
+        $pushLogs = $pushLogs->orderBy('magento_setting_push_logs.created_at', 'DESC')->get();
+        if (! empty($pushLogs)) {
+            return response()->json(['status' => 200, 'data' => $pushLogs, 'msg' => 'Data Listed successfully!']);
+        } else {
+            return response()->json(['status' => 500, 'data' => [], 'msg' => 'Could, not find data!']);
         }
     }
 
     public function create(Request $request)
     {
-        $name         = $request->name;
-        $path         = $request->path;
-        $value        = $request->value;
-        $datatype     = $request->datatype;
-        $copyWebsites = (!empty($request->websites)) ? $request->websites : array();
-
+        $name = $request->name;
+        $path = $request->path;
+        $value = $request->value;
+        $datatype = $request->datatype;
+        $copyWebsites = (! empty($request->websites)) ? $request->websites : [];
+        $save_record_status = 0;
         foreach ($request->scope as $scope) {
-
             if ($scope === 'default') {
-
                 $totalWebsites = array_merge($request->website, $copyWebsites);
                 $storeWebsites = StoreWebsite::whereIn('id', $totalWebsites)->get();
 
                 foreach ($storeWebsites as $storeWebsite) {
-
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
-                    if (!$m_setting) {
+                    if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope'                 => $scope,
-                            'scope_id'              => $storeWebsite->id,
-                            'store_website_id'      => $storeWebsite->id,
-                            'website_store_id'      => 0,
+                            'scope' => $scope,
+                            'scope_id' => $storeWebsite->id,
+                            'store_website_id' => $storeWebsite->id,
+                            'website_store_id' => 0,
                             'website_store_view_id' => 0,
-                            'name'                  => $name,
-                            'path'                  => $path,
-                            'value'                 => $value,
-                            'data_type'             => $datatype,
-                            'created_by'            => Auth::id(),
+                            'name' => $name,
+                            'path' => $path,
+                            'value' => $value,
+                            'data_type' => $datatype,
+                            'created_by' => Auth::id(),
                         ]);
+                        $save_record_status = 1;
                     }
                 }
             }
 
             if ($scope === 'websites') {
-
-                $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
-                $stores        = [];
+                $websiteStores = [];
+                $stores = [];
+                if ($request->website_store != null) {
+                    $websiteStores = WebsiteStore::whereIn('id', $request->website_store)->get();
+                }
                 foreach ($websiteStores as $websiteStore) {
-                    $stores[]  = $websiteStore->code;
+                    $stores[] = $websiteStore->code;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
-                    if (!$m_setting) {
-
+                    if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope'                 => $scope,
-                            'scope_id'              => $websiteStore->id,
-                            'store_website_id'      => $request->single_website,
-                            'website_store_id'      => $websiteStore->id,
+                            'scope' => $scope,
+                            'scope_id' => $websiteStore->id,
+                            'store_website_id' => $request->single_website,
+                            'website_store_id' => $websiteStore->id,
                             'website_store_view_id' => 0,
-                            'name'                  => $name,
-                            'path'                  => $path,
-                            'value'                 => $value,
-                            'data_type'             => $datatype,
-                            'created_by'            => Auth::id(),
+                            'name' => $name,
+                            'path' => $path,
+                            'value' => $value,
+                            'data_type' => $datatype,
+                            'created_by' => Auth::id(),
                         ]);
-
+                        $save_record_status = 1;
                     }
                 }
 
-                if (!empty($copyWebsites)) {
+                if (! empty($copyWebsites) && ! empty($stores)) {
                     foreach ($copyWebsites as $cw) {
-                        $websiteStores = WebsiteStore::join("websites as w", "w.id", "website_stores.website_id")->where("w.store_website_id", $cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_stores.id', $request->website_store)->get();
+                        $websiteStores = WebsiteStore::join('websites as w', 'w.id', 'website_stores.website_id')->where('w.store_website_id', $cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_stores.id', $request->website_store)->get();
                         foreach ($websiteStores as $websiteStore) {
                             $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
-                            if (!$m_setting) {
+                            if (! $m_setting) {
                                 $m_setting = MagentoSetting::Create([
-                                    'scope'                 => $scope,
-                                    'scope_id'              => $websiteStore->id,
-                                    'store_website_id'      => $cw,
-                                    'website_store_id'      => $websiteStore->id,
+                                    'scope' => $scope,
+                                    'scope_id' => $websiteStore->id,
+                                    'store_website_id' => $cw,
+                                    'website_store_id' => $websiteStore->id,
                                     'website_store_view_id' => 0,
-                                    'name'                  => $name,
-                                    'path'                  => $path,
-                                    'value'                 => $value,
-                                    'data_type'             => $datatype,
-                                    'created_by'            => Auth::id(),
+                                    'name' => $name,
+                                    'path' => $path,
+                                    'value' => $value,
+                                    'data_type' => $datatype,
+                                    'created_by' => Auth::id(),
                                 ]);
+                                $save_record_status = 1;
                             }
                         }
                     }
                 }
-
             }
 
             if ($scope === 'stores') {
@@ -230,319 +291,435 @@ class MagentoSettingsController extends Controller
                 //  $websiteStoresViews = WebsiteStoreView::whereIn('id', $request->website_store_view)->get();dd($websiteStoresViews);
                 $stores = [];
                 foreach ($websiteStoresViews as $websiteStoresView) {
-                    $stores[]  = $websiteStoresView->code;
+                    $stores[] = $websiteStoresView->code;
                     $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
-                    if (!$m_setting) {
+                    if (! $m_setting) {
                         $m_setting = MagentoSetting::Create([
-                            'scope'                 => $scope,
-                            'scope_id'              => $websiteStoresView->id,
-                            'store_website_id'      => $request->single_website,
-                            'website_store_id'      => $websiteStoresView->website_store_id,
+                            'scope' => $scope,
+                            'scope_id' => $websiteStoresView->id,
+                            'store_website_id' => $request->single_website,
+                            'website_store_id' => $websiteStoresView->website_store_id,
                             'website_store_view_id' => $websiteStoresView->id,
-                            'name'                  => $name,
-                            'path'                  => $path,
-                            'value'                 => $value,
-                            'data_type'             => $datatype,
-                            'created_by'            => Auth::id(),
+                            'name' => $name,
+                            'path' => $path,
+                            'value' => $value,
+                            'data_type' => $datatype,
+                            'created_by' => Auth::id(),
                         ]);
+                        $save_record_status = 1;
                     }
                 }
 
-                if (!empty($copyWebsites)) {
+                if (! empty($copyWebsites)) {
                     foreach ($copyWebsites as $cw) {
-
                         //$websiteStoresViews = WebsiteStoreView::join("websites as w","w.id","website_store_views.website_store_id")->where("w.store_website_id",$cw)->whereIn('website_stores.code', $stores)->whereNotIn('website_store_id.id', $request->website_store_view)->get();
-                        $websiteStoresViews = WebsiteStoreView::join("websites as w", "w.id", "website_store_views.website_store_id")->where("w.store_website_id", $cw)->whereIn('website_stores.code', $stores);
+                        $websiteStoresViews = WebsiteStoreView::join('websites as w', 'w.id', 'website_store_views.website_store_id')->where('w.store_website_id', $cw)->whereIn('website_stores.code', $stores);
 
                         foreach ($websiteStoresViews as $websiteStoresView) {
                             $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
-                            if (!$m_setting) {
+                            if (! $m_setting) {
                                 $m_setting = MagentoSetting::Create([
-                                    'scope'                 => $scope,
-                                    'scope_id'              => $websiteStoresView->id,
-                                    'store_website_id'      => $cw,
-                                    'website_store_id'      => $websiteStoresView->website_store_id,
+                                    'scope' => $scope,
+                                    'scope_id' => $websiteStoresView->id,
+                                    'store_website_id' => $cw,
+                                    'website_store_id' => $websiteStoresView->website_store_id,
                                     'website_store_view_id' => $websiteStoresView->id,
-                                    'name'                  => $name,
-                                    'path'                  => $path,
-                                    'value'                 => $value,
-                                    'data_type'             => $datatype,
-                                    'created_by'            => Auth::id(),
+                                    'name' => $name,
+                                    'path' => $path,
+                                    'value' => $value,
+                                    'data_type' => $datatype,
+                                    'created_by' => Auth::id(),
                                 ]);
+                                $save_record_status = 1;
                             }
                         }
                     }
                 }
-
             }
-
         }
 
-        return response()->json(['status' => true]);
+        $return = [];
+        if ($save_record_status == 1) {
+            $return = ['code' => 200, 'message' => 'Magento setting has been created.'];
+        } else {
+            $return = ['code' => 500, 'message' => 'Magento setting has not been created.'];
+        }
 
+        return response()->json($return);
     }
 
     public function update(Request $request)
     {
-
-        $entity_id      = $request->id;
-        $scope          = $request->scope;
-        $name           = $request->name;
-        $path           = $request->path;
-        $value          = $request->value;
-        $datatype       = $request->datatype;
-        $is_live        = isset($request->live);
+        $entity_id = $request->id;
+        $scope = $request->scope;
+        $name = $request->name;
+        $path = $request->path;
+        $value = $request->value;
+        $datatype = $request->datatype;
+        $is_live = isset($request->live);
         $is_development = isset($request->development);
-        $is_stage       = isset($request->stage);
-        $website_ids    = $request->websites;
+        $is_stage = isset($request->stage);
+        $website_ids = $request->websites;
 
         $m = MagentoSetting::where('id', $request->id)->first();
         if ($m) {
             MagentoSettingNameLog::insert([
-                'old_value'           => $m->name,
-                'new_value'           => $name,
-                'updated_by'          => Auth::id(),
+                'old_value' => $m->name,
+                'new_value' => $name,
+                'updated_by' => Auth::id(),
                 'magento_settings_id' => $request->id,
-                'updated_at'          => date('Y-m-d H:i'),
+                'updated_at' => date('Y-m-d H:i'),
             ]);
         }
 
         MagentoSetting::where('id', $request->id)->update([
-            'name'  => $name,
-            'path'  => $path,
+            'name' => $name,
+            'path' => $path,
             'value' => $value,
         ]);
 
-        $entity = MagentoSetting::find($entity_id);
-
-        if ($scope === 'default') {
-
-            $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->orWhere('website', $request->website)->get();
-
-            foreach ($storeWebsites as $storeWebsite) {
-                $git_repository = $storeWebsite->repository;
-                $magento_url    = $storeWebsite->magento_url;
-                $server_name    = config('database.connections.' . $git_repository . '.host');
-                if ($magento_url != null) {
-                    $magento_url = explode('//', $magento_url);
-                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
-                    $m_setting   = MagentoSetting::where('scope', $scope)->where('scope_id', $storeWebsite->id)->where('path', $path)->first();
-                    if (!$m_setting) {
-                        $m_setting = MagentoSetting::Create([
-                            'scope'     => $scope,
-                            'scope_id'  => $storeWebsite->id,
-                            'name'      => $name,
-                            'path'      => $path,
-                            'value'     => $value,
-                            'data_type' => $datatype,
-                        ]);
-                    } else {
-                        $m_setting->name      = $name;
-                        $m_setting->path      = $path;
-                        $m_setting->value     = $value;
-                        $m_setting->data_type = $datatype;
-                        $m_setting->save();
-                    }
-                    $scopeID     = 0;
-                    $magento_url = str_replace('www.', '', $magento_url);
-                    $magento_url = str_replace('.com', '', $magento_url);
-
-                    //BASE SCRIPT
-                    if (!empty($git_repository)):
-                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput   = array();
-                        $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command
-                        $status      = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
-                                $status = 'Success';
-                                break;
-                            }
-                        }
-                        $m_setting->status = $status;
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                        \Log::info(print_r(["Command Output", $allOutput], true));
-                    else:
-                        return response()->json(["code" => 500, "message" => "Request has been failed on stage server please check laravel log"]);
-                    endif;
-
-                }
-            }
-
-            return response()->json(["code" => 200, "message" => "Request pushed on website successfully"]);
-
-        } else if ($scope === 'websites') {
-
-            $store         = $request->store;
-            $website       = $request->website;
-            $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids, $entity_id) {
-                $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
-            })->orWhere('id', $entity->scope_id)->get();
-
-            foreach ($websiteStores as $websiteStore) {
-                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
-                $magento_url    = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
-                $server_name    = config('database.connections.' . $git_repository . '.host');
-                if ($magento_url != null) {
-                    $magento_url = explode('//', $magento_url);
-                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStore->website->storeWebsite->magento_url;
-                    $m_setting   = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
-                    if (!$m_setting) {
-                        $m_setting = MagentoSetting::Create([
-                            'scope'     => $scope,
-                            'scope_id'  => $websiteStore->id,
-                            'name'      => $request->name,
-                            'path'      => $request->path,
-                            'value'     => $request->value,
-                            'data_type' => $datatype,
-                        ]);
-                    } else {
-                        $m_setting->name      = $name;
-                        $m_setting->path      = $path;
-                        $m_setting->value     = $value;
-                        $m_setting->data_type = $datatype;
-                        $m_setting->save();
-                    }
-                    $scopeID     = $websiteStore->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
-                    $magento_url = str_replace('.com', '', $magento_url);
-
-                    //BASE SCRIPT
-                    if (!empty($git_repository)):
-                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput   = array();
-                        $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command
-                        $status      = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if ($allOutput[$i] == "Pull Request Successfully merged") {
-                                $status = 'Success';
-                                break;
-                            }
-                        }
-                        $m_setting->status = $status;
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                        \Log::info(print_r(["Command Output", $allOutput], true));
-                    else:
-                        return response()->json(["code" => 500, "message" => "Request has been failed on stage server please check laravel log"]);
-                    endif;
-
-                }
-
-            }
-
-            return response()->json(["code" => 200, "message" => "Request pushed on website successfully"]);
-
-        } else if ($scope === 'stores') {
-
-            $store      = $request->store;
-            $store_view = $request->store_view;
-
-            $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
-                $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
-            })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
-
-            foreach ($websiteStoresViews as $websiteStoresView) {
-                $git_repository = isset($websiteStore->website->storeWebsite->repository) ? $websiteStore->website->storeWebsite->repository : null;
-                $magento_url    = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
-                $server_name    = config('database.connections.' . $git_repository . '.host');
-                if ($magento_url != null) {
-                    $magento_url = explode('//', $magento_url);
-                    $magento_url = isset($magento_url[1]) ? $magento_url[1] : $websiteStoresView->websiteStore->website->storeWebsite->magento_url;
-                    $m_setting   = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
-                    if (!$m_setting) {
-                        $m_setting = MagentoSetting::Create([
-                            'scope'     => $scope,
-                            'scope_id'  => $websiteStoresView->id,
-                            'name'      => $request->name,
-                            'path'      => $request->path,
-                            'value'     => $request->value,
-                            'data_type' => $datatype,
-                        ]);
-                    } else {
-                        $m_setting->name      = $name;
-                        $m_setting->path      = $path;
-                        $m_setting->value     = $value;
-                        $m_setting->data_type = $datatype;
-                        $m_setting->save();
-                    }
-                    $scopeID     = $websiteStoresView->platform_id;
-                    $magento_url = str_replace('www.', '', $magento_url);
-                    $magento_url = str_replace('.com', '', $magento_url);
-
-                    //BASE SCRIPT
-                    if (!empty($git_repository)):
-
-                        $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $scope . ' -c ' . $scopeID . ' -p ' . $path . " -v  '" . $value . "' -t " . $datatype . ' -h ' . $server_name;
-                        $allOutput   = array();
-                        $allOutput[] = $cmd;
-                        $result      = exec($cmd, $allOutput); //Execute command
-                        $status      = 'Error';
-                        for ($i = 0; $i < count($allOutput); $i++) {
-                            if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged")) {
-                                $status = 'Success';
-                                break;
-                            }
-                        }
-                        $m_setting->status = $status;
-                        $m_setting->save();
-                        MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                        \Log::info(print_r(["Command Output", $allOutput], true));
-                    else:
-                        return response()->json(["code" => 500, "message" => "Request has been failed on stage server please check laravel log"]);
-                    endif;
-
-                }
-
-            }
-
-            return response()->json(["code" => 200, "message" => "Request pushed on website successfully"]);
-
+        if ($value !== $m->value) {
+            $history = new MagentoSettingValueHistory();
+            $history->magento_setting_id = $m->id;
+            $history->old_value = $m->value;
+            $history->new_value = $value;
+            $history->user_id = Auth::user()->id;
+            $history->save();
         }
 
+        $entity = MagentoSetting::find($entity_id);
+
+        //$path = 'bss_geoip/general/country';
+
+        //$value = 'QA';
+
+        $selectedCheckboxes = [$request->id];
+        if(!empty($request->selectedCheckboxes)){
+            $selectedCheckboxes = explode(",", $request->selectedCheckboxes);
+        }
+
+        //\App\Jobs\PushMagentoSettings::dispatch($magentoSetting, $website_ids)->onQueue('pushmagentosettings');
+
+        //\App\Jobs\AdminSettingCommandJob::dispatch($selectedCheckboxes, $path, $value)->onQueue('admin_setting_command');
+
+        \Log::info("Admin setting command");
+        foreach ($selectedCheckboxes as $key => $values) {
+            
+            $magentoSettings = MagentoSetting::where('id', $values)->first();
+        
+            $requestData['command'] = 'bin/magento config:set '.$path.' '.$value;
+            \Log::info("REquest command ".$requestData['command']);
+            $storeWebsiteData = StoreWebsite::where('id', $magentoSettings->store_website_id)->first();
+
+            if(!empty($storeWebsiteData)){
+                $requestData['server'] = $storeWebsiteData->server_ip;
+                $requestData['dir'] = $storeWebsiteData->working_directory;
+            }
+
+            if(!empty($requestData['command']) && !empty($requestData['server']) && !empty($requestData['dir'])){
+
+                $requestJson = json_encode($requestData);
+
+                // Initialize cURL session
+                $ch = curl_init();
+
+                // Set cURL options for a POST request
+                curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($requestJson)
+                ));
+
+                // Execute cURL session and store the response in a variable
+                $response = curl_exec($ch);
+
+                // Check for cURL errors
+                if(curl_errno($ch)) {
+                    echo 'Curl error: ' . curl_error($ch);
+                }
+
+                // Close cURL session
+                curl_close($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                $responseData = json_decode($response);
+                \Log::info("responseData".print_r($responseData,true));
+                $status = 'Error';
+                if(isset($responseData->success)){
+                    if($responseData->success==1){
+                        $status = 'Success';
+                    }
+                }
+
+                MagentoSettingPushLog::create(['store_website_id' => $magentoSettings->store_website_id, 'command' => json_encode($requestData), 'setting_id' => $values, 'command_output' =>$response, 'status' => $status,'command_server'=>'http://s10.theluxuryunlimited.com:5000/execute','job_id'=>$httpcode ]);
+
+            }
+        }
+
+        // // #DEVTASK-23677-api implement for admin settings
+        // \Log::info("Setting Scope : ".$scope);
+        // // Scope Default
+        // if ($scope === 'default') {
+        //     $storeWebsites = StoreWebsite::whereIn('id', $website_ids ?? [])->get();
+        //     foreach ($storeWebsites as $storeWebsite) {
+        //         $store_website_id=$storeWebsite->id;
+        //         \Log::info("Start Setting Pushed to : ".$store_website_id);
+        //         $api_token=$storeWebsite->api_token;
+        //         $magento_url=$storeWebsite->magento_url;
+
+        //         $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $store_website_id)->where('path', $path)->first();
+        //         if (! $m_setting) {
+        //             $m_setting = MagentoSetting::Create([
+        //                 'scope' => $scope,
+        //                 'scope_id' => $store_website_id,
+        //                 'name' => $name,
+        //                 'path' => $path,
+        //                 'value' => $value,
+        //                 'data_type' => $datatype,
+        //             ]);
+        //         } else {
+        //             $m_setting->name = $name;
+        //             $m_setting->path = $path;
+        //             $m_setting->value = $value;
+        //             $m_setting->data_type = $datatype;
+        //             $m_setting->save();
+        //         }
+
+        //         $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+        //         $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+        //         $data=[];
+        //         $data['scopeId']=0;
+        //         $data['scopeType']="default";
+        //         $data['configs'][]=['path'=>$path,'value'=>$value];
+
+        //         $ch = curl_init($url);
+        //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        //         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
+        //         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        //         $result = curl_exec($ch);
+        //         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //         \Log::info(print_r([json_encode($data), $url, $result], true));
+
+        //         LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
+
+        //         if (curl_errno($ch)) {
+        //             \Log::info("API Error: ".curl_error($ch));
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => son_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //         }
+
+        //         $response = json_decode($result);
+        //         curl_close($ch);
+        //         if($httpcode=='200'){
+        //             $m_setting->status ='Success';
+        //             $m_setting->value_on_magento =$value;
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url,'job_id'=>$httpcode ]);
+
+        //         }else{
+        //             $m_setting->status ='Error';
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $m_setting->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //         }
+        //         \Log::info("End Setting Pushed to : ".$store_website_id);
+        //     }
+        //     return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
+        // }
+        // // Scope Default
+        // if ($scope === 'websites') {
+        //     $store = $request->store;
+        //     $website = $request->website;
+
+        //     $websiteStores = WebsiteStore::with('website.storeWebsite')->whereHas('website', function ($q) use ($store, $website_ids) {
+        //         $q->whereIn('store_website_id', $website_ids ?? [])->where('name', $store);
+        //     })->orWhere('id', $entity->scope_id)->get();
+
+        //     foreach ($websiteStores as $websiteStore) {
+        //         $store_website_id = isset($websiteStore->website->storeWebsite->id) ? $websiteStore->website->storeWebsite->id : 0;
+
+        //         \Log::info("Start Setting Pushed to : ".$store_website_id);
+        //         \Log::info("Website Store : ".$websiteStore->id);
+
+        //         $magento_url = isset($websiteStore->website->storeWebsite->magento_url) ? $websiteStore->website->storeWebsite->magento_url : null;
+        //         $api_token = isset($websiteStore->website->storeWebsite->api_token) ? $websiteStore->website->storeWebsite->api_token : null;
+
+        //         $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStore->id)->where('path', $path)->first();
+        //         if (! $m_setting) {
+        //             $m_setting = MagentoSetting::Create([
+        //                 'scope' => $scope,
+        //                 'scope_id' => $websiteStore->id,
+        //                 'name' => $request->name,
+        //                 'path' => $request->path,
+        //                 'value' => $request->value,
+        //                 'data_type' => $datatype,
+        //             ]);
+        //         } else {
+        //             $m_setting->name = $name;
+        //             $m_setting->path = $path;
+        //             $m_setting->value = $value;
+        //             $m_setting->data_type = $datatype;
+        //             $m_setting->save();
+        //         }
+        //         $scopeID = $websiteStore->platform_id;
+        //         if (! empty($magento_url) && !empty($api_token)) {
+        //             $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+        //             $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+        //             $data=[];
+        //             $data['scopeId']=$scopeID;
+        //             $data['scopeType']="websites";
+        //             $data['configs'][]=['path'=>$path,'value'=>$value];
+
+        //             $ch = curl_init($url);
+        //             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        //             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
+        //             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        //             $result = curl_exec($ch);
+        //             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //             \Log::info(print_r([json_encode($data), $url, $result], true));
+
+        //             LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
+
+        //             if (curl_errno($ch)) {
+        //                 \Log::info("API Error: ".curl_error($ch));
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url ,'job_id'=>$httpcode]);
+        //             }
+
+        //             $response = json_decode($result);
+        //             curl_close($ch);
+        //             if($httpcode=='200'){
+        //                 $m_setting->status ='Success';
+        //                 $m_setting->value_on_magento =$value;
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
+
+        //             }else{
+        //                 $m_setting->status ='Error';
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //             }
+
+        //         }else{
+        //             $m_setting->status ='Error';
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
+        //         }
+        //         \Log::info("End Setting Pushed to : ".$store_website_id);
+
+        //     }
+        //     return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
+        // }
+        // // Scope Default
+        // if ($scope === 'stores') {
+        //     $store = $request->store;
+        //     $store_view = $request->store_view;
+        //     $websiteStoresViews = WebsiteStoreView::with('websiteStore.website.storeWebsite')->whereHas('websiteStore.website', function ($q) use ($store, $website_ids) {
+        //         $q->where('name', $store)->whereIn('store_website_id', $website_ids ?? []);
+        //     })->where('code', $store_view)->orWhere('id', $entity->scope_id)->get();
+
+        //     foreach ($websiteStoresViews as $websiteStoresView) {
+        //         $store_website_id = isset($websiteStoresView->websiteStore->website->storeWebsite->id) ? $websiteStoresView->websiteStore->website->storeWebsite->id : 0;
+
+        //         \Log::info("Start Setting Pushed to : ".$store_website_id);
+        //         \Log::info("Website Store View : ".$websiteStoresView->id);
+
+        //         $magento_url = isset($websiteStoresView->websiteStore->website->storeWebsite->magento_url) ? $websiteStoresView->websiteStore->website->storeWebsite->magento_url : null;
+        //         $api_token = isset($websiteStoresView->websiteStore->website->storeWebsite->api_token) ? $websiteStoresView->websiteStore->website->storeWebsite->api_token : null;
+
+        //         $m_setting = MagentoSetting::where('scope', $scope)->where('scope_id', $websiteStoresView->id)->where('path', $path)->first();
+        //         if (! $m_setting) {
+        //             $m_setting = MagentoSetting::Create([
+        //                 'scope' => $scope,
+        //                 'scope_id' => $websiteStoresView->id,
+        //                 'name' => $request->name,
+        //                 'path' => $request->path,
+        //                 'value' => $request->value,
+        //                 'data_type' => $datatype,
+        //             ]);
+        //         } else {
+        //             $m_setting->name = $name;
+        //             $m_setting->path = $path;
+        //             $m_setting->value = $value;
+        //             $m_setting->data_type = $datatype;
+        //             $m_setting->save();
+        //         }
+        //         $scopeID = $websiteStoresView->platform_id;
+        //         if (! empty($magento_url) && !empty($api_token)) {
+        //             $startTime  = date("Y-m-d H:i:s", LARAVEL_START);
+        //             $url=rtrim($magento_url, '/') ."/rest/all/V1/store-info/configuration";
+        //             $data=[];
+        //             $data['scopeId']=$scopeID;
+        //             $data['scopeType']="stores";
+        //             $data['configs'][]=['path'=>$path,'value'=>$value];
+
+        //             $ch = curl_init($url);
+        //             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        //             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $api_token));
+        //             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        //             $result = curl_exec($ch);
+        //             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //             \Log::info(print_r([json_encode($data), $url, $result], true));
+
+        //             LogRequest::log($startTime, $url, 'POST', json_encode($data),json_decode($result),$httpcode,\App\Http\Controllers\MagentoSettingsController::class, 'update');
+
+        //             if (curl_errno($ch)) {
+        //                 \Log::info("API Error: ".curl_error($ch));
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>curl_error($ch), 'status' => 'Error','command_server'=>$url,'job_id'=>$httpcode ]);
+        //             }
+
+        //             $response = json_decode($result);
+        //             curl_close($ch);
+        //             if($httpcode=='200'){
+        //                 $m_setting->status ='Success';
+        //                 $m_setting->value_on_magento =$value;
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>'Success', 'status' => 'Success','command_server'=>$url ,'job_id'=>$httpcode]);
+
+        //             }else{
+        //                 $m_setting->status ='Error';
+        //                 $m_setting->save();
+        //                 MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => json_encode($data), 'setting_id' => $entity->id, 'command_output' =>$result, 'status' => 'Error','command_server'=>$url ,'job_id'=>$httpcode]);
+        //             }
+
+        //         }else{
+        //             $m_setting->status ='Error';
+        //             $m_setting->save();
+        //             MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => '', 'setting_id' => $m_setting->id, 'command_output' =>'Magento URL & API Token is not found', 'status' => 'Error','job_id'=>'500']);
+        //         }
+        //         \Log::info("End Setting Pushed to : ".$store_website_id);
+        //     }
+        //     return response()->json(['code' => 200, 'message' => 'Request pushed on selected website successfully. Please check logs for more details']);
+        // }
+        // // #DEVTASK-23677-api implement for admin settings
+
+        // #DEVTASK-23690-Magento Admin Settings - The above logic was not need, So I hide that.
+        return response()->json(['code' => 200, 'message' => 'Updated successfully !']);
     }
 
     public function pushMagentoSettings(Request $request)
     {
-        $store_website_id    = $request->store_website_id;
-        $magentoSettings     = MagentoSetting::where('store_website_id', $store_website_id)->get();
-        $settings            = '';
-        $storeWebsiteDetails = StoreWebsite::leftJoin('github_repositories', 'github_repositories.id', '=', 'store_websites.repository_id')
-            ->where('store_websites.id', $store_website_id)->select('github_repositories.name as repo_name')->first();
-
-        foreach ($magentoSettings as $magentoSetting) {
-            if ($magentoSetting['scope'] == 'default') {
-                $scopeId = 0;
-            } else if ($scope === 'websites') {
-                $scopeId = WebsiteStore::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
-            } else if ($scope === 'stores') {
-                $scopeId = WebsiteStoreView::where('id', $magentoSetting['scope_id'])->pluck('platform_id')->first();
+        if ($request->has('store_website_id') && $request->store_website_id != '') {
+            $store_website_id = $request->store_website_id;
+            $magentoSettings = MagentoSetting::where('store_website_id', $store_website_id)->get();
+            $website_ids[] = $store_website_id;
+            foreach ($magentoSettings as $magentoSetting) {
+                \App\Jobs\PushMagentoSettings::dispatch($magentoSetting, $website_ids)->onQueue('pushmagentosettings');
             }
-            $settings .= $magentoSetting['scope'] . ',' . $scopeId . ',' . $magentoSetting['path'] . ',' . $magentoSetting['value'] . PHP_EOL;
-        }
-        if ($settings != '') {
-            $filePath = public_path() . "/uploads/temp-sync.txt";
-            $myfile   = fopen($filePath, "w") or die("Unable to open file!");
-            fwrite($myfile, $settings);
-            fclose($myfile);
 
-           $cmd         = "bash " . "magento-config-deployment.sh -r " . $storeWebsiteDetails['repo_name'] . " -f '" . $filePath."'"; 
-            $allOutput   = array();
-            $allOutput[] = $cmd;
-            $result      = exec($cmd, $allOutput); //Execute command
-
-            \Log::info(print_r(["Command Output", $allOutput], true));
-            MagentoSettingPushLog::create(['store_website_id' => $store_website_id, 'command' => $cmd, 'setting_id' => $magentoSetting['id'], 'command_output' => json_encode($allOutput)]);
+            return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
         }
-        return redirect(route('magento.setting.index'));
+
+        return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
     }
 
     public function websiteStores(Request $request)
     {
         $website_ids = Website::where('store_website_id', $request->website_id)->get()->pluck('id')->toArray();
+
         return response()->json([
             'data' => WebsiteStore::select('id', 'name')->whereNotNull('name')->whereIn('website_id', $website_ids)->get(),
         ]);
@@ -550,8 +727,14 @@ class MagentoSettingsController extends Controller
 
     public function websiteStoreViews(Request $request)
     {
+        $website_store_ids = $request->website_id;
+        $website_store_view_data = [];
+        if (! empty($website_store_ids)) {
+            $website_store_view_data = WebsiteStoreView::select('id', 'code')->whereNotNull('code')->whereIn('website_store_id', $website_store_ids)->get();
+        }
+
         return response()->json([
-            'data' => WebsiteStoreView::select('id', 'code')->whereNotNull('code')->where('website_store_id', $request->website_id)->get(),
+            'data' => $website_store_view_data,
         ]);
     }
 
@@ -560,185 +743,174 @@ class MagentoSettingsController extends Controller
         $m_setting = MagentoSetting::find($id);
         if ($m_setting) {
             $m_setting->delete();
-            $log      = $id . " Id Deleted successfully";
-            $formData = ['event' => "delete", 'log' => $log];
+            $log = $id . ' Id Deleted successfully';
+            $formData = ['event' => 'delete', 'log' => $log];
             MagentoSettingLog::create($formData);
         }
+
         return redirect()->route('magento.setting.index');
     }
 
     public function namehistrory($id)
     {
-
-        $ms    = MagentoSettingNameLog::select('magento_setting_name_logs.*', 'users.name')->leftJoin('users', 'magento_setting_name_logs.updated_by', 'users.id')->where('magento_settings_id', $id)->get();
+        $ms = MagentoSettingNameLog::select('magento_setting_name_logs.*', 'users.name')->leftJoin('users', 'magento_setting_name_logs.updated_by', 'users.id')->where('magento_settings_id', $id)->get();
         $table = "<table class='table table-bordered text-nowrap' style='border: 1px solid #ddd;'><thead><tr><th>Date</th><th>Old Value</th><th>New Value</th><th>Created By</th></tr></thead><tbody>";
         foreach ($ms as $m) {
-            $table .= "<tr><td>" . $m->updated_at . "</td>";
-            $table .= "<td>" . $m->old_value . "</td>";
-            $table .= "<td>" . $m->new_value . "</td>";
-            $table .= "<td>" . $m->name . "</td></tr>";
+            $table .= '<tr><td>' . $m->updated_at . '</td>';
+            $table .= '<td>' . $m->old_value . '</td>';
+            $table .= '<td>' . $m->new_value . '</td>';
+            $table .= '<td>' . $m->name . '</td></tr>';
         }
-        $table .= "</tbody></table>";
+        $table .= '</tbody></table>';
         echo $table;
     }
 
     public function magentoPushLogs($settingId)
     {
-        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->get();
+        $logs = MagentoSettingPushLog::where('setting_id', $settingId)->orderBy('id', 'desc')->get();
         $data = '';
         foreach ($logs as $log) {
-            $cmdOutputs = json_decode($log['command_output']);
-            $data .= '<tr><td>' . $log['created_at'] . '</td><td>' . $log['command'] . '</td><td>' . $log['status'] . '</td><td>';
-            if (!empty($cmdOutputs)) {
-                foreach ($cmdOutputs as $cmdOutput) {
-                    $data .= $cmdOutput . '<br/>';
-                }
-            }
-            $data .= '</td></tr>';
+            $data .= '<tr><td>' . $log['created_at'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_server'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command'] . '</td><td style="overflow-wrap: anywhere;">' . $log['command_output'] . '</td><td>' . $log['job_id'] . '</td><td>' . $log['status'] . '</td></tr>';
         }
         echo $data;
     }
 
-    public function updateViaFile(Request $request)
+    public function getAllStoreWebsites($id)
     {
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $data = file_get_contents($file->getRealPath());
-            if (!empty($data)) {
-                $config = preg_split('/\r\n|\r|\n/', $data);
-                if (!empty($config) && is_array($config)) {
-                    $total = 0;
-                    foreach ($config as $c) {
-                        $entity = MagentoSetting::where('path', $c)->get();
-                        if (!$entity->isEmpty()) {
-                            foreach ($entity as $m_setting) {
-                                if ($m_setting->scope === 'default') {
-                                    $storeWebsite = $m_setting->website;
-                                    if ($storeWebsite) {
-                                        $git_repository = $storeWebsite->repository;
-                                        $magento_url    = $storeWebsite->magento_url;
-                                        $server_name    = config('database.connections.' . $git_repository . '.host');
-                                        if ($magento_url != null) {
-                                            $magento_url          = explode('//', $magento_url);
-                                            $magento_url          = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
-                                            $m_setting->data_type = 'sensitive';
-                                            $m_setting->save();
+        $storeWebsites = StoreWebsite::where('parent_id', '=', $id)->get();
 
-
-                                            $scopeID     = 0;
-                                            $magento_url = str_replace('www.', '', $magento_url);
-                                            $magento_url = str_replace('.com', '', $magento_url);
-
-                                            //BASE SCRIPT
-                                            if (!empty($git_repository)) {
-                                                $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput   = array();
-                                                $allOutput[] = $cmd;
-                                                $result      = exec($cmd, $allOutput); //Execute command
-                                                $status      = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
-                                                $m_setting->status = $status;
-                                                $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $storeWebsite['id'], 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                                                \Log::info(print_r(["Command Output", $allOutput], true));
-                                            }
-                                        }
-                                    }
-                                } else if ($m_setting->scope === 'websites') {
-                                    $storeWebsite = $m_setting->website;
-                                    if ($storeWebsite) {
-                                        $git_repository = $storeWebsite->repository;
-                                        $magento_url    = $storeWebsite->magento_url;
-                                        $server_name    = config('database.connections.' . $git_repository . '.host');
-                                        if ($magento_url != null) {
-                                            $magento_url = explode('//', $magento_url);
-                                            $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
-
-                                            $m_setting->data_type = 'sensitive';
-                                            $m_setting->save();
-
-                                            $scopeID     = $m_setting->store->platform_id;
-                                            $magento_url = str_replace('www.', '', $magento_url);
-                                            $magento_url = str_replace('.com', '', $magento_url);
-
-                                            //BASE SCRIPT
-                                            if (!empty($git_repository)) {
-                                                $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput   = array();
-                                                $allOutput[] = $cmd;
-                                                $result      = exec($cmd, $allOutput); //Execute command
-                                                $status      = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if ($allOutput[$i] == "Pull Request Successfully merged") {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
-                                                $m_setting->status = $status;
-                                                $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                                                \Log::info(print_r(["Command Output", $allOutput], true));
-                                            }
-                                        }
-                                    }
-
-                                } else if ($m_setting->scope === 'stores') {
-                                    $storeWebsite = $m_setting->website;
-                                    if ($storeWebsite) {
-                                        $git_repository = isset($storeWebsite->repository) ? $storeWebsite->repository : null;
-                                        $magento_url    = isset($storeWebsite->magento_url) ? $storeWebsite->magento_url : null;
-                                        $server_name    = config('database.connections.' . $git_repository . '.host');
-                                        if ($magento_url != null) {
-                                            $magento_url = explode('//', $magento_url);
-                                            $magento_url = isset($magento_url[1]) ? $magento_url[1] : $storeWebsite->magento_url;
-
-                                            $m_setting->data_type = 'sensitive';
-                                            $m_setting->save();
-
-                                            $scopeID     = $m_setting->storeview->platform_id;
-                                            $magento_url = str_replace('www.', '', $magento_url);
-                                            $magento_url = str_replace('.com', '', $magento_url);
-
-                                            //BASE SCRIPT
-                                            if (!empty($git_repository)) {
-                                                $cmd         = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-config-deployment.sh -r ' . $git_repository . ' -s ' . $m_setting->scope . ' -c ' . $scopeID . ' -p ' . $c . ' -v ' . $m_setting->value . ' -t ' . $m_setting->data_type . ' -h ' . $server_name;
-                                                $allOutput   = array();
-                                                $allOutput[] = $cmd;
-                                                $result      = exec($cmd, $allOutput); //Execute command
-                                                $status      = 'Error';
-                                                for ($i = 0; $i < count($allOutput); $i++) {
-                                                    if (strtolower($allOutput[$i]) == strtolower("Pull Request Successfully merged")) {
-                                                        $status = 'Success';
-                                                        break;
-                                                    }
-                                                }
-                                                $m_setting->status = $status;
-                                                $m_setting->save();
-                                                MagentoSettingPushLog::create(['store_website_id' => $websiteStoresView->websiteStore->website->storeWebsite->id, 'command' => $cmd, 'setting_id' => $m_setting['id'], 'command_output' => json_encode($allOutput), 'status' => $status]);
-                                                \Log::info(print_r(["Command Output", $allOutput], true));
-                                            }
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                    return redirect()->back()->withSuccess('Job has been finished');
-                }else{
-                    return redirect()->back()->withErrors('Oops, no path found on file');
-                }
-            }else{
-                return redirect()->back()->withErrors('Oops, Looks like submitted empty file');
-            }
-        }else{
-            return redirect()->back()->withErrors('Please select valid file for update sensitive paths');
-        }
+        return response()->json($storeWebsites);
     }
 
+    public function getMagentoSetting($id)
+    {
+        $magentoSetting = MagentoSetting::where('id', $id)->first();
+        $taggedStoreWebsites = '';
+
+        if ($magentoSetting) {
+            if ($magentoSetting->store_website_id) {
+                $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
+                if ($storeWebsite->parent_id) {
+                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+
+                    return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+                } else {
+                    $taggedStoreWebsites = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+
+                    return response()->json(['code' => 200, 'taggedWebsites' => $taggedStoreWebsites]);
+                }
+            }
+
+            return response()->json(['code' => 500, 'error' => 'No data found']);
+        }
+
+        return response()->json(['code' => 500, 'error' => 'Id is wrong!']);
+    }
+
+    public function pushRowMagentoSettings(Request $request)
+    {
+        if ($request->has('tagged_websites') && $request->has('row_id')) {
+            // Find individual setting
+            $individualSetting = MagentoSetting::with(
+                'storeview.websiteStore.website.storeWebsite',
+                'store.website.storeWebsite',
+                'website',
+                'fromStoreId', 'fromStoreIdwebsite')->find($request->row_id);
+
+            if ($request->has('new_value') && $individualSetting->value !== $request->new_value) {
+                $history = new MagentoSettingValueHistory();
+                $history->magento_setting_id = $individualSetting->id;
+                $history->old_value = $individualSetting->value;
+                $history->new_value = $request->new_value;
+                $history->user_id = Auth::user()->id;
+                $history->save();
+            }
+            // Assign new value when push
+            if ($request->has('new_value')) {
+                $individualSetting->value = $request->new_value;
+                $individualSetting->save();
+            }
+
+            // Push individual setting to selected websites
+            \App\Jobs\PushMagentoSettings::dispatch($individualSetting, $request->tagged_websites)->onQueue('pushmagentosettings');
+
+            return redirect(route('magento.setting.index'))->with('success', 'Successfully pushed Magento settings to the store website');
+        }
+
+        return redirect(route('magento.setting.index'))->with('error', 'Please select the store website!');
+    }
+
+    public function statusColor(Request $request)
+    {
+        $statusColor = $request->all();
+        $data = $request->except('_token');
+        foreach ($statusColor['color_name'] as $key => $value) {
+            $magentoSettingStatus = MagentoSettingStatus::find($key);
+            $magentoSettingStatus->color = $value;
+            $magentoSettingStatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function assignSetting(Request $request)
+    {
+        $storeWebsite = StoreWebsite::find($request->store_website_id);
+        if ($storeWebsite->parent_id) {
+            $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+        } else {
+            $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+        }
+
+        $allInstancesIds = $allInstances->pluck('id');
+        // Find all the Magento settings for these instances & assing it to the selected user
+        $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->get()->pluck('id')->toArray();
+        if ($allMagentoSettings) {
+            $user = User::find($request->assign_user);
+            $user->magentoSettings()->attach($allMagentoSettings);
+        }
+
+        return redirect()->back()->with('success', 'Assigned successfully.');
+    }
+
+    public function assignIndividualSetting(Request $request)
+    {
+        $magentoSetting = MagentoSetting::where('id', $request->row_id)->first();
+
+        if ($magentoSetting) {
+            $assign_settings[] = $magentoSetting->id;
+            if ($magentoSetting->store_website_id) {
+                $storeWebsite = StoreWebsite::find($magentoSetting->store_website_id);
+                if ($storeWebsite->parent_id) {
+                    $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->parent_id)->orWhere('id', $storeWebsite->parent_id)->get();
+                } else {
+                    $allInstances = StoreWebsite::where('parent_id', '=', $storeWebsite->id)->orWhere('id', $storeWebsite->id)->get();
+                }
+                $allInstancesIds = $allInstances->pluck('id');
+                $allMagentoSettings = MagentoSetting::whereIn('store_website_id', $allInstancesIds)->where('path', $magentoSetting->path)->where('scope', $magentoSetting->scope)->get()->pluck('id')->toArray();
+                $assign_settings = array_merge($assign_settings, $allMagentoSettings);
+            }
+            $user = User::find($request->assign_user);
+            $user->magentoSettings()->attach($assign_settings);
+
+            return redirect()->back()->with('success', 'Assigned successfully.');
+        }
+
+        return redirect()->back()->with('error', 'Not Assigned, MagentoSetting not found');
+    }
+
+    public function magentoSettingvalueHistories($id)
+    {
+        $datas = MagentoSettingValueHistory::with(['user'])
+            ->where('magento_setting_id', $id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }

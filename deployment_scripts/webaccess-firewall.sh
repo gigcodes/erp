@@ -1,20 +1,27 @@
 #!/bin/bash
 
+SCRIPT_NAME=`basename $0`
+
+SSHPORT="22480 2112 22"
+MY_CREDS=/opt/etc/mysql-creds.conf
+source $MY_CREDS
+
 function Add {
-	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw insert 1 allow proto tcp from $IP to any port '80,443' comment '$comment'"
+		
+	ssh -p $PORT -i ~/.ssh/id_rsa root@$SERVER "ufw insert 1 allow proto tcp from $IP to any port '80,443' comment '$comment'" | tee -a ${SCRIPT_NAME}.log
 }
 
 function List {
-	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1,\$5,\$7}'"
+	ssh -p $PORT -i ~/.ssh/id_rsa root@$SERVER "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1,\$5,\$7}'" | tee -a ${SCRIPT_NAME}.log
 }
 
 function Delete {
-	ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1}' |grep -w \"$IP_Numbered\""
+	ssh -p $PORT -i ~/.ssh/id_rsa root@$SERVER "ufw status numbered|tr '][' ' '|grep 80,443|awk '{print \$1}' |grep -w \"$IP_Numbered\"" | tee -a ${SCRIPT_NAME}.log
 	if [ $? -eq 0 ]
 	then
-		ssh -p2112 -i ~/.ssh/id_rsa root@erp.theluxuryunlimited.com "yes|ufw delete $IP_Numbered"
+		ssh -p $PORT -i ~/.ssh/id_rsa root@$SERVER "yes|ufw delete $IP_Numbered" | tee -a ${SCRIPT_NAME}.log
 	else
-		echo "Number is not in the list"
+		echo "Number is not in the list" | tee -a ${SCRIPT_NAME}.log
 		exit 1
 	fi
 }
@@ -49,6 +56,14 @@ do
 	        comment="${args[$((idx+1))]}"
 	        idx=$((idx+2))
 	        ;;
+		-s|--server)
+                SERVER="${args[$((idx+1))]}"
+                idx=$((idx+2))
+                ;;
+		-e|--email)
+                EMAIL="${args[$((idx+1))]}"
+                idx=$((idx+2))
+                ;;
                 -h|--help)
 	        HELP
 	        exit 1
@@ -57,6 +72,27 @@ do
 	        idx=$((idx+1))
 	        ;;
 	esac
+done
+
+
+if [ -z $SERVER ]
+then
+	SERVER=`echo $HOSTNAME`
+fi
+
+if [ -z $EMAIL ]
+then
+        EMAIL="security@thluxuryunlimited.com"
+fi
+
+
+for portssh in $SSHPORT
+do
+	ssh -p $portssh  -i ~/.ssh/id_rsa -q root@$SERVER 'exit' &>> ${SCRIPT_NAME}.log
+	if [ $? -ne 255 ]
+	then
+	        PORT=`echo $portssh`
+	fi
 done
 
 if [ "$function" = "add" ]
@@ -69,3 +105,19 @@ elif [ "$function" = "list" ]
 then
 	List
 fi
+
+if [ ! -z $EMAIL ]
+then
+        mysql -u $DB_USERNAME -h $DB_HOST -p$DB_PASSWORD erp_live -e "insert into ip_logs(server_name,email,ip,is_user,status,message,created_at,updated_at) values('$SERVER','$EMAIL','$IP','1','0','Rule Adde by ERP',now(),now())"
+fi
+
+if [[ $? -eq 0 ]]
+then
+   STATUS="Successful"
+else
+   STATUS="Failed"
+fi
+
+#Call monitor_bash_scripts
+
+sh $SCRIPTS_PATH/monitor_bash_scripts.sh ${SCRIPT_NAME} ${STATUS} ${SCRIPT_NAME}.log

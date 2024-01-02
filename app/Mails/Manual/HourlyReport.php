@@ -5,7 +5,6 @@ namespace App\Mails\Manual;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class HourlyReport extends Mailable
 {
@@ -18,9 +17,12 @@ class HourlyReport extends Mailable
      */
     protected $path;
 
+    public $fromMailer;
+
     public function __construct($path)
     {
-      $this->path = $path;
+        $this->path = $path;
+        $this->fromMailer = \App\Helpers::getFromEmail();
     }
 
     /**
@@ -30,10 +32,10 @@ class HourlyReport extends Mailable
      */
     public function build()
     {
-      return $this->from('contact@sololuxury.co.in')
-                  ->bcc('customercare@sololuxury.co.in')
-                  ->subject('Generated Hourly Report')
-                  ->markdown('emails.hourly-report')
-                  ->attachFromStorageDisk('files', $this->path);
+        return $this->from($this->fromMailer)
+                    ->bcc($this->fromMailer)
+                    ->subject('Generated Hourly Report')
+                    ->markdown('emails.hourly-report')
+                    ->attachFromStorageDisk('files', $this->path);
     }
 }

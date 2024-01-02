@@ -48,7 +48,7 @@
 					<div class="row">
 				  		<div class="col-md-12">
 				    		<div class="form-group">
-					         	<?php echo Form::select("merge_category",\App\TaskCategory::pluck("title","id")->toArray(),null,["class" => "form-control select2-manage-module merge-category"]); ?>
+					         	<?php echo Form::select('merge_category', \App\TaskCategory::pluck('title', 'id')->toArray(), null, ['class' => 'form-control select2-manage-module merge-category']); ?>
 					         </div>
 				        </div> 
 				        <div class="col-md-12">

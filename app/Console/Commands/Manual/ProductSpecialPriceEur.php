@@ -4,8 +4,8 @@ namespace App\Console\Commands\Manual;
 
 use App\Brand;
 use App\Product;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class ProductSpecialPriceEur extends Command
 {
@@ -42,7 +42,7 @@ class ProductSpecialPriceEur extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             //Getting all products and convert to special price
@@ -70,7 +70,6 @@ class ProductSpecialPriceEur extends Command
                 }
                 $product->price_eur_special = $priceEurSpecial;
                 $product->update();
-
             }
             dump('All Prices Updated');
             $report->update(['end_time' => Carbon::now()]);

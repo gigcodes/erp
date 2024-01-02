@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
-use App\Http\Controllers\WhatsAppController;
 use App\Supplier;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\WhatsAppController;
 
 class SendReminderToSupplierIfTheyHaventReplied extends Command
 {
@@ -46,7 +46,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -66,12 +66,12 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
             foreach ($messagesIds as $messagesId) {
                 $supplier = Supplier::find($messagesId->supplier_id);
 
-                if (!$supplier) {
+                if (! $supplier) {
                     continue;
                 }
 
                 $frequency = $supplier->frequency;
-                if (!($frequency >= 5)) {
+                if (! ($frequency >= 5)) {
                     continue;
                 }
 
@@ -82,7 +82,7 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
                     ->where('approved', '1')
                     ->first();
 
-                if (!$message) {
+                if (! $message) {
                     continue;
                 }
 
@@ -98,24 +98,21 @@ class SendReminderToSupplierIfTheyHaventReplied extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 
     /**
-     * @param $supplier
      * @param $message
      * Create the chat_message record and then approve and send the message
      */
     private function sendMessage($supplier, $message): void
     {
-
         $params = [
-            'number'      => null,
-            'user_id'     => 6,
-            'approved'    => 1,
-            'status'      => 1,
+            'number' => null,
+            'user_id' => 6,
+            'approved' => 1,
+            'status' => 1,
             'supplier_id' => $supplier,
-            'message'     => $message,
+            'message' => $message,
         ];
 
         $chat_message = ChatMessage::create($params);

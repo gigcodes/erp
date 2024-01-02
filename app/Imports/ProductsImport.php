@@ -4,7 +4,6 @@ namespace App\Imports;
 
 use App\Brand;
 use App\ScrapedProducts;
-use App\Services\Products\ProductsCreator;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -13,9 +12,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class ProductsImport implements ToCollection, WithHeadingRow
 {
     use Importable;
-    /**
-     * @param Collection $rows
-     */
+
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
@@ -26,7 +23,6 @@ class ProductsImport implements ToCollection, WithHeadingRow
             $category = $gender . ', Sunglass';
             $composition = $row['composition'] . ', ' . $row['composition2'];
             $unit_price = 0;
-
 
             if ($brand == "TOD'S") {
                 $brand = 'TODS';
@@ -49,7 +45,7 @@ class ProductsImport implements ToCollection, WithHeadingRow
 
             $brand = Brand::where('name', $brand)->first();
 
-            if(!$brand) {
+            if (! $brand) {
                 continue;
             }
 
@@ -58,20 +54,18 @@ class ProductsImport implements ToCollection, WithHeadingRow
             $scrapedProduct->brand_id = $brand->id;
             $properties = [
                 'category' => $category,
-//                'sizes' => $size,
+                //                'sizes' => $size,
                 'gender' => $gender,
                 'price' => $unit_price,
                 'material_used' => $composition,
-                'color' => $color
+                'color' => $color,
             ];
-            $sku = str_replace([' ', '-', '/', "\\", '_'], '', $originalSku);
+            $sku = str_replace([' ', '-', '/', '\\', '_'], '', $originalSku);
             $scrapedProduct->sku = $sku;
             $scrapedProduct->original_sku = $originalSku;
             $scrapedProduct->properties = $properties;
             $scrapedProduct->save();
-
         }
-
     }
 
 //    public function headingRow(): int

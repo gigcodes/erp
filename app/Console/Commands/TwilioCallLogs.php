@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Voip\Twilio;
 use Carbon\Carbon;
+use App\Voip\Twilio;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class TwilioCallLogs extends Command
@@ -35,14 +35,16 @@ class TwilioCallLogs extends Command
 
     /**
      * Execute the console command for twilio call logs to save in CallBusyMessage.
+     *
      * @uses Twilio Model class
+     *
      * @return mixed
      */
     public function handle()
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

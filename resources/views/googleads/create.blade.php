@@ -79,7 +79,7 @@
                 <select class="browser-default custom-select" id="ad-status" name="adStatus" style="height: auto">
                     <option value="0" selected>Enabled</option>
                     <option value="1">Paused</option>
-                    <option value="2">Disabled</option>
+                    {{-- <option value="2">Disabled</option> --}}
                 </select>
             </div>
         </div>

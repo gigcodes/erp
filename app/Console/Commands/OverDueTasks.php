@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
+use Illuminate\Console\Command;
+
 class OverDueTasks extends Command
 {
     /**
@@ -41,21 +39,21 @@ class OverDueTasks extends Command
     public function handle()
     {
         $now = \Carbon\Carbon::now();
-        $tasks = \App\Task::where('is_completed',NULL)->where('due_date','<',$now)->get();
-        foreach($tasks as $task) {
-            if($task->assign_to) {
+        $tasks = \App\Task::where('is_completed', null)->where('due_date', '<', $now)->get();
+        foreach ($tasks as $task) {
+            if ($task->assign_to) {
                 $user = \App\User::find($task->assign_to);
-                if($user && $user->phone) {
+                if ($user && $user->phone) {
                     if ($task->is_statutory != 1) {
-                        $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+                        $message = '#' . $task->id . '. ' . $task->task_subject . '. ' . $task->task_details;
                     } else {
-                        $message = $task->task_subject . ". " . $task->task_details;
+                        $message = $task->task_subject . '. ' . $task->task_details;
                     }
-                    $message = $message.' This task is supposed to be completed on '.$task->due_date;
+                    $message = $message . ' This task is supposed to be completed on ' . $task->due_date;
                     $requestData = new Request();
                     $requestData->setMethod('POST');
                     $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);
-                    app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'overdue');
+                    app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($requestData, 'overdue');
                 }
             }
         }

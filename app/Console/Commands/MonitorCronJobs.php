@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\CronJob;
-use App\CronJobReport;
-use App\MessageQueue;
 use Carbon\Carbon;
+use App\MessageQueue;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class MonitorCronJobs extends Command
@@ -43,16 +43,16 @@ class MonitorCronJobs extends Command
     {
         try {
             $cron_job_report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now                  = Carbon::now();
-            $cron_jobs            = CronJob::all();
+            $now = Carbon::now();
+            $cron_jobs = CronJob::all();
             $message_queues_count = MessageQueue::where('sent', 0)->where('status', '!=', 1)->where('sending_time', '<', $now)->count();
 
             foreach ($cron_jobs as $cron_job) {
-                $now    = Carbon::now();
+                $now = Carbon::now();
                 $report = CronJobReport::where('signature', $cron_job->signature)->latest()->first();
 
                 if ($report != null) {

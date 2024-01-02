@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Language;
 use App\Setting;
+use App\Language;
+use Illuminate\Http\Request;
 
-class LanguageController extends Controller {
-
-    public function index(Request $request) {
+class LanguageController extends Controller
+{
+    public function index(Request $request)
+    {
         $query = Language::query();
 
         if ($request->term) {
@@ -22,10 +23,11 @@ class LanguageController extends Controller {
         ]);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $this->validate($request, [
             'locale' => 'sometimes|nullable|string|max:255',
-            'code' => 'required'
+            'code' => 'required',
         ]);
 
         $data = $request->except('_token');
@@ -34,7 +36,8 @@ class LanguageController extends Controller {
         return redirect()->route('language.index')->withSuccess('You have successfully stored language');
     }
 
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
         $language = Language::find($request->id);
         $language->locale = $request->locale;
         $language->code = $request->code;
@@ -45,10 +48,11 @@ class LanguageController extends Controller {
         return response()->json(['success'], 200);
     }
 
-    public function delete(Request $request) {
+    public function delete(Request $request)
+    {
         $language = Language::find($request->id);
         $language->delete();
+
         return response()->json(['success'], 200);
     }
-
 }

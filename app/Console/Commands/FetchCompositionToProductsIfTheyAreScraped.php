@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use App\CronJobReport;
+use Illuminate\Console\Command;
 
 class FetchCompositionToProductsIfTheyAreScraped extends Command
 {
@@ -42,7 +42,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -51,12 +51,12 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                     dump('On -- ' . $product->id);
                     $scrapedProducts = $product->many_scraped_products;
                     dump(count($scrapedProducts));
-                    if (!count($scrapedProducts)) {
+                    if (! count($scrapedProducts)) {
                         continue;
                     }
 
                     foreach ($scrapedProducts as $scrapedProduct) {
-                        $property    = $scrapedProduct->properties;
+                        $property = $scrapedProduct->properties;
                         $composition = $property['composition'] ?? '';
                         if ($composition) {
                             dump($composition);
@@ -79,7 +79,6 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                             break;
                         }
                     }
-
                 }
             });
 
@@ -91,7 +90,7 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                         dump('On -- ' . $product->id);
                         $scrapedProducts = $product->many_scraped_products;
                         dump(count($scrapedProducts));
-                        if (!count($scrapedProducts)) {
+                        if (! count($scrapedProducts)) {
                             continue;
                         }
 
@@ -106,7 +105,6 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                                 break;
                             }
                         }
-
                     }
                 });
 
@@ -118,14 +116,14 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                         dump('On -- ' . $product->id);
                         $scrapedProducts = $product->many_scraped_products;
                         dump(count($scrapedProducts));
-                        if (!count($scrapedProducts)) {
+                        if (! count($scrapedProducts)) {
                             continue;
                         }
 
                         foreach ($scrapedProducts as $scrapedProduct) {
                             dump('here..color..');
                             $property = $scrapedProduct->properties;
-                            $color    = $property['color'] ?? '';
+                            $color = $property['color'] ?? '';
                             if ($color && strlen($color) < 16) {
                                 dump($color);
                                 $product->color = $color;
@@ -140,7 +138,6 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
                                 break;
                             }
                         }
-
                     }
                 });
 
@@ -148,6 +145,5 @@ class FetchCompositionToProductsIfTheyAreScraped extends Command
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-
     }
 }

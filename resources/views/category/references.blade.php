@@ -15,7 +15,7 @@
             <h2 class="page-heading">Categories Map (References)</h2>
         </div>
         <div class="col-md-12">
-            <form method="post" id="update-reference-tb" action="{{ action('CategoryController@saveReferences') }}">
+            <form method="post" id="update-reference-tb" action="{{ action([\App\Http\Controllers\CategoryController::class, 'saveReferences']) }}">
                 @csrf
                 <table class="table table-bordered table-striped sortable-tables">
 

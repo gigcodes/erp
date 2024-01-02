@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\InstagramDirectMessages;
 use Illuminate\Http\Request;
+use App\InstagramDirectMessages;
 
 class InstagramDirectMessagesController extends Controller
 {
@@ -30,7 +30,6 @@ class InstagramDirectMessagesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,18 +40,15 @@ class InstagramDirectMessagesController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\InstagramDirectMessages  $instagramDirectMessages
      * @return \Illuminate\Http\Response
      */
     public function show(InstagramDirectMessages $instagramDirectMessages)
     {
-
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\InstagramDirectMessages  $instagramDirectMessages
      * @return \Illuminate\Http\Response
      */
     public function edit(InstagramDirectMessages $instagramDirectMessages)
@@ -63,8 +59,6 @@ class InstagramDirectMessagesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\InstagramDirectMessages  $instagramDirectMessages
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, InstagramDirectMessages $instagramDirectMessages)
@@ -75,7 +69,6 @@ class InstagramDirectMessagesController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\InstagramDirectMessages  $instagramDirectMessages
      * @return \Illuminate\Http\Response
      */
     public function destroy(InstagramDirectMessages $instagramDirectMessages)

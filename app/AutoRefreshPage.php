@@ -12,12 +12,11 @@ class AutoRefreshPage extends Model
     protected $fillable = [
         'page',
         'time',
-        'user_id'
+        'user_id',
     ];
 
     public function user()
     {
         return $this->hasOne(\App\User::class, 'id', 'user_id');
     }
-
 }

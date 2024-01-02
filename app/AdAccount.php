@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AdAccount extends Model
 {
-	/**
-     * @var string    
+    /**
+     * @var string
+     *
      * @SWG\Property(property="account_name",type="string")
      * @SWG\Property(property="note",type="text")
      * @SWG\Property(property="config_file",type="string")

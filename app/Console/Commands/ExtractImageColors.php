@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ColorNamesReference;
 use App\Colors;
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use ColorThief\ColorThief;
+use App\ColorNamesReference;
 use Illuminate\Console\Command;
 use League\ColorExtractor\Color;
 use ourcodeworld\NameThatColor\ColorInterpreter as NameThatColor;
@@ -47,16 +47,15 @@ class ExtractImageColors extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $ourColors       = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
+            $ourColors = ColorNamesReference::pluck('erp_name', 'color_name')->toArray();
             $availableColors = (new Colors())->all();
 
-            Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function ($products) use ($ourColors, $availableColors) {
+            Product::where('is_approved', 1)->where('id', '183946')->chunk(1000, function ($products) use ($ourColors) {
                 foreach ($products as $product) {
-
 //                if (isset($availableColors[$product->color])) {
                     //                    dump('skipped');
                     //                    continue;
@@ -64,7 +63,7 @@ class ExtractImageColors extends Command
 
                     $imageUrl = $product->getMedia(config('constants.media_tags'))->first();
 
-                    if (!$imageUrl) {
+                    if (! $imageUrl) {
                         continue;
                     }
 
@@ -87,8 +86,8 @@ class ExtractImageColors extends Command
                     $hex = Color::fromIntToHex(Color::fromRgbToInt($rgbColor));
                     dump($hex);
                     $nameThatColor = new NameThatColor();
-                    $color         = $nameThatColor->name($hex)['name'];
-                    $color         = $ourColors[$color];
+                    $color = $nameThatColor->name($hex)['name'];
+                    $color = $ourColors[$color];
 
                     dump($color);
 
@@ -96,7 +95,6 @@ class ExtractImageColors extends Command
                     $product->save();
 
                     dump('Saved: ' . $color);
-
                 }
             });
 

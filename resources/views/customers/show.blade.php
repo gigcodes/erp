@@ -437,7 +437,7 @@
                     <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                     <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                     <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button>
-                    <a class="btn btn-secondary btn-xs" href="{{ action('CustomerController@exportCommunication', $customer->id) }}">Export Chat</a>
+                    <a class="btn btn-secondary btn-xs" href="{{ action([\App\Http\Controllers\CustomerController::class, 'exportCommunication'], $customer->id) }}">Export Chat</a>
                 </div>
             </div>
         </div>
@@ -536,7 +536,7 @@
               </div>
 
               <div class="form-group pl-3 d-flex">
-                <button type="button" class="btn btn-xs btn-image call-twilio " data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}"><img src="/images/call.png" /></button>
+                <button type="button" class="btn btn-xs btn-image call-twilio " data-context="customers" data-id="{{ $customer->id }}" data-phone="{{ $customer->phone }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}"><img src="/images/call.png" /></button>
 
                 @if ($customer->is_blocked == 1)
                   <button type="button" class="btn btn-xs btn-image block-twilio" data-id="{{ $customer->id }}"><img src="/images/blocked-twilio.png" /></button>
@@ -2171,7 +2171,7 @@
               <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                   @csrf
                   <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                  <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+                  <input type="hidden" name="instruction" value="{{ @$users_array[\App\Setting::get('call_shortcut')] }} call this client">
                   <input type="hidden" name="category_id" value="10">
                   <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 
@@ -2275,7 +2275,7 @@
             @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                   <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2343,7 +2343,7 @@
                         @foreach ($customer->instructions()->where('verified', 0)->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
-                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                             <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2415,7 +2415,7 @@
             @foreach ($customer->instructions()->where('verified', 1)->latest('completed_at')->limit(3)->get() as $instruction)
                 <tr>
                   <td>
-                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                    <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                   </td>
                   <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                   <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2475,7 +2475,7 @@
                         @foreach ($customer->instructions()->where('verified', 1)->latest('completed_at')->offset(3)->limit(100)->get() as $key => $instruction)
                           <tr>
                             <td>
-                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}">{{ $instruction->customer->phone }}</span>
+                              <span data-twilio-call data-context="customers" data-id="{{ $customer->id }}" data-from-number="{{ $storeActiveNumber->phone_number }}" data-auth-id="{{ Auth::id() }}" data-auth-id="{{ Auth::id() }}">{{ $instruction->customer->phone }}</span>
                             </td>
                             <td>{{ $users_array[$instruction->assigned_to] ?? '' }}</td>
                             <td>{{ $instruction->category ? $instruction->category->name : 'Non Existing Category' }}</td>
@@ -2926,7 +2926,7 @@
               return;
           }
           $.ajax({
-              url: "{{ action('CustomerController@addNote', $customer->id) }}",
+              url: "{{ action([\App\Http\Controllers\CustomerController::class, 'addNote'], $customer->id) }}",
               data: {
                   note: note,
                   _token: "{{csrf_token()}}"
@@ -3092,7 +3092,7 @@
       function loadThread() {
           let threadId = "{{$customer->instagramThread->thread_id}}";
           $.ajax({
-              url: "{{ action('InstagramController@getThread', '') }}"+'/'+threadId,
+              url: "{{ action([\App\Http\Controllers\InstagramController::class, 'getThread'], '') }}"+'/'+threadId,
               success: function(response) {
                   updateThreadInChatBox(response);
               },
@@ -3160,7 +3160,7 @@
                     let self = this;
                     if (message != '') {
                         $.ajax({
-                            url: '{{ action('InstagramController@replyToThread', '') }}'+'/'+threadId,
+                            url: '{{ action([\App\Http\Controllers\InstagramController::class, 'replyToThread'], '') }}'+'/'+threadId,
                             data: {
                                 message: message,
                                 _token: "{{ csrf_token() }}"
@@ -3186,7 +3186,7 @@
                 fd.append('photo', $('#ig_image').prop('files')[0]);
                 $('#ig_image').val('');
                 $.ajax({
-                    url: '{{action('InstagramController@replyToThread', '')}}'+'/'+threadId,
+                    url: '{{action([\App\Http\Controllers\InstagramController::class, 'replyToThread'], '')}}'+'/'+threadId,
                     type: 'POST',
                     cache: false,
                     contentType: false,
@@ -4755,7 +4755,7 @@
       /*$(document).on('click', '.resend-message-js', function() {
           let messageId = $(this).attr('data-id');
           $.ajax({
-              url: "{{ action('WhatsAppController@resendMessage2') }}",
+              url: "{{ action([\App\Http\Controllers\WhatsAppController::class, 'resendMessage2']) }}",
               data: {
                     message_id: messageId
               },

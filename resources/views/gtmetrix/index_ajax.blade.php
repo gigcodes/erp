@@ -11,7 +11,7 @@
                                 <td>{{ $key->test_id }}</td>
                                 <td>{{ $key->status }}</td>
                                 <td class="expand-row-msg" data-name="error" data-id="{{$key->id}}">
-                                    <span class="show-short-error-{{$key->id}}">{{ str_limit($key->error, 35, '...')}}</span>
+                                    <span class="show-short-error-{{$key->id}}">{{ Str::limit($key->error, 35, '...')}}</span>
                                     <span style="word-break:break-all;" class="show-full-error-{{$key->id}} hidden">{{$key->error}}</span>
                                 </td>
                                 <td>

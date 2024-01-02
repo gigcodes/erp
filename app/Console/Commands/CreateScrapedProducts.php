@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
-use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Services\Scrap\GebnegozionlineProductDetailsScraper;
 
 class CreateScrapedProducts extends Command
 {
@@ -27,8 +27,6 @@ class CreateScrapedProducts extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @param GebnegozionlineProductDetailsScraper $scraper
      */
     public function __construct(GebnegozionlineProductDetailsScraper $scraper)
     {
@@ -45,7 +43,7 @@ class CreateScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class GetColorsFromScrapedProducts extends Command
@@ -42,7 +42,7 @@ class GetColorsFromScrapedProducts extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -51,22 +51,24 @@ class GetColorsFromScrapedProducts extends Command
                     $scrapedProducts = $product->many_scraped_products;
 //                dump($product->name);
                     //                dump(count($scrapedProducts));
-                    if (!$scrapedProducts) {
+                    if (! $scrapedProducts) {
                         continue;
                     }
 
                     foreach ($scrapedProducts as $scrapedProduct) {
                         $properties = $scrapedProduct->properties;
-                        $color1     = $properties['color'] ?? null;
-                        $color2     = $properties['colors'] ?? null;
+                        $color1 = $properties['color'] ?? null;
+                        $color2 = $properties['colors'] ?? null;
                         if ($color1 !== 'null' && $color1 !== null && $color1 !== '') {
                             $product->color = $color1;
                             $product->save();
+
                             continue;
                         }
                         if ($color2 !== 'null' && $color2 !== null && $color2 !== '') {
                             $product->color = $color2;
                             $product->save();
+
                             continue;
                         }
                     }

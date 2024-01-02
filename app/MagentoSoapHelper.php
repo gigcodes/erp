@@ -1,27 +1,26 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use App\Helpers\StatusHelper;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use App\Helpers\StatusHelper;
 use App\Helpers\ProductHelper;
 use App\Loggers\LogListMagento;
-use App\HsCodeGroupsCategoriesComposition;
-use App\SimplyDutyCategory;
-use \App\Helpers\TranslationHelper;
-use App\Language;
-use App\TranslatedProduct;
+use App\Helpers\TranslationHelper;
+use Illuminate\Support\Facades\Log;
 
 class MagentoSoapHelper
 {
     private $_options = null;
+
     private $_proxy = null;
+
     private $_sessionId = null;
 
-    function __construct()
+    public function __construct()
     {
         // Set options
         $this->_options = [
@@ -49,7 +48,7 @@ class MagentoSoapHelper
             $this->_sessionId = $this->_proxy->login(config('magentoapi.user'), config('magentoapi.password'));
         } catch (\SoapFault $fault) {
             // Log the error
-            LogListMagento::log(null, "Unable to connect to Magento via SOAP: " . $fault->getMessage(), 'emergency');
+            LogListMagento::log(null, 'Unable to connect to Magento via SOAP: ' . $fault->getMessage(), 'emergency');
 
             // Set session ID to false
             $this->_sessionId = false;
@@ -59,7 +58,7 @@ class MagentoSoapHelper
     public function pushProductToMagento(Product $product)
     {
         // Check for product and session
-        if ($product === null || !$this->_sessionId) {
+        if ($product === null || ! $this->_sessionId) {
             return false;
         }
 
@@ -84,14 +83,15 @@ class MagentoSoapHelper
         // No categories found?
         if (count($categories) == 0) {
             // Log the error
-            LogListMagento::log($product->id, "No categories found for product ID " . $product->id, 'emergency');
+            LogListMagento::log($product->id, 'No categories found for product ID ' . $product->id, 'emergency');
+
             return false;
         }
 
         // Check for readiness to go to Magento
-        if (!ProductHelper::checkReadinessForLive($product)) {
+        if (! ProductHelper::checkReadinessForLive($product)) {
             // Write to log file
-            LogListMagento::log($product->id, "Failed readiness test for product ID " . $product->id, 'emergency');
+            LogListMagento::log($product->id, 'Failed readiness test for product ID ' . $product->id, 'emergency');
 
             // Update product status - sent to manual attribute
             $product->status_id = StatusHelper::$manualAttribute;
@@ -114,20 +114,20 @@ class MagentoSoapHelper
         $reference->save();
 
         // Check for brand name
-        if ( !isset($product->brands->name) ) {
+        if (! isset($product->brands->name)) {
             // Return false
             return false;
         }
 
         // Create meta description
         $meta = [];
-        $meta[ 'description' ] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
+        $meta['description'] = 'Shop ' . $product->brands->name . ' ' . $product->color . ' .. ' . $product->composition . ' ... ' . $product->product_category->title . ' Largest collection of luxury products in the world from Solo luxury at special prices';
 
         // If sizes are given we create a configurable product and several single child products
-        if (!empty($product->size) && $product->size == 'OS') {
+        if (! empty($product->size) && $product->size == 'OS') {
             $product->size = null;
             $result = $this->_pushSingleProduct($product, $categories, $meta);
-        } elseif (!empty($product->size)) {
+        } elseif (! empty($product->size)) {
             $result = $this->_pushConfigurableProductWithChildren($product, $categories, $meta);
         } else {
             $result = $this->_pushSingleProduct($product, $categories, $meta);
@@ -162,7 +162,7 @@ class MagentoSoapHelper
         $arrSizes = explode(',', $product->size);
         $hasEuSize = false;
         $euArrSize = explode(',', $product->size_eu);
-        if(!empty($euArrSize)) {
+        if (! empty($euArrSize)) {
             $arrSizes = $euArrSize;
             $hasEuSize = true;
         }
@@ -170,7 +170,7 @@ class MagentoSoapHelper
         // Loop over each size and create a single (child) product
         foreach ($arrSizes as $size) {
             // Get correct size
-            if(!$hasEuSize){
+            if (! $hasEuSize) {
                 $size = ProductHelper::getWebsiteSize($product->size_system, $size, $product->category);
             }
 
@@ -179,9 +179,8 @@ class MagentoSoapHelper
 
             $productId = $product->id;
 
-             //Getting Hscode Attribute    
-            
-            
+            //Getting Hscode Attribute
+
             // Create a new product reference for this size
             $reference = new ProductReference;
             $reference->product_id = $product->id;
@@ -191,12 +190,12 @@ class MagentoSoapHelper
             $reference->save();
 
             // Set product data for Magento
-            $productData = array(
+            $productData = [
                 'categories' => $categories,
                 'name' => $product->name,
-                'description' => $meta[ 'description' ],
+                'description' => $meta['description'],
                 'short_description' => $product->short_description,
-                'website_ids' => array(1), // ID or code of website
+                'website_ids' => [1], // ID or code of website
                 'status' => 1, // 1 = Enabled, 2 = Disabled
                 'visibility' => 1, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
                 'tax_class_id' => 2, // Default VAT setting
@@ -211,20 +210,20 @@ class MagentoSoapHelper
                 'special_price' => $product->price_eur_special,
                 'additional_attributes' => [
                     'single_data' => [
-                        ['key' => 'composition', 'value' => $product->commonComposition($product->category,$product->composition),],
-                        ['key' => 'color', 'value' => $product->color,],
-                        ['key' => 'sizes', 'value' => $size,],
-                        ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
-                        ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
+                        ['key' => 'composition', 'value' => $product->commonComposition($product->category, $product->composition)],
+                        ['key' => 'color', 'value' => $product->color],
+                        ['key' => 'sizes', 'value' => $size],
+                        ['key' => 'country_of_manufacture', 'value' => $product->made_in],
+                        ['key' => 'brands', 'value' => $product->brands()->get()[0]->name],
                         ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                         ['key' => 'flashsales', 'value' => 0],
-                        ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),],
-                    ]
-                ]
-            );
+                        ['key' => 'hscode', 'value' => $product->hsCode($product->category, $product->composition)],
+                    ],
+                ],
+            ];
 
             // Push simple product to Magento
-            $result = $this->_pushProduct('simple', $sku, $productData, $size , $productId);
+            $result = $this->_pushProduct('simple', $sku, $productData, $size, $productId);
 
             // Successful
             if ($result) {
@@ -240,42 +239,42 @@ class MagentoSoapHelper
         /**
          * Set product data for configurable product
          */
-        $productData = array(
+        $productData = [
             'categories' => $categories,
             'name' => $product->name,
             'description' => '<p></p>',
             'short_description' => $product->short_description,
-            'website_ids' => array(1), // Id or code of website
+            'website_ids' => [1], // Id or code of website
             'status' => 1, // 1 = Enabled, 2 = Disabled
             'visibility' => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
             'tax_class_id' => 2, // Default VAT setting
             'weight' => 0,
-            'stock_data' => array(
+            'stock_data' => [
                 'use_config_manage_stock' => 1,
                 'manage_stock' => 1,
                 'qty' => 1,
                 'is_in_stock' => 1,
-            ),
+            ],
             'price' => $product->price, // Same price as configurable product, no price change
             'special_price' => $product->price_eur_special,
             'associated_skus' => $associatedSkus, // Simple products to associate
-            'configurable_attributes' => array(155),
+            'configurable_attributes' => [155],
             'additional_attributes' => [
                 'single_data' => [
-                    ['key' => 'composition', 'value' => $product->commonComposition($product->category,$product->composition),],
-                    ['key' => 'color', 'value' => $product->color,],
-                    ['key' => 'country_of_manufacture', 'value' => $product->made_in,],
-                    ['key' => 'brands', 'value' => $product->brands()->get()[ 0 ]->name,],
-                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'composition', 'value' => $product->commonComposition($product->category, $product->composition)],
+                    ['key' => 'color', 'value' => $product->color],
+                    ['key' => 'country_of_manufacture', 'value' => $product->made_in],
+                    ['key' => 'brands', 'value' => $product->brands()->get()[0]->name],
+                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[0]->name)],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
                     ['key' => 'flashsales', 'value' => 0],
-                    ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),],
-                ]
-            ]
-        );
+                    ['key' => 'hscode', 'value' => $product->hsCode($product->category, $product->composition)],
+                ],
+            ],
+        ];
 
         // Get result
-        $result = $this->_pushProduct('configurable', $sku, $productData,'',$productId);
+        $result = $this->_pushProduct('configurable', $sku, $productData, '', $productId);
 
         // Return result
         return $result;
@@ -292,12 +291,12 @@ class MagentoSoapHelper
         $measurement = ProductHelper::getMeasurements($product);
 
         // Set product data
-        $productData = array(
+        $productData = [
             'categories' => $categories,
             'name' => strtoupper($product->name),
             'description' => '<p></p>',
             'short_description' => ucwords(strtolower($product->short_description)),
-            'website_ids' => array(1), // Id or code of website
+            'website_ids' => [1], // Id or code of website
             'status' => 1, // 1 = Enabled, 2 = Disabled
             'visibility' => 4, // 1 = Not visible, 2 = Catalog, 3 = Search, 4 = Catalog/Search
             'tax_class_id' => 2, // Default VAT setting
@@ -312,29 +311,29 @@ class MagentoSoapHelper
             'special_price' => $product->price_eur_special,
             'additional_attributes' => [
                 'single_data' => [
-                    ['key' => 'composition', 'value' => ucwords($product->commonComposition($product->category,$product->composition)),],
-                    ['key' => 'color', 'value' => ucwords($product->color),],
-                    ['key' => 'measurement', 'value' => $measurement,],
-                    ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in),],
-                    ['key' => 'brands', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
-                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[ 0 ]->name),],
+                    ['key' => 'composition', 'value' => ucwords($product->commonComposition($product->category, $product->composition))],
+                    ['key' => 'color', 'value' => ucwords($product->color)],
+                    ['key' => 'measurement', 'value' => $measurement],
+                    ['key' => 'country_of_manufacture', 'value' => ucwords($product->made_in)],
+                    ['key' => 'brands', 'value' => ucwords($product->brands()->get()[0]->name)],
+                    ['key' => 'manufacturer', 'value' => ucwords($product->brands()->get()[0]->name)],
                     ['key' => 'bestbuys', 'value' => $product->is_on_sale ? 1 : 0],
-                    ['key' => 'hscode', 'value' => $product->hsCode($product->category,$product->composition),]
-                ]
-            ]
-        );
+                    ['key' => 'hscode', 'value' => $product->hsCode($product->category, $product->composition)],
+                ],
+            ],
+        ];
 
         // Get result
-        $result = $this->_pushProduct('single', $sku, $productData ,'',$productId);
+        $result = $this->_pushProduct('single', $sku, $productData, '', $productId);
 
         // Return result
         return $result;
     }
 
-    private function _pushProduct($productType, $sku, $productData = [], $size = null , $productId = null)
+    private function _pushProduct($productType, $sku, $productData = [], $size = null, $productId = null)
     {
         // Set product specific SKU
-        $sku = $sku . (!empty($size) ? '-' . $size : '');
+        $sku = $sku . (! empty($size) ? '-' . $size : '');
 
         // Try to store the product in Magento
         try {
@@ -348,27 +347,27 @@ class MagentoSoapHelper
             );
 
             // Log info
-            Log::channel('listMagento')->info("Product (" . $productType . ") with SKU " . $sku . " successfully pushed to Magento");
-            if($result){
-                $translated = $this->languageTranslate($result,$productData,$sku,$productId);
-                if($translated == true){
+            Log::channel('listMagento')->info('Product (' . $productType . ') with SKU ' . $sku . ' successfully pushed to Magento');
+            if ($result) {
+                $translated = $this->languageTranslate($result, $productData, $sku, $productId);
+                if ($translated == true) {
                     return $result;
                 }
             }
             // Return result
-           // return $result;
+            // return $result;
         } catch (\Exception $e) {
             // Check exception message to see if the product already exists
             if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
                 // Log info
-                Log::channel('listMagento')->info("Product (" . $productType . ") with SKU " . $sku . " already exists in Magento");
+                Log::channel('listMagento')->info('Product (' . $productType . ') with SKU ' . $sku . ' already exists in Magento');
 
                 // Return true
                 return true;
             }
 
             // Log alert
-            Log::channel('listMagento')->alert("Product (" . $productType . ") with SKU " . $sku . " failed while pushing to Magento. Message: " . $e->getMessage());
+            Log::channel('listMagento')->alert('Product (' . $productType . ') with SKU ' . $sku . ' failed while pushing to Magento. Message: ' . $e->getMessage());
 
             // Return false
             return false;
@@ -388,11 +387,11 @@ class MagentoSoapHelper
             // Only run if the file exists
             if (file_exists($image->getAbsolutePath()) && stristr($image->getAbsolutePath(), 'cropped')) {
                 // Set file attributes
-                $file = array(
+                $file = [
                     'name' => $image->getBasenameAttribute(),
                     'content' => base64_encode(file_get_contents($image->getAbsolutePath())),
-                    'mime' => mime_content_type($image->getAbsolutePath())
-                );
+                    'mime' => mime_content_type($image->getAbsolutePath()),
+                ];
 
                 // Set image type
                 $types = $i ? [] : ['size_guide', 'image', 'small_image', 'thumbnail'];
@@ -404,27 +403,26 @@ class MagentoSoapHelper
                         $this->_proxy->catalogProductAttributeMediaCreate(
                             $this->_sessionId,
                             $magentoProductId,
-                            array('file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0)
+                            ['file' => $file, 'label' => $image->getBasenameAttribute(), 'position' => ++$i, 'types' => $types, 'exclude' => 0]
                         );
 
                         // Log info
-                        Log::channel('listMagento')->info("Image for product " . $product->id . " with name " . $file[ 'name' ] . " successfully pushed to Magento");
+                        Log::channel('listMagento')->info('Image for product ' . $product->id . ' with name ' . $file['name'] . ' successfully pushed to Magento');
                     } catch (\SoapFault $e) {
                         // Log alert
-                        Log::channel('listMagento')->alert("Image for product " . $product->id . " with name " . $file[ 'name' ] . " failed while pushing to Magento with message: " . $e->getMessage());
+                        Log::channel('listMagento')->alert('Image for product ' . $product->id . ' with name ' . $file['name'] . ' failed while pushing to Magento with message: ' . $e->getMessage());
                     }
                 }
             }
         }
 
         // Return
-        return;
     }
 
     public function catalogCategoryInfo($magentoId = 0)
     {
         // Check for product and session
-        if ((int)$magentoId == 0 || !$this->_sessionId) {
+        if ((int) $magentoId == 0 || ! $this->_sessionId) {
             return false;
         }
 
@@ -435,6 +433,7 @@ class MagentoSoapHelper
             );
         } catch (\SoapFault $e) {
             echo $e->getMessage();
+
             return false;
         }
 
@@ -445,7 +444,7 @@ class MagentoSoapHelper
     public function catalogCategoryCreate($parentId = 0, $arrCategoryData = [])
     {
         // Check for product and session
-        if (!$this->_sessionId) {
+        if (! $this->_sessionId) {
             return false;
         }
 
@@ -457,6 +456,7 @@ class MagentoSoapHelper
             );
         } catch (\SoapFault $e) {
             echo $e->getMessage();
+
             return false;
         }
 
@@ -464,7 +464,7 @@ class MagentoSoapHelper
         return $result;
     }
 
-    public function languageTranslate($id,$productData,$sku,$productId)
+    public function languageTranslate($id, $productData, $sku, $productId)
     {
         $languages = Language::whereNotNull('locale')->get();
         foreach ($languages as $language) {
@@ -488,12 +488,12 @@ class MagentoSoapHelper
             $translated->language_id = $language->id;
             $translated->save();
 
-            $updateProductData = array(
-                                'name' => $name, 
-                                'description' => $description,
-                                'short_description' => $shortDescription,
-                            );
-        
+            $updateProductData = [
+                'name' => $name,
+                'description' => $description,
+                'short_description' => $shortDescription,
+            ];
+
             $result = $this->_proxy->catalogProductUpdate(
                 $this->_sessionId,
                 $id,
@@ -501,10 +501,9 @@ class MagentoSoapHelper
                 $language->code
             );
         }
-        
+
         return true;
         //save translated data
         //update product on magento
-        
     }
 }

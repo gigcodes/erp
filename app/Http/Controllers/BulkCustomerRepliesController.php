@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\BulkCustomerRepliesKeyword;
-use App\Customer;
-use App\CustomerBulkMessageDND;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Helpers;
+use App\Customer;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\CustomerBulkMessageDND;
+use Illuminate\Support\Facades\DB;
+use App\BulkCustomerRepliesKeyword;
 
 class BulkCustomerRepliesController extends Controller
 {
@@ -24,8 +25,8 @@ class BulkCustomerRepliesController extends Controller
             ->whereNotIn('value', [
                 'test', 'have', 'sent', 'the', 'please', 'pls', 'through', 'using', 'solo', 'that',
                 'comes', 'message', 'sending', 'Yogesh', 'Greetings', 'this', 'numbers', 'maam', 'from',
-                'changed', 'them', 'with' , '0008000401700', 'WhatsApp', 'send', 'Auto', 'based', 'suggestion',
-                'Will', 'your', 'number', 'number,', 'messages', 'also', 'meanwhile'
+                'changed', 'them', 'with', '0008000401700', 'WhatsApp', 'send', 'Auto', 'based', 'suggestion',
+                'Will', 'your', 'number', 'number,', 'messages', 'also', 'meanwhile',
             ])
             ->take(50)
             ->orderBy('count', 'DESC')
@@ -49,20 +50,18 @@ class BulkCustomerRepliesController extends Controller
 //            }])->with('customers.dnd')
 //            ->where('value', $keyword)
 //            ->first();
-//dd($searchedKeyword);
+            //dd($searchedKeyword);
             $searchedKeyword = BulkCustomerRepliesKeyword::where('value', $keyword)->first();
 
-            $customerids = Customer::whereHas('bulkMessagesKeywords', function($q) use($keyword){
+            $customerids = Customer::whereHas('bulkMessagesKeywords', function ($q) use ($keyword) {
                 $q->where('value', $keyword);
             });
 
-            if($request->dnd_enabled === '0'){
-
+            if ($request->dnd_enabled === '0') {
                 $customerids = $customerids->whereHas('dnd');
-            }else if ($request->dnd_enabled === '1'){
+            } elseif ($request->dnd_enabled === '1') {
                 $customerids = $customerids->whereDoesntHave('dnd');
-            }else{
-
+            } else {
             }
             $customerids = $customerids->pluck('id')->toArray();
 
@@ -70,13 +69,9 @@ class BulkCustomerRepliesController extends Controller
                 ->groupBy('customers.id')
                 ->whereIn('id', $customerids);
 
+            $customers = $customers->orderBy('max_id', 'desc')->paginate(20);
 
-
-            $customers = $customers->orderBy('max_id','desc')->paginate(20);
-
-
-
-//dd($customers);
+            //dd($customers);
 //            $searchedKeyword = BulkCustomerRepliesKeyword::with(['customers' => function($q)use($request){
 //
 //                $q->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id,whatsapp_number, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id  GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id')
@@ -95,54 +90,54 @@ class BulkCustomerRepliesController extends Controller
 //                ->first();
 
 //            dd($searchedKeyword);
-
         }
 
-        $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
+        $groups = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $pdfList = [];
         $nextActionArr = DB::table('customer_next_actions')->pluck('name', 'id');
         $reply_categories = \App\ReplyCategory::with('approval_leads')->orderby('name')->get();
         $settingShortCuts = [
-            "image_shortcut"      => \App\Setting::get('image_shortcut'),
-            "price_shortcut"      => \App\Setting::get('price_shortcut'),
-            "call_shortcut"       => \App\Setting::get('call_shortcut'),
-            "screenshot_shortcut" => \App\Setting::get('screenshot_shortcut'),
-            "details_shortcut"    => \App\Setting::get('details_shortcut'),
-            "purchase_shortcut"   => \App\Setting::get('purchase_shortcut'),
+            'image_shortcut' => \App\Setting::get('image_shortcut'),
+            'price_shortcut' => \App\Setting::get('price_shortcut'),
+            'call_shortcut' => \App\Setting::get('call_shortcut'),
+            'screenshot_shortcut' => \App\Setting::get('screenshot_shortcut'),
+            'details_shortcut' => \App\Setting::get('details_shortcut'),
+            'purchase_shortcut' => \App\Setting::get('purchase_shortcut'),
         ];
-        $users_array      = Helpers::getUserArray(\App\User::all());
+        $users_array = Helpers::getUserArray(\App\User::all());
 
         $whatsappNos = getInstanceNo();
         $chatbotKeywords = \App\ChatbotKeyword::all();
         // dd($chatbotKeywords);
-// dd($searchedKeyword);
-        return view('bulk-customer-replies.index', compact('customers','keywords','autoKeywords', 'searchedKeyword', 'nextActionArr','groups','pdfList','reply_categories','settingShortCuts','users_array','whatsappNos','chatbotKeywords'));
+        // dd($searchedKeyword);
+        return view('bulk-customer-replies.index', compact('customers', 'keywords', 'autoKeywords', 'searchedKeyword', 'nextActionArr', 'groups', 'pdfList', 'reply_categories', 'settingShortCuts', 'users_array', 'whatsappNos', 'chatbotKeywords'));
     }
 
     public function updateWhatsappNo(Request $request)
     {
-        $no = $request->get("whatsapp_no");
-        $customers = explode(",",$request->get("customers",""));
+        $no = $request->get('whatsapp_no');
+        $customers = explode(',', $request->get('customers', ''));
         $total = 0;
-        if(!empty($no) && is_array(array_filter($customers))) {
-            $lCustomer  = array_filter($customers);
-            $total      = count($lCustomer);
-            $customers  = \App\Customer::whereIn("id",$lCustomer)->update(["whatsapp_number" => $no]);
+        if (! empty($no) && is_array(array_filter($customers))) {
+            $lCustomer = array_filter($customers);
+            $total = count($lCustomer);
+            $customers = \App\Customer::whereIn('id', $lCustomer)->update(['whatsapp_number' => $no]);
         }
-        return response()->json(["code" => 200, "total" => $total]);
 
+        return response()->json(['code' => 200, 'total' => $total]);
     }
 
-    public function storeKeyword(Request $request) {
+    public function storeKeyword(Request $request)
+    {
         $this->validate($request, [
-            'keyword' => 'required'
+            'keyword' => 'required',
         ]);
 
         $type = 'keyword';
         $numOfSpaces = count(explode(' ', $request->get('keyword')));
         if ($numOfSpaces > 1 && $numOfSpaces < 4) {
             $type = 'phrase';
-        } else if ($numOfSpaces >= 4) {
+        } elseif ($numOfSpaces >= 4) {
             $type = 'sentence';
         }
 
@@ -153,10 +148,11 @@ class BulkCustomerRepliesController extends Controller
         $keyword->count = 0;
         $keyword->save();
 
-        return redirect()->back()->with('message', title_case($type) . ' added successfully!');
+        return redirect()->back()->with('message', Str::title($type) . ' added successfully!');
     }
 
-    public function sendMessagesByKeyword(Request $request) {
+    public function sendMessagesByKeyword(Request $request)
+    {
         $customer_id_array = $request->get('customers');
         // $this->validate($request, [
         //     'message' => 'required',
@@ -169,16 +165,16 @@ class BulkCustomerRepliesController extends Controller
             $myRequest->request->add([
                 'message' => $request->get('message_bulk'),
                 'customer_id' => $customer,
-                'status' => 1
+                'status' => 1,
             ]);
 
-            app('App\Http\Controllers\WhatsAppController')->sendMessage($myRequest, 'customer');
+            app(\App\Http\Controllers\WhatsAppController::class)->sendMessage($myRequest, 'customer');
 
             // DB::table('bulk_customer_replies_keyword_customer')->where('customer_id', $customer)->where("keyword_id",$request->get("keyword_id",0))->delete();
         }
-            return response()->json(['message' => 'Messages sent successfully!','c_id' => $customer_id_array]);
-        // return redirect()->back()->with('message', 'Messages sent successfully!');
 
+        return response()->json(['message' => 'Messages sent successfully!', 'c_id' => $customer_id_array]);
+        // return redirect()->back()->with('message', 'Messages sent successfully!');
     }
 
     /**
@@ -194,7 +190,6 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -227,7 +222,6 @@ class BulkCustomerRepliesController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -247,28 +241,24 @@ class BulkCustomerRepliesController extends Controller
         //
     }
 
+    public function addToDND(Request $request)
+    {
+        $exist = CustomerBulkMessageDND::where('customer_id', $request->customer_id)->where('filter', $request->filter['keyword_filter'])->first();
 
-    public function addToDND(Request $request){
-
-        $exist = CustomerBulkMessageDND::where('customer_id', $request->customer_id)->where('filter', $request->filter['keyword_filter'])->first(); 
-
-        if($exist == null){
+        if ($exist == null) {
             CustomerBulkMessageDND::create([
                 'customer_id' => $request->customer_id,
-                'filter' => $request->filter ? $request->filter['keyword_filter'] : null
+                'filter' => $request->filter ? $request->filter['keyword_filter'] : null,
             ]);
         }
-        
 
         return response()->json(true);
-
     }
 
-    public function removeFromDND(Request $request){
-
+    public function removeFromDND(Request $request)
+    {
         $dnd = CustomerBulkMessageDND::where('customer_id', $request->customer_id)->where('filter', $request->filter['keyword_filter'])->delete();
 
         return response()->json(true);
-
     }
 }

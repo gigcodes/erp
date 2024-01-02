@@ -565,7 +565,7 @@
         return;
       }
       $.ajax({
-        url: "{{ action('SupplierController@addNote', $supplier->id) }}",
+        url: "{{ action([\App\Http\Controllers\SupplierController::class, 'addNote'], $supplier->id) }}",
         data: {
           note: note,
           _token: "{{csrf_token()}}"

@@ -36,19 +36,19 @@
                             <td>{{$key+1}}</td>
                             <td>{{ $account->storeWebsite->title }}</td>
                             <td class="expand-row-msg" data-name="api_key" data-id="{{$account->id}}">
-                            <span class="show-short-api_key-{{$account->id}}">{{ str_limit($account->api_key, 30, '...')}}</span>
+                            <span class="show-short-api_key-{{$account->id}}">{{ Str::limit($account->api_key, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-api_key-{{$account->id}} hidden">{{ $account->api_key }}</span>
                             </td>
                             <td class="expand-row-msg" data-name="url" data-id="{{$account->id}}">
-                            <span class="show-short-url-{{$account->id}}">{{ str_limit($account->url, 30, '...')}}</span>
+                            <span class="show-short-url-{{$account->id}}">{{ Str::limit($account->url, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-url-{{$account->id}} hidden">{{ $account->url }}</span>
                             </td>
                             <td class="expand-row-msg" data-name="work_space_id" data-id="{{$account->id}}">
-                            <span class="show-short-work_space_id-{{$account->id}}">{{ str_limit($account->work_space_id, 30, '...')}}</span>
+                            <span class="show-short-work_space_id-{{$account->id}}">{{ Str::limit($account->work_space_id, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-work_space_id-{{$account->id}} hidden">{{ $account->work_space_id }}</span>
                             </td>
                             <td class="expand-row-msg" data-name="assistant_id" data-id="{{$account->id}}">
-                            <span class="show-short-assistant_id-{{$account->id}}">{{ str_limit($account->assistant_id, 30, '...')}}</span>
+                            <span class="show-short-assistant_id-{{$account->id}}">{{ Str::limit($account->assistant_id, 30, '...')}}</span>
                             <span style="word-break:break-all;" class="show-full-assistant_id-{{$account->id}} hidden">{{ $account->assistant_id }}</span>
                             </td>
                             <td>{{ $account->is_active ? 'Yes' : 'No' }}</td>
@@ -122,6 +122,14 @@
                                     <input type="text" class="form-control" name="url" required/>
                                 </div>
                                 <div class="col-md-12">
+                                    <label class="mt-3">Speech to Text Api Key</label>
+                                    <input type="text" class="form-control" name="speech_to_text_api_key" required/>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="mt-3">Speech to Text Url</label>
+                                    <input type="text" class="form-control" name="speech_to_text_url" required/>
+                                </div>
+                                <div class="col-md-12">
                                     <label class="mt-3">Usre name</label>
                                     <input type="text" class="form-control" name="user_name" required/>
                                 </div>
@@ -180,6 +188,14 @@
                                     <label>Instance Url</label>
                                     <input type="text" class="form-control" id="instance_url" name="url" required/>
                                 </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="mt-3">Speech to Text Api Key</label>
+                                    <input type="text" class="form-control" id="speech_to_text_api_key" name="speech_to_text_api_key" required/>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="mt-3">Speech to Text Url</label>
+                                    <input type="text" class="form-control" id="speech_to_text_url" name="speech_to_text_url" required/>
+                                </div>
                                 <div class="col-md-12">
                                     <label class="mt-3">Usre name</label>
                                     <input type="text" class="form-control" id="user_name_field" name="user_name" required/>
@@ -212,7 +228,7 @@
             var postData = $(this).serialize();
             $.ajax({
                 method: "post",
-                url: "{{action('WatsonController@store')}}",
+                url: "{{action([\App\Http\Controllers\WatsonController::class, 'store'])}}",
                 data: postData,
                 dataType: "json",
                 success: function (response) {
@@ -251,6 +267,8 @@
                     $('#store_website_id').html(option);
                     $('#api_key').val(response.account.api_key);
                     $('#instance_url').val(response.account.url);
+                    $('#speech_to_text_api_key').val(response.account.speech_to_text_api_key);
+                    $('#speech_to_text_url').val(response.account.speech_to_text_url);
                     $('#account_id').val(response.account.id);
                     $('#work_space_id').val(response.account.work_space_id);
                     $('#assistant_id').val(response.account.assistant_id);

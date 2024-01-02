@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
+use GuzzleHttp\Cookie\CookieJar;
 
 class ImportGiglioImages extends Command
 {
@@ -43,9 +43,8 @@ class ImportGiglioImages extends Command
     public function handle()
     {
         try {
-
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
@@ -57,7 +56,7 @@ class ImportGiglioImages extends Command
 
             $params = [];
 
-            $products          = Product::where('id', 2754)->get();
+            $products = Product::where('id', 2754)->get();
             $params['cookies'] = $cookieJar;
 
             $response = $guzzle->request('GET', 'https://img.giglio.com/images/prodZoom/A66167.001_1.jpg', $params);

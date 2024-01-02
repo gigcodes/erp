@@ -3,11 +3,8 @@
 namespace App\Console\Commands;
 
 use File;
-use Google\Service\Dfareporting\Resource\Files;
-use Illuminate\Console\Command;
 use Plank\Mediable\Media;
-use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Console\Command;
 
 class addImagesInMissingPath extends Command
 {
@@ -40,13 +37,16 @@ class addImagesInMissingPath extends Command
      *
      * @return mixed
      */
-    public function createPath($path) {
+    public function createPath($path)
+    {
         $path = explode('/', $path);
         $dir = '/';
-        foreach($path as $key => $f){
-            if($key == 0 || $key == count($path) -1) continue;
-            $dir .= $f . '/' ;
-            if(!is_dir($dir)){
+        foreach ($path as $key => $f) {
+            if ($key == 0 || $key == count($path) - 1) {
+                continue;
+            }
+            $dir .= $f . '/';
+            if (! is_dir($dir)) {
                 mkdir($dir);
             }
         }
@@ -55,20 +55,20 @@ class addImagesInMissingPath extends Command
     public function handle()
     {
         $files = File::allFiles(public_path('test-images'));
-        Media::where('aggregate_type','image')->orderBy('id')->chunk(1000, function ($medias) use($files) {
+        Media::where('aggregate_type', 'image')->orderBy('id')->chunk(1000, function ($medias) use ($files) {
             foreach ($medias as $key => $media) {
-                if($media->id == 1537928){
+                if ($media->id == 1537928) {
                     continue;
-                }     
+                }
                 $randomFile = $files[rand(0, count($files) - 1)];
                 $r_file = $randomFile->getRealPath();
 
-                        $m_url = $media->getAbsolutePath();
-                        $file_info = pathinfo($m_url);
-                        $file_name = $file_info['filename'].'.'  . $file_info['extension'];
-                        $file_full_folder = $file_info['dirname'] . '/' . $file_name ;
-                            $this->createPath($m_url);
-                         copy( $r_file, $file_full_folder);
+                $m_url = $media->getAbsolutePath();
+                $file_info = pathinfo($m_url);
+                $file_name = $file_info['filename'] . '.' . $file_info['extension'];
+                $file_full_folder = $file_info['dirname'] . '/' . $file_name;
+                $this->createPath($m_url);
+                copy($r_file, $file_full_folder);
             }
         });
     }

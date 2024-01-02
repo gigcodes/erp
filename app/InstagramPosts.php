@@ -1,20 +1,19 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-use App\HashTag;
-use App\InstagramCommentQueue;
+use Illuminate\Database\Eloquent\Model;
 
 class InstagramPosts extends Model
 {
-           /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="location",type="string")
-
      */
     use Mediable;
 
@@ -37,11 +36,11 @@ class InstagramPosts extends Model
 
     public function userDetail()
     {
-        return $this->hasOne(InstagramUsersList::class,'user_id','user_id');
+        return $this->hasOne(InstagramUsersList::class, 'user_id', 'user_id');
     }
 
     public function commentQueue()
     {
-        return $this->hasMany(InstagramCommentQueue::class,'post_id','post_id');
+        return $this->hasMany(InstagramCommentQueue::class, 'post_id', 'post_id');
     }
 }

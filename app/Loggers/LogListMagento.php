@@ -2,12 +2,11 @@
 
 namespace App\Loggers;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 
 class LogListMagento extends Model
 {
-
     protected $fillable = [
         'product_id',
         'queue',
@@ -32,13 +31,13 @@ class LogListMagento extends Model
         Log::channel('listMagento')->$severity($message);
 
         // Write to database
-        $logListMagento                   = new LogListMagento();
-        $logListMagento->product_id       = $productId;
-        $logListMagento->message          = $message;
+        $logListMagento = new LogListMagento();
+        $logListMagento->product_id = $productId;
+        $logListMagento->message = $message;
         $logListMagento->store_website_id = $storeWebsiteId;
-        $logListMagento->sync_status      = $syncStatus;
-        $logListMagento->languages        = $languages;
-        $logListMagento->user_id          = @\Auth::user()->id;
+        $logListMagento->sync_status = $syncStatus;
+        $logListMagento->languages = $languages;
+        $logListMagento->user_id = @\Auth::user()->id;
         $logListMagento->save();
 
         // Return
@@ -64,6 +63,6 @@ class LogListMagento extends Model
 
     public function screenshot()
     {
-        return \App\StoreWebsiteProductScreenshot::where("product_id", $this->product_id)->where("store_website_id", $this->store_website_id)->get();
+        return \App\StoreWebsiteProductScreenshot::where('product_id', $this->product_id)->where('store_website_id', $this->store_website_id)->get();
     }
 }

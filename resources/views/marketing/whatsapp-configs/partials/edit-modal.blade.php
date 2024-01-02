@@ -1,4 +1,4 @@
-<div id="whatsAppConfigEditModal{{$whatsAppConfig->id}}" class="modal fade" role="dialog">
+<div id="whatsAppConfigEditModal{{$whatsAppConfig->id}}" class="modal fade whatsAppConfigEditModal" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -38,7 +38,7 @@
                         </div>
                         <div class="form-group">
                             <strong>Provider:</strong>
-                            <input type="text" name="provider" class="form-control" value="{{ $whatsAppConfig->provider }}">
+                            <input type="text" id="edit-whatsapp-provider{!! $whatsAppConfig->id !!}" oninput="editUpdateFields(this)" name="provider" class="form-control" value="{{ $whatsAppConfig->provider }}">
 
                             @if ($errors->has('provider'))
                                 <div class="alert alert-danger" >{{$errors->first('provider')}}</div>
@@ -54,8 +54,8 @@
                                 <div class="alert alert-danger" >{{$errors->first('is_customer_support')}}</div>
                             @endif
                         </div>
-						
-						
+
+
 						<div class="form-group">
     						<strong>Select Store:</strong>
     						<select class="form-control" name="store_website_id">
@@ -68,14 +68,14 @@
 								<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
     						@endif
     					</div>
-						
+
 						@php
                             $defaultForArr = explode(",",$whatsAppConfig->default_for);
 						@endphp
 						<div class="form-group">
     						<strong>Default For:</strong>
     						<select class="form-control select-multiple-default_for" id="select-multiple-default_for_{{$whatsAppConfig->id}}" name="default_for[]" multiple>
-								
+
     							<option value="1" @if(in_array(1,$defaultForArr)) selected @endif>Customer</option>
     							<option value="2" @if(in_array(2,$defaultForArr)) selected @endif>Vendor</option>
     							<option value="3" @if(in_array(3,$defaultForArr)) selected @endif>Supplier</option>
@@ -86,10 +86,25 @@
     						<div class="alert alert-danger">{{$errors->first('default_for')}}</div>
     						@endif
     					</div>
-						
-                        <div class="form-group">
+
+                        <div class="form-group" id="edit-whatsapp-instance-id">
                             <strong>Instance Id:</strong>
                             <input type="text" name="instance_id" class="form-control" value="{{ $whatsAppConfig->instance_id }}">
+                            @if ($errors->has('instance_id'))
+                                <div class="alert alert-danger" >{{$errors->first('instance_id')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group" id="edit-whatsapp-instance-id-dropdown">
+                            @php
+                                $allAccounts = [];
+                                if (isset($businessAccounts)) {
+                                    foreach($businessAccounts as $businessAccount) {
+                                        $allAccounts[$businessAccount->id] = $businessAccount->business_account_id . '(' . $businessAccount->business_phone_number .')';
+                                    }
+                                }
+                            @endphp
+                            <strong>Account</strong>
+                            {!! Form::select('instance_id', $allAccounts, $whatsAppConfig->instance_id, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'placeholder' => 'Select account']) !!}
                             @if ($errors->has('instance_id'))
                                 <div class="alert alert-danger" >{{$errors->first('instance_id')}}</div>
                             @endif
@@ -111,8 +126,8 @@
                                 <div class="alert alert-danger" >{{$errors->first('is_default')}}</div>
                             @endif
                         </div>
-						
-						
+
+
                         <div class="form-group">
                             <strong>Frequency:</strong>
                             <input type="text" name="frequency" class="form-control" value="{{ $whatsAppConfig->frequency }}">

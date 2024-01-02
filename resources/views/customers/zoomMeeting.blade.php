@@ -23,7 +23,7 @@
         </div>
     </div>
 </div>
-<input type="hidden" value="{{action('Meeting\ZoomMeetingController@createMeeting')}}" class="" id="meetingUrl">
+<input type="hidden" value="{{action([\App\Http\Controllers\Meeting\ZoomMeetingController::class, 'createMeeting'])}}" class="" id="meetingUrl">
 <input type="hidden" value="{{ csrf_token() }}" class="" id="csrfToken">
 <div id="zoomMeetingModal" class="modal fade" role="dialog">
     <div class="modal-dialog">

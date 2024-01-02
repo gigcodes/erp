@@ -1,15 +1,18 @@
 @extends('layouts.app')
 
 @section('styles')
-@section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-@endsection
+    <style>
+        .need_to_send,.inlcude_made_by {
+            height: 12px !important;
+        }
+    </style>
 @endsection
 
 @section('content')
-
-    <div class="row">
+    <div class="col-md-12">
+        <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Documents Manager</h2>
             <div class="pull-left">
@@ -30,7 +33,7 @@
                                 </select>
                             </div> -->
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class='input-group date' id='filter-date'>
                                     <input type='text' class="form-control global" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" id="date" />
 
@@ -49,8 +52,9 @@
                 </form>
             </div>
             <div class="pull-right">
+                <a href="#"><button type="button" class="btn btn-secondary" id="add_category">Add Category</button></a>
                 <a href="{{ route('document.email') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
+                <a type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a>
 
             </div>
         </div>
@@ -72,7 +76,15 @@
             </ul>
         </div>
     @endif
-
+    <?php   $docType = [];
+            $fileName = [];
+    ?>
+    @foreach ($documents as $doc)
+        <?php   array_push($docType, $doc->name);
+                array_push($fileName,$doc->filename);
+        ?>
+    @endforeach
+    
     <div class="table-responsive mt-3">
         <table class="table table-bordered documnets-manager" id="documents-table">
             <thead>
@@ -87,11 +99,43 @@
             </tr>
             <tr>
             <th></th>    
-            <th><input type="text" id="user" class="search form-control"></th>
+            <th>
+                {{-- <input type="text" id="user" class="search form-control"> --}}
+                <select id="user" class="search form-control select2">
+                    <option value="">--Select User--</option>    
+                @foreach ($users as $keyU => $user )
+                    <option value="{{$user->name}}">{{$user->name}}</option>
+                @endforeach
+                </select>
+            </th>
             <th></th>
-            <th><input type="text" id="document_type" class="search form-control"></th>
-            <th><input type="text" id="category" class="search form-control"></th>
-            <th><input type="text" id="filename" class="search form-control"></th>
+            <th>
+                {{-- <input type="text" id="document_type" class="search form-control"> --}}
+                <select id="document_type" class="search form-control select2">
+                <option value="">--Select Document--</option>
+                @foreach (array_unique($docType) as $keyD => $docT )
+                    <option value="{{$docT}}">{{$docT}}</option>
+                @endforeach
+                </select>
+            </th>
+            <th>
+                {{-- <input type="text" id="category" class="search form-control"> --}}
+                <select id="category" class="search form-control select2">
+                    <option value="">--Select Category--</option>
+                    @foreach ($category as $cat)
+                        <option value="{{$cat->name}}">{{$cat->name}}</option>
+                    @endforeach
+                </select>
+            </th>
+            <th>
+                {{-- <input type="text" id="filename" class="search form-control"> --}}
+                <select id="filename" class="search form-control select2">
+                    <option value="">--Select File--</option>
+                @foreach (array_unique($fileName) as $keyF => $fileN )
+                    <option value="{{$fileN}}">{{$fileN}}</option>
+                @endforeach
+                </select>
+            </th>
             <th></th>
           </tr>
             </thead>
@@ -101,8 +145,8 @@
             </tbody>
         </table>
     </div>
-
     {!! $documents->appends(Request::except('page'))->links() !!}
+    </div>
     @include('partials.modals.remarks')
     @include('documents.partials.modal-addCategory')
     @include('documents.partials.modal-documentWhatsApp')
@@ -239,6 +283,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        $('#add_category').click(function (){
+            $("#myModal").modal();
+        });
+    </script>
     <script>
         $(".select2").select2();
         $('#filter-date').datetimepicker({
@@ -571,47 +620,56 @@
 
 
         $(document).ready(function() {
-        src = "{{ route('document.index') }}";
-        $(".search").autocomplete({
-        source: function(request, response) {
-            user = $('#user').val();
-            document_type = $('#document_type').val();
-            category = $('#category').val();
-            filename = $('#filename').val();
-          
+            var $eventSelect = $(".search");
+            $eventSelect.on("change", function (e) { 
+                src = "{{ route('document.index') }}";
 
-            $.ajax({
-                url: src,
-                dataType: "json",
-                data: {
-                    user : user,
-                    document_type : document_type,
-                    category : category,
-                    filename : filename,
+                user = $('#user').select2('val');//.val();
+                    document_type = $('#document_type').val();
+                    category = $('#category').val();
+                    filename = $('#filename').val();
                 
+
+                    $.ajax({
+                        url: src,
+                        dataType: "json",
+                        data: {
+                            user : user,
+                            document_type : document_type,
+                            category : category,
+                            filename : filename,
+                        
+                        },
+                        beforeSend: function() {
+                            $("#loading-image").show();
+                        },
+                    
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                        console.log(data);
+                        $("#documents-table tbody").empty().html(data.tbody);
+                        if (data.links.length > 10) {
+                            $('ul.pagination').replaceWith(data.links);
+                        } else {
+                            $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+                        }
+                        
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        alert('No response from server');
+                    });
+
+
+                /*
+                $(".search").autocomplete({
+                source: function(request, response) {
+                    debugger;
+                    
                 },
-                beforeSend: function() {
-                       $("#loading-image").show();
-                },
+                minLength: 1,
             
-            }).done(function (data) {
-                 $("#loading-image").hide();
-                console.log(data);
-                $("#documents-table tbody").empty().html(data.tbody);
-                if (data.links.length > 10) {
-                    $('ul.pagination').replaceWith(data.links);
-                } else {
-                    $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
-                }
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        },
-        minLength: 1,
-       
+                });*/
+             });
         });
-    });
 
         $(document).ready(function() {
         src = "{{ route('document.index') }}";
@@ -619,7 +677,8 @@
         source: function(request, response) {
             term = $('#term').val();
             date = $('#date').val();
-          
+
+
           $.ajax({
                 url: src,
                 dataType: "json",

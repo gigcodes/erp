@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Brand;
-use App\BrandCategoryPriceRange;
-use App\CronJobReport;
-use App\ListingHistory;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\ListingHistory;
 use Illuminate\Console\Command;
+use App\BrandCategoryPriceRange;
 
 class AutoRejectProductIfAttributesAreMissing extends Command
 {

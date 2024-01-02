@@ -2,17 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Account;
-use App\AutoCommentHistory;
-use App\AutoReplyHashtags;
-use App\Comment;
-use App\CronJobReport;
 use App\DeveloperTask;
-use App\InstagramAutoComments;
-use App\Services\Instagram\Hashtags;
+//use App\Services\Instagram\Hashtags;
 use Illuminate\Console\Command;
-use InstagramAPI\Instagram;
-use Carbon\Carbon;
+
+//use InstagramAPI\Instagram;
 
 class ChangeTesterBasedOnTeamLead extends Command
 {
@@ -49,8 +43,6 @@ class ChangeTesterBasedOnTeamLead extends Command
      */
     public function handle()
     {
-        
         DeveloperTask::where('team_lead_id', 319)->update(['tester_id' => 414]);
-
     }
 }

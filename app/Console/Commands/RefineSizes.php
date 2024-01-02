@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Product;
-use App\Services\Products\SizeReferences;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
+use App\Services\Products\SizeReferences;
 
 class RefineSizes extends Command
 {
@@ -46,7 +46,7 @@ class RefineSizes extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

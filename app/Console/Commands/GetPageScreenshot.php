@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\CronJobReport;
 use App\PageScreenshots;
-use App\Services\Bots\Screenshot;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\Services\Bots\Screenshot;
 
 class GetPageScreenshot extends Command
 {
@@ -43,7 +43,7 @@ class GetPageScreenshot extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 

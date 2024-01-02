@@ -1,3 +1,5 @@
+
+@if(count($data) != 0)
 @foreach ($data as $key => $program)
                 <tr>
                     <td>{{ ++$i }}</td>
@@ -15,3 +17,8 @@
                     </td>
                 </tr>
 @endforeach
+@else
+<tr>
+    <td colspan="7" align="center">No Data Found</td>
+</tr>
+@endif

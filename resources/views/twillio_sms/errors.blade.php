@@ -26,14 +26,37 @@
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Twilio Errors</h2>
-
-
-
-
+                    <div class="mt-3 col-md-12">
+                        <form action="{{route('twilio.errors')}}" method="get" class="search">
+                            <div class="col-md-2 pd-sm">
+                                <input class="form-control" type="text" id="sid" placeholder="Search SID" name="sid" value="{{ (request('sid') ?? "" )}}">
+                            </div>
+                            <div class="col-lg-2">
+                                <input class="form-control" type="text" id="account_sid" placeholder="Search Account SID" name="account_sid" value="{{ (request('account_sid') ?? "" )}}">
+                            </div>
+                            <div class="col-lg-2">
+                                <input class="form-control" type="text" id="call_sid" placeholder="Search Call SID" name="call_sid" value="{{ (request('call_sid') ?? "" )}}">
+                            </div>
+                            <div class="col-lg-2">
+                                <input class="form-control" type="text" id="error_code" placeholder="Search Error Code	" name="error_code" value="{{ (request('error_code') ?? "" )}}">
+                            </div>
+                            <div class="col-lg-2">
+                                <input class="form-control" type="text" id="message" placeholder="Search Message" name="message" value="{{ (request('message') ?? "" )}}">
+                            </div>
+                            <div class="col-lg-2">
+                                <input class="form-control" type="date" name="date" value="{{ (request('date') ?? "" )}}">
+                            </div>
+                            <div class="col-lg-2"><br>
+                                <button type="submit" class="btn btn-image search" onclick="document.getElementById('download').value = 1;">
+                                   <img src="{{ asset('images/search.png') }}" alt="Search">
+                               </button>
+                               <a href="{{route('twilio.errors')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
 
@@ -58,7 +81,7 @@
                     <td id="description">{{$value->account_sid}}</td>
                     <td id="description">{{$value->call_sid}}</td>
                     <td id="description">{{$value->error_code}}</td>
-                    <td id="description">{{$value->message_text}}</td>
+                    <td id="description">{{urldecode($value->message_text)}}</td>
                     <td id="description">{{$value->message_date}}</td>
                     <td>
 						<a data-route="{{route('delete.twilio.error')}}" data-id="{{$value->id}}" class="trigger-delete">  <i style="cursor: pointer;" class="fa fa-trash " aria-hidden="true"></i></a>

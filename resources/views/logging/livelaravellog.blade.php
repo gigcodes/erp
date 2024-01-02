@@ -23,8 +23,8 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Live Laravel Logs
-                <a style="float: right;" href="{{ action('LaravelLogController@liveLogDownloads') }}" class="btn btn-success btn-xs">Download</a>
-                <a style="float: right; padding-left: 10px;" href="{{ action('LaravelLogController@liveMagentoDownloads') }}" class="btn btn-success btn-xs">Magento Log</a>
+                <a style="float: right;" href="{{ action([\App\Http\Controllers\LaravelLogController::class, 'liveLogDownloads']) }}" class="btn btn-success btn-xs">Download</a>
+                <a style="float: right; padding-left: 10px;" href="{{ action([\App\Http\Controllers\LaravelLogController::class, 'liveMagentoDownloads']) }}" class="btn btn-success btn-xs">Magento Log</a>
             </h2>
             @if ($message = Session::get('message'))
                 <div class="alert alert-success">
@@ -64,7 +64,7 @@
     </div>
     <div class="conatainer">
         <div class="row mt-3">
-            <form action="{{ action('LaravelLogController@LogKeyword') }}" class="form-horizontal logKeyword" role="form" method="post">
+            <form action="{{ action([\App\Http\Controllers\LaravelLogController::class, 'LogKeyword']) }}" class="form-horizontal logKeyword" role="form" method="post">
                 <div class="col-md-3">
                     <input type="text" name="title" value="" class="form-control" placeholder="Keyword" required>
                 </div>
@@ -111,7 +111,7 @@
                     <input type="hidden" name="issue" id="issue">
                     <div class="form-group">
                         <strong>User:</strong>
-                        <select class="form-control select-multiple" name="assign_to" id="user-select">
+                        <select class="form-control" name="assign_to" id="user-select">
                             <option value="">Select User</option>
                             @foreach($users as $key => $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
@@ -608,7 +608,7 @@
             event.preventDefault();
             console.log($(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text());
             $.ajax({
-                url: '{{ action("LaravelLogController@liveLogsSingle") }}',
+                url: '{{ action([\App\Http\Controllers\LaravelLogController::class, 'liveLogsSingle']) }}',
                 dataType: "json",
                 data: {
                     msg : $(this).parent('td').siblings('td.expand-row.table-hover-cell').find('.td-full-container').text(),

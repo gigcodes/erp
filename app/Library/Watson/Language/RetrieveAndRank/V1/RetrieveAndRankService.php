@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\RetrieveAndRank\V1;
 
 use App\Library\Watson\Service;
@@ -8,7 +9,7 @@ class RetrieveAndRankService extends Service
     /**
      * {@inheritdoc}
      */
-    protected $url = "https://watson-api-explorer.mybluemix.net/retrieve-and-rank/api";
+    protected $url = 'https://watson-api-explorer.mybluemix.net/retrieve-and-rank/api';
 
     /**
      * {@inheritdoc}
@@ -27,6 +28,6 @@ class RetrieveAndRankService extends Service
      */
     public function listSolrClusters()
     {
-        return $this->client->request('GET', $this->getMountedUrl().'/solr_clusters');
+        return $this->client->request('GET', $this->getMountedUrl() . '/solr_clusters');
     }
 }

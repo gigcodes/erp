@@ -109,7 +109,7 @@
 
     <a href="{{ route('image.grid.download', $image->id) }}" class="btn-link">Download</a>
 
-    @if (isset($image->approved_user))
+    @if (isset($image->approved_user) && App\User::find($image->approved_user))
       <span>Approved by {{ App\User::find($image->approved_user)->name}} on {{ Carbon\Carbon::parse($image->approved_date)->format('d-m') }}</span>
     @endif
   </div>

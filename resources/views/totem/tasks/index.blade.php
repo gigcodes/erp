@@ -33,7 +33,7 @@
                 <tr class="{{$task->is_active ?: 'uk-text-danger'}}">
                     <td>
                         <a href="{{route('totem.task.view', $task)}}">
-                            {{str_limit($task->description, 30)}}
+                            {{Str::limit($task->description, 30)}}
                         </a>
                         <span class="uk-float-right uk-hidden@s uk-text-muted">Command</span>
                     </td>

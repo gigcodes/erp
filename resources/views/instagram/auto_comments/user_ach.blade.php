@@ -9,7 +9,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2 class="page-heading">Bulk Comments <a class="btn btn-info float-right" href="{{ action('UsersAutoCommentHistoriesController@assignPosts') }}">Assign Posts</a><a
+                <h2 class="page-heading">Bulk Comments <a class="btn btn-info float-right" href="{{ action([\App\Http\Controllers\UsersAutoCommentHistoriesController::class, 'assignPosts']) }}">Assign Posts</a><a
                             href="https://docs.google.com/document/d/1GmZ5JIEQfy-EZykHHy6Yp6lPyJcmhBYk30ZBOyHQcOI/edit?usp=sharing" class="pull-right">SOP &nbsp;</a></h2>
             </div>
 
@@ -81,7 +81,7 @@
             });
 
             $.ajax({
-                url: '{{ action('UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap') }}',
+                url: '{{ action([\App\Http\Controllers\UsersAutoCommentHistoriesController::class, 'sendMessagesToWhatsappToScrap']) }}',
                 data: {
                     posts: postIds
                 },
@@ -101,7 +101,7 @@
             let commentId = $(this).attr('data-commentId');
             let button = this;
             $.ajax({
-                url: "{{ action('UsersAutoCommentHistoriesController@verifyComment') }}",
+                url: "{{ action([\App\Http\Controllers\UsersAutoCommentHistoriesController::class, 'verifyComment']) }}",
                 data: {
                     id: commentId,
                     account_id: accountid

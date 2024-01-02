@@ -9,16 +9,15 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Analytics extends Model
 {
-    
     /**
      * Fillables for the database
      *
-     * @access protected
      *
-     * @var array $fillable
+     * @var array
      */
     /**
      * @var string
+     *
      * @SWG\Property(property="operatingSystem",type="string")
      * @SWG\Property(property="user_type",type="string")
      * @SWG\Property(property="time",type="string")
@@ -33,12 +32,11 @@ class Analytics extends Model
      * @SWG\Property(property="bounceRate",type="string")
      * @SWG\Property(property="avgSessionDuration",type="string")
      * @SWG\Property(property="timeOnPage",type="string")
-
      */
-    protected $fillable = array(
+    protected $fillable = [
         'operatingSystem', 'user_type', 'time', 'page_path',
-        'country', 'city', 'social_network', 'date' ,'device_info',
+        'country', 'city', 'social_network', 'date', 'device_info',
         'sessions', 'pageviews', 'bounceRate', 'avgSessionDuration',
-        'timeOnPage'
-    );
+        'timeOnPage',
+    ];
 }

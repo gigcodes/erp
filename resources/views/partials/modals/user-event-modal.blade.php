@@ -8,6 +8,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <form id="create_event_form" action="/calendar/events" method="POST">
+                <input id="type" type="hidden" name="type" value="event">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="date">Date</label>
@@ -69,6 +70,7 @@
         const subject = modal.querySelector('#subject').value;
         const description = modal.querySelector('#description').value;
         const contacts = modal.querySelector('#contacts').value;
+        const type = modal.querySelector('#type').value;
         const vendors = [];    
         $("#vendors :selected").each(function(){
             vendors.push($(this).val()); 
@@ -81,6 +83,7 @@
                 subject,
                 description,
                 contacts,
+                type,
                 vendors
             },
             function(result) {

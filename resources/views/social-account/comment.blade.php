@@ -13,10 +13,17 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+        table {
+table-layout: fixed !important;
+}
+
+table tr td {
+max-width: 100% !important;
+overflow-x: auto !important;
+}
 
     </style>
 @endsection
-
 
 @section('content')
     <div id="myDiv">
@@ -30,36 +37,83 @@
                 </div>
             </div>
         </div>
-
     </div>
 
+    <div class="row">
+        <div class="col-lg-12 margin-tb">
+            <form class="form-inline" method="GET">
+                <div class="form-group">
+                    <?php echo Form::text("search", request()->get("search", ""), ["class" => "form-control", "placeholder" => "Enter keyword for search"]); ?>
+                </div>
+                <br>
+                <button type="submit" class="btn ml-2"><i class="fa fa-filter"></i></button>
+            </form>
+        </div>
+    </div>
+    <input id="config-id" class="config-id" type="hidden" value="{{ $post->social_config_id ?? '' }}">
     <div class="mt-3">
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Comment</th>
-                    <th>User</th>
-                    <th>Created At</th>
-                    <th>Action</th>
+                    <th width="5%">ID</th>
+                    <th width="15%">Comment Original</th>
+                    <th width="15%">Comment With Translation</th>
+                    <th width="15%">Reply</th>
+                    <th width="10%">User</th>
+                    <th width="10%">Created At</th>
+                    <th>Shortcuts</th>
+                    <th width="5%">Action</th>
             </thead>
             <tbody>
                 @forelse($comments as $key => $value)
-                    <tr>
+                <tr>
                         <td>{{ $key + 1 }}</td>
                         <td style="width:50%">
                             <div style="word-break: break-word;">
                                 @if ($value->message) {{ $value->message }} @else <small class="text-secondary">(No caption added)</small> @endif
+                                <!-- @if ($value->translation) {{ $value->translation }} @else <small class="text-secondary">(No caption added)</small> @endif -->
                             </div>
                             @if ($value->photo)
                                 <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
                             @endif
                         </td>
+                        <td style="width:50%">
+                            <div style="word-break: break-word;">
+                                <!-- @if ($value->message) {{ $value->message }} @else <small class="text-secondary">(No caption added)</small> @endif -->
+                                @if ($value->translation) {{ $value->translation }} @else <small class="text-secondary">(No caption added)</small> @endif
+                            </div>
+                            @if ($value->photo)
+                                <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
+                            @endif
+                        </td>
+                     
+                        <td class="message-input p-0 pt-2 pl-3">
+                            <div class="cls_textarea_subbox">
+                                <div class="btn-toolbar" role="toolbar">
+                                    <div class="w-75">
+                                        <textarea rows="1"
+                                            class="form-control quick-message-field cls_quick_message addToAutoComplete"
+                                            name="message" placeholder="Message" id="textareaBox_{{ $value->comment_id }}"
+                                            data-customer-id="{{ $value->comment_id }}"></textarea>
+                                    </div>
+                                    <div class="w-25 pl-2" role="group" aria-label="First group">
+                                        <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
+                                            data-id="textareaBox_{{ $value->comment_id }}">
+                                            <img src="/images/filled-sent.png">
+                                        </button>
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
                         <td>{{ $value->user->name }}</td>
                         <td>{{ $value->time }}</td>
+                        <td id="shortcutsIds">
+                            @include('social-account.shortcuts')
+                        </td>
                         <td>
-                            <button id="showReplyButton" class="btn btn-light"
-                                data-comment-id="{{ $value->comment_id }}">Show Reply</button>
+                            <button id="showReplyButton" class="btn btn-light" title="Show Reply" data-comment-id="{{ $value->comment_id }}"><i class="fa fa-eye" aria-hidden="true"></i></button>
                         </td>
                     </tr>
                 @empty
@@ -154,5 +208,270 @@
                 }
             })
         })
-    </script>
+
+        $(document).on('click', '.send-message1', function() {
+        const textareaId = $(this).data('id');
+        const value = $(`#${textareaId}`).val();
+        const configId = document.getElementById("config-id").value;  
+        const contactId = $(`#${textareaId}`).data('customer-id');
+        if (value.trim()) {
+            $("#loading-image").show();
+            $.ajax({
+                url: "{{ route('social.dev.reply.comment') }}",
+                method: 'POST',
+                async: true,
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    input: value,
+                    contactId: contactId,
+                    configId: configId
+                },
+                success: function(res) {
+                    $("#loading-image").hide();
+                    document.getElementById("textareaBox_"+contactId).value = '';
+                    toastr["success"]("Message successfully send!", "Message")
+                },
+                error: function(error) {
+                    console.log(error.responseJSON);
+                    alert("Counldn't send messages")
+                    $("#loading-image").hide();
+                }
+            })
+        } else {
+            alert("Please enter a message")
+        }
+    })
+
+</script>
+<script type="text/javascript" src="/js/common-helper.js"></script>
+<script type="text/javascript">
+var siteHelpers = {
+            
+    quickCategoryAdd : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var textBox = ele.closest("div").find(".quick_category");
+        if (textBox.val() == "") {
+            alert("Please Enter Category!!");
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                name : textBox.val(),
+                quickCategoryId : quickCategoryId
+            },
+            url: "/add-reply-category"
+        };
+
+        if(quickCategoryId!=''){
+            siteHelpers.sendAjax(params,"afterQuickSubCategoryAdd");
+        } else {
+            siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+        }
+    },
+    afterQuickSubCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickSubCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    afterQuickCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    deleteQuickCategory : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickSubCategory : function(ele) {
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (quickSubCategory.val() == "") {
+            alert("Please Select Sub Category!!");
+            return false;
+        }
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete sub category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickSubCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickComment : function(ele) {
+        var quickComment = ele.closest("#shortcutsIds").find(".quickCommentEmail");
+        if (quickComment.val() == "") {
+            alert("Please Select Quick Comment!!");
+            return false;
+        }
+        var quickCommentId = quickComment.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete comment?")) {
+            return false;
+        }
+        var params = {
+            method : 'DELETE',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "/reply/" + quickCommentId,
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    pageReload : function(response) {
+        location.reload();
+    },
+    quickCommentAdd : function(ele) {
+        var textBox = ele.closest("div").find(".quick_comment");
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (textBox.val() == "") {
+            alert("Please Enter New Quick Comment!!");
+            return false;
+        }
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        var formData = new FormData();
+        formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+        formData.append("reply", textBox.val());
+        formData.append("category_id", quickCategoryId);
+        formData.append("sub_category_id", quickSubCategoryId);
+        formData.append("model", 'Approval Lead');
+        var params = {
+            method : 'post',
+            data : formData,
+            url: "/reply"
+        };
+        siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+    },
+    afterQuickCommentAdd : function(reply) {
+        $(".quick_comment").val('');
+        $('.quickCommentEmail').append($('<option>', {
+            value: reply,
+            text: reply
+        }));
+    },
+    changeQuickCategory : function (ele) {
+
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('value');
+
+        ele.closest("#shortcutsIds").find('.quickSubCategory').empty();
+        ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+            value: '',
+            text: 'Select Sub Category'
+        }));
+        dataValue.forEach(function (category) {
+            ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+                value: category.name,
+                text: category.name,
+                'data-id': category.id
+            }));
+        });
+
+        if (ele.val() != "") {
+            var replies = JSON.parse(ele.val());
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+            replies.forEach(function (reply) {
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply,
+                    'data-id': reply.id
+                }));
+            });
+        }
+    },
+    changeQuickComment : function (ele) {
+        $('#textareaBox_'+ele.attr('data-id')).val(ele.val());        
+    },
+    changeQuickSubCategory : function (ele) {
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('id');
+
+        var userEmaillUrl = '/social/email-replise/'+dataValue;
+
+        $.ajax({        
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+
+            if(response!=''){
+                var replies = JSON.parse(response);
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: '',
+                    text: 'Quick Reply'
+                }));
+                replies.forEach(function (reply) {
+                    ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                        value: reply.reply,
+                        text: reply.reply,
+                        'data-id': reply.id
+                    }));
+                });
+            }
+            
+        }).fail(function(errObj) {
+        })
+    },
+};
+
+$.extend(siteHelpers, common);
+
+$(document).on('click', '.quick_category_add', function () {
+    siteHelpers.quickCategoryAdd($(this));
+});
+$(document).on('click', '.delete_category', function () {
+    siteHelpers.deleteQuickCategory($(this));
+});
+$(document).on('click', '.delete_sub_category', function () {
+    siteHelpers.deleteQuickSubCategory($(this));
+});
+$(document).on('click', '.delete_quick_comment', function () {
+    siteHelpers.deleteQuickComment($(this));
+});
+$(document).on('click', '.quick_comment_add', function () {
+    siteHelpers.quickCommentAdd($(this));
+});
+$(document).on('change', '.quickCategory', function () {
+    siteHelpers.changeQuickCategory($(this));
+});
+$(document).on('change', '.quickCommentEmail', function () {
+    siteHelpers.changeQuickComment($(this));
+});
+$(document).on('change', '.quickSubCategory', function () {
+    siteHelpers.changeQuickSubCategory($(this));
+});
+</script>
 @endsection

@@ -13,7 +13,7 @@
                     <h3 class="card-title">Automated Reply / DM</h3>
                     <h1 class="card-title">{{ $automatedMessages }}</h1>
                     <div class="text-right">
-                        <a class="text-light" href="{{ action('InstagramAutomatedMessagesController@index') }}">Show</a>
+                        <a class="text-light" href="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'index']) }}">Show</a>
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                     <h3 class="card-title">Comments Today</h3>
                     <h1 class="card-title">{{ $commentsToday }}</h1>
                     <div class="text-right">
-                        <a class="text-light" href="{{ action('InstagramAutomatedMessagesController@show', '1') }}">Show</a>
+                        <a class="text-light" href="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'show'], '1') }}">Show</a>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                     <h3 class="card-title">Comments Total</h3>
                     <h1 class="card-title">{{ $commentsTotal }}</h1>
                     <div class="text-right">
-                        <a class="text-dark" href="{{ action('InstagramAutomatedMessagesController@show', 1) }}">Show</a>
+                        <a class="text-dark" href="{{ action([\App\Http\Controllers\InstagramAutomatedMessagesController::class, 'show'], 1) }}">Show</a>
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                     <h3 class="card-title">Normal Accounts</h3>
                     <h1 class="card-title">{{ $accounts }}</h1>
                     <div class="text-right">
-                        <a href="{{ action('InstagramController@accounts') }}" class="text-light">Show</a>
+                        <a href="{{ action([\App\Http\Controllers\InstagramController::class, 'accounts']) }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                     <h3 class="card-title">Influencers Accounts</h3>
                     <h1 class="card-title">{{ $influencersTotal }}</h1>
                     <div class="text-right">
-                        <a href="{{ action('InfluencersController@index') }}" class="text-dark">Show</a>
+                        <a href="{{ action([\App\Http\Controllers\InfluencersController::class, 'index']) }}" class="text-dark">Show</a>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     <h3 class="card-title">Influencers DM Today</h3>
                     <h1 class="card-title">{{ $infDmToday }}</h1>
                     <div class="text-right">
-                        <a href="{{ action('InfluencersController@show', 1) }}" class="text-light">Show</a>
+                        <a href="{{ action([\App\Http\Controllers\InfluencersController::class, 'show'], 1) }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@
                     <h3 class="card-title">Influencers DM Total</h3>
                     <h1 class="card-title">{{ $infDm }}</h1>
                     <div class="text-right">
-                        <a href="{{ action('InfluencersController@show', 1)  }}" class="text-light">Show</a>
+                        <a href="{{ action([\App\Http\Controllers\InfluencersController::class, 'show'], 1)  }}" class="text-light">Show</a>
                     </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@
                     <h3 class="card-title">Brand Tagged Users</h3>
                     <h1 class="card-title">{{ \App\BrandTaggedPosts::get()->count() }}</h1>
                     <div class="text-right">
-                        <a class="text-light" href="{{ action('BrandTaggedPostsController@index') }}">Show</a>
+                        <a class="text-light" href="{{ action([\App\Http\Controllers\BrandTaggedPostsController::class, 'index']) }}">Show</a>
                     </div>
                 </div>
             </div>

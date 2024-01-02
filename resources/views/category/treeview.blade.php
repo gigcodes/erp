@@ -204,6 +204,8 @@
                             <th style="width:6%">Level-4</th>
 
                             <th style="width:8%"> Magento id</th>
+                            <th style="width:8%"> Days Cancelation</th>
+                            <th style="width:8%"> Days Refund</th>
                             <th style="width:8%"> Show all id </th>
                             <th style="width:9%"> SH code </th>
                             <th style="width:7%"> Select category segmanet </th>
@@ -241,23 +243,71 @@
                                 <td class="pb-0"></td>
                                 <td class="pb-0"></td>
                                 <td class="pb-0"></td>
-                         
-                            <td class="pb-0">
-                                <form method="POST"
-                                    action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
-                                    class="edit_category_data" data-id="{{ $cat->id }}">
-                                    @csrf
-                                    <div class="d-flex align-items-baseline">
-                                        <div class="form-group mb-0">
-                                            <input type="number" class="form-control" name="magento_id"
-                                                placeholder="Enter Magento Id" required value="{{ $cat->magento_id }}">
+                                <td class="pb-0">
+                                    <form method="POST"
+                                        action="{{ route('category.child-update-category', ['edit' => $cat->id]) }}"
+                                        class="edit_category_data" data-id="{{ $cat->id }}">
+                                        @csrf
+                                        <div class="d-flex align-items-baseline">
+                                            <div class="form-group mb-0">
+                                                <input type="number" class="form-control" name="magento_id"
+                                                    placeholder="Enter Magento Id" required value="{{ $cat->magento_id }}">
+                                            </div>
+                                            <button class="btn btn-xs" hidden>
+                                                <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                            </button>
                                         </div>
-                                        <button class="btn btn-xs" hidden>
-                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
+                                    </form>
+                                </td>
+
+                                <td class="pb-0">
+                                    <form method="POST"
+                                        action="{{ route('category.update-cancelation-policy', ['edit' => $cat->id]) }}"
+                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}" data-day_old="{{$cat->days_cancelation}}">
+                                        @csrf
+                                        <input type="hidden" name="day_old" value="{{$cat->days_cancelation}}" />
+                                        <div class="d-flex align-items-baseline">
+                                            <div class="form-group mb-0">
+                                                <select name="days_cancelation" class="form-control days_cancelation" data-day_can="{{$cat->days_cancelation}}">
+                                                    {{-- @for ($i=0; $i<=31; $i++)
+                                                        <option @if($i == $cat->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                    @endfor --}}
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-xs" hidden>
+                                                <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$cat->id}}" data-day_type="days_cancelation">
+                                        <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $cat->id }}" data-day_type="days_cancelation" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                                <td class="pb-0">
+                                    <form method="POST"
+                                        action="{{ route('category.update-cancelation-policy', ['edit' => $cat->id]) }}"
+                                        class="edit_category_cancelation_days" data-id="{{ $cat->id }}" data-day_old="{{$cat->days_refund}}">
+                                        @csrf
+                                        <input type="hidden" name="day_old" value="{{$cat->days_refund}}" />
+                                        <div class="d-flex align-items-baseline">
+                                            <div class="form-group mb-0">
+                                                <select name="days_refund" class="form-control days_refund" data-day_can="{{$cat->days_refund}}" >
+                                                    {{-- @for ($i=0; $i<=31; $i++)
+                                                        <option  @if($i == $cat->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                    @endfor --}}
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-xs" hidden>
+                                                <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$cat->id}}"  data-day_type="days_refund">
+                                        <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $cat->id }}" data-day_type="days_refund" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            
+                            
                             <td class="pb-0">
                                 <div class="form-group mb-2">
                                     <form method="POST"
@@ -298,7 +348,7 @@
                                         class="edit_category_data" data-id={{ $cat->id }}>
                                         @csrf
 
-                                        <select class="form-control submit_on_change globalSelect2"
+                                        <select class="form-control submit_on_change globalSelect2 segmanet" data-category_segment_id="{{$cat->category_segment_id}}" 
                                             name="category_segment_id">
                                             <option>Select Category Segment</option>
                                             @foreach ($category_segments as $k => $catSeg)
@@ -320,10 +370,10 @@
                                     <div
                                         class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
 
-                                        <select name="parent_id" class="submit_on_change globalSelect2">
+                                        <select name="parent_id" class="submit_on_change globalSelect2" data-cat_id="{{$cat->parent_id}}">
                                             <option>Select Category </option>
 
-                                            @foreach ($allCategories as $c)
+                                            {{-- @foreach ($allCategories as $c)
                                                 @if ($c->id == $cat->id)
                                                     @continue
                                                 @endif
@@ -332,7 +382,7 @@
                                                     {{ $c->id == $cat->parent_id ? 'selected' : '' }}>
                                                     {{ $c->title }}
                                                 </option>
-                                            @endforeach
+                                            @endforeach --}}
 
                                         </select>
                                         <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -460,6 +510,52 @@
                                 </form>
                             </td>
                             <td class="pb-0">
+                                <form method="POST"
+                                    action="{{ route('category.update-cancelation-policy', ['edit' => $firstChild->id]) }}"
+                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}" data-day_old="{{$firstChild->days_cancelation}}">
+                                    @csrf
+                                    <input type="hidden" name="day_old" value="{{$firstChild->days_cancelation}}" />
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="form-group mb-0">
+                                            <select name="days_cancelation" class="form-control days_cancelation" data-day_can="{{$firstChild->days_cancelation}}">
+                                                {{-- @for ($i=0; $i<=31; $i++)
+                                                    <option  @if($i == $firstChild->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                @endfor --}}
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-xs" hidden>
+                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                        </button>
+                                    </div>
+                                </form>
+                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$firstChild->id}}" data-day_type="days_cancelation">
+                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $firstChild->id }}"  data-day_type="days_cancelation" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                            <td class="pb-0">
+                                <form method="POST"
+                                    action="{{ route('category.update-cancelation-policy', ['edit' => $firstChild->id]) }}"
+                                    class="edit_category_cancelation_days" data-id="{{ $firstChild->id }}" data-day_old="{{$firstChild->days_refund}}">
+                                    @csrf
+                                    <input type="hidden" name="day_old" value="{{$firstChild->days_refund}}" />
+                                    <div class="d-flex align-items-baseline">
+                                        <div class="form-group mb-0">
+                                            <select name="days_refund" class="form-control days_refund" data-day_can="{{$firstChild->days_refund}}">
+                                                {{-- @for ($i=0; $i<=31; $i++)
+                                                    <option  @if($i == $firstChild->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                @endfor --}}
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-xs" hidden>
+                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                        </button>
+                                    </div>
+                                </form>
+                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$firstChild->id}}" data-day_type="days_refund">
+                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $firstChild->id }}" data-day_type="days_refund" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                            <td class="pb-0">
                                 <div class="form-group mb-2">
                                     <form method="POST"
                                         action="{{ route('category.child-update-category', ['edit' => $firstChild->id]) }}"
@@ -497,7 +593,7 @@
                                         class="edit_category_data" data-id={{ $firstChild->id }}>
                                         @csrf
 
-                                        <select class="form-control submit_on_change globalSelect2"
+                                        <select class="form-control submit_on_change globalSelect2 segmanet" data-category_segment_id="{{$firstChild->category_segment_id}}" 
                                             name="category_segment_id">
                                             <option>Select Category Segment</option>
                                             @foreach ($category_segments as $k => $catSeg)
@@ -519,10 +615,10 @@
                                     <div
                                         class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
 
-                                        <select name="parent_id" class="submit_on_change globalSelect2">
+                                        <select name="parent_id" class="submit_on_change globalSelect2" data-cat_id="{{$firstChild->parent_id}}">
                                             <option>Select Category </option>
 
-                                            @foreach ($allCategories as $c)
+                                            {{-- @foreach ($allCategories as $c)
                                                 @if ($c->id == $firstChild->id)
                                                     @continue
                                                 @endif
@@ -531,7 +627,7 @@
                                                     {{ $c->id == $firstChild->parent_id ? 'selected' : '' }}>
                                                     {{ $c->title }}
                                                 </option>
-                                            @endforeach
+                                            @endforeach --}}
 
                                         </select>
                                         <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -660,6 +756,52 @@
                                                         </form>
                                                     </td>
                                                     <td class="pb-0">
+                                                        <form method="POST"
+                                                            action="{{ route('category.update-cancelation-policy', ['edit' => $secondChild->id]) }}"
+                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}"  data-day_old="{{$secondChild->days_cancelation}}">
+                                                            @csrf
+                                                            <input type="hidden" name="day_old" value="{{$secondChild->days_cancelation}}" />
+                                                            <div class="d-flex align-items-baseline">
+                                                                <div class="form-group mb-0">
+                                                                    <select name="days_cancelation" class="form-control days_cancelation" data-day_can="{{$secondChild->days_cancelation}}">
+                                                                        {{-- @for ($i=0; $i<=31; $i++)
+                                                                            <option @if($i == $secondChild->days_cancelation) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                                        @endfor --}}
+                                                                    </select>
+                                                                </div>
+                                                                <button class="btn btn-xs" hidden>
+                                                                    <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                        <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$secondChild->id}}" data-day_type="days_cancelation">
+                                                            <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $secondChild->id }}"  data-day_type="days_cancelation" aria-hidden="true"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td class="pb-0">
+                                                        <form method="POST"
+                                                            action="{{ route('category.update-cancelation-policy', ['edit' => $secondChild->id]) }}"
+                                                            class="edit_category_cancelation_days" data-id="{{ $secondChild->id }}" data-day_old="{{$secondChild->days_refund}}">
+                                                            @csrf
+                                                            <input type="hidden" name="day_old" value="{{$secondChild->days_refund}}" />
+                                                            <div class="d-flex align-items-baseline">
+                                                                <div class="form-group mb-0">
+                                                                    <select name="days_refund" class="form-control days_refund" data-day_can="{{$secondChild->days_refund}}">
+                                                                        {{-- @for ($i=0; $i<=31; $i++)
+                                                                            <option @if($i == $secondChild->days_refund) selected="selected" @endif value="{{$i}}">{{$i}}</option>
+                                                                        @endfor --}}
+                                                                    </select>
+                                                                </div>
+                                                                <button class="btn btn-xs" hidden>
+                                                                    <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                        <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$secondChild->id}}" data-day_type="days_refund">
+                                                            <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $secondChild->id }}" data-day_type="days_refund" aria-hidden="true"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td class="pb-0">
                                                         <div class="form-group mb-2">
                                                             <form method="POST"
                                                                 action="{{ route('category.child-update-category', ['edit' => $secondChild->id]) }}"
@@ -699,7 +841,7 @@
                                                                 class="edit_category_data" data-id={{ $secondChild->id }}>
                                                                 @csrf
                         
-                                                                <select class="form-control submit_on_change globalSelect2"
+                                                                <select class="form-control submit_on_change globalSelect2 segmanet" data-category_segment_id="{{$secondChild->category_segment_id}}" 
                                                                     name="category_segment_id">
                                                                     <option>Select Category Segment</option>
                                                                     @foreach ($category_segments as $k => $catSeg)
@@ -721,10 +863,10 @@
                                                             <div
                                                                 class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                         
-                                                                <select name="parent_id" class="submit_on_change globalSelect2">
+                                                                <select name="parent_id" class="submit_on_change globalSelect2" data-cat_id="{{$secondChild->parent_id}}">
                                                                     <option>Select Category </option>
                         
-                                                                    @foreach ($allCategories as $c)
+                                                                    {{-- @foreach ($allCategories as $c)
                                                                         @if ($c->id == $secondChild->id)
                                                                             @continue
                                                                         @endif
@@ -733,7 +875,7 @@
                                                                             {{ $c->id == $secondChild->parent_id ? 'selected' : '' }}>
                                                                             {{ $c->title }}
                                                                         </option>
-                                                                    @endforeach
+                                                                    @endforeach --}}
                         
                                                                 </select>
                                                                 <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -862,6 +1004,52 @@
                                                                 </form>
                                                             </td>
                                                             <td class="pb-0">
+                                                                <form method="POST"
+                                                                    action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}" data-day_old="{{$thirdChild->days_cancelation}}">
+                                                                    @csrf
+                                                                    <input type="hidden" name="day_old" value="{{$cat->days_cancelation}}" />
+                                                                    <div class="d-flex align-items-baseline">
+                                                                        <div class="form-group mb-0">
+                                                                            <select name="days_cancelation" class="form-control days_cancelation" width="100%" data-day_can="{{$thirdChild->days_cancelation}}">
+                                                                                {{-- @for ($i=0; $i<=31; $i++)
+                                                                                    <option  @if($i == $thirdChild->days_cancelation) selected="selected" @endif  value="{{$i}}">{{$i}}</option>
+                                                                                @endfor --}}
+                                                                            </select>
+                                                                        </div>
+                                                                        <button class="btn btn-xs" hidden>
+                                                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$cat->id}}" data-day_type="days_cancelation">
+                                                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $cat->id }}"  data-day_type="days_cancelation" aria-hidden="true"></i>
+                                                                </button>
+                                                            </td>
+                                                            <td class="pb-0">
+                                                                <form method="POST"
+                                                                    action="{{ route('category.update-cancelation-policy', ['edit' => $thirdChild->id]) }}"
+                                                                    class="edit_category_cancelation_days" data-id="{{ $thirdChild->id }}" data-day_old="{{$thirdChild->days_refund}}">
+                                                                    @csrf
+                                                                    <input type="hidden" name="day_old" value="{{$thirdChild->days_refund}}" />
+                                                                    <div class="d-flex align-items-baseline">
+                                                                        <div class="form-group mb-0">
+                                                                            <select name="days_refund" class="form-control days_refund" width="100%" data-day_can="{{$thirdChild->days_refund}}">
+                                                                                {{-- @for ($i=0; $i<=31; $i++)
+                                                                                    <option  @if($i == $thirdChild->days_refund) selected="selected" @endif  value="{{$i}}">{{$i}}</option>
+                                                                                @endfor --}}
+                                                                            </select>
+                                                                        </div>
+                                                                        <button class="btn btn-xs" hidden>
+                                                                            <img src="/images/filled-sent.png" style="cursor: pointer; width:16px;">
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                                <button type="button" title="Order Email Send Log" class="btn  btn-xs btn-image pd-5 " data-id="{{$thirdChild->id}}" data-day_type="days_refund">
+                                                                    <i style="color:#6c757d;" class="fa fa-info-circle category_cancle_policy" data-id="{{ $thirdChild->id }}"  data-day_type="days_refund" aria-hidden="true"></i>
+                                                                </button>
+                                                            </td>
+                                                            <td class="pb-0">
                                                                 <div class="form-group mb-2">
                                                                     <form method="POST"
                                                                         action="{{ route('category.child-update-category', ['edit' => $thirdChild->id]) }}"
@@ -901,7 +1089,7 @@
                                                                         class="edit_category_data" data-id={{ $thirdChild->id }}>
                                                                         @csrf
                                 
-                                                                        <select class="form-control submit_on_change globalSelect2"
+                                                                        <select class="form-control submit_on_change globalSelect2 segment" data-category_segment_id="{{$thirdChild->category_segment_id}}"
                                                                             name="category_segment_id">
                                                                             <option>Select Category Segment</option>
                                                                             @foreach ($category_segments as $k => $catSeg)
@@ -923,10 +1111,10 @@
                                                                     <div
                                                                         class="mb-0 pb-0  form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                                 
-                                                                        <select name="parent_id" class="submit_on_change globalSelect2">
+                                                                        <select name="parent_id" class="submit_on_change globalSelect2 segmanet" data-cat_id="{{$thirdChild->parent_id}}">
                                                                             <option>Select Category </option>
                                 
-                                                                            @foreach ($allCategories as $c)
+                                                                            {{-- @foreach ($allCategories as $c)
                                                                                 @if ($c->id == $thirdChild->id)
                                                                                     @continue
                                                                                 @endif
@@ -935,7 +1123,7 @@
                                                                                     {{ $c->id == $thirdChild->parent_id ? 'selected' : '' }}>
                                                                                     {{ $c->title }}
                                                                                 </option>
-                                                                            @endforeach
+                                                                            @endforeach --}}
                                 
                                                                         </select>
                                                                         <span class="text-danger">{{ $errors->first('parent_id') }}</span>
@@ -1052,8 +1240,147 @@
             </div>
         </div>
     </div>
+    <div id="category_cancle_policy" class="modal fade" role="  dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Cancellation Policy Log</h4>
+                </div>
+                <div class="modal-body">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Category</th>
+                          <th>Day Type</th>
+                          <th>Change Days</th>
+                          <th>Old Days</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+    
+                      <tbody id="category_cancle_policylogtd">
+                       
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
     <script type="text/javascript">
+        window.onload = function(e){ 
+            setTimeout(() => {
+                $.each($(".days_cancelation"), function() {
+                    var opt = '';
+                    var days_can_id = $(this).attr("data-day_can");
+                    //console.log(days_can_id);
+                    for (var n = 0; n < 32; ++ n){
+                        var selected = "";
+                        if(n == days_can_id) {
+                            selected = "selected"
+                        }
+                        opt += "<option value="+n+" "+selected+">"+n+"</option>";
+                    } 
+                    $(this).html(opt);
+                });
+                
+                $.each($(".days_refund"), function() {
+                    var opt = '';
+                    var days_ref_id = $(this).attr("data-day_can");
+                    //console.log(days_ref_id);
+                    for (var n = 0; n < 32; ++ n){
+                        var selected = "";
+                        if(n == days_ref_id) {
+                            selected = "selected"
+                        }
+                        opt += "<option value="+n+" "+selected+">"+n+"</option>";
+                    } 
+                    $(this).html(opt);
+                });
+                //debugger;
+                $.each($(".submit_on_change"), function() {
+                    var opta = '';
+                    var cat_id = $(this).attr("data-cat_id");
+                    var catArrs = <?php echo json_encode($allCategories); ?>;
+                    $.each(catArrs, function(i, v) {
+                        //console.log('index : '+i+ '==> Value'+v.id);
+                        var selectedCat = "";
+                        if(v.id == cat_id) {
+                            selectedCat = "selected";
+                        }
+                        opta += "<option value="+i+" "+selectedCat+">"+v.title+"</option>";
+                    });
+                    $(this).html(opta);
+                });
+
+                // var catArr = <?php echo json_encode($category_segments); ?>;
+                // console.log(catArr);
+                // $.each($(".segmanet"), function() {
+                //     var opts = '';
+                //     var cat_ids = $(this).attr("data-category_segment_id");
+                //     $.each(catArr, function(i, v) {
+                //         //console.log('index : '+i+ '==> Value'+v.id);
+                //         var selectedCats = "";
+                //         if(i == cat_ids) {
+                //             selectedCats = "selected";
+                //         }
+                //         opts += "<option value="+v.id+" "+selectedCats+">"+v.name+"</option>";
+                //     });
+                //     $(this).html(opts);
+                // });
+
+                
+            }, 3000);            
+        }
+        
+        $(document).on("click",".category_cancle_policy",function() { 
+			  console.log(this);
+            var category_id = $(this).data("id");
+            var day_type = $(this).data("day_type");
+            $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route("category.get_cancelation_policy_log")}}',
+            type: "post",
+            data : { category_id: category_id,
+                    day_type : day_type,
+                 },
+            beforeSend: function() {
+                $("loading-image").show();
+            }
+            }).done( function(response) {
+            if(response.code == 200 && response.data !='') {
+                var t = '';
+                $.each(response.data,function(k,v) {
+                t += `<tr><td>`+v.id+`</td>`;
+                t += `<td>`+v.category_id+`</td>`;
+                t += `<td>`+v.day_type+`</td>`;
+                t += `<td>`+v.day_change+`</td>`;
+                t += `<td>`+v.day_old+`</td>`;
+                t += `<td>`+v.created_at+`</td></tr>`;
+                });
+
+                $("#category_cancle_policy").find("#category_cancle_policylogtd").html(t);
+                $('#category_cancle_policy').modal("show");
+                $("loading-image").hide();
+            } else if(response.code == 500){
+                toastr['error']('Could not find any error Log', 'Error');
+            } else {
+                toastr['error']('Could not find any error Log', 'Error');
+            }
+            }).fail(function(error) {
+                toastr['error']('Could not find any error Log', 'Error');
+            });
+        });
+
         $('ul.pagination').hide();
         $(function() {
             $('.infinite-scroll').jscroll({
@@ -1200,7 +1527,32 @@
                 }
             });
 
-        })
+        });
+
+        $(document).on('change', '.edit_category_cancelation_days', function(e) {
+            e.preventDefault()
+            const dataId = $(this).data('id')
+            var form_data = $(this).serialize();
+            console.log(form_data, 'form-data')
+
+            $.ajax({
+                url: '/category/' + dataId + '/update-days-cancelation',
+                method: 'POST',
+                dataType: "json",
+                data: form_data,
+                success: function(response) {
+                    // location.reload()
+                    toastr["success"](response['success-remove']);
+                    $('#editCategoryModal').modal('hide')
+                    location.reload();
+                },
+                error: function(response) {
+                    toastr["error"]("Oops,something went wrong");
+
+                }
+            });
+
+        });
 
         $(document).on('submit', '.category_deleted', function(e) {
             e.preventDefault()

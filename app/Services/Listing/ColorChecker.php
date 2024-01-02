@@ -1,49 +1,54 @@
 <?php
 
-
 namespace App\Services\Listing;
 
-
-use App\ColorReference;
+use Schema;
 use App\Colors;
+use App\ColorReference;
+use Illuminate\Support\Str;
 
 class ColorChecker implements CheckerInterface
 {
-
     private $availableColors;
+
     private $colorTracks;
 
     public function __construct()
     {
-        $this->setAvailableColors();
-        $this->setColorTracks();
+        if ((! env('CI')) && (Schema::hasTable('color_references'))) {
+            $this->setAvailableColors();
+            $this->setColorTracks();
+        }
     }
 
-    public function check($product): bool {
-        $color = title_case($product->color);
-        dump('COL...'. $color);
+    public function check($product): bool
+    {
+        $color = Str::title($product->color);
+        dump('COL...' . $color);
         if (in_array($color, $this->availableColors, false)) {
             $product->color = $color;
             $product->save();
+
             return true;
         }
 
         $color = $this->improvise($product->name);
-        dump('sec_'. $color);
+        dump('sec_' . $color);
 
         if (in_array($color, $this->availableColors, false)) {
-            $product->color = title_case($color);
+            $product->color = Str::title($color);
             $product->save();
+
             return true;
         }
 
         $color = $this->improvise($product->short_description);
-        dump('third_'. $color);
-
+        dump('third_' . $color);
 
         if (in_array($color, $this->availableColors, false)) {
-            $product->color = title_case($color);
+            $product->color = Str::title($color);
             $product->save();
+
             return true;
         }
 
@@ -67,7 +72,6 @@ class ColorChecker implements CheckerInterface
         return false;
     }
 
-
     public function setAvailableColors(): void
     {
         $this->availableColors = (new Colors)->all();
@@ -77,5 +81,4 @@ class ColorChecker implements CheckerInterface
     {
         $this->colorTracks = ColorReference::all();
     }
-
 }

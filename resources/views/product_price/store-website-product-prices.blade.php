@@ -69,7 +69,7 @@
         <div class="pull-left cls_filter_box">
             <form class="form-inline filter_form" action="" method="GET">
                 <div class="form-group mr-3">
-                    <input type="text" name="term" value="{{ request('term') }}" class="form-control" placeholder="Enter Product Or SKU">
+                    <input type="text" name="name" value="{{ request('name') }}" class="form-control" placeholder="Enter Product Or SKU" id="tag-input">
                 </div>
                 <div class="form-group mr-3">
                     <select name="country_code" class="form-control globalSelect2">
@@ -576,6 +576,29 @@
                 
             })
        }
+
+    $(document).ready(function($) {
+        // Now you can use $ safely within this block
+        $("#tag-input").autocomplete({
+            source: function(request, response) {
+                // Send an AJAX request to the server-side script
+                $.ajax({
+                    url: '{{ route('store-website-product-skus') }}',
+                    dataType: 'json',
+                    data: {
+                        term: request.term // Pass user input as 'term' parameter
+                    },
+                    success: function(data) {
+                        response(data); // The server returns filtered suggestions as JSON
+                    }
+                });
+            },
+            minLength: 1, // Minimum characters before showing suggestions
+            select: function(event, ui) {
+                // Handle the selection if needed
+            }
+        });
+    })
 </script>
 
 @endsection

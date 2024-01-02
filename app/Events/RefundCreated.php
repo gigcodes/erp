@@ -3,13 +3,10 @@
 namespace App\Events;
 
 use App\Refund;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class RefundCreated
 {
@@ -20,8 +17,8 @@ class RefundCreated
      *
      * @return void
      */
-
     public $refund;
+
     public function __construct(Refund $refund)
     {
         $this->refund = $refund;

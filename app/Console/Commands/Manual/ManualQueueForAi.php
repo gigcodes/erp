@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\CronJobReport;
-use App\Jobs\ProductAi;
 use App\Product;
 use Carbon\Carbon;
+use App\CronJobReport;
+use App\Jobs\ProductAi;
 use Illuminate\Console\Command;
 
 class ManualQueueForAi extends Command
@@ -43,7 +43,7 @@ class ManualQueueForAi extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Get all products queued for AI

@@ -2,30 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Dubbizle;
-use App\Helpers;
-use App\User;
-use App\ChatMessage;
 use Auth;
+use App\User;
+use App\Helpers;
+use App\Dubbizle;
 use Carbon\Carbon;
+use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DubbizleController extends Controller
 {
-
-    public function updateReminder(Request $request) {
+    public function updateReminder(Request $request)
+    {
         $supplier = Dubbizle::find($request->get('dubbizle_id'));
         $supplier->frequency = $request->get('frequency');
         $supplier->reminder_message = $request->get('message');
         $supplier->save();
 
         return response()->json([
-            'success'
+            'success',
         ]);
     }
 
-    public function index() {
+    public function index()
+    {
         // $posts = Dubbizle::all();
 
         $posts = DB::select('
@@ -51,66 +52,68 @@ class DubbizleController extends Controller
 
         // dd($keywords);
 
-                // dd($posts);
+        // dd($posts);
 
         return view('dubbizle', [
-          'posts'     => $posts,
-          'keywords'  => $keywords,
+            'posts' => $posts,
+            'keywords' => $keywords,
         ]);
     }
 
     public function show($id)
     {
-      $dubbizle = Dubbizle::find($id);
-      $users_array = Helpers::getUserArray(User::all());
+        $dubbizle = Dubbizle::find($id);
+        $users_array = Helpers::getUserArray(User::all());
 
-      return view('dubbizle-show', [
-        'dubbizle'  => $dubbizle,
-        'users_array'  => $users_array,
-      ]);
+        return view('dubbizle-show', [
+            'dubbizle' => $dubbizle,
+            'users_array' => $users_array,
+        ]);
     }
 
     public function bulkWhatsapp(Request $request)
     {
-      $this->validate($request, [
-        'group'   => 'required|string',
-        'message' => 'required|string',
-      ]);
-
-      $params = [
-        'user_id'   => Auth::id(),
-        'number'    => NULL,
-        'message'   => $request->message,
-        'approved'  => 0,
-        'status'    => 1
-      ];
-
-      $dubbizles = Dubbizle::where('keywords', $request->group)->get();
-
-      foreach ($dubbizles as $dubbizle) {
-        $params['dubbizle_id'] = $dubbizle->id;
-
-        $chat_message = ChatMessage::create($params);
-
-        app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($dubbizle->phone_number, '919152731483', $params['message'], NULL, $chat_message->id);
-
-        $chat_message->update([
-          'approved'    => 1,
-          'status'      => 2,
-          'created_at'  => Carbon::now()
+        $this->validate($request, [
+            'group' => 'required|string',
+            'message' => 'required|string',
         ]);
-      }
 
-      return redirect('/scrap/dubbizle')->withSuccess('You have successfully sent bulk whatsapp messages');
+        $params = [
+            'user_id' => Auth::id(),
+            'number' => null,
+            'message' => $request->message,
+            'approved' => 0,
+            'status' => 1,
+        ];
+
+        $dubbizles = Dubbizle::where('keywords', $request->group)->get();
+
+        foreach ($dubbizles as $dubbizle) {
+            $params['dubbizle_id'] = $dubbizle->id;
+
+            $chat_message = ChatMessage::create($params);
+
+            app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($dubbizle->phone_number, '919152731483', $params['message'], null, $chat_message->id);
+
+            $chat_message->update([
+                'approved' => 1,
+                'status' => 2,
+                'created_at' => Carbon::now(),
+            ]);
+        }
+
+        return redirect('/scrap/dubbizle')->withSuccess('You have successfully sent bulk whatsapp messages');
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $d = Dubbizle::findOrFail($id);
 
         return view('dubbizle-edit', compact('d'));
     }
 
-    public function update($id, Request $request) {
+    public function update($id, Request $request)
+    {
         $d = Dubbizle::findOrFail($id);
 
         $d->url = $request->get('url');

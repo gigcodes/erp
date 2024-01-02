@@ -41,8 +41,9 @@ class UpdateCurrencyNames extends Command
     {
         $fixerApiKey = env('FIXER_API_KEY');
 
-        if (!isset($fixerApiKey)) {
+        if (! isset($fixerApiKey)) {
             echo 'FIXER_API_KEY not set in env';
+
             return;
         }
 
@@ -53,15 +54,15 @@ class UpdateCurrencyNames extends Command
 
         $responseJson = json_decode($response->getBody()->getContents());
 
-        $currencies = json_decode(json_encode($responseJson->symbols), TRUE);
+        $currencies = json_decode(json_encode($responseJson->symbols), true);
 
         foreach ($currencies as $symbol => $name) {
             Currency::updateOrCreate(
                 [
-                    'code' => $symbol
+                    'code' => $symbol,
                 ],
                 [
-                    'name' => $name
+                    'name' => $name,
                 ]
             );
         }

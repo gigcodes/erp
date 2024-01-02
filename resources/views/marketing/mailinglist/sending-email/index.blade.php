@@ -60,7 +60,7 @@
                             <div class="form-group mr-3 mb-3">
                                 <input name="term" type="text" class="form-control global" id="term"
                                        value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="name , image count, text count">
+                                       placeholder="subject">
                             </div>
                             <div class="form-group ml-3">
                                 <div class='input-group date' id='filter-date'>
@@ -72,8 +72,13 @@
                                   </span>
                                 </div>
                             </div>
+                            <div class="form-group ml-3">
                             <button id="filter" type="submit" class="btn btn-image"><img src="/images/filter.png"/>
                             </button>
+                            </div>
+                            <div class="form-group ml-3">
+                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png" style="cursor: default;"></button>    
+                            </div>
                         </form>
                     </div>
                     <button type="button" id="create-email" class="btn btn-primary float-right" data-toggle="modal"
@@ -261,7 +266,7 @@
                         <td>{{$value->total_emails_scheduled}}</td>
                         <td>{{$value->total_emails_sent}}</td>
                         <td>{{$value->total_emails_undelivered}}</td>
-                        <td>{{$value->audience->name}}</td>
+                        <td>{{$value->audience?->name}}</td>
                         <td>{{$value->template->name}}</td>
               {{--          <td>{{$value["subject"]}}</td>--}}
                         <td>{{$value->scheduled_date}}</td>
@@ -286,6 +291,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        function resetSearch(){
+            window.location.href = "{{route('mailingList-emails')}}";
+        }
         $(document).ready(function () {
             $(".select-multiple").multiselect();
             $(".select-multiple2").select2();

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
-use App\Category;
-use App\CronJobReport;
 use App\Product;
+use App\Category;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
 
 class RemoveCategoriesWithSubCategories extends Command
@@ -43,7 +43,7 @@ class RemoveCategoriesWithSubCategories extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Set memory limit

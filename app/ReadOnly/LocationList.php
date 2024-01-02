@@ -8,18 +8,17 @@
 
 namespace App\ReadOnly;
 
-
 use App\ReadOnlyBase;
 
-class LocationList extends ReadOnlyBase {
-
-	protected $data = [
-		'Mulund'			=> 'Mulund',
-		'Jogeshwari'	=> 'Jogeshwari',
-		'Malad'				=> 'Malad',
-		'Pune'				=> 'Pune',
-		'Dubai'				=> 'Dubai',
-		'Customs'			=> 'Customs',
-		'Mumbai'			=> 'Mumbai',
-	];
+class LocationList extends ReadOnlyBase
+{
+    protected $data = [
+        'Mulund' => 'Mulund',
+        'Jogeshwari' => 'Jogeshwari',
+        'Malad' => 'Malad',
+        'Pune' => 'Pune',
+        'Dubai' => 'Dubai',
+        'Customs' => 'Customs',
+        'Mumbai' => 'Mumbai',
+    ];
 }

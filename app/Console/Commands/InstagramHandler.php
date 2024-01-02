@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Console\Commands;
+
 use App\Account;
-use App\Http\Controllers\InstagramPostsController;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use App\Http\Controllers\InstagramPostsController;
+
 class InstagramHandler extends Command
 {
     /**
@@ -38,18 +40,16 @@ class InstagramHandler extends Command
      */
     public function handle()
     {
-        
         $query = Account::query();
-        $accounts = $query->orderBy('id','desc')->get();
-        foreach($accounts as $key=>$account)
-        {   
+        $accounts = $query->orderBy('id', 'desc')->get();
+        foreach ($accounts as $key => $account) {
             $diff_in_minutes = 0;
-            if( !empty( $account->last_cron_time ) ){
-                $to   = Carbon::createFromFormat( 'Y-m-d H:i:s', Carbon::now() );
-                $from = Carbon::createFromFormat( 'Y-m-d H:i:s', $account->last_cron_time );
-                $diff_in_minutes = $to->diffInMinutes( $from );
+            if (! empty($account->last_cron_time)) {
+                $to = Carbon::createFromFormat('Y-m-d H:i:s', Carbon::now());
+                $from = Carbon::createFromFormat('Y-m-d H:i:s', $account->last_cron_time);
+                $diff_in_minutes = $to->diffInMinutes($from);
             }
-            if( $diff_in_minutes > $account->frequency || $diff_in_minutes == 0 ){
+            if ($diff_in_minutes > $account->frequency || $diff_in_minutes == 0) {
                 $myRequest = new \Illuminate\Http\Request();
                 $myRequest->setMethod('POST');
                 $myRequest->request->add(['account_id' => $account->id]);
@@ -62,12 +62,12 @@ class InstagramHandler extends Command
                 $get_caption = [];
                 $selected_images = [];
                 $selected_caption = [];
-                if(!empty($get_caption)){
+                if (! empty($get_caption)) {
                     $selected_caption[] = $get_caption[0]['id'];
                 }
                 $images_selected_no = 2;
-                foreach($get_images as $key=>$images){
-                    if($key <= ($images_selected_no-1)){
+                foreach ($get_images as $key => $images) {
+                    if ($key <= ($images_selected_no - 1)) {
                         //$this->info($images);
                         $selected_images[] = $images;
                     }
@@ -75,11 +75,9 @@ class InstagramHandler extends Command
                 $myRequest->request->add(['imageURI' => $selected_images]);
                 $myRequest->request->add(['captions' => $selected_caption]);
                 // $InstagramPostsController->postMultiple($myRequest);
-                $account->last_cron_time = Carbon::createFromFormat( 'Y-m-d H:i:s', Carbon::now() );
+                $account->last_cron_time = Carbon::createFromFormat('Y-m-d H:i:s', Carbon::now());
                 $account->save();
             }
-            
         }
-
     }
 }

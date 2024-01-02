@@ -13,7 +13,9 @@ class SendInfluencerEmail extends Mailable
     const STORE_ERP_WEBSITE = 15;
 
     public $body;
+
     public $subject;
+
     public $fromMailer;
 
     /**
@@ -23,8 +25,8 @@ class SendInfluencerEmail extends Mailable
      */
     public function __construct()
     {
-        $this->subject = isset($data['subject']) ? $data['subject'] : "";
-        $this->body = isset($data['template']) ? $data['template'] : "";
+        $this->subject = isset($data['subject']) ? $data['subject'] : '';
+        $this->body = isset($data['template']) ? $data['template'] : '';
         if (isset($data['from'])) {
             $this->fromMailer = $data['from'];
         } else {

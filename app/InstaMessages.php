@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
@@ -8,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class InstaMessages extends Model
 {
-		   /**
+    /**
      * @var string
+     *
      * @SWG\Property(property="number",type="string")
      * @SWG\Property(property="message",type="string")
      * @SWG\Property(property="lead_id",type="integer")

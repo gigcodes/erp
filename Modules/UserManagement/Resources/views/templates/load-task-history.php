@@ -122,7 +122,7 @@
 			      	<td>
 					  <div class="form-group">
 
-							<div class='input-group estimate_minutes'>
+							<div class='input-group'>
 
 <!--                                <input style="min-width: 30px;margin-right: 3px;border-radius:4px" type="text" data-id="{{:prop.task_id}}" data-type="{{:prop.type}}" class="form-control priority-no-field-change input-sm" name="priority_no" placeholder="Priority no" value="{{:prop.priority_no}}">-->
 

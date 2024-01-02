@@ -6,11 +6,8 @@ use App\SocialTags;
 use Illuminate\Http\Request;
 use App\Services\Facebook\Facebook;
 
-
-
 class SocialTagsController extends Controller
 {
-
     private $facebook;
 
     public function __construct(Facebook $facebook)
@@ -23,7 +20,6 @@ class SocialTagsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
     public function index()
     {
         $tags = SocialTags::all();
@@ -44,13 +40,12 @@ class SocialTagsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
         $tag = new SocialTags();
@@ -88,20 +83,18 @@ class SocialTagsController extends Controller
         $tag = SocialTags::findOrFail($id);
 
         return view('socialtags.edit', compact('tag'));
-
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required'
+            'name' => 'required',
         ]);
 
         $tag = SocialTags::findOrFail($id);

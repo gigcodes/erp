@@ -41,7 +41,7 @@ class MediaCheckFileExists extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // Set empty cnt
@@ -58,13 +58,13 @@ class MediaCheckFileExists extends Command
 
                     if ($medias != null) {
                         foreach ($medias as $media) {
-                            $file = public_path() . '/' . $media->disk . (!empty($media->directory) ? '/' . $media->directory : '') . '/' . $media->filename . '.' . $media->extension;
-                            if (!file_exists($file)) {
+                            $file = public_path() . '/' . $media->disk . (! empty($media->directory) ? '/' . $media->directory : '') . '/' . $media->filename . '.' . $media->extension;
+                            if (! file_exists($file)) {
                                 // Delete media and mediables
                                 $product->detachMedia($media);
                                 $media->delete();
 
-                                echo "REMOVED " . $file . " WITH ID " . $media->id . " FROM DATABASE FOR PRODUCT " . $product->id . "\n";
+                                echo 'REMOVED ' . $file . ' WITH ID ' . $media->id . ' FROM DATABASE FOR PRODUCT ' . $product->id . "\n";
                                 $cnt++;
                             }
                         }

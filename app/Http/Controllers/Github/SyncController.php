@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers\Github;
 
-use App\Github\GithubGroup;
-use App\Github\GithubGroupMember;
-use App\Github\GithubRepository;
-use App\Github\GithubRepositoryGroup;
-use App\Github\GithubRepositoryUser;
-use App\Github\GithubUser;
-use App\Http\Controllers\Controller;
-use Carbon\Carbon;
 use DateTime;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Route;
+use App\Github\GithubUser;
+use App\Github\GithubGroup;
+use App\Github\GithubRepository;
+use App\Github\GithubGroupMember;
+use App\Github\GithubOrganization;
+use App\Github\GithubRepositoryUser;
+use App\Http\Controllers\Controller;
+use App\Github\GithubRepositoryGroup;
 
 class SyncController extends Controller
 {
-
     private $client;
 
-    function __construct()
+    public function __construct()
     {
         $this->client = new Client([
             // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
@@ -27,36 +26,56 @@ class SyncController extends Controller
         ]);
     }
 
-    public function index()
+    private function connectGithubClient($userName, $token)
     {
-        return view('github.sync');
+        $githubClient = new Client([
+            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
+            'auth' => [$userName, $token],
+        ]);
+
+        return $githubClient;
     }
 
-    public function startSync()
+    public function index()
     {
-        $groups = $this->refreshGithubGroups();
+        $githubOrganizations = GithubOrganization::with('repos')->get();
 
+        return view('github.sync', compact('githubOrganizations'));
+    }
 
-        $this->refreshUsersForOrganization();
-        $repositories = $this->refreshGithubRepos();
+    public function startSync(Request $request)
+    {
+        if (! isset($request->organizationId) || empty($request->organizationId)) {
+            return abort(404);
+        }
+
+        $githubOrganization = GithubOrganization::find($request->organizationId);
+        $organizationId = $githubOrganization->name;
+        $userName = $githubOrganization->username;
+        $token = $githubOrganization->token;
+
+        $groups = $this->refreshGithubGroups($organizationId, $userName, $token);
+
+        $this->refreshUsersForOrganization($organizationId, $userName, $token);
+        $repositories = $this->refreshGithubRepos($organizationId, $userName, $token);
 
         $updatedUserAccess = [];
         foreach ($repositories as $repository) {
-            $accessIds = $this->refreshUserAccessForRepository($repository->id, $repository->name);
+            $accessIds = $this->refreshUserAccessForRepository($organizationId, $userName, $token, $repository->id, $repository->name);
             $updatedUserAccess = array_merge($updatedUserAccess, $accessIds);
         }
         GithubRepositoryUser::whereNotIn('id', $updatedUserAccess)->delete();
 
         $updatedTeamAccessIds = [];
         foreach ($groups as $group) {
-            $updatedIds =  $this->refreshUserAccessInTeam($group->id);
+            $updatedIds = $this->refreshUserAccessInTeam($organizationId, $userName, $token, $group->id);
             $updatedTeamAccessIds = array_merge($updatedTeamAccessIds, $updatedIds);
         }
         GithubGroupMember::whereNotIn('id', $updatedTeamAccessIds)->delete();
 
         $updatedRepositoryAccess = [];
         foreach ($groups as $group) {
-            $updatedIds = $this->refreshRepositoryForTeam($group->id);
+            $updatedIds = $this->refreshRepositoryForTeam($organizationId, $userName, $token, $group->id);
             $updatedRepositoryAccess = array_merge($updatedRepositoryAccess, $updatedIds);
         }
         GithubRepositoryGroup::whereNotIn('id', $updatedRepositoryAccess)->delete();
@@ -64,31 +83,37 @@ class SyncController extends Controller
         return redirect('/github/sync');
     }
 
-    private function refreshGithubRepos()
+    private function refreshGithubRepos($organizationId, $userName, $token)
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
-        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/repos?per_page=100";
+        $url = 'https://api.github.com/orgs/' . $organizationId . '/repos?per_page=100';
 
-        $response = $this->client->get($url);
+        $organization = GithubOrganization::where('name', $organizationId)->first();
+
+        // $response = $this->client->get($url);
+
+        $githubClient = $this->connectGithubClient($userName, $token);
+
+        $response = $githubClient->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
 
         $dbRepositories = [];
         $repositoryIds = [];
         foreach ($repositories as $repository) {
-
             $data = [
                 'id' => $repository->id,
+                'github_organization_id' => $organization->id,
                 'name' => $repository->name,
                 'html' => $repository->html_url,
                 'webhook' => $repository->hooks_url,
                 'created_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->created_at),
-                'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at)
+                'updated_at' => Carbon::createFromFormat(DateTime::ISO8601, $repository->updated_at),
             ];
 
             $updatedData = GithubRepository::updateOrCreate(
                 [
-                    'id' => $repository->id
+                    'id' => $repository->id,
                 ],
                 $data
             );
@@ -102,12 +127,17 @@ class SyncController extends Controller
         return $dbRepositories;
     }
 
-    private function refreshUsersForOrganization()
+    private function refreshUsersForOrganization($organizationId, $userName, $token)
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/members";
-        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/members";
+        $url = 'https://api.github.com/orgs/' . $organizationId . '/members';
 
-        $response = $this->client->get($url);
+        // $response = $this->client->get($url);
+
+        $githubClient = $this->connectGithubClient($userName, $token);
+
+        $response = $githubClient->get($url);
+
         $users = json_decode($response->getBody()->getContents());
         $returnUser = [];
         $userIds = [];
@@ -119,7 +149,7 @@ class SyncController extends Controller
 
             $updatedUser = GithubUser::updateOrCreate(
                 [
-                    'id' => $user->id
+                    'id' => $user->id,
                 ],
                 $dbUser
             );
@@ -133,20 +163,24 @@ class SyncController extends Controller
         return $returnUser;
     }
 
-    private function refreshGithubGroups()
+    private function refreshGithubGroups($organizationId, $userName, $token)
     {
         // $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/teams";
-        $url = "https://api.github.com/orgs/" . config('env.GITHUB_ORG_ID') . "/teams";
+        $url = 'https://api.github.com/orgs/' . $organizationId . '/teams';
 
-        $response = $this->client->get($url);
+        // $response = $this->client->get($url);
+
+        $githubClient = $this->connectGithubClient($userName, $token);
+
+        $response = $githubClient->get($url);
 
         $groups = json_decode($response->getBody()->getContents());
-        $returnGroup  = [];
+        $returnGroup = [];
         $groupIds = [];
         foreach ($groups as $group) {
             $dbGroup = [
                 'id' => $group->id,
-                'name' => $group->name
+                'name' => $group->name,
             ];
 
             $updatedGroup = GithubGroup::updateOrCreate(
@@ -161,39 +195,45 @@ class SyncController extends Controller
         // delete other groups
         GithubGroup::whereNotIn('id', $groupIds)->delete();
 
-
         return $returnGroup;
     }
 
-    private function refreshUserAccessForRepository($repositoryId, $repositoryName)
+    private function refreshUserAccessForRepository($organizationId, $userName, $token, $repositoryId, $repositoryName)
     {
         // https://api.github.com/repos/:org/:repo/collaborators
-        $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID') . "/" . $repositoryName . "/collaborators";
-        $response = $this->client->get($url);
+        $url = 'https://api.github.com/repos/' . $organizationId . '/' . $repositoryName . '/collaborators';
+
+        // $response = $this->client->get($url);
+
+        $organization = GithubOrganization::where('name', $organizationId)->first();
+
+        $githubClient = $this->connectGithubClient($userName, $token);
+
+        $response = $githubClient->get($url);
 
         $userRepositoryAccess = json_decode($response->getBody()->getContents());
 
         $updatedAccess = [];
         foreach ($userRepositoryAccess as $user) {
-
             $rights = null;
             if ($user->permissions->admin == true) {
                 $rights = 'admin';
-            } else if ($user->permissions->push == true) {
+            } elseif ($user->permissions->push == true) {
                 $rights = 'push';
-            } else if ($user->permissions->pull == true) {
+            } elseif ($user->permissions->pull == true) {
                 $rights = 'pull';
             }
 
             $updatedAccess[] = GithubRepositoryUser::updateOrCreate(
                 [
                     'github_users_id' => $user->id,
-                    'github_repositories_id' => $repositoryId
+                    'github_repositories_id' => $repositoryId,
                 ],
                 [
+                    'github_organization_id' => $organization->id,
                     'github_users_id' => $user->id,
                     'github_repositories_id' => $repositoryId,
-                    'rights' => $rights
+                    'rights' => $rights,
                 ]
             );
         }
@@ -204,24 +244,29 @@ class SyncController extends Controller
             },
             $updatedAccess
         );
+
         return $updatedIds;
         //GithubRepositoryUser::whereNotIn('id', $updatedIds)->delete();
     }
 
-    private function refreshUserAccessInTeam($teamId)
+    private function refreshUserAccessInTeam($organizationId, $userName, $token, $teamId)
     {
         // https://api.github.com/teams/:team_id/members?role=all
-        $url = "https://api.github.com/teams/" . $teamId . "/members?role=all";
-        $response = $this->client->get($url);
+        $url = 'https://api.github.com/teams/' . $teamId . '/members?role=all';
+
+        // $response = $this->client->get($url);
+
+        $githubClient = $this->connectGithubClient($userName, $token);
+
+        $response = $githubClient->get($url);
 
         $users = json_decode($response->getBody()->getContents());
 
         $updates = [];
         foreach ($users as $user) {
-
             $data = [
                 'github_groups_id' => $teamId,
-                'github_users_id' => $user->id
+                'github_users_id' => $user->id,
             ];
 
             $updates[] = GithubGroupMember::updateOrCreate($data, $data);
@@ -234,38 +279,46 @@ class SyncController extends Controller
             },
             $updates
         );
+
         return $updatedIds;
     }
 
-    private function refreshRepositoryForTeam($teamId)
+    private function refreshRepositoryForTeam($organizationId, $userName, $token, $teamId)
     {
         // https://api.github.com/teams/:team_id/repos
-        $url = "https://api.github.com/teams/" . $teamId . "/repos";
-        $response = $this->client->get($url);
+        $url = 'https://api.github.com/teams/' . $teamId . '/repos';
+
+        // $response = $this->client->get($url);
+
+        $organization = GithubOrganization::where('name', $organizationId)->first();
+
+        $githubClient = $this->connectGithubClient($userName, $token);
+
+        $response = $githubClient->get($url);
 
         $repos = json_decode($response->getBody()->getContents());
 
         $updates = [];
         foreach ($repos as $repo) {
-
             $rights = null;
             if ($repo->permissions->admin == true) {
                 $rights = 'admin';
-            } else if ($repo->permissions->push == true) {
+            } elseif ($repo->permissions->push == true) {
                 $rights = 'push';
-            } else if ($repo->permissions->pull == true) {
+            } elseif ($repo->permissions->pull == true) {
                 $rights = 'pull';
             }
 
             $updates[] = GithubRepositoryGroup::updateOrCreate(
                 [
                     'github_repositories_id' => $repo->id,
-                    'github_groups_id' => $teamId
+                    'github_groups_id' => $teamId,
                 ],
                 [
+                    'github_organization_id' => $organization->id,
                     'github_repositories_id' => $repo->id,
                     'github_groups_id' => $teamId,
-                    'rights' => $rights
+                    'rights' => $rights,
                 ]
             );
         }
@@ -276,6 +329,7 @@ class SyncController extends Controller
             },
             $updates
         );
+
         return $updatedIds;
     }
 }

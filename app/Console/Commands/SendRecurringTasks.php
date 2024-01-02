@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessage;
-use App\CronJobReport;
 use App\Task;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
+use App\ChatMessage;
+use App\CronJobReport;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 
 class SendRecurringTasks extends Command
 {
@@ -44,36 +44,36 @@ class SendRecurringTasks extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $now           = Carbon::now();
-            $today_date    = Carbon::now()->format('Y-m-d');
-            $today_time    = Carbon::now()->format('H:i');
+            $now = Carbon::now();
+            $today_date = Carbon::now()->format('Y-m-d');
+            $today_time = Carbon::now()->format('H:i');
             $today_weekday = strtoupper(Carbon::now()->format('l'));
-            $today_day     = Carbon::now()->format('d');
-            $today_month   = Carbon::now()->format('m');
+            $today_day = Carbon::now()->format('d');
+            $today_month = Carbon::now()->format('m');
 
             $tasks = Task::where('is_statutory', 1)->where('communication_status', 0)->whereNull('is_completed')->whereNotNull('recurring_type')->get();
 
             $params = [
-                'user_id'  => 6,
-                'number'   => null,
+                'user_id' => 6,
+                'number' => null,
                 'approved' => 0,
-                'status'   => 1,
+                'status' => 1,
             ];
 
             foreach ($tasks as $task) {
                 $selected_time = $task->sending_time ?? $task->created_at;
-                $sending_date  = Carbon::parse($selected_time)->format('Y-m-d');
-                $sending_time  = Carbon::create($now->year, $now->month, $now->day, Carbon::parse($selected_time)->format('H'), Carbon::parse($selected_time)->format('i'), 0);
+                $sending_date = Carbon::parse($selected_time)->format('Y-m-d');
+                $sending_time = Carbon::create($now->year, $now->month, $now->day, Carbon::parse($selected_time)->format('H'), Carbon::parse($selected_time)->format('i'), 0);
                 // $sending_time = Carbon::parse($selected_time);
                 $sending_weekday = strtoupper(Carbon::parse($selected_time)->format('l'));
-                $sending_day     = Carbon::parse($selected_time)->format('d');
-                $sending_month   = Carbon::parse($selected_time)->format('m');
+                $sending_day = Carbon::parse($selected_time)->format('d');
+                $sending_month = Carbon::parse($selected_time)->format('m');
 
-                $params['message'] = $task->task_subject . ". " . $task->task_details;
+                $params['message'] = $task->task_subject . '. ' . $task->task_details;
                 $params['task_id'] = $task->id;
                 $params['user_id'] = $task->assign_from;
 
@@ -86,7 +86,7 @@ class SendRecurringTasks extends Command
                 switch ($task->recurring_type) {
                     case 'EveryHour':
                         $hourBefore = $task->updated_at->format('H');
-                        $hourNow    = Carbon::now()->hour;
+                        $hourNow = Carbon::now()->hour;
 
                         if ($hourBefore != $hourNow) {
                             $can_send_message = true;
@@ -94,7 +94,7 @@ class SendRecurringTasks extends Command
                         }
 
                         break;
-                    case "EveryDay":
+                    case 'EveryDay':
                         if ($today_date >= $sending_date && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
                             dump('Send Recurring Task Daily');
 
@@ -102,7 +102,7 @@ class SendRecurringTasks extends Command
                         }
 
                         break;
-                    case "EveryWeek":
+                    case 'EveryWeek':
                         if ($today_date >= $sending_date && $today_weekday == $sending_weekday && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
                             dump('Send Recurring Task Weekly');
 
@@ -110,7 +110,7 @@ class SendRecurringTasks extends Command
                         }
 
                         break;
-                    case "EveryMonth":
+                    case 'EveryMonth':
                         if ($today_day == $sending_day && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
                             dump('Send Recurring Task Monthly');
 
@@ -118,7 +118,7 @@ class SendRecurringTasks extends Command
                         }
 
                         break;
-                    case "EveryYear":
+                    case 'EveryYear':
                         if ($today_day == $sending_day && $today_month == $sending_month && $now > $sending_time && $sending_time->diffInMinutes($now) <= 13) {
                             dump('Send Recurring Task Yearly');
 
@@ -132,13 +132,13 @@ class SendRecurringTasks extends Command
                 }
 
                 if ($can_send_message) {
-                    dump("Sending a message");
+                    dump('Sending a message');
                     if (count($task->users) > 0) {
                         foreach ($task->users as $key => $user) {
                             if ($key == 0) {
                                 $params['erp_user'] = $user->id;
                             } else {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
                             }
                         }
                     }
@@ -148,7 +148,7 @@ class SendRecurringTasks extends Command
                             if ($key == 0) {
                                 $params['contact_id'] = $task->assign_to;
                             } else {
-                                app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, null, $params['message']);
+                                app(\App\Http\Controllers\WhatsAppController::class)->sendWithThirdApi($contact->phone, null, $params['message']);
                             }
                         }
                     }
@@ -159,7 +159,7 @@ class SendRecurringTasks extends Command
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chat_message->id]);
 
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('task', $myRequest);
                 } else {
                     dump('No message to send');
                 }

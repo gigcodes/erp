@@ -18,8 +18,8 @@
               <tr>
 		<th scope="col">Date</th>
                 <th scope="col">Google Account</th>
-                <th scope="col">Receiver</th> 
-                <th scope="col">Message</th>  
+                <th scope="col">Receiver</th>
+                <th scope="col">Message</th>
               </tr>
             </thead>
             <tbody class="show-list-records">
@@ -43,9 +43,9 @@
             <thead>
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">GOOGLE CLIENT ID</th> 
-                <th scope="col">GOOGLE CLIENT APPLICATION NAME</th>  
-                <th scope="col">Action</th> 
+                <th scope="col">GOOGLE CLIENT ID</th>
+                <th scope="col">GOOGLE CLIENT APPLICATION NAME</th>
+                <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody class="show-list-records">
@@ -69,12 +69,12 @@
         <div class="modal-body">
 			<form class="addAccount" method="post" action="{{route('googlewebmaster.account.add')}}">
 				@csrf
-				<input name="GOOGLE_CLIENT_ID" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT ID (required)"> 
-				<input name="GOOGLE_CLIENT_SECRET" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT SECRET (required)"> 
-				<input name="GOOGLE_CLIENT_KEY" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT KEY"> 
-				<input name="GOOGLE_CLIENT_APPLICATION_NAME" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT APPLICATION_NAME (required)"> 
-				<input name="GOOGLE_CLIENT_MULTIPLE_KEYS" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT MULTIPLE KEYS">  
-				<button type="submit" class="btn btn-secondary m-3 float-right">Submit</button>  
+				<input name="GOOGLE_CLIENT_ID" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT ID (required)">
+				<input name="GOOGLE_CLIENT_SECRET" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT SECRET (required)">
+				<input name="GOOGLE_CLIENT_KEY" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT KEY">
+				<input name="GOOGLE_CLIENT_APPLICATION_NAME" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT APPLICATION_NAME (required)">
+				<input name="GOOGLE_CLIENT_MULTIPLE_KEYS" type="text" class="form-control m-3" placeholder="GOOGLE CLIENT MULTIPLE KEYS (required)">
+				<button type="submit" class="btn btn-secondary m-3 float-right">Submit</button>
 			</form>
         </div>
       </div>
@@ -109,18 +109,19 @@
 	<div class="col-md-12">
 		<div id="exTab2" >
 		<ul class="nav nav-tabs">
-			<li class="{{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
+			<li class="{{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') || request('history_per_page')  ? '' : 'active' }}"><a  href="#search_analytics" data-toggle="tab">Search Analytics</a></li>
 			<li class="{{ request('logs_per_page') ? 'active' : '' }}"><a href="#sites_logs" data-toggle="tab">Sites Logs</a></li>
 			<li class="{{ request('crawls_per_page') ? 'active' : '' }}"><a href="#site_crawls" data-toggle="tab">Site crawls</a></li>
 			<li class="{{ request('webmaster_logs_per_page') ? 'active' : '' }}"><a href="#webmaster_logs" data-toggle="tab">Auth Logs</a></li>
- 
+			<li class="{{ request('history_per_page') ? 'active' : '' }}"><a href="#site_submit_history" data-toggle="tab">Site submit history</a></li>
+
 		</ul>
 		</div>
 	</div>
     {{-- <div class="row"> --}}
 
 		<div class="tab-content" >
-			<div class="tab-pane {{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') ? '' : 'active' }}" id="search_analytics"> 
+			<div class="tab-pane {{ request('logs_per_page') || request('crawls_per_page') || request('webmaster_logs_per_page') || request('history_per_page') ? '' : 'active' }}" id="search_analytics">
 				<div class="row">
 					<div class="col-md-12">
 						<h2 class="page-heading">Google Search Analytics</h2>
@@ -197,13 +198,13 @@
 
 									@endif
 
-									
+
 											@endforeach
 										</select>
-								
+
 							</div>
 							<div class="col-md-1 d-flex justify-content-between">
-								<button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button><button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>  
+								<button type="submit" class="btn btn-image" ><img src="/images/filter.png"></button><button type="button" onclick="resetForm(this)" class="btn btn-image" id=""><img src="/images/resend2.png"></button>
 							</div>
 						</div>
 					</div>
@@ -213,121 +214,125 @@
 					<div class="col-md-12">
 						<table id="table" class="table table-striped table-bordered">
 							<thead>
-								@php 
-									$currentQueries = $request->query();
-								@endphp
-								<tr>
-									<th>S.N</th>
-									<th>Site URL</th>
-									<th>Country</th>
-									<th>Device</th>
-									<th>Query</th>
-									<th>Search Apperiance</th>
-									<th>Page</th>
-									@php
+							@php
+								$currentQueries = $request->query();
+							@endphp
+							<tr>
+								<th>S.N</th>
+								<th>Site URL</th>
+								<th>Country</th>
+								<th>Device</th>
+								<th>Query</th>
+								<th>Search Apperiance</th>
+								<th>Page</th>
+								@php
 									$clickType=$ctrType=$positionType=$impressionsType='asc';
 
-									if(isset($request->clicks) && $request->clicks=='asc'):
-									$clickType='desc';
-									endif;
+                                    if(isset($request->clicks) && $request->clicks=='asc'):
+                                    $clickType='desc';
+                                    endif;
 
-									if(isset($request->ctr) && $request->ctr=='asc'):
-									$ctrType='desc';
-									endif;
+                                    if(isset($request->ctr) && $request->ctr=='asc'):
+                                    $ctrType='desc';
+                                    endif;
 
-									if(isset($request->position) && $request->position=='asc'):
-									$positionType='desc';
-									endif;
+                                    if(isset($request->position) && $request->position=='asc'):
+                                    $positionType='desc';
+                                    endif;
 
-									if(isset($request->impression) && $request->impression=='asc'):
-									$impressionsType='desc';
-									endif;
-
-									
+                                    if(isset($request->impression) && $request->impression=='asc'):
+                                    $impressionsType='desc';
+                                    endif;
 
 
-									$allQueries=array_merge($currentQueries,['clicks'=>$clickType,]);
 
-									$ctrURL=$request->fullUrlWithQuery(array_merge($currentQueries,['ctr'=>$ctrType]));
 
-									$positionURL=$request->fullUrlWithQuery(array_merge($currentQueries,['position'=>$positionType]));
+                                    $allQueries=array_merge($currentQueries,['clicks'=>$clickType,]);
 
-									$impressionsURL=$request->fullUrlWithQuery(array_merge($currentQueries,['impression'=>$impressionsType]));
+                                    $ctrURL=$request->fullUrlWithQuery(array_merge($currentQueries,['ctr'=>$ctrType]));
 
-									$clicksURL=$request->fullUrlWithQuery($allQueries);
+                                    $positionURL=$request->fullUrlWithQuery(array_merge($currentQueries,['position'=>$positionType]));
 
-									@endphp
-									<th style="text-align:center;">Clicks
+                                    $impressionsURL=$request->fullUrlWithQuery(array_merge($currentQueries,['impression'=>$impressionsType]));
+
+                                    $clicksURL=$request->fullUrlWithQuery($allQueries);
+
+								@endphp
+								<th style="text-align:center;">Clicks
 									<a style="color:black;" href="{{$clicksURL}}">
-									@if($clickType=='asc')
+										@if($clickType=='asc')
 
-									<i class="fa fa-angle-down" ></i>
-									@else
-									<i class="fa fa-angle-up"></i>
-									@endif
+											<i class="fa fa-angle-down" ></i>
+										@else
+											<i class="fa fa-angle-up"></i>
+										@endif
 									</a>
 								</th>
 								<th style="text-align:center;">Ctr
 									<a style="color:black;" href="{{$ctrURL}}">
-									@if($ctrType=='asc')
+										@if($ctrType=='asc')
 
-									<i class="fa fa-angle-down" ></i>
-									@else
-									<i class="fa fa-angle-up"></i>
-									@endif
+											<i class="fa fa-angle-down" ></i>
+										@else
+											<i class="fa fa-angle-up"></i>
+										@endif
 									</a>
 								</th>
-									<th style="text-align:center;">Position
+								<th style="text-align:center;">Position
 									<a style="color:black;" href="{{$positionURL}}">
-									@if($positionType=='asc')
+										@if($positionType=='asc')
 
-									<i class="fa fa-angle-down" ></i>
-									@else
-									<i class="fa fa-angle-up"></i>
-									@endif
+											<i class="fa fa-angle-down" ></i>
+										@else
+											<i class="fa fa-angle-up"></i>
+										@endif
 									</a>
 								</th>
-									<th style="text-align:center;">Impression
+								<th style="text-align:center;">Impression
 									<a style="color:black;" href="{{$impressionsURL}}">
-									@if($impressionsType=='asc')
+										@if($impressionsType=='asc')
 
-									<i class="fa fa-angle-down" ></i>
-									@else
-									<i class="fa fa-angle-up"></i>
-									@endif
+											<i class="fa fa-angle-down" ></i>
+										@else
+											<i class="fa fa-angle-up"></i>
+										@endif
 									</a>
 								</th>
-									
-									<th>Date</th>
-
-
-							
-								</tr>
+								<th>Indexed</th>
+								<th>Not Indexed Reason</th>
+								<th>Mobile Useable</th>
+								<th>Enhancements</th>
+								<th>Date</th>
+							</tr>
 							</thead>
-							<tbody>
-								@foreach ($sitesData as $key=> $row ) 
+							<tbody style="word-break: break-all">
+							@foreach ($sitesData as $key=> $row )
 								<tr>
-								<td>{{$row->id}}</td>
+									<td>{{$row->id}}</td>
 
-								<td>{{$row->site->site_url}}</td>
-								<td>{{$row->country}}</td>
-								<td>{{$row->device}}</td>
-								<td>{{$row->query}}</td>
-								<td>{{$row->search_apperiance}}</td>
+									<td>{{$row->site->site_url}}</td>
+									<td>{{$row->country}}</td>
+									<td>{{$row->device}}</td>
+									<td>{{$row->query}}</td>
+									<td>{{$row->search_apperiance}}</td>
 
-								<td>{{$row->page}}</td>
-								<td>{{$row->clicks}}</td>
-								<td>{{$row->ctr}}</td>
-								<td>{{$row->position}}</td>
-								<td>{{$row->impressions}}</td>
-								<td>{{$row->date}}</td>
+									<td>{{$row->page}}</td>
+									<td>{{$row->clicks}}</td>
+									<td>{{$row->ctr}}</td>
+									<td>{{$row->position}}</td>
+									<td>{{$row->impressions}}</td>
+									<td>{{$row->indexed ? 'Yes' : 'No'}}</td>
+									<td>{{!$row->indexed ? $row->not_indexed_reason : 'NA'}}</td>
+									<td>{{$row->mobile_usable ? 'Yes' : 'No'}}</td>
+									<td>{{$row->enhancements ? $row->enhancements : 'NA'}}</td>
+									<td>{{isset($row->date) ? $row->date : date('Y-m-d', strtotime($row->created_at))}}</td>
 								</tr>
-								@endforeach
-								<tr>
-									<td colspan="12">
-										{{ $sitesData->appends(request()->except("page"))->links() }}
-									</td>
-								</tr>
+							@endforeach
+							<tr>
+								<td colspan="12">
+									{{ $sitesData->appends(request()->except("page"))->links() }}
+								</td>
+							</tr>
 							</tbody>
 						</table>
 					</div>
@@ -350,10 +355,9 @@
 				</div>
 				<table id="table" class="table table-striped table-bordered">
 					<thead>
-					
+
 						<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.get.records')}}"> Refresh Record</a></span>
-						<span><button class="btn btn-secondary pull-right m-2 site-history" > Site submit history </button></span>
-						<span><button class="btn btn-secondary btn-xs site-history"  > Site submit history </button></span>
+						<span><a class="btn btn-secondary pull-right m-2" href="{{route('googlewebmaster.submit.site.webmaster')}}"> Submit Sites</a></span>
 						<tr>
 							<th>S.N</th>
 							<th>Site URL</th>
@@ -362,7 +366,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach ($getSites as $key=> $site ) 
+						@foreach ($getSites as $key=> $site )
 							<tr>
 								<td>{{$site->id}}</td>
 								<td>{{$site->sites}}</td>
@@ -388,7 +392,7 @@
 										</div>
 									</div>
 								</td>
-								<td>Push | Down | Delete</td>
+								<td class="delete_site cursor-pointer" data-id="{{$site->id}}">Delete</td>
 							</tr>
 						@endforeach
 					</tbody>
@@ -413,24 +417,25 @@
 
 				<div class="row">
 					<div class="col-md-12">
-					
+
 						<table id="table" class="table table-striped table-bordered">
 							<thead>
 								<tr>
 									<th>S.N</th>
 									<th>Name</th>
 									<th>Description</th>
-								
+									<th>Created At</th>
+
 								</tr>
 							</thead>
 							<tbody>
-								@foreach ($logs as $key=> $log ) 
+								@foreach ($logs as $key=> $log )
 								<tr>
 								<td>{{$log->id}}</td>
 								<td>{{$log->log_name}}</td>
-								
 								<td>{{$log->description}}</td>
-								
+								<td>{{$log->created_at}}</td>
+
 								</tr>
 
 								@endforeach
@@ -459,7 +464,7 @@
 
 				<div class="row">
 					<div class="col-md-12">
-					
+
 						<table id="table" class="table table-striped table-bordered">
 							<thead>
 								<tr>
@@ -468,18 +473,20 @@
 									<th>Name</th>
 									<th>Status</th>
 									<th>Description</th>
-								
+									<th>Created At</th>
+
 								</tr>
 							</thead>
 							<tbody>
-								@foreach ($webmaster_logs as $key=> $log ) 
+								@foreach ($webmaster_logs as $key=> $log )
 								<tr>
 								<td>{{$log->id}}</td>
 								<td>{{$log->user_name}}</td>
 								<td>{{$log->name}}</td>
 								<td>{{$log->status}}</td>
 								<td>{{$log->message}}</td>
-								
+								<td>{{$log->created_at}}</td>
+
 								</tr>
 
 								@endforeach
@@ -489,37 +496,84 @@
 					{{ $webmaster_logs->links() }}
 				</div>
 			</div>
+
+			<div class="tab-pane {{ request('history_per_page') ? 'active' : '' }}" id="site_submit_history" >
+				<div class="row">
+					<div class="col-md-12">
+						<h2 class="page-heading">Site submit history</h2>
+					</div>
+					<div class="col-12">
+					<div class="pull-left"></div>
+
+					<div class="pull-right">
+						<div class="form-group">
+						&nbsp;
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<table id="table" class="table table-striped table-bordered">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Log</th>
+									<th>Created At</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach ($site_submit_history as $key=> $history )
+								<tr>
+								<td>{{$history->id}}</td>
+								<td>{{$history->log}}</td>
+								<td>{{$history->created_at}}</td>
+								<td><button class="btn btn-secondary btn-xs re-submit-site" data-id="{{$history->website_store_views_id}}" title="Re-submit"> <i class="fa fa-refresh"></i></button></td>
+
+								</tr>
+
+								@endforeach
+							</tbody>
+						</table>
+					</div>
+					{{ $site_submit_history->links() }}
+				</div>
+			</div>
+
 		</div>
 
-        
+
     {{-- </div> --}}
 
-    
+
 
 
 
 @include('google-web-master.site-submit-webmaster-history')
-    
+
 @endsection
 
 @section('scripts')
 
 <script type="text/javascript">
- 
+
 
     function resetForm(selector)
         {
-            
+
            $(selector).closest('form').find('input,select').val('');
 
            $(selector).closest('form').submit();
         }
-		
-	
+
+
 		$(document).on("click",".new_account",function(e) {
 			$("#new_account").modal("show");
 		});
-		
+
 		$(document).on("submit",".addAccount",function(e) {
 			if($('input[name="GOOGLE_CLIENT_ID"]').val() == ''){
 				toastr['error']('GOOGLE CLIENT ID is required', 'Error');
@@ -528,13 +582,13 @@
 			if($('input[name="GOOGLE_CLIENT_SECRET"]').val() == ''){
 				toastr['error']('GOOGLE CLIENT SECRET is required', 'Error');
 				return false;
-			} 
+			}
 			if($('input[name="GOOGLE_CLIENT_APPLICATION_NAME"]').val() == ''){
 				toastr['error']('GOOGLE CLIENT APPLICATION NAME is required', 'Error');
 				return false;
-			} 
+			}
 		});
-	
+
 	$(document).on("click",".notifications",function(e) {
 		var btn = $(this);
 		$.ajax({
@@ -551,7 +605,7 @@
 						t += `<tr><td>`+v.created_at+`</td>`;
 						t += `<td>`+(v.account ? v.account.google_account : '')+`</td>`;
 						t += `<td>`+v.user.name+`</td>`;
-						t += `<td>`+v.message+`</td>`; 
+						t += `<td>`+v.message+`</td>`;
 					});
 					if( t == '' ){
 						t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
@@ -567,7 +621,7 @@
 			}
 		});
 	});
-	
+
 	$(document).on("click",".accounts",function(e) {
 		var btn = $(this);
 		$.ajax({
@@ -585,13 +639,13 @@
 						t += `<tr><td>`+v.id+`</td>`;
 						t += `<td>`+v.GOOGLE_CLIENT_ID+`</td>`;
 						t += `<td>`+v.GOOGLE_CLIENT_APPLICATION_NAME+`</td>`;
-						t += `<td>
-									<span>
-										<a href="/googlewebmaster/accounts/connect/${v.id}">Connect</a>
-									</span>
-							</td>`;
+						t += `<td><span><a href="/googlewebmaster/accounts/connect/${v.id}">Connect</a></span></td></tr>`;
+						t += `<tr class="font-weight-bold"><td colspan="4">Connected Google Accounts</td></tr>`
 						$.each(v.mails,function(kk,vv) {
-							t += `<tr><td colspan="1">${vv.google_account}</td><td colspan="2"></td><td><a href="/googlewebmaster/accounts/disconnect/${vv.id}">Disconnect</a></td></tr>`;
+							t += `<tr>`;
+							t += `<td colspan="3">${vv.google_account}</td>`;
+							t += `<td><a href="/googlewebmaster/accounts/disconnect/${vv.id}">Disconnect</a></td>`;
+							t += `</tr>`;
 						})
 					});
 					if( t == '' ){
@@ -608,38 +662,29 @@
 			}
 		});
 	});
-	 	
-	$(document).on("click",".site-history",function(e) {
-        e.preventDefault();
-		var id = $(this).data("id");
-		var btn = $(this);
+
+	$(document).on('click','.delete_site',function(){
+		var id = $(this).data('id');
+		var $this = $(this);
 		$.ajax({
-			url: '/googlewebmaster/get-site-submit-hitory',
-			type: 'GET',
-			dataType: 'json',
-			beforeSend: function () {
-				btn.prop('disabled',true);
+			method: "POST",
+			url: "{{ route('googlewebmaster.delete.site.webmaster') }}",
+			data: {
+				"_token": "{{ csrf_token() }}",
+				id:id
 			},
-			success: function(result){
-				if(result.code == 200) {
-					var t = '';
-					$.each(result.data,function(k,v) {
-						t += `<tr><td>`+v.website_store_views_id+`</td>`;
-						t += `<td>`+v.log+`</td>`;
-						t += '<td><button class="btn btn-secondary btn-xs re-submit-site" data-id="'+v.website_store_views_id+'" title="Re-submit"> <i class="fa fa-refresh"></i></button></td>';
-						t += `<td>`+v.created_at+`</td></tr>`;
-					});
-					if( t == '' ){
-						t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-					}
+			success: function(response){
+				if (response.status == true) {
+					$this.closest('tr').remove();
+					toastr.success('Site Deleted Successfully')
 				}
-				$("#category-history-modal").find(".show-list-records").html(t);
-				$("#category-history-modal").modal("show");
-				btn.prop('disabled',false);
-			},
-			error: function (){
-				btn.prop('disabled',false);
-				toastr['error']('Something went wrong', 'Error');
+				if (response.code == 200) {
+					toastr.success(response.message)
+					setTimeout(function(){
+						location.reload();
+					}, 1000);
+
+				}
 			}
 		});
 	});

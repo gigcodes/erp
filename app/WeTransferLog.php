@@ -6,9 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class WeTransferLog extends Model
 {
-	protected $table = "wetransfers_logs";
+    protected $table = 'wetransfers_logs';
+
     protected $fillable = [
-        'link', 
-        'log_description'
-	];
+        'link',
+        'log_description',
+    ];
 }

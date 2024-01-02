@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
-use App\BrandCategorySizeChart;
 use App\Category;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\BrandCategorySizeChart;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class BrandSizeChartController extends Controller
 {
@@ -15,7 +15,6 @@ class BrandSizeChartController extends Controller
 
     public function __construct()
     {
-
     }
 
     public function index()
@@ -68,6 +67,7 @@ class BrandSizeChartController extends Controller
         }
 
         session()->flash('success', 'Brand size chart uploaded successfully');
+
         return redirect()->route('brand/size/chart');
     }
 
@@ -76,22 +76,21 @@ class BrandSizeChartController extends Controller
      */
     public function getChild(Request $request)
     {
-        if($request->ajax()){
-
+        if ($request->ajax()) {
             $categoryId = $request->category_id;
             $data = Category::find($categoryId)->toArray();
-            $categories = Category::where('parent_id',$categoryId)->orderBy('title')->get();
-            $tableBody = "<tr><td class='text-center'><input type='radio' id='category_id' name='category_id' value='".$data['id']."' required> </td><td>".$data['title']."</td></tr>";
-            if($categories){
-                foreach($categories as $category){
+            $categories = Category::where('parent_id', $categoryId)->orderBy('title')->get();
+            $tableBody = "<tr><td class='text-center'><input type='radio' id='category_id' name='category_id' value='" . $data['id'] . "' required> </td><td>" . $data['title'] . '</td></tr>';
+            if ($categories) {
+                foreach ($categories as $category) {
                     $data1 = $category->toArray();
-                    $tableBody .= "<tr><td class='text-center'><input type='radio' id='category_id' name='category_id' value='".$data1['id']."' required> </td><td style='padding-left:30px'>".$data1['title']."</td></tr>";
-                    $tableBody .= $this->getChildData($category->id, 1); 
+                    $tableBody .= "<tr><td class='text-center'><input type='radio' id='category_id' name='category_id' value='" . $data1['id'] . "' required> </td><td style='padding-left:30px'>" . $data1['title'] . '</td></tr>';
+                    $tableBody .= $this->getChildData($category->id, 1);
                 }
             }
-            return response()->json([ 'data' => $tableBody ]);
+
+            return response()->json(['data' => $tableBody]);
         }
-        
     }
 
     /**
@@ -101,16 +100,17 @@ class BrandSizeChartController extends Controller
      */
     public function getChildData($parentId, $level)
     {
-        $categories  = Category::where('parent_id',$parentId)->orderBy('title')->get();
+        $categories = Category::where('parent_id', $parentId)->orderBy('title')->get();
         $tbody = '';
-        if($categories){
-            foreach($categories as $category){
-                $leftpadding = ($level+1)*30;
+        if ($categories) {
+            foreach ($categories as $category) {
+                $leftpadding = ($level + 1) * 30;
                 $data = $category->toArray();
-                $tbody .= "<tr><td class='text-center'><input type='radio' id='category_id' name='category_id' value='".$data['id']."' required> </td><td style='padding-left:".$leftpadding."px'>".$data['title']."</td></tr>";
-                $tbody .= $this->getChildData($category->id, $level+1);
-            } 
+                $tbody .= "<tr><td class='text-center'><input type='radio' id='category_id' name='category_id' value='" . $data['id'] . "' required> </td><td style='padding-left:" . $leftpadding . "px'>" . $data['title'] . '</td></tr>';
+                $tbody .= $this->getChildData($category->id, $level + 1);
+            }
         }
+
         return $tbody;
     }
 }

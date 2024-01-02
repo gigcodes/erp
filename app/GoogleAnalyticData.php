@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class GoogleAnalyticData extends Model
 {
+    protected $table = 'google_analytic_datas';
+
     protected $fillable = [
         'website_analytics_id',
         'browser',
@@ -23,5 +25,8 @@ class GoogleAnalyticData extends Model
         'session',
         'age',
         'gender',
+        'exception',
+        'log',
+        'device',
     ];
 }

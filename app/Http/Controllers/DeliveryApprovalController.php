@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\DeliveryApproval;
-use App\StatusChange;
-use App\PrivateView;
-use App\ChatMessage;
-use App\Helpers;
-use App\User;
 use Auth;
+use App\User;
+use App\Helpers;
+use App\ChatMessage;
+use App\PrivateView;
+use App\StatusChange;
+use App\DeliveryApproval;
 use Illuminate\Http\Request;
 
 class DeliveryApprovalController extends Controller
 {
-
-    public function __construct() {
-     // $this->middleware('permission:delivery-approval');
+    public function __construct()
+    {
+        // $this->middleware('permission:delivery-approval');
     }
 
     /**
@@ -25,13 +25,13 @@ class DeliveryApprovalController extends Controller
      */
     public function index()
     {
-      $delivery_approvals = DeliveryApproval::all();
-      $users_array = Helpers::getUserArray(User::all());
+        $delivery_approvals = DeliveryApproval::all();
+        $users_array = Helpers::getUserArray(User::all());
 
-      return view('deliveryapprovals.index', [
-        'delivery_approvals'  => $delivery_approvals,
-        'users_array'  => $users_array,
-      ]);
+        return view('deliveryapprovals.index', [
+            'delivery_approvals' => $delivery_approvals,
+            'users_array' => $users_array,
+        ]);
     }
 
     /**
@@ -47,7 +47,6 @@ class DeliveryApprovalController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -80,7 +79,6 @@ class DeliveryApprovalController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -91,101 +89,99 @@ class DeliveryApprovalController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-      $delivery_approval = DeliveryApproval::find($id);
-
-      StatusChange::create([
-        'model_id'    => $delivery_approval->id,
-        'model_type'  => DeliveryApproval::class,
-        'user_id'     => Auth::id(),
-        'from_status' => $delivery_approval->status,
-        'to_status'   => $request->status
-      ]);
-
-      $delivery_approval->status = $request->status;
-      $delivery_approval->save();
-
-      if ($request->status == 'delivered') {
-        $delivery_approval->private_view->products[0]->supplier = '';
-        $delivery_approval->private_view->products[0]->save();
-
-        // Message to Customer
-        $params = [
-          'number'    => NULL,
-          'user_id'   => Auth::id(),
-          'customer_id' => $delivery_approval->private_view->customer_id,
-          'message'   => "This product has been delivered. Thank you for your business",
-          'approved'  => 0,
-          'status'    => 1
-        ];
-
-        $chat_message = ChatMessage::create($params);
-      } elseif ($request->status == 'returned') {
-        $delivery_approval->private_view->products[0]->supplier = 'In-stock';
-        $delivery_approval->private_view->products[0]->save();
-
-        // Message to Stock Coordinator
-        $params = [
-          'number'    => NULL,
-          'user_id'   => Auth::id(),
-          'message'   => "This product will be sent back",
-          'approved'  => 0,
-          'status'    => 1
-        ];
-
-        $chat_message = ChatMessage::create($params);
-
-        $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : NULL;
-
-        $stock_coordinators = User::role('Stock Coordinator')->get();
-
-        foreach ($stock_coordinators as $coordinator) {
-          $params['erp_user'] = $coordinator->id;
-          $chat_message = ChatMessage::create($params);
-
-          $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
-
-          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
-
-          $chat_message->update([
-            'approved' => 1,
-            'status'   => 2
-          ]);
-        }
-
-        // Message to Aliya
-        $coordinators = User::role('Delivery Coordinator')->get();
-
-        foreach ($coordinators as $coordinator) {
-          $params['erp_user'] = $coordinator->id;
-          $chat_message = ChatMessage::create($params);
-
-          $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : NULL;
-
-          app('App\Http\Controllers\WhatsAppController')->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], NULL, $chat_message->id);
-
-          $chat_message->update([
-            'approved' => 1,
-            'status'   => 2
-          ]);
-        }
-
-
-      }
-
-      if ($delivery_approval->private_view) {
-        $delivery_approval->private_view->status = $request->status;
-        $delivery_approval->private_view->save();
+        $delivery_approval = DeliveryApproval::find($id);
 
         StatusChange::create([
-          'model_id'    => $delivery_approval->private_view->id,
-          'model_type'  => PrivateView::class,
-          'user_id'     => Auth::id(),
-          'from_status' => $delivery_approval->private_view->status,
-          'to_status'   => $request->status
+            'model_id' => $delivery_approval->id,
+            'model_type' => DeliveryApproval::class,
+            'user_id' => Auth::id(),
+            'from_status' => $delivery_approval->status,
+            'to_status' => $request->status,
         ]);
-      }
 
-      return response('success');
+        $delivery_approval->status = $request->status;
+        $delivery_approval->save();
+
+        if ($request->status == 'delivered') {
+            $delivery_approval->private_view->products[0]->supplier = '';
+            $delivery_approval->private_view->products[0]->save();
+
+            // Message to Customer
+            $params = [
+                'number' => null,
+                'user_id' => Auth::id(),
+                'customer_id' => $delivery_approval->private_view->customer_id,
+                'message' => 'This product has been delivered. Thank you for your business',
+                'approved' => 0,
+                'status' => 1,
+            ];
+
+            $chat_message = ChatMessage::create($params);
+        } elseif ($request->status == 'returned') {
+            $delivery_approval->private_view->products[0]->supplier = 'In-stock';
+            $delivery_approval->private_view->products[0]->save();
+
+            // Message to Stock Coordinator
+            $params = [
+                'number' => null,
+                'user_id' => Auth::id(),
+                'message' => 'This product will be sent back',
+                'approved' => 0,
+                'status' => 1,
+            ];
+
+            $chat_message = ChatMessage::create($params);
+
+            $whatsapp_number = Auth::user()->whatsapp_number != '' ? Auth::user()->whatsapp_number : null;
+
+            $stock_coordinators = User::role('Stock Coordinator')->get();
+
+            foreach ($stock_coordinators as $coordinator) {
+                $params['erp_user'] = $coordinator->id;
+                $chat_message = ChatMessage::create($params);
+
+                $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
+
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+
+                $chat_message->update([
+                    'approved' => 1,
+                    'status' => 2,
+                ]);
+            }
+
+            // Message to Aliya
+            $coordinators = User::role('Delivery Coordinator')->get();
+
+            foreach ($coordinators as $coordinator) {
+                $params['erp_user'] = $coordinator->id;
+                $chat_message = ChatMessage::create($params);
+
+                $whatsapp_number = $coordinator->whatsapp_number != '' ? $coordinator->whatsapp_number : null;
+
+                app(\App\Http\Controllers\WhatsAppController::class)->sendWithNewApi($coordinator->phone, $whatsapp_number, $params['message'], null, $chat_message->id);
+
+                $chat_message->update([
+                    'approved' => 1,
+                    'status' => 2,
+                ]);
+            }
+        }
+
+        if ($delivery_approval->private_view) {
+            $delivery_approval->private_view->status = $request->status;
+            $delivery_approval->private_view->save();
+
+            StatusChange::create([
+                'model_id' => $delivery_approval->private_view->id,
+                'model_type' => PrivateView::class,
+                'user_id' => Auth::id(),
+                'from_status' => $delivery_approval->private_view->status,
+                'to_status' => $request->status,
+            ]);
+        }
+
+        return response('success');
     }
 
     /**

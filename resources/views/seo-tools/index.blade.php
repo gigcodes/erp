@@ -182,9 +182,9 @@
 							@endif
 							@if(isset($siteAudits[$websiteId]))
 								@php $siteAudit = $siteAudits[$websiteId]; @endphp
-								<td><a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['pages_crawled'], 'viewTypeName' => 'pages_crawled'])}}"><span>{{$siteAudit['pages_crawled']}}</span></a></td>
-								<td><a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['errors'], 'viewTypeName' => 'errors'])}}"><span> {{$siteAudit['errors']}}</span></a></td>
-								<td><a href="{{route('site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['warnings'], 'viewTypeName' => 'warnings'])}}"><span>{{$siteAudit['warnings']}}</span></a></td>
+								<td><a href="{{url('seo/site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['pages_crawled'], 'viewTypeName' => 'pages_crawled'])}}"><span>{{$siteAudit['pages_crawled']}}</span></a></td>
+								<td><a href="{{url('seo/site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['errors'], 'viewTypeName' => 'errors'])}}"><span> {{$siteAudit['errors']}}</span></a></td>
+								<td><a href="{{url('seo/site-audit-details', ['websiteId'=>$websiteId,'viewId'=>$siteAudit['warnings'], 'viewTypeName' => 'warnings'])}}"><span>{{$siteAudit['warnings']}}</span></a></td>
 							@else
 								<td>---</td>
 								<td>---</td>
@@ -192,9 +192,9 @@
 							@endif
 							@if(isset($domainOverview[$websiteId]))
 								@php $overview = $domainOverview[$websiteId]; @endphp
-								<td><a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_keywords'], 'viewTypeName' => 'organic_keywords'])}}"><span>{{$overview['organic_keywords']}}</span></a></td>
-								<td><a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_traffic'], 'viewTypeName' => 'organic_traffic'])}}"><span> {{$overview['organic_traffic']}}</span></a></td>
-								<td><a href="{{route('domain-details', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_cost'], 'viewTypeName' => 'organic_cost'])}}"><span>{{$overview['organic_cost']}}</span></a></td>
+								<td><a href="{{url('seo/domain-report', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_keywords'], 'viewTypeName' => 'organic_keywords'])}}"><span>{{$overview['organic_keywords']}}</span></a></td>
+								<td><a href="{{url('seo/domain-report', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_traffic'], 'viewTypeName' => 'organic_traffic'])}}"><span> {{$overview['organic_traffic']}}</span></a></td>
+								<td><a href="{{url('seo/domain-report', ['websiteId'=>$websiteId, 'type' => 'organic', 'viewId' => $overview['organic_cost'], 'viewTypeName' => 'organic_cost'])}}"><span>{{$overview['organic_cost']}}</span></a></td>
 							@else
 								<td>---</td>
 								<td>---</td>
@@ -202,9 +202,9 @@
 							@endif
 							@if(isset($backlinkreports[$websiteId]))
 								@php $backlinkreport = $backlinkreports[$websiteId]; @endphp
-								<td><a href="{{route('backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['ascore'], 'viewTypeName' => 'ascore'])}}"><span>{{$backlinkreport['ascore']}}</span></a></td>
-								<td><a href="{{route('backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['follows_num'], 'viewTypeName' => 'follows_num'])}}"><span> {{$backlinkreport['follows_num']}}</span></a></td>
-								<td><a href="{{route('backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['nofollows_num'], 'viewTypeName' => 'nofollows_num'])}}"><span>{{$backlinkreport['nofollows_num']}}</span></a></td>
+								<td><a href="{{url('seo/backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['ascore'], 'viewTypeName' => 'ascore'])}}"><span>{{$backlinkreport['ascore']}}</span></a></td>
+								<td><a href="{{url('seo/backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['follows_num'], 'viewTypeName' => 'follows_num'])}}"><span> {{$backlinkreport['follows_num']}}</span></a></td>
+								<td><a href="{{url('seo/backlink-details', ['websiteId'=>$websiteId, 'viewId' => $backlinkreport['nofollows_num'], 'viewTypeName' => 'nofollows_num'])}}"><span>{{$backlinkreport['nofollows_num']}}</span></a></td>
 							@else
 								<td>---</td>
 								<td>---</td>

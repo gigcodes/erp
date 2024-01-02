@@ -259,11 +259,13 @@
             </thead>
 
             <tbody>
-              @foreach ($call_instructions as $key => $instruction)
+              @foreach ($meetings as $key => $instruction)
                 <tr>
                   <td>{{ $key + 1 }}</td>
-                  <td>{{ \Carbon\Carbon::parse($instruction->created_at)->format('d-m H:i') }}</td>
-                  <td>{{ $instruction->instruction }}</td>
+                  <td>
+                       <h3 class="btn @if(Carbon\Carbon::now()->toDateTimeString()<=\Carbon\Carbon::parse($instruction->start)->toDateTimeString())btn-secondary @endif btn-xs" onclick="sendImage(22294 )"> {{ \Carbon\Carbon::parse($instruction->start)->format('d-m-Y H:i') }} - {{ \Carbon\Carbon::parse($instruction->end)->format('d-m-Y H:i') }}</h3>
+                  </td>
+                    <td>Subject : {{$instruction->subject}} <br> Description : {{$instruction->description}}</td>
                 </tr>
               @endforeach
             </tbody>
@@ -367,8 +369,8 @@
                 ` + response.task.task_subject + `
                 </span>
                 <span>
-                  <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/youtube_128.png" /></button>
-                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/incomplete.png" /></button>
+                  <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="` + response.task.id + `" data-type="task" title="start"><img src="/images/youtube_128.png" /></button>
+                  <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `" data-type="task" title="complete"><img src="/images/incomplete.png" /></button>
                 </span>
               </div>
             </td>

@@ -2,21 +2,22 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\HubstaffTrait;
-use App\Hubstaff\HubstaffActivity;
-use App\Hubstaff\HubstaffMember;
-use Carbon\Carbon;
 use Exception;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Helpers\HubstaffTrait;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffActivity;
 
 class LoadHubstaffActivities extends Command
 {
     use HubstaffTrait;
 
     private $client;
+
     /**
      * The name and signature of the console command.
      *
@@ -54,42 +55,43 @@ class LoadHubstaffActivities extends Command
         //
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
 
-            $time      = strtotime(date("c"));
-            $time      = $time - ((60 * 60)); //one hour
-            $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time)));
-            $time     = strtotime($startTime);
-            $time     = $time + (10 * 60); //10 mins
-            $stopTime = date("c", $time);
+            $time = strtotime(date('c'));
+            $time = $time - ((60 * 60)); //one hour
+            $startTime = date('c', strtotime(gmdate('Y-m-d H:i:s', $time)));
+            $time = strtotime($startTime);
+            $time = $time + (10 * 60); //10 mins
+            $stopTime = date('c', $time);
 
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
                 echo 'Error in activities' . PHP_EOL;
+
                 return;
             }
-            echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
+            echo 'Got activities(count): ' . count($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
                     [
                         'id' => $id,
                     ],
                     [
-                        'user_id'   => $data['user_id'],
-                        'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
+                        'user_id' => $data['user_id'],
+                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'],
                         'starts_at' => $data['starts_at'],
-                        'tracked'   => $data['tracked'],
-                        'keyboard'  => $data['keyboard'],
-                        'mouse'     => $data['mouse'],
-                        'overall'   => $data['overall'],
+                        'tracked' => $data['tracked'],
+                        'keyboard' => $data['keyboard'],
+                        'mouse' => $data['mouse'],
+                        'overall' => $data['overall'],
                     ]
                 );
 
-                if(is_null($data['task_id'])) {
+                if (is_null($data['task_id'])) {
                     //STOPPED CERTAIN MESSAGES
-                    /*$user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first(); 
+                    /*$user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first();
                     if($user) {
                         $message = "You haven't selected any task on your last activity period ".$startTime. " to ".$stopTime." , Please select appropriate task or put notes on it.";
                         $requestData = new Request();
@@ -107,7 +109,6 @@ class LoadHubstaffActivities extends Command
 
     private function getActivitiesBetween($start, $stop)
     {
-
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
                 function ($accessToken) use ($start, $stop) {
@@ -115,6 +116,7 @@ class LoadHubstaffActivities extends Command
                     $url = 'https://api.hubstaff.com/v2/organizations/' . config('env.HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
 
                     echo $url . PHP_EOL;
+
                     return $this->client->get(
                         $url,
                         [
@@ -129,23 +131,24 @@ class LoadHubstaffActivities extends Command
 
             $responseJson = json_decode($response->getBody()->getContents());
 
-            $activities = array();
+            $activities = [];
 
             foreach ($responseJson->activities as $activity) {
-
-                $activities[$activity->id] = array(
-                    'user_id'   => $activity->user_id,
-                    'task_id'   => $activity->task_id,
+                $activities[$activity->id] = [
+                    'user_id' => $activity->user_id,
+                    'task_id' => $activity->task_id,
                     'starts_at' => $activity->starts_at,
-                    'tracked'   => $activity->tracked,
-                    'keyboard'  => $activity->keyboard,
-                    'mouse'     => $activity->mouse,
-                    'overall'   => $activity->overall,
-                );
+                    'tracked' => $activity->tracked,
+                    'keyboard' => $activity->keyboard,
+                    'mouse' => $activity->mouse,
+                    'overall' => $activity->overall,
+                ];
             }
+
             return $activities;
         } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
+
             return false;
         }
     }

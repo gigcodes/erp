@@ -2,25 +2,28 @@
 
 namespace App\Library\Watson;
 
-use App\Library\Watson\Interfaces\ResponseInterface;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use App\Library\Watson\Interfaces\ResponseInterface;
 
 class Response implements ResponseInterface
 {
     /**
      * The response headers
+     *
      * @var array
      */
     private $headers = [];
 
     /**
      * The response content
+     *
      * @var string
      */
     private $content;
 
     /**
      * The response status code
+     *
      * @var int
      */
     private $statusCode;
@@ -33,7 +36,7 @@ class Response implements ResponseInterface
     /**
      * {@inheritdoc}
      */
-    public function parse(\GuzzleHttp\Psr7\Response $response)
+    public function parse(GuzzleResponse $response)
     {
         $this->setHeaders($response->getHeaders());
         $this->setStatusCode($response->getStatusCode());
@@ -70,7 +73,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param array $headers
+     * @param  array  $headers
      */
     public function setHeaders($headers)
     {
@@ -86,7 +89,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param string $content
+     * @param  string  $content
      */
     public function setContent($content)
     {
@@ -102,7 +105,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param int $statusCode
+     * @param  int  $statusCode
      */
     public function setStatusCode($statusCode)
     {
@@ -110,7 +113,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @param boolean $isError
+     * @param  bool  $isError
      */
     public function setIsError($isError)
     {

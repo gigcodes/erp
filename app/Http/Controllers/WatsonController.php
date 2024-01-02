@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\StoreWebsite;
 use App\WatsonAccount;
-use App\ChatbotQuestion;
-use App\Library\Watson\Model as WatsonManager;
 use App\Jobs\PushToWatson;
+use Illuminate\Http\Request;
+
 class WatsonController extends Controller
 {
     /**
@@ -19,7 +18,8 @@ class WatsonController extends Controller
     {
         $store_websites = StoreWebsite::all();
         $accounts = WatsonAccount::all();
-        return view('watson.index',compact('store_websites','accounts'));
+
+        return view('watson.index', compact('store_websites', 'accounts'));
     }
 
     /**
@@ -35,7 +35,6 @@ class WatsonController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -46,10 +45,13 @@ class WatsonController extends Controller
             'work_space_id' => 'required|string',
             'assistant_id' => 'required|string',
             'url' => 'required|string',
+            'speech_to_text_api_key' => 'required|string',
+            'speech_to_text_url' => 'required|string',
             'user_name' => 'required|string',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ]);
         WatsonAccount::create($request->all());
+
         return response()->json(['code' => 200, 'message' => 'Account Successfully created']);
     }
 
@@ -63,7 +65,8 @@ class WatsonController extends Controller
     {
         $account = WatsonAccount::find($id);
         $store_websites = StoreWebsite::all();
-        return response()->json(['account' => $account,'store_websites' => $store_websites]);
+
+        return response()->json(['account' => $account, 'store_websites' => $store_websites]);
     }
 
     /**
@@ -80,7 +83,6 @@ class WatsonController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -88,14 +90,14 @@ class WatsonController extends Controller
     {
         $account = WatsonAccount::find($id);
         $params = $request->except('_token');
-        if(array_key_exists('is_active',$params)) {
+        if (array_key_exists('is_active', $params)) {
             $params['is_active'] = 1;
-        }else{
+        } else {
             $params['is_active'] = 0;
         }
         $account->update($params);
-        return response()->json(['code' => 200, 'message' => 'Account Successfully updated']);
 
+        return response()->json(['code' => 200, 'message' => 'Account Successfully updated']);
     }
 
     /**
@@ -108,13 +110,16 @@ class WatsonController extends Controller
     {
         $account = WatsonAccount::find($id);
         $account->delete();
+
         return redirect()->back();
     }
 
-    public function addIntentsToWatson($id) {
+    public function addIntentsToWatson($id)
+    {
         $account = WatsonAccount::find($id);
         PushToWatson::dispatch($id)->onQueue('watson_push');
         $account->update(['watson_push' => 1]);
+
         return response()->json(['message' => 'Successfully added to the queue', 'code' => 200]);
     }
 }

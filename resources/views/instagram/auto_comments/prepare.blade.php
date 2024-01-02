@@ -3,7 +3,7 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading"><a href="{{ action('AutoCommentHistoryController@index') }}"><</a> | Auto comment posts For: {{ $hashtag }}</h2>
+            <h2 class="page-heading"><a href="{{ action([\App\Http\Controllers\AutoCommentHistoryController::class, 'index']) }}"><</a> | Auto comment posts For: {{ $hashtag }}</h2>
         </div>
         <div class="col-md-12">
             @if(Session::has('message'))
@@ -14,14 +14,14 @@
         </div>
 
         <div class="col-md-12 text-center">
-            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+            <form action="{{ action([\App\Http\Controllers\AutoReplyHashtagsController::class, 'show'], 'all') }}">
                 <input type="hidden" name="country" value="{{$countryText ?? ''}}">
                 @foreach($alltags as $tag)
                     <input type="hidden" name="hashtags[]" value="{{$tag}}">
                 @endforeach
                 <button class="btn btn-default">First Page</button>
             </form>
-            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+            <form action="{{ action([\App\Http\Controllers\AutoReplyHashtagsController::class, 'show'], 'all') }}">
                 <input type="hidden" name="country" value="{{$countryText ?? ''}}">
                 @foreach($alltags as $tag)
                     <input type="hidden" name="hashtags[]" value="{{$tag}}">
@@ -35,7 +35,7 @@
             </form>
         </div>
 
-        <form method="post" action="{{ action('AutoReplyHashtagsController@update', 'all') }}">
+        <form method="post" action="{{ action([\App\Http\Controllers\AutoReplyHashtagsController::class, 'update'], 'all') }}">
             <input type="hidden" name="country" id="country" value="{{$countryText ?? ''}}">
             <input type="hidden" name="hashtag" id="hashtag" value="{{$hashtag}}">
             @csrf
@@ -114,14 +114,14 @@
         </form>
 
         <div class="col-md-12 text-center">
-            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+            <form action="{{ action([\App\Http\Controllers\AutoReplyHashtagsController::class, 'show'], 'all') }}">
                 <input type="hidden" name="country" value="{{$countryText ?? ''}}">
                 @foreach($alltags as $tag)
                     <input type="hidden" name="hashtags[]" value="{{$tag}}">
                 @endforeach
                 <button class="btn btn-default">First Page</button>
             </form>
-            <form action="{{ action('AutoReplyHashtagsController@show', 'all') }}">
+            <form action="{{ action([\App\Http\Controllers\AutoReplyHashtagsController::class, 'show'], 'all') }}">
                 <input type="hidden" name="country" value="{{$countryText ?? ''}}">
                 @foreach($alltags as $tag)
                     <input type="hidden" name="hashtags[]" value="{{$tag}}">

@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\CronJobReport;
 use App\Document;
 use Carbon\Carbon;
+use App\CronJobReport;
 use Illuminate\Console\Command;
-use Webklex\IMAP\Client;
+use Webklex\PHPIMAP\ClientManager;
 
 class DocumentReciever extends Command
 {
@@ -43,18 +43,18 @@ class DocumentReciever extends Command
     {
         try {
             $report = CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-
-            $oClient = new Client([
-                'host'          => env('IMAP_HOST_DOCUMENT'),
-                'port'          => env('IMAP_PORT_DOCUMENT'),
-                'encryption'    => env('IMAP_ENCRYPTION_DOCUMENT'),
+            $cm = new ClientManager();
+            $oClient = $cm->make([
+                'host' => env('IMAP_HOST_DOCUMENT'),
+                'port' => env('IMAP_PORT_DOCUMENT'),
+                'encryption' => env('IMAP_ENCRYPTION_DOCUMENT'),
                 'validate_cert' => env('IMAP_VALIDATE_CERT_DOCUMENT'),
-                'username'      => env('IMAP_USERNAME_DOCUMENT'),
-                'password'      => env('IMAP_PASSWORD_DOCUMENT'),
-                'protocol'      => env('IMAP_PROTOCOL_DOCUMENT'),
+                'username' => env('IMAP_USERNAME_DOCUMENT'),
+                'password' => env('IMAP_PASSWORD_DOCUMENT'),
+                'protocol' => env('IMAP_PROTOCOL_DOCUMENT'),
             ]);
 
             $oClient->connect();
@@ -65,7 +65,7 @@ class DocumentReciever extends Command
             if (count($message) == 0) {
                 echo 'No New Mail Found';
                 echo '<br>';
-                die();
+                exit();
             }
 
             foreach ($message as $messages) {
@@ -83,18 +83,16 @@ class DocumentReciever extends Command
                     $aAttachment->each(function ($oAttachment) {
                         $name = $oAttachment->getName();
                         $oAttachment->save(storage_path('app/files/documents/'), $name);
-                        $document             = new Document();
-                        $subject              = session()->get('email.subject');
-                        $document->name       = $subject[0];
-                        $document->filename   = $name;
-                        $document->version    = 1;
+                        $document = new Document();
+                        $subject = session()->get('email.subject');
+                        $document->name = $subject[0];
+                        $document->filename = $name;
+                        $document->version = 1;
                         $document->from_email = 1;
                         $document->save();
                         echo 'Document Saved in Pending';
                     });
-
                 }
-
             }
 
             $report->update(['end_time' => Carbon::now()]);

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\LogHelper;
 use Illuminate\Console\Command;
 
 class FetchStoreWebsiteOrder extends Command
@@ -37,15 +38,23 @@ class FetchStoreWebsiteOrder extends Command
      */
     public function handle()
     {
-        $storeWebsite = \App\StoreWebsite::all();
-        foreach($storeWebsite as $sW) {
-            // if site is in magento the fetch orders
-            if($sW->website_source == "magento") {
-                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                    \seo2websites\MagentoHelper\MagentoHelper::fetchOrder($sW);
+        LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
+        try {
+            $storeWebsite = \App\StoreWebsite::all();
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'Store webiste query finished.']);
+            foreach ($storeWebsite as $sW) {
+                // if site is in magento the fetch orders
+                if ($sW->website_source == 'magento') {
+                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        \seo2websites\MagentoHelper\MagentoHelper::fetchOrder($sW);
+                    }
                 }
             }
-        }
+            LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was ended.']);
+        } catch(\Exception $e) {
+            LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

@@ -30,7 +30,6 @@ class PageScreenshotsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -41,7 +40,6 @@ class PageScreenshotsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\PageScreenshots  $pageScreenshots
      * @return \Illuminate\Http\Response
      */
     public function show(PageScreenshots $pageScreenshots)
@@ -52,7 +50,6 @@ class PageScreenshotsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\PageScreenshots  $pageScreenshots
      * @return \Illuminate\Http\Response
      */
     public function edit(PageScreenshots $pageScreenshots)
@@ -63,8 +60,6 @@ class PageScreenshotsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\PageScreenshots  $pageScreenshots
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, PageScreenshots $pageScreenshots)
@@ -75,7 +70,6 @@ class PageScreenshotsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\PageScreenshots  $pageScreenshots
      * @return \Illuminate\Http\Response
      */
     public function destroy(PageScreenshots $pageScreenshots)

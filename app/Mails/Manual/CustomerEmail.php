@@ -17,9 +17,10 @@ class CustomerEmail extends Mailable
      *
      * @return void
      */
-
     public $subject;
+
     public $message;
+
     public $fromEmail;
 
     public function __construct(string $subject, string $message, string $fromStoreEmail)
@@ -36,14 +37,15 @@ class CustomerEmail extends Mailable
      */
     public function build()
     {
-        if (!$this->fromEmail) {
+        if (! $this->fromEmail) {
             $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();
             if ($emailAddress) {
                 $this->fromEmail = $emailAddress->from_address;
             }
         }
+
         return $this->from($this->fromEmail)
-            ->bcc('customercare@sololuxury.co.in')
+            ->bcc($this->fromEmail)
             ->subject($this->subject)
             ->markdown('emails.customers.email');
     }

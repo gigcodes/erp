@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
 use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Modules\StoreWebsite\Http\Controllers\CategoryController;
 
 class CategoryPushStoreWebsite extends Command
 {
-
     /**
      * The name and signature of the console command.
      *
@@ -41,17 +40,16 @@ class CategoryPushStoreWebsite extends Command
     public function handle()
     {
         $storeWebsite = \App\StoreWebsite::where(function ($q) {
-            $q->where("api_token", "!=", "")->orWhere(function ($q) {
-                $q->where("magento_url", "!=", "")->where("magento_username", "!=", "")->where("magento_password", "");
+            $q->where('api_token', '!=', '')->orWhere(function ($q) {
+                $q->where('magento_url', '!=', '')->where('magento_username', '!=', '')->where('magento_password', '');
             });
         })->get();
 
         foreach ($storeWebsite as $sw) {
-
-            $category = \DB::table("categories")->leftJoin('store_website_categories as swc', function ($join) use ($sw) {
+            $category = \DB::table('categories')->leftJoin('store_website_categories as swc', function ($join) use ($sw) {
                 $join->on('categories.id', '=', 'swc.category_id');
                 $join->where('swc.store_website_id', '=', $sw->id);
-            })->whereNull("swc.remote_id")->select(["categories.*"])->pluck('id')->toArray();
+            })->whereNull('swc.remote_id')->select(['categories.*'])->pluck('id')->toArray();
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');

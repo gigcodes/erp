@@ -14,7 +14,7 @@ class AlterWebsiteStoreViews extends Migration
     public function up()
     {
         Schema::table('website_store_views', function (Blueprint $table) {
-            $table->integer("site_submit_webmaster")->default(0)->nullable();
+            $table->integer('site_submit_webmaster')->default(0)->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AlterWebsiteStoreViews extends Migration
     public function down()
     {
         Schema::table('website_store_views', function (Blueprint $table) {
-            $table->dropField("site_submit_webmaster");
+            $table->dropField('site_submit_webmaster');
         });
     }
 }

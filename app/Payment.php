@@ -1,17 +1,19 @@
 <?php
 
 namespace App;
+
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
-use Illuminate\Database\Eloquent\Model;
 use App\Events\PaymentCreated;
 use App\Events\PaymentUpdated;
+use Illuminate\Database\Eloquent\Model;
 
-
-class Payment extends Model{
- /**
+class Payment extends Model
+{
+    /**
      * @var string
+     *
      * @SWG\Property(property="user_id",type="integer")
      * @SWG\Property(property="payment_method_id",type="integer")
      * @SWG\Property(property="note",type="string")
@@ -29,18 +31,18 @@ class Payment extends Model{
         'paid',
         'payment_receipt_id',
         'date',
-        'currency'
+        'currency',
     ];
 
     protected $dispatchesEvents = [
-      'created' => PaymentCreated::class,
-      //'updated' => PaymentUpdated::class,
+        'created' => PaymentCreated::class,
+        //'updated' => PaymentUpdated::class,
     ];
 
-    public static function getConsidatedUserPayments(){
+    public static function getConsidatedUserPayments()
+    {
         return self::groupBy('user_id')
             ->selectRaw('user_id, SUM(amount) as paid')
             ->get();
     }
-        
 }

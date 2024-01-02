@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ChatMessagePhrase;
-use App\ChatMessageWord;
 use Carbon\Carbon;
+use App\ChatMessageWord;
+use App\ChatMessagePhrase;
 use Illuminate\Console\Command;
 
 class MostUsedWordsInChat extends Command
@@ -42,7 +42,7 @@ class MostUsedWordsInChat extends Command
     {
         try {
             $report = \App\CronJobReport::create([
-                'signature'  => $this->signature,
+                'signature' => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
             // start to get the most used words from chat messages
@@ -50,8 +50,8 @@ class MostUsedWordsInChat extends Command
             ChatMessagePhrase::truncate();
             ChatMessageWord::truncate();
 
-            if (!empty($mostUsedWords["words"])) {
-                ChatMessageWord::insert($mostUsedWords["words"]);
+            if (! empty($mostUsedWords['words'])) {
+                ChatMessageWord::insert($mostUsedWords['words']);
             }
 
             // Dump
@@ -62,8 +62,8 @@ class MostUsedWordsInChat extends Command
 
             $phrasesRecords = [];
             foreach ($allwords as $words) {
-                $phrases = isset($mostUsedWords["phrases"][$words->word]) ? $mostUsedWords["phrases"][$words->word]["phrases"] : [];
-                if (!empty($phrases)) {
+                $phrases = isset($mostUsedWords['phrases'][$words->word]) ? $mostUsedWords['phrases'][$words->word]['phrases'] : [];
+                if (! empty($phrases)) {
                     foreach ($phrases as $phrase) {
                         if (isset($phrase['txt'])) {
                             // Split message into phrases
@@ -72,12 +72,11 @@ class MostUsedWordsInChat extends Command
                             // Loop over split
                             foreach ($split as $sentence) {
                                 ChatMessagePhrase::insert([
-                                    "word_id" => $words->id,
-                                    "phrase"  => $sentence,
-                                    "chat_id" => $phrase["id"],
+                                    'word_id' => $words->id,
+                                    'phrase' => $sentence,
+                                    'chat_id' => $phrase['id'],
                                 ]);
                             }
-
                         }
                     }
                 }

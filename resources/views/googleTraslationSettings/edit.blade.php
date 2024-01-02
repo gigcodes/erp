@@ -3,7 +3,6 @@
 @section('title', 'Google Server List')
 
 @section('content')
-
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Update Google Translation Setting</h2>
@@ -12,6 +11,8 @@
             </div>
         </div>
     </div>
+    @include('partials.flash_messages')
+
     <div class="mt-3 col-md-12">
         <form class="add_translation_language" action="{{ route('google-traslation-settings.update', $data->id) }}" method="POST">
             @csrf
@@ -22,6 +23,16 @@
             <input type="hidden" name="id" class="form-control" value="{{ old('id', $data->id) }}">
             <div class="modal-body">
                  <!-- email , account_json , status, last_note , created_at -->
+                <div class="form-group">
+                    <strong>Project ID:</strong>
+                    <input type="text" name="project_id" class="form-control"
+                    value="{{ old('project_id', $data->project_id) }}">
+
+                    @if ($errors->has('email'))
+                    <div class="alert alert-danger">{{$errors->first('project_id')}}</div>
+                    @endif
+                </div>
+
                 <div class="form-group">
                     <strong>Email:</strong>
                     <input type="text" name="email" class="form-control"
@@ -34,9 +45,7 @@
 
                 <div class="form-group">
                     <strong>Account JSON:</strong>
-                    <textarea class="form-control" name="account_json" required>
-                        {{ old('account_json', $data->account_json) }}
-                    </textarea>
+                    <textarea class="form-control" name="account_json" required>{{ old('account_json', $data->account_json) }}</textarea>
                     @if ($errors->has('account_json'))
                     <div class="alert alert-danger">{{$errors->first('account_json')}}</div>
                     @endif
