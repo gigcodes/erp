@@ -15,6 +15,9 @@
   .modal-lg{
             max-width: 1500px !important; 
   }
+  .modal-xl {
+  width: 100%;
+}
         </style>
 @endsection
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
@@ -136,6 +139,7 @@
                     <th width="6%">Size System</th>
                     <th width="5%">Discount</th>
                     <th width="6%">Dimensions</th>
+                    <th width="5%">Update History</th>
                     <th width="5%">Functions</th>
                 </tr>
                 @foreach($products as $product)
@@ -181,6 +185,15 @@
                             {{isset($product->product) ? $product->product->lmeasurement.",".$product->product->hmeasurement.",".$product->product->dmeasurement : "-"}}
                         </td>
                         <td>
+                            @php
+                            $result_count = app('App\Loggers\LogScraper')->getProductFromSku(isset($product->product->sku) ? $product->product->sku : "");
+                            @endphp
+                
+                            <button style="padding: 1px" data-id="{{ isset($product->product->sku) ? $product->product->sku : "" }}" type="button" class="btn btn-image d-inline get-product-history" title="Products History">
+                                {{$result_count}} <i class="fa fa-eye"></i>
+                           </button>
+                        </td>
+                        <td>
                             <button style="padding: 1px" data-id="{{ $product->scraper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
                                 <i class="fa fa-tasks"></i>
                            </button>
@@ -209,6 +222,19 @@
             </div>
         </div>
   </div>
+  <div id="show-content-product-history-table" class="modal fade product-history-list" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+               
+            </div>
+        </div>
+    </div>
+   </div>
 @endsection
 
 

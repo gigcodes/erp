@@ -1,4 +1,27 @@
 <script type="text/javascript">
+
+    $(document).on("click",".get-product-history",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '{{ route("scrap.product-hisotry")}}',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-product-history-table");
+                model.find(".modal-title").html("Product History List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+    });
+
      $(document).on("click",".get-tasks-remote",function (e){
             e.preventDefault();
             var id = $(this).data("id");
