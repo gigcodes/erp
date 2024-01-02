@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\UploadGoogleDriveScreencast;
 use Illuminate\Support\Facades\Validator;
+use App\Models\DataTableColumn;
 
 class BugTrackingController extends Controller
 {
@@ -44,6 +45,14 @@ class BugTrackingController extends Controller
         $filterWebsites = StoreWebsite::orderBy('website')->get();
         $permission_users = User::select('id', 'name', 'email', 'gmail')->whereNotNull('gmail')->get();
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
+
+        $dynamicColumnsToShowbt = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowbt = json_decode($hideColumns, true);
+        }
+
         return view(
             'bug-tracking.index', [
                 'title' => $title,
@@ -56,6 +65,7 @@ class BugTrackingController extends Controller
                 'allUsers' => $users,
                 'filterWebsites' => $filterWebsites,
                 'permission_users' => $permission_users,
+                'dynamicColumnsToShowbt' => $dynamicColumnsToShowbt,
             ]
         );
     }
@@ -178,10 +188,19 @@ class BugTrackingController extends Controller
             }
         );
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
+
+        $dynamicColumnsToShowbt = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowbt = json_decode($hideColumns, true);
+        }
+
         return response()->json(
             [
                 'code' => 200,
                 'data' => $records,
+                'dynamicColumnsToShowbt' => $dynamicColumnsToShowbt,
                 'total' => $records_count,
             ]
         );
@@ -317,6 +336,14 @@ class BugTrackingController extends Controller
 
         // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'bug-tracking')->first();
+
+        $dynamicColumnsToShowbt = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowbt = json_decode($hideColumns, true);
+        }
+
         return view(
             'bug-tracking.index-ajax', [
                 'title' => $title,
@@ -329,9 +356,31 @@ class BugTrackingController extends Controller
                 'allUsers' => $users,
                 'filterWebsites' => $filterWebsites,
                 'data' => $records,
+                'dynamicColumnsToShowbt' => $dynamicColumnsToShowbt,
                 'total' => count($records),
             ]
         );
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','bug-tracking')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'bug-tracking';
+            $column->column_name = json_encode($request->column_bt); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'bug-tracking';
+            $column->column_name = json_encode($request->column_bt); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function create()

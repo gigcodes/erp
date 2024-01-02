@@ -10,4 +10,9 @@ class EmailStatus extends Model
     use HasFactory;
 
     protected $table = 'email_status';
+
+    protected $fillable = [
+        'email_status',
+        'color',
+    ];
 }

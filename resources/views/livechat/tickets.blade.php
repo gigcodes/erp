@@ -121,7 +121,7 @@
                 <div class="margin-tb" style="flex-grow: 1;">
                     <div class="pull-right ">
                         <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#AddStatusModal">Add Status</button>
-
+                        <button style="background: #fff;color: #757575;border: 1px solid #ccc;" type="button" class="btn btn-secondary mr-2" data-toggle="modal" data-target="#ltdatatablecolumnvisibilityList">Column Visiblity</button>
                     </div>
                 </div>
             </h2>
@@ -239,34 +239,95 @@
 {{--        </div>--}}
     </div>
 
-    <div class="space-right infinite-scroll chat-list-table">
+    <div class="space-right chat-list-table">
 
-        <div class="table-responsive">
-            <table class="table table-bordered" style="font-size: 14px;table-layout: fixed">
+        <div class="infinite-scroll" style="overflow-y: auto">
+            <table class="table table-bordered table-striped" style="font-size: 14px;">
                 <thead>
                 <tr>
-                    <th style="width: 5%;"></th>
-                    <th style="width: 5%;">Id</th>
-                    <th style="width: 6%;">Source</th>
-                    <th style="width: 8%;">Name</th>
-                    <th style="width: 8%;">Email</th>
-                    <th class="chat-msg" style="width: 5%;">Subject</th>
-                    <th class="chat-msg" style="width: 6%;">Message</th>
-                    <th style="width: 6%;">Asg name</th>
-                    <th class="chat-msg" style="width: 5%;">Brand</th>
-                    <th class="chat-msg" style="width: 5%;">Country</th>
-                    <th style="width: 5%;">Ord no</th>
-                    <th style="width: 8%;">Ph no</th>
-                    <th style="width: 16%;">Msg Box</th>
-                    <th style="width: 16%;">Images</th>
-                    <th class="chat-msg" style="width: 13%;">Resolution Date</th>
-                    <th style="width: 6%;">Status</th>
-                    <th class="chat-msg" style="width: 6%;">Created</th>
-                    <th class="chat-msg" style="width: 5%;">Action</th>
+                    @if(!empty($dynamicColumnsToShowLt))
+                        @if (!in_array('Checkbox', $dynamicColumnsToShowLt))
+                            <th></th>
+                        @endif
+                        @if (!in_array('Id', $dynamicColumnsToShowLt))
+                            <th>Id</th>
+                        @endif
+                        @if (!in_array('Source', $dynamicColumnsToShowLt))
+                            <th>Source</th>
+                        @endif
+                        @if (!in_array('Name', $dynamicColumnsToShowLt))
+                            <th>Name</th>
+                        @endif
+                        @if (!in_array('Email', $dynamicColumnsToShowLt))
+                            <th>Email</th>
+                        @endif
+                        @if (!in_array('Subject', $dynamicColumnsToShowLt))
+                            <th>Subject</th>
+                        @endif
+                        @if (!in_array('Message', $dynamicColumnsToShowLt))
+                            <th>Message</th>
+                        @endif
+                        @if (!in_array('Asg name', $dynamicColumnsToShowLt))
+                            <th>Asg name</th>
+                        @endif
+                        @if (!in_array('Brand', $dynamicColumnsToShowLt))
+                            <th>Brand</th>
+                        @endif
+                        @if (!in_array('Country', $dynamicColumnsToShowLt))
+                            <th>Country</th>
+                        @endif
+                        @if (!in_array('Ord no', $dynamicColumnsToShowLt))
+                            <th>Ord no</th>
+                        @endif
+                        @if (!in_array('Ph no', $dynamicColumnsToShowLt))
+                            <th>Ph no</th>
+                        @endif
+                        @if (!in_array('Msg Box', $dynamicColumnsToShowLt))
+                            <th>Msg Box</th>
+                        @endif
+                        @if (!in_array('Images', $dynamicColumnsToShowLt))
+                            <th>Images</th>
+                        @endif
+                        @if (!in_array('Resolution Date', $dynamicColumnsToShowLt))
+                            <th>Resolution Date</th>
+                        @endif
+                        @if (!in_array('Status', $dynamicColumnsToShowLt))
+                            <th>Status</th>
+                        @endif
+                        @if (!in_array('Created', $dynamicColumnsToShowLt))
+                            <th>Created</th>
+                        @endif
+                        @if (!in_array('Shortcuts', $dynamicColumnsToShowLt))
+                            <th>Shortcuts</th>
+                        @endif
+                        @if (!in_array('Action', $dynamicColumnsToShowLt))
+                            <th>Action</th>
+                        @endif
+                    @else
+                        <th></th>
+                        <th>Id</th>
+                        <th>Source</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Asg name</th>
+                        <th>Brand</th>
+                        <th>Country</th>
+                        <th>Ord no</th>
+                        <th>Ph no</th>
+                        <th>Msg Box</th>
+                        <th>Images</th>
+                        <th>Resolution Date</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Shortcuts</th>
+                        <th>Action</th>
+                    @endif
                 </tr>
                 </thead>
                 <tbody id="content_data" class="infinite-scroll-pending-inner">
-                @include('livechat.partials.ticket-list')
+                    @include('livechat.partials.ticket-list')
                 </tbody>
             </table>
         </div>
@@ -274,7 +335,7 @@
 
     </div>
 
-
+    @include("livechat.partials.column-visibility-modal")
     @include('livechat.partials.model-email')
     @include('livechat.partials.model-assigned')
     @include('livechat.partials.modal_ticket_send_option')
@@ -1165,6 +1226,9 @@ function opnMsg(email) {
         $(".action-ticketsbtn-tr-"+id).toggleClass('d-none')
     }
 
+    function Shortcutsbtn(id){
+        $(".action-shortcuts-tr-"+id).toggleClass('d-none')
+    }
 
     // Load tickets on initial page load
         $(document).ready(function() {
@@ -1196,5 +1260,262 @@ function opnMsg(email) {
     }
 
 </script>
-@endsection
 
+<script type="text/javascript" src="/js/common-helper.js"></script>
+<script type="text/javascript">
+var siteHelpers = {
+            
+    quickCategoryAdd : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var textBox = ele.closest("div").find(".quick_category");
+        if (textBox.val() == "") {
+            alert("Please Enter Category!!");
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                name : textBox.val(),
+                quickCategoryId : quickCategoryId
+            },
+            url: "/add-reply-category"
+        };
+
+        if(quickCategoryId!=''){
+            siteHelpers.sendAjax(params,"afterQuickSubCategoryAdd");
+        } else {
+            siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+        }
+    },
+    afterQuickSubCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickSubCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    afterQuickCategoryAdd : function(response) {
+        $(".quick_category").val('');
+        $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+    },
+    deleteQuickCategory : function(ele) {
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickSubCategory : function(ele) {
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (quickSubCategory.val() == "") {
+            alert("Please Select Sub Category!!");
+            return false;
+        }
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete sub category?")) {
+            return false;
+        }
+        var params = {
+            method : 'post',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content'),
+                id : quickSubCategoryId
+            },
+            url: "/destroy-reply-category"
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    deleteQuickComment : function(ele) {
+        var quickComment = ele.closest("#shortcutsIds").find(".quickCommentEmail");
+        if (quickComment.val() == "") {
+            alert("Please Select Quick Comment!!");
+            return false;
+        }
+        var quickCommentId = quickComment.children("option:selected").data('id');
+        if (!confirm("Are sure you want to delete comment?")) {
+            return false;
+        }
+        var params = {
+            method : 'DELETE',
+            data : {
+                _token : $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "/reply/" + quickCommentId,
+        };
+        siteHelpers.sendAjax(params,"pageReload");
+    },
+    pageReload : function(response) {
+        location.reload();
+    },
+    quickCommentAdd : function(ele) {
+        var textBox = ele.closest("div").find(".quick_comment");
+        var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+        var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+        if (textBox.val() == "") {
+            alert("Please Enter New Quick Comment!!");
+            return false;
+        }
+        if (quickCategory.val() == "") {
+            alert("Please Select Category!!");
+            return false;
+        }
+        var quickCategoryId = quickCategory.children("option:selected").data('id');
+        var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+        var formData = new FormData();
+        formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+        formData.append("reply", textBox.val());
+        formData.append("category_id", quickCategoryId);
+        formData.append("sub_category_id", quickSubCategoryId);
+        formData.append("model", 'Approval Lead');
+        var params = {
+            method : 'post',
+            data : formData,
+            url: "/reply"
+        };
+        siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+    },
+    afterQuickCommentAdd : function(reply) {
+        $(".quick_comment").val('');
+        $('.quickCommentEmail').append($('<option>', {
+            value: reply,
+            text: reply
+        }));
+    },
+    changeQuickCategory : function (ele) {
+
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('value');
+
+        ele.closest("#shortcutsIds").find('.quickSubCategory').empty();
+        ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+            value: '',
+            text: 'Select Sub Category'
+        }));
+        dataValue.forEach(function (category) {
+            ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+                value: category.name,
+                text: category.name,
+                'data-id': category.id
+            }));
+        });
+
+        if (ele.val() != "") {
+            var replies = JSON.parse(ele.val());
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+            ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                value: '',
+                text: 'Quick Reply'
+            }));
+            replies.forEach(function (reply) {
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: reply.reply,
+                    text: reply.reply,
+                    'data-id': reply.id
+                }));
+            });
+        }
+    },
+    changeQuickComment : function (ele) {
+        $('#messageid_'+ele.attr('data-id')).val(ele.val());
+
+        var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
+        var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
+
+        $("#reply-message").val(senderName)
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+            $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+        }).fail(function(errObj) {
+        })
+        
+    },
+    changeQuickSubCategory : function (ele) {
+        var selectedOption = ele.find('option:selected');
+        var dataValue = selectedOption.data('id');
+
+        var userEmaillUrl = '/livechat-replise/'+dataValue;
+
+        $.ajax({        
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+
+            if(response!=''){
+                var replies = JSON.parse(response);
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+                ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                    value: '',
+                    text: 'Quick Reply'
+                }));
+                replies.forEach(function (reply) {
+                    ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                        value: reply.reply,
+                        text: reply.reply,
+                        'data-id': reply.id
+                    }));
+                });
+            }
+            
+        }).fail(function(errObj) {
+        })
+    },
+};
+
+$.extend(siteHelpers, common);
+
+$(document).on('click', '.quick_category_add', function () {
+    siteHelpers.quickCategoryAdd($(this));
+});
+$(document).on('click', '.delete_category', function () {
+    siteHelpers.deleteQuickCategory($(this));
+});
+$(document).on('click', '.delete_sub_category', function () {
+    siteHelpers.deleteQuickSubCategory($(this));
+});
+$(document).on('click', '.delete_quick_comment', function () {
+    siteHelpers.deleteQuickComment($(this));
+});
+$(document).on('click', '.quick_comment_add', function () {
+    siteHelpers.quickCommentAdd($(this));
+});
+$(document).on('change', '.quickCategory', function () {
+    siteHelpers.changeQuickCategory($(this));
+});
+$(document).on('change', '.quickCommentEmail', function () {
+    siteHelpers.changeQuickComment($(this));
+});
+$(document).on('change', '.quickSubCategory', function () {
+    siteHelpers.changeQuickSubCategory($(this));
+});
+
+$(document).on('click', '.expand-row-msg', function () {
+    var name = $(this).data('name');
+    var id = $(this).data('id');
+    var full = '.expand-row-msg .show-short-'+name+'-'+id;
+    var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+    $(full).toggleClass('hidden');
+    $(mini).toggleClass('hidden');
+});
+</script>
+@endsection

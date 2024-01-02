@@ -62,12 +62,14 @@
     @if(in_array('color',$response['columns']))
     <td class="expand-row table-hover-cell Website-task">
         @if(is_array($log->properties))
-        <span class="td-mini-container Website-task">
-            {{ isset($log->properties['color'])?strlen($log->properties['color']) > 5 ? substr( $log->properties['color'] , 0, 5).'...' :  $log->properties['color']:'' }}
-        </span>
-        <span class="td-full-container hidden Website-task">
-            {{ isset($log->properties['color'])?$log->properties['color']:'' }}
-        </span>
+            @if(!is_array($log->properties['color']))
+                <span class="td-mini-container Website-task">
+                    {{ isset($log->properties['color'])?strlen($log->properties['color']) > 5 ? substr( $log->properties['color'] , 0, 5).'...' :  $log->properties['color']:'' }}
+                </span>
+                <span class="td-full-container hidden Website-task">
+                    {{ isset($log->properties['color'])?$log->properties['color']:'' }}
+                </span>
+            @endif            
         @else
         {{ unserialize($log->properties)['color'] }}
         @endif

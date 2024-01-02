@@ -1,3 +1,6 @@
+<style type="text/css">
+#vendorShortcutCreateModal .select2-container {width: 100% !important;}
+</style>
 <div id="vendorShortcutCreateModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <!-- Modal content-->
@@ -41,8 +44,7 @@
                     <?php
                     $frameworkVer = \App\Models\VendorFrameworks::all();
                     ?>
-                    <select name="framework" value="" class="form-control" id="framework_s">
-                      <option value="">Select framework</option>
+                    <select name="framework[]" value="" class="form-control select-multiple-s selectpicker" id="framework_s" multiple>
                       @foreach ($frameworkVer as $fVer)
                         <option value="{{$fVer->id}}">{{$fVer->name}}</option>
                       @endforeach
@@ -51,7 +53,7 @@
                 </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="text" name="name" class="form-control" placeholder="Name:" value="{{ old('name') }}" required>
+                  <input type="text" name="name" class="form-control" placeholder="Name:" value="{{ old('name') }}" required id="popup_name">
                   @if ($errors->has('name'))
                   <div class="alert alert-danger">{{$errors->first('name')}}</div>
                   @endif
@@ -67,14 +69,14 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="email" name="email" class="form-control" placeholder="Email:" value="{{ old('email') }}"> @if ($errors->has('email'))
+                  <input type="email" name="email" class="form-control" placeholder="Email:" value="{{ old('email') }}" id="popup_email"> @if ($errors->has('email'))
                   <div class="alert alert-danger">{{$errors->first('email')}}</div>
                   @endif
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="email" name="gmail" class="form-control" placeholder="Gmail:" value="{{ old('gmail') }}"> @if ($errors->has('gmail'))
+                  <input type="email" name="gmail" class="form-control" placeholder="Gmail:" id="popup_gmail" value="{{ old('gmail') }}"> @if ($errors->has('gmail'))
                   <div class="alert alert-danger">{{$errors->first('gmail')}}</div>
                   @endif
                 </div>
@@ -94,6 +96,15 @@
                   <div class="alert alert-danger">{{$errors->first('url')}}</div>
                   @endif
                 </div>
+              </div>
+              <div class="col-md-6">
+              <div class="form-group d-flex">
+                <span>Create User:</span>
+                <input type="checkbox" name="create_user" class="" style=" height: 14px;">
+                @if ($errors->has('create_user'))
+                <div class="alert alert-danger">{{$errors->first('create_user')}}</div>
+                @endif
+              </div>
               </div>
               <div class="col-md-12">
                 <div class="modal-footer">

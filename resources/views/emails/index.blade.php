@@ -158,7 +158,7 @@
               ?>
           </select>
         </div>
-        <div class="form-group px-2 mt-4">
+        <div class="form-group px-2">
           <select class="form-control model_type_select" name="email_model_type" id="email_model_type" multiple>
             @foreach($emailModelTypes as $m => $module)
             <option value="{{$m}}">{{$module}}</option>
@@ -167,7 +167,7 @@
         </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
         <input type='hidden' class="form-control" id="seen" name="seen" value="" />
-        <button type="submit" class="btn btn-image ml-3 mt-4 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
+        <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
     </div>
   </div>
@@ -1888,5 +1888,13 @@
     $('.reply-message-textarea').text(reply);
   }
 
+  function createVendorPopup(email) {
+      var username = email.split('@')[0];
+
+      $('#vendorShortcutCreateModal #popup_email').val(email);
+      $('#vendorShortcutCreateModal #popup_gmail').val(email);
+      $('#vendorShortcutCreateModal #popup_name').val(username);
+      $('#create-vendor-id').trigger('click');
+  }
 </script>
 @endsection
