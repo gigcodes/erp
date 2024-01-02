@@ -1098,6 +1098,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
+    Route::get('/product-hisotry', [ProductController::class, 'productDescriptionHistory'])->name('scrap.product-hisotry');
     Route::post('products/description/update', [ProductController::class, 'productDescriptionUpdate'])->name('products.description.update');
     Route::get('products/multi-description', [ProductController::class, 'productMultiDescription'])->name('products.multidescription');
     Route::post('products/multi-description-sky-check', [ProductController::class, 'productMultiDescriptionCheck'])->name('products.multidescription.skucheck');

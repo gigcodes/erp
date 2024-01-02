@@ -74,6 +74,7 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
+use App\Loggers\LogScraper;
 
 class ProductController extends Controller
 {
@@ -4275,6 +4276,22 @@ class ProductController extends Controller
         }
         return response()->json(['message' => 'Sort orders updated successfully']);
     }
+
+    public function productDescriptionHistory(Request $request)
+    {
+        $id = $request->id;
+
+        $query = LogScraper::where('sku', $id)
+        ->leftJoin('brands as b', 'b.id', 'log_scraper.brand')
+        ->leftJoin('categories as c', 'c.id', 'log_scraper.category')
+        ->select([
+            'log_scraper.*',
+            'b.name as brand_name',
+            'c.title as category_name']);
+        $products = $query->orderBy('updated_at', 'DESC')->get();
+        return view('products.partials.history', compact('products'));
+    }
+
 
     public function productDescription(Request $request)
     {
