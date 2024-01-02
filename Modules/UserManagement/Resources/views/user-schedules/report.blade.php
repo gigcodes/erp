@@ -29,10 +29,16 @@
             <div class="row">
                 <div class="col-md-3">
                     <select class="form-control" name="user_id">
-                        <option value="">Select user</option>
-                        @foreach (\App\User::get() as $user)
-                            <option value="{{ $user->id }}" <?php if($user->id == Request::get('user_id')) echo "selected"; ?>>{{ $user->name }}</option>
-                        @endforeach
+                        @if (!Auth::user()->isAdmin()) 
+                            @foreach (\App\User::where('id', Auth::user()->id)->get() as $user)
+                                <option value="{{ $user->id }}" <?php if($user->id == Request::get('user_id')) echo "selected"; ?>>{{ $user->name }}</option>
+                            @endforeach
+                        @else
+                            <option value="">Select user</option>
+                            @foreach (\App\User::get() as $user)
+                                <option value="{{ $user->id }}" <?php if($user->id == Request::get('user_id')) echo "selected"; ?>>{{ $user->name }}</option>
+                            @endforeach
+                        @endif
                     </select>
                 </div>
                 <div class="col-md-2">

@@ -167,6 +167,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 @include("development.partials.chat-list-history-modal")
 @include("development.partials.upload-document-modal")
 @include("partials.plain-modal")
+@include("development.partials.timer-history")
 
 @include("development.partials.status-update-check-list")
 @include("development.partials.meeting-time-modal")
@@ -2184,6 +2185,31 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         function pad(number) {
             return (number < 10 ? '0' : '') + number;
         }
+
+        $(document).on('click', '.show-timer-history', function() {
+            var issueId = $(this).data('id');
+            $('#timer_tracked_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development.timer.history') }}",
+                data: {
+                    id: issueId,
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            $('#timer_tracked_modal table tbody').append(
+                                '<tr>\
+                                    <td>' + moment(item['start_date']).format('DD-MM-YYYY HH:mm:ss') + '</td>\
+                                    <td>' + ((item['end_date'] != null) ? moment(item['end_date']).format('DD-MM-YYYY HH:mm:ss') : 'Not Stop') + '</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#timer_tracked_modal').modal('show');
+        });
         </script>
 @endsection
 @push('scripts')

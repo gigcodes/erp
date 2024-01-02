@@ -149,6 +149,13 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    @if($issue->task_start==1)
+                        <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->m_start_date}}">
+                        <div id="time-counter_{{$issue->id}}"></div>
+                    @endif
+
+                    <!-- <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button> -->
                 @endif
             </td>
             @endif
@@ -342,6 +349,13 @@ $task_color = \App\TaskStatus::where('name', $issue->status)->value('task_color'
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    @if($issue->task_start==1)
+                        <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->m_start_date}}">
+                        <div id="time-counter_{{$issue->id}}"></div>
+                    @endif
+
+                    <!-- <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button> -->
                 @endif
             </td>
             <td class="p-2">

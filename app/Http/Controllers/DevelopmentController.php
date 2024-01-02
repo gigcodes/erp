@@ -6201,7 +6201,7 @@ class DevelopmentController extends Controller
         if($request->task_type==1){
             $input['m_start_date'] = Carbon::now();
             $input['task_start'] = 1;
-            $input['status'] = 'Planned';
+            $input['status'] = 'In Progress';
 
             $history = new DeveloperTaskStartEndHistory();
             $history->user_id = auth()->user()->id;
@@ -6224,5 +6224,14 @@ class DevelopmentController extends Controller
         $task->update($input);
 
         return response()->json(['msg' => 'success']);
+    }
+
+    public function getTimeHistoryStartEnd(Request $request)
+    {
+        $id = $request->id;
+
+        $task_histories = DeveloperTaskStartEndHistory::where('task_id', $id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(['histories' => $task_histories]);
     }
 }

@@ -1054,6 +1054,8 @@
                                                             </button>
                                                             <div id="time-counter_{{$task->id}}"></div>
                                                         @endif
+
+                                                        <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                                     @endif
 
                                                 </td>
@@ -1423,6 +1425,8 @@
                                                             </button>
                                                             <div id="time-counter_{{$task->id}}"></div>
                                                         @endif
+
+                                                        <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                                     @endif                                                    
                                                 </td>
                                                 @php
@@ -1778,6 +1782,8 @@
                                                         </button>
                                                         <div id="time-counter_{{$task->id}}"></div>
                                                     @endif
+
+                                                    <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                                 @endif                                                
                                             </td>
                                             @php
@@ -2271,6 +2277,7 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;"></div>
 
     @include("task-module.partials.tracked-time-history")
+    @include("task-module.partials.timer-history")
     @include("development.partials.user_history_modal")
     @include("task-module.partials.column-visibility-modal")
 
@@ -4067,6 +4074,31 @@
                 }
             });
             $('#time_tracked_modal').modal('show');
+        });
+
+        $(document).on('click', '.show-timer-history', function() {
+            var issueId = $(this).data('id');
+            $('#timer_tracked_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.timer.history') }}",
+                data: {
+                    id: issueId,
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            $('#timer_tracked_modal table tbody').append(
+                                '<tr>\
+                                    <td>' + moment(item['start_date']).format('DD-MM-YYYY HH:mm:ss') + '</td>\
+                                    <td>' + ((item['end_date'] != null) ? moment(item['end_date']).format('DD-MM-YYYY HH:mm:ss') : 'Not Stop') + '</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#timer_tracked_modal').modal('show');
         });
         $(document).on('click', '.create-hubstaff-task', function() {            
             var issueId = $(this).data('id');

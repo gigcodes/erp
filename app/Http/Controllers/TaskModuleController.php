@@ -5933,7 +5933,7 @@ class TaskModuleController extends Controller
 
         } else if($request->task_type==2){
             $input['m_end_date'] = Carbon::now();
-            $input['task_start'] = 2;
+            $input['task_start'] = 3;
 
             $history = TaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
 
@@ -5946,5 +5946,14 @@ class TaskModuleController extends Controller
         $task->update($input);
 
         return response()->json(['msg' => 'success']);
+    }
+
+    public function getTimeHistoryStartEnd(Request $request)
+    {
+        $id = $request->id;
+
+        $task_histories = TaskStartEndHistory::where('task_id', $id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(['histories' => $task_histories]);
     }
 }

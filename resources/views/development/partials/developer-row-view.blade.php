@@ -360,6 +360,8 @@
                         </button>
                         <div id="time-counter_{{$issue->id}}"></div>
                     @endif
+
+                    <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
                 @endif
             </td>
             @endif
@@ -783,6 +785,8 @@
                         </button>
                         <div id="time-counter_{{$issue->id}}"></div>
                     @endif
+
+                    <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
                 @endif
             </td>
             <td class="p-2">
@@ -1191,6 +1195,8 @@
                     </button>
                     <div id="time-counter_{{$issue->id}}"></div>
                 @endif
+
+                <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
             @endif
         </td>
         <td class="p-2">
