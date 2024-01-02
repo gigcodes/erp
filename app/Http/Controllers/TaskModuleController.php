@@ -5923,6 +5923,7 @@ class TaskModuleController extends Controller
         if($request->task_type==1){
             $input['m_start_date'] = Carbon::now();
             $input['task_start'] = 1;
+            $input['status'] = 5;
 
             $history = new TaskStartEndHistory();
             $history->user_id = auth()->user()->id;
