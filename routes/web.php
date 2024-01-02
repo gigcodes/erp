@@ -3265,6 +3265,8 @@ Route::get('message/delete', [WhatsAppController::class, 'delete']);
 
 Route::post('list/autoCompleteMessages', [WhatsAppController::class, 'autoCompleteMessages']);
 Route::get('google/bigData/bigQuery', [GoogleBigQueryDataController::class, 'index'])->name('google.bigdata');
+Route::post('/google/bigData/bigQuery/column-visibility-update', [GoogleBigQueryDataController::class, 'columnVisibilityUpdate'])->name('google.bigdata.column.update');
+    // columnVisbilityUpdate
 Route::get('google/bigData/search', [GoogleBigQueryDataController::class, 'search'])->name('google.bigdata.search');
 Route::delete('google/bigData/delete', [GoogleBigQueryDataController::class, 'destroy'])->name('google.bigdata.delete');
 //});
