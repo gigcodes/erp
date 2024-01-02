@@ -1902,9 +1902,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('task/update/priority-no', [TaskModuleController::class, 'updatePriorityNo'])->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', [TaskModuleController::class, 'approveTimeHistory'])->name('task.time.history.approve');
+    Route::post('task/time/history/start', [TaskModuleController::class, 'startTimeHistory'])->name('task.time.history.start');
 
     Route::get('task/time/tracked/history', [TaskModuleController::class, 'getTrackedHistory'])->name('task.time.tracked.history');
     Route::post('task/create/hubstaff_task', [TaskModuleController::class, 'createHubstaffManualTask'])->name('task.create.hubstaff_task');
+    Route::get('task/timer/history', [TaskModuleController::class, 'getTimeHistoryStartEnd'])->name('task.timer.history');
 
     Route::get('task/update/milestone', [TaskModuleController::class, 'saveMilestone'])->name('task.update.milestone');
     Route::get('task/get/details', [TaskModuleController::class, 'getDetails'])->name('task.json.details');
@@ -2468,8 +2470,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/issue/set-priority', [DevelopmentController::class, 'setPriority'])->name('development.issue.set.priority');
     //Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/time/history/approve', [DevelopmentController::class, 'approveTimeHistory'])->name('development/time/history/approve');
+    Route::post('development/time/history/start', [DevelopmentController::class, 'startTimeHistory'])->name('development/time/history/start');
     Route::post('development/time/history/approve/sendMessage', [DevelopmentController::class, 'sendReviseMessage'])->name('development/time/history/approve/sendMessage');
     Route::post('development/time/history/approve/sendRemindMessage', [DevelopmentController::class, 'sendRemindMessage'])->name('development/time/history/approve/sendRemindMessage');
+
+    Route::get('development/timer/history', [DevelopmentController::class, 'getTimeHistoryStartEnd'])->name('development.timer.history');
 
     Route::post('development/time/meeting/approve/{task_id}', [DevelopmentController::class, 'approveMeetingHistory'])->name('development/time/meeting/approve');
     Route::post('development/time/meeting/store', [DevelopmentController::class, 'storeMeetingTime'])->name('development/time/meeting/store');
