@@ -1140,6 +1140,83 @@
         </div>
     </div>
 </div>
+<div id="showAssetsManagementTerminalUsersModel" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Asset Manament Terminal Users Access</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="mt-3 col-md-12">
+                <div class="infinite-scroll">
+                    <style type="text/css">
+                        #showAssetsManagementUsersModel .select2-container{width: 100% !important;}
+                        .ui-widget.ui-widget-content {z-index: 9999;}
+                    </style>
+
+                    <div id="myDiv">
+                        <img id="loading-image-modal" src="/images/pre-loader.gif" style="display:none;"/>
+                   </div>
+
+                    <form action="" method="POST" id="createTerminalUserAccess">
+
+                        <div class="row">
+                            <input type="hidden" name="tua_assets_management_id" id="tua_assets_management_id">
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>User Name:</strong>                    
+                                    <input class="form-control tua_username" type="text" id="tua_username" name="tua_username" placeholder="Enter User Name" style="width: 100%;" value="{{request()->get('tua_username')}}">
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <div class="form-group">
+                                    <strong>Password:</strong>  <a href="javascript:void(0);" class="generatepasswordaddterminal" style="float: right;">Generate Password</a>                  
+                                    <input class="form-control tua_password" type="text" id="tua_password" name="tua_password" placeholder="Enter Password" style="width: 100%;" value="{{request()->get('tua_password')}}">
+                                    <span class="text-danger text-danger-access"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3"> 
+                                <button type="button" id="create-terminal-user-acccess-btn" class="btn btn-secondary" style=" margin-top: 18px;">Create</button>
+                            </div>
+
+                            <div class="col-md-12"> 
+                                <span class="text-danger text-danger-all"></span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th width="5%">ID</th>
+                                <th width="20%">User Name</th>
+                                <th width="20%">Password</th>
+                                <th width="35%">Remarks</th>
+                                <th width="15%">Created Date</th>
+                                <th width="5%">Action</th>
+                            </tr>
+                        </thead>
+              
+                        <tbody id="showAssetsManagementTerminalUsersView">
+                          
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     function showKeyType(login_type) {
         if(login_type=='key'){

@@ -10,6 +10,17 @@
     if ($status_color == null) {
         $status_color = new stdClass();
     }
+
+    $vendor_frameworks = [];
+    $vendor_frameworksv = '';
+    if(!empty($vendor->framework)){
+
+        $vendor_frameworks = \App\Models\VendorFrameworks::whereIn('id', explode(",",$vendor->framework))->pluck('name', 'id');
+
+        $vendor_frameworksv = collect($vendor_frameworks)->implode(', ');
+
+    }
+
 @endphp
 @if(!empty($dynamicColumnsToShowVendors))
     <tr style="background-color: {{$status_color->color ?? ""}}!important;">
@@ -184,7 +195,7 @@
         @endif
 
         @if (!in_array('Framework', $dynamicColumnsToShowVendors))
-            <td>{{ $vendor->framework_name }}</td>
+            <td>{{ $vendor_frameworksv }}</td>
         @endif
 
         @if (!in_array('Created Date', $dynamicColumnsToShowVendors))
@@ -245,6 +256,9 @@
                     @endif
                     {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
                     <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
+                    <a href="javascript:void(0)" class="btn btn-sm update-flowchart-date" data-id="{{$vendor->id}}" title="Vendor Flow Chart" @if($vendor->fc_status==1) style="color: #0062cc;" @endif>
+                        <i class="fa fa-line-chart" aria-hidden="true"></i>
+                    </a>
                 </div>
             </td>
         </tr>
@@ -394,7 +408,7 @@
 
         <td>{{ $vendor->type }}</td>
 
-        <td>{{ $vendor->framework_name }}</td>
+        <td>{{ $vendor_frameworksv }}</td>
 
         <td>{{ $vendor->created_at }}</td>
 
@@ -449,6 +463,9 @@
                 @endif
                 {{-- <button type="button" style="cursor:pointer" class="btn btn-image create-cv" title="Create CV" data-id="{{$vendor->id}}"><i class="fa fa-file" aria-hidden="true"></i></button> --}}
                 <a href="{{route('vendors.create.cv', $vendor->id)}}" class="btn btn-sm" title="Vendor Create" target="_blank"><i class="fa fa-file"></i> </a>
+                <a href="javascript:void(0)" class="btn btn-sm update-flowchart-date" data-id="{{$vendor->id}}" title="Vendor Flow Chart" @if($vendor->fc_status==1) style="color: #0062cc;" @endif>
+                    <i class="fa fa-line-chart" aria-hidden="true"></i>
+                </a>
             </div>
         </td>
     </tr>
@@ -534,6 +551,36 @@
             }
         });
         $('#remark_history_modal').modal('show');
+    });
+
+    $(document).on('click', '.update-flowchart-date', function() {
+        var vendor_id = $(this).data('id');
+
+        var msg = "Are you sure you want to update flow chart status?";
+
+        if (confirm(msg)) {
+
+            $("#loading-image").show();
+            $.ajax({
+                url: "{{ route('vendors.flowchart')}}",
+                method: "POST",
+                data: {                    
+                    id: vendor_id,
+                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function () {
+                    $("#loading-image").hide();
+                    toastr["success"]("Vendor flow-chart status has been updated!", "Message")
+                    window.location.reload();
+                },
+                error: function (error) {
+                    $("#loading-image").hide();
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        } else {
+            return false;
+        }
     });
 </script>
    

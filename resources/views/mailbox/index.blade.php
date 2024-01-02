@@ -162,7 +162,7 @@
           </td>
         </tr>
         @endforeach -->
-      @include('emails.search')
+      @include('emails.search_email')
     </tbody>
   </table>
   <div class="pagination-custom">

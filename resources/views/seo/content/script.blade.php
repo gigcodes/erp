@@ -20,64 +20,115 @@
                         , status: () => $(document).find('.statusFilter').val()
                     , }
                 }
-            , }
-            , columns: [{
-                    data: 'DT_RowIndex'
-                    , 'orderable': false
-                    , 'searchable': false
-                }
-                , {
-                    data: 'website_id'
-                    , name: 'website_id'
-                }
-                , {
-                    data: 'keywords'
-                    , name: 'keywords'
-                }
-                , {
-                    data: 'user_id'
-                    , name: 'user_id'
-                }
-                , {
-                    data: 'price'
-                    , name: 'price'
-                }
-                , {
-                    data: 'documentLink'
-                    , name: 'documentLink'
-                }
-                , {
-                    data: 'word_count'
-                    , name: 'word_count'
-                }
-                , {
-                    data: 'suggestion'
-                    , name: 'suggestion'
-                }
-                , {
-                    data: 'status'
-                    , name: 'status'
-                }
-                , {
-                    data: 'seoChecklist'
-                    , name: 'seoChecklist'
-                }
-                , {
-                    data: 'publishChecklist'
-                    , name: 'publishChecklist'
-                }
-                , {
-                    data: 'liveStatusLink'
-                    , name: 'liveStatusLink'
-                }
-                , {
-                    data: 'published_at'
-                    , name: 'published_at'
-                }
-                , {
-                    data: 'actions'
-                    , name: 'actions'
-                }
+            , },
+            fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                if (aData[14] != '') {
+                    $('td', nRow).css('background-color', aData.status_color);
+                } 
+            }
+            , columns: [
+                @if(!empty($dynamicColumnsToShowSeo))
+                    @if (!in_array('#', $dynamicColumnsToShowSeo))
+                        {data: 'DT_RowIndex', 'orderable': false, 'searchable': false},
+                    @else
+                        {data: 'DT_RowIndex', 'orderable': false, 'searchable': false, 'visible': false},
+                    @endif
+
+                    @if (!in_array('Website', $dynamicColumnsToShowSeo))
+                        {data: 'website_id', name: 'website_id'},
+                    @else
+                        {data: 'website_id', name: 'website_id', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Keywords', $dynamicColumnsToShowSeo))
+                        {data: 'keywords', name: 'keywords'},
+                    @else
+                        {data: 'keywords', name: 'keywords', 'visible': false},
+                    @endif
+
+                    @if (!in_array('User', $dynamicColumnsToShowSeo))
+                        {data: 'user_id', name: 'user_id'},
+                    @else
+                        {data: 'user_id', name: 'user_id', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Price', $dynamicColumnsToShowSeo))
+                        {data: 'price', name: 'price'},
+                    @else
+                        {data: 'price', name: 'price', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Document Link', $dynamicColumnsToShowSeo))
+                        {data: 'documentLink', name: 'documentLink'},
+                    @else
+                        {data: 'documentLink', name: 'documentLink', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Word count', $dynamicColumnsToShowSeo))
+                        {data: 'word_count', name: 'word_count'},
+                    @else
+                        {data: 'word_count', name: 'word_count', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Suggestion', $dynamicColumnsToShowSeo))
+                        {data: 'suggestion', name: 'suggestion'},
+                    @else
+                        {data: 'suggestion', name: 'suggestion', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Status', $dynamicColumnsToShowSeo))
+                        {data: 'status', name: 'status'},
+                    @else
+                        {data: 'status', name: 'status', 'visible': false},
+                    @endif
+
+                    @if (!in_array('SEO Checklist', $dynamicColumnsToShowSeo))
+                        {data: 'seoChecklist', name: 'seoChecklist'},
+                    @else
+                        {data: 'seoChecklist', name: 'seoChecklist', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Publish Checklist', $dynamicColumnsToShowSeo))
+                        {data: 'publishChecklist', name: 'publishChecklist'},
+                    @else
+                        {data: 'publishChecklist', name: 'publishChecklist', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Live Status Link', $dynamicColumnsToShowSeo))
+                        {data: 'liveStatusLink', name: 'liveStatusLink'},
+                    @else
+                        {data: 'liveStatusLink', name: 'liveStatusLink', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Publish Date', $dynamicColumnsToShowSeo))
+                        {data: 'liveStatusLink', name: 'liveStatusLink'},
+                    @else
+                        {data: 'liveStatusLink', name: 'liveStatusLink', 'visible': false},
+                    @endif
+
+                    @if (!in_array('Actions', $dynamicColumnsToShowSeo))
+                        {data: 'actions', name: 'actions'}
+                    @else
+                        {data: 'actions', name: 'actions', 'visible': false},
+                    @endif
+                    {data:'status_color', name:'status_color', 'visible': false}
+                @else             
+                    {data: 'DT_RowIndex', 'orderable': false, 'searchable': false},       
+                    {data: 'website_id', name: 'website_id'},
+                    {data: 'keywords', name: 'keywords'},
+                    {data: 'user_id', name: 'user_id'},
+                    {data: 'price', name: 'price'}, 
+                    {data: 'documentLink', name: 'documentLink'},
+                    {data: 'word_count', name: 'word_count'},
+                    {data: 'suggestion', name: 'suggestion'},
+                    {data: 'status', name: 'status'},
+                    {data: 'seoChecklist', name: 'seoChecklist'},
+                    {data: 'publishChecklist', name: 'publishChecklist'},
+                    {data: 'liveStatusLink', name: 'liveStatusLink'},
+                    {data: 'published_at', name: 'published_at'},
+                    {data: 'actions', name: 'actions'},
+                    {data:'status_color', name:'status_color', 'visible': false}
+                @endif
             , ]
         });
 

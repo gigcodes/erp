@@ -426,6 +426,10 @@
                             <button type="button" class="btn show-users-access-modal" id="show-users-access-modal-{{$asset->id}}" data-id="{{$asset->id}}" data-value="{{$asset->ip}}" data-toggle="modal" data-target="#userAccessModal" title="Create User Access" style="padding: 0px 1px;">
                             <i class="fa fas fa-universal-access"></i>
                             </button>
+
+                            <button type="button" class="btn show-terminal-user-modal" id="show-terminal-user-modal-{{$asset->id}}" data-id="{{$asset->id}}" title="Create Terminal User Access" style="padding: 0px 1px;">
+                            <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            </button>
                             </td>
                         </tr>
                     @endif
@@ -546,6 +550,36 @@
     @include('assets-manager.partials.payment-history')
     @include('assets-manager.partials.assets-modals')
     @include("assets-manager.partials.column-visibility-modal")
+
+    <div id="amtua-remarks-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remarks Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Remarks</th>
+                                    <th width="20%">Updated By</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="amtua-remarks-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="execute_bash_command_select_folderModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -710,7 +744,6 @@
         </div>
       </div>
     </div>
-
 @endsection
 
 @section('scripts')
@@ -1229,6 +1262,175 @@
             });
         });
 
+        $('.show-terminal-user-modal').click(function(){
+
+            var assets_management_id = $(this).data('id');
+
+            $.ajax({
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('assetsmanager.assetManamentTerminalUsersAccess') }}",
+                data: {
+                    assets_management_id : assets_management_id
+                },
+            }).done(response => {
+                
+                if(response.success==true){
+                    $('#showAssetsManagementTerminalUsersModel').find('#showAssetsManagementTerminalUsersView').html(response.html);
+                    $('#showAssetsManagementTerminalUsersModel #tua_assets_management_id').val(assets_management_id);
+                    $('#showAssetsManagementTerminalUsersModel').modal('show');                    
+                }
+
+            }).fail(function(response) {
+
+                alert('Could not fetch Log');
+            });
+        });
+
+    });
+
+    function deleteTerminalUserAccess(id) {
+        if(confirm ("Do you want to delete this access???")){
+            $.ajax({
+                type: 'POST',
+                url: 'assets-manager/terminal-user-access-delete',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id : id
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+                
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['error'](response.message, 'error');
+                console.log("Sorry, something went wrong");
+            });
+        }
+    }
+
+    function saveRemarks(asset_manager_terminal_user_accesses_id){
+
+        var remarks = $("#remark_"+asset_manager_terminal_user_accesses_id).val();
+
+        if(remarks==''){
+            alert('Please enter remarks.');
+            return false;
+        }
+
+        $.ajax({
+            url: "{{route('assetsmanager.saveremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'amtua_id' :asset_manager_terminal_user_accesses_id,
+                'remarks' :remarks,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+
+                    $("#remark_"+asset_manager_terminal_user_accesses_id).val('');
+                }                
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    }
+
+    function updateUsernamePassword(asset_manager_terminal_user_accesses_id, type){
+
+        var username = $("#user_access_username_"+asset_manager_terminal_user_accesses_id).val();
+        var password = $("#user_access_password_"+asset_manager_terminal_user_accesses_id).val();
+
+        if(remarks==''){
+            alert('Please enter remarks.');
+            return false;
+        }
+
+        $.ajax({
+            url: "{{route('assetsmanager.updateup')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'amtua_id' :asset_manager_terminal_user_accesses_id,
+                'type' :type,
+                'username' :username,
+                'password' :password,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+
+                    $("#remark_"+asset_manager_terminal_user_accesses_id).val('');
+                } else if (response.code == 500) {
+                    toastr['error'](response.message, 'username already exists.');
+                }                
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    }
+
+    $(document).on('click', '.remarks-history-show', function() {
+        var amtua_id = $(this).attr('data-id');
+        
+        $.ajax({
+            url: "{{route('assetsmanager.getremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'amtua_id' :amtua_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.remarks != null) ? v.remarks : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#amtua-remarks-histories-list").find(".amtua-remarks-histories-list-view").html(html);
+                    $("#amtua-remarks-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
     });
 
     function generateRandomPassword(length) {
@@ -1293,6 +1495,59 @@
                 setTimeout(function() {
                     location.reload();
                 }, 1000);
+
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['error'](response.message, 'error');
+                console.log("Sorry, something went wrong");
+            });
+        } else{
+            $('.text-danger-all').next().text("Something went wrong. Please try again.");
+            return false
+        }
+    });
+
+    $(document).on("click", "#create-terminal-user-acccess-btn", function(href) {
+
+        $('.text-danger-access').html('');
+       
+        if($('.tua_username').val() == '') {
+            $('.tua_username').next().text("Please enter user name");
+            return false;
+        }
+
+        if($('.tua_password').val() == '') {
+            $('.tua_password').next().text("Please enter password");
+            return false;
+        }
+
+        if($('.tua_username').val() != '' && $('.tua_password').val() != '' && $('#tua_assets_management_id').val() != '') {
+        
+            $.ajax({
+                type: 'POST',
+                url: 'assets-manager/terminal-user-access-create',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    username : $('.tua_username').val(),
+                    password : $('.tua_password').val(),
+                    assets_management_id : $('#tua_assets_management_id').val(),
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                if (response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                    $('#createTerminalUserAccess')[0].reset();
+
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                } else if (response.code == 500) {
+                    toastr['error'](response.message, 'username already exists.');
+                }
 
             }).fail(function (response) {
                 $("#loading-image-modal").hide();
@@ -1405,6 +1660,11 @@
     $( ".generatepasswordedit" ).bind( "click", function() {
         var newPassword = generatePassword(8);
         $(".password-assets-manager").val(newPassword);
+    });
+
+    $( ".generatepasswordaddterminal" ).bind( "click", function() {
+        var newPassword = generatePassword(8);
+        $(".tua_password").val(newPassword);
     });
   </script>
 @endsection
