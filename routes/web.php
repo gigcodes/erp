@@ -5735,6 +5735,8 @@ Route::get('status-list', [TaskController::class, 'statusList'])->name('statusLi
 Route::prefix('appconnect')->middleware('auth')->group(function () {
     Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
     Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::post('/column-visibility-update-app-sales', [AppConnectController::class, 'columnVisibilityUpdateAppSales'])->name('appconnect.app-sales.column.update');
+    // columnVisbilityUpdate
     Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
     Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
     Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');
