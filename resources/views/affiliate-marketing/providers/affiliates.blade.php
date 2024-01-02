@@ -109,10 +109,10 @@
                     <td>{{ $providersAffiliate->firstname .' '. $providersAffiliate->lastname }}</td>
                     <td>{{ $providersAffiliate->email ?: 'N/A' }}</td>
                     <td>{{ $providersAffiliate->company_name ?: 'N/A' }}</td>
-                    <td>{{ $providersAffiliate->group->title ?: 'N/A' }}</td>
+                    <td>{{ $providersAffiliate->group ? $providersAffiliate->group->title: 'N/A' }}</td>
                     <td>
                         {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.affiliate.delete', [$providersAffiliate->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                        <button type="submit" onclick="return affiliateDeleteConfirm()" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
                         <button type="button" data-toggle="modal" data-target="#update-payout"
                                 onclick="editPayout('{!! $providersAffiliate->id !!}')"
@@ -264,6 +264,60 @@
                     }
                 }
             })
+        }
+
+        function validateCreateAffiliate() {
+            var err = false;
+            var focus = false;
+            var firstName = $('#firstName').val();
+            var lastName = $('#lastName').val();
+            var email = $('#affiliateEmail').val();
+            var group = $('#affiliateGroup').val();
+            var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+            if(firstName == ''){
+                $('#firstNameErr').text('The first name field is required.');
+                err = true;
+                if(!focus) {
+                    $('#firstName').focus();
+                    focus = true;
+                }
+            }
+            if(lastName == ''){
+                $('#lastNameErr').text('The last name field is required.');
+                err = true;
+                if(!focus) {
+                    $('#lastName').focus();
+                    focus = true;
+                }
+            }
+            if(email == ''){
+                $('#affiliateEmailErr').text('The email field is required.');
+                err = true;
+                if(!focus) {
+                    $('#affiliateEmail').focus();
+                    focus = true;
+                }
+            }else if(!email.match(validRegex)){
+                $('#affiliateEmailErr').text('Please enter valid email.');
+                err = true;
+                if(!focus) {
+                    $('#affiliateEmail').focus();
+                    focus = true;
+                }
+            }
+            if(group == ''){
+                $('#affiliateGroupErr').text('The affiliate group id field is required.');
+                err = true;
+            }
+            if(!err) {
+                return true;
+            }
+            return false;
+        }
+
+        function affiliateDeleteConfirm() {
+            return confirm("Are sure you want to delete affiliate?");
         }
     </script>
 @endsection
