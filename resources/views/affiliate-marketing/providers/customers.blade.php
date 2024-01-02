@@ -92,15 +92,15 @@
                     <td>{{ $providersCustomer->status }}</td>
                     <td>
                         {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.customer.delete', [$providersCustomer->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                        <button type="submit" onclick="return customerDeleteConfirm()" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
                         {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.customer.cancelUncancel', [$providersCustomer->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
-                        @if($providersCustomer->status != 'canceled')
-                            <button type="submit" class="btn btn-image" title="Cancel Customer">
+                        @if($providersCustomer->status != 'stopped')
+                            <button type="submit" onclick="return customerCancelConfirm()" class="btn btn-image" title="Cancel Customer">
                                 <img src="/images/icons-delete.png"/>
                             </button>
                         @else
-                            <button type="submit" class="btn btn-image" title="Un-Cancel Customer">
+                            <button type="submit" onclick="return customerUnCancelConfirm()" class="btn btn-image" title="Un-Cancel Customer">
                                 <img src="/images/icons-checkmark.png"/>
                             </button>
                         @endif
@@ -138,6 +138,36 @@
 
         if (showPopup) {
             $('#create-customer').modal('show');
+        }
+
+         function validateCreateCustomer() {
+            var err = false;
+            $('.err').text('');
+            var affiliate = $('#asset_id').val();
+            var customer = $('#customer_id').val();
+
+            if(affiliate == ''){
+                $('#assetErr').text('Please select affiliate.');
+                err = true;
+            }
+            if(customer == ''){
+                $('#customerErr').text('Please select customer.');
+                err = true;
+            }
+            if(!err) {
+                return true;
+            }
+            return false;
+        }
+
+        function customerDeleteConfirm() {
+            return confirm("Are sure you want to delete customer?");
+        }
+        function customerCancelConfirm() {
+            return confirm("Are sure you want to cancel customer?");
+        }
+        function customerUnCancelConfirm() {
+            return confirm("Are sure you want to uncancel customer?");
         }
     </script>
 @endsection

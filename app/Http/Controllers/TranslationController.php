@@ -27,16 +27,28 @@ class TranslationController extends Controller
                     ->orWhere('updated_at', 'LIKE', '%' . $request->term . '%');
         }
 
+        if ($request->translation_from) {
+            $query = $query->where('from', $request->translation_from);
+        }
+
+        if ($request->translation_to) {
+            $query = $query->where('to', $request->translation_to);
+        }
+
         $data = $query->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
+
+        $from = Translations::groupBy('from')->get();
+        $to = Translations::groupBy('to')->get();
+
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('translation.partials.list-translation', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('translation.partials.list-translation', compact('data', 'from', 'to'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $data->render(),
                 'count' => $data->total(),
             ], 200);
         }
 
-        return view('translation.index', compact('data'))
+        return view('translation.index', compact('data', 'from', 'to'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 

@@ -43,17 +43,37 @@
         </div>
     </div>
     <div class="form-group row">
-        <label for="headline1" class="col-sm-2 col-form-label">Customer</label>
+        <label for="headline1" class="col-sm-2 col-form-label">
+            Affiliate
+            <small style="color:red">*</small>
+        </label>
         <div class="col-sm-10">
-            <select name="customer_id" id="" class="form-control">
+            <select name="asset_id" id="asset_id" class="form-control">
+                <option value="">Select</option>
+                @foreach($affiliates as $aff)
+                    <option value="{{$aff->asset_id}}">{{$aff->firstname.' '.$aff->lastname}}</option>
+                @endforeach
+            </select>
+            <span id="assetErr" class="err text-danger">
+                {{$errors->has('asset_id')? $errors->first('asset_id'):''}}
+            </span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="headline1" class="col-sm-2 col-form-label">
+            Customer
+            <small style="color:red">*</small>
+        </label>
+        <div class="col-sm-10">
+            <select name="customer_id" id="customer_id" class="form-control">
                 <option value="">Select</option>
                 @foreach($customers as $customer)
                     <option value="{{$customer->id}}">{{$customer->name}} ({!! $customer->email !!})</option>
                 @endforeach
             </select>
-            @if ($errors->has('customer_id'))
-                <span class="text-danger">{{$errors->first('customer_id')}}</span>
-            @endif
+            <span id="customerErr" class="err text-danger">
+                {{$errors->has('customer_id')? $errors->first('customer_id'):''}}
+            </span>
         </div>
     </div>
     <div class="form-group row">
@@ -80,6 +100,6 @@
         <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"
                 aria-label="Close">Close
         </button>
-        <button type="submit" class="float-right custom-button btn">Create</button>
+        <button type="submit" onclick="return validateCreateCustomer()" class="float-right custom-button btn">Create</button>
     </div>
 </form>
