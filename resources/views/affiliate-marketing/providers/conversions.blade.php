@@ -91,7 +91,7 @@
                                 onclick="editData('{!! $providersConversion->id !!}', '{!! $providersConversion->amount !!}')"
                                 class="btn btn-image"><img src="/images/edit.png"></button>
                         {!! Form::open(['method' => 'POST','route' => ['affiliate-marketing.provider.conversion.delete', [$providersConversion->id, 'provider_account' => $provider->id]],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
+                        <button type="submit" onclick="return conversionDeleteConfirm()" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
                         <button type="button" data-toggle="modal" data-target="#add-commission" onclick="addCommission('{!! $providersConversion->id !!}')"
                                 class="btn btn-image"><img src="/images/price.png"/></button>
@@ -164,6 +164,53 @@
         function addCommission(id) {
             console.log($('#add_conversion_id'));
             $('#add_conversion_id').val(id);
+        }
+
+        function validateConversion(){
+            var err = false;
+            $('.err').text('');
+            var amount = $('#amount').val();
+            var asset = $('#asset_id').val();
+            var customer = $('#customer_id').val();
+
+            if(amount == ''){
+                $('#amountErr').text('Please enter amount.');
+                err = true;
+            }
+            if(asset == ''){
+                $('#assetErr').text('Please select affiliate.');
+                err = true;
+            }
+            if(customer == ''){
+                $('#customerErr').text('Please select customer.');
+                err = true;
+            }
+            if(!err) {
+                return true;
+            }
+            return false;
+        }
+
+        $('#program').change(function(){
+            var providerID = "{{ $_GET['provider_account'] }}";
+            var program = $(this).val();
+            //get commision type
+            $.ajax({
+                type: "GET",
+                url: "{{ route('affiliate-marketing.provider.program.commissionType')}}?provider_account="+providerID+'&program='+program,
+                dataType : "json",
+                success: function (response) {
+                    var html = '<option value="">Select</option>';
+                    $.each(response, function(index, row) {
+                        html += '<option value="'+row.identifier+'">'+row.title+'</option>';
+                    });
+                    $('#commission_type').html(html);
+                }
+            });
+        });
+
+        function conversionDeleteConfirm() {
+            return confirm("Are sure you want to delete conversion?");
         }
     </script>
 @endsection
