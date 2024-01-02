@@ -132,13 +132,15 @@
                     <th width="5%">Title</th>
                     <th width="6%">Description</th>
                     <th width="6%">Color</th>
-                    <th width="8%">Size</th>
+                    <th width="3%">Size</th>
                     <th width="5%">Category</th>
                     <th width="6%">Composition</th>
                     <th width="4%">Price</th>
                     <th width="6%">Size System</th>
                     <th width="5%">Discount</th>
                     <th width="6%">Dimensions</th>
+                    <th width="10%">Date Time</th>
+                    <th width="5%">Functions</th>                    
                     <th width="5%">Update History</th>
                     <th width="5%">Functions</th>
                 </tr>
@@ -185,6 +187,7 @@
                             {{isset($product->product) ? $product->product->lmeasurement.",".$product->product->hmeasurement.",".$product->product->dmeasurement : "-"}}
                         </td>
                         <td>
+                            {{isset($product->last_started_at) ? $product->last_started_at : "-"}}
                             @php
                             $result_count = app('App\Loggers\LogScraper')->getProductFromSku(isset($product->product->sku) ? $product->product->sku : "");
                             @endphp
