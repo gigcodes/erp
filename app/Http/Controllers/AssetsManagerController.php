@@ -22,6 +22,8 @@ use App\assetUserChangeHistory;
 use App\AssetMagentoDevScripUpdateLog;
 use App\Models\AssetManagerUserAccess;
 use App\Models\DataTableColumn;
+use App\Models\AssetManagerTerminalUserAccess;
+use App\Models\AssetManagerTerminalUserAccessRemakrs;
 
 class AssetsManagerController extends Controller
 {
@@ -879,5 +881,176 @@ class AssetsManagerController extends Controller
             'message' => 'Data get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function createTerminalUserAccess(Request $request)
+    {
+        try {
+
+            $this->validate($request, [
+                'username' => 'required|unique:asset_manager_terminal_user_accesses,username',
+            ]);
+
+            $useraccess = AssetManagerTerminalUserAccess::create([
+                'assets_management_id' => $request->assets_management_id,
+                'created_by' => Auth::user()->id,
+                'username' => $request->username,
+                'password' => $request->password,
+            ]);
+
+            return response()->json(['code' => 200, 'data' => $useraccess, 'message' => 'Terminal User Access has been created successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function assetManamentTerminalUsersAccess(request $request)
+    {
+        $html = '';
+
+        if(!empty($request->assets_management_id)){
+
+            $user_accesses = new AssetManagerTerminalUserAccess;
+            $user_accesses = $user_accesses->where('assets_management_id', $request->assets_management_id)->select('asset_manager_terminal_user_accesses.*')->orderBy('id', 'DESC')->get();
+
+            $i = 1;
+            if (count($user_accesses) > 0) {
+                foreach ($user_accesses as $user_access) {
+                    $html .= '<tr>';
+                    $html .= '<td>' . $i . '</td>';
+                    $html .= '<td>';
+                    $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="user_access_username" placeholder="Username" value="' . $user_access->username . '" id="user_access_username_'.$user_access->id.'">
+                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                    <button class="btn pr-0 btn-xs btn-image " onclick="updateUsernamePassword('.$user_access->id.', 1)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                </div>
+                            </div>'; 
+                    $html .= '</td>';   
+                    $html .= '<td>';
+                    $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="user_access_password" placeholder="Password" value="' . $user_access->password . '" id="user_access_password_'.$user_access->id.'">
+                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                    <button class="btn pr-0 btn-xs btn-image " onclick="updateUsernamePassword('.$user_access->id.',2)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                </div>
+                            </div>';         
+                    $html .= '</td>';
+                    $html .= '<td>';
+                    $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_'.$user_access->id.'">
+                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                    <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks('.$user_access->id.')"><img src="/images/filled-sent.png"></button>
+                                    <button type="button" data-id="'.$user_access->id.'" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                </div>
+                            </div>';                    
+                    $html .= '</td>';
+                    $html .= '<td>' . $user_access->created_at . '</td>';                    
+                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteTerminalUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
+                    $html .= '</tr>';
+                    $i++;
+                }
+
+                return response()->json(['html' => $html, 'success' => true], 200);
+            } else {
+                $html .= '<tr>';
+                $html .= '<td colspan="8">Record not found</td>';
+                $html .= '</tr>';
+            }
+        } else {
+            $html .= '<tr>';
+            $html .= '<td colspan="8">Record not found</td>';
+            $html .= '</tr>';
+        }
+
+        return response()->json(['html' => $html, 'success' => true], 200);
+    }
+
+    public function deleteTerminalUserAccess(Request $request)
+    {
+        try {
+
+            $user_access = AssetManagerTerminalUserAccess::where('id', $request->id)->first();
+
+            if(!empty($user_access)){
+
+                $access = AssetManagerTerminalUserAccess::find($request->id);
+                $access->delete();
+
+                return response()->json(['code' => 200, 'message' => 'Terminal User Access has been deleted successfully']);
+
+            } else {
+
+                return response()->json(['code' => 500, 'message' => 'Something went wrong. Please try again.']);
+
+            }
+            
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function saveRemarks(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'amtua_id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        $input['added_by'] = Auth::user()->id;
+        AssetManagerTerminalUserAccessRemakrs::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input, 'message' => 'Remarks added successfully',]);
+    }
+
+    public function getRemarksHistories(Request $request)
+    {
+        $datas = AssetManagerTerminalUserAccessRemakrs::with(['user'])
+                ->where('amtua_id', $request->amtua_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function updateUsernamePassword(Request $request)
+    {   
+        try {
+            $post = $request->all();
+
+            $this->validate($request, [
+                'amtua_id' => 'required',
+                'type' => 'required',
+                'username' => 'required|unique:asset_manager_terminal_user_accesses,username,'.$request->amtua_id.',id',
+                'password' => 'required',
+            ]);
+
+            $amtua = AssetManagerTerminalUserAccess::find($request->amtua_id);
+
+            if($request->type==1){
+                $amtua->username = $request->username;
+            } else {
+                $amtua->password = $request->password;
+            }
+            $amtua->save();
+
+            return response()->json(['code' => 200, 'data' => $post, 'message' => 'User access has been updated successfully',]);
+
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 }
