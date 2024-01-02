@@ -60,8 +60,8 @@
             display: block;
             width: 100%;
         }
-        #checklist_table td .justify-left {display: inline-block !important;width: 100%;}
-        #checklist_table td .justify-left .edit-checklist, #checklist_table td .justify-left .clsdelete, #checklist_table td .justify-left .sub_edit-checklist, #checklist_table td .justify-left .clssubdelete {float: right;}
+        #devoopslist_table td .justify-left {display: inline-block !important;width: 100%;}
+        #devoopslist_table td .justify-left .edit-checklist, #devoopslist_table td .justify-left .clsdelete, #devoopslist_table td .justify-left .sub_edit-checklist, #devoopslist_table td .justify-left .clssubdelete {float: right;}
     </style>
 @endsection
 
@@ -80,12 +80,12 @@
             <form method="POST" action="" id="dateform">
 
                 <div class="row m-4">
-                    <div class="col-xs-3 col-sm-3 p-0">
+                    <div class="col-xs-2 col-sm-2 p-0">
                         <div class="form-group">
                             {!! Form::text('category_name', null, ['placeholder' => 'Category Name', 'class' => 'form-control','autocomplete'=>'off']) !!}
                         </div>
                     </div>
-                    <div class="col-xs-3 col-sm-3">
+                    <div class="col-xs-2 col-sm-2">
                         <div class="form-group">
                             {!! Form::text('sub_category_name', null, ['placeholder' => 'Sub Category name', 'class' => 'form-control','autocomplete'=>'off']) !!}
                         </div>
@@ -106,11 +106,14 @@
                         </div>
                     </div>
 
-                    <div class="col-xs-2 col-sm-1 pt-2">
-                        <button type="button" class="btn btn-secondary " data-toggle="modal" data-target="#CreateCheckList"> Create Category</button>
-                    </div>
-                    <div class="col-xs-2 col-sm-1 pt-2">
-                        <button type="button" class="btn btn-secondary " data-toggle="modal" data-target="#CreateSubCheckList"> Create Sub Category</button>
+                    <div class="col-xs-6 col-sm-6 pt-2">
+                        <button type="button" class="btn custom-button float-left mr-3" data-toggle="modal" data-target="#CreateCheckList"> Create Category</button>
+                    
+                        <button type="button" class="btn custom-button float-left mr-3" data-toggle="modal" data-target="#CreateSubCheckList"> Create Sub Category</button>
+                    
+                        <button type="button" class="btn custom-button float-left mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
+
+                        <button class="btn custom-button mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     </div>
                 </div>
             </form>
@@ -139,13 +142,14 @@
             </div>
         @endif
         <div class="checklist_data">
-            <table class="table table-bordered " id="checklist_table">
+            <table class="table table-bordered " id="devoopslist_table">
                 <thead>
                     <tr>
                         <th>No</th>
                         <th>Category Name</th>
                         <th>Sub Category Name</th>
                         <th>Remarks</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -177,6 +181,37 @@
                                 </tr>
                             </thead>
                             <tbody class="devoops-remarks-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="devoops-status-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Status Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Old Status</th>
+                                    <th width="30%">New Status</th>
+                                    <th width="20%">Updated BY</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="devoops-status-histories-list-view">
                             </tbody>
                         </table>
                     </div>
@@ -313,6 +348,181 @@
         </div>
     </div>
 
+    <div id="status-create" class="modal fade in" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <form  method="POST" id="status-create-form">
+                    @csrf
+                    @method('POST')
+                    <div class="modal-body">
+                        <div class="form-group">
+                            {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+                            {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+                        </div>
+                      <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="status-update" class="modal fade in" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Update Status</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <form  method="POST" id="status-update-form">
+                    @csrf
+                    @method('POST')
+
+                    <input type="hidden" name="id" id="id">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            {!! Form::label('status_name', 'Select Status', ['class' => 'form-control-label', 'id' => 'status_name']) !!}
+                            <?php echo Form::select('status_name', ['' => 'Select Status'] + \App\Models\DevOopsStatus::pluck('status_name', 'id')->toArray(), null, ['class' => 'form-control','required']); ?>
+                        </div>
+                      <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary status-update-btn">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="newStatusColor" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Dev Ooops Status Color</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form action="{{ route('devoops.statuscolor') }}" method="POST">
+                    <?php echo csrf_field(); ?>
+                    {{--                <div class="modal-content">--}}
+                    <div class="form-group col-md-12">
+                        <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                            <tr>
+                                <td class="text-center"><b>Status Name</b></td>
+                                <td class="text-center"><b>Color Code</b></td>
+                                <td class="text-center"><b>Color</b></td>
+                            </tr>
+                            <?php
+                            foreach ($status as $status_data) { ?>
+                            <tr>
+                                <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->status_name; ?></td>
+                                <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
+                                <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
+                            </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
+                    </div>
+                    {{--                </div>--}}
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="uploadeTaskFileModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload Screencast/File to Google Drive</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form action="{{ route('devoopssublist.upload-file') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="task_id" id="upload_task_id">
+                    <div class="modal-body">                        
+                        <div class="form-group">
+                            <strong>Upload File</strong>
+                            <input type="file" name="file[]" id="fileInput" class="form-control input-sm" placeholder="Upload File" style="height: fit-content;" multiple required>
+                            @if ($errors->has('file'))
+                                <div class="alert alert-danger">{{$errors->first('file')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>File Creation Date:</strong>
+                            <input type="date" name="file_creation_date" value="{{ old('file_creation_date') }}" class="form-control input-sm" placeholder="Drive Date" required>
+                        </div>
+                        <div class="form-group">
+                                <label>Remarks:</label>
+                                <textarea id="remarks" name="remarks" rows="4" cols="64" value="{{ old('remarks') }}" placeholder="Remarks" required class="form-control"></textarea>
+
+                                @if ($errors->has('remarks'))
+                                    <div class="alert alert-danger">{{$errors->first('remarks')}}</div>
+                                @endif
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default">Upload</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <div id="displayTaskFileUpload" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-xl">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Google Drive Uploaded files</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>File Creation Date</th>
+                                    <th>URL</th>
+                                    <th>Remarks</th>
+                                    <th>Created by</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskFileUploadedData">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                 </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -374,7 +584,7 @@
     // START Print Table Using datatable
     var oTable;
     $(document).ready(function() {
-        oTable = $('#checklist_table').DataTable({
+        oTable = $('#devoopslist_table').DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
             responsive: true,
             searchDelay: 500,
@@ -437,15 +647,33 @@
                     }
                 },
                 {
+                    data: 'status.status_name',
+                    render: function(data, type, row, meta) {                        
+
+                        return `<div class="flex justify-left items-center">`+data+`<button type="button" class="btn pr-0 btn-xs btn-image status-update pull-right" data-toggle="modal" data-target="#status-update" data-id="`+row['id']+`" data-statusid="`+row['status_id']+`"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                            <button type="button" data-id="`+row['id']+`" class="btn btn-image status-history-show p-0 mr-2 pull-right" title="Status Histories"><i class="fa fa-info-circle"></i></button>`;
+                    }
+                },
+                {
                     data: 'id',
                     name: 'magento_modules.id',
                     // visible:false,
                     render: function(data, type, row, meta) {
                       return `<button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="`+row['id']+`"  data-category_title="Dev Oops Page" data-title="Dev Oops Page - `+row['id']+`"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                            <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="`+row['id']+`" data-category="`+row['id']+`"><i class="fa fa-info-circle"></i></button>`;
+                            <button type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="`+row['id']+`" data-category="`+row['id']+`"><i class="fa fa-info-circle"></i></button>
+                            <button class="btn btn-image d-inline upload-task-files-button" type="button" title="Uploaded Files" data-task_id="`+row['id']+`">
+                                <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-image d-inline view-task-files-button" type="button" title="View Uploaded Files" data-task_id="`+row['id']+`">
+                                <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
+                            </button>`;
                     }
                 },
             ],
+            rowCallback: function(row, data, index) {
+                // Example: Change background color for rows where status is 'Completed'
+                $(row).css('background-color', ((data.status !== null && data.status !== undefined && data.status.status_color !== undefined) ? data.status.status_color : ''));
+            },
         });
     });
 
@@ -1074,6 +1302,123 @@
                 "&embedded=true");
         }
         $('#previewDoc').modal('show');
+    });
+
+    $(document).on("click", ".status-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{route('devoops.status.create')}}",
+            type: "post",
+            data: $('#status-create-form').serialize()
+        }).done(function(response) {
+            if (response.code = '200') {
+                $('#loading-image').hide();
+                toastr['success']('Status  Created successfully!!!', 'success');
+                location.reload();
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on("click", ".status-update", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $(this).attr('data-id');
+        var statusid = $(this).attr('data-statusid');
+
+        $('#status-update-form #status_name option[value="'+statusid+'"]').attr("selected", "selected");
+
+        $("#status-update #id").val(id);
+    });
+
+    $(document).on("click", ".status-update-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+            url: "{{route('devoops.status.update')}}",
+            type: "post",
+            data: $('#status-update-form').serialize()
+        }).done(function(response) {
+            if (response.code = '200') {
+                $('#loading-image').hide();
+                toastr['success']('Status  Created successfully!!!', 'success');
+                location.reload();
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
+    });
+
+    $(document).on('click', '.status-history-show', function() {
+        var id = $(this).attr('data-id');
+        $.ajax({
+            url: "{{route('devoopssublist.getstatus')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'id' :id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                            <td> ${k + 1} </td>
+                            <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                            <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                            <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                            <td> ${v.created_at} </td>
+                        </tr>`;
+                    });
+                    $("#devoops-status-histories-list").find(".devoops-status-histories-list-view").html(html);
+                    $("#devoops-status-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click", ".upload-task-files-button", function (e) {
+        e.preventDefault();
+        let task_id = $(this).data("task_id");
+        $("#uploadeTaskFileModal #upload_task_id").val(task_id || 0);
+        $("#uploadeTaskFileModal").modal("show")
+    });
+
+    $(document).on("click", ".view-task-files-button", function (e) {
+        e.preventDefault();
+        let dev_oops_id = $(this).data("task_id");
+        $.ajax({
+            type: "get",
+            url: "{{route('devoopssublist.files.record')}}",
+            data: {
+                dev_oops_id
+            },
+            success: function (response) {
+                if(typeof response.data != 'undefined') {
+                    $("#taskFileUploadedData").html(response.data);
+                } else {
+                    // display unauthorized permission message
+                    $("#taskFileUploadedData").html(response);
+                }
+                
+                $("#displayTaskFileUpload").modal("show")
+            },
+            error: function (response) {
+                toastr['error']("Something went wrong!");
+            }
+        });
     });
 </script>
 @endsection

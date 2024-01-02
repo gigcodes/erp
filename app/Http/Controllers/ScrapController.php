@@ -39,6 +39,7 @@ use App\Services\Scrap\GoogleImageScraper;
 use App\Services\Products\GnbProductsCreator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\ScrapedProductsLinks;
+use App\Models\ScrapedProductsLinksHistory;
 
 class ScrapController extends Controller
 {
@@ -458,7 +459,11 @@ class ScrapController extends Controller
         $this->saveScrapperRequest($scrap_details, $errorLog);
 
         // Create or update product
-        app(ProductsCreator::class)->createProduct($scrapedProduct);
+        $scrapedProductUpdate = ScrapedProducts::where('sku', $sku)
+            ->whereNotNull('description') // Filter out rows where description is null
+            ->orderBy('sort_order') // Order by sort_order
+            ->first();
+        app(ProductsCreator::class)->createProduct($scrapedProductUpdate);
 
         // Return response
         return response()->json([
@@ -1127,6 +1132,7 @@ class ScrapController extends Controller
      * )
      */
 
+
     public function scrap_links(Request $request)
     {
         //$scrap_links = ScrapedProductsLinks::orderBy('id', 'DESC')->paginate(25);
@@ -1149,6 +1155,18 @@ class ScrapController extends Controller
         $scrap_links = $scrap_links->orderBy('id', 'DESC')->paginate(25);
 
         return view('scrap.scrap-links', ['scrap_links' => $scrap_links])->with('i', ($request->input('page', 1) - 1) * 25);
+    }
+
+    public function scrapLinksStatusHistories($id)
+    {
+        $datas = ScrapedProductsLinksHistory::where('scraped_products_links_id', $id)->latest()->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function processProductLinks(Request $request)
@@ -1182,9 +1200,17 @@ class ScrapController extends Controller
                         $input['links'] = $value;
                         $input['scrap_product_id'] = 0;
 
-                        ScrapedProductsLinks::updateOrCreate(
+                        $ScrapedProductsLinksNew = ScrapedProductsLinks::updateOrCreate(
                             ['links' => $value, 'website' => $website], $input
                         );
+
+                        if(!empty($ScrapedProductsLinksNew)){
+
+                            ScrapedProductsLinksHistory::create([
+                                'scraped_products_links_id' => $ScrapedProductsLinksNew->id,
+                                'status' => 'new',
+                            ]);
+                        }
                     }
 
                     return $links;
@@ -1215,9 +1241,17 @@ class ScrapController extends Controller
                     $input['links'] = $link;
                     $input['scrap_product_id'] = $scrapedProduct->id;
 
-                    ScrapedProductsLinks::updateOrCreate(
+                    $ScrapedProductsLinksInStock = ScrapedProductsLinks::updateOrCreate(
                         ['links' => $link, 'website' => $website], $input
                     );
+
+                    if(!empty($ScrapedProductsLinksInStock)){
+
+                        ScrapedProductsLinksHistory::create([
+                            'scraped_products_links_id' => $ScrapedProductsLinksInStock->id,
+                            'status' => 'in stock',
+                        ]);
+                    }
                 } else {
                     $pendingUrl[] = $link;
 
@@ -1227,9 +1261,17 @@ class ScrapController extends Controller
                     $input['links'] = $link;
                     $input['scrap_product_id'] = 0;
 
-                    ScrapedProductsLinks::updateOrCreate(
+                    $ScrapedProductsLinksOutOfStock = ScrapedProductsLinks::updateOrCreate(
                         ['links' => $link, 'website' => $website], $input
                     );
+
+                    if(!empty($ScrapedProductsLinksOutOfStock)){
+
+                        ScrapedProductsLinksHistory::create([
+                            'scraped_products_links_id' => $ScrapedProductsLinksOutOfStock->id,
+                            'status' => 'out of stock',
+                        ]);
+                    }
                 }
                 //} else {
                 //$pendingUrl[] = $link;

@@ -14,6 +14,8 @@ use App\Models\Seo\SeoProcessKeyword;
 use App\Models\Seo\SeoProcessChecklist;
 use App\Models\Seo\SeoProcessStatusHistory;
 use App\Models\Seo\SeoProcessChecklistHistory;
+use App\Models\DataTableColumn;
+use App\Models\SeoStatus;
 
 class ContentController extends Controller
 {
@@ -35,8 +37,53 @@ class ContentController extends Controller
         $data['websites'] = StoreWebsite::select('id', 'website')->get();
         $data['users'] = User::select('id', 'name')->get();
         $data['moduleName'] = $this->moduleName;
+        $data['status'] = SeoStatus::get();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'seo-content')->first();
+
+        $data['dynamicColumnsToShowSeo'] = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $data['dynamicColumnsToShowSeo'] = json_decode($hideColumns, true);
+        }
+
+        $data['total_seo'] = SeoProcess::count();
 
         return view("{$this->view}/index", $data);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','seo-content')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'seo-content';
+            $column->column_name = json_encode($request->column_seo); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'seo-content';
+            $column->column_name = json_encode($request->column_seo); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = SeoStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function create(Request $request)
@@ -241,7 +288,7 @@ class ContentController extends Controller
         $seoProcess = SeoProcess::with(['website:id,website', 'user:id,name'])->orderBy('id', 'desc');
         $filter = (object) $request->filter;
         if (! empty($filter->website_id)) {
-            $seoProcess = $seoProcess->where('website_id', $filter->website_id);
+            $seoProcess = $seoProcess->whereIn('website_id', explode(",", $filter->website_id));
         }
 
         if (! empty($filter->price_status)) {
@@ -253,7 +300,7 @@ class ContentController extends Controller
         }
 
         if (! empty($filter->user_id)) {
-            $seoProcess = $seoProcess->where('user_id', $filter->user_id);
+            $seoProcess = $seoProcess->whereIn('user_id', explode(",", $filter->user_id));
         }
 
         if (! empty($filter->status)) {
@@ -303,13 +350,15 @@ class ContentController extends Controller
             })
             ->addColumn('keywords', function ($val) {
                 if (! empty($val->keywords)) {
-                    $keyword = "<ul class='list-group'>";
+                    //$keyword = "<ul class='list-group'>";
+                    $keywordArray = [];
                     foreach ($val->keywords as $item) {
-                        $keyword .= "<li class='list-group-item bg-custom-gray'>" . ($item->name ?? '-') . '</li>';
+                        //$keyword .= "<li class='list-group-item bg-custom-gray'>" . ($item->name ?? '-') . '</li>';
+                        $keywordArray[] = $item->name;
                     }
-                    $keyword .= '</ul>';
+                    //$keyword .= '</ul>';
 
-                    return $keyword;
+                    return implode(", ", $keywordArray);
                 }
 
                 return '-';
@@ -396,6 +445,16 @@ class ContentController extends Controller
             })
             ->addColumn('seoStatus', function ($val) {
                 return $val->seoStatus->label ?? '-';
+            })
+            ->addColumn('status_color', function ($val) {
+
+                $statusColor = SeoStatus::where('status_alias',$val->status)->first();
+                
+                if(!empty($statusColor)){
+                   return $statusColor['status_color'];
+                } else{
+                    return '';
+                }
             })
             ->rawColumns(['actions', 'status', 'keywords', 'seoChecklist', 'publishChecklist', 'documentLink', 'liveStatusLink', 'price', 'user_id'])
             ->addIndexColumn()

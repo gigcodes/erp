@@ -57,6 +57,15 @@
                                 {{Form::text('keywords', @$inputs['keywords'], array('class'=>'form-control', 'placeholder'=>'Enter Keywords'))}}
                             </div>
 
+                            <div class="form-group px-2">
+                                <select class="form-control" name="status" id="status">
+                                    <option value="">Select Status</option>
+                                    <option value="Approve" <?php if('Approve' == Request::get('status')) echo "selected"; ?>>Approve</option>
+                                    <option value="Unapprove" <?php if('Unapprove' == Request::get('status')) echo "selected"; ?>>Unapprove</option>
+                                    <option value="Uncheck" <?php if('Uncheck' == Request::get('status')) echo "selected"; ?>>Uncheck</option>
+                                </select>
+                            </div>
+
                             <div class="form-group  cls_filter_inputbox">
                                 <button type="submit" class="btn custom-button ml-3" style="width:100px">Search</button>
                             </div>
@@ -265,7 +274,7 @@
                                                 $checkBoX = 'checked';
                                             }
                                         @endphp
-                                        <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
+                                        <input type="checkbox" class="approveAll approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
                                     </td>
                                 @endif
 
@@ -339,8 +348,8 @@
                                 @if (!in_array('Url', $dynamicColumnsToShowscrapper))
                                     <td class="expand-row-msg" data-name="url" data-id="{{$i}}">
                                         @if(!empty($returnData['url']))
-                                            <span class="show-short-url-{{$i}}">{{ Str::limit($returnData['url'], 10, '...')}}</span>
-                                            <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden">{{ $returnData['url'] }}</span>
+                                            <span class="show-short-url-{{$i}}"><a target="_blank" href="{{$returnData['url']}}">{{ Str::limit($returnData['url'], 10, '...')}}</a></span>
+                                            <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden"><a target="_blank" href="{{$returnData['url']}}">{{ $returnData['url'] }}</a></span>
                                         @endif
 
                                         @include('development.partials.dynamic-column', ['columnname' => 'url', 'taskss_id' => $record['task_id']])
@@ -557,7 +566,7 @@
                                     </td>
                                 @endif
                                 @if (!in_array('Action', $dynamicColumnsToShowscrapper))
-                                    <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
+                                    <td><a target="_blank" href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
                                 @endif
                             </tr>
                         @else  
@@ -575,7 +584,7 @@
                                         }
                                     @endphp
 
-                                    <input type="checkbox" class="approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
+                                    <input type="checkbox" class="approveAll approveAll_{{ $record['max_id'] }}" title="Approve All Values" name="approveAll" id="approveAll" data-id="{{ $record['max_id'] }}" style="padding: 0; margin: 0; height: 15px;" {{$checkBoX}}>
                                 </td>
                                 <td class="expand-row-msg" data-name="task_id" data-id="{{$i}}">
                                     <span class="show-short-task_id-{{$i}}">{{ Str::limit('#DEVTASK-'.$record['task_id'], 10, '...')}}</span>
@@ -613,8 +622,8 @@
                                 </td>
                                 <td class="expand-row-msg" data-name="url" data-id="{{$i}}">
                                     @if(!empty($returnData['url']))
-                                        <span class="show-short-url-{{$i}}">{{ Str::limit($returnData['url'], 10, '...')}}</span>
-                                        <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden">{{ $returnData['url'] }}</span>
+                                        <span class="show-short-url-{{$i}}"><a target="_blank" href="{{$returnData['url']}}">{{ Str::limit($returnData['url'], 10, '...')}}</a></span>
+                                        <span style="word-break:break-all;" class="show-full-url-{{$i}} hidden"><a target="_blank" href="{{$returnData['url']}}">{{ $returnData['url'] }}</a></span>
                                     @endif
 
                                     @include('development.partials.dynamic-column', ['columnname' => 'url', 'taskss_id' => $record['task_id']])
@@ -777,7 +786,7 @@
                                     <span class="show-short-created_at-{{$i}}">{{ Str::limit($record['created_at'], 5, '...')}}</span>
                                     <span style="word-break:break-all;" class="show-full-created_at-{{$i}} hidden">{{ $record['created_at'] }}</span>
                                 </td>
-                                <td><a href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
+                                <td><a target="_blank" href="{{ route('development.scrapper_hisotry', ['id' => $record['max_id']]) }}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></td>
 							</tr>
                         @endif
                     @endforeach
@@ -1059,7 +1068,7 @@ function changeStatus(value){
 
 $(document).ready(function() {
     // Attach change event handler to the checkbox
-    $('#approveAll').change(function() {
+    $('.approveAll').change(function() {
 
         var dataIdValue = $(this).data('id');
 
@@ -1099,7 +1108,7 @@ $(document).ready(function() {
                 });
 
             } else {    
-                $('.approveAll_'+dataIdValue).prop('checked', false);
+                $('.approveAll approveAll_'+dataIdValue).prop('checked', false);
             }
         } else {
 
@@ -1136,7 +1145,7 @@ $(document).ready(function() {
                 });
 
             } else {    
-                $('.approveAll_'+dataIdValue).prop('checked', true);
+                $('.approveAll approveAll_'+dataIdValue).prop('checked', true);
             }
         }        
     });

@@ -85,3 +85,25 @@
     <li class="page-item"><a class="page-link" href="{{ route('zabbix.trigger.index') }}/?page={{ $page + 1 }}">Next</a></li>
   </ul>
 </nav>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.pagination a.page-link').on('click', function (e) {
+            e.preventDefault();
+
+            var pageUrl = $(this).attr('href');
+
+            $.ajax({
+                url: pageUrl,
+                type: 'GET',
+                success: function (data) {
+                    $('#ajax-content').html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>

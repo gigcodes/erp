@@ -15,6 +15,13 @@ use GuzzleHttp\Client;
 use App\SiteDevelopment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\BugStatus;
+use App\BugEnvironment;
+use App\BugSeverity;
+use App\BugType;
+use App\User;
+use App\SiteDevelopmentCategory;
+use App\StoreWebsite;
 
 class scrapperPhyhon extends Controller
 {
@@ -160,6 +167,7 @@ class scrapperPhyhon extends Controller
 
         //  echo '<pre>';print_r($websites->toArray());die;
         //      return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
+
         return view('scrapper-phyhon.list', compact('images', 'allWebsites', 'request', 'query', 'storewebsite', 'current_date', 'startDate', 'endDate', 'storewebsiteUrls'));
     }
 
@@ -170,13 +178,16 @@ class scrapperPhyhon extends Controller
         $oldDate = null;
         $count = 0;
         $images = [];
+        $website_id = 0;
 
         $categories = \App\SiteDevelopmentCategory::orderBy('title', 'asc')->get();
         $webStore = \App\WebsiteStore::where('id', $store_id)->first();
-        $list = Website::where('id', $webStore->website_id)->first();
-        $website_id = $list->id;
-
+    
         if ($webStore) {
+
+            $list = Website::where('id', $webStore->website_id)->first();
+            $website_id = $list->id;
+
             $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
 
             if ($website_store_views) {
@@ -216,7 +227,15 @@ class scrapperPhyhon extends Controller
             $view_path = 'scrapper-phyhon.list-image-products';
         }
 
-        return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate'));
+        $bugStatuses = BugStatus::get();
+        $bugEnvironments = BugEnvironment::get();
+        $bugSeveritys = BugSeverity::get();
+        $bugTypes = BugType::get();
+        $users = User::get();
+        $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
+        $filterWebsites = StoreWebsite::orderBy('website')->get();        
+
+        return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate', 'bugTypes', 'bugEnvironments', 'bugSeveritys', 'bugStatuses', 'filterCategories', 'users', 'filterWebsites'));
     }
 
     public function setDefaultStore(int $website = 0, int $store = 0, $checked = 0)

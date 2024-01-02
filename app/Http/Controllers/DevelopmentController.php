@@ -62,6 +62,7 @@ use App\Models\DataTableColumn;
 use App\Models\ScrapperValues;
 use App\Models\ScrapperValuesHistory;
 use App\Models\ScrapperValuesRemarksHistory;
+use App\Models\DeveloperTaskStartEndHistory;
 
 class DevelopmentController extends Controller
 {
@@ -5866,6 +5867,27 @@ class DevelopmentController extends Controller
         ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
         ->paginate(50);
 
+        /*$records = ScrapperValues::leftJoin('scrapper_values_histories', 'scrapper_values.task_id', '=', 'scrapper_values_histories.task_id')->with('tasks');
+
+        $keywords = request('keywords');
+        if (!empty($keywords)) {
+            $records = $records->where(function ($q) use ($keywords) {
+                $q->where('scrapper_values.scrapper_values', 'LIKE', "%$keywords%")
+                    ->orWhere('scrapper_values.task_id', 'LIKE', "%$keywords%");
+            });
+        }
+
+        $records = $records->select(
+            'scrapper_values.task_id',
+            'scrapper_values.scrapper_values',
+            'scrapper_values.created_at',
+            DB::raw('MAX(scrapper_values.id) AS max_id'), // Select max ID from scrapper_values
+            DB::raw('COUNT(scrapper_values_histories.id) AS history_count') // Count records from scrapper_values_histories
+        )
+            ->groupBy('scrapper_values.task_id')
+            ->orderBy('history_count', 'DESC') // Order by the count of scrapper_values_histories records
+            ->paginate(50);*/
+
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 
         $dynamicColumnsToShowscrapper = [];
@@ -6051,7 +6073,8 @@ class DevelopmentController extends Controller
 
         $recordsSingle = ScrapperValues::where('id', $id)->first();
 
-        $records = ScrapperValues::with('tasks')->where('id', "!=", $id)->where("task_id", $recordsSingle['task_id']);
+        //$records = ScrapperValues::with('tasks')->where('id', "!=", $id)->where("task_id", $recordsSingle['task_id']);
+        $records = ScrapperValues::with('tasks')->where("task_id", $recordsSingle['task_id'])->orderBy('id', 'DESC');
 
         $keywords = request('keywords');
         if (! empty($keywords)) {
@@ -6061,10 +6084,12 @@ class DevelopmentController extends Controller
             });
         }
 
-        $records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
+        /*$records = $records->select('task_id', 'id', 'scrapper_values', 'created_at', DB::raw('MAX(id) AS max_id')) // Select only necessary columns and use an alias for MAX(id)
         ->groupBy('task_id')
         ->orderBy('max_id', 'DESC') // Order by the alias of MAX(id)
-        ->paginate(50);
+        ->paginate(50);*/
+
+        $records = $records->paginate(50);
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'development-scrapper-listing')->first();
 
@@ -6167,5 +6192,46 @@ class DevelopmentController extends Controller
             'status' => true,
             'message' => 'Scrapper values status updated.',
         ], 200);
+    }
+
+    public function startTimeHistory(Request $request)
+    {
+        $task = DeveloperTask::find($request->developer_task_id);
+
+        if($request->task_type==1){
+            $input['m_start_date'] = Carbon::now();
+            $input['task_start'] = 1;
+            $input['status'] = 'In Progress';
+
+            $history = new DeveloperTaskStartEndHistory();
+            $history->user_id = auth()->user()->id;
+            $history->task_id = $request->developer_task_id;
+            $history->start_date = Carbon::now();            
+            $history->save();
+
+        } else if($request->task_type==2){
+            $input['m_end_date'] = Carbon::now();
+            $input['task_start'] = 2;
+
+            $history = DeveloperTaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
+
+            if(!empty($history)){                
+                $history->end_date = Carbon::now();
+                $history->save();
+            }
+        }
+
+        $task->update($input);
+
+        return response()->json(['msg' => 'success']);
+    }
+
+    public function getTimeHistoryStartEnd(Request $request)
+    {
+        $id = $request->id;
+
+        $task_histories = DeveloperTaskStartEndHistory::where('task_id', $id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(['histories' => $task_histories]);
     }
 }
