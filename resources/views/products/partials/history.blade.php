@@ -41,19 +41,31 @@
                 <td class="Website-task" title="{{isset($product->description) ? $product->description : "-"}}">
                     {{isset($product->description) ? $product->description : "-"}}
                 </td>
-                <td>
-                    {{isset($product->properties) ? $product->properties : "-"}}
+                <td class="Website-task"> 
+                    @php
+                        // Serialized data
+                        $serializedData = isset($product->properties) ? $product->properties : "a:0:{}";
+
+                        // Unserialize the data to convert it back to an array
+                        $arrayData = unserialize($serializedData);
+                    @endphp
+
+                   
+                        @foreach($arrayData as $key => $value)
+                            <strong>{{ $key }}:</strong> {{ is_array($value) ? json_encode($value) : ($value ?? 'null') }}<br>
+                        @endforeach
+                    
                 </td>
-                <td>
+                <td class="Website-task">
                     {{isset($product->size_system) ? $product->size_system : "-"}}
                 </td>
-                <td>
+                <td class="Website-task">
                     {{isset($product->currency) ? $product->currency : "-"}}
                 </td>
-                <td>
+                <td class="Website-task">
                     {{isset($product->price) ? $product->price : "-"}}
                 </td>
-                <td>
+                <td class="Website-task">
                     {{isset($product->updated_at) ? $product->updated_at : "-"}}
                  </td>
             </tr>
