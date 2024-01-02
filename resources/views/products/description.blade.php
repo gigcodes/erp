@@ -16,7 +16,7 @@
             max-width: 1500px !important; 
   }
   .modal-xl {
-  width: 100%;
+    max-width: 90% !important;
 }
         </style>
 @endsection
