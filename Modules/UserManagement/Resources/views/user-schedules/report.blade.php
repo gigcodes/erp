@@ -88,9 +88,9 @@
                     @php
                         use Carbon\CarbonInterval;
                     @endphp
-                    @if(!empty($dataArray))
+                    @if(!empty($dataMainArray))
                         <?php $totalMinutes = 0; ?>
-                        @foreach ($dataArray as $k => $data)
+                        @foreach ($dataMainArray as $k => $data)
                             <tr>
                                 <td rowspan="{{count($data)+1}}">{{ $loop->iteration }}</td>
                                 <td rowspan="{{count($data)+1}}">{{$k}}</td>

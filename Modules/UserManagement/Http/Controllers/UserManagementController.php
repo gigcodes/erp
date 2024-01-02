@@ -3489,7 +3489,8 @@ class UserManagementController extends Controller
     
         $years = range($currentYear - 5, $currentYear + 5);
 
-        $dataArray = [];
+        
+        $dataMainArray = [];
 
         //return $request;
 
@@ -3504,9 +3505,11 @@ class UserManagementController extends Controller
 
             // Loop through each day of the specified month
             
-            
+            $iii =0;
             for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
                 $dates = $date->format('Y-m-d'); // Add each date to the array
+
+                $dataArray = [];
                 
                 $records = DeveloperTask::select('id', 'estimate_minutes', 'start_date', 'estimate_date')->whereDate('start_date', '=', $dates)->orWhereDate('m_start_date', '=', $dates)->where('assigned_to', Auth::user()->id)->get();
 
@@ -3522,9 +3525,10 @@ class UserManagementController extends Controller
 
                             $records[$key]['totalMinutes'] = $endDate->diffInMinutes($startDate);
                         }
-                    }
 
-                    $dataArray[$dates] = $records;
+                        $dataArray[$iii] = $records[$key];
+                        $iii++;
+                    }                    
                 }
 
                 $recordsTask = Task::select('id', 'approximate', 'start_date', 'due_date')->whereDate('start_date', '=', $dates)->orWhereDate('m_start_date', '=', $dates)->where('assign_to', Auth::user()->id)->get();
@@ -3541,13 +3545,20 @@ class UserManagementController extends Controller
 
                             $recordsTask[$keyTask]['totalMinutes'] = $endDateTask->diffInMinutes($startDateTask);
                         }
-                    }
 
-                    $dataArray[$dates] = $recordsTask;
+                        $dataArray[$iii] = $recordsTask[$keyTask];
+                        $iii++;
+                    }
+                }
+
+                if(!empty($dataArray)){
+                    $dataMainArray[$dates] = $dataArray;
                 }
             }
         }
 
-        return view('usermanagement::user-schedules.report', compact('months', 'years', 'dataArray'));
+        
+
+        return view('usermanagement::user-schedules.report', compact('months', 'years', 'dataMainArray'));
     }
 }
