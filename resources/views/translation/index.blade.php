@@ -83,29 +83,48 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Translation Listing (<span id="translation_count">{{ $data->total() }}</span>)</h2>
-            <div class="pull-left">
-                <div class="form-group">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <input name="term" type="text" class="form-control"
-                                       value="{{ isset($term) ? $term : '' }}"
-                                       placeholder="Search Referral Program" id="term">
-                            </div>
-                            <div class="col-md-2">
-                               <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    
-                            </div>
-                        </div>
-                    </div>
-            </div>
-            <div class="pull-right pr-4">
-                <button type="button" class="btn btn-secondary custom-button" data-target="#addGooleSetting" data-toggle="modal">
-                    Add New Setting
-                </button>
-                <a class="btn btn-secondary custom-button" href="{{ route('translation.add') }}">+</a>
+            <h2 class="page-heading">
+                Translation Listing (<span id="translation_count">{{ $data->total() }}</span>)
+                <div style="float: right;">
+                    <button type="button" class="btn btn-secondary custom-button" data-target="#addGooleSetting" data-toggle="modal">
+                        Add New Setting
+                    </button>
+                    <a class="btn btn-secondary custom-button" href="{{ route('translation.add') }}">+</a>
+                </div>
+            </h2>
+        </div>
+        <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
+            <div class="form-group">
+                <div class="col-md-3">
+                    <strong>Search Keyword :</strong>
+                    <input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search Keyword" id="term">
+                </div>
+                <div class="col-md-2">
+                    <strong>Translation From :</strong>
+                    <select name="from" class="form-control" id="translation_from">
+                        <option value="">Select from</option>
+                        @if($from)
+                        @foreach($from as $frm)
+                        <option value="{{$frm->from}}">{{$frm->from}}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <strong>Translation To:</strong>
+                    <select name="to" class="form-control" id="translation_to">
+                        <option value="">Select to</option>
+                        @if($from)
+                        @foreach($to as $t)
+                        <option value="{{$t->to}}">{{$t->to}}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+                <div class="col-md-2" style="padding-top: 20px;">
+                    <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
+                    <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    
+                </div>
             </div>
         </div>
     </div>
@@ -146,12 +165,16 @@
 
     function submitSearch(){
         src = "{{route('translation.list')}}"
-        term = $('#term').val()
+        term = $('#term').val();
+        translation_from = $('#translation_from').val();
+        translation_to = $('#translation_to').val();
         $.ajax({
             url: src,
             dataType: "json",
             data: {
                 term : term,
+                translation_from : translation_from,
+                translation_to : translation_to,
             },
             beforeSend: function () {
                 $("#loading-image").show();
