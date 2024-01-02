@@ -139,8 +139,7 @@
                     <th width="6%">Size System</th>
                     <th width="5%">Discount</th>
                     <th width="6%">Dimensions</th>
-                    <th width="10%">Date Time</th>
-                    <th width="5%">Functions</th>                    
+                    <th width="10%">Date Time</th>                    
                     <th width="5%">Update History</th>
                     <th width="5%">Functions</th>
                 </tr>
@@ -188,6 +187,8 @@
                         </td>
                         <td>
                             {{isset($product->last_started_at) ? $product->last_started_at : "-"}}
+                        </td>
+                        <td>
                             @php
                             $result_count = app('App\Loggers\LogScraper')->getProductFromSku(isset($product->product->sku) ? $product->product->sku : "");
                             @endphp
