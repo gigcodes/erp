@@ -94,6 +94,7 @@ class Order extends Model
         'transaction_id',
         'order_magento_id',
         'order_return_request',
+        'purchase_product_status_id',
     ];
 
     protected $appends = ['action'];

@@ -64,17 +64,17 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Estimated Start Datetime</td>
+                                <td>Estimated Datetime</td>
                                 <td>
                                     <input type="checkbox" value="Estimated Start Datetime" id="Estimated_Start_Datetime" name="column_ds[]" @if (!empty($dynamicColumnsToShowDs) && in_array('Estimated Start Datetime', $dynamicColumnsToShowDs)) checked @endif>
                                 </td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td>Estimated End Datetime</td>
                                 <td>
                                     <input type="checkbox" value="Estimated End Datetime" id="Estimated_End_Datetime" name="column_ds[]" @if (!empty($dynamicColumnsToShowDs) && in_array('Estimated End Datetime', $dynamicColumnsToShowDs)) checked @endif>
                                 </td>
-                            </tr>
+                            </tr> -->
                             <tr>
                                 <td>Shortcuts</td>
                                 <td>

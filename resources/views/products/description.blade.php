@@ -15,9 +15,14 @@
   .modal-lg{
             max-width: 1500px !important; 
   }
+  .modal-xl {
+    max-width: 90% !important;
+}
         </style>
 @endsection
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @section('content')
     <div class="row">
         <div class="col-md-12">
@@ -100,6 +105,14 @@
         </div>
     </form>
 </div>
+<div class="col-md-12 ml-1 description">
+    <div class="form-group small-field change-list-all-replace_description-wrap">
+        <div class="col-md-2 pd-sm">
+            <input type="text" name="replace_description" class="form-control replace_description" id="replace_description" placeholder="Enter Replace Keyword" value="">
+        </div>
+        <button type="button" class="btn btn-secondary update-description-selected">Update Selected</button>
+    </div>
+</div>
 </div>
     
     <div class="row">
@@ -112,6 +125,7 @@
         <div class="col-md-12">
             <table class="table table-striped table-bordered" id="quick-reply-list" style="table-layout: fixed;">
                 <tr>
+                    <th width="3%"><span><input type="checkbox" class="check-all-btn mr-2">&nbsp;</span></th>
                     <th width="6%">Product ID</th>
                     <th width="5%">SKU</th>
                     <th width="4%">Supplier</th>
@@ -127,9 +141,12 @@
                     <th width="6%">Dimensions</th>
                     <th width="10%">Date Time</th>
                     <th width="5%">Functions</th>                    
+                    <th width="5%">Update History</th>
+                    <th width="5%">Functions</th>
                 </tr>
                 @foreach($products as $product)
                     <tr>
+                        <td><input type="checkbox" name="product[]" value="{{ $product->product_id }}" class="product-checkbox mr-2"></td>
                         <td>
                             <a target="__blank" href="{{$product->supplier_link}}" style="color:black;">{{$product->product_id}}</a>
                         </td>
@@ -142,7 +159,7 @@
                         <td class="Website-task" title="{{isset($product->title) ? $product->title : "-"}}">
                             {{isset($product->title) ? $product->title : "-"}}
                         </td>
-                        <td class="Website-task" title="{{isset($product->description) ? $product->description : "-"}}">
+                        <td class="Website-task product_description" data-id="{{ $product->product_id }}" title="{{isset($product->description) ? $product->description : "-"}}">
                             {{isset($product->description) ? $product->description : "-"}}
                         </td>
                         <td class="Website-task" title="{{isset($product->color) ? $product->color : "-"}}">
@@ -171,6 +188,13 @@
                         </td>
                         <td>
                             {{isset($product->last_started_at) ? $product->last_started_at : "-"}}
+                            @php
+                            $result_count = app('App\Loggers\LogScraper')->getProductFromSku(isset($product->product->sku) ? $product->product->sku : "");
+                            @endphp
+                
+                            <button style="padding: 1px" data-id="{{ isset($product->product->sku) ? $product->product->sku : "" }}" type="button" class="btn btn-image d-inline get-product-history" title="Products History">
+                                {{$result_count}} <i class="fa fa-eye"></i>
+                           </button>
                         </td>
                         <td>
                             <button style="padding: 1px" data-id="{{ $product->scraper_id }}" type="button" class="btn btn-image d-inline get-tasks-remote" title="Task list">
@@ -201,6 +225,53 @@
             </div>
         </div>
   </div>
+  <div id="show-content-product-history-table" class="modal fade product-history-list" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+               
+            </div>
+        </div>
+    </div>
+   </div>
+
+     <!-- The Modal -->
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Change Description</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <div class="form-group">
+              <label for="input1">Description:</label>
+              <input type="text" class="form-control" name="description" id="input1" required>
+            </div>
+            <div class="form-group">
+              <label for="input2">Change Description:</label>
+              <input type="text" class="form-control" name="change_description" id="input2" required>
+              <input type="hidden" class="form-control" name="product_id[]" id="product_id">
+            </div>
+            <button type="submit" class="btn btn-primary update-description-select">Submit</button>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 @endsection
 
 
@@ -210,9 +281,158 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     @include('partials.script_developer_task')
     <script>
+        document.addEventListener('mouseup', function(event) {
+          // Check if the clicked element has the 'selected-row' class
+          if (event.target.classList.contains('product_description')) {
+            var selectedText = getSelectedText();
+            if (selectedText) {
+              var dataIsAttribute = event.target.getAttribute('data-id');
+              $('#myModal').modal('show');
+              $('#input1').val(selectedText);
+              $('#product_id').val(dataIsAttribute);
+              console.log('Selected Text:', selectedText);
+              console.log('Custom Attribute (data-id):', dataIsAttribute);
+            }
+          }
+        });
+    
+        function getSelectedText() {
+          var text = '';
+    
+          if (window.getSelection) {
+            text = window.getSelection().toString();
+          } else if (document.selection && document.selection.type !== 'Control') {
+            text = document.selection.createRange().text;
+          }
+    
+          return text;
+        }
+      </script>
+    <script>
         $("#select_date").datepicker({
 	  	format: 'yyyy-mm-dd'
 	});
+
+
+    $(document).off('click', '.update-description-select').on('click', '.update-description-select', function() {
+        $("#loading-image").show();
+        var changefrom = $("#input1").val();
+        var changeto = $("#input2").val();
+        var changesIds = $("#product_id").val();
+        var idArray = changesIds.split(',');
+        console.log('Selected changesIds:', idArray);
+        
+            $.ajax({
+                type: 'POST',
+                url: '/products/description/update',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    from: changefrom,
+                    to: changeto,
+                    ids: idArray,
+                },
+                dataType: "json"
+            }).done(function(response) {
+                console.log(response);
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if (response.html != "") {
+                        $('#myModal').modal('hide');
+                        toastr['success'](response.message, 'success');
+                        $("#loading-image").show();
+                        var redirectUrl = '/products/description';
+                        window.location.href = redirectUrl;
+                    } else {
+                        $("#loading-image").hide();
+                        toastr['error']('Sorry, something went wrong', 'error');
+                    }
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+            });
+    });
+
+
+
+    $(document).off('click', '.update-description-selected').on('click', '.update-description-selected', function() {
+        $("#loading-image").show();
+        var changefrom = $("#product_description").val();
+        var changeto = $(".replace_description").val();
+        var changesIds = $(".product-checkbox:checked");
+        var checkedValues = [];
+        changesIds.each(function() {
+            checkedValues.push($(this).val());
+        });
+        if (changefrom == '') {
+            $("#loading-image").hide();
+            toastr['error']('Sorry, Please enter description and search result', 'error');
+        } else if(changeto == ''){
+            $("#loading-image").hide();
+            toastr['error']('Sorry, Please enter replace keyword', 'error');
+        } else if(checkedValues.length <= 0){
+            $("#loading-image").hide();
+            toastr['error']('Sorry, Please select at least one product', 'error');
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '/products/description/update',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    from: changefrom,
+                    to: changeto,
+                    ids: checkedValues,
+                },
+                dataType: "json"
+            }).done(function(response) {
+                console.log(response);
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if (response.html != "") {
+                        toastr['success'](response.message, 'success');
+                        $("#loading-image").show();
+                        var redirectUrl = '/products/description';
+                        window.location.href = redirectUrl;
+                    } else {
+                        $("#loading-image").hide();
+                        toastr['error']('Sorry, something went wrong', 'error');
+                    }
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+            });
+        }
+    });
+    $(document).ready(function() {
+    // When the check-all-btn is clicked
+        $(".check-all-btn").on("change", function() {
+            // If check-all-btn is checked, check all product-checkbox
+            if ($(this).prop("checked")) {
+                $(".product-checkbox").prop("checked", true);
+            } else {
+                // If check-all-btn is unchecked, uncheck all product-checkbox
+                $(".product-checkbox").prop("checked", false);
+            }
+        });
+
+        // When any product-checkbox is clicked
+        $(".product-checkbox").on("change", function() {
+            // Check if all product-checkbox are checked, then check the check-all-btn
+            if ($(".product-checkbox:checked").length === $(".product-checkbox").length) {
+                $(".check-all-btn").prop("checked", true);
+            } else {
+                // If any product-checkbox is unchecked, uncheck the check-all-btn
+                $(".check-all-btn").prop("checked", false);
+            }
+        });
+    });
 
  </script>
 @endsection

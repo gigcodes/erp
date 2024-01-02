@@ -383,6 +383,7 @@ use App\Http\Controllers\MonitStatusController;
 use App\Http\Controllers\MagentoProblemController;
 use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
+use App\Http\Controllers\DevOppsController;
 
 Auth::routes();
 
@@ -478,6 +479,7 @@ Route::post('vendors/cv/storeCVWithoutLogin', [VendorResumeController::class, 's
 
 Route::prefix('blog')->middleware('auth')->group(function () {
     Route::get('/list', [BlogController::class, 'index'])->name('blog.index');
+    Route::post('blog-column-visbility', [BlogController::class, 'columnVisbilityUpdate'])->name('blog.column.update');
     Route::get('/add', [BlogController::class, 'create'])->name('blog.create');
     Route::get('/edit/{id}', [BlogController::class, 'edit'])->name('blog.edit');
     Route::post('/store', [BlogController::class, 'store'])->name('store-blog.submit');
@@ -878,6 +880,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::post('delete/magento-api-search-history', [Logging\LogListMagentoController::class, 'deleteMagentoApiData'])->name('delete.magento.api-search-history');
     Route::get('log-magento-apis-ajax', [Logging\LogListMagentoController::class, 'logMagentoApisAjax'])->name('logging.magento.logMagentoApisAjax');
     Route::get('log-magento-product-push-journey', [Logging\LogListMagentoController::class, 'productPushJourney'])->name('logging.magento.product_push_journey');
+    Route::post('log-magento-column-visbility', [Logging\LogListMagentoController::class, 'columnVisbilityUpdate'])->name('logging.magento.column.update');
 });
 Route::get('log-scraper-api', [Logging\LogScraperController::class, 'scraperApiLog'])->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', [Logging\LogScraperController::class, 'index'])->middleware('auth')->name('log-scraper.index');
@@ -950,9 +953,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::get('color-reference/affected-product', [ColorReferenceController::class, 'affectedProduct']);
     Route::post('color-reference/update-color', [ColorReferenceController::class, 'updateColor']);
-
+    Route::post('color-reference/update-color-miltiple', [ColorReferenceController::class, 'updateColorMultiple']);
     Route::resource('color-reference', ColorReferenceController::class);
-
+    Route::get('color-reference-group', [ColorReferenceController::class, 'groupColor']);
+    Route::get('/color-reference/group/{name}/{threshold}', [ColorReferenceController::class, 'colorGroupBy']);
     Route::get('compositions/{id}/used-products', [CompositionsController::class, 'usedProducts'])->name('compositions.used-products');
     Route::get('compositions/affected-product', [CompositionsController::class, 'affectedProduct']);
     Route::post('compositions/update-composition', [CompositionsController::class, 'updateComposition']);
@@ -962,6 +966,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('compositions/{id}/history', [CompositionsController::class, 'history'])->name('compositions.history');
     Route::get('compositions/delete-unused', [CompositionsController::class, 'deleteUnused'])->name('compositions.delete.unused');
     Route::post('compositions/update-name', [CompositionsController::class, 'updateName'])->name('compositions.update.name');
+    Route::get('compositions/groups', [CompositionsController::class, 'compositionsGroups'])->name('compositions.groups');
+    Route::get('compositions/group/{threshold}', [CompositionsController::class, 'compositionsGroupBy']);
+    Route::post('compositions/delete-composition', [CompositionsController::class, 'deleteComposition'])->name('compositions.delete');
     Route::resource('compositions', CompositionsController::class);
     Route::get('incorrect-attributes', [UnknownAttributeProductController::class, 'index'])->name('incorrect-attributes');
     Route::post('attribute-assignment', [UnknownAttributeProductController::class, 'attributeAssignment'])->name('incorrect-attributes.attribute-assignment');
@@ -1036,6 +1043,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('product/listing/users', [ProductController::class, 'showListigByUsers']);
     Route::get('products/listing', [ProductController::class, 'listing'])->name('products.listing');
     Route::get('products/listing/final', [ProductController::class, 'approvedListing'])->name('products.listing.approved');
+    Route::post('products-listing-final-column-visbility', [ProductController::class, 'plfColumnVisbilityUpdate'])->name('products.column.update');
+    Route::post('products-listing-final/statuscolor', [ProductController::class, 'statuscolor'])->name('products.statuscolor');
     Route::get('products/listing/conditions-check', [ProductController::class, 'magentoConditionsCheck'])->name('products.magentoConditionsCheck');
     Route::post('products/listing/autocompleteForFilter', [ProductController::class, 'autocompleteForFilter'])->name('products.autocompleteForFilter');
 
@@ -1091,7 +1100,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
-
+    Route::get('/product-hisotry', [ProductController::class, 'productDescriptionHistory'])->name('scrap.product-hisotry');
+    Route::post('products/description/update', [ProductController::class, 'productDescriptionUpdate'])->name('products.description.update');
+    Route::get('products/multi-description', [ProductController::class, 'productMultiDescription'])->name('products.multidescription');
+    Route::post('products/multi-description-sky-check', [ProductController::class, 'productMultiDescriptionCheck'])->name('products.multidescription.skucheck');
+    Route::get('/products/multi-description-sku', [ProductController::class, 'productMultiDescriptionSku'])->name('products.multidescription.sku');
+    Route::post('products/multi-description-sky-update', [ProductController::class, 'productMultiDescriptionUpdate'])->name('products.multidescription.update');
+    Route::post('products-status-history-column-visbility', [ProductController::class, 'columnVisbilityUpdate'])->name('products.column.update');
     Route::post('products/{id}/updateName', [ProductController::class, 'updateName']);
     Route::post('products/{id}/updateDescription', [ProductController::class, 'updateDescription']);
     Route::post('products/{id}/updateComposition', [ProductController::class, 'updateComposition']);
@@ -1354,6 +1369,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //new category reference
 
     Route::get('category/new-references', [CategoryController::class, 'newCategoryReferenceIndex']);
+    Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
+    Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
     Route::post('category/new-references/save-category', [CategoryController::class, 'saveCategoryReference']);
     Route::get('category/fix-autosuggested', [CategoryController::class, 'fixAutoSuggested'])->name('category.fix-autosuggested');
     Route::get('category/fix-autosuggested-string', [CategoryController::class, 'fixAutoSuggestedString'])->name('category.fix-autosuggested-via-str');
@@ -1372,6 +1389,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('category', CategoryController::class)->except('show');
     Route::resource('category-segment', CategorySegmentController::class);
 
+    Route::get('resourceimg/searchimg', [ResourceImgController::class, 'searchResourceimg'])->name('resourceimg.searchimg');
     Route::resource('resourceimg', ResourceImgController::class);
     Route::get('resourceimg/pending/1', [ResourceImgController::class, 'pending']);
     Route::post('add-resource', [ResourceImgController::class, 'addResource'])->name('add.resource');
@@ -1381,6 +1399,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('acitvate-resourceCat', [ResourceImgController::class, 'activateResourceCat'])->name('activate.resourceCat');
 
     Route::get('resourceimg/pending', [ResourceImgController::class, 'pending']);
+    Route::post('resourceimg/status/create', [ResourceImgController::class, 'resourceStatusCreate'])->name('resourceimg.status.create');
+    Route::post('resourceimg/statuscolor', [ResourceImgController::class, 'statuscolor'])->name('resourceimg.statuscolor');
+    Route::post('resourceimg/resourceimg-update-status', [ResourceImgController::class, 'updateStatus'])->name('resourceimg-update-status');
+    Route::get('resourceimg/status/histories/{id}', [ResourceImgController::class, 'resourceimgStatusHistories'])->name('resourceimg.status.histories');
+    Route::post('resourceimg/remarks', [ResourceImgController::class, 'saveRemarks'])->name('resourceimg.saveremarks');
+    Route::post('resourceimg/getremarks', [ResourceImgController::class, 'getRemarksHistories'])->name('resourceimg.getremarks');
+    Route::post('resourceimg/getimages', [ResourceImgController::class, 'getResourcesImages'])->name('resourceimg.getimages');
 
     Route::post('delete-resource', [ResourceImgController::class, 'deleteResource'])->name('delete.resource');
     Route::get('images/resource/{id}', [ResourceImgController::class, 'imagesResource'])->name('images/resource');
@@ -1396,6 +1421,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('leads/permanentDelete/{leads}', [LeadsController::class, 'permanentDelete'])->name('leads.permanentDelete');
     Route::resource('chat', ChatController::class);
     Route::get('erp-leads', [LeadsController::class, 'erpLeads'])->name('erp-leads.erpLeads');
+    Route::post('erp-leads-column-visbility', [LeadsController::class, 'columnVisbilityUpdate'])->name('erp-leads.column.update');
+    Route::post('erp-leads/statuscolor', [LeadsController::class, 'statuscolor'])->name('erp-leads.statuscolor');
     Route::post('erp-leads/enable-disable', [LeadsController::class, 'enableDisable'])->name('erp-leads.enable-disable');
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', [LeadsController::class, 'sendMessage'])->name('erp-leads-send-message');
@@ -1667,6 +1694,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('order/get-email-send-journey-step-logs', [OrderController::class, 'getOrderEmailSendJourneyStepLog'])->name('order.get.email.send.journey.step.logs');
     Route::get('order/get-order-status-journey', [OrderController::class, 'getOrderStatusJourney'])->name('order.get.order.status.journey');
     Route::get('order/get-order-journey', [OrderController::class, 'getOrderJourney'])->name('order.get.order.journey');
+    Route::post('orders-journey-column-visbility', [OrderController::class, 'columnVisbilityUpdate'])->name('orders.journey.column.update');
+    Route::post('orders-journey/getproducts', [OrderController::class, 'getOrderProductsList'])->name('orders.journey.products');
     Route::get('order/charity-order', [OrderController::class, 'charity_order']);
     Route::post('order/cancel-transaction', [OrderController::class, 'cancelTransaction'])->name('order.canceltransaction');
     Route::post('order/payload', [OrderController::class, 'getOrderPayloadList'])->name('order.payload');
@@ -1743,6 +1772,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('email/email-frame-info/{id}', [EmailController::class, 'viewEmailFrameInfo']);
     Route::get('technical/read', [EmailController::class, 'updateEmailRead'])->name('website.email.update');
     Route::get('quick/email/read', [EmailController::class, 'quickEmailList'])->name('quick.email.list');
+    Route::get('email/email-replise/{id}', [EmailController::class, 'getEmailreplies']);
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -1891,6 +1921,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('task/create-multiple-task-from-shortscriptdocument', [TaskModuleController::class, 'createMultipleTaskFromScriptDocument'])->name('task.create.multiple.task.shortscriptdocument');
     Route::post('task/create-multiple-task-from-shortcutsentry', [TaskModuleController::class, 'createMultipleTaskFromSortcutSentry'])->name('task.create.multiple.task.shortcutsentry');
     Route::post('task/create-multiple-task-from-shortcutmagentoproblems', [TaskModuleController::class, 'createMultipleTaskFromSortcutMagentoProblems'])->name('task.create.multiple.task.shortcutmagentoproblems');
+    Route::post('task/create-multiple-task-from-shortcutdevoops', [TaskModuleController::class, 'createMultipleTaskFromSortcutDevOops'])->name('task.create.multiple.task.shortcutdevoops');
     Route::post('task/create-multiple-task-from-shortcutwebsitelogs', [TaskModuleController::class, 'createMultipleTaskFromSortcutWebsiteLogs'])->name('task.create.multiple.task.shortcutwebsitelogs');
     Route::post('task/get/websitelist', [TaskModuleController::class, 'getWebsiteList'])->name('get.task.websitelist');
     Route::get('task/user/history', [TaskModuleController::class, 'getUserHistory'])->name('task/user/history');
@@ -2251,6 +2282,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchase-product/not_mapping_product_supplier_list', [PurchaseProductController::class, 'not_mapping_product_supplier_list'])->name('not_mapping_product_supplier_list'); //Purpose : Get not mapping supplier - DEVTASK-19941
 
     Route::post('purchase-product/change-status/{id}', [PurchaseProductController::class, 'changeStatus']);
+    Route::post('purchase-product/change-main-status/{id}', [PurchaseProductController::class, 'changeMainStatus']);
+    Route::post('purchase-product/getstatus', [PurchaseProductController::class, 'getStatusHistories'])->name('purchase-product.getstatus');
     Route::post('purchase-product/submit-status', [PurchaseProductController::class, 'createStatus']);
     Route::get('purchase-product/send-products/{type}/{supplier_id}', [PurchaseProductController::class, 'sendProducts']);
     Route::get('purchase-product/get-products/{type}/{supplier_id}', [PurchaseProductController::class, 'getProducts']);
@@ -2262,6 +2295,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchase-product/lead-supplier-details/{lead_id}', [PurchaseProductController::class, 'leadSupplierDetails']);
 
     Route::get('purchase-product/customer-details/{type}/{order_id}', [PurchaseProductController::class, 'getCustomerDetails']);
+    Route::post('purchase-product/statuscolor', [PurchaseProductController::class, 'statuscolor'])->name('purchase-product.statuscolor');
+    Route::post('purchase-product-column-visbility', [PurchaseProductController::class, 'ppColumnVisbilityUpdate'])->name('purchase-product.column.update');
     Route::resource('purchase-product', PurchaseProductController::class);
 
     Route::post('purchase-product/insert_suppliers_product', [PurchaseProductController::class, 'insert_suppliers_product'])->name('purchase-product.insert_suppliers_product');
@@ -2365,6 +2400,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/task/get-document', [DevelopmentController::class, 'getDocument']);
     Route::get('development/task/export-task', [DevelopmentController::class, 'exportTask']);
     Route::get('development/task/search/', [DevelopmentController::class, 'searchDevTask'])->name('devtask.module.search');
+    Route::post('development/add/scrapper', [DevelopmentController::class, 'addScrapper'])->name('development.add-scrapper');
+    Route::get('development/countscrapper/{id}', [DevelopmentController::class, 'taskScrapper']);
+    Route::post('development/updatescrapperdata', [DevelopmentController::class, 'UpdateScrapper'])->name('development.updatescrapperdata');
+    Route::post('development/updatescrapperremarksdata', [DevelopmentController::class, 'UpdateScrapperRemarks'])->name('development.updatescrapperremarksdata');
 
     Route::resource('task-types', TaskTypesController::class);
 
@@ -2394,8 +2433,17 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('development/scrapping/list', [DevelopmentController::class, 'scrappingTaskIndex'])->name('development.scrapping.index');
 
     Route::get('scrap/development/list', [DevelopmentController::class, 'scrappingTaskIndex'])->name('development.scrap.index');
+    Route::get('development/scrap/list', [DevelopmentController::class, 'devScrappingTaskIndex'])->name('development.scrapper.index');
     Route::get('development/change-user', [DevelopmentController::class, 'changeUser'])->name('development.issue.change_user');
     Route::post('development/change-user', [DevelopmentController::class, 'changeUserStore'])->name('development.changeuser.store');
+    Route::get('development-scrapper-data/{id}', [DevelopmentController::class, 'developmentScrapperData'])->name('development.scrapper_data');
+    Route::get('development-scrapper-images-data/{id}', [DevelopmentController::class, 'developmentScrapperImagesData'])->name('development.scrapper_images_data');
+    Route::post('scrapper-column-visbility', [DevelopmentController::class, 'scrapperColumnVisbilityUpdate'])->name('scrapper.column.update');
+    Route::post('development-scrapper-data', [DevelopmentController::class, 'developmentGetScrapperData'])->name('development.getscrapperdata');
+    Route::post('development/historyscrapper', [DevelopmentController::class, 'devScrappingTaskHistoryIndex'])->name('development.historyscrapper');
+    Route::get('development/scrapperhistory/{id}', [DevelopmentController::class, 'devScrappingTaskHistory'])->name('development.scrapper_hisotry');
+    Route::post('development-scrapper-update-all-statusdata', [DevelopmentController::class, 'developmentUpdateAllScrapperStatusData'])->name('development.updateallstatusdata');
+    
 
     Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
     Route::post('dl-column-visbility', [DevelopmentController::class, 'dlColumnVisbilityUpdate'])->name('dl.column.update');
@@ -2669,6 +2717,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('complaint/{id}/status', [ComplaintController::class, 'updateStatus'])->name('complaint.updateStatus');
 
     // Vendor Module
+    Route::get('vendors-autocomplete', [VendorController::class, 'getVendorAutocomplete'])->name('vendors.autocomplete');
+    Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
+    Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');
     Route::post('vendors/storeshortcut', [VendorController::class, 'storeshortcut'])->name('vendors.storeshortcut');
@@ -2730,6 +2781,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('vendor_category/assign-user', [VendorController::class, 'assignUserToCategory']);
     Route::post('vendor/changeWhatsapp', [VendorController::class, 'changeWhatsapp'])->name('vendor.changeWhatsapp');
     Route::post('vendor/status/create', [VendorController::class, 'statusStore'])->name('vendor.status.store');
+    Route::post('vendor/flowchart/create', [VendorController::class, 'flowchartStore'])->name('vendor.flowchart.store');
+    Route::post('vendor/updateflowchart', [VendorController::class, 'vendorFlowchart'])->name('vendors.flowchart');
+    Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
+    Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
+    Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');
@@ -2950,6 +3006,12 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('assets-manager.users', [AssetsManagerController::class, 'assetsUserList'])->name('assetsmanager.users');
     Route::get('assets-manager-user-access-request/{id}', [AssetsManagerController::class, 'userAccessRequest'])->name('assetsmanager.user_access_request');
     Route::post('assets-manager-column-visbility', [AssetsManagerController::class, 'asColumnVisbilityUpdate'])->name('assetsmanager.column.update');
+    Route::post('assets-manager/terminal-user-access-create', [AssetsManagerController::class, 'createTerminalUserAccess']);
+    Route::post('assets-manager/terminal_users_access', [AssetsManagerController::class, 'assetManamentTerminalUsersAccess'])->name('assetsmanager.assetManamentTerminalUsersAccess');
+    Route::post('assets-manager/terminal-user-access-delete', [AssetsManagerController::class, 'deleteTerminalUserAccess']);
+    Route::post('assets-manager/remarks', [AssetsManagerController::class, 'saveRemarks'])->name('assetsmanager.saveremarks');
+    Route::post('assets-manager/getremarks', [AssetsManagerController::class, 'getRemarksHistories'])->name('assetsmanager.getremarks');
+    Route::post('assets-manager/updateup', [AssetsManagerController::class, 'updateUsernamePassword'])->name('assetsmanager.updateup');
 
     // Agent Routes
     Route::resource('agent', AgentController::class);
@@ -3172,10 +3234,12 @@ Route::post('livechat/send-file', [LiveChatController::class, 'sendFileToLiveCha
 Route::get('livechat/get-customer-info', [LiveChatController::class, 'getLiveChatIncCustomer'])->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', [LiveChatController::class, 'tickets'])->name('livechat.get.tickets');
+Route::post('livechat-tickets-column-visbility', [LiveChatController::class, 'columnVisbilityUpdate'])->name('livechat.column.update');
 /*#DEVTASK-22731 - START*/
 Route::post('livechat/tickets/update-ticket', [LiveChatController::class, 'updateTicket'])->name('livechat.tickets.update-ticket');
 Route::post('livechat/tickets/approve-ticket', [LiveChatController::class, 'approveTicket'])->name('livechat.tickets.approve-ticket');
 Route::post('livechat/tickets/ticket-data', [LiveChatController::class, 'ticketData'])->name('livechat.tickets.ticket-data');
+Route::get('livechat-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
 /*#DEVTASK-22731 - END*/
 Route::post('livechat/statuscolor', [LiveChatController::class, 'statuscolor'])->name('livechat.statuscolor');
 Route::post('tickets/email-send', [LiveChatController::class, 'sendEmail'])->name('tickets.email.send');
@@ -3396,6 +3460,7 @@ Route::middleware('auth')->group(function () {
     Route::get('script-documents/errorlogslist', [ScriptDocumentsController::class, 'getScriptDocumentErrorLogsList'])->name('script-documents.getScriptDocumentErrorLogsList');
 
     Route::get('bug-tracking', [BugTrackingController::class, 'index'])->name('bug-tracking.index');
+    Route::post('bug-tracking-column-visbility', [BugTrackingController::class, 'columnVisbilityUpdate'])->name('bug-tracking.column.update');
     Route::get('bug-tracking/records', [BugTrackingController::class, 'records'])->name('bug-tracking.records');
     Route::get('bug-tracking/create', [BugTrackingController::class, 'create'])->name('bug-tracking.create');
     Route::post('bug-tracking/store', [BugTrackingController::class, 'store'])->name('bug-tracking.store');
@@ -3564,6 +3629,8 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/process-kill', [DatabaseController::class, 'processKill'])->name('database.process.kill');
     Route::post('/export', [DatabaseController::class, 'export'])->name('database.export');
     Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
+    Route::get('/tables-list', [DatabaseTableController::class, 'tableList'])->name('database.tables-list');
+    Route::post('truncate-tables', [DatabaseTableController::class, 'truncateTables'])->name('truncate-tables');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');
@@ -3595,6 +3662,8 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('view-posts/{id}', [Social\SocialPostController::class, 'viewPost'])->name('social.post.viewpost');
     Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('social.account.comments.reply');
     Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('social.dev.reply.comment');
+    Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
+    Route::get('all-comments', [SocialAccountCommentController::class, 'allcomments'])->name('social.all-comments');
 });
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
@@ -3777,6 +3846,8 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::resource('gmail', GmailDataController::class);
     Route::resource('designer', DesignerController::class);
     Route::resource('sales', SalesItemController::class);
+    Route::get('/scrap-links', [ScrapController::class, 'scrap_links']);
+    Route::get('scrap-links/status/histories/{id}', [ScrapController::class, 'scrapLinksStatusHistories'])->name('scrap_links.status.histories');
     Route::get('/dubbizle', [DubbizleController::class, 'index']);
     Route::post('/dubbizle/set-reminder', [DubbizleController::class, 'updateReminder']);
     Route::post('/dubbizle/bulkWhatsapp', [DubbizleController::class, 'bulkWhatsapp'])->name('dubbizle.bulk.whatsapp');
@@ -4282,6 +4353,10 @@ Route::middleware('auth')->prefix('marketing')->group(function () {
 });
 
 Route::middleware('auth')->prefix('checkout')->group(function () {
+	Route::post('coupons/remarks', [CouponController::class, 'saveRemarks'])->name('coupons.saveremarks');
+    Route::post('coupons/getremarks', [CouponController::class, 'getRemarksHistories'])->name('coupons.getremarks');
+    Route::post('coupons-column-visbility', [CouponController::class, 'columnVisbilityUpdate'])->name('coupons.column.update');
+    Route::post('coupons/statuscolor', [CouponController::class, 'statuscolor'])->name('coupons.statuscolor');
     Route::post('coupons/store', [CouponController::class, 'store'])->name('coupons.store');
     Route::post('coupons/{id}', [CouponController::class, 'update']);
     Route::get('coupons', [CouponController::class, 'index'])->name('coupons.index');
@@ -5104,6 +5179,7 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(function () {
     Route::get('/edit-value', [GoogleFileTranslator::class, 'editValue'])->name('googlefiletranslator.edit.value');
     Route::post('/googlefiletranslator/update', [GoogleFileTranslator::class, 'update'])->name('googlefiletranslator.update');
     Route::get('googlefiletranslator/{id}', [GoogleFileTranslator::class, 'tranalteHistoryShow'])->name('googlefiletranslator_histories.show');
+    Route::get('googlefiletranslatorstatus/{id}', [GoogleFileTranslator::class, 'tranalteStatusHistoryShow'])->name('googlefiletranslator_histories_status.show');
     Route::post('status-change', [GoogleFileTranslator::class, 'statusChange'])->name('googlefiletranslator_histories.status');
     Route::get('/download-csv/{id}/{type}', [GoogleFileTranslator::class, 'downloadCsv'])->name('store-website.download.csv');
 
@@ -5241,6 +5317,7 @@ Route::get('gtmetrix/getstatscomparison/{id}', [gtmetrix\WebsiteStoreViewGTMetri
 Route::any('gtmetrix/categories', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listGTmetrixCategories'])->name('gtmetrix.category.list');
 Route::any('gtmetrix/gtmetrixReport', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'listWebsiteWiseCategories'])->name('gtmetrix.Report.list');
 Route::post('gtmetrix/gtmetrixReportData', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'WebsiteWiseCategoriesReport'])->name('gtmetrix.single.report');
+Route::post('gtmetrix-error-tables', [GTMatrixErrorLogController::class, 'truncateTables'])->name('gtmetrix.error.truncate-tables');
 Route::get('gtmetrix/error-index', [GTMatrixErrorLogController::class, 'index'])->name('gtmetrix.error.index.list');
 Route::any('gtmetrix/error-list', [GTMatrixErrorLogController::class, 'listGTmetrixError'])->name('gtmetrix.error.list');
 // Route::resource('GtMetrixAccounts', StoreGTMetrixAccountController::class);
@@ -5252,6 +5329,7 @@ Route::get('gtmetrixAccount/show', [StoreGTMetrixAccountController::class, 'show
 Route::post('gtmetrixAccount/update', [StoreGTMetrixAccountController::class, 'update'])->name('account.update');
 Route::post('gtmetrixAccount/store', [StoreGTMetrixAccountController::class, 'store'])->name('account.store');
 Route::get('gtmetrixcategoryWeb', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'CategoryWiseWebsiteReport'])->name('gtm.cetegory.web');
+Route::post('gtmetrixcategoryWeb-column-visbility', [gtmetrix\WebsiteStoreViewGTMetrixController::class, 'columnVisbilityUpdate'])->name('gtmetrix.column.update');
 
 Route::get('product-pricing', [product_price\ProductPriceController::class, 'index'])->name('product.pricing');
 Route::get('product-autocomplete', [product_price\ProductPriceController::class, 'getProductAutocomplete'])->name('product.autocomplete');
@@ -5488,6 +5566,18 @@ Route::middleware('auth')->group(function () {
     Route::post('checklist/checklist_update', [CheckListController::class, 'checklistUpdate'])->name('checklist.update.c');
     Route::post('checklist/add-remark', [CheckListController::class, 'subjectRemarkCreate'])->name('checklist.add.remark');
     Route::post('checklist/list', [CheckListController::class, 'subjectRemarkList'])->name('checklist.remark.list');
+    Route::resource('devoops', DevOppsController::class);
+    Route::delete('devoopslist/{id}', [DevOppsController::class, 'delete']);
+    Route::delete('devoopssublist/{id}', [DevOppsController::class, 'subdelete']);
+    Route::post('devoopssublist/remarks', [DevOppsController::class, 'saveRemarks'])->name('devoopssublist.saveremarks');
+    Route::post('devoopssublist/getremarks', [DevOppsController::class, 'getRemarksHistories'])->name('devoopssublist.getremarks');
+    Route::get('devoops/countdevtask/{id}', [DevOppsController::class, 'taskCount']);
+    Route::post('devoops/status/create', [DevOppsController::class, 'createStatus'])->name('devoops.status.create');
+    Route::post('devoops/statuscolor', [DevOppsController::class, 'statuscolor'])->name('devoops.statuscolor');
+    Route::post('devoops/status/update', [DevOppsController::class, 'updateStatus'])->name('devoops.status.update');
+    Route::post('devoopssublist/getstatus', [DevOppsController::class, 'getStatusHistories'])->name('devoopssublist.getstatus');
+    Route::post('devoopssublist/upload-file', [DevOppsController::class, 'uploadFile'])->name('devoopssublist.upload-file');
+    Route::get('devoopssublist/files/record', [DevOppsController::class, 'getUploadedFilesList'])->name('devoopssublist.files.record');
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);
@@ -5599,6 +5689,8 @@ Route::prefix('system-queue')->middleware('auth')->group(function () {
 Route::prefix('seo')->middleware('auth')->group(function () {
     Route::prefix('content')->group(function () {
         Route::get('', [Seo\ContentController::class, 'index'])->name('seo.content.index');
+        Route::post('seo-content-column-visbility', [Seo\ContentController::class, 'columnVisbilityUpdate'])->name('seo.content.column.update');
+    	Route::post('statuscolor', [Seo\ContentController::class, 'statuscolor'])->name('seo.content.statuscolor');
         Route::get('create', [Seo\ContentController::class, 'create'])->name('seo.content.create');
         Route::post('store', [Seo\ContentController::class, 'store'])->name('seo.content.store');
         Route::get('{id}/edit', [Seo\ContentController::class, 'edit'])->name('seo.content.edit');
@@ -5620,6 +5712,8 @@ Route::prefix('seo')->middleware('auth')->group(function () {
         Route::post('store', [Seo\CompanyController::class, 'store'])->name('seo.company.store');
         Route::get('{id}/edit', [Seo\CompanyController::class, 'edit'])->name('seo.company.edit');
         Route::post('{id}/update', [Seo\CompanyController::class, 'update'])->name('seo.company.update');
+        Route::post('column-visbility', [Seo\CompanyController::class, 'columnVisbilityUpdate'])->name('seo.company.column.update');
+        Route::post('statuscolor', [Seo\CompanyController::class, 'statuscolor'])->name('seo.company.statuscolor');
     });
 
     Route::prefix('company-type')->group(function () {
@@ -5654,14 +5748,6 @@ Route::prefix('appconnect')->middleware('auth')->group(function () {
 });
 
 Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
-    Route::prefix('providers')->group(function () {
-        Route::get('', [AffiliateMarketingController::class, 'providers'])->name('affiliate-marketing.providers');
-        Route::get('{id}', [AffiliateMarketingController::class, 'getProvider'])->name('affiliate-marketing.getProvider');
-        Route::post('create', [AffiliateMarketingController::class, 'createProvider'])->name('affiliate-marketing.createProvider');
-        Route::post('update/{id}', [AffiliateMarketingController::class, 'updateProvider'])->name('affiliate-marketing.updateProvider');
-        Route::post('delete', [AffiliateMarketingController::class, 'deleteProvider'])->name('affiliate-marketing.deleteProviders');
-    });
-
     Route::prefix('provider-accounts')->group(function () {
         Route::get('', [AffiliateMarketingController::class, 'providerAccounts'])->name('affiliate-marketing.providerAccounts');
         Route::get('{id}', [AffiliateMarketingController::class, 'getProviderAccount'])->name('affiliate-marketing.getProviderAccount');
@@ -5680,6 +5766,7 @@ Route::prefix('affiliate-marketing')->middleware('auth')->group(function () {
 
     Route::prefix('programs')->group(function () {
         Route::get('', [AffiliateMarketingDataController::class, 'programIndex'])->name('affiliate-marketing.provider.program.index');
+        Route::get('commission-type', [AffiliateMarketingDataController::class, 'programCommissionType'])->name('affiliate-marketing.provider.program.commissionType');
         Route::post('programme-sync', [AffiliateMarketingDataController::class, 'programSync'])->name('affiliate-marketing.provider.program.sync');
     });
 
