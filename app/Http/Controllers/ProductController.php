@@ -75,6 +75,7 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
 use App\Loggers\LogScraper;
+use App\DescriptionChange;
 
 class ProductController extends Controller
 {
@@ -4354,7 +4355,11 @@ class ProductController extends Controller
     {
         $ids = $request->ids;
         $from = $request->from;
-        $to = $request->to;
+        $to = $request->to; 
+        DescriptionChange::create([
+            'keyword' => $from,
+            'replace_with' => $to,
+        ]);
         foreach ($ids as $id) {
             $prod = ProductSupplier::where('product_id', $id)->first();
             $description = str_replace($from, $to, $prod->description);
