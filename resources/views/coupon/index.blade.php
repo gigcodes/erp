@@ -146,6 +146,8 @@
     }
 
     .select2-container{width: 100% !important;}
+    .form-inline .form-control{width: 100% !important;}
+    .copy-btn{float: right; padding: 0px !important;}
 </style>
 @endsection
 @section('content')
@@ -157,7 +159,25 @@
 
 <div class="row">
     <div class="col-lg-12 margin-tb m-0">
-        <h2 class="page-heading">Coupon Management</h2>
+        <h2 class="page-heading">
+            Coupon Management - Coupon Rules
+
+            <div style="float:right;">  
+                <button type="button" class="btn custom-button" onclick="showOverallReport()">
+                    Overall Report
+                </button>
+                <span>&nbsp;</span>
+                <button type="button" class="btn custom-button" onclick="createCoupon()">
+                    New Coupon
+                </button>
+                <span>&nbsp;</span>
+                <button type="button" class="btn custom-button" data-toggle="modal" data-target="#ccrdatatablecolumnvisibilityList">
+                    Column Visiblity
+                </button>
+                <span>&nbsp;</span>
+                <button class="btn custom-button" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+            </div>
+        </h2>
     </div>
 </div>
 
@@ -261,21 +281,15 @@
                                 <a href="{{route('coupons.index')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
                             </div>
                         </div>
-                        <div class="col-sm-3 p-0" style="text-align: right;">  
-                            <button type="button" class="btn custom-button" onclick="showOverallReport()">
-                                Overall Report
-                            </button>
-                            <span>&nbsp;</span>
-                            <button type="button" class="btn custom-button" onclick="createCoupon()">
-                                New Coupon
-                            </button>
-                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+@include("coupon.column-visibility-modal")
+@include("coupon.modal-status-color")
 
 <!-- COUPON DETAIL MODAL -->
 <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
@@ -741,57 +755,198 @@
     <p>{{ $message }}</p>
 </div>
 @endif
-
-
-<div class="row">
-    <div class="col-md-12 pl-5 pr-5">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="" style="margin: 0px;padding: 15px;margin-bottom: 15px;text-align: center;">Coupon Rules</h2>
-        </div>
-    </div>
-</div>
+</br>
 <div class="row">
     <div class="col-md-12 pl-5 pr-5">
         <div class="table-responsive coupon-rules-table">
             <table class="table table-striped table-bordered" style="width:100%; table-layout: fixed;" id="coupon_rules_table">
                 <thead>
                     <tr>
-                        <th width="2%">ID</th>
-                        <th width="15%">Rule</th>
-                        <th width="10%">Coupon Code</th>
-                        <th width="25%">Websites</th>
-                        <th width="6%">Start</th>
-                        <th width="6%">End</th>
-                        <th width="10%">Created By</th>
-                        <th width="5%">Status</th>
-                        <th width="10%">Action</th>
+                        @if(!empty($dynamicColumnsToShowccr))
+                            @if (!in_array('ID', $dynamicColumnsToShowccr))
+                                <th width="5%">ID</th>
+                            @endif
+                            @if (!in_array('Rule', $dynamicColumnsToShowccr))
+                                <th width="15%">Rule</th>
+                            @endif
+                            @if (!in_array('Description', $dynamicColumnsToShowccr))
+                                <th width="15%">Description</th>
+                            @endif
+                            @if (!in_array('Coupon Code', $dynamicColumnsToShowccr))
+                                <th width="10%">Coupon Code</th>
+                            @endif
+                            @if (!in_array('Websites', $dynamicColumnsToShowccr))
+                                <th width="10%">Websites</th>
+                            @endif
+                            @if (!in_array('Start', $dynamicColumnsToShowccr))
+                                <th width="7%">Start</th>
+                            @endif
+                            @if (!in_array('End', $dynamicColumnsToShowccr))
+                                <th width="7%">End</th>
+                            @endif
+                            @if (!in_array('Created By', $dynamicColumnsToShowccr))
+                                <th width="10%">Created By</th>
+                            @endif
+                            @if (!in_array('Status', $dynamicColumnsToShowccr))
+                                <th width="5%">Status</th>
+                            @endif
+                            @if (!in_array('Remarks', $dynamicColumnsToShowccr))
+                                <th width="20%">Remarks</th>
+                            @endif
+                            @if (!in_array('Action', $dynamicColumnsToShowccr))
+                                <th width="10%">Action</th>
+                            @endif
+                        @else
+                            <th width="5%">ID</th>
+                            <th width="10%">Rule</th>
+                            <th width="20%">Description</th>
+                            <th width="15%">Coupon Code</th>
+                            <th width="10%">Websites</th>
+                            <th width="7%">Start</th>
+                            <th width="7%">End</th>
+                            <th width="10%">Created By</th>
+                            <th width="5%">Status</th>
+                            <th width="20%">Remarks</th>
+                            <th width="10%">Action</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($rule_lists as $rule_list)
-                    {{-- @dd($rule_list); --}}
+                        @php
+                            $status_color = \App\Models\CouponCodeRulesStatus::where('status_alias',$rule_list->is_active)->first();
+                            if ($status_color == null) {
+                                $status_color = new stdClass();
+                            }
+                        @endphp
+                        @if(!empty($dynamicColumnsToShowccr))
+                            <tr style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                @if (!in_array('ID', $dynamicColumnsToShowccr))
+                                    <td>{{ $loop->iteration }}</td>
+                                @endif
 
-                    {{-- @dd($rule_list->website_ids); --}}
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $rule_list->name }}</td>
-                        <td>{{ $rule_list->coupon_code }}</td>
-                        <td class="Website-task">{{ $rule_list->website_name }} {{-- $rule_list->website_ids --}}</td>
-                        <td>{{ $rule_list->from_date }}</td>
-                        <td>{{ $rule_list->to_date }}</td>
-                        <td>@if($rule_list->users)
-                            {{$rule_list->users->name}}
-                            @endif
-                        </td>
-                        <td>{{ $rule_list->is_active == 1 ? "Active" : "InActive" }}</td>
-                        <td>
-                            <button type="button" class="btn btn-image p-1" title="Edit Rules" data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);"><i class="fa fa-edit"></i></button>
-                            <button type="button" class="btn btn-image view_error p-1" title="View Update Logs" data-toggle="modal" data-id="{{ $rule_list->id }}"><i class="fa fa-eye"></i></button>
-                            @if($rule_list->coupon_code != '')
-                            <button type="button" class="btn btn-image set-rule p-1" title="Send Coupon Code" data-toggle="modal" data-target="#sendCouponModal" data-id="{{ $rule_list->id }}"><i class="fa fa-envelope"></i></button>
-                            @endif
-                        </td>
-                    </tr>
+                                @if (!in_array('Rule', $dynamicColumnsToShowccr))
+                                    <td class="Website-task">{{ $rule_list->name }}</td>
+                                @endif
+
+                                @if (!in_array('Description', $dynamicColumnsToShowccr))
+                                    <td class="Website-task">
+                                        {{ $rule_list->description }}
+
+                                        @if(!empty($rule_list->description))
+                                            <button type="button" data-id="" class="copy-btn btn btn-copy-description btn-sm" data-value="{{$rule_list->description}}">
+                                                <i class="fa fa-clone" aria-hidden="true"></i>
+                                            </button>
+                                        @endif
+                                    </td>
+                                @endif
+
+                                @if (!in_array('Coupon Code', $dynamicColumnsToShowccr))
+                                    <td class="Website-task">
+                                        {{ $rule_list->coupon_code }}
+
+                                        @if(!empty($rule_list->coupon_code))
+                                            <button type="button" data-id="" class="copy-btn btn btn-copy-coupon_code btn-sm" data-value="{{$rule_list->coupon_code}}">
+                                                <i class="fa fa-clone" aria-hidden="true"></i>
+                                            </button>
+                                        @endif
+                                    </td>
+                                @endif
+
+                                @if (!in_array('Websites', $dynamicColumnsToShowccr))
+                                    <td class="Website-task">{{ $rule_list->website_name }} {{-- $rule_list->website_ids --}}</td>
+                                @endif
+
+                                @if (!in_array('Start', $dynamicColumnsToShowccr))
+                                    <td>{{ $rule_list->from_date }}</td>
+                                @endif
+
+                                @if (!in_array('End', $dynamicColumnsToShowccr))
+                                    <td>{{ $rule_list->to_date }}</td>
+                                @endif
+
+                                @if (!in_array('Created By', $dynamicColumnsToShowccr))
+                                    <td class="Website-task">@if($rule_list->users)
+                                        {{$rule_list->users->name}}
+                                        @endif
+                                    </td>
+                                @endif
+
+                                @if (!in_array('Status', $dynamicColumnsToShowccr))
+                                    <td>{{ $rule_list->is_active == 1 ? "Active" : "InActive" }}</td>
+                                @endif
+
+                                @if (!in_array('Remarks', $dynamicColumnsToShowccr))
+                                    <td>
+                                        <div class=" mb-1 p-0 d-flex">
+                                            <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_{{ $rule_list->id }}" data-catid="`+row['devoops_category_id']+`" data-subcatid="`+row['id']+`">
+                                            <div style="margin-top: 0px;" class="d-flex p-0">
+                                                <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{ $rule_list->id }})"><img src="/images/filled-sent.png"></button>
+                                                <button type="button" data-id="{{ $rule_list->id }}" class="btn btn-image remarks-history-show p-0 ml-2" title="Remarks Histories"><i class="fa fa-info-circle"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                @endif
+
+                                @if (!in_array('Action', $dynamicColumnsToShowccr))
+                                    <td>
+                                        <button type="button" class="btn btn-image p-1" title="Edit Rules" data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);"><i class="fa fa-edit"></i></button>
+                                        <button type="button" class="btn btn-image view_error p-1" title="View Update Logs" data-toggle="modal" data-id="{{ $rule_list->id }}"><i class="fa fa-eye"></i></button>
+                                        @if($rule_list->coupon_code != '')
+                                        <button type="button" class="btn btn-image set-rule p-1" title="Send Coupon Code" data-toggle="modal" data-target="#sendCouponModal" data-id="{{ $rule_list->id }}"><i class="fa fa-envelope"></i></button>
+                                        @endif
+                                    </td>
+                                @endif
+                            </tr>
+                        @else
+                            <tr style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                <td>{{ $loop->iteration }}</td>
+                                <td class="Website-task">{{ $rule_list->name }}</td>
+                                <td class="Website-task">
+                                    {{ $rule_list->description }}
+
+                                    @if(!empty($rule_list->description))
+                                        <button type="button" data-id="" class="copy-btn btn btn-copy-description btn-sm" data-value="{{$rule_list->description}}">
+                                            <i class="fa fa-clone" aria-hidden="true"></i>
+                                        </button>
+                                    @endif
+                                </td>
+                                <td class="Website-task">
+                                    {{ $rule_list->coupon_code }}
+
+                                    @if(!empty($rule_list->coupon_code))
+                                        <button type="button" data-id="" class="copy-btn btn btn-copy-coupon_code btn-sm" data-value="{{$rule_list->coupon_code}}">
+                                            <i class="fa fa-clone" aria-hidden="true"></i>
+                                        </button>
+                                    @endif
+                                </td>
+                                <td class="Website-task">{{ $rule_list->website_name }} {{-- $rule_list->website_ids --}}</td>
+                                <td>{{ $rule_list->from_date }}</td>
+                                <td>{{ $rule_list->to_date }}</td>
+                                <td class="Website-task">@if($rule_list->users)
+                                    {{$rule_list->users->name}}
+                                    @endif
+                                </td>
+                                <td>{{ $rule_list->is_active == 1 ? "Active" : "InActive" }}</td>
+                                <td>
+                                    <div class=" mb-1 p-0 d-flex">
+                                        <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_{{ $rule_list->id }}" data-catid="`+row['devoops_category_id']+`" data-subcatid="`+row['id']+`">
+                                        <div style="margin-top: 0px;" class="d-flex p-0">
+                                            <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{ $rule_list->id }})"><img src="/images/filled-sent.png"></button>
+                                            <button type="button" data-id="{{ $rule_list->id }}" class="btn btn-image remarks-history-show p-0 ml-2" title="Remarks Histories"><i class="fa fa-info-circle"></i></button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-image p-1" title="Edit Rules" data-id="{{ $rule_list->id }}" data-coupon-type="{{ $rule_list->coupon_type }}" onClick="displayCouponCodeModal(this);"><i class="fa fa-edit"></i></button>
+                                    <button type="button" class="btn btn-image view_error p-1" title="View Update Logs" data-toggle="modal" data-id="{{ $rule_list->id }}"><i class="fa fa-eye"></i></button>
+                                    @if($rule_list->coupon_code != '')
+                                    <button type="button" class="btn btn-image set-rule p-1" title="Send Coupon Code" data-toggle="modal" data-target="#sendCouponModal" data-id="{{ $rule_list->id }}"><i class="fa fa-envelope"></i></button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endif
+                    
                     @endforeach
                 </tbody>
             </table>
@@ -880,6 +1035,36 @@
                     <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div id="ccr-remarks-histories-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Remarks Histories</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="30%">Remarks</th>
+                                <th width="20%">Updated BY</th>
+                                <th width="30%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="ccr-remarks-histories-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1616,5 +1801,96 @@
         var white = new RegExp(/^\s$/);
         return white.test(x.charAt(0));
     };
+
+    function Showactionbtn(id){
+        $(".action-btn-tr-"+id).toggleClass('d-none')
+    }
+
+    function saveRemarks(coupon_code_rules_id){
+
+        var remarks = $("#remark_"+coupon_code_rules_id).val();
+
+        if(remarks==''){
+            alert('Please enter remarks.');
+            return false;
+        }
+
+        $.ajax({
+            url: "{{route('coupons.saveremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'coupon_code_rules_id' :coupon_code_rules_id,                
+                'remarks' :remarks,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                toastr['success'](response.message, 'success');
+
+                $("#remark_"+coupon_code_rules_id).val('');
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    }
+
+    $(document).on('click', '.remarks-history-show', function() {
+        var coupon_code_rules_id = $(this).attr('data-id');
+
+        $.ajax({
+            url: "{{route('coupons.getremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'coupon_code_rules_id' :coupon_code_rules_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.remarks != null) ? v.remarks : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#ccr-remarks-histories-list").find(".ccr-remarks-histories-list-view").html(html);
+                    $("#ccr-remarks-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click",".btn-copy-coupon_code",function() {
+        var apiToken = $(this).data('value');
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(apiToken).select();
+        document.execCommand("copy");
+        $temp.remove();
+        alert("Copied!");
+    });
+
+    $(document).on("click",".btn-copy-description",function() {
+        var apiToken = $(this).data('value');
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(apiToken).select();
+        document.execCommand("copy");
+        $temp.remove();
+        alert("Copied!");
+    });
 </script>
 @endsection

@@ -467,6 +467,12 @@ class LogScraper extends Model
         }
     }
 
+    public function getProductFromSku($sku){
+        $count = LogScraper::where('sku', $sku)->count();
+
+        return $count;
+    }
+
     public function getFailedCount($supplier, $brand)
     {
         $count = LogScraper::where('brand', $brand)->where('website', $supplier)->where('validation_result', 'LIKE', '%SKU failed regex test%')->count();

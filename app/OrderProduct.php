@@ -51,6 +51,11 @@ class OrderProduct extends Model
         return $this->hasOne(\App\Product::class, 'id', 'product_id');
     }
 
+    public function order_product_details()
+    {
+        return $this->hasOne(\App\Product::class, 'id', 'product_id')->select('id', 'name');
+    }
+
     public function products()
     {
         return $this->hasMany(\App\Product::class, 'id', 'product_id');
