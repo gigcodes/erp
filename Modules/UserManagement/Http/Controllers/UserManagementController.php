@@ -3507,8 +3507,8 @@ class UserManagementController extends Controller
             
             for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
                 $dates = $date->format('Y-m-d'); // Add each date to the array
-
-                $records = DeveloperTask::select('id', 'estimate_minutes', 'start_date', 'estimate_date')->whereDate('created_at', '=', $dates)->where('assigned_to', Auth::user()->id)->get();
+                
+                $records = DeveloperTask::select('id', 'estimate_minutes', 'start_date', 'estimate_date')->whereDate('start_date', '=', $dates)->orWhereDate('m_start_date', '=', $dates)->where('assigned_to', Auth::user()->id)->get();
 
                 if(count($records)>0){
 
@@ -3527,23 +3527,23 @@ class UserManagementController extends Controller
                     $dataArray[$dates] = $records;
                 }
 
-                $records = Task::select('id', 'approximate', 'start_date', 'due_date')->whereDate('created_at', '=', $dates)->where('assign_to', Auth::user()->id)->get();
+                $recordsTask = Task::select('id', 'approximate', 'start_date', 'due_date')->whereDate('start_date', '=', $dates)->orWhereDate('m_start_date', '=', $dates)->where('assign_to', Auth::user()->id)->get();
 
-                if(count($records)>0){
+                if(count($recordsTask)>0){
 
-                    foreach ($records as $key => $value) {
-                        $records[$key]['task_type'] = 'T';
-                        $records[$key]['totalTime'] = $value->approximate;
+                    foreach ($recordsTask as $keyTask => $valueTask) {
+                        $recordsTask[$keyTask]['task_type'] = 'T';
+                        $recordsTask[$keyTask]['totalTime'] = $valueTask->approximate;
 
-                        if($value->start_date!==null && $value->due_date!==null){
-                            $startDate = Carbon::parse($value->start_date);
-                            $endDate = Carbon::parse($value->due_date);
+                        if($valueTask->start_date!==null && $valueTask->due_date!==null){
+                            $startDateTask = Carbon::parse($valueTask->start_date);
+                            $endDateTask = Carbon::parse($valueTask->due_date);
 
-                            $records[$key]['totalMinutes'] = $endDate->diffInMinutes($startDate);
+                            $recordsTask[$keyTask]['totalMinutes'] = $endDateTask->diffInMinutes($startDateTask);
                         }
                     }
 
-                    $dataArray[$dates] = $records;
+                    $dataArray[$dates] = $recordsTask;
                 }
             }
         }
