@@ -42,7 +42,7 @@
 
                         <button class="btn custom-button" style="float:right;margin-left: 10px;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
 
-                        <a class="btn custom-button" style="float:right;" href="{{ route('user-management.user-schedules.report') }}">Report</a>
+                        <a target="_blank" class="btn custom-button" style="float:right;" href="{{ route('user-management.user-schedules.report') }}">Report</a>
                     </h4>
                 </div>
                 <div id="collapseSearch" class="collapse">
