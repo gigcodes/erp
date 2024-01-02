@@ -880,6 +880,7 @@ Route::prefix('logging')->middleware('auth')->group(function () {
     Route::post('delete/magento-api-search-history', [Logging\LogListMagentoController::class, 'deleteMagentoApiData'])->name('delete.magento.api-search-history');
     Route::get('log-magento-apis-ajax', [Logging\LogListMagentoController::class, 'logMagentoApisAjax'])->name('logging.magento.logMagentoApisAjax');
     Route::get('log-magento-product-push-journey', [Logging\LogListMagentoController::class, 'productPushJourney'])->name('logging.magento.product_push_journey');
+    Route::post('log-magento-column-visbility', [Logging\LogListMagentoController::class, 'columnVisbilityUpdate'])->name('logging.magento.column.update');
 });
 Route::get('log-scraper-api', [Logging\LogScraperController::class, 'scraperApiLog'])->middleware('auth')->name('log-scraper.api');
 Route::get('log-scraper', [Logging\LogScraperController::class, 'index'])->middleware('auth')->name('log-scraper.index');
