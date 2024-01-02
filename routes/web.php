@@ -2629,6 +2629,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('passwords/change', [PasswordController::class, 'changePasswords'])->name('passwords.change');
     Route::post('password/store', [PasswordController::class, 'store'])->name('password.store');
     Route::get('password/passwordManager', [PasswordController::class, 'manage'])->name('password.manage');
+    Route::get('/search/username', [PasswordController::class, 'autoSuggestUsername']);
+    Route::get('/search/email', [PasswordController::class, 'autoSuggestEmail']);
     Route::post('password/change', [PasswordController::class, 'changePassword'])->name('password.change');
     Route::post('password/sendWhatsApp', [PasswordController::class, 'sendWhatsApp'])->name('password.sendwhatsapp');
     Route::post('password/update', [PasswordController::class, 'update'])->name('password.update');
@@ -5563,6 +5565,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('tasklist/{id}', [TaskCategoriesController::class, 'delete']);
     Route::delete('tasksubject/{id}', [TaskCategoriesController::class, 'destroy']);
     Route::resource('zabbix', ZabbixController::class)->except(['show']);
+    Route::get('/search/hosts', [ZabbixController::class, 'autoSuggestHosts']);
     Route::resource('checklist', CheckListController::class);
     Route::get('checklist/view/{id}', [CheckListController::class, 'view'])->name('checklist.view');
     Route::post('checklist/subjects', [CheckListController::class, 'subjects'])->name('checklist.subjects');
@@ -5740,6 +5743,8 @@ Route::get('status-list', [TaskController::class, 'statusList'])->name('statusLi
 Route::prefix('appconnect')->middleware('auth')->group(function () {
     Route::get('/usage', [AppConnectController::class, 'getUsageReport'])->name('appconnect.app-users');
     Route::get('/sales', [AppConnectController::class, 'getSalesReport'])->name('appconnect.app-sales');
+    Route::post('/column-visibility-update-app-sales', [AppConnectController::class, 'columnVisibilityUpdateAppSales'])->name('appconnect.app-sales.column.update');
+    // columnVisbilityUpdate
     Route::get('/subscription', [AppConnectController::class, 'getSubscriptionReport'])->name('appconnect.app-sub');
     Route::get('/ads', [AppConnectController::class, 'getAdsReport'])->name('appconnect.app-ads');
     Route::get('/ratings', [AppConnectController::class, 'getRatingsReport'])->name('appconnect.app-rate');

@@ -16,7 +16,7 @@
             max-width: 1500px !important; 
   }
   .modal-xl {
-  width: 100%;
+    max-width: 90% !important;
 }
         </style>
 @endsection
@@ -132,13 +132,14 @@
                     <th width="5%">Title</th>
                     <th width="6%">Description</th>
                     <th width="6%">Color</th>
-                    <th width="8%">Size</th>
+                    <th width="3%">Size</th>
                     <th width="5%">Category</th>
                     <th width="6%">Composition</th>
                     <th width="4%">Price</th>
                     <th width="6%">Size System</th>
                     <th width="5%">Discount</th>
                     <th width="6%">Dimensions</th>
+                    <th width="10%">Date Time</th>                    
                     <th width="5%">Update History</th>
                     <th width="5%">Functions</th>
                 </tr>
@@ -157,7 +158,7 @@
                         <td class="Website-task" title="{{isset($product->title) ? $product->title : "-"}}">
                             {{isset($product->title) ? $product->title : "-"}}
                         </td>
-                        <td class="Website-task" title="{{isset($product->description) ? $product->description : "-"}}">
+                        <td class="Website-task product_description" data-id="{{ $product->product_id }}" title="{{isset($product->description) ? $product->description : "-"}}">
                             {{isset($product->description) ? $product->description : "-"}}
                         </td>
                         <td class="Website-task" title="{{isset($product->color) ? $product->color : "-"}}">
@@ -183,6 +184,9 @@
                         </td>
                         <td>
                             {{isset($product->product) ? $product->product->lmeasurement.",".$product->product->hmeasurement.",".$product->product->dmeasurement : "-"}}
+                        </td>
+                        <td>
+                            {{isset($product->last_started_at) ? $product->last_started_at : "-"}}
                         </td>
                         <td>
                             @php
@@ -235,6 +239,40 @@
         </div>
     </div>
    </div>
+
+     <!-- The Modal -->
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Change Description</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <div class="form-group">
+              <label for="input1">Description:</label>
+              <input type="text" class="form-control" name="description" id="input1" required>
+            </div>
+            <div class="form-group">
+              <label for="input2">Change Description:</label>
+              <input type="text" class="form-control" name="change_description" id="input2" required>
+              <input type="hidden" class="form-control" name="product_id[]" id="product_id">
+            </div>
+            <button type="submit" class="btn btn-primary update-description-select">Submit</button>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 @endsection
 
 
@@ -244,9 +282,83 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     @include('partials.script_developer_task')
     <script>
+        document.addEventListener('mouseup', function(event) {
+          // Check if the clicked element has the 'selected-row' class
+          if (event.target.classList.contains('product_description')) {
+            var selectedText = getSelectedText();
+            if (selectedText) {
+              var dataIsAttribute = event.target.getAttribute('data-id');
+              $('#myModal').modal('show');
+              $('#input1').val(selectedText);
+              $('#product_id').val(dataIsAttribute);
+              console.log('Selected Text:', selectedText);
+              console.log('Custom Attribute (data-id):', dataIsAttribute);
+            }
+          }
+        });
+    
+        function getSelectedText() {
+          var text = '';
+    
+          if (window.getSelection) {
+            text = window.getSelection().toString();
+          } else if (document.selection && document.selection.type !== 'Control') {
+            text = document.selection.createRange().text;
+          }
+    
+          return text;
+        }
+      </script>
+    <script>
         $("#select_date").datepicker({
 	  	format: 'yyyy-mm-dd'
 	});
+
+
+    $(document).off('click', '.update-description-select').on('click', '.update-description-select', function() {
+        $("#loading-image").show();
+        var changefrom = $("#input1").val();
+        var changeto = $("#input2").val();
+        var changesIds = $("#product_id").val();
+        var idArray = changesIds.split(',');
+        console.log('Selected changesIds:', idArray);
+        
+            $.ajax({
+                type: 'POST',
+                url: '/products/description/update',
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    from: changefrom,
+                    to: changeto,
+                    ids: idArray,
+                },
+                dataType: "json"
+            }).done(function(response) {
+                console.log(response);
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if (response.html != "") {
+                        $('#myModal').modal('hide');
+                        toastr['success'](response.message, 'success');
+                        $("#loading-image").show();
+                        var redirectUrl = '/products/description';
+                        window.location.href = redirectUrl;
+                    } else {
+                        $("#loading-image").hide();
+                        toastr['error']('Sorry, something went wrong', 'error');
+                    }
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+            });
+    });
+
+
+
     $(document).off('click', '.update-description-selected').on('click', '.update-description-selected', function() {
         $("#loading-image").show();
         var changefrom = $("#product_description").val();
@@ -285,6 +397,7 @@
                 if (response.code == 200) {
                     if (response.html != "") {
                         toastr['success'](response.message, 'success');
+                        $("#loading-image").show();
                         var redirectUrl = '/products/description';
                         window.location.href = redirectUrl;
                     } else {
