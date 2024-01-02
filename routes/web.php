@@ -5605,6 +5605,13 @@ Route::get('test-cron', function () {
 // Vouchers and Coupons
 Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::get('/', [VoucherCouponController::class, 'index'])->name('list.voucher');
+    Route::post('/statuscolor', [VoucherCouponController::class, 'statuscolor'])->name('voucher.statuscolor');
+    Route::post('/statuscreate', [VoucherCouponController::class, 'statusCreate'])->name('voucher.status.create');
+    Route::post('/updatestatus', [VoucherCouponController::class, 'updateStatus'])->name('voucher.update-status');
+    Route::get('/status/histories/{id}', [VoucherCouponController::class, 'statusHistories'])->name('voucher.status.histories');
+
+    Route::post('/remarks', [VoucherCouponController::class, 'saveRemarks'])->name('voucher.saveremarks');
+    Route::post('/getremarks', [VoucherCouponController::class, 'getRemarksHistories'])->name('voucher.getremarks');
 
     Route::post('/plateform/create', [VoucherCouponController::class, 'plateformStore'])->name('voucher.plateform.create');
     Route::post('/store', [VoucherCouponController::class, 'store'])->name('voucher.store');

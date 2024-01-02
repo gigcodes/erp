@@ -44,16 +44,17 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb mb-3">
-            <h2 class="page-heading">Voucher Coupons</h2>
-              <div class="col-sm">
-                <div class="pull-right">
-                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#list-coupon-type-Modal" onclick="listCouponTypes()">List Coupon Codes</button>
-                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#coupontypeModal"><i class="fa fa-plus"></i>Add Coupon Type</button>
-                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#plateformModal"><i class="fa fa-plus"></i>Add Platform</button>
-                    <button type="button" class="btn btn-secondary btn-xs ml-3 mr-3" data-toggle="modal" data-target="#addvoucherModel"><i class="fa fa-plus"></i>Add Voucher</button>
-                    
-                 </div>
-            </div>
+            <h2 class="page-heading">
+                Voucher Coupons
+                <div style="float:right;">
+                    <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#status-create">Add Status</button>
+                    <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                    <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#list-coupon-type-Modal" onclick="listCouponTypes()">List Coupon Codes</button>
+                    <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#coupontypeModal"><i class="fa fa-plus"></i>Add Coupon Type</button>
+                    <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#plateformModal"><i class="fa fa-plus"></i>Add Platform</button>
+                    <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#addvoucherModel"><i class="fa fa-plus"></i>Add Voucher</button>
+                </div>
+            </h2>
         </div>
     </div>
     @include('partials.flash_messages')
@@ -100,66 +101,103 @@
     </div>
 
 
-     <div class="col-sm">
-        <div class="table-responsive vendor-payments-list">
+<div class="col-sm">
+    <div class="table-responsive vendor-payments-list">
         <table class="table table-bordered"style="table-layout: fixed;">
-        <tr>
-          <th style="width:1%;">SR. No</th>
-          {{-- <th style="width:2%";>User</th> --}}
-          <th style="width:3%";>Platform</th>
-          <th style="width:2%;">Email Address</th>
-          <th style="width:2%;">whatsapp Number</th>
-          <th style="width:2%;">remark</th>
-          <th style="width:3%;">Action</th>
-        </tr>
-          @php
+            <tr>
+                <th style="width:5%;">SR. No</th>
+                {{-- <th style="width:2%";>User</th> --}}
+                <th style="width:10%";>Platform</th>
+                <th style="width:15%;">Email Address</th>
+                <th style="width:15%;">Whatsapp Number</th>
+                <th>Remark</th>
+                <th style="width:10%;">Status</th>
+                <th style="width:10%;">Action</th>
+            </tr>
+            @php
             $totalRateEstimate = 0;
             $totalCount = 0;
             $totalBalance = 0;
-	    $index = 0;
-          @endphp
-          @foreach ($voucher as $vou)
-            <?php $totalCount++;?>
-            <tr>
-              <td>{{$vou->id}}</td>
-              {{-- <td class="Website-task">
-                @if(isset($vou->user)) {{  $task->user->name }} @endif
-              </td> --}}
-              <td>{{ $vou->plateform_name}}</td>
-              <td class="Website-task">{{ Str::limit($vou->from_address, 20, $end = '...') }}</td>
-	      <td>{{ $vou->number }} </td>
-              @if($vou->voucherCouponRemarks->count())
-                   @foreach ($vou->voucherCouponRemarks as $voucherCouponRemark)
-                        @if(!is_null($voucherCouponRemark->remark))
-                                <td>{{ Str::limit($voucherCouponRemark->remark, 5, $end = '') }}<a data-toggle="modal" data-target="#exampleModal{{ $index++ }}">...</a></td>
-                        @else
+            $index = 0;
+            @endphp
+
+            @foreach ($voucher as $vou)
+                @php
+                    $status_color = \App\Models\VoucherCouponStatus::where('id',$vou->status_id)->first();
+                    if ($status_color == null) {
+                        $status_color = new stdClass();
+                    }
+                @endphp
+                <?php $totalCount++;?>
+
+                <tr style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                    <td>{{$vou->id}}</td>
+
+                    {{-- <td class="Website-task">
+                    @if(isset($vou->user)) {{  $task->user->name }} @endif
+                    </td> --}}
+                    <td>{{ $vou->plateform_name}}</td>
+
+                    <td class="Website-task">{{$vou->from_address}}</td>
+
+                    <td>{{ $vou->number }} </td>
+
+                    <td>
+                        <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                            <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_{{$vou->id}}">
+                            <div style="margin-top: 0px;" class="d-flex p-0">
+                                <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$vou->id}})"><img src="/images/filled-sent.png"></button>
+                                <button type="button" data-id="{{$vou->id}}" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- @if($vou->voucherCouponRemarks->count())
+                        @foreach ($vou->voucherCouponRemarks as $voucherCouponRemark)
+                            @if(!is_null($voucherCouponRemark->remark))
+                                <td class="expand-row-msg" data-name="remark" data-id="{{$vou->id}}">
+                                    <span class="show-short-remark-{{$vou->id}}">{{ Str::limit($voucherCouponRemark->remark, 150, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-remark-{{$vou->id}} hidden">{{$voucherCouponRemark->remark}}</span>
+                                </td>
+                            @else
                                 <td> - </td>
-                        @endif
-                        @break
-                   @endforeach
-              @else
-                <td> - </td>
-              @endif
-              <td>
-                <button type="button" data-toggle="tooltip" title="edit" data-id="{{$vou->id}}" class="btn btn-edit pd-5">
-                    <i class="fa fa-edit" aria-hidden="true"></i>
-                </button>
-                <button type="button" data-id="{{ $vou->id }}"  title="Remark" class="btn btn-store-development-remark pd-5">
-                    <i class="fa fa-comment" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-xs  link-delete" title="Delete Record"  data-id="{{ $vou->id }}" >
-                  <i class="fa fa-trash" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-xs voucher-code-list-model" title="Coupon Codes"  data-id="{{ $vou->id }}" >
-                  <b>C</b>
-                </button>
-                {{--  --}}
-                <button type="button" class="btn btn-xs voucher-code-order-list-model"  title="Orders" data-id="{{ $vou->id }}" >
-                  <b>O</b>
-                </button>
-                    
-              </td>
-            </tr>
+                            @endif
+                            @break
+                        @endforeach
+                    @else
+                        <td> - </td>
+                    @endif -->
+
+                    <td style="width: 25%;">
+                        <div class="d-flex align-items-center">
+                            <select name="status" class="status-dropdown form-control" data-id="{{$vou->id}}">
+                            <option value="">Select Status</option>
+                            @foreach ($status as $stat)
+                            <option value="{{$stat->id}}" {{$vou->status_id == $stat->id ? 'selected' : ''}}>{{$stat->status_name}}</option>
+                            @endforeach
+                            </select>
+                            <button type="button" data-id="{{ $vou->id  }}" class="btn btn-image status-history-show p-0 ml-2"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" data-toggle="tooltip" title="edit" data-id="{{$vou->id}}" class="btn btn-edit pd-5">
+                        <i class="fa fa-edit" aria-hidden="true"></i>
+                        </button>
+                        <!-- <button type="button" data-id="{{ $vou->id }}"  title="Remark" class="btn btn-store-development-remark pd-5">
+                        <i class="fa fa-comment" aria-hidden="true"></i>
+                        </button> -->
+                        <button type="button" class="btn btn-xs  link-delete" title="Delete Record"  data-id="{{ $vou->id }}" >
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-xs voucher-code-list-model" title="Coupon Codes"  data-id="{{ $vou->id }}" >
+                        <b>C</b>
+                        </button>
+                        {{--  --}}
+                        <button type="button" class="btn btn-xs voucher-code-order-list-model"  title="Orders" data-id="{{ $vou->id }}" >
+                        <b>O</b>
+                        </button>
+                    </td>
+                </tr>
           @endforeach
       </table>
       {{ $voucher->links()}}
@@ -603,81 +641,159 @@
           </div>
         </div>
 
-        
-        
-      
+        <div id="status-create" class="modal fade in" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add Stauts</h4>
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <form  method="POST" id="status-create-form">
+        @csrf
+        @method('POST')
+          <div class="modal-body">
+            <div class="form-group">
+              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+    <div id="vouchers-coupons-remarks-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remarks Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Remarks</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="vouchers-coupons-remarks-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        @include('voucher-coupon.modal-status-color')
+        @include('voucher-coupon.status-history')
 @endsection
 
 @section('scripts')
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
-  <script src="{{env('APP_URL')}}/js/bootstrap-datetimepicker.min.js"></script>
-  <script type="text/javascript">
-  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
+<script src="{{env('APP_URL')}}/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript">
+    
+$(document).on("click", ".status-save-btn", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $.ajax({
+        url: "{{route('voucher.status.create')}}",
+        type: "post",
+        data: $('#status-create-form').serialize()
+    }).done(function(response) {
+        if (response.code = '200') {
+            $('#loading-image').hide();
+            $('#addPostman').modal('hide');
+            toastr['success']('Status  Created successfully!!!', 'success');
+            location.reload();
+        } else {
+            toastr['error'](response.message, 'error');
+        }
+    }).fail(function(errObj) {
+        $('#loading-image').hide();
+        toastr['error'](errObj.message, 'error');
+    });
+});
+
+$(document).ready(function () {
+
     $('.assign-to.select2').select2({
-      width: "100%"
+        width: "100%"
     });
 
     $(".valid_date").datetimepicker({
-                format: 'YYYY-MM-DD'
+        format: 'YYYY-MM-DD'
     });
     $(".date_order_placed").datetimepicker({
-                format: 'YYYY-MM-DD'
+        format: 'YYYY-MM-DD'
     });
     
     var uploadedDocumentMap = {}
     Dropzone.options.documentDropzone = {
-      url: '{{ route("voucher.upload-documents") }}',
-      maxFilesize: 20, // MB
-      addRemoveLinks: true,
-      headers: {
-          'X-CSRF-TOKEN': "{{ csrf_token() }}"
-      },
-      success: function (file, response) {
-          $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
-          uploadedDocumentMap[file.name] = response.name
-      },
-      removedfile: function (file) {
-          file.previewElement.remove()
-          var name = ''
-          if (typeof file.file_name !== 'undefined') {
-            name = file.file_name
-          } else {
-            name = uploadedDocumentMap[file.name]
-          }
-          $('form').find('input[name="document[]"][value="' + name + '"]').remove()
-      },
-      init: function () {
-
-      }
-  }
+        url: '{{ route("voucher.upload-documents") }}',
+        maxFilesize: 20, // MB
+        addRemoveLinks: true,
+        headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        },
+        success: function (file, response) {
+            $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+            uploadedDocumentMap[file.name] = response.name
+        },
+        removedfile: function (file) {
+            file.previewElement.remove()
+            var name = ''
+            if (typeof file.file_name !== 'undefined') {
+                name = file.file_name
+            } else {
+                name = uploadedDocumentMap[file.name]
+            }
+            $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+        },
+            init: function () {
+        }
+    }
+});
    
-
-  $(document).on("click",".save-coupon-type",function(e){
+$(document).on("click",".save-coupon-type",function(e){
     e.preventDefault();
     var $this = $(this);
     var formData = new FormData($this.closest("form")[0]);
     $.ajax({
-      url: '{{route("voucher.coupon.type.create")}}',
-      type: 'POST',
-      headers: {
+        url: '{{route("voucher.coupon.type.create")}}',
+        type: 'POST',
+        headers: {
             'X-CSRF-TOKEN': "{{ csrf_token() }}"
         },
         dataType:"json",
-      data: $this.closest("form").serialize(),
-      beforeSend: function() {
-        $("#loading-image").show();
-            }
+        data: $this.closest("form").serialize(),
+        beforeSend: function() {
+            $("#loading-image").show();
+        }
     }).done(function (data) {
-      $("#loading-image").hide();
-      toastr["success"](data.message);
-      location.reload();
+        $("#loading-image").hide();
+        toastr["success"](data.message);
+        location.reload();
     }).fail(function (jqXHR, ajaxOptions, thrownError) {      
-      toastr["error"](jqXHR.responseJSON.message);
-      $("#loading-image").hide();
+        toastr["error"](jqXHR.responseJSON.message);
+        $("#loading-image").hide();
     });
-  });
+});
 
   $(document).on("click",".save-plateform",function(e){
     e.preventDefault();
@@ -1217,12 +1333,131 @@
         }
       });
 
+      $('.status-dropdown').change(function(e) {
+          e.preventDefault();
+          var voucherId = $(this).data('id');
+          var selectedStatus = $(this).val();
 
+          // Make an AJAX request to update the status
+          $.ajax({
+            url:'{{route("voucher.update-status")}}',
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              voucherId: voucherId,
+              selectedStatus: selectedStatus
+            },
+            success: function(response) {
+              toastr['success']('Status  Created successfully!!!', 'success');
+              console.log(response);
+            },
+            error: function(xhr, status, error) {
+              // Handle the error here
+              console.error(error);
+            }
+          });
+        });
 
+      $(document).on('click', '.status-history-show', function() {
+            var id = $(this).attr('data-id');
+                $.ajax({
+                    method: "GET",
+                    url: `{{ route('voucher.status.histories', [""]) }}/` + id,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status) {
+                            var html = "";
+                            $.each(response.data, function(k, v) {
+                                html += `<tr>
+                                            <td> ${k + 1} </td>
+                                            <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                            <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                            <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                            <td> ${v.created_at} </td>
+                                        </tr>`;
+                            });
+                            $("#voucher_coupons-status-histories-list").find(".voucher_coupons-status-histories-list-view").html(html);
+                            $("#voucher_coupons-status-histories-list").modal("show");
+                        } else {
+                            toastr["error"](response.error, "Message");
+                        }
+                    }
+                });
+      });
 
+      $(document).on('click', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        console.log(name);
+        var full = '.expand-row-msg .show-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .show-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
 
+      function saveRemarks(voucher_coupons_id){
 
-    
-    
+        var remarks = $("#remark_"+voucher_coupons_id).val();
+
+        if(remarks==''){
+            alert('Please enter remarks.');
+            return false;
+        }
+
+        $.ajax({
+            url: "{{route('voucher.saveremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'voucher_coupons_id' :voucher_coupons_id,
+                'remark' :remarks,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                toastr['success']('Remarks  Created successfully!!!', 'success');
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    }
+
+    $(document).on('click', '.remarks-history-show', function() {
+        var voucher_coupons_id = $(this).attr('data-id');
+        $.ajax({
+            url: "{{route('voucher.getremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'voucher_coupons_id' :voucher_coupons_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.remark != null) ? v.remark : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vouchers-coupons-remarks-histories-list").find(".vouchers-coupons-remarks-histories-list-view").html(html);
+                    $("#vouchers-coupons-remarks-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
   </script>
 @endsection
