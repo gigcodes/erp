@@ -15,6 +15,13 @@ use GuzzleHttp\Client;
 use App\SiteDevelopment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\BugStatus;
+use App\BugEnvironment;
+use App\BugSeverity;
+use App\BugType;
+use App\User;
+use App\SiteDevelopmentCategory;
+use App\StoreWebsite;
 
 class scrapperPhyhon extends Controller
 {
@@ -160,6 +167,7 @@ class scrapperPhyhon extends Controller
 
         //  echo '<pre>';print_r($websites->toArray());die;
         //      return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
+
         return view('scrapper-phyhon.list', compact('images', 'allWebsites', 'request', 'query', 'storewebsite', 'current_date', 'startDate', 'endDate', 'storewebsiteUrls'));
     }
 
@@ -199,6 +207,9 @@ class scrapperPhyhon extends Controller
                     $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
                 }
 
+                if (!empty($request->si_status)) {
+                    $images = $images->where('si_status', $request->si_status);
+                }
                 //     $images = $images->get()
                 //   ->toArray();
                 //        dd($images->pluck("id"));
@@ -218,8 +229,16 @@ class scrapperPhyhon extends Controller
         } else {
             $view_path = 'scrapper-phyhon.list-image-products';
         }
-        
-        return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate'));
+
+        $bugStatuses = BugStatus::get();
+        $bugEnvironments = BugEnvironment::get();
+        $bugSeveritys = BugSeverity::get();
+        $bugTypes = BugType::get();
+        $users = User::get();
+        $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
+        $filterWebsites = StoreWebsite::orderBy('website')->get();        
+
+        return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate', 'bugTypes', 'bugEnvironments', 'bugSeveritys', 'bugStatuses', 'filterCategories', 'users', 'filterWebsites'));
     }
 
     public function setDefaultStore(int $website = 0, int $store = 0, $checked = 0)
@@ -596,5 +615,14 @@ class scrapperPhyhon extends Controller
 
         return redirect()->back()
             ->with('success', "Url $status successfully");
+    }
+
+    public function rejectScrapperImage(Request $request)
+    {
+        $image = \App\scraperImags::find($request->id);
+        $image->si_status = $request->si_status;
+        $image->save();
+
+        return redirect()->back()->with('success', "Scrapper image has been successfully rejected.");
     }
 }

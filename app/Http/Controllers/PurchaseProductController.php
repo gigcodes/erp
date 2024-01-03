@@ -39,6 +39,7 @@ use App\Imports\CustomerNumberImport;
 use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
 use App\Models\DataTableColumn;
+
 use App\Models\OrderPurchaseProductStatus;
 use App\Models\OrderPurchaseProductStatusHistory;
 
@@ -228,6 +229,7 @@ class PurchaseProductController extends Controller
         $inventoryStatusQuery = InventoryStatus::query();
         $inventoryStatus = $inventoryStatusQuery->pluck('name', 'id');
         //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
+
         return view('purchase-product.index', compact('orders_array', 'users', 'orderby',
             'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_product', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id', 'inventory_status', 'dynamicColumnsToShowPp'));
     }
@@ -787,12 +789,41 @@ class PurchaseProductController extends Controller
                 $suppliers_all = Supplier::where('id', $request->supplier_id)->first();
             }
 
+            if ($request->status && $request->status !="all") {
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.status', $request->status);
+            }
+
+            if ($request->filter_purchase_status && $request->filter_purchase_status !="all") {
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.purchase_status_id', $request->filter_purchase_status);
+            }
+
+            // date range filter on created_at date
+            if ($request->filter_start_date && $request->filter_start_date !="" &&
+                $request->filter_end_date && $request->filter_end_date !="" ) {
+                $purchar_product_order = $purchar_product_order->whereBetween('purchase_product_orders.created_at', [$request->filter_start_date, $request->filter_end_date]);                
+            }elseif($request->filter_start_date && $request->filter_start_date !="" && 
+                    (!$request->filter_end_date || $request->filter_end_date =="")){
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.created_at', '>=', $request->filter_start_date);                                
+            }elseif($request->filter_end_date && $request->filter_end_date !="" && 
+                    (!$request->filter_start_date || $request->filter_end_date =="")){
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.created_at', '<=', $request->filter_end_date);                                
+            }
+                
+
             $purchar_product_order = $purchar_product_order->select('purchase_product_orders.*', 'purchase_product_orders.status as purchase_status', 'suppliers.*', 'suppliers.id as supplier_id', 'purchase_product_orders.id as pur_pro_id', 'purchase_product_orders.created_at as created_at_date');
             $purchar_product_order = $purchar_product_order->orderBy('purchase_product_orders.id', 'DESC')->paginate(Setting::get('pagination'));
 
             $purchaseStatuses = PurchaseStatus::pluck('name', 'id')->all();
 
-            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses'));
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchaseproductorders-listing')->first();
+
+            $dynamicColumnsToShowPurchaseproductorders = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowPurchaseproductorders = json_decode($hideColumns, true);
+            }
+
+            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses', 'dynamicColumnsToShowPurchaseproductorders'));
         } catch (\Exception $e) {
         }
     }
@@ -1814,6 +1845,28 @@ class PurchaseProductController extends Controller
     }
     //END - DEVTASK-19941
 
+    //#DEVTASK-24127 - S
+    public function purchaseproductordersColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','purchaseproductorders-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'purchaseproductorders-listing'; //table : purchase_product_orders
+            $column->column_name = json_encode($request->column_purchaseproductorders); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'purchaseproductorders-listing';
+            $column->column_name = json_encode($request->column_purchaseproductorders); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'Column visiblity added Successfully!');
+    }
+    //#DEVTASK-24127 - E
     public function getStatusHistories(Request $request)
     {
         $datas = OrderPurchaseProductStatusHistory::with(['user', 'newValue', 'oldValue'])

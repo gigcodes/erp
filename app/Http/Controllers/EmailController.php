@@ -124,9 +124,10 @@ class EmailController extends Controller
         }
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
-                $query->where('from', 'like', '%' . $term . '%')
+                $query->orWhere('from', 'like', '%' . $term . '%')
                     ->orWhere('to', 'like', '%' . $term . '%')
-                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('emails.subject', 'like', '%' . $term . '%')
+                    ->orWhere(DB::raw('FROM_BASE64(emails.message)'), 'like', '%' . $term . '%')
                     ->orWhere('chat_messages.message', 'like', '%' . $term . '%');
             });
         }
@@ -164,8 +165,8 @@ class EmailController extends Controller
                 $query->orWhere('to', $mailbox);
             });
         }
-
-        if (isset($seen)) {
+        
+        if (isset($seen) && $seen != "0") {
             if ($seen != 'both') {
                 $query = $query->where('seen', $seen);
             } else if ($seen == 'both' && $type == 'outgoing') {
@@ -183,8 +184,10 @@ class EmailController extends Controller
         }
         $query = $query->select('emails.*', 'chat_messages.customer_id', 'chat_messages.supplier_id', 'chat_messages.vendor_id', 'c.is_auto_simulator as customer_auto_simulator',
             'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
+
         if ($admin == 1) {
             $query = $query->orderByDesc('emails.id');
+
             $emails = $query->paginate(30)->appends(request()->except(['page']));
         } else {
             if (count($usernames) > 0) {
@@ -194,11 +197,12 @@ class EmailController extends Controller
                     }
                 });
 
-                $query = $query->orWhere(function ($query) use ($usernames) {
+                $query = $query->where(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
                         $query->orWhere('to', 'like', '%' . $_uname . '%');
                     }
                 });
+                
 
                 $query = $query->orderByDesc('emails.id');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
@@ -209,6 +213,7 @@ class EmailController extends Controller
                 $emails = $emails->paginate(30)->appends(request()->except(['page']));
             }
         }
+        
 
         //Get Cron Email Histroy
         $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
@@ -1944,5 +1949,13 @@ class EmailController extends Controller
         $emails = $emails->latest()->paginate(\App\Setting::get('pagination', 25));
 
         return view('emails.quick-email-list', compact('emails', 'email_categories', 'senderEmailIds', 'receiverEmailIds', 'modelsTypes', 'mailTypes', 'emailStatuses', 'email_status'));
+    }
+
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
     }
 }

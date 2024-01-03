@@ -248,7 +248,7 @@
                     <div style="margin-bottom:10px;width: 100%;">
                         <div class="form-group">
                             <input type="number" class="form-control" name="estimate_minutes{{$issue->id}}" value="{{$issue->estimate_minutes}}" min="1" autocomplete="off">
-                            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                            <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead 88888" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                         </div>
                     </div>
                     <?php 
@@ -260,6 +260,20 @@
                                 <i class="fa fa-check" aria-hidden="true"></i>
                             </button>
                         @endif
+
+                        @if($issue->task_start!=1)
+                            <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                <i class="fa fa-play" aria-hidden="true"></i>
+                            </button>
+                        @else 
+                            <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->m_start_date}}">
+                            <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                <i class="fa fa-stop" aria-hidden="true"></i>
+                            </button>
+                            <div id="time-counter_{{$issue->id}}"></div>
+                        @endif
+
+                        <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
                     @endif
                 </td>
             @endif
@@ -398,7 +412,12 @@
                 <a class="btn btn-xs btn-image" title="View Drive Files" onclick="fetchGoogleDriveFileData('{{$issue->id}}')" style="margin-top:-0%;margin-left: -3%;">
                 <img width="2px;" src="/images/google-drive.png"/>
                 </a>
+
+                <a class="btn btn-xs btn-image" id="global_files_and_attachments_id" title="File video and images" onclick="GlobalFilesAndAttachments('{{$issue->id}}')" style="margin-top:-0%;margin-left: -3%;">
+                <img width="2px;" src="/images/attach.png"/>
+                </a>
                 <br>
+
                 <div class="td-full-container hidden">
                     <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
                     <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
@@ -544,8 +563,27 @@
                 <div style="margin-bottom:10px;width: 100%;">
                     <div class="form-group">
                         <input type="number" class="form-control" name="estimate_minutes{{$issue->id}}" value="{{$issue->estimate_minutes}}" min="1" autocomplete="off">
-                        <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                        <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead 99999" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                     </div>
+
+                    <?php 
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+                    @if(!empty($time_history))
+                        @if($issue->task_start!=1)
+                            <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                <i class="fa fa-play" aria-hidden="true"></i>
+                            </button>
+                        @else 
+                            <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->m_start_date}}">
+                            <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                <i class="fa fa-stop" aria-hidden="true"></i>
+                            </button>
+                            <div id="time-counter_{{$issue->id}}"></div>
+                        @endif
+
+                        <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                    @endif
                 </div>
                 <?php 
                 $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
@@ -556,6 +594,20 @@
                             <i class="fa fa-check" aria-hidden="true"></i>
                         </button>
                     @endif
+
+                    @if($issue->task_start!=1)
+                        <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                            <i class="fa fa-play" aria-hidden="true"></i>
+                        </button>
+                    @else 
+                        <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->id}}">
+                        <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                            <i class="fa fa-stop" aria-hidden="true"></i>
+                        </button>
+                        <div id="time-counter_{{$issue->id}}"></div>
+                    @endif
+
+                    <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
                 @endif
             </td>
             <td class="p-2">
@@ -829,9 +881,28 @@
             <div style="margin-bottom:10px;width: 100%;">
                 <div class="form-group">
                     <input type="number" class="form-control" name="estimate_minutes{{$issue->id}}" value="{{$issue->estimate_minutes}}" min="1" autocomplete="off">
-                    <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
+                    <div style="max-width: 30px;"><button class="btn btn-sm btn-image send-approximate-lead 10101" title="Send approximate" onclick="funDevTaskInformationUpdatesTime('estimate_minutes',{{$issue->id}})" data-taskid="{{ $issue->id }}"><img src="{{asset('images/filled-sent.png')}}" /></button></div>
                 </div>
             </div>
+
+            <?php 
+            $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->first(); ?>
+
+            @if(!empty($time_history))
+                @if($issue->task_start!=1)
+                    <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                        <i class="fa fa-play" aria-hidden="true"></i>
+                    </button>
+                @else 
+                    <input type="hidden" value="{{$issue->m_start_date}}" class="m_start_date_" id="m_start_date_{{$issue->id}}" data-id="{{$issue->id}}" data-value="{{$issue->m_start_date}}">
+                    <button data-task="{{$issue->id}}" title="Start Task" data-type="DEVTASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                        <i class="fa fa-stop" aria-hidden="true"></i>
+                    </button>
+                    <div id="time-counter_{{$issue->id}}"></div>
+                @endif
+
+                <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+            @endif
         </td>
         <td class="p-2">
             <div class="form-group">

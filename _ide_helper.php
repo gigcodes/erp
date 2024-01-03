@@ -31139,6 +31139,7 @@
      * 
      *
      */ 
+
         class SendEmailAcknowledgement {
          
     }
@@ -31146,6 +31147,7 @@
      * 
      *
      */ 
+
         class ScrapApiLogCommand {
          
     }
