@@ -217,12 +217,54 @@ class PasswordController extends Controller
         //
     }
 
-    public function manage()
+    public function autoSuggestUsername(Request $request)
     {
-        $users = User::where('is_active', 1)->orderBy('id', 'desc')->get();
-        $emailAddressArr = \App\EmailAddress::orderBy('from_address', 'asc')->get();
+        $username = $request->input('username');
+        $autosuggestions = User::where('name', 'like', $username . '%')->paginate(10)->pluck('name');
 
-        return view('passwords.change-password', compact('users', 'emailAddressArr'));
+        return response()->json($autosuggestions);
+    }
+
+    public function autoSuggestEmail(Request $request)
+    {
+        $email = $request->input('email');
+        $autosuggestions = User::where('email', 'like', $email . '%')->paginate(10)->pluck('email');
+
+        return response()->json($autosuggestions);
+    }
+
+
+    public function manage(request $request)
+    {
+        $query = User::query();
+        if ($request->username) {
+            $dataArray = json_decode($request->username, true);
+            $query = $query->where(function($query) use ($dataArray) {
+                foreach ($dataArray as $username) {
+                    $query->orWhere('name', 'LIKE', $username . '%');
+                }
+            });
+        }
+        if ($request->email) {
+            $dataArrayEmail = json_decode($request->email, true);
+            $query = $query->where(function($query) use ($dataArrayEmail) {
+                foreach ($dataArrayEmail as $email) {
+                    $query->orWhere('email', 'LIKE', $email . '%');
+                }
+            });
+        }
+        $emailAddressArr = \App\EmailAddress::orderBy('from_address', 'asc')->get();
+        $users = $query->where('is_active', 1)->orderBy('id', 'desc')->paginate(25)->appends(request()->except(['page']));
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('passwords.partials.change-password', compact('users', 'emailAddressArr'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string) $users->render(),
+                'count' => $users->total(),
+            ], 200);
+        }
+
+        return view('passwords.change-password', compact('users', 'emailAddressArr'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
     }
 
     public function changePassword(Request $request)

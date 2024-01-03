@@ -22,7 +22,7 @@
 
                 <div class="col-md-12">
                     <div class="table-responsive mt-3">
-                        <table class="table table-bordered overlay api-token-table">
+                        <table class="table table-bordered overlay api-token-table" id="zabbix-items">
                             <thead>
                             <tr>
                                 <th>Id</th>
@@ -176,7 +176,14 @@
             </div>
         </div>
     </div>
-    <script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+     <script type="text/javascript">
+        $(document).ready( function () {
+            $('#zabbix-items').DataTable();
+        });
         $("#item-template-id").select2({ width: '100%' });
         $(document).on("click", ".create-new-item", function (e) {
             e.preventDefault();

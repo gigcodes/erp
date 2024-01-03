@@ -12,7 +12,7 @@
                 <div class="modal-body">
                         <div class="form-group">
                             {!! Form::label('plateform_id', 'Plateform', ['class' => 'form-control-label']) !!}
-                            <?php echo Form::select("plateform_id",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.vochers_platforms'), 'data-placeholder' => 'Add Platforms']); ?>
+                            <?php echo Form::select("plateform_id",['' => ''],null,["id" => "plateform_id_new", "class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.vochers_platforms'), 'data-placeholder' => 'Add Platforms']); ?>
                                 @if($errors->has('plateform_id'))
                                   <div class="form-control-plateform">{{$errors->first('plateform_id')}}</div>
                                 @endif

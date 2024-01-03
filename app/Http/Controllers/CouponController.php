@@ -21,6 +21,9 @@ use App\WebsiteStoreViewValue;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CreateCouponRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\CouponCodeRulesRemarks;
+use App\Models\DataTableColumn;
+use App\Models\CouponCodeRulesStatus;
 
 class CouponController extends Controller
 {
@@ -129,12 +132,90 @@ class CouponController extends Controller
             }
         }
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'checkout-coupons-code-rules')->first();
+
+        $dynamicColumnsToShowccr = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowccr = json_decode($hideColumns, true);
+        }
+
+        $status = CouponCodeRulesStatus::all();
+
         return view('coupon.index', compact(
             'website_stores',
             'rule_lists',
             'store_websites',
-            'customers'
+            'customers',
+            'dynamicColumnsToShowccr',
+            'status'
         ));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','checkout-coupons-code-rules')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'checkout-coupons-code-rules';
+            $column->column_name = json_encode($request->column_ccr); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'checkout-coupons-code-rules';
+            $column->column_name = json_encode($request->column_ccr); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = CouponCodeRulesStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function saveRemarks(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'coupon_code_rules_id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        $input['added_by'] = Auth::user()->id;
+        CouponCodeRulesRemarks::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input, 'message' => 'Remarks added successfully',]);
+    }
+
+    public function getRemarksHistories(Request $request)
+    {
+        $datas = CouponCodeRulesRemarks::with(['user'])
+                ->where('coupon_code_rules_id', $request->coupon_code_rules_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     public function loadData()
