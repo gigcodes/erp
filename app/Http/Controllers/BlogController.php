@@ -15,6 +15,7 @@ use App\Models\BlogTag;
 use App\Models\BlogHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\DataTableColumn;
 
 class BlogController extends Controller
 {
@@ -31,6 +32,15 @@ class BlogController extends Controller
 
             if ($request->get('user_id')) {
                 $blogs->where('user_id', $request->get('user_id'));
+            }
+            if ($request->get('storeWebsiteId')) {
+                $blogs->where('store_website_id', $request->get('storeWebsiteId'));
+            }
+            if ($request->get('keyword')) {
+                $keyword = request('keyword', '');
+                $blogs = $blogs->where(function ($q) use ($keyword) {
+                    $q->where('blogs.idea', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.keyword', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.header_tag', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.title_tag', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.canonical_url', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.meta_desc', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.url_structure', 'LIKE', '%' . $keyword . '%')->orWhere('blogs.url_xml', 'LIKE', '%' . $keyword . '%');
+                });
             }
             if (! empty($request->get('date'))) {
                 $blogs->whereDate('created_at', $request->get('date'));
@@ -177,7 +187,7 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('content', function ($row) {
-                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="btn custom-button ViewContent btn-warning btn-sm"><i class="fa fa-eye"></i> Content</a>&nbsp;';
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" id="ViewContent" data-blog-id="' . $row->id . '" class="ViewContent"><i class="fa fa-eye"></i></a>&nbsp;';
 
                     return $actionBtn;
                 })
@@ -198,8 +208,8 @@ class BlogController extends Controller
                 })
 
                 ->addColumn('action', function ($row) {
-                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn custom-button BlogEditData btn-warning btn-sm"><i class="fa fa-edit"></i> Edit</a>&nbsp;
-                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="btn delete-blog btn-danger  btn-sm"><i class="fa fa-trash"></i> Delete</a>&nbsp;';
+                    $actionBtn = '<a href="javascript:void(0)" data-id="' . $row->id . '" data-blog-id="' . $row->id . '" id="BlogEditModal" class="btn btn-xs pull-left BlogEditData"><i class="fa fa-edit"></i></a>&nbsp;
+                    <a href="edit/' . $row->id . '"  data-id="' . $row->id . '" data-blog-id="' . $row->id . '" class="delete-blog btn btn-xs pull-left"><i class="fa fa-trash"></i></a>&nbsp;';
 
                     return $actionBtn;
                 })
@@ -209,13 +219,42 @@ class BlogController extends Controller
 
         $users = User::get();
         $store_website = \App\StoreWebsite::all();
-        //         $allTag = Tag::get()->toArray();
+        // $allTag = Tag::get()->toArray();
         // $tagName = array_column($allTag, 'tag');
 
         // $tagName = implode(",", $tagName);
         // $tagName = "['" . str_replace(",", "','", $tagName) . "']";
 
-        return view('blogs.index', compact('users', 'store_website'));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'blogs-listing')->first();
+
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }
+
+        return view('blogs.index', compact('users', 'store_website', 'dynamicColumnsToShowb'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','blogs-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'blogs-listing';
+            $column->column_name = json_encode($request->column_blogs); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'blogs-listing';
+            $column->column_name = json_encode($request->column_blogs); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     /**

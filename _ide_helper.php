@@ -31139,6 +31139,15 @@
      * 
      *
      */ 
+
+        class SendEmailAcknowledgement {
+         
+    }
+            /**
+     * 
+     *
+     */ 
+
         class ScrapApiLogCommand {
          
     }

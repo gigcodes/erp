@@ -68,7 +68,7 @@ class AffiliateMarketingDataController extends Controller
                     ->withInput();
             }
             $providerAccount = $this->getProviderAccount($request->affiliate_account_id);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->createAffiliateGroup(['title' => $request->title]);
                 if ($responseData['status']) {
@@ -117,7 +117,7 @@ class AffiliateMarketingDataController extends Controller
                     ->withInput();
             }
             $providerAccount = $this->getProviderAccount($request->affiliate_account_id);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $groupData = AffiliateGroups::find($id);
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->updateAffiliateGroup($groupData->affiliate_provider_group_id, ['title' => $request->title]);
@@ -177,7 +177,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getSyncData();
                 _p($responseData);
@@ -217,7 +217,7 @@ class AffiliateMarketingDataController extends Controller
             $providersProgrammes = AffiliatePrograms::where(function ($query) use ($request, $provider) {
                 $query->where('affiliate_account_id', $provider->id);
                 if ($request->has('title') && $request->title) {
-                    $query->where('title', 'like', '%' . $request->group_name . '%');
+                    $query->where('title', 'like', '%' . $request->title . '%');
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_groups');
 
@@ -228,6 +228,27 @@ class AffiliateMarketingDataController extends Controller
             ->with('error', 'No provider found');
     }
 
+     /**
+     * Get Commission type list for program
+     */
+    public function programCommissionType(Request $request)
+    {
+        try {
+            $providerAccount = $this->getProviderAccount($request->provider_account);
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
+                $tapfiliate = new Tapfiliate($providerAccount);
+                $responseData = $tapfiliate->getProgramCommissionType($request->program);
+ 
+                if ($responseData['status']) {
+                    return response()->json($responseData['data']);
+                }
+            }
+            return response()->json([]);
+        } catch (\Exception $e) {
+            return response()->json([]);
+        }
+    }
+
     /**
      * Sync Programmes from API to DB
      */
@@ -235,7 +256,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getProgrammes();
                 if ($responseData['status']) {
@@ -333,7 +354,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getCommissions();
                 if ($responseData['status']) {
@@ -444,7 +465,7 @@ class AffiliateMarketingDataController extends Controller
                     ->withInput();
             }
             $providerAccount = $this->getProviderAccount($request->affiliate_account_id);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $commissionData = AffiliateCommissions::find($request->commission_id);
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->updateAffiliateCommission($commissionData->affiliate_commission_id, ['amount' => $request->amount]);
@@ -480,7 +501,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $commissionData = AffiliateCommissions::find($id);
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->updateAffiliateApproveDisapprove($commissionData->affiliate_commission_id, ! $commissionData->approved);
@@ -518,14 +539,11 @@ class AffiliateMarketingDataController extends Controller
     {
         if ($request->has('provider_account') && $request->provider_account) {
             $provider = $this->getProviderAccount($request->provider_account);
-            $providersAffiliates = AffiliateMarketers::with('group')->where(function ($query) use ($request, $provider) {
-                $query->where('affiliate_account_id', $provider->id);
+            $providersAffiliates = AffiliateMarketers::with('group')->where('affiliate_account_id', $provider->id)->where(function ($query) use ($request, $provider) {
                 if ($request->has('name') && $request->name) {
-                    $query->orWhere(function ($query) use ($request) {
-                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
-                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
-                        $query->where('email', 'like', '%' . $request->email . '%');
-                    });
+                    $query->orWhere('firstName', 'like', '%' . $request->name . '%');
+                    $query->orWhere('lastName', 'like', '%' . $request->name . '%');
+                    $query->orWhere('email', 'like', '%' . $request->name . '%');
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_groups');
             $affiliateGroups = AffiliateGroups::where('affiliate_account_id', $provider->id)->get();
@@ -545,7 +563,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getAffiliates();
                 if ($responseData['status']) {
@@ -571,7 +589,7 @@ class AffiliateMarketingDataController extends Controller
                                 'meta_data' => $affiliate['meta_data'] ? serialize($affiliate['meta_data']) : null,
                                 'parent_id' => $affiliate['parent_id'],
                                 'affiliate_created_at' => $affiliate['created_at'],
-                                'affiliate_group_id' => $groupData->id,
+                                'affiliate_group_id' => $groupData? $groupData->id : null,
                                 'promoted_at' => $affiliate['promoted_at'],
                                 'promotion_method' => $affiliate['promotion_method'],
                             ]);
@@ -592,7 +610,7 @@ class AffiliateMarketingDataController extends Controller
                             $affiliateData->meta_data = $affiliate['meta_data'] ? serialize($affiliate['meta_data']) : null;
                             $affiliateData->parent_id = $affiliate['parent_id'];
                             $affiliateData->affiliate_created_at = $affiliate['created_at'];
-                            $affiliateData->affiliate_group_id = $groupData->id;
+                            $affiliateData->affiliate_group_id = $groupData? $groupData->id : null;
                             $affiliateData->promoted_at = $affiliate['promoted_at'];
                             $affiliateData->promotion_method = $affiliate['promotion_method'];
                             $affiliateData->save();
@@ -629,8 +647,8 @@ class AffiliateMarketingDataController extends Controller
             $validator = Validator::make($request->all(), [
                 'firstName' => 'required',
                 'lastName' => 'required',
-                'email' => 'sometimes|email',
-                'affiliate_group_id' => 'required',
+                'email' => 'required|email',
+                'affiliate_group_id' => 'required|numeric',
             ]);
             if ($validator->fails()) {
                 $this->logActivity('Create Affiliate', ['status' => false, 'message' => $validator->errors()->first()]);
@@ -641,10 +659,12 @@ class AffiliateMarketingDataController extends Controller
                     ->withInput();
             }
             $providerAccount = $this->getProviderAccount($request->affiliate_account_id);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->createAffiliate([
-                    'firstname' => $request->firstName, 'lastname' => $request->lastName, 'email' => $request->email,
+                    'firstname' => $request->firstName, 
+                    'lastname' => $request->lastName, 
+                    'email' => $request->email?? null,
                     'company' => ['name' => $request->company_name, 'description' => $request->company_description],
                     'address' => [
                         'address' => $request->address_one, 'address_two' => $request->address_two, 'postal_code' => $request->address_postal_code,
@@ -682,7 +702,23 @@ class AffiliateMarketingDataController extends Controller
 
                     return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Affiliate added successfully');
+                }else if($responseData['errors']) {
+                    $validationErrors = array();
+                    foreach($responseData['response']['errors'] as $err) {
+                        if(strpos($err['message'], 'first name')) {
+                            $validationErrors['firstName'] = array($err['message']);
+                        }else if(strpos($err['message'], 'last name')) {
+                            $validationErrors['lastName'] = array($err['message']);
+                        }else if(strpos($err['message'], 'email')) {
+                            $validationErrors['email'] = array($err['message']);
+                        }
+                    }
+                    return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validationErrors)
+                    ->withInput();
                 }
+                
                 $this->logActivity('Create Affiliate', $responseData);
 
                 return Redirect::route('affiliate-marketing.provider.affiliate.index', ['provider_account' => $request->provider_account])
@@ -714,7 +750,7 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'Affiliate not found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->deleteAffiliate($affiliate->affiliate_id);
                 if ($responseData['status']) {
@@ -753,7 +789,7 @@ class AffiliateMarketingDataController extends Controller
                 return response()->json($response);
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getAllAffiliatePayoutMethods($affiliate->affiliate_id);
                 if ($responseData['status']) {
@@ -793,7 +829,7 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'Affiliate not found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->setAffiliatePayoutMethods($affiliate->affiliate_id, $request->payout_id);
                 if ($responseData['status']) {
@@ -836,7 +872,7 @@ class AffiliateMarketingDataController extends Controller
             }
             $programme = AffiliatePrograms::find($request->programme_id);
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->addAffiliateToProgramme($programme->affiliate_program_id, [
                     'affiliate' => ['id' => $affiliate->affiliate_id],
@@ -878,13 +914,16 @@ class AffiliateMarketingDataController extends Controller
     {
         if ($request->has('provider_account') && $request->provider_account) {
             $provider = $this->getProviderAccount($request->provider_account);
-            $providersPayments = AffiliatePayments::with('affiliate')->where(function ($query) use ($request, $provider) {
-                $query->where('affiliate_account_id', $provider->id);
+            $providersPayments = AffiliatePayments::with('affiliate')->where('affiliate_account_id', $provider->id)
+                ->where(function ($query) use ($request, $provider) {
                 if ($request->has('name') && $request->name) {
-                    $query->whereHas('affiliate', function ($query) use ($request) {
-                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
-                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
-                        $query->where('email', 'like', '%' . $request->email . '%');
+                    $query->whereHas('affiliate', function ($q) use ($request, $provider) {
+                        $q->where('affiliate_account_id', $provider->id);
+                        $q->where(function($qr) use ($request, $provider) {
+                            $qr->orWhere('firstName', 'like', '%' . $request->name . '%');
+                            $qr->orWhere('lastName', 'like', '%' . $request->name . '%');
+                            $qr->orWhere('email', 'like', '%' . $request->name . '%');
+                        });
                     });
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_payments');
@@ -915,7 +954,7 @@ class AffiliateMarketingDataController extends Controller
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
             $affiliateData = AffiliateMarketers::find($request->affiliate_id);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->createAffiliatePayment([
                     'affiliate_id' => $affiliateData->affiliate_id,
@@ -962,7 +1001,7 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'No account found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->cancelAffiliatePayment($payment->payment_id);
                 if ($responseData['status']) {
@@ -994,7 +1033,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getAffiliatePayment();
                 if ($responseData['status']) {
@@ -1049,18 +1088,24 @@ class AffiliateMarketingDataController extends Controller
         if ($request->has('provider_account') && $request->provider_account) {
             $provider = $this->getProviderAccount($request->provider_account);
             $providersConversions = AffiliateConversions::with('affiliate')->where(function ($query) use ($request, $provider) {
-                $query->where('affiliate_account_id', $provider->id);
                 if ($request->has('name') && $request->name) {
-                    $query->whereHas('affiliate', function ($query) use ($request) {
-                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
-                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
-                        $query->where('email', 'like', '%' . $request->email . '%');
+                    $query->whereHas('affiliate', function ($q) use ($request, $provider) {
+                        $q->where('affiliate_account_id', $provider->id);
+                        $q->where(function($qr) use($request) {
+                            $qr->orWhere('firstName', 'like', '%' . $request->name . '%');
+                            $qr->orWhere('lastName', 'like', '%' . $request->name . '%');
+                        });
                     });
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_conversions');
             $customers = Customer::where('store_website_id', $provider->store_website_id)->get();
+            $affiliateProgrammes = AffiliatePrograms::where('affiliate_account_id', $provider->id)->get();
+            $affiliates = AffiliateMarketers::where('affiliate_account_id', $request->provider_account)
+                                            ->whereNotNull('asset_id')
+                                            ->whereNotNull('source_id')
+                                            ->get();
 
-            return view('affiliate-marketing.providers.conversions', compact('providersConversions', 'provider', 'customers'));
+            return view('affiliate-marketing.providers.conversions', compact('providersConversions', 'provider', 'customers', 'affiliates', 'affiliateProgrammes'));
         }
 
         return Redirect::route('affiliate-marketing.providerAccounts')
@@ -1076,8 +1121,7 @@ class AffiliateMarketingDataController extends Controller
                 'click_id' => 'sometimes',
                 'coupon' => 'sometimes',
                 'currency' => 'sometimes',
-                'asset_id' => 'sometimes',
-                'source_id' => 'sometimes',
+                'asset_id' => 'required',
                 'amount' => 'required',
                 'customer_id' => 'required',
                 'commission_type' => 'sometimes',
@@ -1094,7 +1138,8 @@ class AffiliateMarketingDataController extends Controller
                     ->withInput();
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
+                $affiliate = AffiliateMarketers::where('asset_id', $request->asset_id)->first();
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->createConversions([
                     'referral_code' => $request->referral_code,
@@ -1102,8 +1147,8 @@ class AffiliateMarketingDataController extends Controller
                     'click_id' => $request->click_id,
                     'coupon' => $request->coupon,
                     'currency' => $request->currency,
-                    'asset_id' => $request->asset_id,
-                    'source_id' => $request->source_id,
+                    'asset_id' => $affiliate->asset_id,
+                    'source_id' => $affiliate->source_id,
                     'amount' => $request->amount,
                     'customer_id' => $request->customer_id,
                     'commission_type' => $request->commission_type,
@@ -1185,6 +1230,22 @@ class AffiliateMarketingDataController extends Controller
 
                     return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Conversion added successfully');
+                }else if($responseData['errors']) {
+                    $validationErrors = array();
+                    foreach($responseData['response']['errors'] as $err) {
+                        if(strpos($err['message'], 'coupon code')) {
+                            $validationErrors['coupon'] = array($err['message']);
+                        }else if(strpos($err['message'], 'click id')) {
+                            $validationErrors['click_id'] = array($err['message']);
+                        }else if(strpos($err['message'], 'referral code')) {
+                            $validationErrors['referral_code'] = array($err['message']);
+                        }
+                    }
+
+                    return Redirect::route('affiliate-marketing.provider.conversion.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validationErrors)
+                    ->withInput();
                 }
                 $this->logActivity('Create conversion', $responseData);
 
@@ -1219,7 +1280,7 @@ class AffiliateMarketingDataController extends Controller
             }
             $conversionData = AffiliateConversions::find($request->conversion_id);
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->updateConversions($conversionData->affiliate_conversion_id, [
                     'amount' => $request->amount,
@@ -1298,7 +1359,7 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'No account found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->deleteConversions($conversions->affiliate_conversion_id);
                 if ($responseData['status']) {
@@ -1332,7 +1393,7 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'No account found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->addCommissionConversions($conversions->affiliate_conversion_id, [
                     'conversion_sub_amount' => $request->conversion_sub_amount,
@@ -1405,7 +1466,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getAllConversions();
                 if ($responseData['status']) {
@@ -1462,7 +1523,7 @@ class AffiliateMarketingDataController extends Controller
                             AffiliateConversions::create([
                                 'affiliate_account_id' => $request->provider_account,
                                 'affiliate_conversion_id' => $conversion['id'],
-                                'external_id' => $conversion['external_id'],
+                                'external_id' => $conversion['external_id']?? uniqid(),
                                 'amount' => $conversion['amount'],
                                 'click_date' => isset($conversion['click']) ? $conversion['click']['created_at'] : null,
                                 'click_referrer' => isset($conversion['click']) ? $conversion['click']['referrer'] : null,
@@ -1481,7 +1542,7 @@ class AffiliateMarketingDataController extends Controller
                             ]);
                         } else {
                             $conversionData->affiliate_conversion_id = $conversion['id'];
-                            $conversionData->external_id = $conversion['external_id'];
+                            $conversionData->external_id = $conversion['external_id']?? uniqid();
                             $conversionData->amount = $conversion['amount'];
                             $conversionData->click_date = isset($conversion['click']) ? $conversion['click']['created_at'] : null;
                             $conversionData->click_referrer = isset($conversion['click']) ? $conversion['click']['referrer'] : null;
@@ -1530,18 +1591,23 @@ class AffiliateMarketingDataController extends Controller
         if ($request->has('provider_account') && $request->provider_account) {
             $provider = $this->getProviderAccount($request->provider_account);
             $providersCustomers = AffiliateCustomers::with(['affiliate', 'programme'])->where(function ($query) use ($request, $provider) {
-                $query->where('affiliate_account_id', $provider->id);
                 if ($request->has('name') && $request->name) {
-                    $query->whereHas('affiliate', function ($query) use ($request) {
-                        $query->where('firstName', 'like', '%' . $request->firstName . '%');
-                        $query->where('lastName', 'like', '%' . $request->lastName . '%');
-                        $query->where('email', 'like', '%' . $request->email . '%');
+                    $query->whereHas('affiliate', function ($q) use ($request, $provider) {
+                        $q->where('affiliate_account_id', $provider->id);
+                        $q->where(function($qr) use ($request) {
+                            $qr->orWhere('firstName', 'like', '%' . $request->name . '%');
+                            $qr->orWhere('lastName', 'like', '%' . $request->name . '%');
+                        });
                     });
                 }
             })->paginate(Setting::get('pagination'), '*', 'affiliate_customer');
             $customers = Customer::where('store_website_id', $provider->store_website_id)->get();
+            $affiliates = AffiliateMarketers::where('affiliate_account_id', $request->provider_account)
+                                            ->whereNotNull('asset_id')
+                                            ->whereNotNull('source_id')
+                                            ->get();
 
-            return view('affiliate-marketing.providers.customers', compact('providersCustomers', 'provider', 'customers'));
+            return view('affiliate-marketing.providers.customers', compact('providersCustomers', 'provider', 'customers', 'affiliates'));
         }
 
         return Redirect::route('affiliate-marketing.providerAccounts')
@@ -1557,8 +1623,7 @@ class AffiliateMarketingDataController extends Controller
                 'click_id' => 'sometimes',
                 'coupon' => 'sometimes',
                 'currency' => 'sometimes',
-                'asset_id' => 'sometimes',
-                'source_id' => 'sometimes',
+                'asset_id' => 'required',
                 'customer_id' => 'required',
                 'status' => 'sometimes',
                 'user_agent' => 'sometimes',
@@ -1573,16 +1638,16 @@ class AffiliateMarketingDataController extends Controller
                     ->withInput();
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
+                $affiliate = AffiliateMarketers::where('asset_id', $request->asset_id)->first();
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->createCustomer([
                     'referral_code' => $request->referral_code,
                     'tracking_id' => $request->tracking_id,
                     'click_id' => $request->click_id,
                     'coupon' => $request->coupon,
-                    'currency' => $request->currency,
-                    'asset_id' => $request->asset_id,
-                    'source_id' => $request->source_id,
+                    'asset_id' => $affiliate->asset_id,
+                    'source_id' => $affiliate->source_id,
                     'customer_id' => $request->customer_id,
                     'status' => $request->status,
                     'user_agent' => $request->user_agent,
@@ -1618,7 +1683,20 @@ class AffiliateMarketingDataController extends Controller
 
                     return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
                         ->with('success', 'Customer added successfully');
+                }else if($responseData['errors']) {
+                    $validationErrors = array();
+                    foreach($responseData['response']['errors'] as $err) {
+                        if(strpos($err['message'], 'already a customer')) {
+                            $validationErrors['customer_id'] = array($err['message']);
+                        }
+                    }
+
+                    return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
+                    ->with('create_popup', true)
+                    ->withErrors($validationErrors)
+                    ->withInput();
                 }
+
                 $this->logActivity('Create customer', $responseData);
 
                 return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
@@ -1645,7 +1723,7 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'No account found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->deleteCustomer($customer->customer_id);
                 if ($responseData['status']) {
@@ -1679,16 +1757,16 @@ class AffiliateMarketingDataController extends Controller
                     ->with('error', 'No account found');
             }
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
-                $responseData = $tapfiliate->cancelCustomer($customer->customer_id, $customer->status != 'canceled');
+                $responseData = $tapfiliate->cancelCustomer($customer->customer_id, $customer->status != 'stopped');
                 if ($responseData['status']) {
                     $customer->status = $responseData['data']['status'];
                     $customer->save();
                     $this->logActivity('Cancel Customer', $responseData);
-
+                    $successMsg = $responseData['data']['status']=='active'? 'Customer Uncancel successfully': 'Customer Cancel successfully';
                     return Redirect::route('affiliate-marketing.provider.customer.index', ['provider_account' => $request->provider_account])
-                        ->with('success', 'Customer Cancel successfully');
+                        ->with('success', $successMsg);
                 }
                 $this->logActivity('Cancel Customer', $responseData);
 
@@ -1712,7 +1790,7 @@ class AffiliateMarketingDataController extends Controller
     {
         try {
             $providerAccount = $this->getProviderAccount($request->provider_account);
-            if (strtolower($providerAccount->provider->provider_name) == 'tapfilliate') {
+            if (strtolower($providerAccount->provider->provider_name) == 'tapfiliate') {
                 $tapfiliate = new Tapfiliate($providerAccount);
                 $responseData = $tapfiliate->getAllCustomer();
                 if ($responseData['status']) {

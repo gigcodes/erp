@@ -52,10 +52,9 @@
 @if(Session::has('message'))
     <p class="alert alert-info">{{ Session::get('message') }}</p>
 @endif
-<div class="col-md-12 pl-xl-0">
 <div class = "row">
-    <div class="col-md-10 margin-tb">
-        <div class="cls_filter_box">
+    <div class="col-md-12 margin-tb">
+        <div class="pull-left cls_filter_box">
             <form class="form-inline" action="{{ url('instagram/post/create') }}" method="GET">
                 <div class="form-group ml-3 cls_filter_inputbox">
                     <input type="text" id="select_date" name="select_date" value="Select Date"  class="form-control">
@@ -86,18 +85,12 @@
                     <input type="text" name="loc" class="form-control" value="{{request()->get('loc')}}" placeholder="Location">
                 </div>
                 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+                <button type="button" class="btn custom-button" data-toggle="modal" data-target="#add-vendor-info-modal" data-id="1">Create Post</button>
             </form> 
         </div>
     </div>  
-    <div class="col-md-2 margin-tb">
-        <div class="pull-right mt-3"style="margin-top:2px !important;">
-
-            <button type="button" class=" btn btn-success btn-block custom-button btn-publish mt-0" data-toggle="modal" data-target="#add-vendor-info-modal" title="" data-id="1" >Create Post</button>
-        </div>
-    </div>
+   
 </div>
-</div>
-<div class="col-md-12 -5">
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="panel-group" style="margin-bottom: 5px;">
@@ -107,23 +100,19 @@
                        Posts
                     </h4>
                 </div>
-    </div>
-</div>
-<div class="col-md-12">
-    <div class="row">
-                <div class="mt-3">
+                <div class="panel-body">
                     <table class="table table-bordered table-striped"style="table-layout: fixed;">
                         <tr>
-                            <th width="9%">Date</th>
+                            <th width="10%">Date</th>
                             <th width="8%">Account</th>
                             <th width="13%">Comment</th>
-                            <th width="8%">Hash Tags</th>
+                            <th width="6%">Hash Tags</th>
                             <th width="7%">Schedule date</th>
-                            <th width="8%">Type</th>
-                            <th width="5%">Location</th>
-                            <th width="7%">Instagram Link</th>
-                            <th width="6%">Status</th>
-                            <th width="5%">Action</th>
+                            <th width="7%">Type</th>
+                            <th width="7%">Location</th>
+                            <th width="13%">Instagram Link</th>
+                            <th width="4%">Status</th>
+                            <th width="4%">Action</th>
                         </tr>
                         @foreach ($posts as $post)
                             
@@ -137,14 +126,14 @@
                                         @endforeach
                                    </select>
                                 </td>
-                                <td>
+                                <td class="d-flex">
                                     <div class="col-md-10">
                                         <input type="text" class="form-control post_comment" value="{{$post->comment}}">
                                     </div>
-                                    <button class="btn btn-sm mt-0 btn-image btn-update-comment"><img src="/images/filled-sent.png"></button>
+                                    <button class="btn btn-sm btn-image btn-update-comment mt-1"><img src="/images/filled-sent.png"></button>
                                 </td>
                                 <td>
-                                    <button type="button" data-hashtag = '{{$post->hashtags}}' data-id = '{{$post->id}}' class="btn btn-primary custom-button" data-toggle="modal" data-target="#show-hashtag-model" title=""style="border: 1px solid #bfbaba;">Show Hashtags</button>
+                                    <i class="fa fa-info-circle" aria-hidden="true"></i>
                                 </td>
                                 <td>{{$post->scheduled_at}}</td>
                                 <td>
@@ -167,9 +156,9 @@
                                         @endif
                                     @endforeach
                                 </td>
-                                <td>{{$post->status == 1 ? "Published" : "Not Published"}}</td>
+                                <td><i class="fa fa-check" aria-hidden="true"></i></td>
                                 <td>
-                                    <a href="{{url('instagram/post/publish-post')}}/{{$post->id}}" class="btn custom-button btn-primary"style="border: 1px solid #bfbaba;" >Publish</a>
+                                   <i class="fa fa-backward" aria-hidden="true"></i>
                                     <!--button type="button" class="btn-post-save" data-toggle="modal" title="" data-id="{{$post->id}}">Update</button-->
                                     <!--button type="button" class="btn-post-publish" data-toggle="modal" data-id="{{$post->id}}">Publish</button-->
                                     
@@ -180,7 +169,6 @@
                     {{ $posts->links() }}
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </div>

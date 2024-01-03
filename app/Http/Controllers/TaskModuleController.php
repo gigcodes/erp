@@ -57,6 +57,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\UserAvaibility;
 use App\Models\DataTableColumn;
+use App\Models\TaskStartEndHistory;
 
 class TaskModuleController extends Controller
 {
@@ -2547,6 +2548,37 @@ class TaskModuleController extends Controller
     }
 
     public function createMultipleTaskFromSortcutPostman(Request $request)
+    {
+        try {
+            $this->validate(
+                $request, [
+                    'task_subject' => 'required',
+                    'task_detail' => 'required',
+                    'task_asssigned_to' => 'required_without:assign_to_contacts',
+                    //'cost'=>'sometimes|integer'
+                ]
+            );
+
+            $this->createTaskFromSortcut($request);
+           
+            return response()->json(
+                [
+                    'code' => 200,
+                    'data' => [],
+                    'message' => 'Your quick task has been created!',
+                ]
+            );
+        } catch(\Exception $e) {
+            return response()->json(
+                [
+                    'code' => 500,
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
+    }
+
+    public function createMultipleTaskFromSortcutDevOops(Request $request)
     {
         try {
             $this->validate(
@@ -5882,5 +5914,46 @@ class TaskModuleController extends Controller
         if ($request->ajax()) {
             return response()->json(['code' => 200]);
         }
+    }
+
+    public function startTimeHistory(Request $request)
+    {
+        $task = Task::find($request->developer_task_id);
+
+        if($request->task_type==1){
+            $input['m_start_date'] = Carbon::now();
+            $input['task_start'] = 1;
+            $input['status'] = 5;
+
+            $history = new TaskStartEndHistory();
+            $history->user_id = auth()->user()->id;
+            $history->task_id = $request->developer_task_id;
+            $history->start_date = Carbon::now();            
+            $history->save();
+
+        } else if($request->task_type==2){
+            $input['m_end_date'] = Carbon::now();
+            $input['task_start'] = 3;
+
+            $history = TaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
+
+            if(!empty($history)){                
+                $history->end_date = Carbon::now();
+                $history->save();
+            }
+        }
+        
+        $task->update($input);
+
+        return response()->json(['msg' => 'success']);
+    }
+
+    public function getTimeHistoryStartEnd(Request $request)
+    {
+        $id = $request->id;
+
+        $task_histories = TaskStartEndHistory::where('task_id', $id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(['histories' => $task_histories]);
     }
 }

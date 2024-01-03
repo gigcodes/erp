@@ -40,6 +40,8 @@ use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
 use App\Models\DataTableColumn;
 
+use App\Models\OrderPurchaseProductStatus;
+use App\Models\OrderPurchaseProductStatusHistory;
 
 class PurchaseProductController extends Controller
 {
@@ -49,7 +51,8 @@ class PurchaseProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
+    {   
+        $filter_product = $request->input('filter_product');
         $filter_customer = $request->input('filter_customer');
         $filter_supplier = $request->filter_supplier ?? '';
         $filter_selling_price = $request->input('filter_selling_price');
@@ -149,6 +152,8 @@ class PurchaseProductController extends Controller
             //->orWhere('id', 'LIKE', '%'.$filter_customer.'%')
             //->orWhere('email', 'LIKE', '%'.$filter_customer.'%');
         });
+
+
         if ($filter_order_date != '') {
             $orders = $orders->where('order_date', $filter_order_date);
         }
@@ -177,6 +182,11 @@ class PurchaseProductController extends Controller
         if (! empty($brandIds)) {
             $orders = $orders->whereIn('p.brand', $brandIds);
         }
+
+        if ($filter_product != '') {
+            $orders = $orders->where('p.name', 'LIKE', '%' . $filter_product . '%');
+        }
+
         $orders = $orders->groupBy('op.id');
         $orders = $orders->select(['orders.*', 'op.id as order_product_id', 'op.product_price', 'op.product_id as product_id', 'op.supplier_discount_info_id', 'op.inventory_status_id', 'op.currency as curr', 'op.eur_price']);
         if ($filter_selling_price != '') {
@@ -206,12 +216,65 @@ class PurchaseProductController extends Controller
         $totalOrders = count($orders->get());
         $orders_array = $orders->paginate(10);
 
+        $inventory_status = OrderPurchaseProductStatus::get();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchase-product')->first();
+
+        $dynamicColumnsToShowPp = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPp = json_decode($hideColumns, true);
+        }
+
         $inventoryStatusQuery = InventoryStatus::query();
         $inventoryStatus = $inventoryStatusQuery->pluck('name', 'id');
         //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
 
         return view('purchase-product.index', compact('orders_array', 'users', 'orderby',
-            'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id'));
+            'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_product', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id', 'inventory_status', 'dynamicColumnsToShowPp'));
+    }
+
+    public function ppColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','purchase-product')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'purchase-product';
+            $column->column_name = json_encode($request->column_pp); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'purchase-product';
+            $column->column_name = json_encode($request->column_pp); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = OrderPurchaseProductStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        /*$status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = InventoryStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }*/
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     /**
@@ -614,7 +677,18 @@ class PurchaseProductController extends Controller
 
     public function createStatus(Request $request)
     {
-        $inventory_status = InventoryStatus::where('name', $request->status)->first();
+        $OrderPurchaseProductStatus = OrderPurchaseProductStatus::where('status_name', $request->status)->first();
+        if (! $OrderPurchaseProductStatus) {
+            $OrderPurchaseProductStatus = new OrderPurchaseProductStatus;
+            $OrderPurchaseProductStatus->status_name = $request->status;
+            $OrderPurchaseProductStatus->save();
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        } else {
+            return response()->json(['message' => 'Already exist', 'code' => 500]);
+        }
+
+        /*$inventory_status = InventoryStatus::where('name', $request->status)->first();
         if (! $inventory_status) {
             $inventory_status = new InventoryStatus;
             $inventory_status->name = $request->status;
@@ -623,7 +697,7 @@ class PurchaseProductController extends Controller
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         } else {
             return response()->json(['message' => 'Already exist', 'code' => 500]);
-        }
+        }*/
     }
 
     public function changeStatus($id, Request $request)
@@ -631,6 +705,26 @@ class PurchaseProductController extends Controller
         $order_product = OrderProduct::find($id);
         if ($request->status && $order_product) {
             $order_product->update(['inventory_status_id' => $request->status]);
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        }
+
+        return response()->json(['message' => 'Status not changed', 'code' => 500]);
+    }
+
+    public function changeMainStatus($id, Request $request)
+    {
+        $orders = Order::find($id);
+        if ($request->status && $orders) {
+
+            $history = new OrderPurchaseProductStatusHistory();
+            $history->order_id = $id;
+            $history->old_value = $orders->purchase_product_status_id;
+            $history->new_value = $request->status;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+
+            $orders->update(['purchase_product_status_id' => $request->status]);
 
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         }
@@ -1773,4 +1867,18 @@ class PurchaseProductController extends Controller
         return redirect()->back()->with('success', 'Column visiblity added Successfully!');
     }
     //#DEVTASK-24127 - E
+    public function getStatusHistories(Request $request)
+    {
+        $datas = OrderPurchaseProductStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('order_id', $request->id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }

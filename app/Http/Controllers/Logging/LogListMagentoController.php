@@ -407,14 +407,23 @@ class LogListMagentoController extends Controller
         $conditions = $conditions->get();
 
         $users = \App\User::all();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'logging-log-magento-product-push-journey')->first();
+
+        $dynamicColumnsTologging = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsTologging = json_decode($hideColumns, true);
+        }
+        
         if ($request->ajax() and $request->type == 'product_log_list') {
             return response()->json([
-                'tbody' => view('logging.partials.magento_product_data_push', compact('logListMagentos', 'total_count', 'conditions'))->render(),
+                'tbody' => view('logging.partials.magento_product_data_push', compact('logListMagentos', 'total_count', 'conditions', 'dynamicColumnsTologging'))->render(),
                 'links' => (string) $logListMagentos->render(),
             ], 200);
         } elseif ($request->ajax()) {
             return response()->json([
-                'tbody' => view('logging.partials.magento_product_data_push', compact('logListMagentos', 'total_count', 'conditions'))->render(),
+                'tbody' => view('logging.partials.magento_product_data_push', compact('logListMagentos', 'total_count', 'conditions', 'dynamicColumnsTologging'))->render(),
                 'links' => (string) $logListMagentos->render(),
             ], 200);
         }
@@ -428,10 +437,31 @@ class LogListMagentoController extends Controller
 
         $conditionPlucks = PushToMagentoCondition::pluck('condition', 'id')->toArray();
 
-        return view('logging.partials.magento_product_data_push_jouerny', compact('logListMagentos', 'filters', 'users', 'total_count', 'conditions', 'categoryPlucks', 'brandPlucks', 'conditionPlucks'))
+        return view('logging.partials.magento_product_data_push_jouerny', compact('logListMagentos', 'filters', 'users', 'total_count', 'conditions', 'categoryPlucks', 'brandPlucks', 'conditionPlucks', 'dynamicColumnsTologging'))
             ->with('success', \Request::Session()->get('success'))
             ->with('brands', $allbrands)
             ->with('categories', $allCategories);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','logging-log-magento-product-push-journey')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'logging-log-magento-product-push-journey';
+            $column->column_name = json_encode($request->column_ll); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'logging-log-magento-product-push-journey';
+            $column->column_name = json_encode($request->column_ll); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function updateMagentoStatus(Request $request, $id)

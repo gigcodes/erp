@@ -148,150 +148,145 @@
 @section('scripts')
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script>
-    $(document).ready(function() 
-	{
-        $(document).on('click', '.csv-download', function() {
-            var websiteIDS = [];
-            var selectedCheckboxes = [];
+    $(document).on('click', '.csv-download', function() {
+        var websiteIDS = [];
+        var selectedCheckboxes = [];
 
-            $('input[name="storewebsite"]:checked').each(function() {
-                var websiteID = $(this).data('id');
-                var checkboxValue = $(this).val();
+        $('input[name="storewebsite"]:checked').each(function() {
+            var websiteID = $(this).data('id');
+            var checkboxValue = $(this).val();
 
-                websiteIDS.push(websiteID);
-                selectedCheckboxes.push(checkboxValue);
-            });
-
-            if (selectedCheckboxes.length === 0) {
-                alert('Please select at least one checkbox.');
-                return;
-            }
-
-            var website_ids = selectedCheckboxes.join(',');
-
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                url: '{{route('mulitiple.store-website.listing')}}',
-                type: 'POST',
-                data: {
-                    website_ids: website_ids,
-                },
-                dataType: 'json',
-                    beforeSend: function () {
-                        $("#loading-image-preview").show();
-                    },
-                    success: function (response) {
-                        $("#loading-image-preview").hide();
-                        toastr["success"](response.message);
-                        location.reload();
-                    },
-                    error: function (xhr, status, error) {
-                        toastr['error']("Invalid JSON response", 'error');
-                    },
-                    complete: function () {
-                        $("#loading-image-preview").hide();
-                    }
-            });
+            websiteIDS.push(websiteID);
+            selectedCheckboxes.push(checkboxValue);
         });
 
-        $(document).on("click", ".process-magento-csv-btn", function(e) {
-            e.preventDefault();
-            var id = $(this).data("id");
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one checkbox.');
+            return;
+        }
 
-            $.ajax({
-                url: '{{route('store-website.single.command.run')}}',
-                type: "post",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }, 
-                data: {
-                    id: id,
+        var website_ids = selectedCheckboxes.join(',');
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route('mulitiple.store-website.listing')}}',
+            type: 'POST',
+            data: {
+                website_ids: website_ids,
+            },
+            dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image-preview").show();
                 },
-                beforeSend: function() {
-                    $('#loading-image').show();
+                success: function (response) {
+                    $("#loading-image-preview").hide();
+                    toastr["success"](response.message);
+                    location.reload();
                 },
-            }).done(function(response) {
-                if (response.code == '200') {
-                    toastr['success']('Command Run successfully!!!', 'success');
-                } else if(response.code == '500') {
-                    toastr['error'](response.message, 'error');
-                }
-                else {
-                    toastr['error'](response.message, 'error');
-                }
-                $('#loading-image').hide();
-            }).fail(function(errObj) {
-                $('#loading-image').hide();
+                error: function (xhr, status, error) {
                     toastr['error']("Invalid JSON response", 'error');
-
-            });
-         });
-
-         $(document).on('click', '.load-pull-history', function() {
-            var id = $(this).attr('data-id');
-
-            $.ajax({
-                url: '{{ route("pull-request.histories.show", '') }}/' + id,
-                dataType: "json",
-                data: {
-                    id:id,
-
                 },
-                success: function(response) {
-                    if (response.status) {
-                        var html = "";
-                        $.each(response.data, function(k, v) {
-                            html += `<tr>
-                                        <td> ${k + 1} </td>
-                                        <td> ${v.storewebsite ? v.storewebsite.title : ''} </td>
-                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
-                                    </tr>`;
-                        });
-                        $("#store-listing").find(".store-listing-view").html(html);
-                        $("#store-listing").modal("show");
-                    } else {
-                        toastr["error"](response.error, "Message");
-                    }
+                complete: function () {
+                    $("#loading-image-preview").hide();
                 }
-            });
         });
+    });
 
-        $(document).on('click', '.load-pull-logs', function() {
-            var id = $(this).attr('data-id');
+    $(document).on("click", ".process-magento-csv-btn", function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
 
-            $.ajax({
-                url: '{{route('pull-request.log.show')}}',
-                dataType: "json",
-                data: {
-                    id:id,
-                    action:"pull",
-                },
-                success: function(response) {
-                    if (response.status) {
-                        var html = "";
-                        $.each(response.data, function(k, v) {
-                            html += `<tr>
-                                        <td> ${k + 1} </td>
-                                        <td> ${v.command ? v.command : ''} </td>
-                                        <td> ${v.message ? v.message : ''} </td>
-                                        <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
-                                        <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
-                                    </tr>`;
-                        });
-                        $("#store-log-listing").find(".store-log-listing-view").html(html);
-                        $("#store-log-listing").modal("show");
-                    } else {
-                        toastr["error"](response.error, "Message");
-                    }
+        $.ajax({
+            url: '{{route('store-website.single.command.run')}}',
+            type: "post",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }, 
+            data: {
+                id: id,
+            },
+            beforeSend: function() {
+                $('#loading-image').show();
+            },
+        }).done(function(response) {
+            if (response.code == '200') {
+                toastr['success']('Command Run successfully!!!', 'success');
+            } else if(response.code == '500') {
+                toastr['error'](response.message, 'error');
+            }
+            else {
+                toastr['error'](response.message, 'error');
+            }
+            $('#loading-image').hide();
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+                toastr['error']("Invalid JSON response", 'error');
+
+        });
+     });
+
+     $(document).on('click', '.load-pull-history', function() {
+        var id = $(this).attr('data-id');
+
+        $.ajax({
+            url: '{{ route("pull-request.histories.show", '') }}/' + id,
+            dataType: "json",
+            data: {
+                id:id,
+
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.storewebsite ? v.storewebsite.title : ''} </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                </tr>`;
+                    });
+                    $("#store-listing").find(".store-listing-view").html(html);
+                    $("#store-listing").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
                 }
-            });
+            }
         });
+    });
 
+    $(document).on('click', '.load-pull-logs', function() {
+        var id = $(this).attr('data-id');
 
-	});
+        $.ajax({
+            url: '{{route('pull-request.log.show')}}',
+            dataType: "json",
+            data: {
+                id:id,
+                action:"pull",
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.command ? v.command : ''} </td>
+                                    <td> ${v.message ? v.message : ''} </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${new Date(v.created_at).toISOString().slice(0, 10)} </td>
+                                </tr>`;
+                    });
+                    $("#store-log-listing").find(".store-log-listing-view").html(html);
+                    $("#store-log-listing").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
 </script> 
 @endsection
     

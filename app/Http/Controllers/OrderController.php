@@ -3178,17 +3178,86 @@ class OrderController extends Controller
      *  @return view;
      */
     public function getOrderJourney(Request $request)
-    {
-        $orders = Order::latest('id')->paginate(25);
+    {   
+        $filter_order = $request->input('filter_order');
+        $filer_customer_list = $request->filer_customer_list ?? '';
+        //$orders = Order::latest('id')->paginate(25);
+
+        $orders = Order::with('order_product', 'order_product.order_product_details', 'customer');
+
+        if ($filter_order != '') {
+            $orders = $orders->where('order.order_id', $filter_order);
+        }
+
+        if ($filer_customer_list != '') {
+            $orders = $orders->whereHas('customer', function ($query) use ($filer_customer_list) {
+                $query->whereIn('customers.id', $filer_customer_list);
+            });
+        }
+        $orders = $orders->latest('id')->paginate(25);
+
         $orderStatusList = OrderStatus::pluck('status', 'id')->all();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'get-order-journey')->first();
+
+        $dynamicColumnsToShowoj = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowoj = json_decode($hideColumns, true);
+        }
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('orders.partials.order-journey', compact('orders', 'orderStatusList'))->render(),
+                'tbody' => view('orders.partials.order-journey', compact('orders', 'orderStatusList', 'dynamicColumnsToShowoj'))->render(),
             ], 200);
         }
 
-        return view('orders.order-journey', compact('orders', 'orderStatusList'));
+        $customer_list = Customer::pluck('name', 'id');
+
+        return view('orders.order-journey', compact('orders', 'orderStatusList', 'dynamicColumnsToShowoj', 'customer_list'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','get-order-journey')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'get-order-journey';
+            $column->column_name = json_encode($request->column_oj); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'get-order-journey';
+            $column->column_name = json_encode($request->column_oj); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function getOrderProductsList(Request $request)
+    {
+
+        $order = Order::where('id', $request->id)->first();
+
+        $productsIds = [];
+        if(!empty($order->order_product)){
+            foreach ($order->order_product as $key => $value) {
+                $productsIds[] = $value->product_id;
+            }
+        }
+
+        $datas = Product::select('name')->whereIn('id', $productsIds)->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Setting;
 use App\GoogleBigQueryData;
 use Illuminate\Http\Request;
+use App\Models\DataTableColumn;
 
 class GoogleBigQueryDataController extends Controller
 {
@@ -20,7 +21,37 @@ class GoogleBigQueryDataController extends Controller
         $platforms = GoogleBigQueryData::select('platform')->distinct('platform')->get();
         $event_ids = GoogleBigQueryData::select('event_id')->distinct('event_id')->get();
 
-        return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids'));
+        $datatableModel = DataTableColumn::select('column_name')
+                            ->where('user_id', auth()->user()->id)
+                            ->where('section_name', 'google-bigdata-bigquery')
+                            ->first();
+
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }      
+        return view('google.big_data.index', compact('bigData', 'google_project_ids', 'platforms', 'event_ids', 'dynamicColumnsToShowb'));
+    }
+
+    public function columnVisibilityUpdate(Request $request){
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','google-bigdata-bigquery')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'google-bigdata-bigquery';
+            $column->column_name = json_encode($request->column_data); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'google-bigdata-bigquery';
+            $column->column_name = json_encode($request->column_data); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'Column visiblity added successfully!');
     }
 
     public function search(Request $request)

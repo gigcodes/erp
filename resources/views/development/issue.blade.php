@@ -96,8 +96,13 @@ $priorities = [
     <div class="col-md-12">
         @include("development.partials.task-issue-search")
         <div class="pull-right mt-4">
+            
+            @if (Auth::user()->isAdmin())
 
-            <button class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#dlcolumnvisibilityList"> Column Visiblity</button>
+                <a class="btn btn-secondary" href="{{ route('development.scrapper.index') }}" role="link"> Scrapper Verification Data </a>
+
+                <button class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#dlcolumnvisibilityList"> Column Visiblity</button>
+            @endif
 
             <a class="btn btn-secondary" href="{{ action([\App\Http\Controllers\DevelopmentController::class, 'exportTask'],request()->all()) }}" role="link"> Download Tasks </a>
 
@@ -162,6 +167,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 @include("development.partials.chat-list-history-modal")
 @include("development.partials.upload-document-modal")
 @include("partials.plain-modal")
+@include("development.partials.timer-history")
 
 @include("development.partials.status-update-check-list")
 @include("development.partials.meeting-time-modal")
@@ -289,6 +295,7 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
 </div>
 @include("development.actions-update-modal")
 @include("development.partials.time-history-modal")
+@include('global_componants.files_and_attachments.files_and_attachments', ['module' => 'development_list'])
 
 @endsection
 @section('scripts')
@@ -1685,6 +1692,10 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
         $('#user_history_modal').modal('show');
     });
+
+    
+        
+
     function fetchGoogleDriveFileData(task_id) {
         if(task_id == ''){
             $('#googleDriveFileData').html('<tr><td>No Data Found.</td></tr>');
@@ -1822,6 +1833,389 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         $(".action-btn-tr-"+id).toggleClass('d-none')
     }
 </script>
+
+<script type="text/javascript" src="/js/common-helper.js"></script>
+    <script type="text/javascript">
+        var siteHelpers = {
+                    
+            quickCategoryAdd : function(ele) {
+                var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                var textBox = ele.closest("div").find(".quick_category");
+                if (textBox.val() == "") {
+                    alert("Please Enter Category!!");
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        name : textBox.val(),
+                        quickCategoryId : quickCategoryId
+                    },
+                    url: "/add-reply-category"
+                };
+
+                if(quickCategoryId!=''){
+                    siteHelpers.sendAjax(params,"afterQuickSubCategoryAdd");
+                } else {
+                    siteHelpers.sendAjax(params,"afterQuickCategoryAdd");
+                }
+            },
+            afterQuickSubCategoryAdd : function(response) {
+                $(".quick_category").val('');
+                $(".quickSubCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+            },
+            afterQuickCategoryAdd : function(response) {
+                $(".quick_category").val('');
+                $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+            },
+            deleteQuickCategory : function(ele) {
+                var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+                if (quickCategory.val() == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete category?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        id : quickCategoryId
+                    },
+                    url: "/destroy-reply-category"
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            deleteQuickSubCategory : function(ele) {
+                var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+                if (quickSubCategory.val() == "") {
+                    alert("Please Select Sub Category!!");
+                    return false;
+                }
+                var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete sub category?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'post',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content'),
+                        id : quickSubCategoryId
+                    },
+                    url: "/destroy-reply-category"
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            deleteQuickComment : function(ele) {
+                var quickComment = ele.closest("#shortcutsIds").find(".quickCommentEmail");
+                if (quickComment.val() == "") {
+                    alert("Please Select Quick Comment!!");
+                    return false;
+                }
+                var quickCommentId = quickComment.children("option:selected").data('id');
+                if (!confirm("Are sure you want to delete comment?")) {
+                    return false;
+                }
+                var params = {
+                    method : 'DELETE',
+                    data : {
+                        _token : $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: "/reply/" + quickCommentId,
+                };
+                siteHelpers.sendAjax(params,"pageReload");
+            },
+            pageReload : function(response) {
+                location.reload();
+            },
+            quickCommentAdd : function(ele) {
+                var textBox = ele.closest("div").find(".quick_comment");
+                var quickCategory = ele.closest("#shortcutsIds").find(".quickCategory");
+                var quickSubCategory = ele.closest("#shortcutsIds").find(".quickSubCategory");
+                if (textBox.val() == "") {
+                    alert("Please Enter New Quick Comment!!");
+                    return false;
+                }
+                if (quickCategory.val() == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                var quickCategoryId = quickCategory.children("option:selected").data('id');
+                var quickSubCategoryId = quickSubCategory.children("option:selected").data('id');
+                var formData = new FormData();
+                formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+                formData.append("reply", textBox.val());
+                formData.append("category_id", quickCategoryId);
+                formData.append("sub_category_id", quickSubCategoryId);
+                formData.append("model", 'Approval Lead');
+                var params = {
+                    method : 'post',
+                    data : formData,
+                    url: "/reply"
+                };
+                siteHelpers.sendFormDataAjax(params,"afterQuickCommentAdd");
+            },
+            afterQuickCommentAdd : function(reply) {
+                $(".quick_comment").val('');
+                $('.quickCommentEmail').append($('<option>', {
+                    value: reply,
+                    text: reply
+                }));
+            },
+            changeQuickCategory : function (ele) {
+
+                var selectedOption = ele.find('option:selected');
+                var dataValue = selectedOption.data('value');
+
+                ele.closest("#shortcutsIds").find('.quickSubCategory').empty();
+                ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+                    value: '',
+                    text: 'Select Sub Category'
+                }));
+                dataValue.forEach(function (category) {
+                    ele.closest("#shortcutsIds").find('.quickSubCategory').append($('<option>', {
+                        value: category.name,
+                        text: category.name,
+                        'data-id': category.id
+                    }));
+                });
+
+                if (ele.val() != "") {
+                    var replies = JSON.parse(ele.val());
+                    ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+                    ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                        value: '',
+                        text: 'Quick Reply'
+                    }));
+                    replies.forEach(function (reply) {
+                        ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                            value: reply.reply,
+                            text: reply.reply,
+                            'data-id': reply.id
+                        }));
+                    });
+                }
+            },
+            changeQuickComment : function (ele) {
+                $('#send_message_'+ele.attr('data-id')).val(ele.val());
+
+                var userEmaillUrl = '/email/email-frame-info/'+$('#reply_email_id').val();;
+                var senderName = 'Hello '+$('#sender_email_address').val().split('@')[0]+',';
+
+                $("#reply-message").val(senderName)
+
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: userEmaillUrl,
+                    type: 'get',
+                }).done( function(response) {
+                    $("#reply-message").val(senderName+'\n\n'+ele.val()+'\n\n'+response)
+                }).fail(function(errObj) {
+                })
+                
+            },
+            changeQuickSubCategory : function (ele) {
+                var selectedOption = ele.find('option:selected');
+                var dataValue = selectedOption.data('id');
+
+                var userEmaillUrl = '/email/email-replise/'+dataValue;
+
+                $.ajax({        
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    url: userEmaillUrl,
+                    type: 'get',
+                }).done( function(response) {
+
+                    if(response!=''){
+                        var replies = JSON.parse(response);
+                        ele.closest("#shortcutsIds").find('.quickCommentEmail').empty();
+                        ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                            value: '',
+                            text: 'Quick Reply'
+                        }));
+                        replies.forEach(function (reply) {
+                            ele.closest("#shortcutsIds").find('.quickCommentEmail').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                    }
+                    
+                }).fail(function(errObj) {
+                })
+            },
+        };
+
+        $.extend(siteHelpers, common);
+
+        $(document).on('click', '.quick_category_add', function () {
+            siteHelpers.quickCategoryAdd($(this));
+        });
+        $(document).on('click', '.delete_category', function () {
+            siteHelpers.deleteQuickCategory($(this));
+        });
+        $(document).on('click', '.delete_sub_category', function () {
+            siteHelpers.deleteQuickSubCategory($(this));
+        });
+        $(document).on('click', '.delete_quick_comment', function () {
+            siteHelpers.deleteQuickComment($(this));
+        });
+        $(document).on('click', '.quick_comment_add', function () {
+            siteHelpers.quickCommentAdd($(this));
+        });
+        $(document).on('change', '.quickCategory', function () {
+            siteHelpers.changeQuickCategory($(this));
+        });
+        $(document).on('change', '.quickCommentEmail', function () {
+            siteHelpers.changeQuickComment($(this));
+        });
+        $(document).on('change', '.quickSubCategory', function () {
+            siteHelpers.changeQuickSubCategory($(this));
+        });
+
+        $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+            if (confirm('Are you sure, do you want to approve this task?')) {
+                event.preventDefault();
+                let type = $(this).data('type');
+                let task_id = $(this).data('task');
+                let history_id = $(this).data('id');
+                $.ajax({
+                    url: "/development/time/history/approve",
+                    type: "POST",
+                    data: {
+                        _token: "{{csrf_token()}}",
+                        approve_time: history_id,
+                        developer_task_id: task_id,
+                        user_id: 0
+                    },
+                    success: function (response) {
+                        toastr["success"]("Successfully approved", "success");
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        toastr["error"](error.responseJSON.message);
+                    },
+                });
+            }
+        });
+
+        $(document).on("click", ".startDirectTask", function (event) {
+            let task_type = $(this).data('task-type');
+
+            if(task_type==1){
+                var msg = "Are you sure, do you want to start this task?";
+            }else{
+                var msg = "Are you sure, do you want to end this task?";
+            }
+
+            if (confirm(msg)) {
+                event.preventDefault();
+                let type = $(this).data('type');
+                let task_id = $(this).data('task');
+
+                $.ajax({
+                    url: "/development/time/history/start",
+                    type: "POST",
+                    data: {
+                        _token: "{{csrf_token()}}",                
+                        developer_task_id: task_id,
+                        task_type: task_type,
+                    },
+                    success: function (response) {
+
+                        if(task_type==1){
+                            toastr["success"]("Successfully start", "success");
+                        }else{
+                            toastr["success"]("Successfully end", "success");
+                        }
+                        window.location.reload();
+                    },
+                    error: function (error) {
+                        toastr["error"](error.responseJSON.message);
+                    },
+                });
+            }
+        });
+
+        $(document).ready(function() {
+            // Iterate through elements with class 'myClass'
+            $('.m_start_date_').each(function() {
+                var elementId = $(this).attr('id'); // Get ID of each element
+
+                var task_id = $("#"+elementId).attr('data-id');
+                var inputTime = $("#"+elementId).attr('data-value');
+
+                startTime = new Date(inputTime);
+                //setInterval(updateTimeCounter(startTime, task_id), 1000); 
+
+                (function(startTime, id) {
+                    setInterval(function() {
+                        updateTimeCounter(startTime, id);
+                    }, 1000);
+                })(startTime, task_id);
+            });
+        });
+
+        function updateTimeCounter(startTime, id) {
+            // Check if startTime is defined
+            if (startTime && !isNaN(startTime.getTime())) {
+                // Get the current time
+                var currentTime = new Date();
+
+                // Calculate the difference in milliseconds
+                var timeDifference = currentTime - startTime;
+
+                // Convert milliseconds to hours, minutes, and seconds
+                var hours = Math.floor(timeDifference / (60 * 60 * 1000));
+                var minutes = Math.floor((timeDifference % (60 * 60 * 1000)) / (60 * 1000));
+                var seconds = Math.floor((timeDifference % (60 * 1000)) / 1000);
+
+                // Display the time counter
+                var counterText = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+                $("#time-counter_"+id).text(counterText);
+            }
+        }
+
+        // Function to pad single digits with leading zeros
+        function pad(number) {
+            return (number < 10 ? '0' : '') + number;
+        }
+
+        $(document).on('click', '.show-timer-history', function() {
+            var issueId = $(this).data('id');
+            $('#timer_tracked_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development.timer.history') }}",
+                data: {
+                    id: issueId,
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            $('#timer_tracked_modal table tbody').append(
+                                '<tr>\
+                                    <td>' + moment(item['start_date']).format('DD-MM-YYYY HH:mm:ss') + '</td>\
+                                    <td>' + ((item['end_date'] != null) ? moment(item['end_date']).format('DD-MM-YYYY HH:mm:ss') : 'Not Stop') + '</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#timer_tracked_modal').modal('show');
+        });
+        </script>
 @endsection
 @push('scripts')
 <script src="{{env('APP_URL')}}/js/pages/development/development-list.js"></script>

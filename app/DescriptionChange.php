@@ -34,4 +34,22 @@ class DescriptionChange extends Model
 
         return ucwords($text);
     }
+
+    public static function replaceKeyword($description){
+        // Split the description into individual words
+        $words = explode(' ', $description);
+
+        // Use whereIn to find all matching keywords
+        $matchingKeywords = self::whereIn('keyword', $words)->get(['keyword', 'replace_with'])->toArray();
+        //dd($matchingKeywords);
+        if (!empty($matchingKeywords)) {
+            // Replace matching keywords in the $description string
+            foreach ($matchingKeywords as $matchingKeyword) {
+                $description = str_replace($matchingKeyword['keyword'], $matchingKeyword['replace_with'], $description);
+            }
+            return $description;
+        } else {
+            return $description;
+        }
+    }
 }

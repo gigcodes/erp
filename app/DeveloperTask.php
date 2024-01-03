@@ -108,6 +108,10 @@ class DeveloperTask extends Model
         'tester_time_doctor_task_id',
         'manually_assign',
         'slotTaskRemarks',
+        'estimate_date',
+        'task_start',
+        'm_start_date',
+        'm_end_date',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';

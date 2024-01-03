@@ -38,6 +38,8 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\VendorFrameworks;
 use App\Models\VendorRemarksHistory;
+use App\Models\VendorFlowChart;
+use App\Models\VendorFlowChartRemarks;
 
 class VendorController extends Controller
 {
@@ -288,6 +290,8 @@ class VendorController extends Controller
                     vendors.remark,
                     vendors.type,
                     vendors.framework,
+                    vendors.fc_status,
+                    vendors.flowchart_date,
                     category_name,
                   chat_messages.message_id,
                   vf.name as framework_name
@@ -362,6 +366,8 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
         }
 
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+
         return view('vendors.index', [
             'vendors' => $vendors,
             'vendor_categories' => $vendor_categories,
@@ -375,6 +381,7 @@ class VendorController extends Controller
             'statusList' => $statusList,
             'dynamicColumnsToShowVendors' => $dynamicColumnsToShowVendors,
             'whatsapp' => $whatsapp,
+            'vendor_flow_charts' => $vendor_flow_charts,
         ]);
     }
 
@@ -1711,6 +1718,10 @@ class VendorController extends Controller
         $sourceStatus = $validateStatus = false;
         $inputsData = array_merge($mainVendorData, $vendorData);
         foreach ($inputsData as $key => $data) {
+
+            if(!empty($data['framework'])){
+                $data['framework'] = implode(",", $data['framework']);
+            }
             Vendor::create($data);
 
             if ($request->create_user == 'on') {
@@ -1856,5 +1867,148 @@ class VendorController extends Controller
             $msg = $e->getMessage();
             return response()->json(['code' => 500, 'message' => $msg]);
         }
+    }
+
+    public function flowChart(Request $request)
+    {
+        $VendorFlowchart = Vendor::with('category');
+
+        if (request('category') != null) {
+            $VendorFlowchart = $VendorFlowchart->where('category_id', $request->category);
+        }
+
+        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+            $VendorFlowchart = $VendorFlowchart->where('id', $request->selectedId);
+        }
+
+        $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->paginate(25);
+
+        $totalVendor = Vendor::whereNotNull('flowchart_date')->count();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-flow-chart-listing')->first();
+
+        $dynamicColumnsToShowVendorsfc = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
+        }
+
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+
+        $vendor_categories = VendorCategory::all();
+
+        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories'))
+            ->with('i', ($request->input('page', 1) - 1) * 25);
+    }
+
+    public function flowchartStore(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required|string',
+            'sorting' => 'required|numeric',
+        ]);
+        $data = $request->except('_token');
+        $data['created_by'] = Auth::user()->id;
+        VendorFlowChart::create($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a flow chart!');
+    }
+
+    public function vendorFlowchart(Request $request)
+    {
+
+        $vendor = Vendor::find($request->id);
+
+        if(empty($vendor->flowchart_date)){
+            $data['flowchart_date'] = Carbon::now();
+            $data['fc_status'] = 1;
+        } else {
+            $data['flowchart_date'] = null;
+            $data['fc_status'] = 0;
+        }
+        
+        Vendor::find($request->id)->update($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a flow chart!');
+    }
+
+    public function saveVendorFlowChartRemarks(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'vendor_id' => 'required',
+            'flow_chart_id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        $input['added_by'] = Auth::user()->id;
+        VendorFlowChartRemarks::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input]);
+    }
+
+    public function getFlowChartRemarksHistories(Request $request)
+    {
+        $datas = VendorFlowChartRemarks::with(['user'])
+                ->where('vendor_id', $request->vendor_id)
+                ->where('flow_chart_id', $request->flow_chart_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function vendorFlowChartVolumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-flow-chart-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'vendors-flow-chart-listing';
+            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'vendors-flow-chart-listing';
+            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function getVendorAutocomplete(Request $request)
+    {
+        $input = $_GET['term'];
+
+        $products = [];
+        if(!empty($input)){
+            $products = Vendor::where('name', 'like', '%'.$input.'%')->whereNull('deleted_at')->pluck('name', 'id');
+        }
+
+        return response()->json($products);
+    }
+
+    public function sortingVendorFlowchart(Request $request)
+    {
+        $flow_chart = $request->all();
+        $data = $request->except('_token');
+        foreach ($flow_chart['sorting'] as $key => $value) {
+            $vendor_fc = VendorFlowChart::find($key);
+            $vendor_fc->sorting = $value;
+            $vendor_fc->save();
+        }
+
+        return redirect()->back()->with('success', 'The flow-chart sorting updated successfully.');
     }
 }

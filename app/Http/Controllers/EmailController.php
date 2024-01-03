@@ -31,8 +31,6 @@ use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Models\EmailBox;
-use App\Models\EmailStatus;
-use App\Models\DataTableColumn;
 
 class EmailController extends Controller
 {
@@ -227,7 +225,7 @@ class EmailController extends Controller
             $email_status = $email_status->where('type', '!=', 'sent');
         }*/
 
-        $email_status = $email_status->get(['id', 'email_status', 'color']);
+        $email_status = $email_status->get(['id', 'email_status']);
 
         //Get List of model types
         $emailModelTypes = Email::emailModelTypeList();
@@ -243,17 +241,9 @@ class EmailController extends Controller
 
         $email_categories = $email_categories->get(['id', 'category_name']);
 
-        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'emails-listing')->first();
-
-        $dynamicColumnsToShowEmails = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
-            $dynamicColumnsToShowEmails = json_decode($hideColumns, true);
-        }
-
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes', 'dynamicColumnsToShowEmails'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string) $emails->links(),
                 'count' => $emails->total(),
                 'emails' => $emails,
@@ -276,8 +266,6 @@ class EmailController extends Controller
         $totalEmail = Email::count();
         $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
-        
-
         return view('emails.index',
             [
                 'emails' => $emails,
@@ -291,43 +279,8 @@ class EmailController extends Controller
                 'receiver' => $receiver,
                 'from' => $from,
                 'totalEmail' => $totalEmail,
-                'modelColors' => $modelColors,
-                'dynamicColumnsToShowEmails' => $dynamicColumnsToShowEmails
+                'modelColors' => $modelColors
             ])->with('i', ($request->input('page', 1) - 1) * 5);
-    }
-
-    public function statuscolor(Request $request)
-    {
-        $status_color = $request->all();
-        $data = $request->except('_token');
-        foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = EmailStatus::find($key);
-            $bugstatus->color = $value;
-            $bugstatus->save();
-        }
-
-        return redirect()->back()->with('success', 'The status color updated successfully.');
-    }
-
-    public function emailsColumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','emails-listing')->first();
-
-        if($userCheck)
-        {
-            $column = DataTableColumn::find($userCheck->id);
-            $column->section_name = 'emails-listing';
-            $column->column_name = json_encode($request->column_emails); 
-            $column->save();
-        } else {
-            $column = new DataTableColumn();
-            $column->section_name = 'emails-listing';
-            $column->column_name = json_encode($request->column_emails); 
-            $column->user_id =  auth()->user()->id;
-            $column->save();
-        }
-
-        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function platformUpdate(Request $request)
@@ -612,11 +565,7 @@ class EmailController extends Controller
         $dateCreated = $email->created_at->format('D, d M Y');
         $timeCreated = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->to}> wrote:";
-
-        $message_to_store = $originalEmailInfo . '<br/>' . $request->message;
-        if($request->pass_history==1){
-            $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
-        }        
+        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
 
         $emailAddress = $email->to;
         $emailPattern = '/<([^>]+)>/';
@@ -776,14 +725,10 @@ class EmailController extends Controller
         $status = $request->input('status');
 
         $email = Email::find($email_id);
-
-        if(!empty($email)){
-            Email::where('from', $email->from)->update(['status' => $status, 'email_category_id' => $category]);
-        }
-
-        /*$email->status = $status;
+        $email->status = $status;
         $email->email_category_id = $category;
-        $email->update();*/
+
+        $email->update();
 
         session()->flash('success', 'Data updated successfully');
 
@@ -1624,20 +1569,6 @@ class EmailController extends Controller
         return view('emails.frame-view', compact('emailData'));
     }
 
-    public function viewEmailFrameInfo(Request $request)
-    {   
-        $id = $request->id;
-        $emailData = Email::find($id);
-
-        $sender_email = $emailData->to;
-        $emailAddresses = EmailAddress::where('from_address', $sender_email)->orderBy('id', 'ASC')->first();
-            
-        $emailContent = '';
-        if(!empty($emailAddresses)){
-            return view('emails.content-view', compact('emailAddresses'));
-        }
-    }
-
     public function getEmailFilterOptions(Request $request)
     {
         $user = Auth::user();
@@ -2013,5 +1944,13 @@ class EmailController extends Controller
         $emails = $emails->latest()->paginate(\App\Setting::get('pagination', 25));
 
         return view('emails.quick-email-list', compact('emails', 'email_categories', 'senderEmailIds', 'receiverEmailIds', 'modelsTypes', 'mailTypes', 'emailStatuses', 'email_status'));
+    }
+
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
     }
 }
