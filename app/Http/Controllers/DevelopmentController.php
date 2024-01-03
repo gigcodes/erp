@@ -5724,6 +5724,42 @@ class DevelopmentController extends Controller
                 ]
             );
 
+            $returnData = [];
+            $jsonString = $request->scrapper_values;
+            $phpArray = json_decode($jsonString, true);
+            if(!empty($phpArray)){
+
+                if(!empty($phpArray)){
+
+                    foreach ($phpArray as $key_json => $value_json) {
+
+                        if($key_json!='is_sale'){
+                            if(empty($value_json)){
+                                $returnData[] = ucwords(str_replace("_", " ", $key_json));
+                            }
+
+                            if($key_json=='properties'){
+                                foreach ($phpArray['properties'] as $key => $value) {
+                                    if(empty($phpArray['properties'][$key])){
+                                        $returnData[] = 'Properties - '.ucwords(str_replace("_", " ", $key_json));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } 
+
+            if(!empty($returnData)){
+                return response()->json(
+                    [
+                        'code' => 500,
+                        'data' => [],
+                        'message' => implode("</br> ", $returnData)."</br> above key's value is missing on your json data!",
+                    ]
+                );
+            }
+
             $column = new ScrapperValues();
             $column->task_id = $request->task_id;
             $column->task_type = $request->task_type;
