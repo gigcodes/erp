@@ -1095,6 +1095,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('product/relist-product', [ProductController::class, 'relistProduct']);
     Route::get('products/stats', [ProductController::class, 'productStats']);
     //ajay singh
+
+    Route::get('products/size', [ProductController::class, 'productSizeLog'])->name('products.size');
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
