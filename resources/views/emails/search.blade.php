@@ -234,8 +234,10 @@
 
             <td>{{ $email->type }}</td>
             
-            <td data-toggle="modal" data-target="#view-quick-email"  onclick="openQuickMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
-            
+            <td data-toggle="modal" data-target="#view-quick-email"  onclick="openQuickMsg({{$email}})" style="cursor: pointer;">{{ $email->subject }}</td>
+
+            <td data-toggle="modal" data-target="#view-quick-email"  onclick="openQuickMsg({{$email}})" style="cursor: pointer;"> {{ substr(strip_tags($email->message), 0,  120) }} {{strlen(strip_tags($email->message)) > 110 ? '...' : '' }}</td>
+
             {{-- <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
             <span id="td-mini-container-{{$email->id}}" data-body="{{ $email->message }}" class="emailBodyContent">
             <iframe src="" frameborder="0"></iframe>
