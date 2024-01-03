@@ -7,98 +7,265 @@
 
 @foreach ($data as $key => $ticket)
 <tr style="background-color: {{ !empty($ticket->ticketStatus) ? $ticket->ticketStatus->ticket_color : '#f4f4f6'}} !important;">
-    <td class="pl-2"><input type="checkbox" class="selected-ticket-ids" name="ticket_ids[]" value="{{ $ticket->id }}"></td>
+    @if(!empty($dynamicColumnsToShowLt))
 
-    <td class="chat-msg">{{ substr($ticket->ticket_id, -5) }}</td>
-    <td class="chat-msg">
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">
-            {{ $ticket->source_of_ticket}}
-        </a>
-    </td>
-    <td class="chat-msg">{{ $ticket->name}}</td>
-    <td class="chat-msg">
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">
-            {{ $ticket->email}}
-        </a>
-    </td>
-    <td class="pr-1 chat-msg">
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">
-            {{   $ticket->subject}}
-        </a>
-    </td>
-    <td class="chat-msg">
+        @if (!in_array('Checkbox', $dynamicColumnsToShowLt))
+            <td class="pl-2"><input type="checkbox" class="selected-ticket-ids" name="ticket_ids[]" value="{{ $ticket->id }}"></td>
+        @endif
 
+        @if (!in_array('Id', $dynamicColumnsToShowLt))
+            <td>{{ substr($ticket->ticket_id, -5) }}</td>
+        @endif
 
-            {{ $ticket->message}}
+        @if (!in_array('Source', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="source_of_ticket" data-id="{{$ticket->id}}">
+                <span class="show-short-source_of_ticket-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">{{ Str::limit($ticket->source_of_ticket, 10, '..')}}</a></span>
+                <span style="word-break:break-all;" class="show-full-source_of_ticket-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">{{$ticket->source_of_ticket}}</a></span>
+            </td>
+        @endif
 
-    </td>
-    <td>{{ $ticket->assigned_to_name }}</td>
-    <td class="row-ticket" data-content="Brand : {{ !empty($ticket->brand) ? $ticket->brand : 'N/A' }}<br>
-        Style : {{ !empty($ticket->style) ? $ticket->style : 'N/A' }}<br>
-        Keyword : {{ !empty($ticket->keyword) ? $ticket->keyword : 'N/A' }}<br>
-        Url : <a target='__blank' href='{{ !empty($ticket->image) ? $ticket->image : 'javascript:;' }}'>Click Here</a><br>
-        ">
-        <a herf="javascript:;">{{ $ticket->type_of_inquiry }}</a>
-    </td>
-    <td>{{ $ticket->country }}</td>
-    <td>
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->order_no}}">
-            {{ Str::limit($ticket->order_no,4)}}
-        </a>
-    </td>
-    <td class="pl-2 chat-msg">
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">
-         {{ $ticket->phone_no}}
-        </a>
-    </td>
+        @if (!in_array('Name', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="name" data-id="{{$ticket->id}}">
+                <span class="show-short-name-{{$ticket->id}}">{{ Str::limit($ticket->name, 10, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-name-{{$ticket->id}} hidden">{{$ticket->name}}</span>
+            </td>
+        @endif
 
-    <td>
-        <div class="d-flex" role="toolbar">
-            <div class="">
-                <textarea  rows="1" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
-            </div>
-            <div class="">
-                <button class="btn btn-xs send-message1"
-                        data-ticketid="{{ $ticket->id }}">
+        @if (!in_array('Email', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="email" data-id="{{$ticket->id}}">
+                <span class="show-short-email-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">{{ Str::limit($ticket->email, 10, '..')}}</a></span>
+                <span style="word-break:break-all;" class="show-full-email-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">{{$ticket->email}}</a></span>
+            </td>
+        @endif
+
+        @if (!in_array('Subject', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="subject" data-id="{{$ticket->id}}">
+                <span class="show-short-subject-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">{{ Str::limit($ticket->subject, 10, '..')}}</a></span>
+                <span style="word-break:break-all;" class="show-full-subject-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">{{$ticket->subject}}</a></span>
+            </td>
+        @endif
+
+        @if (!in_array('Message', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="message" data-id="{{$ticket->id}}">
+                <span class="show-short-message-{{$ticket->id}}">{{ Str::limit($ticket->message, 10, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-message-{{$ticket->id}} hidden">{{$ticket->message}}</span>
+            </td>
+        @endif
+
+        @if (!in_array('Asg name', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="assigned_to_name" data-id="{{$ticket->id}}">
+                <span class="show-short-assigned_to_name-{{$ticket->id}}">{{ Str::limit($ticket->assigned_to_name, 10, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-assigned_to_name-{{$ticket->id}} hidden">{{$ticket->assigned_to_name}}</span>
+            </td>
+        @endif
+
+        @if (!in_array('Brand', $dynamicColumnsToShowLt))
+            <td class="row-ticket expand-row-msg" data-content="Brand : {{ !empty($ticket->brand) ? $ticket->brand : 'N/A' }}<br>
+                Style : {{ !empty($ticket->style) ? $ticket->style : 'N/A' }}<br>
+                Keyword : {{ !empty($ticket->keyword) ? $ticket->keyword : 'N/A' }}<br>
+                Url : <a target='__blank' href='{{ !empty($ticket->image) ? $ticket->image : 'javascript:;' }}'>Click Here</a><br>
+                " data-name="type_of_inquiry" data-id="{{$ticket->id}}">
+                <span class="show-short-type_of_inquiry-{{$ticket->id}}"><a herf="javascript:;">{{ Str::limit($ticket->type_of_inquiry, 10, '..')}}</a></span>
+                <span style="word-break:break-all;" class="show-full-type_of_inquiry-{{$ticket->id}} hidden"><a herf="javascript:;">{{$ticket->type_of_inquiry}}</a></span>
+            </td>
+        @endif
+
+        @if (!in_array('Country', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="country" data-id="{{$ticket->id}}">
+                <span class="show-short-country-{{$ticket->id}}">{{ Str::limit($ticket->country, 10, '..')}}</span>
+                <span style="word-break:break-all;" class="show-full-country-{{$ticket->id}} hidden">{{$ticket->country}}</span>
+            </td>
+        @endif
+
+        @if (!in_array('Ord no', $dynamicColumnsToShowLt))
+            <td>
+                <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->order_no}}">
+                    {{ Str::limit($ticket->order_no,4)}}
+                </a>
+            </td>
+        @endif
+
+        @if (!in_array('Ph no', $dynamicColumnsToShowLt))
+            <td class="expand-row-msg" data-name="phone_no" data-id="{{$ticket->id}}">
+                <span class="show-short-phone_no-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">{{ Str::limit($ticket->phone_no, 10, '..')}}</a></span>
+                <span style="word-break:break-all;" class="show-full-phone_no-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">{{$ticket->phone_no}}</a></span>
+            </td>
+        @endif
+
+        @if (!in_array('Msg Box', $dynamicColumnsToShowLt))
+            <td>
+                <div class="d-flex" role="toolbar">
+                    <div>
+                        <textarea  rows="1" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+                    </div>
+                    <div>
+                        <button class="btn btn-xs send-message1"
+                                data-ticketid="{{ $ticket->id }}">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
+                        <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-ticket-id="{{ $ticket->id }}" >
+                            <i class="fa fa-comments-o"></i>
+                        </a>
+                    </div>
+                </div>
+            </td>
+        @endif
+
+        @if (!in_array('Images', $dynamicColumnsToShowLt))
+            <td>
+                <button type="button" class="btn btn-xs modal-show-images" data-json='<?=json_encode($ticket->getImages())?>'><i class="fa fa-eye" aria-hidden="true"></i></button>
+            </td>
+        @endif
+
+        @if (!in_array('Resolution Date', $dynamicColumnsToShowLt))
+            <td>
+                <input type="date" class="form-control" onchange="changeDate(this,{{$ticket->id}})" id="date_{{ $ticket->id }}" value="{{($ticket->resolution_date)?date('Y-m-d',strtotime($ticket->resolution_date)):''}}" name="resolution_date" placeholder="Resolution date"/>
+            </td>
+        @endif
+
+        @if (!in_array('Status', $dynamicColumnsToShowLt))
+            <td>
+                <?php echo Form::select(
+            "ticket_status_id",
+            $statusList, $ticket->status_id,
+            [
+                "class" => "resolve-issue border-0 globalSelect2",
+                "onchange" => "resolveIssue(this," . $ticket->id . ")",
+            ]); ?>
+            </td>
+        @endif
+
+        @if (!in_array('Created', $dynamicColumnsToShowLt))
+            <td>
+                <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
+                    {{ Str::limit(date('d-m-y', strtotime($ticket->created_at)),8,'..')}}
+
+                </a>
+            </td>
+        @endif
+
+        @if (!in_array('Shortcuts', $dynamicColumnsToShowLt))
+            <td id="shortcutsIds">
+                <button type="button" class="btn btn-xs" onclick="Shortcutsbtn('{{$ticket->id}}')">
                     <i class="fa fa-paper-plane"></i>
                 </button>
-                <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-ticket-id="{{ $ticket->id }}" >
-                    <i class="fa fa-comments-o"></i>
-                </a>
-            </div>
-        </div>
-    </td>
-    <td>
-        <button type="button" class="btn btn-primary modal-show-images" data-json='<?=json_encode($ticket->getImages())?>'>Images</button>
-    </td>
-    <td>
-        <input type="date" class="form-control" onchange="changeDate(this,{{$ticket->id}})" id="date_{{ $ticket->id }}" value="{{($ticket->resolution_date)?date('Y-m-d',strtotime($ticket->resolution_date)):''}}" name="resolution_date" placeholder="Resolution date"/>
-    </td>
-    <td>
-        <?php echo Form::select(
-    "ticket_status_id",
-    $statusList, $ticket->status_id,
-    [
-        "class" => "resolve-issue border-0 globalSelect2",
-        "onchange" => "resolveIssue(this," . $ticket->id . ")",
-    ]); ?>
-    </td>
-    <td>
-        <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
-            {{ Str::limit(date('d-m-y', strtotime($ticket->created_at)),8,'..')}}
+                <div class="action-shortcuts-tr-{{$ticket->id}} d-none">
+                    @include('livechat.partials.shortcuts')
+                </div>
+            </td>
+        @endif
 
-        </a>
+        @if (!in_array('Action', $dynamicColumnsToShowLt))
+            <td>
+                <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Ticketsbtn('{{$ticket->id}}')"><i class="fa fa-arrow-down"></i></button>
+            </td>
+        @endif
+
+    @else
+        <td class="pl-2"><input type="checkbox" class="selected-ticket-ids" name="ticket_ids[]" value="{{ $ticket->id }}"></td>
+
+        <td>{{ substr($ticket->ticket_id, -5) }}</td>
+        <td class="expand-row-msg" data-name="source_of_ticket" data-id="{{$ticket->id}}">
+            <span class="show-short-source_of_ticket-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">{{ Str::limit($ticket->source_of_ticket, 10, '..')}}</a></span>
+            <span style="word-break:break-all;" class="show-full-source_of_ticket-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->source_of_ticket }}">{{$ticket->source_of_ticket}}</a></span>
         </td>
-    <td>
-        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Ticketsbtn('{{$ticket->id}}')"><i class="fa fa-arrow-down"></i></button>
-    </td>
+        <td class="expand-row-msg" data-name="name" data-id="{{$ticket->id}}">
+            <span class="show-short-name-{{$ticket->id}}">{{ Str::limit($ticket->name, 10, '..')}}</span>
+            <span style="word-break:break-all;" class="show-full-name-{{$ticket->id}} hidden">{{$ticket->name}}</span>
+        </td>
+        <td class="expand-row-msg" data-name="email" data-id="{{$ticket->id}}">
+            <span class="show-short-email-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">{{ Str::limit($ticket->email, 10, '..')}}</a></span>
+            <span style="word-break:break-all;" class="show-full-email-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->email }}">{{$ticket->email}}</a></span>
+        </td>
+        <td class="expand-row-msg" data-name="subject" data-id="{{$ticket->id}}">
+            <span class="show-short-subject-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">{{ Str::limit($ticket->subject, 10, '..')}}</a></span>
+            <span style="word-break:break-all;" class="show-full-subject-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->subject }}">{{$ticket->subject}}</a></span>
+        </td>
+        <td class="expand-row-msg" data-name="message" data-id="{{$ticket->id}}">
+            <span class="show-short-message-{{$ticket->id}}">{{ Str::limit($ticket->message, 10, '..')}}</span>
+            <span style="word-break:break-all;" class="show-full-message-{{$ticket->id}} hidden">{{$ticket->message}}</span>
+        </td>
+        <td class="expand-row-msg" data-name="assigned_to_name" data-id="{{$ticket->id}}">
+            <span class="show-short-assigned_to_name-{{$ticket->id}}">{{ Str::limit($ticket->assigned_to_name, 10, '..')}}</span>
+            <span style="word-break:break-all;" class="show-full-assigned_to_name-{{$ticket->id}} hidden">{{$ticket->assigned_to_name}}</span>
+        </td>
+        <td class="row-ticket expand-row-msg" data-content="Brand : {{ !empty($ticket->brand) ? $ticket->brand : 'N/A' }}<br>
+            Style : {{ !empty($ticket->style) ? $ticket->style : 'N/A' }}<br>
+            Keyword : {{ !empty($ticket->keyword) ? $ticket->keyword : 'N/A' }}<br>
+            Url : <a target='__blank' href='{{ !empty($ticket->image) ? $ticket->image : 'javascript:;' }}'>Click Here</a><br>
+            " data-name="type_of_inquiry" data-id="{{$ticket->id}}">
+            <span class="show-short-type_of_inquiry-{{$ticket->id}}"><a herf="javascript:;">{{ Str::limit($ticket->type_of_inquiry, 10, '..')}}</a></span>
+            <span style="word-break:break-all;" class="show-full-type_of_inquiry-{{$ticket->id}} hidden"><a herf="javascript:;">{{$ticket->type_of_inquiry}}</a></span>
+        </td>
+        <td class="expand-row-msg" data-name="country" data-id="{{$ticket->id}}">
+            <span class="show-short-country-{{$ticket->id}}">{{ Str::limit($ticket->country, 10, '..')}}</span>
+            <span style="word-break:break-all;" class="show-full-country-{{$ticket->id}} hidden">{{$ticket->country}}</span>
+        </td>
+        <td>
+            <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->order_no}}">
+                {{ Str::limit($ticket->order_no,4)}}
+            </a>
+        </td>
+        <td class="expand-row-msg" data-name="phone_no" data-id="{{$ticket->id}}">
+            <span class="show-short-phone_no-{{$ticket->id}}"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">{{ Str::limit($ticket->phone_no, 10, '..')}}</a></span>
+            <span style="word-break:break-all;" class="show-full-phone_no-{{$ticket->id}} hidden"><a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->phone_no }}">{{$ticket->phone_no}}</a></span>
+        </td>
 
+        <td>
+            <div class="d-flex" role="toolbar">
+                <div>
+                    <textarea  rows="1" class="form-control" id="messageid_{{ $ticket->id }}" name="message" placeholder="Message"></textarea>
+                </div>
+                <div>
+                    <button class="btn btn-xs send-message1"
+                            data-ticketid="{{ $ticket->id }}">
+                        <i class="fa fa-paper-plane"></i>
+                    </button>
+                    <a href="javascript:void(0)" class="row-ticket btn btn-xs" data-ticket-id="{{ $ticket->id }}" >
+                        <i class="fa fa-comments-o"></i>
+                    </a>
+                </div>
+            </div>
+        </td>
+        <td>
+            <button type="button" class="btn btn-xs modal-show-images" data-json='<?=json_encode($ticket->getImages())?>'><i class="fa fa-eye" aria-hidden="true"></i></button>
+        </td>
+        <td>
+            <input type="date" class="form-control" onchange="changeDate(this,{{$ticket->id}})" id="date_{{ $ticket->id }}" value="{{($ticket->resolution_date)?date('Y-m-d',strtotime($ticket->resolution_date)):''}}" name="resolution_date" placeholder="Resolution date"/>
+        </td>
+        <td>
+            <?php echo Form::select(
+        "ticket_status_id",
+        $statusList, $ticket->status_id,
+        [
+            "class" => "resolve-issue border-0 globalSelect2",
+            "onchange" => "resolveIssue(this," . $ticket->id . ")",
+        ]); ?>
+        </td>
+        <td>
+            <a href="javascript:void(0)" class="row-ticket" data-content="{{ $ticket->created_at}}">
+                {{ Str::limit(date('d-m-y', strtotime($ticket->created_at)),8,'..')}}
+
+            </a>
+        </td>
+        <td id="shortcutsIds" >
+            <button type="button" class="btn btn-xs" onclick="Shortcutsbtn('{{$ticket->id}}')">
+                <i class="fa fa-paper-plane"></i>
+            </button>
+            <div class="action-shortcuts-tr-{{$ticket->id}} d-none">
+                @include('livechat.partials.shortcuts')
+            </div>
+        </td>
+        <td>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="Ticketsbtn('{{$ticket->id}}')"><i class="fa fa-arrow-down"></i></button>
+        </td>
+    @endif
 </tr>
 
 <tr class="action-ticketsbtn-tr-{{$ticket->id}} d-none">
     <td class="font-weight-bold">Action</td>
     <td colspan="15">
-        <div class="">
+        <div>
             <button type="button"
                     class="btn btn-xs send-email-to-vender "
                     data-subject="{{ $ticket->subject }}"

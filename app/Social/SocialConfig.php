@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Social;
-
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class SocialConfig extends Model
@@ -18,5 +18,10 @@ class SocialConfig extends Model
     public function businessPost()
     {
         return $this->hasMany(\App\BusinessPost::class);
+    }
+
+    public function bussiness_website()
+    {
+        return $this->belongsTo(StoreWebsite::class, 'store_website_id')->select('title', 'id');
     }
 }

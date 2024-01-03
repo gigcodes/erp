@@ -72,6 +72,10 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
+use App\Models\ProductListingFinalStatus;
+use App\Loggers\LogScraper;
+use App\DescriptionChange;
 
 class ProductController extends Controller
 {
@@ -466,6 +470,16 @@ class ProductController extends Controller
             $siteCroppedImages = \App\SiteCroppedImages::select('product_id', DB::raw('group_concat(site_cropped_images.website_id) as website_ids'))->whereIn('product_id', $productIds)->groupBy('product_id')->pluck('website_ids', 'product_id')->toArray();
         }
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'products-listing-final')->first();
+
+        $dynamicColumnsToShowPlf = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPlf = json_decode($hideColumns, true);
+        }
+
+        $statusProductsListingFinal = ProductListingFinalStatus::all();
+
         if ($request->ajax()) {
             // view path for images
             $viewpath = ($pageType == 'images') ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
@@ -498,6 +512,8 @@ class ProductController extends Controller
                 'request' => $request->all(),
                 'categories_paths_array' => $categories_paths_array,
                 'siteCroppedImages' => $siteCroppedImages,
+                'dynamicColumnsToShowPlf' => $dynamicColumnsToShowPlf,
+                'statusProductsListingFinal' => $statusProductsListingFinal,
             ]);
         }
 
@@ -534,7 +550,43 @@ class ProductController extends Controller
             //'store_website_count' => StoreWebsite::count(),
             'categories_paths_array' => $categories_paths_array,
             'siteCroppedImages' => $siteCroppedImages,
+            'dynamicColumnsToShowPlf' => $dynamicColumnsToShowPlf,
+            'statusProductsListingFinal' => $statusProductsListingFinal,
         ]);
+    }
+
+    public function plfColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','products-listing-final')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'products-listing-final';
+            $column->column_name = json_encode($request->column_plf); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'products-listing-final';
+            $column->column_name = json_encode($request->column_plf); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = ProductListingFinalStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function getFinalApporvalImages(Request $request)
@@ -4182,10 +4234,102 @@ class ProductController extends Controller
         ]);
     }
 
+    public function productMultiDescription(Request $request){
+        $products = \App\ScrapedProducts::selectRaw('scraped_products.sku, COUNT(*) as count, scraped_products.product_id')
+                ->where('scraped_products.sku', '!=', '') 
+                ->groupBy('scraped_products.sku')
+                ->orderByDesc('count')
+                ->paginate(25);
+        return view('products.multidescription', compact('products'));
+    }
+    
+    public function productMultiDescriptionCheck(Request $request)
+        {
+            $sku = $request->input('sku');
+            $productCount = Product::where('sku', $sku)->count();
+
+            return response()->json(['result' => $productCount]);
+        }
+
+    public function productMultiDescriptionSku(Request $request){
+        $sku = $request->id;
+        $products = \App\ScrapedProducts::selectRaw('scraped_products.id as sid, scraped_products.sort_order as sort_order, scraped_products.description, scraped_products.brand_id, scraped_products.website as website, products.name as pname, brands.name as bname')
+                            ->join('products', 'scraped_products.product_id', '=', 'products.id')
+                            ->join('brands', 'scraped_products.brand_id', '=', 'brands.id')
+                            ->where('scraped_products.sku', $sku)
+                            ->get();
+       //dd($products);
+        return view('products.skumultidescription', compact('products', 'sku'));
+    }
+
+    public function productMultiDescriptionUpdate(Request $request){
+        $updates = $request->productData;
+        $sku = $request->sku;
+        $condition = $request->condition;
+        foreach ($updates as $update) {
+            $productId = $update['id'];
+            $sortOrder = $update['value'];
+            \App\ScrapedProducts::where('id', $productId)->where('sku', $sku)->update(['sort_order' => $sortOrder]);
+            if($condition == 1 && $sortOrder == 1){
+                $getdescription = \App\ScrapedProducts::where('id', $productId)->where('sku', $sku)->first();
+                Product::where('sku', $sku)->update(['short_description' => $getdescription->description]); 
+            }
+        }
+        return response()->json(['message' => 'Sort orders updated successfully']);
+    }
+
+
+    public function productSizeLog(Request $request){
+        
+        $query = ProductSupplier::with('supplier', 'product')
+                ->where(function ($query) {
+                    $query->whereNotNull('size')->orWhere('size', '!=', '');
+                });
+
+            if ($request->has('product_id') && $request->filled('product_id')) {
+                $query->where('product_id', $request->input('product_id'));
+            }
+
+            if ($request->supplier) {
+                $query->whereIn('product_suppliers.supplier_id', $request->supplier); // Specify the table for the column 'supplier_id'
+            }
+
+            if ($request->has('sku') && $request->filled('sku')) {
+                $query->whereHas('product', function ($query) use ($request) {
+                    $query->where('sku', $request->input('sku'));
+                });
+            }
+
+            // // Add the groupBy clause here
+            // $query->groupBy('product_id');
+            $supplier = Supplier::select('id', 'supplier')->get();
+            $products_count = $query->count();
+            $products = $query->paginate(50);
+                         
+
+        return view('products.size', compact('products', 'products_count', 'request', 'supplier'));
+    }
+
+    public function productDescriptionHistory(Request $request)
+    {
+        $id = $request->id;
+
+        $query = LogScraper::where('sku', $id)
+        ->leftJoin('brands as b', 'b.id', 'log_scraper.brand')
+        ->leftJoin('categories as c', 'c.id', 'log_scraper.category')
+        ->select([
+            'log_scraper.*',
+            'b.name as brand_name',
+            'c.title as category_name']);
+        $products = $query->orderBy('updated_at', 'DESC')->get();
+        return view('products.partials.history', compact('products'));
+    }
+
+
     public function productDescription(Request $request)
     {
         $query = ProductSupplier::with('supplier', 'product')
-        ->select(['product_suppliers.*', 'scrapers.id as scraper_id'])
+        ->select(['product_suppliers.*', 'scrapers.id as scraper_id', 'scrapers.last_started_at as last_started_at'])
         ->join('scrapers', 'scrapers.supplier_id', 'product_suppliers.supplier_id');
         if ($request->get('product_id') != '') {
             $products = $query->where('product_id', $request->get('product_id'));
@@ -4234,9 +4378,30 @@ class ProductController extends Controller
 
         $products_count = $query->count();
         $products = $query->orderBy('product_id', 'DESC')->paginate(50);
-
+       // dd($products);
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
+    }
+
+    public function productDescriptionUpdate(Request $request)
+    {
+        $ids = $request->ids;
+        $from = $request->from;
+        $to = $request->to; 
+        DescriptionChange::create([
+            'keyword' => $from,
+            'replace_with' => $to,
+        ]);
+        foreach ($ids as $id) {
+            $prod = ProductSupplier::where('product_id', $id)->first();
+            $description = str_replace($from, $to, $prod->description);
+            $prod->description = $description;
+            $prod->save();
+        }
+        return response()->json([
+            'code' => 200,
+            'message' => 'Your request has been update successfully',
+        ]);
     }
 
     public function productScrapLog(Request $request)
@@ -4298,7 +4463,37 @@ class ProductController extends Controller
         //dd($status);
         //echo "<pre>";
         //  print_r($products->toArray());
-        return view('products.statuslog', compact('products', 'request', 'status', 'products_count', 'request'));
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'products-status-history')->first();
+
+        $dynamicColumnsToShowp = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowp = json_decode($hideColumns, true);
+        }
+
+        return view('products.statuslog', compact('products', 'request', 'status', 'products_count', 'request', 'dynamicColumnsToShowp'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','products-status-history')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'products-status-history';
+            $column->column_name = json_encode($request->column_p); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'products-status-history';
+            $column->column_name = json_encode($request->column_p); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function productStats(Request $request)

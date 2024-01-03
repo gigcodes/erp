@@ -498,8 +498,14 @@
                                     @endif
                                 }
                             } else {
-                                table = table + '<td>'+value;
-                                table = table + '</td>';
+
+                                if(key=='url'){
+                                    table = table + '<td><a href="'+value+'" target="_blank">'+value+'</a>';
+                                    table = table + '</td>';
+                                } else {
+                                    table = table + '<td>'+value;
+                                    table = table + '</td>';
+                                }
 
                                 var approveValue = '';
                                 var unapproveValue = '';
