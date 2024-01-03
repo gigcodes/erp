@@ -5272,6 +5272,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrapper-python/image/url_list', [scrapperPhyhon::class, 'imageUrlList'])->name('scrapper.image.urlList');
     Route::post('/scrapper-python/{id}/url', [scrapperPhyhon::class, 'flagImageUrl'])->name('scrapper.url.flag');
 
+    Route::post('/scrapper-python/reject-image', [scrapperPhyhon::class, 'rejectScrapperImage'])->name('scrapper.reject,image');
+
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', [scrapperPhyhon::class, 'setDefaultStore'])->name('set.default.store');
     Route::get('/set/flag/store/{website?}/{store?}/{checked?}', [scrapperPhyhon::class, 'setFlagStore'])->name('set.flag.store');
 

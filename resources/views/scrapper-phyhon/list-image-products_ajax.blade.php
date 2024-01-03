@@ -81,7 +81,7 @@
 
 
                                     <div  style="position: relative;display: flex">
-                                        <div class="image-diamention-rasio {{ $imageDimensioClass }}"  style="max-height: {{ $imageHeight }};">
+                                        <div class="col-md-11 image-diamention-rasio {{ $imageDimensioClass }}"  style="max-height: {{ $imageHeight }};">
                                             @foreach ($coordinates as $z)
                                             @php
                                                 if($device == "mobile"){
@@ -97,19 +97,29 @@
                                             @php $x = $z; @endphp
                                         @endforeach
                                         </div>
-                                        <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <button class="btn btn-secondarys btn-add-action" data-toggle="modal" data-target="#bugtrackingCreateModal">
-                                            <i class="fa fa-plus" aria-hidden="true"></i>
-                                        </button></br>       
-                                        <a class="btn btn-secondarys" href="{{$image['img_url']}}" target="_blank">Go to Url</a></br>  
-                                        @if($image['url'] != "")
-                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a></br>  
-                                        @endif
-                                        {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
+                                        <div class="buttons_div col-md-1" style="text-align: left; padding-right: 0px;">
+                                            <button class="btn btn-secondarys add-remark-button btn-default" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button></br>  
+                                            <button class="btn btn-secondarys btn-add-action btn-default" data-toggle="modal" data-target="#bugtrackingCreateModal">
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button></br>       
+                                            <a class="btn btn-secondarys btn-default" href="{{$image['img_url']}}" target="_blank">Go to Url</a></br>  
+                                            @if($image['url'] != "")
+                                            <a class="btn btn-secondarys btn-default" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a></br>  
+                                            @endif
+                                            {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }} </br>
+
+                                            @if($image['si_status']==2)
+                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                            </br>
+                                            <span class="text-danger">image is rejected.</span> 
+                                            @else 
+                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                            @endif
+                                        </div>
                                     </div>
                                 @else
                                     <div class="col-md-12 col-xs-12 text-center product-list-card mb-4 p-0" style="position: relative;display: flex">
-                                        <div class="product-list-card" style="position: relative;padding:0;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow-y:auto;overflow-x: hidden">
+                                        <div class="product-list-card col-md-11" style="position: relative;padding:0;margin-bottom:2px !important;max-height:{{ $imageHeight }};overflow-y:auto;overflow-x: hidden">
 
                                             <div data-interval="false" id="carousel_{{ $image['id'] }}" class="carousel slide" data-ride="carousel">
                                                 <a href="#" data-toggle="tooltip" data-html="true" data-placement="top" >
@@ -123,15 +133,25 @@
                             
                                             </div>
                                         </div>
-                                        <button class="btn btn-secondarys add-remark-button" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button>  
-                                        <button class="btn btn-secondarys btn-add-action" data-toggle="modal" data-target="#bugtrackingCreateModal">
-                                            <i class="fa fa-plus" aria-hidden="true"></i>
-                                        </button></br>
-                                        <a class="btn btn-secondarys" href="{{$image['url']}}" target="_blank">Go to Url</a> </br>
-                                        @if($image['url'] != "")
-                                        <a class="btn btn-secondarys" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a>  </br>
-                                        @endif
-                                        {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }}
+                                        <div class="buttons_div col-md-1" style="text-align: left; padding-right: 0px;">
+                                            <button class="btn btn-secondarys add-remark-button btn-default" data-toggle="modal" data-target="#remark-area-list"><i class="fa fa-comments"></i></button></br>  
+                                            <button class="btn btn-secondarys btn-add-action btn-default" data-toggle="modal" data-target="#bugtrackingCreateModal">
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button></br>
+                                            <a class="btn btn-secondarys btn-default" href="{{$image['url']}}" target="_blank">Go to Url</a> </br>
+                                            @if($image['url'] != "")
+                                            <a class="btn btn-secondarys btn-default" href="{{env('APP_URL')}}/scrapper-python/image/url_list?flagUrl={{$image['id']}}" target="_blank">Go to Link</a>  </br>
+                                            @endif
+                                            {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }} </br>
+
+                                            @if($image['si_status']==2)
+                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                            </br>
+                                            <span class="text-danger">image is rejected.</span> 
+                                            @else 
+                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                            @endif
+                                        </div>
                                     </div>
                                 @endif
                             </div>
