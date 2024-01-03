@@ -42,7 +42,7 @@ class VoucherCouponController extends Controller
         if (! empty(request('whatsapp_id'))) {
             $voucher = $voucher->where('whatsapp_config_id', request('whatsapp_id'));
         }
-        $voucher = $voucher->paginate(10)->appends(request()->except('page'));
+        $voucher = $voucher->orderBy('id', 'DESC')->paginate(25)->appends(request()->except('page'));
 
         $platform = Platform::get()->pluck('name', 'id');
         $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');

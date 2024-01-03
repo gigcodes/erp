@@ -745,13 +745,23 @@ class Select2Controller extends Controller
 
     public function vochuerPlatform(Request $request)
     {
-        $platforms = Platform::get()->pluck('name', 'id');
+        /*$platforms = Platform::get()->pluck('name', 'id');
 
         if (! empty($request->q)) {
             $platforms->where(function ($q) use ($request) {
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
+        }*/
+
+        $query = DB::table('voucher_coupon_platforms')->select();
+
+        if (! empty($request->q)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
         }
+
+        $platforms = $query->pluck('name', 'id');
 
         $result = [];
 
@@ -813,6 +823,14 @@ class Select2Controller extends Controller
 
     public function vochuerWhatsappconfig(Request $request)
     {
+        /*$whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
+
+        if (! empty($request->q)) {
+            $whatsapp_configs->where(function ($q) use ($request) {
+                $q->where('number', 'LIKE', '%' . $request->q . '%');
+            });
+        }*/
+
         $query = DB::table('whatsapp_configs')->select();
 
         if (! empty($request->q)) {
@@ -822,16 +840,6 @@ class Select2Controller extends Controller
         }
 
         $whatsapp_configs = $query->pluck('number', 'id');
-
-        /*$query = DB::table('whatsapp_configs')->select();
-
-        if (! empty($request->q)) {
-            $query->where(function ($q) use ($request) {
-                $q->where('number', 'LIKE', '%' . $request->q . '%');
-            });
-        }
-
-        $whatsapp_configs = $query->pluck('number', 'id');*/
 
         $result = [];
 
