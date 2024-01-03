@@ -1106,6 +1106,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/size', [ProductController::class, 'productSizeLog'])->name('products.size');
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
+    Route::post('products/getsuppliers', [ProductController::class, 'getProductSupplierList'])->name('products.getsuppliers');
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
     Route::get('/product-hisotry', [ProductController::class, 'productDescriptionHistory'])->name('scrap.product-hisotry');
     Route::post('products/description/update', [ProductController::class, 'productDescriptionUpdate'])->name('products.description.update');

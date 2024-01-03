@@ -6663,4 +6663,30 @@ class ProductController extends Controller
             return response()->json(['code' => 500, 'message' => 'category is unable to update']);
         }
     }
+
+    public function getProductSupplierList(Request $request)
+    {
+
+        $datas = Product::with('suppliers_name')->select('id', 'supplier')->where('id', $request->product_id)->first();
+            
+        $suppliers = [];
+        $supplier = '';
+        if(!empty($datas)){
+            if(!empty($datas['suppliers_name'])){
+                $suppliers = $datas['suppliers_name'];
+            }
+
+            if(!empty($datas['supplier'])){
+                $supplier = $datas['supplier'];
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $suppliers,
+            'supplier' => $supplier,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }
