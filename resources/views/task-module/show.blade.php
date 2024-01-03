@@ -1042,7 +1042,22 @@
                                                                 <i class="fa fa-check" aria-hidden="true"></i>
                                                             </button>
                                                         @endif
+
+                                                        @if($task->task_start!=1)
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                                            </button>
+                                                        @else 
+                                                            <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->m_start_date}}">
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                                                <i class="fa fa-stop" aria-hidden="true"></i>
+                                                            </button>
+                                                            <div id="time-counter_{{$task->id}}"></div>
+                                                        @endif
+
+                                                        <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
                                                     @endif
+
                                                 </td>
                                                 @endif
 
@@ -1398,7 +1413,21 @@
                                                                 <i class="fa fa-check" aria-hidden="true"></i>
                                                             </button>
                                                         @endif
-                                                    @endif
+
+                                                        @if($task->task_start!=1)
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                                                <i class="fa fa-play" aria-hidden="true"></i>
+                                                            </button>
+                                                        @else 
+                                                            <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->m_start_date}}">
+                                                            <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                                                <i class="fa fa-stop" aria-hidden="true"></i>
+                                                            </button>
+                                                            <div id="time-counter_{{$task->id}}"></div>
+                                                        @endif
+
+                                                        <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+                                                    @endif                                                    
                                                 </td>
                                                 @php
                                                     $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -1733,15 +1762,29 @@
                                                 </div>
 
                                                 <?php 
-                                                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
+                                                $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$task->id)->where('attribute','estimation_minute')->where('model','App\Task')->first(); ?>
 
-                                                    @if(!empty($time_history))
-                                                        @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
-                                                            <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
-                                                                <i class="fa fa-check" aria-hidden="true"></i>
-                                                            </button>
-                                                        @endif
+                                                @if(!empty($time_history))
+                                                    @if (isset($time_history->is_approved) && $time_history->is_approved != 1)
+                                                        <button data-task="{{$time_history->developer_task_id}}" data-id="{{$time_history->id}}" title="approve" data-type="TASK" class="btn btn-sm approveEstimateFromshortcutButtonTaskPage">
+                                                            <i class="fa fa-check" aria-hidden="true"></i>
+                                                        </button>
                                                     @endif
+
+                                                    @if($task->task_start!=1)
+                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="1">
+                                                            <i class="fa fa-play" aria-hidden="true"></i>
+                                                        </button>
+                                                    @else 
+                                                        <input type="hidden" value="{{$task->m_start_date}}" class="m_start_date_" id="m_start_date_{{$task->id}}" data-id="{{$task->id}}" data-value="{{$task->m_start_date}}">
+                                                        <button data-task="{{$task->id}}" title="Start Task" data-type="TASK" class="btn btn-sm startDirectTask" data-task-type="2">
+                                                            <i class="fa fa-stop" aria-hidden="true"></i>
+                                                        </button>
+                                                        <div id="time-counter_{{$task->id}}"></div>
+                                                    @endif
+
+                                                    <button type="button" class="btn btn-xs show-timer-history" title="Show timer History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+                                                @endif                                                
                                             </td>
                                             @php
                                                 $single = \App\Task::where('tasks.id', $task->id)->select('tasks.*', DB::raw('(SELECT remark FROM developer_tasks_history WHERE developer_task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_remark'), DB::raw('(SELECT new_value FROM task_history_for_start_date WHERE task_id=tasks.id ORDER BY id DESC LIMIT 1) as task_start_date'), DB::raw("(SELECT new_due_date FROM task_due_date_history_logs WHERE task_id=tasks.id AND task_type='TASK' ORDER BY id DESC LIMIT 1) as task_new_due_date"))->first();
@@ -2234,6 +2277,7 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;"></div>
 
     @include("task-module.partials.tracked-time-history")
+    @include("task-module.partials.timer-history")
     @include("development.partials.user_history_modal")
     @include("task-module.partials.column-visibility-modal")
 
@@ -4031,6 +4075,31 @@
             });
             $('#time_tracked_modal').modal('show');
         });
+
+        $(document).on('click', '.show-timer-history', function() {
+            var issueId = $(this).data('id');
+            $('#timer_tracked_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.timer.history') }}",
+                data: {
+                    id: issueId,
+                },
+                success: function(data) {
+                    console.log(data);
+                    if (data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            $('#timer_tracked_modal table tbody').append(
+                                '<tr>\
+                                    <td>' + moment(item['start_date']).format('DD-MM-YYYY HH:mm:ss') + '</td>\
+                                    <td>' + ((item['end_date'] != null) ? moment(item['end_date']).format('DD-MM-YYYY HH:mm:ss') : 'Not Stop') + '</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#timer_tracked_modal').modal('show');
+        });
         $(document).on('click', '.create-hubstaff-task', function() {            
             var issueId = $(this).data('id');
             var type = $(this).data('type');
@@ -4925,5 +4994,88 @@ $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (
         });
     }
 });
+
+$(document).on("click", ".startDirectTask", function (event) {
+
+    let task_type = $(this).data('task-type');
+
+    if(task_type==1){
+        var msg = "Are you sure, do you want to start this task?";
+    }else{
+        var msg = "Are you sure, do you want to end this task?";
+    }
+
+    if (confirm(msg)) {
+        event.preventDefault();
+        let type = $(this).data('type');
+        let task_id = $(this).data('task');
+
+        $.ajax({
+            url: "/task/time/history/start",
+            type: "POST",
+            data: {
+                _token: "{{csrf_token()}}",                
+                developer_task_id: task_id,
+                task_type: task_type,
+            },
+            success: function (response) {
+                if(task_type==1){
+                    toastr["success"]("Successfully start", "success");
+                }else{
+                    toastr["success"]("Successfully end", "success");
+                }
+                window.location.reload();
+            },
+            error: function (error) {
+                toastr["error"](error.responseJSON.message);
+            },
+        });
+    }
+});
+
+$(document).ready(function() {
+    // Iterate through elements with class 'myClass'
+    $('.m_start_date_').each(function() {
+        var elementId = $(this).attr('id'); // Get ID of each element
+
+        var task_id = $("#"+elementId).attr('data-id');
+        var inputTime = $("#"+elementId).attr('data-value');
+
+        startTime = new Date(inputTime);
+        //setInterval(updateTimeCounter(startTime, task_id), 1000); 
+
+        (function(startTime, id) {
+            setInterval(function() {
+                updateTimeCounter(startTime, id);
+            }, 1000);
+        })(startTime, task_id);
+    });
+});
+
+function updateTimeCounter(startTime, id) {
+    // Check if startTime is defined
+    if (startTime && !isNaN(startTime.getTime())) {
+        // Get the current time
+        var currentTime = new Date();
+
+        // Calculate the difference in milliseconds
+        var timeDifference = currentTime - startTime;
+
+        // Convert milliseconds to hours, minutes, and seconds
+        var hours = Math.floor(timeDifference / (60 * 60 * 1000));
+        var minutes = Math.floor((timeDifference % (60 * 60 * 1000)) / (60 * 1000));
+        var seconds = Math.floor((timeDifference % (60 * 1000)) / 1000);
+
+        // Display the time counter
+        var counterText = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+        $("#time-counter_"+id).text(counterText);
+    }
+}
+
+// Function to pad single digits with leading zeros
+function pad(number) {
+    return (number < 10 ? '0' : '') + number;
+}
 </script>
 @endsection
