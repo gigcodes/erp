@@ -207,6 +207,9 @@ class scrapperPhyhon extends Controller
                     $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
                 }
 
+                if (!empty($request->si_status)) {
+                    $images = $images->where('si_status', $request->si_status);
+                }
                 //     $images = $images->get()
                 //   ->toArray();
                 //        dd($images->pluck("id"));
@@ -612,5 +615,14 @@ class scrapperPhyhon extends Controller
 
         return redirect()->back()
             ->with('success', "Url $status successfully");
+    }
+
+    public function rejectScrapperImage(Request $request)
+    {
+        $image = \App\scraperImags::find($request->id);
+        $image->si_status = $request->si_status;
+        $image->save();
+
+        return redirect()->back()->with('success', "Scrapper image has been successfully rejected.");
     }
 }
