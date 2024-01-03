@@ -4278,6 +4278,38 @@ class ProductController extends Controller
         return response()->json(['message' => 'Sort orders updated successfully']);
     }
 
+
+    public function productSizeLog(Request $request){
+        
+        $query = ProductSupplier::with('supplier', 'product')
+                ->where(function ($query) {
+                    $query->whereNotNull('size')->orWhere('size', '!=', '');
+                });
+
+            if ($request->has('product_id') && $request->filled('product_id')) {
+                $query->where('product_id', $request->input('product_id'));
+            }
+
+            if ($request->supplier) {
+                $query->whereIn('product_suppliers.supplier_id', $request->supplier); // Specify the table for the column 'supplier_id'
+            }
+
+            if ($request->has('sku') && $request->filled('sku')) {
+                $query->whereHas('product', function ($query) use ($request) {
+                    $query->where('sku', $request->input('sku'));
+                });
+            }
+
+            // // Add the groupBy clause here
+            // $query->groupBy('product_id');
+            $supplier = Supplier::select('id', 'supplier')->get();
+            $products_count = $query->count();
+            $products = $query->paginate(50);
+                         
+
+        return view('products.size', compact('products', 'products_count', 'request', 'supplier'));
+    }
+
     public function productDescriptionHistory(Request $request)
     {
         $id = $request->id;

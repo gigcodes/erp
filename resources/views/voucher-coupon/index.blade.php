@@ -36,6 +36,7 @@
       .latest-remarks-list-view tr td {
         padding:3px !important;
       }
+      .select2-search--dropdown.select2-search--hide {display: block !important;}
   </style>
 
 @endsection
@@ -63,7 +64,7 @@
         <form action="{{ route('list.voucher') }}" method="GET" class="form-inline align-items-start voucher-search" id="searchForm">
           <div class="row m-0 full-width" style="width: 100%;">
               <div class="col-md-2 col-sm-12">
-              <select class="form-control select" name="plateform_id" id="plateform_id">
+              <select class="form-control select" name="plateform_id">
                   <option value="">Select Platform</option>
                   @foreach($platform as $key => $plate)
                     <option value="{{ $key }}" @if(request('plateform_id') == $plate) selected @endif >{{ $plate }}</option>
@@ -302,13 +303,13 @@
 
         </div>
     </div>
-    <div id="addvoucherModel" class="modal fade" role="dialog">
+    <div id="editvoucherModel" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
                 <form action="" method="POST" id="addupdate" >
                     @csrf
-                    <input type="hidden" name="id" id="id">
+                    <input type="hidden" name="id" id="idadd">
                     <div class="modal-header">
                         <h4 class="modal-title">Add / Update Voucher</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -330,7 +331,7 @@
 
                             <div class="form-group">
                               {!! Form::label('email_id', 'Email', ['class' => 'form-control-label']) !!}
-                              <select class="form-control select" name="email_id" id="email_id" required style="width: 100%;">
+                              <select class="form-control select" name="email_id" id="emailadd_id" required style="width: 100%;">
                                 <option value="">Select Email</option>
                                 @foreach($emails as $ekey => $emailid)
 
@@ -344,7 +345,7 @@
 
                             <div class="form-group">
                                 {!! Form::label('whatsapp_config_id', 'Number', ['class' => 'form-control-label']) !!}
-                                <select class="form-control select" name="whatsapp_config_id" id="whatsapp_config_id" required style="width: 100%;">
+                                <select class="form-control select" name="whatsapp_config_id" id="whatsapp_configadd_id" required style="width: 100%;">
                                   <option value="">Select Number</option>
                                   @foreach($whatsapp_configs as $key => $num)
                                     <option value="{{ $key }}">{{ $num }}</option>
@@ -356,7 +357,7 @@
                             </div>
                             <div class="form-group">
                               {!! Form::label('password', 'Password', ['class' => 'form-control-label']) !!}
-                              <input type="text" class="form-control" name="password" id="password" style="width: 100%;"/>
+                              <input type="text" class="form-control" name="password" id="passwordadd" style="width: 100%;"/>
                                 
                                 @if($errors->has('password'))
                                   <div class="form-control-plateform">{{$errors->first('password')}}</div>
@@ -366,7 +367,7 @@
                     
                       <div class="modal-footer">
                           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                          <button type="submit" class="btn btn-danger save-voucher">Submit</button>
+                          <button type="submit" class="btn btn-danger save-voucher-update">Submit</button>
                       </div>
                     </div>
                 </form>
@@ -820,7 +821,7 @@ $(document).on("click",".save-coupon-type",function(e){
     });
   });
 
-  $(document).on("click",".save-voucher",function(e){
+  $(document).on("click",".save-voucher-update",function(e){
     e.preventDefault();
     var $this = $(this);
     var formData = new FormData($this.closest("form")[0]);
@@ -874,17 +875,17 @@ $(document).on("click",".save-coupon-type",function(e){
           if(key == 'platform_id'){
             $("#plateformadd_id").select2().val(v).trigger("change");
           }else if(key == 'email_address_id'){
-            $("#email_id").select2().val(v).trigger("change");
+            $("#emailadd_id").select2().val(v).trigger("change");
           }else if(key == 'whatsapp_config_id'){
-            $("#whatsapp_config_id").select2().val(v).trigger("change");
+            $("#whatsapp_configadd_id").select2().val(v).trigger("change");
           }else if(key == 'password') {
-            $("#password").val(v)
+            $("#passwordadd").val(v)
           }else if(key == 'id') {
-            $("#id").val(v)
+            $("#idadd").val(v)
           }       
 
         });
-      $('#addvoucherModel').modal('show');
+      $('#editvoucherModel').modal('show');
       toastr["success"](response.message);
     }).fail(function (jqXHR, ajaxOptions, thrownError) {      
       toastr["error"](jqXHR.responseJSON.message);
@@ -892,7 +893,7 @@ $(document).on("click",".save-coupon-type",function(e){
     });
   });
 
-  $("#plateform_id").select2();
+  $("#plateform_id_new").select2();
   $("#email_add").select2();
   $("#whatsapp_id").select2();
   $("#plateformadd_id").select2()
