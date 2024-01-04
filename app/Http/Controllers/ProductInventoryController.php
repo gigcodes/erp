@@ -26,6 +26,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class ProductInventoryController extends Controller
 {
@@ -1036,19 +1037,22 @@ class ProductInventoryController extends Controller
         }
 
         $selected_brand = null;
-        if ($request->brand_names) {
+        /*if ($request->brand_names) {
             $selected_brand = Brand::select('id', 'name')->whereIn('id', $request->brand_names)->get();
-        }
+        }*/
+        $selected_brand = Brand::select('id', 'name')->get();
 
         $selected_supplier = null;
-        if ($request->supplier) {
+        /*if ($request->supplier) {
             $selected_supplier = Supplier::select('id', 'supplier')->whereIn('id', $request->supplier)->get();
-        }
+        }*/
+        $selected_supplier = Supplier::select('id', 'supplier')->get();
 
         $selected_categories = null;
-        if ($request->product_categories) {
+        /*if ($request->product_categories) {
             $selected_categories = Category::select('id', 'title')->whereIn('id', $request->product_categories)->get();
-        }
+        }*/
+        $selected_categories = Category::select('id', 'title')->get();
 
         //        dd($brandsArray, $brandsArray);
 
@@ -1065,11 +1069,40 @@ class ProductInventoryController extends Controller
         //$products_categories = \App\Product::getPruductsCategories();
         $products_categories = Category::attr(['name' => 'product_categories[]', 'data-placeholder' => 'Select a Category', 'class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories', []))->renderAsDropdown();
 
-        if (request()->ajax()) {
-            return view('product-inventory.inventory-list-partials.load-more', compact('inventory_data'));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'inventory-list')->first();
+
+        $dynamicColumnsToShowPi = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowPi = json_decode($hideColumns, true);
         }
 
-        return view('product-inventory.inventory-list', compact('inventory_data', 'products_names', 'products_categories', 'products_sku', 'status_list', 'inventory_data_count', 'reportData', 'scrappedReportData', 'selected_brand', 'selected_supplier', 'selected_categories'));
+        if (request()->ajax()) {
+            return view('product-inventory.inventory-list-partials.load-more', compact('inventory_data', 'dynamicColumnsToShowPi'));
+        }
+
+        return view('product-inventory.inventory-list', compact('inventory_data', 'products_names', 'products_categories', 'products_sku', 'status_list', 'inventory_data_count', 'reportData', 'scrappedReportData', 'selected_brand', 'selected_supplier', 'selected_categories', 'dynamicColumnsToShowPi'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','postman-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'inventory-list';
+            $column->column_name = json_encode($request->column_pi); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'inventory-list';
+            $column->column_name = json_encode($request->column_pi); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function inventoryListNew(Request $request)
