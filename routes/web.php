@@ -3834,6 +3834,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('python-site-log', [ScrapController::class, 'getPythonLog'])->name('get.python.log');
     Route::get('python/get-log', [ScrapController::class, 'loginstance'])->name('get.python.logapi');
 
+    Route::post('column-visbility', [ScrapStatisticsController::class, 'columnVisbilityUpdate'])->name('scrap.column.update');
     Route::get('screenshot', [ScrapStatisticsController::class, 'getScreenShot']);
     Route::get('get-last-errors', [ScrapStatisticsController::class, 'getLastErrors']);
     Route::get('log-details', [ScrapStatisticsController::class, 'logDetails'])->name('scrap.log-details');
