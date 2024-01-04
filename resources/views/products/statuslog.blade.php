@@ -67,6 +67,9 @@
                         @if (!in_array('Product ID', $dynamicColumnsToShowp))
                             <th>Product ID</th>
                         @endif
+                        @if (!in_array('Suppliers', $dynamicColumnsToShowp))
+                            <th>Suppliers</th>
+                        @endif
                         @if (!in_array('Scrape', $dynamicColumnsToShowp))
                             <th>Scrape</th>
                         @endif
@@ -109,6 +112,7 @@
                     @else
                         <th>Date</th>
                         <th>Product ID</th>
+                        <th>Suppliers</th>
                         <th>Scrape</th>
                         <th>Auto crop</th>
                         <th>Final approval</th>
@@ -136,6 +140,12 @@
                                 <a
                                     href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                             </td>
+                            @endif
+
+                            @if (!in_array('Suppliers', $dynamicColumnsToShowp))
+                                <td>
+                                    <a href="javascript:void(0)" data-id="{{ $product->id }}" id="view-product-suppliers"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                </td>
                             @endif
 
                             @if (!in_array('Scrape', $dynamicColumnsToShowp))
@@ -384,8 +394,10 @@
                         @else
                             <td>{{ isset($request->select_date) ? $request->select_date : date('Y-m-d') }}</td>
                             <td>
-                                <a
-                                    href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
+                                <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" data-id="{{ $product->id }}" id="view-product-suppliers"><i class="fa fa-eye" aria-hidden="true"></i></a>
                             </td>
                             <td>
                                 {{--@if (isset($product->all_pending_log_status[2]))
@@ -603,6 +615,26 @@
             {{ $products->appends($request->except('page'))->links() }}.
         </div>
     </div>
+
+    <div id="product-supplier-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Suppliers</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">                            
+                        <tbody class="product-supplier-list-view">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @include("products.partials.column-visibility-modal")
@@ -614,6 +646,38 @@
     <script>
         $("#select_date").datepicker({
             format: 'yyyy-mm-dd'
+        });
+
+        $(document).on('click', '#view-product-suppliers', function() {
+            var product_id = $(this).attr('data-id');
+
+            $.ajax({
+                url: "{{route('products.getsuppliers')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'product_id' :product_id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        html += `<tr>
+                                <td> ${response.supplier} </td>
+                            </tr>`;
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.supplier} </td>
+                                    </tr>`;
+                        });
+                        $("#product-supplier-list").find(".product-supplier-list-view").html(html);
+                        $("#product-supplier-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
         });
     </script>
 @endsection

@@ -68,6 +68,7 @@
         .mr-3 {
             margin:3px;
         }
+        .buttons_div .btn{margin-bottom: 10px; width: 100%;}
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
     <style>
@@ -84,16 +85,16 @@
         }
         .add-remark-button
         {
-            position: absolute;
+            /*position: absolute;*/
             top: 0;
-            right : -40px;
+            /*right : -40px;*/
             background: transparent;
         }
         .btn-add-action
         {
-            position: absolute;
+            /*position: absolute;*/
             top: 0;
-            right : -10px;
+            /*right : -10px;*/
             background: transparent;
         }
                .add-remark-button i{
@@ -197,12 +198,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-">
+                <div class="col-md-" style="    padding-right: 15px;">
                     <select class="form-control select-multiple globalSelect2" id="web_store" tabindex="-1" aria-hidden="true" name="store" onchange="showLanguages(this)">
                         <option value="">Select Store</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-">
                     <select class="form-control select-multiple globalSelect2" id="web_language" tabindex="-1" aria-hidden="true" name="language">
                         <option value="">Select Language</option>
                     </select>
@@ -216,13 +217,21 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
                     <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
                     <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                         <i class="fa fa-calendar"></i>&nbsp;
                         <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ $startDate .' '.$endDate}}</p><i class="fa fa-caret-down"></i>
                     </div>
+                </div>
+
+                <div class="col-md-1">
+                    <select class="form-control select-multiple" id="si_status" tabindex="-1" aria-hidden="true" name="si_status">
+                        <option value="">Select Status</option>
+                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 1 ? 'selected' :'' ) }} value="1">Approved</option>
+                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 2 ? 'selected' :'' ) }} value="2">Rejected</option>
+                    </select>
                 </div>
                
                 <div class="col-md-1">
@@ -630,6 +639,7 @@
         var webdevice = $('#web_device').find(":selected").val();
         var startDate = $('input[name="range_start"]').val();
         var endDate = $('input[name="range_end"]').val();
+        var si_status = $('#si_status').find(":selected").val();
 
         if(website == '' ){
              toastr['error']('Please Select Website');
@@ -669,6 +679,10 @@
         if(startDate != ''&& endDate != '' ){
             var origin   = window.location.origin;
             var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice+"&startDate="+startDate+"&endDate="+endDate;
+        }
+
+        if(si_status != ''){            
+            url += url+"&si_status="+si_status;
         }
        
         window.location.href = url;
@@ -906,6 +920,34 @@
   }
   return true;
 });
+
+    $(document).on('click','.reject-scrap-image',function(){
+        var image_id = $(this).data('id');
+        var type = $(this).data('type');        
+
+        var msg = "Are you sure you want to approve this image?";
+        if(type==2){
+            var msg = "Are you sure you want to reject this image?";
+        }
+
+        if (confirm(msg)) {
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "post",
+                url: "{{ route('scrapper.reject,image') }}",
+                data: {
+                    id: image_id,
+                    si_status: type
+                },
+                success: function(response){
+                    toastr.success('Scrapper image has been successfully rejected.');
+                    location.reload();
+                }
+            })
+        }
+    });
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection

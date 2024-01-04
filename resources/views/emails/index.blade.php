@@ -187,7 +187,8 @@
         <th width="4%">Receiver</th>
         <th width="4%">Model Type</th>
         <th width="3%">Mail Type</th>
-        <th width="5%">Subject & Body</th>
+        <th width="5%">Subject</th>
+        <th width="5%">Body</th>
         {{-- <th width="14%">Body</th> --}}
         <th width="6%">Status</th>
         <th width="1%">Draft</th>
