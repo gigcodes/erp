@@ -1200,6 +1200,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', [NewProductInventoryController::class, 'pushInShopify'])->name('product-inventory.push-in-shopify');
         });
+        Route::get('/search/sku', [NewProductInventoryController::class, 'autoSuggestSku']);
     });
 
     Route::prefix('google-drive')->group(function () {

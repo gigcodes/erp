@@ -6,6 +6,7 @@ use App\Stage;
 use App\Category;
 use App\Supplier;
 use App\UpteamLog;
+use App\Product;
 use App\ColorReference;
 use Illuminate\Http\Request;
 use App\Library\Product\ProductSearch;
@@ -109,6 +110,16 @@ class NewProductInventoryController extends Controller
         }
 
         return view('product-inventory.index', compact('category_selection', 'productCount', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors', 'scrapperDropList'));
+    }
+
+    public function autoSuggestSku(Request $request)
+    {
+        $term = $request->input('term');
+
+        // Adjusted the 'like' clause to match terms that start with the provided input
+        $autosuggestions = Product::where('sku', 'like', $term . '%')->paginate(10)->pluck('sku');
+
+        return response()->json($autosuggestions);
     }
 
     public function upteamLogs(Request $request)
