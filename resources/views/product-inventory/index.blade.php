@@ -184,7 +184,7 @@
             ajax: {
                 url: '/product-inventory/search/sku', // Your autosuggest route
                 dataType: 'json',
-                delay: 500,
+                delay: 750,
                 data: function (params) {
                     return {
                         term: params.term,
