@@ -5,7 +5,7 @@
     <?php 
       $rowCount = 0;
     ?>  
-    <?php foreach($raw as $product) { ?>
+    <?php foreach($raw as $key=>$product) { ?>
       <?php 
         /*if($rowCount % 4 == 0) { echo '<div class="row">'; } 
            $rowCount++;  */
@@ -22,8 +22,8 @@
             <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
           </a>      
           <div class="card-body">
-            <p class="card-text">SKU : <span id="skuValue">{{ $product->sku }}</span> &nbsp;
-              <span class="glyphicon glyphicon-duplicate" style="cursor: copy" aria-hidden="true" onclick="copySKU()"></span>
+            <p class="card-text">SKU : <span id="skuValue-{{$key}}">{{ $product->sku }}</span> &nbsp;
+              <span class="glyphicon glyphicon-duplicate" style="cursor: copy" aria-hidden="true" onclick="copySKU('skuValue-{{$key}}')"></span>
             </p>
             <a href="{{ route( 'products.show', $product->id ) }}">
               <p class="card-text">Id : {{ $product->id }}</p>
@@ -73,25 +73,27 @@
     </div>
 <?php } ?>
 <script>
-  function copySKU() {
+  function copySKU(skuId) {
       // Get the SKU value
-      var skuValue = document.getElementById("skuValue").innerText;
+      var skuValueElement = document.getElementById(skuId);
 
-      // Create a textarea element to hold the SKU value
-      var textarea = document.createElement("textarea");
-      textarea.value = skuValue;
+    if (skuValueElement) {
+        var skuValue = skuValueElement.innerText;
 
-      // Append the textarea to the body
-      document.body.appendChild(textarea);
+        // Create a temporary input element
+        var inputElement = document.createElement("input");
+        inputElement.value = skuValue;
+        document.body.appendChild(inputElement);
 
-      // Select the text in the textarea
-      textarea.select();
+        // Select the text in the input
+        inputElement.select();
 
-      // Copy the text to the clipboard
-      document.execCommand("copy");
+        // Copy the text to the clipboard
+        document.execCommand("copy");
 
-      // Remove the textarea
-      document.body.removeChild(textarea);
+        // Remove the input element
+        document.body.removeChild(inputElement);
+    }
 
   }
 </script>
