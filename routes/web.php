@@ -384,8 +384,13 @@ use App\Http\Controllers\MagentoProblemController;
 use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
 use App\Http\Controllers\DevOppsController;
+use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
 
 Auth::routes();
+
+Route::post('global_files_and_attachments_store', [FilesAndAttachmentsController::class, 'store_data'])->name('global_files_and_attachments_store');
+Route::post('global_files_and_attachments', [FilesAndAttachmentsController::class, 'get_data'])->name('global_files_and_attachments');
+Route::get('global_files_and_attachments_download/{filename}', [FilesAndAttachmentsController::class, 'download'])->name('global_files_and_attachments_download');
 
 Route::prefix('youtube')->middleware('auth')->group(function () {
     Route::get('/add-chanel', [YoutubeController::class, 'creteChanel'])->name('add.chanel');
@@ -1097,8 +1102,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('product/relist-product', [ProductController::class, 'relistProduct']);
     Route::get('products/stats', [ProductController::class, 'productStats']);
     //ajay singh
+
+    Route::get('products/size', [ProductController::class, 'productSizeLog'])->name('products.size');
     //Route::get('products/scrap-logs', 'ProductController@productScrapLog');
     Route::get('products/status-history', [ProductController::class, 'productScrapLog']);
+    Route::post('products/getsuppliers', [ProductController::class, 'getProductSupplierList'])->name('products.getsuppliers');
     Route::get('products/description', [ProductController::class, 'productDescription'])->name('products.description');
     Route::get('/product-hisotry', [ProductController::class, 'productDescriptionHistory'])->name('scrap.product-hisotry');
     Route::post('products/description/update', [ProductController::class, 'productDescriptionUpdate'])->name('products.description.update');
@@ -1903,9 +1911,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::post('task/update/priority-no', [TaskModuleController::class, 'updatePriorityNo'])->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', [TaskModuleController::class, 'approveTimeHistory'])->name('task.time.history.approve');
+    Route::post('task/time/history/start', [TaskModuleController::class, 'startTimeHistory'])->name('task.time.history.start');
 
     Route::get('task/time/tracked/history', [TaskModuleController::class, 'getTrackedHistory'])->name('task.time.tracked.history');
     Route::post('task/create/hubstaff_task', [TaskModuleController::class, 'createHubstaffManualTask'])->name('task.create.hubstaff_task');
+    Route::get('task/timer/history', [TaskModuleController::class, 'getTimeHistoryStartEnd'])->name('task.timer.history');
 
     Route::get('task/update/milestone', [TaskModuleController::class, 'saveMilestone'])->name('task.update.milestone');
     Route::get('task/get/details', [TaskModuleController::class, 'getDetails'])->name('task.json.details');
@@ -2309,6 +2319,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchaseproductorders/flows', [PurchaseProductController::class, 'purchaseproductorders_flows'])->name('purchaseproductorders.flows'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/saveuploads', [PurchaseProductController::class, 'purchaseproductorders_saveuploads'])->name('purchaseproductorders.saveuploads'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
+    Route::post('purchaseproductorders-column-visbility', [PurchaseProductController::class, 'purchaseproductordersColumnVisbilityUpdate'])->name('purchaseproductorders.column.update');
+
 
     // Cash Vouchers
     Route::get('/voucher/payment/request', [VoucherController::class, 'paymentRequest'])->name('voucher.payment.request');
@@ -2469,8 +2481,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/issue/set-priority', [DevelopmentController::class, 'setPriority'])->name('development.issue.set.priority');
     //Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::post('development/time/history/approve', [DevelopmentController::class, 'approveTimeHistory'])->name('development/time/history/approve');
+    Route::post('development/time/history/start', [DevelopmentController::class, 'startTimeHistory'])->name('development/time/history/start');
     Route::post('development/time/history/approve/sendMessage', [DevelopmentController::class, 'sendReviseMessage'])->name('development/time/history/approve/sendMessage');
     Route::post('development/time/history/approve/sendRemindMessage', [DevelopmentController::class, 'sendRemindMessage'])->name('development/time/history/approve/sendRemindMessage');
+
+    Route::get('development/timer/history', [DevelopmentController::class, 'getTimeHistoryStartEnd'])->name('development.timer.history');
 
     Route::post('development/time/meeting/approve/{task_id}', [DevelopmentController::class, 'approveMeetingHistory'])->name('development/time/meeting/approve');
     Route::post('development/time/meeting/store', [DevelopmentController::class, 'storeMeetingTime'])->name('development/time/meeting/store');
@@ -3286,6 +3301,8 @@ Route::get('message/delete', [WhatsAppController::class, 'delete']);
 
 Route::post('list/autoCompleteMessages', [WhatsAppController::class, 'autoCompleteMessages']);
 Route::get('google/bigData/bigQuery', [GoogleBigQueryDataController::class, 'index'])->name('google.bigdata');
+Route::post('/google/bigData/bigQuery/column-visibility-update', [GoogleBigQueryDataController::class, 'columnVisibilityUpdate'])->name('google.bigdata.column.update');
+    // columnVisbilityUpdate
 Route::get('google/bigData/search', [GoogleBigQueryDataController::class, 'search'])->name('google.bigdata.search');
 Route::delete('google/bigData/delete', [GoogleBigQueryDataController::class, 'destroy'])->name('google.bigdata.delete');
 //});
@@ -5257,6 +5274,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrapper-python/image/url_list', [scrapperPhyhon::class, 'imageUrlList'])->name('scrapper.image.urlList');
     Route::post('/scrapper-python/{id}/url', [scrapperPhyhon::class, 'flagImageUrl'])->name('scrapper.url.flag');
 
+    Route::post('/scrapper-python/reject-image', [scrapperPhyhon::class, 'rejectScrapperImage'])->name('scrapper.reject,image');
+
     Route::get('/set/default/store/{website?}/{store?}/{checked?}', [scrapperPhyhon::class, 'setDefaultStore'])->name('set.default.store');
     Route::get('/set/flag/store/{website?}/{store?}/{checked?}', [scrapperPhyhon::class, 'setFlagStore'])->name('set.flag.store');
 
@@ -5606,6 +5625,13 @@ Route::get('test-cron', function () {
 // Vouchers and Coupons
 Route::prefix('vouchers-coupons')->middleware('auth')->group(function () {
     Route::get('/', [VoucherCouponController::class, 'index'])->name('list.voucher');
+    Route::post('/statuscolor', [VoucherCouponController::class, 'statuscolor'])->name('voucher.statuscolor');
+    Route::post('/statuscreate', [VoucherCouponController::class, 'statusCreate'])->name('voucher.status.create');
+    Route::post('/updatestatus', [VoucherCouponController::class, 'updateStatus'])->name('voucher.update-status');
+    Route::get('/status/histories/{id}', [VoucherCouponController::class, 'statusHistories'])->name('voucher.status.histories');
+
+    Route::post('/remarks', [VoucherCouponController::class, 'saveRemarks'])->name('voucher.saveremarks');
+    Route::post('/getremarks', [VoucherCouponController::class, 'getRemarksHistories'])->name('voucher.getremarks');
 
     Route::post('/plateform/create', [VoucherCouponController::class, 'plateformStore'])->name('voucher.plateform.create');
     Route::post('/store', [VoucherCouponController::class, 'store'])->name('voucher.store');

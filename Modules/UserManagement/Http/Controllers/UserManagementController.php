@@ -2408,6 +2408,8 @@ class UserManagementController extends Controller
                                         'estimate_minutes' => $task->estimate_minutes,
                                         'slotTaskRemarks' => $task->slotTaskRemarks,
                                         'task_type' => 'tasks',
+                                        'mt_start_date' => $task->mt_start_date,
+                                        'mt_end_date' => $task->mt_end_date,
                                     ];
                                 }
                             }
@@ -2434,6 +2436,8 @@ class UserManagementController extends Controller
                                         'estimate_minutes' => $task->estimate_minutes,
                                         'slotTaskRemarks' => $task->slotTaskRemarks,
                                         'task_type' => 'dev_tasks',
+                                        'mt_start_date' => $task->mt_start_date,
+                                        'mt_end_date' => $task->mt_end_date,
                                     ];
                                 }
                             }
@@ -3058,6 +3062,34 @@ class UserManagementController extends Controller
                             } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
                                 array_push($userTasks, $task);
                             }
+
+                            if ($task['mt_start_date'] !== null && $task['mt_end_date'] !== null) {
+                                $TaskStart = Carbon::parse($task['mt_start_date']);
+                                $TaskEnd = Carbon::parse($task['mt_end_date']);
+
+                                if (
+                                    ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                                    ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                                ) {
+                                    array_push($userTasks, $task);
+                                } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                                    array_push($userTasks, $task);
+                                }
+
+                            } else if ($task['mt_start_date'] !== null && $task['mt_end_date'] == null) {
+                                $TaskStart = Carbon::parse($task['mt_start_date']);
+                                $TaskEnd = Carbon::parse(Carbon::now());
+
+                                if (
+                                    ($TaskStart->gte($SlotStart) && $TaskStart->lte($SlotEnd)) ||
+                                    ($TaskEnd->gte($SlotStart) && $TaskEnd->lte($SlotEnd))
+                                ) {
+                                    array_push($userTasks, $task);
+                                } elseif ($TaskStart->lte($SlotStart) && $TaskEnd->gte($SlotEnd)) {
+                                    array_push($userTasks, $task);
+                                }
+                            }
+
                         }
                         $list = array_values($list);
                         $tasks[$key] = $list;
@@ -3145,7 +3177,9 @@ class UserManagementController extends Controller
                     slotTaskRemarks, 
                     task_subject AS title, 
                     start_date AS st_date, 
-                    due_date AS en_date, 
+                    due_date AS en_date,
+                    m_start_date AS mt_start_date, 
+                    m_end_date AS mt_end_date, 
                     COALESCE(approximate, 0) AS est_minutes, 
                     status,
                     (
@@ -3173,7 +3207,7 @@ class UserManagementController extends Controller
                 WHERE 
                 1
                 AND deleted_at IS NULL
-                AND due_date IS NOT NULL
+                AND (due_date IS NOT NULL OR m_start_date IS NOT NULL)
                 AND assign_to IN (" . implode(',', $userIds) . ")";
 
                 if(!empty($taskStatuses)){
@@ -3200,6 +3234,8 @@ class UserManagementController extends Controller
                     subject AS title, 
                     start_date AS st_date, 
                     estimate_date AS en_date, 
+                    m_start_date AS mt_start_date, 
+                    m_end_date AS mt_end_date, 
                     COALESCE(estimate_minutes, 0) AS est_minutes, 
                     status,
                     (
@@ -3224,7 +3260,7 @@ class UserManagementController extends Controller
                 FROM developer_tasks
                 WHERE 1
                 AND deleted_at IS NULL
-                AND estimate_date IS NOT NULL
+                AND (estimate_date IS NOT NULL OR m_start_date IS NOT NULL)
                 AND assigned_to IN (" . implode(',', $userIds) . ")";
 
                 if(!empty($devTaskStatuses)){
@@ -3442,5 +3478,87 @@ class UserManagementController extends Controller
         $UserDatabaseLog = $UserDatabaseLog->paginate(25);
 
         return view('user-management.index-database-logs', compact('title', 'UserDatabaseLog'))->with('i', ($request->input('page', 1) - 1) * 25);
+    }
+
+    public function userSchedulesReport(Request $request)
+    {
+
+        $months = ['01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'];
+
+        $currentYear = Carbon::now()->year;
+    
+        $years = range($currentYear - 5, $currentYear + 5);
+
+        
+        $dataMainArray = [];
+
+        //return $request;
+
+        if(!empty($request->user_id) && !empty($request->month) && !empty($request->year)){
+
+            $desiredMonth = $request->month; // September (example)
+            $desiredYear = $request->year; // 2023 (example)
+
+            // Create a Carbon instance for the specified month and year
+            $startDate = Carbon::createFromDate($desiredYear, $desiredMonth, 1)->startOfMonth();
+            $endDate = $startDate->copy()->endOfMonth();
+
+            // Loop through each day of the specified month
+            
+            $iii =0;
+            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+                $dates = $date->format('Y-m-d'); // Add each date to the array
+
+                $dataArray = [];
+                
+                $records = DeveloperTask::select('id', 'estimate_minutes', 'start_date', 'estimate_date')->whereDate('start_date', '=', $dates)->orWhereDate('m_start_date', '=', $dates)->where('assigned_to', Auth::user()->id)->get();
+
+                if(count($records)>0){
+
+                    foreach ($records as $key => $value) {
+                        $records[$key]['task_type'] = 'DT';
+                        $records[$key]['totalTime'] = $value->estimate_minutes;
+
+                        if($value->start_date!==null && $value->estimate_date!==null){
+                            $startDate = Carbon::parse($value->start_date);
+                            $endDate = Carbon::parse($value->estimate_date);
+
+                            $records[$key]['totalMinutes'] = $endDate->diffInMinutes($startDate);
+                        }
+
+                        $dataArray[$iii] = $records[$key];
+                        $iii++;
+                    }                    
+                }
+
+                $recordsTask = Task::select('id', 'approximate', 'start_date', 'due_date')->whereDate('start_date', '=', $dates)->orWhereDate('m_start_date', '=', $dates)->where('assign_to', Auth::user()->id)->get();
+
+                if(count($recordsTask)>0){
+
+                    foreach ($recordsTask as $keyTask => $valueTask) {
+                        $recordsTask[$keyTask]['task_type'] = 'T';
+                        $recordsTask[$keyTask]['totalTime'] = $valueTask->approximate;
+
+                        if($valueTask->start_date!==null && $valueTask->due_date!==null){
+                            $startDateTask = Carbon::parse($valueTask->start_date);
+                            $endDateTask = Carbon::parse($valueTask->due_date);
+
+                            $recordsTask[$keyTask]['totalMinutes'] = $endDateTask->diffInMinutes($startDateTask);
+                        }
+
+                        $dataArray[$iii] = $recordsTask[$keyTask];
+                        $iii++;
+                    }
+                }
+
+                if(!empty($dataArray)){
+                    $dataMainArray[$dates] = $dataArray;
+                }
+            }
+        }
+
+        
+
+        return view('usermanagement::user-schedules.report', compact('months', 'years', 'dataMainArray'));
     }
 }

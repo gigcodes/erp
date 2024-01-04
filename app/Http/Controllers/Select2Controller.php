@@ -745,13 +745,23 @@ class Select2Controller extends Controller
 
     public function vochuerPlatform(Request $request)
     {
-        $platforms = Platform::get()->pluck('name', 'id');
+        /*$platforms = Platform::get()->pluck('name', 'id');
 
         if (! empty($request->q)) {
             $platforms->where(function ($q) use ($request) {
                 $q->where('name', 'LIKE', '%' . $request->q . '%');
             });
+        }*/
+
+        $query = DB::table('voucher_coupon_platforms')->select();
+
+        if (! empty($request->q)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', '%' . $request->q . '%');
+            });
         }
+
+        $platforms = $query->pluck('name', 'id');
 
         $result = [];
 
@@ -774,13 +784,23 @@ class Select2Controller extends Controller
 
     public function vochuerEmail(Request $request)
     {
-        $vocherEmails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
+        /*$vocherEmails = DB::table('email_addresses')->get()->pluck('id', 'from_address');
 
         if (! empty($request->q)) {
             $vocherEmails->where(function ($q) use ($request) {
                 $q->where('from_address', 'LIKE', '%' . $request->q . '%');
             });
+        }*/
+
+        $query = DB::table('email_addresses')->select();
+
+        if (! empty($request->q)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('from_address', 'LIKE', '%' . $request->q . '%');
+            });
         }
+
+        $vocherEmails = $query->pluck('id', 'from_address');
 
         $result = [];
 
@@ -803,13 +823,23 @@ class Select2Controller extends Controller
 
     public function vochuerWhatsappconfig(Request $request)
     {
-        $whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
+        /*$whatsapp_configs = DB::table('whatsapp_configs')->get()->pluck('number', 'id');
 
         if (! empty($request->q)) {
             $whatsapp_configs->where(function ($q) use ($request) {
                 $q->where('number', 'LIKE', '%' . $request->q . '%');
             });
+        }*/
+
+        $query = DB::table('whatsapp_configs')->select();
+
+        if (! empty($request->q)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('number', 'LIKE', '%' . $request->q . '%');
+            });
         }
+
+        $whatsapp_configs = $query->pluck('number', 'id');
 
         $result = [];
 

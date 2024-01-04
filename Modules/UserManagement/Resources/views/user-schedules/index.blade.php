@@ -40,7 +40,9 @@
                             <button style="float:right; margin-left: 10px;" type="button" class="btn custom-button count-dev-customer-tasks-admin" title="Show task history" data-id="{{Auth::user()->id}}" data-category="{{Auth::user()->id}}"><i class="fa fa-info-circle"></i></button>
                         @endif
 
-                        <button class="btn custom-button" style="float:right;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                        <button class="btn custom-button" style="float:right;margin-left: 10px;" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+
+                        <a target="_blank" class="btn custom-button" style="float:right;" href="{{ route('user-management.user-schedules.report') }}">Report</a>
                     </h4>
                 </div>
                 <div id="collapseSearch" class="collapse">
