@@ -654,6 +654,79 @@ class ScrapStatisticsController extends Controller
         return response()->json(['code' => 200, 'data' => $suplier]);
     }
 
+    public function multipleUpdateField(Request $request)
+    {        
+        $fieldName = 'full_scrape';
+        $fieldValue = 1;
+
+
+        if(!empty($request->ids)){
+            foreach ($request->ids as $key => $value) {
+
+                $search = $value;
+                $remark = request()->get('remark');
+                //dd($search);
+                $suplier = \App\Scraper::where('supplier_id', $search)->first();
+
+                if (! $suplier) {
+                    $suplier = \App\Scraper::find($search);
+                }
+
+                if ($suplier) {
+                    $oldValue = $suplier->{$fieldName};
+
+                    if ($fieldName == 'scraper_made_by') {
+                        $oldValue = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : '';
+                    }
+
+                    if ($fieldName == 'parent_supplier_id') {
+                        $oldValue = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : '';
+                    }
+
+                    $suplier->{$fieldName} = $fieldValue;
+                    $suplier->save();
+
+                    $suplier = \App\Scraper::where('supplier_id', $search)->first();
+
+                    if (! $suplier) {
+                        $suplier = \App\Scraper::find($search);
+                    }
+
+                    $newValue = $fieldValue;
+
+                    if ($fieldName == 'scraper_made_by') {
+                        $newValue = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : '';
+                    }
+
+                    if ($fieldName == 'parent_supplier_id') {
+                        $newValue = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : '';
+                    }
+
+                    $remark_entry = ScrapRemark::create([
+                        'scraper_name' => $suplier->scraper_name,
+                        'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                        'user_name' => Auth::user()->name,
+                        'scrap_field' => $fieldName,
+                        'old_value' => $oldValue,
+                        'new_value' => $newValue,
+                        'scrap_id' => $suplier->id,
+                    ]);
+
+                    if (! empty($remark)) {
+                        $remark_entry = ScrapRemark::create([
+                            'scraper_name' => $suplier->scraper_name,
+                            'remark' => $remark,
+                            'user_name' => Auth::user()->name,
+                            'scrap_id' => $suplier->id,
+                        ]);
+                    }
+                }
+            }
+        }
+        
+        return response()->json(['code' => 200]);
+    }
+
     public function updateScrapperField(Request $request)
     {
         $fieldName = request()->get('field');

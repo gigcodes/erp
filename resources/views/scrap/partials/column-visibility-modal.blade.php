@@ -16,6 +16,12 @@
                         </tr>
                         <div id="columnVisibilityControls">
                             <tr>
+                                <td>Checkbox</td>
+                                <td>
+                                    <input type="checkbox" value="Checkbox" id="Checkbox" name="column_s[]" @if (!empty($dynamicColumnsToShows) && in_array('Checkbox', $dynamicColumnsToShows)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>#</td>
                                 <td>
                                     <input type="checkbox" value="#" id="#" name="column_s[]" @if (!empty($dynamicColumnsToShows) && in_array('#', $dynamicColumnsToShows)) checked @endif>

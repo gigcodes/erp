@@ -7,7 +7,7 @@
 @section('styles')
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css"> -->
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     <style type="text/css">
@@ -106,11 +106,11 @@
             </div>
             <div class="form-group mb-3 col-md-2">
                 <label>Select Type</label>
-                <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), request("scraper_type"), ["class" => "form-control select2"]) ?>
+                <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), request("scraper_type"), ["class" => "form-control select22"]) ?>
             </div>
             <div class="form-group mb-3 col-md-1">
                 <label>All scrapers</label>
-                <select name="excelOnly" class="form-control form-group select2">
+                <select name="excelOnly" class="form-control form-group select22">
                     <option <?php echo $excelOnly == '' ? 'selected=selected' : '' ?> value="">All scrapers</option>
                     <option <?php echo $excelOnly == -1 ? 'selected=selected' : '' ?> value="-1">Without Excel</option>
                     <option <?php echo $excelOnly == 1 ? 'selected=selected' : '' ?> value="1">Excel only</option>
@@ -119,7 +119,7 @@
 
             <div class="form-group mb-3 col-md-2">
                 <label>Select User</label>
-                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),request('task_assigned_to'),["class" => "form-control select2"]); ?>
+                <?php echo Form::select("task_assigned_to",["" => "Select User"] + \App\User::pluck("name","id")->toArray(),request('task_assigned_to'),["class" => "form-control select22"]); ?>
             </div>
 
             <div class="form-group mb-3 col-md-1">
@@ -192,7 +192,9 @@
                         </button>
                     </a>
 
-                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#scrapdatatablecolumnvisibilityList">Column Visiblity</
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#scrapdatatablecolumnvisibilityList">Column Visiblity</button>
+
+                    <button type="button" class="btn btn-default btn-sm multiple-scrap-btn">Multiple Scrap</button> 
                     <!-- END - DEVTASK-20102-->
                 </div>
             </div>
@@ -228,6 +230,9 @@
                     <thead>
                     <tr>
                         @if(!empty($dynamicColumnsToShows))
+                            @if (!in_array('Checkbox', $dynamicColumnsToShows))
+                                <th width="1%"></th>
+                            @endif
                             @if (!in_array('#', $dynamicColumnsToShows))
                                 <th>#</th>
                             @endif
@@ -296,6 +301,7 @@
                                 <th>Functions</th>
                             @endif
                         @else
+                            <th width="1%"></th>
                             <th>#</th>
                             <th>Supplier</th>
                             <!-- <th>Server</th> -->
@@ -331,7 +337,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @php $arMatchedScrapers = []; $i=0; @endphp
+                    @php $arMatchedScrapers = []; $ii=1; @endphp
                     @foreach ($activeSuppliers as $supplier)
                         @if ( (stristr($supplier->scraper_name, '_excel') && (int) $excelOnly > -1 ) || (!stristr($supplier->scraper_name, '_excel') && (int) $excelOnly < 1 ) )
                             @php $data = null;  @endphp
@@ -378,8 +384,14 @@
                                     
                                 @endphp
 
+                                @if (!in_array('Checkbox', $dynamicColumnsToShows))
+                                <td>
+                                    <input type="checkbox" name="scrap_check" class="scrap_check" value="{{ $supplier->id }}" data-id="{{ $supplier->id }}">
+                                </td>
+                                @endif
+
                                 @if (!in_array('#', $dynamicColumnsToShows))
-                                    <td width="1%">{{ ++$i }}&nbsp; @if($supplier->children_scraper_count != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
+                                    <td width="1%">{{ $ii++ }}&nbsp; @if($supplier->children_scraper_count != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                                 @endif
 
                                 @if (!in_array('Supplier', $dynamicColumnsToShows))
@@ -400,7 +412,7 @@
                                 @if (!in_array('Server ID', $dynamicColumnsToShows))
                                 <td width="5%">
                                     <div class="form-group d-flex">
-                                            <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->id}}" data-field="server_id">
+                                            <select style="width:100% !important;" name="server_id" class="form-control select22 scraper_field_change" data-id="{{$supplier->id}}" data-field="server_id">
                                                 <option value="">Select</option>
                                                 @foreach($serverIds as $serverId)
                                                 <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
@@ -415,7 +427,7 @@
                                 @if (!in_array('Auto Restart', $dynamicColumnsToShows))
                                 <td width="4%">
                                     <div class="form-group">
-                                        <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
+                                        <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $supplier->auto_restart, ["class" => "form-control auto_restart select22", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
                                 @endif
@@ -423,7 +435,7 @@
                                 @if (!in_array('Run Time', $dynamicColumnsToShows))
                                     <td width="5%" style="text-right">
                                         <div class="form-group d-flex">
-                                                <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->id}}" data-field="scraper_start_time">
+                                                <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select22" data-id="{{$supplier->id}}" data-field="scraper_start_time">
                                                 <option value="">Select</option>
                                                 @for($i=1; $i<=24;$i++)
                                                 <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
@@ -488,7 +500,7 @@
                                 @if (!in_array('Status', $dynamicColumnsToShows))
                                     <td width="6%">
                                         <div class="form-group status mb-1" style="display: flex" >
-                                            <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select2", "style" => "width:80px;"]); ?>
+                                            <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select22", "style" => "width:80px;"]); ?>
                                             <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                         </div>
                                         @php
@@ -565,7 +577,7 @@
                                 @if (!in_array('Full scrap', $dynamicColumnsToShows))
                                     <td width="5%">
                                         <div class="form-group">
-                                            <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                 @endif
@@ -668,7 +680,7 @@
                                     <td colspan="1">
                                         <label>Start Time:</label>
                                         <div class="input-group">
-                                            <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $supplier->scraper_start_time, ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $supplier->scraper_start_time, ["class" => "form-control start_time select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
@@ -692,19 +704,19 @@
                                     <td colspan="2">
                                         <label>Type:</label>
                                         <div class="form-group">
-                                            <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
+                                            <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select22", "style" => "width:100%;"]) ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
                                         <label>Parent Scrapper:</label>
                                         <div class="form-group">
-                                            <?php echo Form::select("parent_supplier_id", [0 => "N/A"] + $allScrapperName, $supplier->parent_supplier_id, ["class" => "form-control parent_supplier_id select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("parent_supplier_id", [0 => "N/A"] + $allScrapperName, $supplier->parent_supplier_id, ["class" => "form-control parent_supplier_id select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
                                         <label>Next Step:</label>
                                         <div class="form-group">
-                                            <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
@@ -753,7 +765,13 @@
                                     $lastError = $supplier->lastErrorFromScrapLogNew;
                                     
                                 @endphp
-                                <td width="1%">{{ ++$i }}&nbsp; @if($supplier->children_scraper_count != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
+
+                                <td>
+                                    <input type="checkbox" name="scrap_check" class="scrap_check" value="{{ $supplier->id }}" data-id="{{ $supplier->id }}">
+                                </td>
+
+                                <td width="1%">{{ $ii++ }}&nbsp; @if($supplier->children_scraper_count != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
+
                                 <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->mainSupplier ? $supplier->mainSupplier->supplier : '')) }}&nbsp; {{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
                                     @if(substr(strtolower($supplier->mainSupplier ? $supplier->mainSupplier->supplier : ''), 0, 6)  == 'excel_')
                                         &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
@@ -768,7 +786,7 @@
                                 <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
                                 <td width="5%">
                                     <div class="form-group d-flex">
-                                            <select style="width:100% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->id}}" data-field="server_id">
+                                            <select style="width:100% !important;" name="server_id" class="form-control select22 scraper_field_change" data-id="{{$supplier->id}}" data-field="server_id">
                                                 <option value="">Select</option>
                                                 @foreach($serverIds as $serverId)
                                                 <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
@@ -780,13 +798,13 @@
                                 </td>
                                 <td width="4%">
                                     <div class="form-group">
-                                        <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $supplier->auto_restart, ["class" => "form-control auto_restart select2", "style" => "width:100%;"]); ?>
+                                        <?php echo Form::select("auto_restart",[0 => "Off", 1 => "On"], $supplier->auto_restart, ["class" => "form-control auto_restart select22", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
 
                                 <td width="5%" style="text-right">
                                     <div class="form-group d-flex">
-                                            <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select2" data-id="{{$supplier->id}}" data-field="scraper_start_time">
+                                            <select style="width:100% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change select22" data-id="{{$supplier->id}}" data-field="scraper_start_time">
                                             <option value="">Select</option>
                                             @for($i=1; $i<=24;$i++)
                                             <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
@@ -829,7 +847,7 @@
                                 </td> --> --}}
                                 <td width="6%">
                                     <div class="form-group status mb-1" style="display: flex" >
-                                        <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select2", "style" => "width:80px;"]); ?>
+                                        <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select22", "style" => "width:80px;"]); ?>
                                         <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                     </div>
                                     @php
@@ -899,7 +917,7 @@
                                 */ ?>
                                 <td width="5%">
                                     <div class="form-group">
-                                        <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select2", "style" => "width:100%;"]); ?>
+                                        <?php echo Form::select("full_scrape",[0 => "No", 1 => "Yes"], $supplier->full_scrape, ["class" => "form-control full_scrape select22", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
                                 <td width="5%">
@@ -987,7 +1005,7 @@
                                     <td colspan="1">
                                         <label>Start Time:</label>
                                         <div class="input-group">
-                                            <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $supplier->scraper_start_time, ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $supplier->scraper_start_time, ["class" => "form-control start_time select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
@@ -1011,19 +1029,19 @@
                                     <td colspan="2">
                                         <label>Type:</label>
                                         <div class="form-group">
-                                            <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
+                                            <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select22", "style" => "width:100%;"]) ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
                                         <label>Parent Scrapper:</label>
                                         <div class="form-group">
-                                            <?php echo Form::select("parent_supplier_id", [0 => "N/A"] + $allScrapperName, $supplier->parent_supplier_id, ["class" => "form-control parent_supplier_id select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("parent_supplier_id", [0 => "N/A"] + $allScrapperName, $supplier->parent_supplier_id, ["class" => "form-control parent_supplier_id select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
                                         <label>Next Step:</label>
                                         <div class="form-group">
-                                            <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
+                                            <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $supplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select22", "style" => "width:100%;"]); ?>
                                         </div>
                                     </td>
                                     <td colspan="2">
@@ -1110,7 +1128,7 @@
                         @csrf
                         <div class="form-group">
                             <label>Scraper Name</label>
-                            <select name="scraper_name" class="form-control select2" required>
+                            <select name="scraper_name" class="form-control select22" required>
                                 @forelse ($allScrapper as $item)
                                     <option value="{{ $item }}">{{ $item }}</option>
                                 @empty
@@ -1172,7 +1190,7 @@
                         @csrf
                         <div class="form-group">
                             <label>Select Scraper</label>
-                            <select name="scraper_name" class="form-control select2" required>
+                            <select name="scraper_name" class="form-control select22" required>
                                 @forelse ($allScrapper as $k => $item)
                                     <option value="{{ $item }}#{{$k}}">{{ $item }}</option>
                                 @empty
@@ -1190,7 +1208,7 @@
                         <div class="form-group">
                             <strong>Start Time:</strong>
                             <div class="input-group">
-                                <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown,'', ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
+                                <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown,'', ["class" => "form-control start_time select22", "style" => "width:100%;"]); ?>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1323,29 +1341,29 @@
 @section('scripts')
 
     <script type="text/javascript" src="{{asset('/js/bootstrap-datepicker.min.js')}}"></script>
-    <script src="{{asset('/js/jquery-ui.js')}}"></script>
+    <!-- <script src="{{asset('/js/jquery-ui.js')}}"></script> -->
     @include('partials.script_developer_task')
 
     <script type="text/javascript">
-	
-	    function saveAssignedTo(fieldId, scrapperId) {
-			var assignedTo = $('#'+fieldId).val();
-			if(assignedTo == '') {
-				alert('Please select user.');
-				return false;
-			}
-			$.ajax({
+    
+        function saveAssignedTo(fieldId, scrapperId) {
+            var assignedTo = $('#'+fieldId).val();
+            if(assignedTo == '') {
+                alert('Please select user.');
+                return false;
+            }
+            $.ajax({
                     headers: {
                         'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                     },
                     url: "{{route('scrap.assign')}}",
                     method: "POST",
                     data: {scrapper_id: scrapperId, assigned_to: assignedTo},
-					success: function (response) {
-						toastr['success']('Scrapper assigned.');
-					},
-				});
-		}
+                    success: function (response) {
+                        toastr['success']('Scrapper assigned.');
+                    },
+                });
+        }
 
         $(".total-info").html("({{$totalCountedUrl}})");
 
@@ -1358,7 +1376,7 @@
                     headers: {
                         'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                     },
-                    url: "http://localhost/erp/public/index.php/scrap/statistics/reply/add",
+                    url: "{{url('scrap/statistics/reply/add')}}",
                     dataType: "json",
                     method: "POST",
                     data: {reply: message}
@@ -1626,7 +1644,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "scraper_start_time",
@@ -1649,7 +1667,7 @@
             }
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-scrap-field',
+                url: '{{url("scrap/statistics/update-scrap-field")}}',
                 data: {
                     search: id,
                     field: field,
@@ -1668,7 +1686,7 @@
             var field = $(this).data("field");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/show-history',
+                url: '{{url("scrap/statistics/show-history")}}',
                 data: {
                     search: id,
                     field: field
@@ -1702,7 +1720,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "scraper_logic",
@@ -1721,7 +1739,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "scraper_type",
@@ -1739,7 +1757,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "scraper_made_by",
@@ -1757,7 +1775,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "next_step_in_product_flow",
@@ -1783,7 +1801,7 @@
                  }
                  $.ajax({
                     type: 'GET',
-                    url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                    url: '{{url("scrap/statistics/update-field")}}',
                     data: {
                         search: id,
                         field: "status",
@@ -1805,7 +1823,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "full_scrape",
@@ -1823,7 +1841,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "auto_restart",
@@ -1841,7 +1859,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "parent_supplier_id",
@@ -1859,7 +1877,7 @@
             var id = tr.data("eleid");
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/statistics/update-field',
+                url: '{{url("scrap/statistics/update-field")}}',
                 data: {
                     search: id,
                     field: "server_id",
@@ -1876,7 +1894,7 @@
             var x = confirm("Are you sure you want to restart script?");
             if (x)
                   $.ajax({
-                    url: 'http://localhost/erp/public/index.php/api/node/restart-script',
+                    url: '{{url("api/node/restart-script")}}',
                     type: 'POST',
                     dataType: 'json',
                     data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
@@ -1901,7 +1919,7 @@
             var x = confirm("Are you sure you want to update script?");
             if (x)
                   $.ajax({
-                    url: 'http://localhost/erp/public/index.php/api/node/update-script',
+                    url: '{{url("api/node/update-script")}}',
                     type: 'POST',
                     dataType: 'json',
                     data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
@@ -1927,7 +1945,7 @@
             var x = confirm("Are you sure you want to kill script?");
             if (x)
                   $.ajax({
-                    url: 'http://localhost/erp/public/index.php/api/node/kill-script',
+                    url: '{{url("api/node/kill-script")}}',
                     type: 'POST',
                     dataType: 'json',
                     data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
@@ -1949,7 +1967,7 @@
             var x = confirm("Are you sure you want to restart script?");
             if (x)
                   $.ajax({
-                    url: 'http://localhost/erp/public/index.php/api/node/get-status',
+                    url: '{{url("api/node/get-status")}}',
                     type: 'POST',
                     dataType: 'json',
                     data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
@@ -1998,7 +2016,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/screenshot',
+                url: '{{url("scrap/screenshot")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -2020,7 +2038,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/get-last-errors',
+                url: '{{url("scrap/get-last-errors")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -2042,7 +2060,7 @@
             e.preventDefault();
             var date = $(this).data("date");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/server-status-history',
+                url: '{{url("scrap/server-status-history")}}',
                 type: 'GET',
                 data: {date: date},
                 beforeSend: function () {
@@ -2064,7 +2082,7 @@
             e.preventDefault();
             var date = $(this).data("date");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/server-status-process',
+                url: '{{url("scrap/server-status-process")}}',
                 type: 'GET',
                 data: {date: date},
                 beforeSend: function () {
@@ -2089,7 +2107,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/killed-list',
+                url: '{{url("scrap/killed-list")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -2112,7 +2130,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/position-history',
+                url: '{{url("scrap/position-history")}}',
                 type: 'GET',
                 data: {id: id},
                 beforeSend: function () {
@@ -2134,7 +2152,7 @@
             e.preventDefault();
             var scraper_name = $(this).data("name");
             $.ajax({
-                url: 'http://localhost/erp/public/index.php/scrap/get-server-scraper-timing',
+                url: '{{url("scrap/get-server-scraper-timing")}}',
                 type: 'GET',
                 data: {scraper_name: scraper_name},
                 beforeSend: function () {
@@ -2161,7 +2179,7 @@
             var id = $(this).data("id");
             var $this =  $(this);
             $.ajax({
-                url: "http://localhost/erp/public/index.php/scrap/statistics/update-field",
+                url: "{{url('scrap/statistics/update-field')}}",
                 type: 'GET',
                 data: {
                     search: id,
@@ -2191,7 +2209,7 @@
             var id = $(this).data("id");
             var $this =  $(this);
             $.ajax({
-                url: "http://localhost/erp/public/index.php/scrap/statistics/update-field",
+                url: "{{url('scrap/statistics/update-field')}}",
                 type: 'GET',
                 data: {
                     search: id,
@@ -2233,7 +2251,7 @@
             e.preventDefault();
             var id = $(this).data("id");
             $.ajax({
-                url: "http://localhost/erp/public/index.php/scrap/position-history-download",
+                url: "{{url('scrap/position-history-download')}}",
                 type: 'POST',
                 "dataType": 'json',           // what to expect back from the PHP script, if anything
                 data: {
@@ -2247,7 +2265,7 @@
                 
                 if(response.downloadUrl){
                     var form = $("<form/>", 
-                            { action:"http://localhost/erp/public/index.php/chat-messages/downloadChatMessages",
+                            { action:"{{url('chat-messages/downloadChatMessages')}}",
                                 method:"POST",
                                 target:'_blank',
                                 id:"chatHiddenForm",
@@ -2283,7 +2301,7 @@
         $(document).on("click",".position-all",function(e) {
             e.preventDefault();
             $.ajax({
-                url: "http://localhost/erp/public/index.php/scrap/position-all",
+                url: "{{url('scrap/position-all')}}",
                 type: 'POST',
                 "dataType": 'json',           // what to expect back from the PHP script, if anything
                 data: {
@@ -2296,7 +2314,7 @@
                 
                 if(response.downloadUrl){
                     var form = $("<form/>", 
-                            { action:"http://localhost/erp/public/index.php/chat-messages/downloadChatMessages",
+                            { action:"{{url('chat-messages/downloadChatMessages')}}",
                                 method:"POST",
                                 target:'_blank',
                                 id:"chatHiddenForm",
@@ -2333,7 +2351,7 @@
 
             $.ajax({
                 type: 'GET',
-                url: 'http://localhost/erp/public/index.php/scrap/logdata/view_scrappers_data',
+                url: '{{url("scrap/logdata/view_scrappers_data")}}',
                 // data: {
                 //     search: id,
                 //     field: "scraper_made_by",
@@ -2350,6 +2368,48 @@
 
         $( window ).scroll(function() {
             $( "span" ).css( "display", "inline" ).fadeOut( "slow" );
+        });
+
+        $(document).on("click",".multiple-scrap-btn",function() {
+            var selectedCheckboxes = [];
+            var fileIDs = [];
+
+            $('input[name="scrap_check"]:checked').each(function() {
+                var fileID = $(this).data('id');
+                var checkboxValue = $(this).val();
+
+                fileIDs.push(fileID);
+                selectedCheckboxes.push(checkboxValue);
+            });
+
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one checkbox.');
+                return;
+            }  
+
+            var formData = {
+                ids: selectedCheckboxes 
+            };
+
+            var x = confirm("Are you sure you want to full scrape on the selected records.");
+            if (x){
+                $.ajax({
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    type: 'POST',
+                    url: '{{ route('scrap.multiple.update.field') }}',
+                    data: formData,
+                    success: function(response) {
+                        toastr["success"]("Full Scrap status has been updated successfully");
+                        location.reload();
+                    },
+                    error: function(error) {
+                        console.error('Error:', error);
+                        location.reload();
+                    }
+                });  
+            }    
         });
 
         //END - DEVTASK-20102
