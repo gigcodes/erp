@@ -4710,7 +4710,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
     Route::get('all/events', [EventController::class, 'publicEvents'])->name('event.public');
     Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
-
+    Route::post('event/send-appointment-request', [EventController::class, 'sendAppointmentRequest'])->name('event.sendAppointmentRequest');
+    Route::post('event/update-appointment-request', [EventController::class, 'updateAppointmentRequest'])->name('event.updateAppointmentRequest');
+    Route::post('event/update-user-appointment-request', [EventController::class, 'updateuserAppointmentRequest'])->name('event.updateuserAppointmentRequest');
+    Route::get('event/get-appointment-request', [EventController::class, 'getAppointmentRequest'])->name('event.getAppointmentRequest');
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');

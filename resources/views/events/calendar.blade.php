@@ -13,7 +13,17 @@
 
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Events</h2>
+        <h2 class="page-heading">
+            Events
+            <div style="float:right">
+                <select class="form-control" name="user_id" onchange="appointmentBook(this.value)">
+                    <option value="">Select</option>
+                    @foreach($users as $key => $user)
+                      <option value="{{$user['id']}}">{{$user['name']}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </h2>
     </div>
 </div>
 
@@ -139,6 +149,36 @@
 style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
 </div>
 
+<div id="appointmentRequestModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form action="#" method="POST" id="send-request-form">
+            @csrf
+
+            <div class="modal-header">
+                <h4 class="modal-title">Send Request</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="hidden" name="requested_user_id" id="requested_user_id">
+                    <input type="hidden" name="requested_time" id="requested_time">
+                    <input type="hidden" name="requested_time_end" id="requested_time_end">
+
+                    <label>Remarks:</label>
+                    <textarea name="remarks" id="requested_remarks" placeholder="Enter keyword for search" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-secondary send-ap-request">Send</button>
+            </div>
+          </form>
+        </div>
+      </div>
+</div>
+
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/timegrid/main.js') }}"></script>
@@ -151,6 +191,10 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
 <script>
     let calendar;
     document.addEventListener('DOMContentLoaded', function() {
+        loadCalender(0);
+    });
+
+    function loadCalender(user_id){
         var calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
             plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list' ],
@@ -188,6 +232,9 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
             eventSources: [{
                 url: '/event/getSchedules',
                 method: 'GET',
+                extraParams: {
+                    srchUser: user_id
+                },
                 failure: function() {
                     alert('there was an error while fetching events!');
                 }
@@ -214,6 +261,17 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
                     }
                     info.el.append(recurringIcon);
                 }
+
+                if(info.event.extendedProps.event_type == 'AV') {
+                    var recurringIcon = document.createElement('i');
+                    recurringIcon.className = 'fa fa-plus add-appointment';
+                    recurringIcon.id = 'event-id-'+info.event.extendedProps.event_id;
+                    recurringIcon.title = info.event.extendedProps.event_id
+                    recurringIcon.onclick = function() {
+                        AddAppointmentEvent(info.event);
+                    }
+                    info.el.append(recurringIcon);
+                }
             },
             eventClick: function(info) {
                 console.log(info);
@@ -223,7 +281,7 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
             },
         });
         calendar.render();
-    });
+    }
 
     function closeCreateNewEventOverlay() {
         document.getElementById('create-overlay').style = "pointer-events: none";
@@ -341,6 +399,16 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
         }
     }
 
+    function AddAppointmentEvent(event) {
+        if (confirm('Are you sure you want to add appointment?')) {
+
+            $("#appointmentRequestModal #requested_time").val(moment(event.start).format('YYYY-MM-DD HH:mm:ss'));
+            $("#appointmentRequestModal #requested_time_end").val(moment(event.end).format('YYYY-MM-DD HH:mm:ss'));
+
+            $('#appointmentRequestModal').modal('show');
+        }
+    }
+
     $("#send_to").select2({
         multiple: true,
         width: "100%"
@@ -350,6 +418,46 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
         $('input.timepicker').timepicker({}); 
         $('.event-dates').datetimepicker({
             format: 'YYYY-MM-DD'
+        });
+    });
+
+    function appointmentBook(user_id){
+        if(user_id!=''){
+            loadCalender(user_id);
+            $("#appointmentRequestModal #requested_user_id").val(user_id);
+        }
+    }
+
+    $(document).on("click", ".send-ap-request", function(href) {
+
+        $.ajax({
+            type: 'POST',
+            url: '{{route('event.sendAppointmentRequest')}}',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                requested_user_id : $('#requested_user_id').val(),
+                requested_time : $('#requested_time').val(),
+                requested_time_end : $('#requested_time_end').val(),
+                requested_remarks : $('#requested_remarks').val(),
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
         });
     });
 </script>

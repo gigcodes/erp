@@ -9857,6 +9857,92 @@ if (!\Auth::guest()) {
               }
           });
     });
+
+    function checkRecord() {
+        $.ajax({
+            url: `{{ route('event.getAppointmentRequest')}}`, // Replace with your server endpoint
+            method: 'GET',
+            success: function(responseData) {
+                if (responseData.code == 200) {
+
+                    if (responseData.result!='') {
+                        Swal.fire({
+                            title: responseData.result.user.name+' wants to connect with you in a Zoom?',
+                            text: 'Do you accept the terms?',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Accept',
+                            cancelButtonText: 'Decline'
+                        }).then((result) => {
+                            // Check if the user clicked the Accept button
+                            if (result.isConfirmed) {
+                                var requeststatus = 1;
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                var requeststatus = 2;
+                            }
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '{{route('event.updateAppointmentRequest')}}',
+                                beforeSend: function () {
+                                    $("#loading-image-modal").show();
+                                },
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    id : responseData.result.id,
+                                    request_status : requeststatus                              
+                                },
+                                dataType: "json"
+                            }).done(function (response) {
+                                $("#loading-image-modal").hide();
+                                if (response.code == 200) {
+                                    toastr['success']('You successfully accepeted request.', 'success');
+                                }
+                            }).fail(function (response) {
+                                $("#loading-image-modal").hide();
+                                toastr['error']('You successfully decline request.', 'error');
+                            });
+                        });
+                    } 
+
+                    if (responseData.result_rerquest_user!='') {
+                        Swal.fire({
+                            title: 'Hello!',
+                            text: 'You can connect with '+responseData.result_rerquest_user.userrequest.name+' in Zoom.',
+                            icon: 'info',
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            // Check if the user clicked the Okay button
+                            if (result.isConfirmed) {
+                                // Perform an AJAX call when the Okay button is clicked
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateuserAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result_rerquest_user.id,
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+            }
+        });
+    }
+
+    setInterval(checkRecord, 5000); 
     
     </script>
     @if ($message = Session::get('actSuccess'))
