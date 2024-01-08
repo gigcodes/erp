@@ -174,7 +174,24 @@
 </div>
 
 
-<button type="button" class="btn  custom-button" data-toggle="modal" data-target="#newModelColor">Model Color</button>
+<button type="button" class="btn custom-button" data-toggle="modal" data-target="#newModelColor">Model Color</button>
+<button class="btn custom-button my-3" style="color:white;" data-toggle="modal" data-target="#emailcolumnvisibilityList"> Column Visiblity</button>
+
+@php 
+    $columns_array = [
+      ['id' => 'created_at', 'name' => 'Date'],
+      ['id' => 'from', 'name' => 'Sender'],
+      ['id' => 'to', 'name' => 'Receiver'],
+      ['id' => 'model_type', 'name' => 'Model Type'],
+      ['id' => 'type', 'name' => 'Mail Type'],
+      ['id' => 'subject', 'name' => 'Subject'],
+      ['id' => 'message', 'name' => 'Body'],
+      ['id' => 'status', 'name' => 'Status'],
+      ['id' => 'is_draft', 'name' => 'Draft'],
+      ['id' => 'error_message', 'name' => 'Error Message'],
+      ['id' => 'email_category_id', 'name' => 'Category']      
+    ];
+@endphp 
 
 <a href="{{ url('email/category/mappings') }}" class="btn custom-button float-right mb-2">View Category Mappings</a>
 <div class="table-responsive mt-3" style="margin-top:20px;">
@@ -182,18 +199,18 @@
     <thead>
       <tr>
         <th width="1%">#</th>
-        <th width="6%">Date</th>
-        <th width="4%">Sender</th>
-        <th width="4%">Receiver</th>
-        <th width="4%">Model Type</th>
-        <th width="3%">Mail Type</th>
-        <th width="5%">Subject</th>
-        <th width="5%">Body</th>
+        <th width="6%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Date', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Date</th>
+        <th width="4%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Sender', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Sender</th>
+        <th width="4%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Receiver', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Receiver</th>
+        <th width="4%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Model Type', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Model Type</th>
+        <th width="3%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Mail Type', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Mail Type</th>
+        <th width="5%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Subject', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Subject</th>
+        <th width="5%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Body', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Body</th>
         {{-- <th width="14%">Body</th> --}}
-        <th width="6%">Status</th>
-        <th width="1%">Draft</th>
-        <th width="8%">Error Message</th>
-        <th width="6%">Category</th>
+        <th width="6%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Status', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Status</th>
+        <th width="1%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Draft', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Draft</th>
+        <th width="8%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Error Message', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Error Message</th>
+        <th width="6%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Category', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Category</th>
         <th width="2%">Action</th>
       </tr>
     </thead>
@@ -214,13 +231,16 @@
           </td>
         </tr>
         @endforeach -->
-      @include('emails.search')
+      @include('emails.search', ['dynamicColumnsToShowb' => $dynamicColumnsToShowb])
     </tbody>
   </table>
   <div class="pagination-custom">
     {{$emails->links()}}
   </div>
 </div>
+
+@include('emails.partials.email-column-visibility-modal', ['columns_array' => $columns_array])
+
 <div id="replyMail" class="modal fade" role="dialog">
   <div class="modal-dialog  modal-lg ">
     <div class="modal-content">
