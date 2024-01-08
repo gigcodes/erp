@@ -4552,6 +4552,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="https://erp.theluxuryunlimited.com/seo/company">Seo Company</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/affiliate-marketing/provider-accounts">Affiliates Providers Sites</a>
+                                    </li>
                                 </ul>
                             </li>
 
