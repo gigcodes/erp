@@ -1067,8 +1067,9 @@ class ProductInventoryController extends Controller
         asort($products_names);
         asort($products_sku);
         //$products_categories = \App\Product::getPruductsCategories();
-        $products_categories = Category::attr(['name' => 'product_categories[]', 'data-placeholder' => 'Select a Category', 'class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories', []))->renderAsDropdown();
+        //$products_categories = Category::attr(['name' => 'product_categories[]', 'data-placeholder' => 'Select a Category', 'class' => 'form-control select-multiple2', 'multiple' => true])->selected(request('product_categories', []))->renderAsDropdown();
 
+        $products_categories = [];
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'inventory-list')->first();
 
         $dynamicColumnsToShowPi = [];

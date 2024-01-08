@@ -78,8 +78,6 @@
 
             </div>
             <div class="form-group mr-pd col-md-2">
-                {{-- {!! $products_categories !!} --}}
-
                 <select class="form-control globalSelect2" data-placeholder="Select a Category" data-ajax="{{ route('select2.categories') }}"
                         name="product_categories[]" multiple>
                     <option value="">Select a Category</option>
