@@ -3834,6 +3834,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('python-site-log', [ScrapController::class, 'getPythonLog'])->name('get.python.log');
     Route::get('python/get-log', [ScrapController::class, 'loginstance'])->name('get.python.logapi');
 
+    Route::post('column-visbility', [ScrapStatisticsController::class, 'columnVisbilityUpdate'])->name('scrap.column.update');
     Route::get('screenshot', [ScrapStatisticsController::class, 'getScreenShot']);
     Route::get('get-last-errors', [ScrapStatisticsController::class, 'getLastErrors']);
     Route::get('log-details', [ScrapStatisticsController::class, 'logDetails'])->name('scrap.log-details');
@@ -3844,6 +3845,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('position-history', [ScrapStatisticsController::class, 'positionHistory']);
     Route::post('position-history-download', [ScrapStatisticsController::class, 'positionHistorydownload']); //Purpose : Download  Position History Route - DEVTASK-4086
     Route::get('statistics/update-field', [ScrapStatisticsController::class, 'updateField']);
+    Route::post('statistics/multiple-update-field', [ScrapStatisticsController::class, 'multipleUpdateField'])->name('scrap.multiple.update.field');
     Route::get('statistics/update-scrap-field', [ScrapStatisticsController::class, 'updateScrapperField']);
     Route::get('statistics/show-history', [ScrapStatisticsController::class, 'showHistory']);
     Route::post('statistics/update-priority', [ScrapStatisticsController::class, 'updatePriority']);

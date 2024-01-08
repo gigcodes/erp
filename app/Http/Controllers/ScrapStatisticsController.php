@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Zend\Diactoros\Response\JsonResponse;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class ScrapStatisticsController extends Controller
 {
@@ -228,7 +229,37 @@ class ScrapStatisticsController extends Controller
         $users = \App\User::all()->pluck('name', 'id')->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         // Return view
-        return view('scrap.stats', compact('allStatus', 'allStatusCounts', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization', 'scrapper_total'));
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'scrap-statistics')->first();
+
+        $dynamicColumnsToShows = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShows = json_decode($hideColumns, true);
+        }
+
+        return view('scrap.stats', compact('allStatus', 'allStatusCounts', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization', 'scrapper_total', 'dynamicColumnsToShows'));
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','scrap-statistics')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'scrap-statistics';
+            $column->column_name = json_encode($request->column_s); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'scrap-statistics';
+            $column->column_name = json_encode($request->column_s); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     /**
@@ -621,6 +652,79 @@ class ScrapStatisticsController extends Controller
         }
 
         return response()->json(['code' => 200, 'data' => $suplier]);
+    }
+
+    public function multipleUpdateField(Request $request)
+    {        
+        $fieldName = 'full_scrape';
+        $fieldValue = 1;
+
+
+        if(!empty($request->ids)){
+            foreach ($request->ids as $key => $value) {
+
+                $search = $value;
+                $remark = request()->get('remark');
+                //dd($search);
+                $suplier = \App\Scraper::where('supplier_id', $search)->first();
+
+                if (! $suplier) {
+                    $suplier = \App\Scraper::find($search);
+                }
+
+                if ($suplier) {
+                    $oldValue = $suplier->{$fieldName};
+
+                    if ($fieldName == 'scraper_made_by') {
+                        $oldValue = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : '';
+                    }
+
+                    if ($fieldName == 'parent_supplier_id') {
+                        $oldValue = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : '';
+                    }
+
+                    $suplier->{$fieldName} = $fieldValue;
+                    $suplier->save();
+
+                    $suplier = \App\Scraper::where('supplier_id', $search)->first();
+
+                    if (! $suplier) {
+                        $suplier = \App\Scraper::find($search);
+                    }
+
+                    $newValue = $fieldValue;
+
+                    if ($fieldName == 'scraper_made_by') {
+                        $newValue = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : '';
+                    }
+
+                    if ($fieldName == 'parent_supplier_id') {
+                        $newValue = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : '';
+                    }
+
+                    $remark_entry = ScrapRemark::create([
+                        'scraper_name' => $suplier->scraper_name,
+                        'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                        'user_name' => Auth::user()->name,
+                        'scrap_field' => $fieldName,
+                        'old_value' => $oldValue,
+                        'new_value' => $newValue,
+                        'scrap_id' => $suplier->id,
+                    ]);
+
+                    if (! empty($remark)) {
+                        $remark_entry = ScrapRemark::create([
+                            'scraper_name' => $suplier->scraper_name,
+                            'remark' => $remark,
+                            'user_name' => Auth::user()->name,
+                            'scrap_id' => $suplier->id,
+                        ]);
+                    }
+                }
+            }
+        }
+        
+        return response()->json(['code' => 200]);
     }
 
     public function updateScrapperField(Request $request)
