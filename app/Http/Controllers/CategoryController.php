@@ -51,7 +51,7 @@ class CategoryController extends Controller
                         }
                     ]);
                 }
-            ])->where('title', 'like', '%' . $request->filter . '%')->get();
+            ])->where('title', 'like', '%' . $request->filter . '%')->paginate(1);
             $final_cat = [];
 
             foreach ($categories as $key => $cat) {
@@ -89,7 +89,7 @@ class CategoryController extends Controller
             ])
             ->where('parent_id', 0)
             ->orderBy('title')
-            ->get();
+            ->paginate(1);
         }
 
         $old = $request->old('parent_id');
