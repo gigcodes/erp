@@ -83,6 +83,7 @@ class User extends Authenticatable implements JWTSubject
         'device_token',
         'timezone',
         'screen_name',
+        'is_online_flag',
     ];
 
     public function getIsAdminAttribute()

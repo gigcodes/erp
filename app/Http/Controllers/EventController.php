@@ -1098,4 +1098,40 @@ class EventController extends Controller
         ]);
     }
     
+    public function declineRemarks(Request $request)
+    {
+     
+        $AppointmentRequest = AppointmentRequest::where('id', $request->appointment_requests_id)->first();
+
+        if ($AppointmentRequest) {
+            $AppointmentRequest->decline_remarks = $request->get('appointment_requests_remarks', '');
+            $updatedAppointmentRequest = $AppointmentRequest->save();
+
+            if ($AppointmentRequest) {
+
+                return response()->json(["code" => 200, "data" => $AppointmentRequest, "message" => "Your remarks has been added!"]);
+            }
+        }
+    }
+
+    public function userOnlineStatusUpdate(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        $user->is_online_flag = ($request->is_online_flag=='Online')?1:0;
+        $user->save();
+
+        return response()->json(['code' => 200,'message' => 'User Status has been Updated Succeesfully!']);
+    }
+
+    public function getUserDetailsForOnline(Request $request)
+    {
+        $user = User::find($request->id);
+
+        $is_online_flag = 0;
+        if($user->isOnline()==1 && $user->is_online_flag){
+            $is_online_flag = 1;
+        }
+
+        return response()->json(['code' => 200,'is_online_flag' => $is_online_flag]);
+    }
 }

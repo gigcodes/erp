@@ -9,7 +9,7 @@ class AppointmentRequest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'requested_user_id', 'remarks', 'request_status', 'requested_time', 'is_view'];
+    protected $fillable = ['user_id', 'requested_user_id', 'remarks', 'request_status', 'requested_time', 'is_view', 'decline_remarks'];
 
     public function user()
     {

@@ -3466,6 +3466,8 @@ Route::middleware('auth')->group(function () {
     Route::get('appointment-request', [AppointmentRequestController::class, 'index'])->name('appointment-request.index');
 	Route::get('appointment-request/records', [AppointmentRequestController::class, 'records'])->name('appointment-request.records');
     Route::get('appointment-request/record-appointment-request-ajax', [AppointmentRequestController::class, 'recordAppointmentRequestAjax'])->name('appointment-request.index_ajax');
+    Route::get('appointment-request-remarks/{id}', [AppointmentRequestController::class, 'AppointmentRequestRemarks'])->name('appointment-request.remarks');
+    Route::post('appointment-decline-remarks', [EventController::class, 'declineRemarks'])->name('appointment-request.declien.remarks');
     Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
     Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
     Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
@@ -4725,6 +4727,8 @@ Route::middleware('auth')->group(function () {
     Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
     Route::post('/status/update', [EventController::class, 'statusUpdate'])->name('allevents.status.update');
+    Route::post('/useronlinestatus/update', [EventController::class, 'userOnlineStatusUpdate'])->name('useronlinestatus.status.update');
+    Route::get('user/detailsget', [EventController::class, 'getUserDetailsForOnline'])->name('getuserforonline');
 });
 
 Route::prefix('calendar/public')->group(function () {

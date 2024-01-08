@@ -19,7 +19,7 @@ class AppointmentRequestController extends Controller
     {
         $title = 'Appointment Request';
 
-        $records = AppointmentRequest::select('*')->orderBy('id', 'DESC')->get();
+        $records = AppointmentRequest::select('*')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
         $records_count = $records->count();
 
         return view(
@@ -32,7 +32,7 @@ class AppointmentRequestController extends Controller
 
     public function records(Request $request)
     {   
-        $records = AppointmentRequest::with('user', 'userrequest')->select('*')->orderBy('id', 'DESC');
+        $records = AppointmentRequest::with('user', 'userrequest')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->select('*')->orderBy('id', 'DESC');
 
         /*if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -67,7 +67,7 @@ class AppointmentRequestController extends Controller
         $page = $_REQUEST['page'];
         $page = $page * 25;
 
-        $records = AppointmentRequest::with('user', 'userrequest')->select('*')->orderBy('id', 'DESC')->offset($page)->limit(25);
+        $records = AppointmentRequest::with('user', 'userrequest')->where('user_id', Auth::user()->id)->orWhere('requested_user_id', Auth::user()->id)->select('*')->orderBy('id', 'DESC')->offset($page)->limit(25);
 
         /*if ($keyword = request('keyword')) {
             $records = $records->where(
@@ -88,8 +88,6 @@ class AppointmentRequestController extends Controller
 
         $records;
 
-        // return response()->json(['code' => 200, 'data' => $records, 'total' => count($records)]);
-
         return view(
             'appointment-request.index-ajax', [
                 'title' => $title,
@@ -97,5 +95,17 @@ class AppointmentRequestController extends Controller
                 'total' => count($records),
             ]
         );
+    }
+
+    public function AppointmentRequestRemarks($id)
+    {   
+        $AppointmentRequest = AppointmentRequest::findorFail($id);
+
+        return response()->json([
+            'status' => true,
+            'data' => $AppointmentRequest,
+            'message' => 'Data get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

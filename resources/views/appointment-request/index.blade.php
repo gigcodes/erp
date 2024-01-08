@@ -9,7 +9,7 @@
 			<h2 class="page-heading">{{$title}} <span>({{$records_count}})</span></h2>
 		</div>
 		<br>
-		<div class="col-lg-12 margin-tb">
+		<!-- <div class="col-lg-12 margin-tb">
 			<div class="col col-md-4">
 
 				<form class="form-inline message-search-handler" method="get">
@@ -27,7 +27,7 @@
 					</div>
 				</form>
 			</div>
-		</div>
+		</div> -->
 		<div class="col-lg-12 margin-tb">
 			<div class="row">
 				<div class="col-md-12">
@@ -42,6 +42,44 @@
 	</div>
 	<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
+	</div>
+
+	<div id="requested-remarks-list" class="modal fade" role="dialog">
+	    <div class="modal-dialog modal-xl">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Appointment Requested Remarks</h4>
+	                <button type="button" class="close" data-dismiss="modal">×</button>
+	            </div>
+	            <div class="modal-body">
+	                <div class="col-md-12">
+	                    <div class="requested-remarks-view"></div>
+	                </div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
+	<div id="requested-decline_remarks-list" class="modal fade" role="dialog">
+	    <div class="modal-dialog modal-xl">
+	        <div class="modal-content">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Appointment Decline Remarks</h4>
+	                <button type="button" class="close" data-dismiss="modal">×</button>
+	            </div>
+	            <div class="modal-body">
+	                <div class="col-md-12">
+	                    <div class="requested-decline_remarks-view"></div>
+	                </div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+	        </div>
+	    </div>
 	</div>
 
 	@include("appointment-request.templates.list-template")
@@ -207,5 +245,31 @@
 	            }
 	        });
 	    });
+
+	    $(document).on('click','.requested-remarks-view',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('appointment-request.remarks', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+                    $("#requested-remarks-list").find(".requested-remarks-view").html(response.data.remarks);
+                    $("#requested-remarks-list").modal("show");
+	            }
+	        });
+		});
+
+		$(document).on('click','.decline_remarks-view',function(){
+	        id = $(this).data('id');
+			$.ajax({
+	            method: "GET",
+	            url: `{{ route('appointment-request.remarks', [""]) }}/` + id,
+	            dataType: "json",
+	            success: function(response) {
+                    $("#requested-decline_remarks-list").find(".requested-decline_remarks-view").html(response.data.decline_remarks);
+                    $("#requested-decline_remarks-list").modal("show");
+	            }
+	        });
+		});
 	</script>
 @endsection

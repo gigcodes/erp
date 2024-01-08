@@ -424,6 +424,40 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
     function appointmentBook(user_id){
         if(user_id!=''){
             loadCalender(user_id);
+
+            $.ajax({
+                type: "GET",
+                data: {
+                    id: user_id
+                },
+                url: "{{ route('getuserforonline') }}"
+            }).done(function(data) {
+                if(data.is_online_flag==1){
+                    Swal.fire({
+                        title: 'You wants to direct appointment?',
+                        text: '',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No'
+                    }).then((result) => {
+                        // Check if the user clicked the Accept button
+                        if (result.isConfirmed) {
+
+                            var currentDate = moment(); // Current date and time                              
+                            var dateAfterOneHour = moment(currentDate).add(1, 'hours');
+
+                            $("#appointmentRequestModal #requested_time").val(moment(currentDate).format('YYYY-MM-DD HH:mm:ss'));
+                            $("#appointmentRequestModal #requested_time_end").val(moment(dateAfterOneHour).format('YYYY-MM-DD HH:mm:ss'));
+
+                            $('#appointmentRequestModal').modal('show');
+                        } 
+                    });
+                } 
+            }).fail(function(data) {
+                
+            });
+
             $("#appointmentRequestModal #requested_user_id").val(user_id);
         }
     }
