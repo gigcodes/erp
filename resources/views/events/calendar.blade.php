@@ -167,7 +167,7 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
                     <input type="hidden" name="requested_time_end" id="requested_time_end">
 
                     <label>Remarks:</label>
-                    <textarea name="remarks" id="requested_remarks" placeholder="Enter keyword for search" class="form-control"></textarea>
+                    <textarea name="remarks" id="requested_remarks" placeholder="Enter remarks" class="form-control"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
@@ -436,7 +436,6 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
                     Swal.fire({
                         title: 'Do You wish to connect now with '+data.name,
                         text: '',
-                        icon: 'question',
                         showCancelButton: true,
                         confirmButtonText: 'Yes',
                         cancelButtonText: 'No'
