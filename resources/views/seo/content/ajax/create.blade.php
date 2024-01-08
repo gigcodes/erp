@@ -14,7 +14,7 @@ $auth = auth()->user();
         <div class="">
             <form action="{{ route('seo.content.store')}}" method="POST" id="seoForm" autocomplete="off"> @csrf
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Select Website </label>
                             <select name="website_id" class="form-control" required data-msg-required="Please select website.">
@@ -25,10 +25,98 @@ $auth = auth()->user();
                             </select>
                         </div>
                     </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Word count</label>
+                            <input type="number" name="word_count" class="form-control" required data-msg-required="Please enter word count.">
+                        </div>
+                    </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Suggestion</label>
+                            <input type="text" name="suggestion" class="form-control" required data-msg-required="Please enter suggestion.">
+                        </div>
+                    </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">User</label>
+                            <select name="user_id" class="form-control" required data-msg-required="Please select user.">
+                                <option value="">-- Select --</option>
+                                @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row mt-3">
-                    <section class="keywordSec col-7">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" class="form-control" required data-msg-required="Please enter price.">
+                        </div>
+                    </div>
+                    @if($auth->hasRole([config('site.role.admin')]))
+                    <div class="col-md-3">
+                        <div class="form-check form-check-inline mt-4">
+                            <input class="form-check-input" type="checkbox" name="is_price_approved" id="priceApprove" value="1">
+                            <label class="form-check-label" for="priceApprove">Approve</label>
+                        </div>
+                    </div>
+                    @endif
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Document link</label>
+                            <input type="text" name="google_doc_link" class="form-control" required data-msg-required="Please enter document link.">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Seo Status</label>
+                            <select name="seo_process_status_id" class="form-control" required data-msg-required="Please select seo status.">
+                                <option value="">-- Select --</option>
+                                @foreach ($seoProcessStatus as $item)
+                                    @if($item->type == 'seo_approval')
+                                        <option value="{{ $item->id }}">{{ $item->label }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Live status link</label>
+                            <input type="text" name="live_status_link" class="form-control" required data-msg-required="Please enter live status link.">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Publish date</label>
+                            <input type="datetime-local" name="published_at" class="form-control" required data-msg-required="Please select publish date.">
+                        </div>
+                    </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="planned">Planned</option>
+                                <option value="admin_approve">Admin approve</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <section class="keywordSec col-12">
                         <div class="col-12 mb-1">
                             <div class="row">
                                 <label class="form-label">Keywords <button type="button" class="badge btn addKeywordBtn"><i class="fa fa-plus" aria-hidden="true"></i>
@@ -53,85 +141,6 @@ $auth = auth()->user();
                             </div>
                         </div>
                     </section>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Word count</label>
-                        <input type="number" name="word_count" class="form-control" required data-msg-required="Please enter word count.">
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Suggestion</label>
-                        <input type="text" name="suggestion" class="form-control" required data-msg-required="Please enter suggestion.">
-                    </div>
-                </div> 
-
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">User</label>
-                        <select name="user_id" class="form-control" required data-msg-required="Please select user.">
-                            <option value="">-- Select --</option>
-                            @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Price</label>
-                        <input type="number" name="price" class="form-control" required data-msg-required="Please enter price.">
-                    </div>
-                    @if($auth->hasRole([config('site.role.admin')]))
-                    <div class="col-md-2">
-                        <div class="form-check form-check-inline mt-4">
-                            <input class="form-check-input" type="checkbox" name="is_price_approved" id="priceApprove" value="1">
-                            <label class="form-check-label" for="priceApprove">Approve</label>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Document link</label>
-                        <input type="text" name="google_doc_link" class="form-control" required data-msg-required="Please enter document link.">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Seo Status</label>
-                        <select name="seo_process_status_id" class="form-control" required data-msg-required="Please select seo status.">
-                            <option value="">-- Select --</option>
-                            @foreach ($seoProcessStatus as $item)
-                                @if($item->type == 'seo_approval')
-                                    <option value="{{ $item->id }}">{{ $item->label }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Live status link</label>
-                        <input type="text" name="live_status_link" class="form-control" required data-msg-required="Please enter live status link.">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Publish date</label>
-                        <input type="datetime-local" name="published_at" class="form-control" required data-msg-required="Please select publish date.">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-control">
-                            <option value="planned">Planned</option>
-                            <option value="admin_approve">Admin approve</option>
-                        </select>
-                    </div>
                 </div>
             </form>
         </div>

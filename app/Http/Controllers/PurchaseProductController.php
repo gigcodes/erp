@@ -40,6 +40,10 @@ use App\PurchaseProductOrderExcelFile;
 use App\PurchaseProductOrderExcelFileVersion;
 use App\Models\DataTableColumn;
 
+use App\Models\OrderPurchaseProductStatus;
+use App\Models\OrderPurchaseProductStatusHistory;
+use App\Models\PurchaseProductOrderStatus;
+
 class PurchaseProductController extends Controller
 {
     /**
@@ -213,7 +217,7 @@ class PurchaseProductController extends Controller
         $totalOrders = count($orders->get());
         $orders_array = $orders->paginate(10);
 
-        $inventory_status = InventoryStatus::get();
+        $inventory_status = OrderPurchaseProductStatus::get();
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchase-product')->first();
 
@@ -226,6 +230,7 @@ class PurchaseProductController extends Controller
         $inventoryStatusQuery = InventoryStatus::query();
         $inventoryStatus = $inventoryStatusQuery->pluck('name', 'id');
         //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
+
         return view('purchase-product.index', compact('orders_array', 'users', 'orderby',
             'order_status_list', 'order_status', 'date', 'statusFilterList', 'brandList', 'registerSiteList', 'store_site', 'totalOrders', 'inventoryStatus', 'product_suppliers_list', 'filter_supplier', 'filter_customer', 'filter_product', 'filter_selling_price', 'filter_order_date', 'filter_date_of_delivery', 'filter_inventory_status_id', 'inventory_status', 'dynamicColumnsToShowPp'));
     }
@@ -253,13 +258,22 @@ class PurchaseProductController extends Controller
 
     public function statuscolor(Request $request)
     {
+
         $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = OrderPurchaseProductStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        /*$status_color = $request->all();
         $data = $request->except('_token');
         foreach ($status_color['color_name'] as $key => $value) {
             $bugstatus = InventoryStatus::find($key);
             $bugstatus->status_color = $value;
             $bugstatus->save();
-        }
+        }*/
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
     }
@@ -664,7 +678,18 @@ class PurchaseProductController extends Controller
 
     public function createStatus(Request $request)
     {
-        $inventory_status = InventoryStatus::where('name', $request->status)->first();
+        $OrderPurchaseProductStatus = OrderPurchaseProductStatus::where('status_name', $request->status)->first();
+        if (! $OrderPurchaseProductStatus) {
+            $OrderPurchaseProductStatus = new OrderPurchaseProductStatus;
+            $OrderPurchaseProductStatus->status_name = $request->status;
+            $OrderPurchaseProductStatus->save();
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        } else {
+            return response()->json(['message' => 'Already exist', 'code' => 500]);
+        }
+
+        /*$inventory_status = InventoryStatus::where('name', $request->status)->first();
         if (! $inventory_status) {
             $inventory_status = new InventoryStatus;
             $inventory_status->name = $request->status;
@@ -673,7 +698,7 @@ class PurchaseProductController extends Controller
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         } else {
             return response()->json(['message' => 'Already exist', 'code' => 500]);
-        }
+        }*/
     }
 
     public function changeStatus($id, Request $request)
@@ -681,6 +706,26 @@ class PurchaseProductController extends Controller
         $order_product = OrderProduct::find($id);
         if ($request->status && $order_product) {
             $order_product->update(['inventory_status_id' => $request->status]);
+
+            return response()->json(['message' => 'Successfull', 'code' => 200]);
+        }
+
+        return response()->json(['message' => 'Status not changed', 'code' => 500]);
+    }
+
+    public function changeMainStatus($id, Request $request)
+    {
+        $orders = Order::find($id);
+        if ($request->status && $orders) {
+
+            $history = new OrderPurchaseProductStatusHistory();
+            $history->order_id = $id;
+            $history->old_value = $orders->purchase_product_status_id;
+            $history->new_value = $request->status;
+            $history->user_id = Auth::user()->id;
+            $history->save();
+
+            $orders->update(['purchase_product_status_id' => $request->status]);
 
             return response()->json(['message' => 'Successfull', 'code' => 200]);
         }
@@ -745,14 +790,58 @@ class PurchaseProductController extends Controller
                 $suppliers_all = Supplier::where('id', $request->supplier_id)->first();
             }
 
+            if ($request->status && $request->status !="all") {
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.status', $request->status);
+            }
+
+            if ($request->filter_purchase_status && $request->filter_purchase_status !="all") {
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.purchase_status_id', $request->filter_purchase_status);
+            }
+
+            // date range filter on created_at date
+            if ($request->filter_start_date && $request->filter_start_date !="" &&
+                $request->filter_end_date && $request->filter_end_date !="" ) {
+                $purchar_product_order = $purchar_product_order->whereBetween('purchase_product_orders.created_at', [$request->filter_start_date, $request->filter_end_date]);                
+            }elseif($request->filter_start_date && $request->filter_start_date !="" && 
+                    (!$request->filter_end_date || $request->filter_end_date =="")){
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.created_at', '>=', $request->filter_start_date);                                
+            }elseif($request->filter_end_date && $request->filter_end_date !="" && 
+                    (!$request->filter_start_date || $request->filter_end_date =="")){
+                $purchar_product_order = $purchar_product_order->where('purchase_product_orders.created_at', '<=', $request->filter_end_date);                                
+            }
+                
+
             $purchar_product_order = $purchar_product_order->select('purchase_product_orders.*', 'purchase_product_orders.status as purchase_status', 'suppliers.*', 'suppliers.id as supplier_id', 'purchase_product_orders.id as pur_pro_id', 'purchase_product_orders.created_at as created_at_date');
             $purchar_product_order = $purchar_product_order->orderBy('purchase_product_orders.id', 'DESC')->paginate(Setting::get('pagination'));
 
             $purchaseStatuses = PurchaseStatus::pluck('name', 'id')->all();
 
-            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses'));
+            $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'purchaseproductorders-listing')->first();
+
+            $dynamicColumnsToShowPurchaseproductorders = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowPurchaseproductorders = json_decode($hideColumns, true);
+            }
+
+            $status = PurchaseProductOrderStatus::all();
+
+            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses', 'dynamicColumnsToShowPurchaseproductorders', 'status'));
         } catch (\Exception $e) {
         }
+    }
+
+    public function statuscolorpp(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = PurchaseProductOrderStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function purchaseproductorders_update(Request $request)
@@ -1771,4 +1860,41 @@ class PurchaseProductController extends Controller
         ]);
     }
     //END - DEVTASK-19941
+
+    //#DEVTASK-24127 - S
+    public function purchaseproductordersColumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','purchaseproductorders-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'purchaseproductorders-listing'; //table : purchase_product_orders
+            $column->column_name = json_encode($request->column_purchaseproductorders); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'purchaseproductorders-listing';
+            $column->column_name = json_encode($request->column_purchaseproductorders); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'Column visiblity added Successfully!');
+    }
+    //#DEVTASK-24127 - E
+    public function getStatusHistories(Request $request)
+    {
+        $datas = OrderPurchaseProductStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('order_id', $request->id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
 }

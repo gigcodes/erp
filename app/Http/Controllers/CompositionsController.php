@@ -88,6 +88,37 @@ class CompositionsController extends Controller
     }
 
     /**
+     * Display a listing approve of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function compositionsGroups(Request $request)
+    {
+        $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with')->toArray();
+        return view('compositions.listing', compact('listcompostions'));
+    }
+
+    public function compositionsGroupBy(Request $request, $threshold){
+
+        //$threshold = 0.9; // Adjust this threshold as needed
+        $name = $request->search;
+        $compositions = Compositions::withCount('productCounts')->where('replace_with', '')->get()->filter(function ($composition) use ($name, $threshold) {
+            similar_text(strtolower($composition->name), strtolower($name), $percentage);
+
+            return $percentage >= $threshold * 100;
+        });
+        $listcompostions = Compositions::where('replace_with', '!=', '')->groupBy('replace_with')->pluck('replace_with', 'replace_with')->toArray();
+
+   
+        return view('compositions.update', compact('compositions', 'listcompostions'));
+    }
+
+    public function deleteComposition(Request $request){
+        Compositions::where('replace_with', $request->name)->update(['replace_with' => '']);
+        return true;
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -277,7 +308,7 @@ class CompositionsController extends Controller
     {
         $from = $request->from;
         $to = $request->to;
-
+        $userId = \Auth::user()->id;
         if (! empty($from) && is_array($from)) {
             foreach ($from as $f) {
                 $c = Compositions::find($f);

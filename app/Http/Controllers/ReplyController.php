@@ -83,7 +83,7 @@ class ReplyController extends Controller
 
         $data = $request->except('_token', '_method');
 
-        if(!empty($data['sub_category_id'])){
+        if(!empty($request->sub_category_id) && $request->sub_category_id!='undefined'){
             $data['category_id'] = $data['sub_category_id'];    
         }
         $data['reply'] = trim($data['reply']);
@@ -506,6 +506,31 @@ class ReplyController extends Controller
         $ids = [];
         $translate_text = [];
 
+        $StatusResults = \App\TranslateReplies::select('translate_to', 'status', DB::raw('COUNT(*) as count'))->groupBy('translate_to', 'status')->orderby('translate_to','ASC')->get();
+
+        $StatusArray = [];
+        if(!empty($StatusResults)){
+            foreach ($StatusResults as $key => $value) {
+                $StatusArray[$value->translate_to]['language'] = $value->translate_to;
+               
+                if($value->status == 'approved'){
+                    $StatusArray[$value->translate_to]['approve'] = $value->count;
+                }
+
+                if($value->status == 'rejected'){
+                    $StatusArray[$value->translate_to]['rejected'] = $value->count;
+                }
+
+                if($value->status == 'new'){
+                    $StatusArray[$value->translate_to]['new'] = $value->count;
+                }
+
+                if($value->status === null){
+                    $StatusArray[$value->translate_to]['uncheck'] = $value->count;
+                }                
+            }
+        }
+
         $getLangs = \App\TranslateReplies::distinct('translate_to')->pluck('translate_to');
 
         if ($storeWebsite > 0 && !empty($language)) {
@@ -588,7 +613,7 @@ class ReplyController extends Controller
 
         $replyTranslatorStatuses = ReplyTranslatorStatus::all();
 
-        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs', 'totalItems', 'itemsPerPage', 'currentPage', 'totalPages'))->with('i', ($request->input('page', 1) - 1) * 25);
+        return view('reply.translate-list', compact('replies', 'lang', 'replyTranslatorStatuses', 'getLangs', 'totalItems', 'itemsPerPage', 'currentPage', 'totalPages', 'StatusArray'))->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
     public function quickRepliesPermissions(Request $request)

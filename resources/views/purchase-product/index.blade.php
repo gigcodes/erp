@@ -192,6 +192,9 @@
                                 @if (!in_array('Inv Status', $dynamicColumnsToShowPp))
                                     <th style="width: 8%">Inv Status</th>
                                 @endif
+                                @if (!in_array('Status', $dynamicColumnsToShowPp))
+                                    <th style="width: 8%">Status</th>
+                                @endif
                                 @if (!in_array('Action', $dynamicColumnsToShowPp))
                                     <th width="5%">Action</th>
                                 @endif
@@ -207,6 +210,7 @@
                                 <th width="8%">Order Date</th>
                                 <th width="8%">Del Date</th>
                                 <th style="width: 8%">Inv Status</th>
+                                <th style="width: 8%">Status</th>
                                 <th width="5%">Action</th>
                             @endif
                         </tr>
@@ -222,7 +226,7 @@
                             @endphp
 
                             @php
-                                $status_color = \App\InventoryStatus::where('id',$order->inventory_status_id)->first();
+                                $status_color = \App\Models\OrderPurchaseProductStatus::where('id',$order->purchase_product_status_id)->first();
                                 if ($status_color == null) {
                                     $status_color = new stdClass();
                                 }
@@ -342,6 +346,21 @@
                                     </td>
                                     @endif
 
+                                    @if (!in_array('Status', $dynamicColumnsToShowPp))
+                                    <td>
+                                        <div class="flex justify-left items-center">
+                                            <select name="purchase_product_status_id" id="" class="form-control change-status" data-id="{{$order->id}}">
+                                                <option value="">Select Status</option>
+                                                @foreach($inventory_status as $statuss)
+                                                    <option value="{{$status->id}}" {{$statuss->id==$order->purchase_product_status_id ? 'selected' : ''}}>{{$statuss->status_name}}</option>
+                                                @endforeach
+                                            </select>
+
+                                            <button type="button" data-id="{{$order->id}}" class="btn btn-image status-history-show p-0 mr-2 pull-right" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                        </div>
+                                    </td>
+                                    @endif
+
                                     @if (!in_array('Action', $dynamicColumnsToShowPp))
                                     <td>{{-- $order->balance_amount --}}
                                         @if ($order_product && $order_product->product)
@@ -452,6 +471,19 @@
                                             @endforeach
                                         </select>
                                     </td>
+
+                                    <td>
+                                        <div class="flex justify-left items-center">
+                                            <select name="purchase_product_status_id" id="" class="form-control change-status" data-id="{{$order->id}}">
+                                                <option value="">Select Status</option>
+                                                @foreach($inventory_status as $statuss)
+                                                    <option value="{{$statuss->id}}" {{$statuss->id==$order->purchase_product_status_id ? 'selected' : ''}}>{{$statuss->status_name}}</option>
+                                                @endforeach
+                                            </select>
+
+                                            <button type="button" data-id="{{$order->id}}" class="btn btn-image status-history-show p-0 mr-2 pull-right" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                        </div>
+                                    </td>
                                     <td>{{-- $order->balance_amount --}}
                                         @if ($order_product && $order_product->product)
                                             <i title="Add Supplier for this product" class="fa fa-user-plus add_supplier" aria-hidden="true" data-product_id="{{$order_product->product->id}}" data-product_name="{{$order_product->product->name}}"></i>
@@ -521,6 +553,36 @@
 </div>
 </div>
 
+<div id="purchase-product-status-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Status Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Old Status</th>
+                                    <th width="30%">New Status</th>
+                                    <th width="20%">Updated BY</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="purchase-product-status-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <!-- Add Supplier for Product -->
 <div class="modal fade" id="add_supplier_for_product" tabindex="-1" role="dialog" aria-hidden="true">
@@ -620,7 +682,7 @@
                         <?php
                         foreach ($inventory_status as $status_data) { ?>
                         <tr>
-                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->name; ?></td>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->status_name; ?></td>
                             <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
                             <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
                         </tr>
@@ -790,6 +852,36 @@ $(document).on('click', '.view-details', function(e) {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
               },
           url: '/purchase-product/change-status/'+order_product_id,
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            status:status
+          },
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                    toastr["success"](response.message, "Message");
+                  }
+                  else {
+                    toastr["error"](response.message, "Message");
+                  }
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('change', '.change-status', function(e) {
+      e.preventDefault();
+      var order_product_id = $(this).data('id');
+      var status =  $(this).val();
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+          url: '/purchase-product/change-main-status/'+order_product_id,
           type: 'POST',
           dataType: 'json',
           data: {
@@ -1368,5 +1460,37 @@ $(document).on('click', '.view-details', function(e) {
         });
     });
     //END - DEVTASK-19941
+
+    $(document).on('click', '.status-history-show', function() {
+        var id = $(this).attr('data-id');
+        $.ajax({
+            url: "{{route('purchase-product.getstatus')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'id' :id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                            <td> ${k + 1} </td>
+                            <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                            <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                            <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                            <td> ${v.created_at} </td>
+                        </tr>`;
+                    });
+                    $("#purchase-product-status-histories-list").find(".purchase-product-status-histories-list-view").html(html);
+                    $("#purchase-product-status-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
   </script>
 @endsection
