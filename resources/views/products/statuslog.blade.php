@@ -624,7 +624,11 @@
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-bordered">                            
+                    <table class="table table-bordered">     
+                        <thead>
+                            <th>Supplier Name</th>
+                            <th>Action</th>
+                        </thead>                       
                         <tbody class="product-supplier-list-view">
                         </tbody>
                     </table>
@@ -635,6 +639,20 @@
             </div>
         </div>
     </div>
+
+    <div id="show-content-model-table" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                       
+                    </div>
+                </div>
+            </div>
+      </div>
 @endsection
 
 @include("products.partials.column-visibility-modal")
@@ -663,12 +681,13 @@
                 success: function(response) {
                     if (response.status) {
                         var html = "";
-                        html += `<tr>
+                        /*html += `<tr>
                                 <td> ${response.supplier} </td>
-                            </tr>`;
+                            </tr>`;*/
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${v.supplier} </td>
+                                        <td> <button data-id="`+v.supplier_id+`" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list"><i class="fa fa-tasks"></i></button> </td>
                                     </tr>`;
                         });
                         $("#product-supplier-list").find(".product-supplier-list-view").html(html);
@@ -677,6 +696,28 @@
                         toastr["error"](response.error, "Message");
                     }
                 }
+            });
+        });
+
+        $(document).on("click",".get-tasks-remote",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '{{ route("scrap.task-list")}}',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
             });
         });
     </script>
