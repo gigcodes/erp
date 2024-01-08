@@ -191,8 +191,8 @@
         @endif
 
 
-        <div class="infinite-scroll">
-            {{-- {!! $categories->appends(request()->query())->links() !!} --}}
+        <div class="infinite-scroll-new">
+            {!! $categories->appends(request()->query())->links() !!}
             <div class="table-responsive">
                 <table class="table table-bordered" style="table-layout:fixed;">
                     <thead>
@@ -1381,22 +1381,22 @@
             });
         });
 
-        $('ul.pagination').hide();
-        $(function() {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function() {
+        //$('ul.pagination').hide();
+        // $(function() {
+        //     $('.infinite-scroll').jscroll({
+        //         autoTrigger: true,
+        //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        //         padding: 2500,
+        //         nextSelector: '.pagination li.active + li a',
+        //         contentSelector: 'div.infinite-scroll',
+        //         callback: function() {
 
-                    $('ul.pagination').remove();
-                    $(".select-multiple").select2();
-                    initialize_select2();
-                }
-            });
-        });
+        //             $('ul.pagination').remove();
+        //             $(".select-multiple").select2();
+        //             initialize_select2();
+        //         }
+        //     });
+        // });
 
         $(document).on('click', '.show-sub-category', function(e) {
             var subCat = $(this).data('name');
