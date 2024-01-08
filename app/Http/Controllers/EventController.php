@@ -39,7 +39,15 @@ class EventController extends Controller
     {
         //$users = User::where('id','!=', Auth::user()->id)->get()->toArray();
 
-        $users = User::get()->toArray();
+        $user = Auth::user();
+        $admin = $user->isAdmin();
+
+        if($admin){
+            $users = User::where('id', '!=', Auth::user()->id)->get()->toArray();
+        } else {
+            $users = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
+            ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();    
+        }
 
         return view(
             'events.calendar', compact('users'),
