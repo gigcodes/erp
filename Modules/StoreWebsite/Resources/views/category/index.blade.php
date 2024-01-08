@@ -13,6 +13,12 @@
 	}
 </style>
 
+@php 
+$columns_array = [
+	['id' => 'id', 'name' => 'ID'],
+	['id' => 'category_id', 'name' => 'Category'],
+];
+@endphp 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
@@ -62,8 +68,15 @@
 				  		</form>
 					</div>
 		    	</div>
-		    </div>
+		    </div>			
 		</div>	
+		<div class="row">
+			<div class="col-md-12 ml-4">
+			  <ul class="nav nav-tabs">
+				  <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#appsalescolumnvisibilityList"> Column Visiblity</button></li>
+			  </ul>
+			</div>
+		  </div>
 		<div class="row">
 			<div class="col-md-12">
 				<div class="alert alert-success" id="alert-msg" style="display: none;">
@@ -76,18 +89,21 @@
 				<table class="table table-bordered">
 				    <thead>
 				      <tr>
-				      	<th>Id</th>
-				        <th>Category</th>
-				        <?php foreach($storeWebsite as $sw) { ?>
-				        	<th class="Website-task" title="<?php echo $sw->title; ?>"><?php echo $sw->title; ?></th>
+						
+				      	<th class=" {{ (!empty($dynamicColumnsToShowb) && in_array('ID', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Id</th>
+				        <th class=" {{ (!empty($dynamicColumnsToShowb) && in_array('Category', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">Category</th>
+				        <?php foreach($storeWebsite as $sw) { 
+							$columns_array[] = ['id' => $sw->title, 'name' => $sw->title];
+						?>
+				        	<th class="Website-task {{ (!empty($dynamicColumnsToShowb) && in_array($sw->title, $dynamicColumnsToShowb)) ? 'd-none' : ''}}" title="<?php echo $sw->title; ?>"><?php echo $sw->title; ?></th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
 				    <tbody>
 				    	<?php foreach($categories as $category) { ?>
  					      <tr>
-					      	<td><?php echo $category->id; ?></td>
-					      	<td class="Website-task"><?php echo $category->title; ?>
+					      	<td class="{{ (!empty($dynamicColumnsToShowb) && in_array('ID', $dynamicColumnsToShowb)) ? 'd-none' : ''}}"><?php echo $category->id; ?></td>
+					      	<td class="Website-task {{ (!empty($dynamicColumnsToShowb) && in_array('Category', $dynamicColumnsToShowb)) ? 'd-none' : ''}}"><?php echo $category->title; ?>
 								<span href="javascript:void(0);" class="checkinglog" data-id="{{ $category->id }}" >
 									<i class="fa fa-history"></i></span>
 							</td>
@@ -106,7 +122,7 @@
 									  @endphp
 								  @endif
 							  @endif
-							<td>
+							<td class="{{ (!empty($dynamicColumnsToShowb) && in_array($sw->title, $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
 								<div class=" d-flex w-100 custom-checkbox">
 									<input data-category="{{ $category->id }}" data-sw="{{ $sw->id }}" <?php echo $checked; ?> class="push-category " type="checkbox" name="category_website">
 									<label class="d-flex">
@@ -132,6 +148,8 @@
   	<div class="modal-dialog" role="document">
   	</div>	
 </div>
+
+@include('storewebsite::category.partials.store-website-category-column-visibility-modal', ['columns_array' => $columns_array])
 
 <div id="category-history-modal" class="modal fade" role="dialog">
   	<div class="modal-dialog modal-lg">

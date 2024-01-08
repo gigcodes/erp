@@ -4605,6 +4605,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/appointment-request">Appointment Request</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/affiliate-marketing/provider-accounts">Affiliates Providers Sites</a>
+                                    </li>
                                 </ul>
                             </li>
 

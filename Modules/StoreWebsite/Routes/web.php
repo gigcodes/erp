@@ -236,6 +236,8 @@ Route::group([
 
     Route::group(['prefix' => 'category'], function () {
         Route::get('/', [CategoryController::class, 'list'])->name('store-website.category.list');
+        Route::post('/column-visibility-update-app-sales', [CategoryController::class, 'columnVisibilityUpdateStoreWebsiteCategory'])->name('store-website.category.column.update');
+    // columnVisbilityUpdate
         Route::post('category-history', [CategoryController::class, 'categoryHistory'])->name('store-website.category,categoryHistory');
         Route::post('website-category-user-history', [CategoryController::class, 'webiteCategoryUserHistory'])->name('store-website.category,webiteCategoryUserHistory');
         Route::post('save/store/category', [CategoryController::class, 'saveStoreCategory'])->name('store-website.save.store.category');
