@@ -39,7 +39,19 @@ class CategoryController extends Controller
         $selected_value = $request->filter;
 
         if (isset($request->filter)) {
-            $categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('title', 'like', '%' . $request->filter . '%')->get();
+            $categories = Category::with([
+                'childsOrderByTitle' => function ($query) {
+                    $query->with([
+                        'childsOrderByTitle' => function ($query) {
+                            $query->with([
+                                'childsOrderByTitle' => function ($query) {
+                                    $query->with('childsOrderByTitle'); // Add more levels as needed
+                                }
+                            ]);
+                        }
+                    ]);
+                }
+            ])->where('title', 'like', '%' . $request->filter . '%')->get();
             $final_cat = [];
 
             foreach ($categories as $key => $cat) {
@@ -60,8 +72,24 @@ class CategoryController extends Controller
             $categories = $final_cat;
         } else {
             // $categories        = Category::with(['parentC.parentC'])->orderBy('created_at', 'DESC');
-            $categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id', 0)->orderBy('title');
-            $categories = $categories->get();
+            //$categories = Category::with('childsOrderByTitle.childsOrderByTitle.childsOrderByTitle.childsOrderByTitle')->where('parent_id', 0)->orderBy('title');
+
+            $categories = Category::with([
+                'childsOrderByTitle' => function ($query) {
+                    $query->with([
+                        'childsOrderByTitle' => function ($query) {
+                            $query->with([
+                                'childsOrderByTitle' => function ($query) {
+                                    $query->with('childsOrderByTitle'); // Add more levels as needed
+                                }
+                            ]);
+                        }
+                    ]);
+                }
+            ])
+            ->where('parent_id', 0)
+            ->orderBy('title')
+            ->get();
         }
 
         $old = $request->old('parent_id');
