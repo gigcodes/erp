@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-
+use App\User;
 use App\UserLoginIp;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -100,6 +100,10 @@ class LoginController extends Controller
                     }
                 }
             }
+
+            $userData = User::find($user->id);  
+            $userData->is_online_flag = 1;
+            $userData->save();              
 
             return $this->sendLoginResponse($request);
         }
