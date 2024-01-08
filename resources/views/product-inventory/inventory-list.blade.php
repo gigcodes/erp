@@ -71,22 +71,20 @@
 
                     @if ($selected_brand)
                         @foreach($selected_brand as $brand)
-                            <option value="{{ $brand->id }}" selected>{{ $brand->name }}</option>
+                            <option value="{{ $brand->id }}" @if(in_array($brand->id, request()->get('brand_names', []))) selected @endif>{{ $brand->name }}</option>
                         @endforeach
                     @endif
                 </select>
 
             </div>
             <div class="form-group mr-pd col-md-2">
-                {{-- {!! $products_categories !!} --}}
-
                 <select class="form-control globalSelect2" data-placeholder="Select a Category" data-ajax="{{ route('select2.categories') }}"
                         name="product_categories[]" multiple>
                     <option value="">Select a Category</option>
 
                     @if ($selected_categories)
                         @foreach($selected_categories as $category   )
-                            <option value="{{ $category->id }}" selected>{{ $category->title }}</option>
+                            <option value="{{ $category->id }}" @if(in_array($category->id, request()->get('product_categories', []))) selected @endif>{{ $category->title }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -104,7 +102,7 @@
 
                     @if ($selected_supplier)
                         @foreach($selected_supplier as $supplier )
-                            <option value="{{ $supplier->id }}" selected>{{ $supplier->supplier }}</option>
+                            <option value="{{ $supplier->id }}" @if(in_array($supplier->id, request()->get('supplier', []))) selected @endif>{{ $supplier->supplier }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -165,6 +163,7 @@
         </div>
         <div class="col-md-6 d-flex justify-content-end">
             <div class="form-group mr-pd d-flex align-items-center">
+                <button type="button" class="btn btn-secondary mr-3 custom-button" data-toggle="modal" data-target="#pidatatablecolumnvisibilityList">Column Visiblity</button>
                 <button type="button" class="btn btn-secondary btn-change-status mr-3 custom-button">Change status</button>
                 <button type="button" class="btn btn-secondary btn-change-status-all mr-3 custom-button">Change status all</button>
                 <button type="button" data-toggle="modal" data-target="#missing-report-modal" class="btn btn-secondary custom-button">Report</button>
@@ -179,26 +178,89 @@
             <thead>
             <tr>
                 <!-- Purpose : Set width and merge Category/ Brand , color /S.color Column - DEVTASK-4138  -->
-                <th width="6%"><input type="checkbox" class="chk-select-call" name="select-all"></th>
-                <th width="4%">ID</th>
-                <th width="10%">Sku</th>
-                <th width="10%">Supplier count</th>
-                <th width="10%">Name</th>
-                <th width="13%">Category / Brand</th>
-                <th width="10%">Price</th>
-                <th width="10%">Discount %</th>
-                <!-- <th width="15%">Brand</th> -->
-                <th width="10%">Supplier</th>
-                <th width="10%">Color</th>
-                <!-- <th width="10%">S.Color</th> -->
-                <th width="10%">Composition</th>
-                <th width="10%">Size system</th>
-                <th width="10%">Size</th>
-                <th width="10%">Size(IT)</th>
-                <th width="8%">Status</th>
-                <th width="9%">Sub Status</th>
-                <th width="10%">Created Date</th>
-                <th width="7%">Actions</th>
+                @if(!empty($dynamicColumnsToShowPi))
+                    @if (!in_array('Checkbox', $dynamicColumnsToShowPi))
+                        <th width="6%"><input type="checkbox" class="chk-select-call" name="select-all"></th>
+                    @endif
+                    @if (!in_array('ID', $dynamicColumnsToShowPi))
+                        <th width="4%">ID</th>
+                    @endif
+                    @if (!in_array('Sku', $dynamicColumnsToShowPi))
+                        <th width="10%">Sku</th>
+                    @endif
+                    @if (!in_array('Supplier count', $dynamicColumnsToShowPi))
+                        <th width="10%">Supplier count</th>
+                    @endif
+                    @if (!in_array('Name', $dynamicColumnsToShowPi))
+                        <th width="10%">Name</th>
+                    @endif
+                    @if (!in_array('Category', $dynamicColumnsToShowPi))
+                        <th width="13%">Category</th>
+                    @endif
+                    @if (!in_array('Brand', $dynamicColumnsToShowPi))
+                        <th width="13%">Brand</th>
+                    @endif
+                    @if (!in_array('Price', $dynamicColumnsToShowPi))
+                        <th width="10%">Price</th>
+                    @endif
+                    @if (!in_array('Discount', $dynamicColumnsToShowPi))
+                        <th width="10%">Discount %</th>
+                    @endif
+                        <!-- <th width="15%">Brand</th> -->
+                    @if (!in_array('Supplier', $dynamicColumnsToShowPi))
+                        <th width="10%">Supplier</th>
+                    @endif
+                    @if (!in_array('Color', $dynamicColumnsToShowPi))
+                        <th width="10%">Color</th>
+                    @endif
+                        <!-- <th width="10%">S.Color</th> -->
+                    @if (!in_array('Composition', $dynamicColumnsToShowPi))
+                        <th width="10%">Composition</th>
+                    @endif
+                    @if (!in_array('Size system', $dynamicColumnsToShowPi))
+                        <th width="10%">Size system</th>
+                    @endif
+                    @if (!in_array('Size', $dynamicColumnsToShowPi))
+                        <th width="10%">Size</th>
+                    @endif
+                    @if (!in_array('SizeIT', $dynamicColumnsToShowPi))
+                        <th width="10%">Size(IT)</th>
+                    @endif
+                    @if (!in_array('Status', $dynamicColumnsToShowPi))
+                        <th width="8%">Status</th>
+                    @endif
+                    @if (!in_array('Sub Status', $dynamicColumnsToShowPi))
+                        <th width="9%">Sub Status</th>
+                    @endif
+                    @if (!in_array('Created Date', $dynamicColumnsToShowPi))
+                        <th width="10%">Created Date</th>
+                    @endif
+                    @if (!in_array('Actions', $dynamicColumnsToShowPi))
+                        <th width="7%">Actions</th>
+                    @endif
+                @else
+                    <th width="6%"><input type="checkbox" class="chk-select-call" name="select-all"></th>
+                    <th width="4%">ID</th>
+                    <th width="10%">Sku</th>
+                    <th width="10%">Supplier count</th>
+                    <th width="10%">Name</th>
+                    <th width="13%">Category</th>
+                    <th width="13%">Brand</th>
+                    <th width="10%">Price</th>
+                    <th width="10%">Discount %</th>
+                    <!-- <th width="15%">Brand</th> -->
+                    <th width="10%">Supplier</th>
+                    <th width="10%">Color</th>
+                    <!-- <th width="10%">S.Color</th> -->
+                    <th width="10%">Composition</th>
+                    <th width="10%">Size system</th>
+                    <th width="10%">Size</th>
+                    <th width="10%">Size(IT)</th>
+                    <th width="8%">Status</th>
+                    <th width="9%">Sub Status</th>
+                    <th width="10%">Created Date</th>
+                    <th width="7%">Actions</th>
+                @endif
             </tr>
             </thead>
             <tbody>
@@ -210,6 +272,7 @@
 
     <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none"/>
 
+    @include("product-inventory.partials.column-visibility-modal")
 
     <div id="medias-modal" class="modal fade" role="dialog">
         <div class="modal-dialog">

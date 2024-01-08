@@ -1168,6 +1168,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('productinventory/import', [ProductInventoryController::class, 'import'])->name('productinventory.import');
     Route::get('productinventory/list', [ProductInventoryController::class, 'list'])->name('productinventory.list');
     Route::get('productinventory/inventory-list', [ProductInventoryController::class, 'inventoryList'])->name('productinventory.inventory-list');
+    Route::post('productinventory-column-visbility', [ProductInventoryController::class, 'columnVisbilityUpdate'])->name('productinventory.column.update');
     Route::get('productinventory/new-inventory-list', [ProductInventoryController::class, 'inventoryListNew'])->name('productinventory.inventory-list-new');
     Route::get('download-report', [ProductInventoryController::class, 'downloadReport'])->name('download-report');
     Route::get('download-scrapped-report', [ProductInventoryController::class, 'downloadScrapReport'])->name('download-scrapped-report');
