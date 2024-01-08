@@ -1062,6 +1062,31 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
     </div>
+
+    <div id="declien-remarks" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Remarks</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="<?php echo route('appointment-request.declien.remarks'); ?>" id="menu_sop_edit_form">
+                        <input type="text" hidden name="appointment_requests_id" id="appointment_requests_id">
+                        @csrf
+                        <div class="form-group">
+                            <label for="content">Remarks</label>
+                            <textarea class="form-control sop_edit_class" name="appointment_requests_remarks" id="appointment_requests_remarks"></textarea>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary ml-3 updatedeclienremarks">Update</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- sop-search Modal-->
     <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
     <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
@@ -1554,6 +1579,31 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
+                                <li>
+                                    <label class="switchAN">
+                                        <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
+                                        <span class="slider round"></span>
+                                        <span class="text" id="availabilityText"></span>
+                                    </label>
+                                </li>
+
+                                <style type="text/css">
+                                    .switchAN{position:relative;display:inline-block;width:53px;height:30px}
+                                    .switchAN input{opacity:0;width:0;height:0}
+                                    .switchAN .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;-webkit-transition:.4s;transition:.4s;border-radius:34px}
+                                    .slider:before{position:absolute;content:"";height:22px;width:22px;left:4px;bottom:4px;background-color:#fff;-webkit-transition:.4s;transition:.4s;border-radius:50%}
+                                    .switchAN input:checked + .slider{background-color:#ddd}
+                                    .switchAN input:focus + .slider{box-shadow:0 0 1px #ddd}
+                                    .switchAN input:checked + .slider:before{-webkit-transform:translateX(22px);-ms-transform:translateX(22px);transform:translateX(22px)}
+                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);margin-left:10px;color:#fff;font-size:14px}
+                                    .switchAN .slider.round{border-radius:34px}
+                                    .swal2-confirm {
+                                        color: #333 !important;
+                                        background-color: #fff !important;
+                                        border: 1px solid #ccc !important;
+                                    }
+                                    .switchAN input:focus { background:none !important; }
+                                </style>
                             </ul>                         
                         </nav>
                         <div id="permission-request-model" class="modal fade" role="dialog">
@@ -4553,6 +4603,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="https://erp.theluxuryunlimited.com/seo/company">Seo Company</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="/appointment-request">Appointment Request</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="/affiliate-marketing/provider-accounts">Affiliates Providers Sites</a>
                                     </li>
                                 </ul>
@@ -6516,6 +6569,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
     }
+
+    $(document).on('click', '.updatedeclienremarks', function (e) {
+        e.preventDefault();
+        var appointment_requests_id = $("#appointment_requests_id").val();
+        var appointment_requests_remarks = $('#appointment_requests_remarks').val();
+
+        if(appointment_requests_id == '') {
+            alert("Something went wrong. Please try again.");
+            return false;
+        }
+
+        if(appointment_requests_remarks == '') {
+            $('#appointment_requests_remarks').next().text("Please enter the subject");
+            return false;
+        }
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route('appointment-request.declien.remarks')}}',
+            type: 'post',
+            data: {
+                'appointment_requests_id': appointment_requests_id,
+                'appointment_requests_remarks': appointment_requests_remarks,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+            $("#loading-image").hide();
+
+            if (data.code == 500) {
+                toastr["error"]('Something went wrong. Please try again.');
+            } else {
+                
+                $("#declien-remarks").modal("hide");
+                toastr["success"](response.message);
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1500);
+            }
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+            toastr['error']('Something went wrong. Please try again.');
+            location.reload();
+        });
+    });
 
     $(document).on('click', '.submit-reply-email', function (e) {
         e.preventDefault();
@@ -9859,6 +9961,137 @@ if (!\Auth::guest()) {
                     }
               }
           });
+    });
+
+    function checkRecord() {
+        $.ajax({
+            url: `{{ route('event.getAppointmentRequest')}}`, // Replace with your server endpoint
+            method: 'GET',
+            success: function(responseData) {
+                if (responseData.code == 200) {
+
+                    if (responseData.result!='') {
+                        Swal.fire({
+                            title: responseData.result.user.name+' Want to connect on Zoom  - Accept Decline',
+                            text: 'Do you accept the terms?',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Accept',
+                            cancelButtonText: 'Decline'
+                        }).then((result) => {
+                            // Check if the user clicked the Accept button
+                            if (result.isConfirmed) {
+                                var requeststatus = 1;
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                var requeststatus = 2;
+
+                                $("#declien-remarks #appointment_requests_id").val(responseData.result.id);
+                            }
+
+                            if(requeststatus==1 || requeststatus==2){
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result.id,
+                                        request_status : requeststatus                              
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                    if (response.code == 200) {
+                                        toastr['success']('You successfully accepeted request.', 'success');
+                                    }
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                    toastr['error']('You successfully decline request.', 'error');
+                                });
+
+                                if (requeststatus==2) {
+                                    $("#declien-remarks").modal("show");
+                                }     
+                            }                       
+                        });
+                    } 
+
+                    if (responseData.result_rerquest_user!='') {
+
+                        if(responseData.result_rerquest_user.request_status==1){
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' Confirmed your meeting Request pls. Join zoom'
+                        } else {
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' delicate your meeting request - '+responseData.result_rerquest_user.userrequest.decline_remarks
+                        }
+
+                        Swal.fire({
+                            title: 'Hello!',
+                            text: msgText,
+                            icon: 'info',
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            // Check if the user clicked the Okay button
+                            if (result.isConfirmed) {
+                                // Perform an AJAX call when the Okay button is clicked
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateuserAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result_rerquest_user.id,
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+            }
+        });
+    }
+
+    setInterval(checkRecord, 5000); 
+
+    $(document).ready(function() {
+        $('#availabilityToggle').change(function() {
+            var isChecked = $(this).prop('checked');
+            var availabilityText = isChecked ? 'Online' : 'Offline';
+            var alignmentText = isChecked ? 'textLeft' : 'textRight';
+
+            // Update the text content within the toggle switch
+            //$('#availabilityText').text(availabilityText);
+            //$('#availabilityText').addClass(alignmentText);
+
+            $.ajax({
+                type: 'POST',
+                url: '{{route('useronlinestatus.status.update')}}',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    is_online_flag : availabilityText,
+                },
+                dataType: "json",
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['success'](response.message, 'success');
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+            });
+        });
     });
     
     </script>
