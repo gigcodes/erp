@@ -385,6 +385,7 @@ use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
 use App\Http\Controllers\DevOppsController;
 use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
+use App\Http\Controllers\AppointmentRequestController;
 
 Auth::routes();
 
@@ -3462,6 +3463,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
+    Route::get('appointment-request', [AppointmentRequestController::class, 'index'])->name('appointment-request.index');
+	Route::get('appointment-request/records', [AppointmentRequestController::class, 'records'])->name('appointment-request.records');
+    Route::get('appointment-request/record-appointment-request-ajax', [AppointmentRequestController::class, 'recordAppointmentRequestAjax'])->name('appointment-request.index_ajax');
     Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
     Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
     Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
