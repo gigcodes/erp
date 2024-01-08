@@ -31,6 +31,7 @@ use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Models\EmailBox;
+use App\Models\DataTableColumn;
 
 class EmailController extends Controller
 {
@@ -271,6 +272,15 @@ class EmailController extends Controller
         $totalEmail = Email::count();
         $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
+        $datatableModel = DataTableColumn::select('column_name')
+                                            ->where('user_id', auth()->user()->id)
+                                            ->where('section_name', 'emails')->first();
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }
+        
         return view('emails.index',
             [
                 'emails' => $emails,
@@ -284,8 +294,29 @@ class EmailController extends Controller
                 'receiver' => $receiver,
                 'from' => $from,
                 'totalEmail' => $totalEmail,
-                'modelColors' => $modelColors
+                'modelColors' => $modelColors,
+                'dynamicColumnsToShowb' => $dynamicColumnsToShowb
             ])->with('i', ($request->input('page', 1) - 1) * 5);
+    }
+
+    public function emailsColumnVisbilityUpdate(Request $request){
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','emails')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'emails';
+            $column->column_name = json_encode($request->column_data); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'emails';
+            $column->column_name = json_encode($request->column_data); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity saved successfully!');
     }
 
     public function platformUpdate(Request $request)
