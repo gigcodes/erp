@@ -1132,6 +1132,6 @@ class EventController extends Controller
             $is_online_flag = 1;
         }
 
-        return response()->json(['code' => 200,'is_online_flag' => $is_online_flag]);
+        return response()->json(['code' => 200,'is_online_flag' => $is_online_flag,'name' => $user->name]);
     }
 }

@@ -434,7 +434,7 @@ style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999
             }).done(function(data) {
                 if(data.is_online_flag==1){
                     Swal.fire({
-                        title: 'You wants to direct appointment?',
+                        title: 'Do You wish to connect now with '+data.name,
                         text: '',
                         icon: 'question',
                         showCancelButton: true,

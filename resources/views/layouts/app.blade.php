@@ -1583,20 +1583,26 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <label class="switchAN">
                                         <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
                                         <span class="slider round"></span>
-                                        <span class="text" id="availabilityText">Online</span>
+                                        <span class="text" id="availabilityText"></span>
                                     </label>
                                 </li>
 
                                 <style type="text/css">
-                                    .switchAN{position:relative;display:inline-block;width:120px;height:34px}
+                                    .switchAN{position:relative;display:inline-block;width:53px;height:30px}
                                     .switchAN input{opacity:0;width:0;height:0}
                                     .switchAN .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;-webkit-transition:.4s;transition:.4s;border-radius:34px}
-                                    .slider:before{position:absolute;content:"";height:26px;width:26px;left:4px;bottom:4px;background-color:#fff;-webkit-transition:.4s;transition:.4s;border-radius:50%}
-                                    .switchAN input:checked + .slider{background-color:#2196F3}
-                                    .switchAN input:focus + .slider{box-shadow:0 0 1px #2196F3}
-                                    .switchAN input:checked + .slider:before{-webkit-transform:translateX(26px);-ms-transform:translateX(26px);transform:translateX(26px)}
+                                    .slider:before{position:absolute;content:"";height:22px;width:22px;left:4px;bottom:4px;background-color:#fff;-webkit-transition:.4s;transition:.4s;border-radius:50%}
+                                    .switchAN input:checked + .slider{background-color:#ddd}
+                                    .switchAN input:focus + .slider{box-shadow:0 0 1px #ddd}
+                                    .switchAN input:checked + .slider:before{-webkit-transform:translateX(22px);-ms-transform:translateX(22px);transform:translateX(22px)}
                                     .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);margin-left:10px;color:#fff;font-size:14px}
                                     .switchAN .slider.round{border-radius:34px}
+                                    .swal2-confirm {
+                                        color: #333 !important;
+                                        background-color: #fff !important;
+                                        border: 1px solid #ccc !important;
+                                    }
+                                    .switchAN input:focus { background:none !important; }
                                 </style>
                             </ul>                         
                         </nav>
@@ -9963,7 +9969,7 @@ if (!\Auth::guest()) {
 
                     if (responseData.result!='') {
                         Swal.fire({
-                            title: responseData.result.user.name+' wants to connect with you in a Zoom?',
+                            title: responseData.result.user.name+' Want to connect on Zoom  - Accept Decline',
                             text: 'Do you accept the terms?',
                             icon: 'question',
                             showCancelButton: true,
@@ -10010,9 +10016,16 @@ if (!\Auth::guest()) {
                     } 
 
                     if (responseData.result_rerquest_user!='') {
+
+                        if(responseData.result_rerquest_user.request_status==1){
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' Confirmed your meeting Request pls. Join zoom'
+                        } else {
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' delicate your meeting request - '+responseData.result_rerquest_user.userrequest.decline_remarks
+                        }
+
                         Swal.fire({
                             title: 'Hello!',
-                            text: 'You can connect with '+responseData.result_rerquest_user.userrequest.name+' in Zoom.',
+                            text: msgText,
                             icon: 'info',
                             showCancelButton: false,
                             confirmButtonText: 'Okay'
@@ -10055,8 +10068,8 @@ if (!\Auth::guest()) {
             var alignmentText = isChecked ? 'textLeft' : 'textRight';
 
             // Update the text content within the toggle switch
-            $('#availabilityText').text(availabilityText);
-            $('#availabilityText').addClass(alignmentText);
+            //$('#availabilityText').text(availabilityText);
+            //$('#availabilityText').addClass(alignmentText);
 
             $.ajax({
                 type: 'POST',
