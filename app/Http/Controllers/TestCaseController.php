@@ -207,6 +207,14 @@ class TestCaseController extends Controller
 //            dd($keyword);
             $records = $records->whereIn('assign_to', $keyword);
         }
+
+        // #DEVTASK-24253 - filter for the resource who has created
+        if ($keyword = request('created_by')) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where('created_by', '=', "$keyword");
+            });
+        }
+        
         if ($keyword = request('test_status')) {
             $records = $records->where(function ($q) use ($keyword) {
                 $q->orWhereIn('test_status_id', $keyword);

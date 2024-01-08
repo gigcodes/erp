@@ -38,14 +38,11 @@ class TriggerController extends Controller
             }
         }, $triggers);
         if ($request->ajax()) {
-            $view = (string)view('zabbix.trigger.list', [
+            return view('zabbix.trigger.index', [
                 'triggers' => $triggers,
+                'count' => $count,
                 'page' => $page,
-            ]);
-
-            return response()->json([
-                'tpl' => $view,
-                'code' => 200
+                'templates' => $templates
             ]);
         }
 

@@ -91,6 +91,17 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-1 cls_filter_inputbox p-2 mr-2">
+                                        <?php
+                                        $created_by = request('created_by');
+                                        ?>
+                                        <select class="form-control" name="created_by" id="created_by">
+                                            <option value="">Select Created By</option>
+                                            @foreach($users as  $user)
+                                                <option value="{{$user->id}}">{{$user->name}} </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <input name="date" type="date" class="form-control" placeholder="Search Date"
                                                id="bug-date" data-allow-clear="true"/>

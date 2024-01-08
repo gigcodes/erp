@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use App\StoreWebsiteCategoryUserHistory;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\Models\DataTableColumn;
 
 class CategoryController extends Controller
 {
@@ -336,7 +337,7 @@ class CategoryController extends Controller
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 1500);
         $title = 'Store Category';
-
+        
         $allCategories = Category::query()->get();
         $allStoreWebsite = StoreWebsite::query()->get();
 
@@ -385,7 +386,35 @@ class CategoryController extends Controller
             $resultSw = $data;
         }
 
-        return view('storewebsite::category.index', compact(['title', 'allCategories', 'allStoreWebsite', 'categories', 'storeWebsite', 'resultSw']));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'store-website-category')->first();
+
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }
+
+        return view('storewebsite::category.index', compact(['title', 'allCategories', 'allStoreWebsite', 'categories', 'storeWebsite', 'resultSw', 'dynamicColumnsToShowb']));
+    }
+
+    public function columnVisibilityUpdateStoreWebsiteCategory(Request $request){
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','store-website-category')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'store-website-category';
+            $column->column_name = json_encode($request->column_data); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'store-website-category';
+            $column->column_name = json_encode($request->column_data); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function logadd($log_case_id, $category_id, $store_id, $log_detail, $log_msg)

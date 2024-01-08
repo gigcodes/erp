@@ -618,6 +618,11 @@ class Product extends Model
         return $this->belongsToMany(\App\Supplier::class, 'product_suppliers', 'product_id', 'supplier_id');
     }
 
+    public function suppliers_name()
+    {
+        return $this->belongsToMany(\App\Supplier::class, 'product_suppliers', 'product_id', 'supplier_id')->select('supplier', 'supplier_id', 'product_id');
+    }
+
     public function suppliers_info()
     {
         return $this->hasMany(\App\ProductSupplier::class);
@@ -1517,6 +1522,8 @@ class Product extends Model
                     ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
+
+        //$query = $query->where('products.id', 1080895);
 
         if (isset($filter_data['supplier_count'])) {
             $query = $query->havingRaw('count(products.id) = ' . $filter_data['supplier_count']);
