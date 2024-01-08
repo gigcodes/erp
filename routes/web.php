@@ -2320,7 +2320,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/saveuploads', [PurchaseProductController::class, 'purchaseproductorders_saveuploads'])->name('purchaseproductorders.saveuploads'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders-column-visbility', [PurchaseProductController::class, 'purchaseproductordersColumnVisbilityUpdate'])->name('purchaseproductorders.column.update');
-
+    Route::post('purchaseproductorders/statuscolor', [PurchaseProductController::class, 'statuscolorpp'])->name('purchaseproductorders.statuscolor');
 
     // Cash Vouchers
     Route::get('/voucher/payment/request', [VoucherController::class, 'paymentRequest'])->name('voucher.payment.request');
