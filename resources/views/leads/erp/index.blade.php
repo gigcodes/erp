@@ -22,7 +22,11 @@
 
 <div class="row">
   <div class="col-lg-12 margin-tb">
-    <h2 class="page-heading">Erp Leads <a class="editor_create text-secondary" href="javascript:;"><i class="fa fa-plus"></i></a></h2>
+    <h2 class="page-heading">Erp Leads 
+        <div style="float: right;">
+            <a class="btn btn-secondary btn-sm editor_create" href="javascript:;"><i class="fa fa-plus"></i></a>
+        </div>
+    </h2>
   </div>
 </div>
 <div class="container-fluid">
@@ -77,18 +81,15 @@
     <div class="col-md-12 cls_filter_box">
       <form action="{{ route('erp-leads.erpLeads') }}" method="GET">
         @csrf
-        <div class="row">
+        <div class="">
           <div class="form-group col-md-2 cls_filter_inputbox p-0 mr-3">
-            <div class="w-75 pull-left">
+            <div class="w-100">
               <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="">
                 <option value="">Status</option>
                 @foreach($erpLeadStatus as $status)
                 <option value="{{$status['id']}}">{{$status['name']}}</option>
                 @endforeach
               </select>
-            </div>
-            <div class="w-25 pull-left pt-2">
-              <button type="button" data-toggle="modal" data-target="#addStatusModal" class="btn btn-xs text-secondary"><i class="fa fa-plus"></i></button>
             </div>
           </div>
           <div class="form-group col-md-1 cls_filter_inputbox p-0 mr-3">
@@ -162,7 +163,10 @@
       <label class="text-secondary mr-3">
         <input type="checkbox" class="all_page_check" style="height: auto;"> Select All Page
       </label>
-      <a class="btn btn-secondary btn-xs create_broadcast mr-3" href="javascript:;">Create Broadcast</a>
+      <a class="btn btn-secondary btn-xs create_broadcast" href="javascript:;">Create Broadcast</a>
+      <button type="button" data-toggle="modal" data-target="#addStatusModal" class="btn btn-secondary btn-xs">Add Status</button>
+      <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+      <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#eldatatablecolumnvisibilityList">Column Visiblity</button>
       <a href="javascript:;" class="btn btn-xs images_attach"><i class="fa fa-paperclip"></i></a>
 
       <label class="ml-5"><input type="checkbox" value="1" onclick="funEnableDisableLeads(this)" {{$statusErpLeadsSave ? 'checked' : ''}} style="height: auto;"> Enable Leads Cron to save on ERP</label>
@@ -170,203 +174,387 @@
 
 
     <div class="col-md-12 infinite-scroll22">
-      <div class="table-responsive mt-3">
-        <table class="table table-bordered erp-leads" id="vendor-table">
-          <thead>
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered erp-leads" id="vendor-table">
+                <thead>
+                    <tr>
+                        @if(!empty($dynamicColumnsToShowel))
+                            @if (!in_array('Checkbox', $dynamicColumnsToShowel))
+                                <th></th>
+                            @endif
+                            @if (!in_array('ID', $dynamicColumnsToShowel))
+                                <th>ID</th>
+                            @endif
+                            @if (!in_array('Date', $dynamicColumnsToShowel))
+                                <th>Date</th>
+                            @endif
+                            @if (!in_array('Status', $dynamicColumnsToShowel))
+                                <th>Status</th>
+                            @endif
+                            @if (!in_array('Cust', $dynamicColumnsToShowel))
+                                <th>Cust</th>
+                            @endif
+                            @if (!in_array('C Email', $dynamicColumnsToShowel))
+                                <th>C Email</th>
+                            @endif
+                            @if (!in_array('C WApp', $dynamicColumnsToShowel))
+                                <th>C WApp</th>
+                            @endif
+                            @if (!in_array('Store', $dynamicColumnsToShowel))
+                                <th>Store</th>
+                            @endif
+                            @if (!in_array('Image', $dynamicColumnsToShowel))
+                                <th>Image</th>
+                            @endif
+                            @if (!in_array('Pro ID', $dynamicColumnsToShowel))
+                                <th>Pro ID</th>
+                            @endif
+                            @if (!in_array('Sku', $dynamicColumnsToShowel))
+                                <th>Sku</th>
+                            @endif
+                            @if (!in_array('Pro name', $dynamicColumnsToShowel))
+                                <th>Pro name</th>
+                            @endif
+                            @if (!in_array('Brand', $dynamicColumnsToShowel))
+                                <th>Brand</th>
+                            @endif
+                            @if (!in_array('B Sgmt', $dynamicColumnsToShowel))
+                                <th>B Sgmt</th>
+                            @endif
+                            @if (!in_array('Category', $dynamicColumnsToShowel))
+                                <th>Category</th>
+                            @endif
+                            @if (!in_array('Color', $dynamicColumnsToShowel))
+                                <th>Color</th>
+                            @endif
+                            @if (!in_array('Size', $dynamicColumnsToShowel))
+                                <th>Size</th>
+                            @endif
+                            @if (!in_array('Type', $dynamicColumnsToShowel))
+                                <th>Type</th>
+                            @endif
+                            @if (!in_array('Communication', $dynamicColumnsToShowel))
+                                <th>Communication</th>
+                            @endif
+                            @if (!in_array('Action', $dynamicColumnsToShowel))
+                                <th>Action</th>
+                            @endif
+                        @else
+                            <th></th>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Cust</th>
+                            <th>C Email</th>
+                            <th>C WApp</th>
+                            <th>Store</th>
+                            <th>Image</th>
+                            <th>Pro ID</th>
+                            <th>Sku</th>
+                            <th>Pro name</th>
+                            <th>Brand</th>
+                            <th>B Sgmt</th>
+                            <th>Category</th>
+                            <th>Color</th>
+                            <th>Size</th>
+                            <th>Type</th>
+                            <th>Communication</th>
+                            <th>Action</th>
+                        @endif
+                    </tr>
+                </thead>
 
-            <tr>
-              <th width="2%"></th>
-              <th width="2%">ID</th>
-              <th width="4%">Date</th>
-              <th width="2%">Status</th>
-              <th width="2%">Cust</th>
-              <th width="2%">C Email</th>
-              <th width="5%">C WApp</th>
-              <th width="2%">Store</th>
-              <th width="2%">Image</th>
-              <th width="2%">Pro ID</th>
-              <th width="2%">Sku</th>
-              <th width="2%">Pro name</th>
-              <th width="2%">Brand</th>
-              <th width="5%">B Sgmt</th>
-              <th width="2%">Category</th>
-              <th width="2%">Color</th>
-              <th width="2%">Size</th>
-              <th width="2%">Type</th>
-              <th width="8%">Communication</th>
-              <th width="2%">Action</th>
-            </tr>
-          </thead>
+                <tbody id="vendor-body">
 
-          <tbody id="vendor-body">
+                    @foreach ($sourceData as $source)
+                        @php
+                            $status_color = \App\ErpLeadStatus::where('id',$source->lead_status_id)->first();
+                            if ($status_color == null) {
+                                $status_color = new stdClass();
+                            }
+                        @endphp
+                        @if(!empty($dynamicColumnsToShowel))
+                            <tr style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                @if (!in_array('Checkbox', $dynamicColumnsToShowel))
+                                <td>
+                                    <input name="customer_message[]" class="customer_message" type="checkbox" value="{{$source['customer_id']}}">
+                                </td>
+                                @endif
 
-            @foreach ($sourceData as $source)
-            <tr>
-              <!-- <td>{{$source['id']}}</td> -->
-              <td class="tblcell">
-                <div class=""><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'"></label></div>
-              </td>
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline">{{$source['id']}}</label></div>
-              </td>
-              <td class="tblcell expand-row-msg" data-name="date" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline">
-                    <span class="show-short-date-{{$source['id']}}">{{ Str::limit(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y'), 5, '.')}}</span>
-                    <span style="word-break:break-all;" class="show-full-date-{{$source['id']}} hidden">{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}</span>
-                  </label>
-                </div>
-              </td>
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <select class="form-control update-Erp-Status" name="ErpStatus" data-id="{{$source['id']}}">
-                      @foreach($erpLeadStatus as $erp_status)
-                      <option value="{{ $erp_status['id'] }}" {{ $source['status_name'] == $erp_status['name'] ? 'selected' : '' }}>{{ $erp_status['name'] }}</option>
-                      @endforeach
-                    </select>
-                  </label></div>
-              </td>
-              <td class="tblcell expand-row-msg" data-name="customer_name" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <a href="/customer/' + data.customer_id + '" target="_blank">
-                      <span class="show-short-customer_name-{{$source['id']}}">{{ Str::limit($source['customer_name'], 5, '..')}}</span>
-                      <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
-                    </a>
-                  </label>
-                </div>
-              </td>
+                                @if (!in_array('ID', $dynamicColumnsToShowel))
+                                <td>
+                                    {{$source['id']}}
+                                </td>
+                                @endif
 
-              <!-- 08-09-2021 -->
-              <td class="tblcell expand-row-msg" data-name="customer_email" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <span class="show-short-customer_email-{{$source['id']}}">{{ Str::limit($source['customer_email'], 7, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
-                  </label>
-                </div>
-              </td>
-              <td class="tblcell expand-row-msg" data-name="customer_whatsapp_number" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ Str::limit($source['customer_whatsapp_number'], 5, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-customer_whatsapp_number-{{$source['id']}} hidden">{{$source['customer_whatsapp_number']}}</span>
-                  </label>
-                </div>
-              </td>
-              <!-- 08-09-2021  end -->
+                                @if (!in_array('Date', $dynamicColumnsToShowel))
+                                <td>
+                                    {{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}
+                                </td>
+                                @endif
 
-              <td class="tblcell expand-row-msg" data-name="website" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline">
-                    <span class="show-short-website-{{$source['id']}}">{{ Str::limit($source['website'], 7, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
-                  </label>
-                </div>
-              </td>
+                                @if (!in_array('Status', $dynamicColumnsToShowel))
+                                <td>
+                                    <select class="form-control update-Erp-Status" name="ErpStatus" data-id="{{$source['id']}}">
+                                        @foreach($erpLeadStatus as $erp_status)
+                                        <option value="{{ $erp_status['id'] }}" {{ $source['status_name'] == $erp_status['name'] ? 'selected' : '' }}>{{ $erp_status['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+                                @endif
 
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div>
-              </td>
+                                @if (!in_array('Cust', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="customer_name" data-id="{{$source['id']}}">
+                                    <a href="/customer/{{$source['customer_id']}}" target="_blank">
+                                        <span class="show-short-customer_name-{{$source['id']}}">{{ Str::limit($source['customer_name'], 5, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
+                                    </a>
+                                </td>
+                                @endif
+                                
+                                @if (!in_array('C Email', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="customer_email" data-id="{{$source['id']}}">
+                                    <span class="show-short-customer_email-{{$source['id']}}">{{ Str::limit($source['customer_email'], 7, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
+                                </td>
+                                @endif
 
-              <!-- 08-09-2021 -->
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['product_id']}}</label></div>
-              </td>
-              <td class="tblcell">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    {{ Illuminate\Support\Str::limit($source['product_sku'], 4, '..') }}
-                  </label>
-                </div>
-              </td>
-              <td class="tblcell">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    {{ Illuminate\Support\Str::limit($source['product_name'], 7, '..') }}
-                  </label>
-                </div>
-              </td>
-              <!-- 08-09-2021 end -->
+                                @if (!in_array('C WApp', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="customer_whatsapp_number" data-id="{{$source['id']}}">
+                                    <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ Str::limit($source['customer_whatsapp_number'], 5, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-customer_whatsapp_number-{{$source['id']}} hidden">{{$source['customer_whatsapp_number']}}</span>
+                                </td>
+                                @endif
 
+                                @if (!in_array('Store', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="website" data-id="{{$source['id']}}">
+                                    <span class="show-short-website-{{$source['id']}}">{{ Str::limit($source['website'], 7, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
+                                </td>
+                                @endif
 
+                                @if (!in_array('Image', $dynamicColumnsToShowel))
+                                <td>
+                                    @if($source['media_url']) <img class="lazy" alt="" src="{{$source['media_url']}}" style="width:50px;"> @else {{''}} @endif
+                                </td>
+                                @endif
 
-              <td class="tblcell">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    {{$source['brand_name']}}
-                  </label>
-                  <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
-                    <i class="fa fa-plus"></i>
-                  </a>
-                </div>
-              </td>
+                                @if (!in_array('Pro ID', $dynamicColumnsToShowel))
+                                <td>
+                                    {{$source['product_id']}}
+                                </td>
+                                @endif
 
+                                @if (!in_array('Sku', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="product_sku" data-id="{{$source['id']}}">
+                                    <span class="show-short-product_sku-{{$source['id']}}">{{ Str::limit($source['product_sku'], 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-product_sku-{{$source['id']}} hidden">{{$source['product_sku']}}</span>
+                                </td>
+                                @endif
 
+                                @if (!in_array('Pro name', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="product_name" data-id="{{$source['id']}}">
+                                    <span class="show-short-product_name-{{$source['id']}}">{{ Str::limit($source['product_name'], 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-product_name-{{$source['id']}} hidden">{{$source['product_name']}}</span>
+                                </td>
+                                @endif
 
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div>
-              </td>
+                                @if (!in_array('Brand', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="brand_name" data-id="{{$source['id']}}">
+                                    <span class="show-short-brand_name-{{$source['id']}}">{{ Str::limit($source['brand_name'], 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-brand_name-{{$source['id']}} hidden">{{$source['brand_name']}}</span>
 
+                                    <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </td>
+                                @endif
 
-              <td class="tblcell expand-row-msg" data-name="cat_title" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <?php if ($source['cat_title'] != null) { ?>
-                      <span class="show-short-cat_title-{{$source['id']}}">{{ Str::limit($source['cat_title'], 5, '..')}}</span>
-                      <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
-                    <?php } ?>
-                  </label>
-                  <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
-                    <i class="fa fa-plus"></i>
-                  </a>
-                </div>
-              </td>
+                                @if (!in_array('B Sgmt', $dynamicColumnsToShowel))
+                                <td>
+                                    {{$source['brand_segment']}}
+                                </td>
+                                @endif
 
+                                @if (!in_array('Category', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="cat_title" data-id="{{$source['id']}}">
+                                    <?php 
+                                    if ($source['cat_title'] != null) { ?>
+                                        <span class="show-short-cat_title-{{$source['id']}}">{{ Str::limit($source['cat_title'], 5, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
+                                    <?php 
+                                    } ?>
+                                    <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </td>
+                                @endif
 
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div>
-              </td>
-              <td class="tblcell">
-                <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div>
-              </td>
-              <td class="tblcell expand-row-msg" data-name="type" data-id="{{$source['id']}}">
-                <div class="checkbox">
-                  <label class="checkbox-inline ew">
-                    <input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">
-                    <?php $type = ucwords(str_replace('-', ' ', $source['type'])); ?>
-                    <span class="show-short-type-{{$source['id']}}">{{ Str::limit($type, 5, '..')}}</span>
-                    <span style="word-break:break-all;" class="show-full-type-{{$source['id']}} hidden">{{$type}}</span>
-                  </label>
-                </div>
-              </td>
-              <td class="tblcell communication-td">
-                @if($source['customer_whatsapp_number'])
-                <input type="text" class="form-control send-message-textbox w-50 pull-left" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." />
-                <button class="btn btn-sm btn-xs send-message-open p-0 pull-left" type="submit" id="submit_message" data-id="{{$source['id']}}"><i class="fa fa-paper-plane"></i></button>
-                <button type="button" class="btn btn-xs load-communication-modal p-0 pull-left" data-object='customer' data-id="{{ $source['customer_id'] }}" title="Load messages"><i class="fa fa-comments"></i></button>
-                @endif
-              </td>
-              <td class="tblcell"><a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details text-secondary"><i class="fa fa-shopping-cart"></i></a></td>
-            </tr>
-            @endforeach
+                                @if (!in_array('Color', $dynamicColumnsToShowel))
+                                <td>
+                                    {{$source['color']}}
+                                </td>
+                                @endif
+                                
+                                @if (!in_array('Size', $dynamicColumnsToShowel))
+                                <td>
+                                    {{$source['size']}}
+                                </td>
+                                @endif
 
-          </tbody>
-        </table>
-      </div>
-      <div class="row">
-        <div class="col-md-12 text-center">
-          {{ $sourceData->appends(Request::except('page'))->links() }}
+                                @if (!in_array('Type', $dynamicColumnsToShowel))
+                                <td class="expand-row-msg" data-name="type" data-id="{{$source['id']}}">
+                                    <?php $type = ucwords(str_replace('-', ' ', $source['type'])); ?>
+                                    <span class="show-short-type-{{$source['id']}}">{{ Str::limit($type, 5, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-type-{{$source['id']}} hidden">{{$type}}</span>
+                                </td>
+                                @endif
+
+                                @if (!in_array('Communication', $dynamicColumnsToShowel))
+                                <td class="communication-td">
+                                    @if($source['customer_whatsapp_number'])
+                                        <input type="text" class="form-control send-message-textbox w-50 pull-left" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." />
+                                        <button class="btn btn-sm btn-xs send-message-open p-0 pull-left" type="submit" id="submit_message" data-id="{{$source['id']}}"><i class="fa fa-paper-plane"></i></button>
+                                        <button type="button" class="btn btn-xs load-communication-modal p-0 pull-left" data-object='customer' data-id="{{ $source['customer_id'] }}" title="Load messages"><i class="fa fa-comments"></i></button>
+                                    @endif
+                                </td>
+                                @endif
+                                
+                                @if (!in_array('Action', $dynamicColumnsToShowel))
+                                <td>
+                                    <a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details text-secondary">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </a>
+                                </td>
+                                @endif
+                            </tr>
+                        @else
+                            <tr style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                <td>
+                                    <input name="customer_message[]" class="customer_message" type="checkbox" value="{{$source['customer_id']}}">
+                                </td>
+
+                                <td>
+                                    {{$source['id']}}
+                                </td>
+
+                                <td>
+                                    {{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $source['created_at'])->format('d-m-y')}}
+                                </td>
+
+                                <td>
+                                    <select class="form-control update-Erp-Status" name="ErpStatus" data-id="{{$source['id']}}">
+                                        @foreach($erpLeadStatus as $erp_status)
+                                        <option value="{{ $erp_status['id'] }}" {{ $source['status_name'] == $erp_status['name'] ? 'selected' : '' }}>{{ $erp_status['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </td>
+
+                                <td class="expand-row-msg" data-name="customer_name" data-id="{{$source['id']}}">
+                                    <a href="/customer/{{$source['customer_id']}}" target="_blank">
+                                        <span class="show-short-customer_name-{{$source['id']}}">{{ Str::limit($source['customer_name'], 5, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-customer_name-{{$source['id']}} hidden">{{$source['customer_name']}}</span>
+                                    </a>
+                                </td>
+
+                                <!-- 08-09-2021 -->
+                                <td class="expand-row-msg" data-name="customer_email" data-id="{{$source['id']}}">
+                                    <span class="show-short-customer_email-{{$source['id']}}">{{ Str::limit($source['customer_email'], 7, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-customer_email-{{$source['id']}} hidden">{{$source['customer_email']}}</span>
+                                </td>
+
+                                <td class="expand-row-msg" data-name="customer_whatsapp_number" data-id="{{$source['id']}}">
+                                    <span class="show-short-customer_whatsapp_number-{{$source['id']}}">{{ Str::limit($source['customer_whatsapp_number'], 5, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-customer_whatsapp_number-{{$source['id']}} hidden">{{$source['customer_whatsapp_number']}}</span>
+                                </td>
+
+                                <td class="expand-row-msg" data-name="website" data-id="{{$source['id']}}">
+                                    <span class="show-short-website-{{$source['id']}}">{{ Str::limit($source['website'], 7, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-website-{{$source['id']}} hidden">{{$source['website']}}</span>
+                                </td>
+
+                                <td>
+                                    @if($source['media_url']) <img class="lazy" alt="" src="{{$source['media_url']}}" style="width:50px;"> @else {{''}} @endif
+                                </td>
+
+                                <td>
+                                    {{$source['product_id']}}
+                                </td>
+
+                                <td class="expand-row-msg" data-name="product_sku" data-id="{{$source['id']}}">
+                                    <span class="show-short-product_sku-{{$source['id']}}">{{ Str::limit($source['product_sku'], 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-product_sku-{{$source['id']}} hidden">{{$source['product_sku']}}</span>
+                                </td>
+                                <td class="expand-row-msg" data-name="product_name" data-id="{{$source['id']}}">
+                                    <span class="show-short-product_name-{{$source['id']}}">{{ Str::limit($source['product_name'], 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-product_name-{{$source['id']}} hidden">{{$source['product_name']}}</span>
+                                </td>
+
+                                <td class="expand-row-msg" data-name="brand_name" data-id="{{$source['id']}}">
+                                    <span class="show-short-brand_name-{{$source['id']}}">{{ Str::limit($source['brand_name'], 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-brand_name-{{$source['id']}} hidden">{{$source['brand_name']}}</span>
+
+                                    <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.brand')}}" href="javascript:;">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </td>
+
+                                <td>
+                                    {{$source['brand_segment']}}
+                                </td>
+
+                                <td class="expand-row-msg" data-name="cat_title" data-id="{{$source['id']}}">
+                                    <?php 
+                                    if ($source['cat_title'] != null) { ?>
+                                        <span class="show-short-cat_title-{{$source['id']}}">{{ Str::limit($source['cat_title'], 5, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-cat_title-{{$source['id']}} hidden">{{$source['cat_title']}}</span>
+                                    <?php 
+                                    } ?>
+                                    <a class="multi_brand_category_create text-secondary" data-id="{{$source['id']}}" data-url="{{route('manage.leads.category')}}" href="javascript:;">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </td>
+
+                                <td>
+                                    {{$source['color']}}
+                                </td>
+                                
+                                <td>
+                                    {{$source['size']}}
+                                </td>
+
+                                <td class="expand-row-msg" data-name="type" data-id="{{$source['id']}}">
+                                    <?php $type = ucwords(str_replace('-', ' ', $source['type'])); ?>
+                                    <span class="show-short-type-{{$source['id']}}">{{ Str::limit($type, 5, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-type-{{$source['id']}} hidden">{{$type}}</span>
+                                </td>
+
+                                <td class="communication-td">
+                                    @if($source['customer_whatsapp_number'])
+                                        <input type="text" class="form-control send-message-textbox w-50 pull-left" data-id="{{$source['customer_id']}}" id="send_message_{{$source['customer_id']}}" name="send_message_{{$source['id']}}" placeholder="whatsapp message..." />
+                                        <button class="btn btn-sm btn-xs send-message-open p-0 pull-left" type="submit" id="submit_message" data-id="{{$source['id']}}"><i class="fa fa-paper-plane"></i></button>
+                                        <button type="button" class="btn btn-xs load-communication-modal p-0 pull-left" data-object='customer' data-id="{{ $source['customer_id'] }}" title="Load messages"><i class="fa fa-comments"></i></button>
+                                    @endif
+                                </td>
+                                
+                                <td>
+                                    <a style="color:black;" href="javascript:;" data-id="{{ $source['id'] }}" class="supplier-discount-info view-supplier-details text-secondary">
+                                        <i class="fa fa-shopping-cart"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-      </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                {{ $sourceData->appends(Request::except('page'))->links() }}
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 </div>
 
 
@@ -523,7 +711,8 @@
     </div>
   </div>
 </div>
-
+@include("leads.erp.column-visibility-modal")
+@include("leads.erp.modal-status-color")
 @endsection
 
 @section('scripts')

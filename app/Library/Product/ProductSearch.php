@@ -80,6 +80,10 @@ class ProductSearch
                 }
 
                 switch ($key) {
+                    case 'sku':
+                        $products = $products->whereIn('sku', $value);
+                        break;
+                        
                     case 'brand':
                         $products = $products->whereIn('brand', $value);
                         break;

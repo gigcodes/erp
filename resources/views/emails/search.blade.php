@@ -214,17 +214,17 @@
             @endif
             </td>
 
-            <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Date', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y H:i:s') }}</td>
 
-            <td data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')">
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Sender', $dynamicColumnsToShowb)) ? 'd-none' : ''}}" data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->from}}')">
                 {{ substr($email->from, 0,  20) }} {{strlen($email->from) > 20 ? '...' : '' }}
             </td>
 
-            <td  data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Receiver', $dynamicColumnsToShowb)) ? 'd-none' : ''}}"data-toggle="modal" data-target="#viewMore"  onclick="opnModal('{{$email->to}}')">
                 {{ substr($email->to, 0,  15) }} {{strlen($email->to) > 10 ? '...' : '' }}
             </td>
 
-            <td>
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Model Type', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
                 @if(array_key_exists($email->model_type, $emailModelTypes))
                     {{$email->model_type? $emailModelTypes[$email->model_type] : 'N/A' }}
                 @else
@@ -232,10 +232,12 @@
                 @endif
             </td>
 
-            <td>{{ $email->type }}</td>
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Mail Type', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">{{ $email->type }}</td>
             
-            <td data-toggle="modal" data-target="#view-quick-email"  onclick="openQuickMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  15) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
-            
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Subject', $dynamicColumnsToShowb)) ? 'd-none' : ''}}" data-toggle="modal" data-target="#view-quick-email"  onclick="openQuickMsg({{$email}})" style="cursor: pointer;">{{ $email->subject }}</td>
+
+            <td class="{{ (!empty($dynamicColumnsToShowb) && in_array('Body', $dynamicColumnsToShowb)) ? 'd-none' : ''}}" data-toggle="modal" data-target="#view-quick-email"  onclick="openQuickMsg({{$email}})" style="cursor: pointer;"> {{ substr(strip_tags($email->message), 0,  120) }} {{strlen(strip_tags($email->message)) > 110 ? '...' : '' }}</td>
+
             {{-- <td class="table-hover-cell p-2" onclick="toggleMsgView({{$email->id}})">
             <span id="td-mini-container-{{$email->id}}" data-body="{{ $email->message }}" class="emailBodyContent">
             <iframe src="" frameborder="0"></iframe>
@@ -245,7 +247,7 @@
             </span>
             </td> --}}
 
-            <td width="1%">
+            <td width="1%" class="{{ (!empty($dynamicColumnsToShowb) && in_array('Status', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
                 @if($email->status != 'bin')
                     <select class="form-control selecte2 status">
                     <option  value="" >Please select</option>
@@ -262,9 +264,9 @@
                 @endif
             </td>
 
-            <td class="chat-msg">{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
+            <td  class="chat-msg {{ (!empty($dynamicColumnsToShowb) && in_array('Draft', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">{{ ($email->is_draft == 1) ? "Yes" : "No" }}</td>
 
-            <td class="expand-row table-hover-cell p-2">
+            <td class="expand-row table-hover-cell p-2 {{ (!empty($dynamicColumnsToShowb) && in_array('Error Message', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
                 <span class="td-mini-container">
                 {{ strlen($email->error_message) > 20 ? substr($email->error_message, 0, 20).'...' : $email->error_message }}
                 </span>
@@ -273,7 +275,7 @@
                 </span>
             </td>
 
-            <td>
+            <td class=" {{ (!empty($dynamicColumnsToShowb) && in_array('Category', $dynamicColumnsToShowb)) ? 'd-none' : ''}}">
                 <select class="form-control selecte2 email-category">
                     <option  value="" >Please select</option>
                     @foreach($email_categories as $email_category)

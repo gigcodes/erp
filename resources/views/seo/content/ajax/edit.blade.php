@@ -14,7 +14,7 @@
         <div class="">
             <form action="{{ route('seo.content.update', $seoProcess->id)}}" method="POST" id="seoForm" autocomplete="off"> @csrf
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label class="form-label">Select Website </label>
                             @if( $auth->hasRole(['Admin', 'Seo Head']))
@@ -34,10 +34,120 @@
                             @endif
                         </div>
                     </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Word count</label>
+                            <input type="number" name="word_count" class="form-control" required data-msg-required="Please enter word count." value="{{ $seoProcess->word_count }}">
+                        </div>
+                    </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Suggestion</label>
+                            <input type="text" name="suggestion" class="form-control" required data-msg-required="Please enter suggestion." value="{{ $seoProcess->suggestion }}">
+                        </div>
+                    </div>
+                
+                    @if($auth->hasRole(['Admin', 'Seo Head']))
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="form-label">User</label>
+                                <select name="user_id" class="form-control">
+                                    <option value="">-- Select --</option>
+                                    @foreach ($users as $user)
+                                    <option value="{{ $user->id }}" {{ $user->id == $seoProcess->user_id ? 'selected' : ''}}>{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>                    
+                    @else
+                    <input type="hidden" name="user_id" value="{{$seoProcess->user_id}}">
+                    @endif
                 </div>
 
                 <div class="row mt-3">
-                    <section class="keywordSec col-7">
+                    @php
+                    $priceClass = "";
+                    $isPriceEdit = false;
+                    if($seoProcess->is_price_approved) {
+                    $priceClass = "bg-success text-light font-weight-bold";
+                    } else {
+                    $priceClass = "bg-warning text-dark font-weight-bold";
+                    }
+
+                    if($auth->hasRole(['user', 'Seo Head']) && !$seoProcess->is_price_approved ) {
+                    $isPriceEdit = true;
+                    } else if($auth->hasRole(['Admin'])) {
+                    $isPriceEdit = true;
+                    }
+                    @endphp
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" class="form-control {{$priceClass}}" value="{{ $seoProcess->price }}" {{ ($isPriceEdit) ? '' : 'readonly' }}>
+                        </div>
+                    </div>
+
+                    @if($auth->hasRole(['Admin']))
+                    <div class="col-md-3">
+                        <div class="form-check form-check-inline mt-4">
+                            <input class="form-check-input" type="checkbox" {{ $seoProcess->is_price_approved ? 'checked' : '' }} name="is_price_approved" id="priceApprove" value="1">
+                            <label class="form-check-label" for="priceApprove">Approve</label>
+                        </div>
+                    </div>
+                    @else
+                        <input type="hidden" name="is_price_approved" value="{{ $seoProcess->is_price_approved }}">
+                    @endif
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Document link</label>
+                            <input type="text" name="google_doc_link" class="form-control" required data-msg-required="Please enter document link." value="{{ $seoProcess->google_doc_link }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Seo Status</label>
+                            <select name="seo_process_status_id" class="form-control" required data-msg-required="Please select seo status.">
+                                <option value="">-- Select --</option>
+                                @foreach ($seoProcessStatus as $item)
+                                @if($item->type == 'seo_approval')
+                                <option value="{{ $item->id }}" {{ $seoProcess->seo_process_status_id == $item->id ? 'selected' : '' }}>{{ $item->label }}</option>
+                                @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Live status link</label>
+                            <input type="text" name="live_status_link" class="form-control" required data-msg-required="Please enter live status link." value="{{ $seoProcess->live_status_link }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Publish date</label>
+                            <input type="datetime-local" name="published_at" class="form-control" required data-msg-required="Please select publish date." value="{{ $seoProcess->published_at }}">
+                        </div>
+                    </div>
+                
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="planned" {{ $seoProcess->status == 'planned' ? 'selected' : '' }}>Planned</option>
+                                <option value="admin_approve" {{ $seoProcess->status == 'admin_approve' ? 'selected' : '' }}>Admin approve</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <section class="keywordSec col-12">
                         <div class="col-12 mb-1">
                             <div class="row">
                                 <label class="form-label">Keywords <button type="button" class="badge btn addKeywordBtn"><i class="fa fa-plus" aria-hidden="true"></i>
@@ -64,107 +174,6 @@
                             @endforeach
                         </div>
                     </section>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Word count</label>
-                        <input type="number" name="word_count" class="form-control" required data-msg-required="Please enter word count." value="{{ $seoProcess->word_count }}">
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Suggestion</label>
-                        <input type="text" name="suggestion" class="form-control" required data-msg-required="Please enter suggestion." value="{{ $seoProcess->suggestion }}">
-                    </div>
-                </div>
-
-                @if($auth->hasRole(['Admin', 'Seo Head']))
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">User</label>
-                        <select name="user_id" class="form-control">
-                            <option value="">-- Select --</option>
-                            @foreach ($users as $user)
-                            <option value="{{ $user->id }}" {{ $user->id == $seoProcess->user_id ? 'selected' : ''}}>{{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                @else
-                <input type="hidden" name="user_id" value="{{$seoProcess->user_id}}">
-                @endif
-
-                <div class="row mt-3">
-                    @php
-                    $priceClass = "";
-                    $isPriceEdit = false;
-                    if($seoProcess->is_price_approved) {
-                    $priceClass = "bg-success text-light font-weight-bold";
-                    } else {
-                    $priceClass = "bg-warning text-dark font-weight-bold";
-                    }
-
-                    if($auth->hasRole(['user', 'Seo Head']) && !$seoProcess->is_price_approved ) {
-                    $isPriceEdit = true;
-                    } else if($auth->hasRole(['Admin'])) {
-                    $isPriceEdit = true;
-                    }
-                    @endphp
-                    <div class="col-md-4">
-                        <label class="form-label">Price</label>
-                        <input type="number" name="price" class="form-control {{$priceClass}}" value="{{ $seoProcess->price }}" {{ ($isPriceEdit) ? '' : 'readonly' }}>
-                    </div>
-
-                    @if($auth->hasRole(['Admin']))
-                    <div class="col-md-2">
-                        <div class="form-check form-check-inline mt-4">
-                            <input class="form-check-input" type="checkbox" {{ $seoProcess->is_price_approved ? 'checked' : '' }} name="is_price_approved" id="priceApprove" value="1">
-                            <label class="form-check-label" for="priceApprove">Approve</label>
-                        </div>
-                    </div>
-                    @else
-                        <input type="hidden" name="is_price_approved" value="{{ $seoProcess->is_price_approved }}">
-                    @endif
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Document link</label>
-                        <input type="text" name="google_doc_link" class="form-control" required data-msg-required="Please enter document link." value="{{ $seoProcess->google_doc_link }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Seo Status</label>
-                        <select name="seo_process_status_id" class="form-control" required data-msg-required="Please select seo status.">
-                            <option value="">-- Select --</option>
-                            @foreach ($seoProcessStatus as $item)
-                            @if($item->type == 'seo_approval')
-                            <option value="{{ $item->id }}" {{ $seoProcess->seo_process_status_id == $item->id ? 'selected' : '' }}>{{ $item->label }}</option>
-                            @endif
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Live status link</label>
-                        <input type="text" name="live_status_link" class="form-control" required data-msg-required="Please enter live status link." value="{{ $seoProcess->live_status_link }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Publish date</label>
-                        <input type="datetime-local" name="published_at" class="form-control" required data-msg-required="Please select publish date." value="{{ $seoProcess->published_at }}">
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-control">
-                            <option value="planned" {{ $seoProcess->status == 'planned' ? 'selected' : '' }}>Planned</option>
-                            <option value="admin_approve" {{ $seoProcess->status == 'admin_approve' ? 'selected' : '' }}>Admin approve</option>
-                        </select>
-                    </div>
                 </div>
             </form>
         </div>

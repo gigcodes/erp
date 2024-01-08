@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
+use App\Models\DataTableColumn;
 
 class LeadsController extends Controller
 {
@@ -1041,6 +1042,14 @@ class LeadsController extends Controller
             return $value;
         });
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'erp-leads')->first();
+
+        $dynamicColumnsToShowel = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowel = json_decode($hideColumns, true);
+        }
+
         return view('leads.erp.index', [
             //'shoe_size_group' => $shoe_size_group,
             //'clothing_size_group' => $clothing_size_group,
@@ -1051,7 +1060,42 @@ class LeadsController extends Controller
             'sourceData' => $source,
             'allLeadCustomersId' => $allLeadCustomersId,
             'statusErpLeadsSave' => Setting::getErpLeadsCronSave(),
+            'dynamicColumnsToShowel' => $dynamicColumnsToShowel,
         ]);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','erp-leads')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'erp-leads';
+            $column->column_name = json_encode($request->column_el); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'erp-leads';
+            $column->column_name = json_encode($request->column_el); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = ErpLeadStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function filterErpLeads()

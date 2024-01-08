@@ -356,6 +356,7 @@
     @include("development.partials.modal-summary-task-color")
     @include("development.partials.column-visibility-modal")
     @include("development.partials.add-scrapper")
+    @include("development.partials.timer-history")
 
     <div id="dev_scrapper_statistics" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
@@ -2499,8 +2500,13 @@ $(document).on("click", ".count-dev-scrapper", function() {
                             @endif
                         }
                     } else {
-                        table = table + '<td>'+value;
-                        table = table + '</td>';
+                        if(key=='url'){
+                            table = table + '<td><a href="'+value+'" target="_blank">'+value+'</a>';
+                            table = table + '</td>';
+                        } else {
+                            table = table + '<td>'+value;
+                            table = table + '</td>';
+                        }
 
                         var approveValue = '';
                         var unapproveValue = '';
@@ -2751,6 +2757,76 @@ $(document).on("click", "#scrapper-history", function() {
             $("#loading-image").hide();
         }
     });
+});
+
+$(document).ready(function() {
+    // Iterate through elements with class 'myClass'
+    $('.m_start_date_').each(function() {
+        var elementId = $(this).attr('id'); // Get ID of each element
+
+        var task_id = $("#"+elementId).attr('data-id');
+        var inputTime = $("#"+elementId).attr('data-value');
+
+        startTime = new Date(inputTime);
+        //setInterval(updateTimeCounter(startTime, task_id), 1000); 
+
+        (function(startTime, id) {
+            setInterval(function() {
+                updateTimeCounter(startTime, id);
+            }, 1000);
+        })(startTime, task_id);
+    });
+});
+
+function updateTimeCounter(startTime, id) {
+    // Check if startTime is defined
+    if (startTime && !isNaN(startTime.getTime())) {
+        // Get the current time
+        var currentTime = new Date();
+
+        // Calculate the difference in milliseconds
+        var timeDifference = currentTime - startTime;
+
+        // Convert milliseconds to hours, minutes, and seconds
+        var hours = Math.floor(timeDifference / (60 * 60 * 1000));
+        var minutes = Math.floor((timeDifference % (60 * 60 * 1000)) / (60 * 1000));
+        var seconds = Math.floor((timeDifference % (60 * 1000)) / 1000);
+
+        // Display the time counter
+        var counterText = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+        $("#time-counter_"+id).text(counterText);
+    }
+}
+
+// Function to pad single digits with leading zeros
+function pad(number) {
+    return (number < 10 ? '0' : '') + number;
+}
+
+$(document).on('click', '.show-timer-history', function() {
+    var issueId = $(this).data('id');
+    $('#timer_tracked_modal table tbody').html('');
+    $.ajax({
+        url: "{{ route('development.timer.history') }}",
+        data: {
+            id: issueId,
+        },
+        success: function(data) {
+            console.log(data);
+            if (data != 'error') {
+                $.each(data.histories, function(i, item) {
+                    $('#timer_tracked_modal table tbody').append(
+                        '<tr>\
+                            <td>' + moment(item['start_date']).format('DD-MM-YYYY HH:mm:ss') + '</td>\
+                            <td>' + ((item['end_date'] != null) ? moment(item['end_date']).format('DD-MM-YYYY HH:mm:ss') : 'Not Stop') + '</td>\
+                        </tr>'
+                    );
+                });
+            }
+        }
+    });
+    $('#timer_tracked_modal').modal('show');
 });
 </script>
 @endsection

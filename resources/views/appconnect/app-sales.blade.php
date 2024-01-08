@@ -120,20 +120,72 @@ input:checked + .slider:before {
                         </div>
                     </form>
                 </div>
+                <div class="col-12">
+                  <div class="col-md-12">
+                    <ul class="nav nav-tabs">
+                        <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#appsalescolumnvisibilityList"> Column Visiblity</button></li>
+                    </ul>
+                  </div>
+                </div>
             </div>
       
+            @php 
+            $columns_array = [
+                ['id' => 'product_id', 'name' => 'App Name', 'width' => '2%'],
+                ['id' => 'start_date', 'name' => 'Start Date', 'width' => '2%'],
+                ['id' => 'end_date', 'name' => 'End Date', 'width' => '2%'],
+                ['id' => 'downloads', 'name' => 'Downloads', 'width' => '2%'],
+                ['id' => 're_downloads', 'name' => 'Re Downloads', 'width' => '2%'],
+                ['id' => 'uninstalls', 'name' => 'Uninstalls', 'width' => '2%'],
+                ['id' => 'updates', 'name' => 'Updates', 'width' => '2%'],
+                ['id' => 'returns', 'name' => 'Returns', 'width' => '2%'],
+                ['id' => 'net_downloads', 'name' => 'Net Downloads', 'width' => '2%'],
+                ['id' => 'promos', 'name' => 'Promos', 'width' => '2%'],
+                ['id' => 'revenue', 'name' => 'Revenue', 'width' => '2%'],
+                ['id' => 'returns_amount', 'name' => 'Returns Amount', 'width' => '2%'],
+                ['id' => 'edu_downloads', 'name' => 'Edu Downloads', 'width' => '2%'],
+                ['id' => 'gifts', 'name' => 'Gifts', 'width' => '2%'],
+                ['id' => 'gift_redemptions', 'name' => 'Gift Redemptions', 'width' => '2%'],
+                ['id' => 'edu_revenue', 'name' => 'Edu Revenue', 'width' => '2%'],
+                ['id' => 'gross_revenue', 'name' => 'Gross Revenue', 'width' => '2%'],
+                ['id' => 'gross_returns_amount', 'name' => 'Gross Returns Amount', 'width' => '2%'],
+                ['id' => 'gross_edu_revenue', 'name' => 'Gross Edu Revenue', 'width' => '2%'],
+                ['id' => 'business_downloads', 'name' => 'Business Downloads', 'width' => '2%'],
+                ['id' => 'business_revenue', 'name' => 'Business Revenue', 'width' => '2%'],
+                ['id' => 'gross_business_revenue', 'name' => 'Gross Business Revenue', 'width' => '2%'],
+                ['id' => 'standard_downloads', 'name' => 'Standard Downloads', 'width' => '2%'],
+                ['id' => 'standard_revenue', 'name' => 'Standard Revenue', 'width' => '2%'],
+                ['id' => 'gross_standard_revenue', 'name' => 'Gross Standard Revenue', 'width' => '2%'],
+                ['id' => 'app_downloadsapp_returns', 'name' => 'App Downloadsapp Returns', 'width' => '2%'],
+                ['id' => 'iap_amount', 'name' => 'Iap Amount', 'width' => '2%'],
+                ['id' => 'iap_returns', 'name' => 'Iap Returns', 'width' => '2%'],
+                ['id' => 'subscription_purchases', 'name' => 'Subscription Purchases', 'width' => '2%'],
+                ['id' => 'subscription_returns', 'name' => 'Subscription Returns', 'width' => '2%'],
+                ['id' => 'app_revenue', 'name' => 'App Revenue', 'width' => '2%'],
+                ['id' => 'app_returns_amount', 'name' => 'App Returns Amount', 'width' => '2%'],
+                ['id' => 'gross_app_revenue', 'name' => 'Gross App Revenue', 'width' => '2%'],
+                ['id' => 'gross_app_returns_amount', 'name' => 'Gross App Returns Amount', 'width' => '2%'],
+                ['id' => 'iap_revenue', 'name' => 'Iap Revenue', 'width' => '2%'],
+                ['id' => 'iap_returns_amount', 'name' => 'Iap Returns Amount', 'width' => '2%'],
+                ['id' => 'gross_iap_revenue', 'name' => 'Gross Iap Revenue', 'width' => '2%'],
+                ['id' => 'gross_iap_returns_amount', 'name' => 'Gross Iap Returns Amount', 'width' => '2%'],
+                ['id' => 'subscription_revenue', 'name' => 'Subscription Revenue', 'width' => '2%'],
+                ['id' => 'subscription_returns_amount', 'name' => 'Subscription Returns Amount', 'width' => '2%'],
+                ['id' => 'gross_subscription_revenue', 'name' => 'Gross Subscription Revenue', 'width' => '2%'],
+                ['id' => 'gross_subscription_returns_amount', 'name' => 'Gross Subscription Returns Amount', 'width' => '2%'],
+                ['id' => 'pre_orders', 'name' => 'Pre Orders', 'width' => '2%']
+            ];
+            @endphp
+
         <div class="col-md-12">
  <div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>
           <tr>
-                  <th width="5%">ID</th>
-            <th width="5%">App Name</th>
-            <th width="5%">Start Date</th>
-            <th width="2%">End Date</th>
-            <th width="2%">downloads</th> <th width="2%">re_downloads</th> <th width="2%">uninstalls</th> <th width="2%">updates</th> <th width="2%">returns</th> <th width="2%">net_downloads</th> <th width="2%">promos</th> <th width="2%">revenue</th> <th width="2%">returns_amount</th> <th width="2%">edu_downloads</th> <th width="2%">gifts</th> <th width="2%">gift_redemptions</th> <th width="2%">edu_revenue</th> <th width="2%">gross_revenue</th> <th width="2%">gross_returns_amount</th> <th width="2%">gross_edu_revenue</th> <th width="2%">business_downloads</th> <th width="2%">business_revenue</th> <th width="2%">gross_business_revenue</th> <th width="2%">standard_downloads</th> <th width="2%">standard_revenue</th> <th width="2%">gross_standard_revenue</th> <th width="2%">app_downloads</th> <th width="2%">app_returns</th> <th width="2%">iap_amount</th> <th width="2%">iap_returns</th> <th width="2%">subscription_purchases</th> <th width="2%">subscription_returns</th> <th width="2%">app_revenue</th> <th width="2%">app_returns_amount</th> <th width="2%">gross_app_revenue</th> <th width="2%">gross_app_returns_amount</th> <th width="2%">iap_revenue</th> <th width="2%">iap_returns_amount</th> <th width="2%">gross_iap_revenue</th> <th width="2%">gross_iap_returns_amount</th> <th width="2%">subscription_revenue</th> <th width="2%">subscription_returns_amount</th> <th width="2%">gross_subscription_revenue</th> <th width="2%">gross_subscription_returns_amount</th> <th width="2%">pre_orders</th>
-            
-            
+            <th width="5%">ID</th>
+            @foreach($columns_array as $k=>$v)
+              <th width="{{$v['width']}}" class="{{ (!empty($dynamicColumnsToShowb) && in_array($v['name'], $dynamicColumnsToShowb)) ? 'd-none' : ''}}" >{{$v['name']}}</th>
+            @endforeach
           </tr>
         </thead>
 
@@ -146,11 +198,9 @@ input:checked + .slider:before {
  
 <tr>
 <td>{{ $id+=1 }}</td>
-<td>{{ $report->product_id }}</td>
-<td>{{ $report->start_date }}</td>
-<td>{{ $report->end_date }}</td>
-
- <td>{{ $report->downloads}}</td> <td>{{ $report->re_downloads}}</td> <td>{{ $report->uninstalls}}</td> <td>{{ $report->updates}}</td> <td>{{ $report->returns}}</td> <td>{{ $report->net_downloads}}</td> <td>{{ $report->promos}}</td> <td>{{ $report->revenue}}</td> <td>{{ $report->returns_amount}}</td> <td>{{ $report->edu_downloads}}</td> <td>{{ $report->gifts}}</td> <td>{{ $report->gift_redemptions}}</td> <td>{{ $report->edu_revenue}}</td> <td>{{ $report->gross_revenue}}</td> <td>{{ $report->gross_returns_amount}}</td> <td>{{ $report->gross_edu_revenue}}</td> <td>{{ $report->business_downloads}}</td> <td>{{ $report->business_revenue}}</td> <td>{{ $report->gross_business_revenue}}</td> <td>{{ $report->standard_downloads}}</td> <td>{{ $report->standard_revenue}}</td> <td>{{ $report->gross_standard_revenue}}</td> <td>{{ $report->app_downloads}}</td> <td>{{ $report->app_returns}}</td> <td>{{ $report->iap_amount}}</td> <td>{{ $report->iap_returns}}</td> <td>{{ $report->subscription_purchases}}</td> <td>{{ $report->subscription_returns}}</td> <td>{{ $report->app_revenue}}</td> <td>{{ $report->app_returns_amount}}</td> <td>{{ $report->gross_app_revenue}}</td> <td>{{ $report->gross_app_returns_amount}}</td> <td>{{ $report->iap_revenue}}</td> <td>{{ $report->iap_returns_amount}}</td> <td>{{ $report->gross_iap_revenue}}</td> <td>{{ $report->gross_iap_returns_amount}}</td> <td>{{ $report->subscription_revenue}}</td> <td>{{ $report->subscription_returns_amount}}</td> <td>{{ $report->gross_subscription_revenue}}</td> <td>{{ $report->gross_subscription_returns_amount}}</td> <td>{{ $report->pre_orders}}</td>
+@foreach($columns_array as $k=>$v)
+<td class="{{ (!empty($dynamicColumnsToShowb) && in_array($v['name'], $dynamicColumnsToShowb)) ? 'd-none' : ''}}">{{ $report->{$v['id']} }}</td>
+@endforeach
 
 </tr>
 @endforeach
@@ -164,6 +214,9 @@ input:checked + .slider:before {
     <div style="height: 600px;">
     </div>
     </div>
+
+    @include('appconnect.partials.app-sales-column-visibility-modal', ['columns_array' => $columns_array])
+
 @endsection
 
 @section('styles')
