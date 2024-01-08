@@ -28,6 +28,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Suppliers</td>
+                                <td>
+                                    <input type="checkbox" value="Suppliers" id="Suppliers" name="column_p[]" @if (!empty($dynamicColumnsToShowp) && in_array('Suppliers', $dynamicColumnsToShowp)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Scrape</td>
                                 <td>
                                     <input type="checkbox" value="Scrape" id="Scrape" name="column_p[]" @if (!empty($dynamicColumnsToShowp) && in_array('Scrape', $dynamicColumnsToShowp)) checked @endif>

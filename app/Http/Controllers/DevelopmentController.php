@@ -62,6 +62,7 @@ use App\Models\DataTableColumn;
 use App\Models\ScrapperValues;
 use App\Models\ScrapperValuesHistory;
 use App\Models\ScrapperValuesRemarksHistory;
+use App\Models\DeveloperTaskStartEndHistory;
 
 class DevelopmentController extends Controller
 {
@@ -5723,6 +5724,42 @@ class DevelopmentController extends Controller
                 ]
             );
 
+            $returnData = [];
+            $jsonString = $request->scrapper_values;
+            $phpArray = json_decode($jsonString, true);
+            if(!empty($phpArray)){
+
+                if(!empty($phpArray)){
+
+                    foreach ($phpArray as $key_json => $value_json) {
+
+                        if($key_json!='is_sale'){
+                            if(empty($value_json)){
+                                $returnData[] = ucwords(str_replace("_", " ", $key_json));
+                            }
+
+                            if($key_json=='properties'){
+                                foreach ($phpArray['properties'] as $key => $value) {
+                                    if(empty($phpArray['properties'][$key])){
+                                        $returnData[] = 'Properties - '.ucwords(str_replace("_", " ", $key_json));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } 
+
+            if(!empty($returnData)){
+                return response()->json(
+                    [
+                        'code' => 500,
+                        'data' => [],
+                        'message' => implode("</br> ", $returnData)."</br> above key's value is missing on your json data!",
+                    ]
+                );
+            }
+
             $column = new ScrapperValues();
             $column->task_id = $request->task_id;
             $column->task_type = $request->task_type;
@@ -6191,5 +6228,46 @@ class DevelopmentController extends Controller
             'status' => true,
             'message' => 'Scrapper values status updated.',
         ], 200);
+    }
+
+    public function startTimeHistory(Request $request)
+    {
+        $task = DeveloperTask::find($request->developer_task_id);
+
+        if($request->task_type==1){
+            $input['m_start_date'] = Carbon::now();
+            $input['task_start'] = 1;
+            $input['status'] = 'In Progress';
+
+            $history = new DeveloperTaskStartEndHistory();
+            $history->user_id = auth()->user()->id;
+            $history->task_id = $request->developer_task_id;
+            $history->start_date = Carbon::now();            
+            $history->save();
+
+        } else if($request->task_type==2){
+            $input['m_end_date'] = Carbon::now();
+            $input['task_start'] = 2;
+
+            $history = DeveloperTaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
+
+            if(!empty($history)){                
+                $history->end_date = Carbon::now();
+                $history->save();
+            }
+        }
+
+        $task->update($input);
+
+        return response()->json(['msg' => 'success']);
+    }
+
+    public function getTimeHistoryStartEnd(Request $request)
+    {
+        $id = $request->id;
+
+        $task_histories = DeveloperTaskStartEndHistory::where('task_id', $id)->orderBy('id', 'DESC')->get();
+
+        return response()->json(['histories' => $task_histories]);
     }
 }

@@ -74,6 +74,8 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
+use App\Loggers\LogScraper;
+use App\DescriptionChange;
 
 class ProductController extends Controller
 {
@@ -4276,10 +4278,58 @@ class ProductController extends Controller
         return response()->json(['message' => 'Sort orders updated successfully']);
     }
 
+
+    public function productSizeLog(Request $request){
+        
+        $query = ProductSupplier::with('supplier', 'product')
+                ->where(function ($query) {
+                    $query->whereNotNull('size')->orWhere('size', '!=', '');
+                });
+
+            if ($request->has('product_id') && $request->filled('product_id')) {
+                $query->where('product_id', $request->input('product_id'));
+            }
+
+            if ($request->supplier) {
+                $query->whereIn('product_suppliers.supplier_id', $request->supplier); // Specify the table for the column 'supplier_id'
+            }
+
+            if ($request->has('sku') && $request->filled('sku')) {
+                $query->whereHas('product', function ($query) use ($request) {
+                    $query->where('sku', $request->input('sku'));
+                });
+            }
+
+            // // Add the groupBy clause here
+            // $query->groupBy('product_id');
+            $supplier = Supplier::select('id', 'supplier')->get();
+            $products_count = $query->count();
+            $products = $query->paginate(50);
+                         
+
+        return view('products.size', compact('products', 'products_count', 'request', 'supplier'));
+    }
+
+    public function productDescriptionHistory(Request $request)
+    {
+        $id = $request->id;
+
+        $query = LogScraper::where('sku', $id)
+        ->leftJoin('brands as b', 'b.id', 'log_scraper.brand')
+        ->leftJoin('categories as c', 'c.id', 'log_scraper.category')
+        ->select([
+            'log_scraper.*',
+            'b.name as brand_name',
+            'c.title as category_name']);
+        $products = $query->orderBy('updated_at', 'DESC')->get();
+        return view('products.partials.history', compact('products'));
+    }
+
+
     public function productDescription(Request $request)
     {
         $query = ProductSupplier::with('supplier', 'product')
-        ->select(['product_suppliers.*', 'scrapers.id as scraper_id'])
+        ->select(['product_suppliers.*', 'scrapers.id as scraper_id', 'scrapers.last_started_at as last_started_at'])
         ->join('scrapers', 'scrapers.supplier_id', 'product_suppliers.supplier_id');
         if ($request->get('product_id') != '') {
             $products = $query->where('product_id', $request->get('product_id'));
@@ -4328,7 +4378,7 @@ class ProductController extends Controller
 
         $products_count = $query->count();
         $products = $query->orderBy('product_id', 'DESC')->paginate(50);
-
+       // dd($products);
         return view('products.description', compact('products', 'products_count', 'request', 'supplier'));
         // dd($products);
     }
@@ -4337,7 +4387,11 @@ class ProductController extends Controller
     {
         $ids = $request->ids;
         $from = $request->from;
-        $to = $request->to;
+        $to = $request->to; 
+        DescriptionChange::create([
+            'keyword' => $from,
+            'replace_with' => $to,
+        ]);
         foreach ($ids as $id) {
             $prod = ProductSupplier::where('product_id', $id)->first();
             $description = str_replace($from, $to, $prod->description);
@@ -6608,5 +6662,31 @@ class ProductController extends Controller
         } else {
             return response()->json(['code' => 500, 'message' => 'category is unable to update']);
         }
+    }
+
+    public function getProductSupplierList(Request $request)
+    {
+
+        $datas = Product::with('suppliers_name')->select('id', 'supplier')->where('id', $request->product_id)->first();
+            
+        $suppliers = [];
+        $supplier = '';
+        if(!empty($datas)){
+            if(!empty($datas['suppliers_name'])){
+                $suppliers = $datas['suppliers_name'];
+            }
+
+            if(!empty($datas['supplier'])){
+                $supplier = $datas['supplier'];
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => $suppliers,
+            'supplier' => $supplier,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }
