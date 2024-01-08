@@ -1087,6 +1087,52 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
     </div>
+
+    @auth
+        @if(auth()->user()->isAdmin())
+            <div id="quickRequestZoomModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <form action="#" method="POST" id="send-request-form">
+                            @csrf
+
+                            <div class="modal-header">
+                                <h4 class="modal-title">Send Request</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="form-group">
+                                    <label for="title">Select User</label>
+                                    <select name="requested_ap_user_id" class="form-control" style="width: 100%" id="requested_ap_user_id" required>
+                                        <option>--Users--</option>
+                                        @foreach ($users as $key => $user)
+                                            @if($user->id!=auth()->user()->id)
+                                                @if($user->isOnline()==1 && $user->is_online_flag)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div> 
+
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <textarea name="requested_ap_remarks" id="requested_ap_remarks" placeholder="Enter remarks" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary send-ap-quick-request">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endauth
+
     <!-- sop-search Modal-->
     <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
     <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
@@ -1579,11 +1625,20 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <li>
+                                            <a title="Quick Appointment Request" data-toggle="modal" data-target="#quickRequestZoomModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                                <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endauth
                                 <li>
                                     <label class="switchAN">
                                         <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
                                         <span class="slider round"></span>
-                                        <span class="text" id="availabilityText"></span>
+                                        <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
                                     </label>
                                 </li>
 
@@ -1595,14 +1650,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     .switchAN input:checked + .slider{background-color:#ddd}
                                     .switchAN input:focus + .slider{box-shadow:0 0 1px #ddd}
                                     .switchAN input:checked + .slider:before{-webkit-transform:translateX(22px);-ms-transform:translateX(22px);transform:translateX(22px)}
-                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);margin-left:10px;color:#fff;font-size:14px}
+                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);color:#808080;font-size:9px}
                                     .switchAN .slider.round{border-radius:34px}
                                     .swal2-confirm {
                                         color: #333 !important;
                                         background-color: #fff !important;
                                         border: 1px solid #ccc !important;
                                     }
-                                    .switchAN input:focus { background:none !important; }
+                                    .switchAN .textLeft { left:10px; }
+                                    .switchAN .textRight { right:10px; }
                                 </style>
                             </ul>                         
                         </nav>
@@ -9973,8 +10029,7 @@ if (!\Auth::guest()) {
                     if (responseData.result!='') {
                         Swal.fire({
                             title: responseData.result.user.name+' Want to connect on Zoom  - Accept Decline',
-                            text: 'Do you accept the terms?',
-                            icon: 'question',
+                            text: '',                            
                             showCancelButton: true,
                             confirmButtonText: 'Accept',
                             cancelButtonText: 'Decline'
@@ -10004,11 +10059,16 @@ if (!\Auth::guest()) {
                                 }).done(function (response) {
                                     $("#loading-image-modal").hide();
                                     if (response.code == 200) {
-                                        toastr['success']('You successfully accepeted request.', 'success');
+
+                                        if(requeststatus==1){
+                                            toastr['success']('You successfully accepeted request.', 'success');
+                                        } else {
+                                            toastr['success']('You successfully decline request.', 'success');
+                                        }
                                     }
                                 }).fail(function (response) {
                                     $("#loading-image-modal").hide();
-                                    toastr['error']('You successfully decline request.', 'error');
+                                    toastr['error']('Sorry, something went wrong', 'error');
                                 });
 
                                 if (requeststatus==2) {
@@ -10029,7 +10089,6 @@ if (!\Auth::guest()) {
                         Swal.fire({
                             title: 'Hello!',
                             text: msgText,
-                            icon: 'info',
                             showCancelButton: false,
                             confirmButtonText: 'Okay'
                         }).then((result) => {
@@ -10066,13 +10125,18 @@ if (!\Auth::guest()) {
 
     $(document).ready(function() {
         $('#availabilityToggle').change(function() {
+                
+            $('#availabilityText').removeClass('textLeft');
+            $('#availabilityText').removeClass('textRight');
+
             var isChecked = $(this).prop('checked');
             var availabilityText = isChecked ? 'Online' : 'Offline';
             var alignmentText = isChecked ? 'textLeft' : 'textRight';
 
             // Update the text content within the toggle switch
-            //$('#availabilityText').text(availabilityText);
-            //$('#availabilityText').addClass(alignmentText);
+            $('#availabilityText').text(availabilityText);
+            var availabilityTextNew = isChecked ? 'On' : 'Off';
+            $('#availabilityText').addClass(availabilityTextNew);
 
             $.ajax({
                 type: 'POST',
@@ -10091,6 +10155,52 @@ if (!\Auth::guest()) {
             }).fail(function (response) {
                 $("#loading-image-modal").hide();
             });
+        });
+    });
+
+    $(document).on('click', '.send-ap-quick-request', function (event) {
+
+        if($('#requested_ap_user_id').val()==''){
+            alert('Please select user');
+            return false;
+        }
+
+        if($('#requested_ap_remarks').val()==''){
+            alert('Please enter remarks');
+            return false;
+        }     
+
+        var currentDate = moment(); // Current date and time                              
+        var dateAfterOneHour = moment(currentDate).add(1, 'hours');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{route('event.sendAppointmentRequest')}}',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                requested_user_id : $('#requested_ap_user_id').val(),
+                requested_time : moment(currentDate).format('YYYY-MM-DD HH:mm:ss'),
+                requested_time_end : moment(dateAfterOneHour).format('YYYY-MM-DD HH:mm:ss'),
+                requested_remarks : $('#requested_ap_remarks').val(),
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
         });
     });
     
