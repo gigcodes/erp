@@ -2046,6 +2046,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::get('category', [CategoryController::class, 'manageCategory'])->name('category');
+    Route::get('category-log', [CategoryController::class, 'logCategory'])->name('category.log');
+    Route::get('/push-category-in-live', [CategoryController::class, 'pushCategoryInLive']);
     Route::get('category-11', [CategoryController::class, 'manageCategory11'])->name('category-11');
     Route::post('add-category', [CategoryController::class, 'addCategory'])->name('add.category');
     Route::post('category/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
@@ -3855,6 +3857,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('statistics/multiple-update-field', [ScrapStatisticsController::class, 'multipleUpdateField'])->name('scrap.multiple.update.field');
     Route::get('statistics/update-scrap-field', [ScrapStatisticsController::class, 'updateScrapperField']);
     Route::get('statistics/show-history', [ScrapStatisticsController::class, 'showHistory']);
+    Route::post('statistics/status/create', [ScrapStatisticsController::class, 'ssstatusCreate'])->name('scrap.status.create');
     Route::post('statistics/update-priority', [ScrapStatisticsController::class, 'updatePriority']);
     Route::get('statistics/history', [ScrapStatisticsController::class, 'getHistory']);
     Route::post('statistics/reply/add', [ScrapStatisticsController::class, 'addReply']);
@@ -5615,6 +5618,8 @@ Route::middleware('auth')->group(function () {
     Route::post('devoopssublist/getstatus', [DevOppsController::class, 'getStatusHistories'])->name('devoopssublist.getstatus');
     Route::post('devoopssublist/upload-file', [DevOppsController::class, 'uploadFile'])->name('devoopssublist.upload-file');
     Route::get('devoopssublist/files/record', [DevOppsController::class, 'getUploadedFilesList'])->name('devoopssublist.files.record');
+    Route::post('devoops/task/upload-document', [DevOppsController::class, 'uploadDocument']);
+    Route::get('devoops/task/get-document', [DevOppsController::class, 'getDocument']);
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);

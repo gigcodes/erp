@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 use App\CategoryCancellationPolicyLog;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Artisan;
 
 class CategoryController extends Controller
 {
@@ -103,6 +104,22 @@ class CategoryController extends Controller
             ->renderAsDropdown();
 
         return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit', 'selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);
+    }
+
+    public function logCategory(Request $request){
+        $result = \App\LogRequest::where('api_name', 'catalogCategoryCreate');
+        $logRequest = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
+        $logRequestCount = \App\LogRequest::where('api_name', 'catalogCategoryCreate')->count();
+        return view('category.log', compact('logRequest', 'logRequestCount'));
+    }
+
+    public function pushCategoryInLive()
+    {
+        // Run the Artisan command
+        Artisan::call('store-website:push-category-in-live');
+
+        // You can return a response if needed
+        return response()->json(['message' => 'Command executed successfully']);
     }
 
     public function manageCategory11(Request $request)

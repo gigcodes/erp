@@ -60,6 +60,8 @@
         div#chat-list-history.modal {
             z-index: 99999999;
         }
+
+        .select2-container--default, .select2-container--default .selection, .select2-selection--single{display: block !important;}
     </style>
 @endsection
 
@@ -125,7 +127,7 @@
             <div class="form-group mb-3 col-md-1">
                 <label>Scrapers Status</label>
                 <select name="scrapers_status" class="form-control form-group">
-                    @foreach(\App\Scraper::STATUS as $k => $v)
+                    @foreach(\App\Scraper::scrapersStatus() as $k => $v)
                         <option <?php echo request()->get('scrapers_status','') == $k ? 'selected=selected' : '' ?> value="<?php echo $k; ?>"><?php echo $v; ?></option>
                     @endforeach
                 </select>
@@ -195,6 +197,8 @@
                     <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#scrapdatatablecolumnvisibilityList">Column Visiblity</button>
 
                     <button type="button" class="btn btn-default btn-sm multiple-scrap-btn">Multiple Scrap</button> 
+
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#status-create">Add Status</button>
                     <!-- END - DEVTASK-20102-->
                 </div>
             </div>
@@ -278,9 +282,9 @@
                             @if (!in_array('Status', $dynamicColumnsToShows))
                                 <th>Status</th>
                             @endif
-                            @if (!in_array('Remarks', $dynamicColumnsToShows))
+                            <!-- @if (!in_array('Remarks', $dynamicColumnsToShows))
                                 <th>Remarks</th>
-                            @endif
+                            @endif -->
                                 <?php /*
                                 <th>Devtask</th>
                                 <th>Logs</th>
@@ -323,7 +327,7 @@
                             <th>Parent Scrapper</th>
                             <th>Next Step</th> -->
                             <th>Status</th>
-                            <th>Remarks</th>
+                            <!-- <th>Remarks</th> -->
                             <?php /*
                             <th>Devtask</th>
                             <th>Logs</th>
@@ -447,10 +451,10 @@
                                 @endif
 
                                 @if (!in_array('Start Scrap', $dynamicColumnsToShows))
-                                    <td width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
+                                    <td class="expand-row-msgg" data-name="scraper_name" data-id="{{$supplier->id}}" width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                         @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
-                                            {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
-                                            <br/>
+                                            <span class="show-short-scraper_name-{{$supplier->id}}">{{ Str::limit(str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))), 8, '..')}}</span>
+                                            <span style="word-break:break-all;" class="show-full-scraper_name-{{$supplier->id}} hidden">{!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}</span>
                                         @endif
                                     </td>
                                 @endif
@@ -500,7 +504,7 @@
                                 @if (!in_array('Status', $dynamicColumnsToShows))
                                     <td width="6%">
                                         <div class="form-group status mb-1" style="display: flex" >
-                                            <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select22", "style" => "width:80px;"]); ?>
+                                            <?php echo Form::select("status",\App\Scraper::scrapersStatus(), $supplier->status, ["class" => "form-control scrapers_status select22", "style" => "width:80px;"]); ?>
                                             <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                         </div>
                                         @php
@@ -510,7 +514,7 @@
                                     </td>
                                 @endif
 
-                                @if (!in_array('Remarks', $dynamicColumnsToShows))
+                                <!-- @if (!in_array('Remarks', $dynamicColumnsToShows))
                                     <td width="10%" class="" style="font-size: 12px">
                                         <span class="" data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 19) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                             <?php
@@ -518,8 +522,7 @@
                                                     echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 19).".." : $remark->remark;
                                                 }
                                              ?>
-                                         </span>
-                                         <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="{{asset('/images/remark.png')}}"/></button>
+                                        </span>
                                         <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
                                         <span class="" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 19) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                             <?php
@@ -551,7 +554,7 @@
                                             ?>
                                          </span>
                                     </td>
-                                @endif
+                                @endif -->
 
                                 <?php /*
                                 <td width="8%">
@@ -605,7 +608,10 @@
                                 @endif
 
                                 @if (!in_array('Date Last Product Added', $dynamicColumnsToShows))
-                                    <td width="5%">{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</td>
+                                <td width="5%" class="expand-row-msgg" data-name="last_date" data-id="{{$supplier->id}}">
+                                    <span class="show-short-last_date-{{$supplier->id}}">{{ Str::limit($supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-', 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-last_date-{{$supplier->id}} hidden">{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</span>
+                                </td>
                                 @endif
 
                                 @if (!in_array('Functions', $dynamicColumnsToShows))
@@ -668,6 +674,8 @@
                                                     @endif
                                                 </div>
                                             @endif
+
+                                            <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="{{asset('/images/remark.png')}}"/ title="Remark History"></button>
                                         </div>
                                     </td>
                                     <td colspan="2">
@@ -813,10 +821,10 @@
                                             <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                     </div>
                                 </td>
-                                <td width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
+                               <td class="expand-row-msgg" data-name="scraper_name" data-id="{{$supplier->id}}" width="5%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                     @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
-                                        {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
-                                        <br/>
+                                        <span class="show-short-scraper_name-{{$supplier->id}}">{{ Str::limit(str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))), 8, '..')}}</span>
+                                        <span style="word-break:break-all;" class="show-full-scraper_name-{{$supplier->id}} hidden">{!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}</span>
                                     @endif
                                 </td>
                                 <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
@@ -847,7 +855,7 @@
                                 </td> --> --}}
                                 <td width="6%">
                                     <div class="form-group status mb-1" style="display: flex" >
-                                        <?php echo Form::select("status",\App\Scraper::STATUS, $supplier->status, ["class" => "form-control scrapers_status select22", "style" => "width:80px;"]); ?>
+                                        <?php echo Form::select("status",\App\Scraper::scrapersStatus(), $supplier->status, ["class" => "form-control scrapers_status select22", "style" => "width:80px;"]); ?>
                                         <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="status" data-id="{{$supplier->id}}"><i class="fa fa-info-circle"></i></button>
                                     </div>
                                     @php
@@ -855,15 +863,14 @@
                                     @endphp
                                     {{ ($hasTask) ? "Task-Available" : "No-Task" }}
                                 </td>
-                                <td width="10%" class="" style="font-size: 12px">
+                                <!-- <td width="10%" class="" style="font-size: 12px">
                                     <span class="" data-small-title="<?php echo ($remark) ? substr($remark->remark, 0, 19) : '' ?>" data-full-title="<?php echo ($remark) ? $remark->remark : '' ?>">
                                         <?php
                                             if($remark) {
                                                 echo (strlen($remark->remark) > 35) ? substr($remark->remark, 0, 19).".." : $remark->remark;
                                             }
                                          ?>
-                                     </span>
-                                     <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="{{asset('/images/remark.png')}}"/></button>
+                                    </span>
                                     <hr style="margin-top: 0px;margin-bottom: 0px;background-color: #808080;height: 1px;">
                                     <span class="" data-small-title="<?php echo ($chatMessage) ? substr($chatMessage->message, 0, 19) : '' ?>" data-full-title="<?php echo ($chatMessage) ? $chatMessage->message : '' ?>">
                                         <?php
@@ -894,7 +901,7 @@
                                             echo (strlen($logString) > 3) ? substr($logString, 0,10).".." : $logString;
                                         ?>
                                      </span>
-                                </td>
+                                </td> -->
                                 <?php /*
                                 <td width="8%">
                                     
@@ -936,7 +943,10 @@
                                     @endphp    
                                 </td>
                                 <td width="5%"> {{$supplier->inventory }} </td>
-                                <td width="5%">{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</td>
+                                <td width="5%" class="expand-row-msgg" data-name="last_date" data-id="{{$supplier->id}}">
+                                    <span class="show-short-last_date-{{$supplier->id}}">{{ Str::limit($supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-', 8, '..')}}</span>
+                                    <span style="word-break:break-all;" class="show-full-last_date-{{$supplier->id}} hidden">{{$supplier->last_date !== null ? date('d-M-y H:i',strtotime($supplier->last_date)) : '-' }}</span>
+                                </td>
                                 <td width="4%">
                                      <div style="float:left;">       
                                     <button style="padding:1px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}" title="Expand more data"><img width="2px;" src="{{asset('/images/forward.png')}}"/></button>
@@ -993,6 +1003,8 @@
                                                     @endif
                                                 </div>
                                             @endif
+
+                                            <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="{{asset('/images/remark.png')}}"/ title="Remark History"></button>
                                         </div>
                                     </td>
                                     <td colspan="2">
@@ -1336,6 +1348,32 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
                50% 50% no-repeat;display:none;">
     </div>
+
+    <div id="status-create" class="modal fade in" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Stauts</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <form  method="POST" id="status-create-form">
+                    @csrf
+                    @method('POST')
+                    <div class="modal-body">
+                        <div class="form-group">
+                            {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+                            {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -1400,7 +1438,7 @@
 
         
 
-        $(".scrapers_status").select2();
+        //$(".scrapers_status").select2();
 
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
@@ -2412,6 +2450,36 @@
             }    
         });
 
+        $(document).on("click", ".status-save-btn", function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                url: "{{route('scrap.status.create')}}",
+                type: "post",
+                data: $('#status-create-form').serialize()
+            }).done(function(response) {
+                if (response.code = '200') {
+                    $('#loading-image').hide();
+                    $('#addPostman').modal('hide');
+                    toastr['success']('Status  Created successfully!!!', 'success');
+                    location.reload();
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function(errObj) {
+                $('#loading-image').hide();
+                toastr['error'](errObj.message, 'error');
+            });
+        });
+
+        $(document).on('click', '.expand-row-msgg', function () {
+            var name = $(this).data('name');
+            var id = $(this).data('id');
+            var full = '.expand-row-msgg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msgg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
         //END - DEVTASK-20102
     </script>
 @endsection
