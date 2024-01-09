@@ -405,7 +405,7 @@ class TodoListController extends Controller
 
         //$query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc');
 
-        $query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderBy('id', 'DESC');
+        $query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderBy('id', 'DESC');
 
         if ($request->get('keyword') != '') {
              $query->where('title', 'LIKE', "%".$request->get('keyword')."%")->orWhere('subject', 'LIKE', "%".$request->get('keyword')."%");
