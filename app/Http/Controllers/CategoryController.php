@@ -109,7 +109,7 @@ class CategoryController extends Controller
     public function logCategory(Request $request){
         $result = \App\LogRequest::where('api_name', 'catalogCategoryCreate');
         $logRequest = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
-        $logRequestCount = $result->count();
+        $logRequestCount = \App\LogRequest::where('api_name', 'catalogCategoryCreate')->count();
         return view('category.log', compact('logRequest', 'logRequestCount'));
     }
 
