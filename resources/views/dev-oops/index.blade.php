@@ -672,7 +672,9 @@
             ],
             rowCallback: function(row, data, index) {
                 // Example: Change background color for rows where status is 'Completed'
-                $(row).css('background-color', data.status.status_color);
+                if(data.status){
+                    $(row).css('background-color', data.status.status_color);
+                }
             },
         });
     });
