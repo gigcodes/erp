@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use App\StoreWebsiteEnvironmentHistory;
 use Illuminate\Support\Facades\Validator;
 use App\StoreWebsiteEnvironmentHistoryStatus;
+use App\Models\DataTableColumn;
 
 class StoreWebsiteEnvironmentController extends Controller
 {
@@ -61,7 +62,8 @@ class StoreWebsiteEnvironmentController extends Controller
             $env_store_websites->whereIn('path', $request->paths);
         }
 
-        $env_paths = $env_paths->pluck('path', 'id');
+        //$env_paths = $env_paths->pluck('path', 'id');
+        $env_paths = $env_paths->paginate(25);
         $env_store_websites = $env_store_websites->groupBy('store_website_id')->pluck('store_website_name', 'store_website_id');
 
         $environments = StoreWebsiteEnvironment::with('latestStoreWebsiteEnvironmentHistory')->select('id', 'store_website_id', 'path', 'value')->get()->toArray();
@@ -85,6 +87,14 @@ class StoreWebsiteEnvironmentController extends Controller
             $result[$value['store_website_id']][] = $value;
         });
 
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'store-website-environment')->first();
+
+        $dynamicColumnsToShowse = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowse = json_decode($hideColumns, true);
+        }
+
         return view('storewebsite::environment.environment-matrix', [
             'title' => $title,
             'storeWebsites' => $storeWebsites,
@@ -93,7 +103,29 @@ class StoreWebsiteEnvironmentController extends Controller
             'env_store_websites' => $env_store_websites,
             'environments' => $result,
             'historyStatuses' => $historyStatuses,
+            'dynamicColumnsToShowse' => $dynamicColumnsToShowse,
         ]);
+    }
+
+    public function columnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','store-website-environment')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'store-website-environment';
+            $column->column_name = json_encode($request->column_se); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'store-website-environment';
+            $column->column_name = json_encode($request->column_se); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function records(Request $request)
@@ -101,12 +133,12 @@ class StoreWebsiteEnvironmentController extends Controller
         $environments = StoreWebsiteEnvironment::leftJoin('store_websites as sw', 'sw.id', 'store_website_environments.store_website_id');
 
         if ($request->store_website_id != null) {
-            $environments = $environments->where('store_website_environments.store_website_id', $request->store_website_id);
+            $environments = $environments->whereIn('store_website_environments.store_website_id', $request->store_website_id);
         }
         if ($request->paths != null) {
-            $environments = $environments->where('store_website_environments.path', $request->paths);
+            $environments = $environments->whereIn('store_website_environments.path', $request->paths);
         }
-
+        
         $environments = $environments->orderBy('store_website_environments.id', 'desc')->select(['store_website_environments.*', 'sw.title as store_website_name'])->paginate();
 
         $items = $environments->items();

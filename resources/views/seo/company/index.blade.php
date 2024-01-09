@@ -10,15 +10,19 @@
 @php
 $auth = auth()->user();
 @endphp
-<h2 class="page-heading">{{ $moduleName }}</h2>
-
-<div class="container-fluid">
-    <div class="d-flex justify-content-end">
+<h2 class="page-heading">
+    {{ $moduleName }} ({{$totalSeoCompanies}})
+    <div style="float:right;">
         @if($auth->hasRole(['Admin']))
             <a href="javascript:;"  class="btn btn-secondary mr-2 typeModuleBtn">Types</a>
         @endif
         <a href="javascript:;" data-url="{{ route('seo.company.create') }}" class="btn btn-secondary addNewBtn">Add new</a>
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#scdatatablecolumnvisibilityList">Column Visiblity</button>
+        <button class="btn btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
     </div>
+</h2>
+
+<div class="container-fluid">
     <div class="mt-3">
         <div class=" mt-4">
             <div class="row mb-3">
@@ -92,6 +96,7 @@ $auth = auth()->user();
                         <th>Date</th>
                         <th>Status</th>
                         <th>Action</th>
+                        <th>Status Color</th>
                     </tr>
                 </thead>
             </table>
@@ -101,7 +106,7 @@ $auth = auth()->user();
 
 <!--  Form Modal -->
 <div class="modal fade" id="companyFormModal"  role="dialog" aria-hidden="true" data-rowid="" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">SEO Company History</h5>
@@ -125,15 +130,12 @@ $auth = auth()->user();
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Company Type </h5>
+                <h5 class="modal-title">Company Type <a style=" text-decoration: underline;  font-weight: bold;  color: blue;  padding: 0;" href="javascript:;" data-url="{{ route('seo.company-type.create')}}" class="btn addNewTypeBtn">Add</a></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="d-flex justify-content-end">
-                    <a href="javascript:;" data-url="{{ route('seo.company-type.create')}}" class="btn btn-secondary mb-3 addNewTypeBtn">Add</a>
-                </div>
                 <table class="table bordered" id="typeTable">
                     <thead>
                         <th>#</th>
@@ -202,7 +204,8 @@ $auth = auth()->user();
         </div>
     </div>
 </div>
-
+@include("seo.company.column-visibility-modal")
+@include("seo.company.modal-status-color")
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
 @include('seo.company.script')
 @endsection

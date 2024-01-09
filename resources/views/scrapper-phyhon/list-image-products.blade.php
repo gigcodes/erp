@@ -68,6 +68,7 @@
         .mr-3 {
             margin:3px;
         }
+        .buttons_div .btn{margin-bottom: 10px; width: 100%;}
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
     <style>
@@ -84,9 +85,16 @@
         }
         .add-remark-button
         {
-            position: absolute;
+            /*position: absolute;*/
             top: 0;
-            right : -40px;
+            /*right : -40px;*/
+            background: transparent;
+        }
+        .btn-add-action
+        {
+            /*position: absolute;*/
+            top: 0;
+            /*right : -10px;*/
             background: transparent;
         }
                .add-remark-button i{
@@ -190,12 +198,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-">
+                <div class="col-md-" style="    padding-right: 15px;">
                     <select class="form-control select-multiple globalSelect2" id="web_store" tabindex="-1" aria-hidden="true" name="store" onchange="showLanguages(this)">
                         <option value="">Select Store</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-">
                     <select class="form-control select-multiple globalSelect2" id="web_language" tabindex="-1" aria-hidden="true" name="language">
                         <option value="">Select Language</option>
                     </select>
@@ -209,13 +217,21 @@
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <input type="hidden" class="range_start_filter" value="<?php echo date("Y-m-d"); ?>" name="range_start" />
                     <input type="hidden" class="range_end_filter" value="<?php echo date("Y-m-d"); ?>" name="range_end" />
                     <div id="filter_date_range_" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ddd; width: 100%;border-radius:4px;">
                         <i class="fa fa-calendar"></i>&nbsp;
                         <span class="d-none" id="date_current_show"></span> <p style="display:contents;" id="date_value_show"> {{ $startDate .' '.$endDate}}</p><i class="fa fa-caret-down"></i>
                     </div>
+                </div>
+
+                <div class="col-md-1">
+                    <select class="form-control select-multiple" id="si_status" tabindex="-1" aria-hidden="true" name="si_status">
+                        <option value="">Select Status</option>
+                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 1 ? 'selected' :'' ) }} value="1">Approved</option>
+                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 2 ? 'selected' :'' ) }} value="2">Rejected</option>
+                    </select>
                 </div>
                
                 <div class="col-md-1">
@@ -303,6 +319,145 @@
     </div>
 
   </div>
+</div>
+
+<div id="bugtrackingCreateModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="edit-h3">Add Bug Tracking</h3>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            {!! Form::open(['route'=> ['bug-tracking.store' ]  ]) !!}
+
+            @if ($message = Session::get('success'))
+                <div class="alert alert-success alert-block">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    <strong>{{ $message }}</strong>
+                </div>
+            @endif
+
+            <div class="form-group {{ $errors->has('summary') ? 'has-error' : '' }}">
+                <label> Summary </label>
+                  <textarea class="form-control" id="summary" name="summary"></textarea>
+                <span class="text-danger">{{ $errors->first('summary') }}</span>
+            </div>
+
+            <div class="form-group {{ $errors->has('step_to_reproduce') ? 'has-error' : '' }}">
+                <label> Step To Reproduce </label>                
+                <textarea class="form-control" id="step_to_reproduce" name="step_to_reproduce"></textarea>
+                <span class="text-danger">{{ $errors->first('step_to_reproduce') }}</span>
+            </div>
+
+            {{-- <div class="form-group {{ $errors->has('url') ? 'has-error' : '' }}">
+                <label> ScreenShot/ Video Url </label>
+                <input class="form-control" id="url_bug" name="url" type="text">
+                <span class="text-danger"></span>
+            </div> --}}
+
+            <div class="form-group" {{ $errors->has('bug_type_id') ? 'has-error' : '' }}>
+                <label> Type of Bug </label>
+                <select class="form-control" id="bug_type_id_bug" name="bug_type_id">
+                    <option value="">Select Type of Bug</option>
+                    @foreach($bugTypes as  $bugType)
+                        <option value="{{$bugType->id}}">{{$bugType->name}} </option>
+                    @endforeach
+                </select>
+                <span class="text-danger"></span>
+            </div>
+
+             <div class="form-group" style="padding-bottom: 58px !important;">
+                <div class="col-md-6" style="padding-left: 0px !important;" {{ $errors->has('bug_environment_id') ? 'has-error' : '' }}>
+                    <label> Environment </label>
+                    <select class="form-control" id="bug_environment_id_bug" name="bug_environment_id">
+                        <option value="">Select Environment</option>
+                        @foreach($bugEnvironments as  $bugEnvironment)
+                            <option value="{{$bugEnvironment->id}}">{{$bugEnvironment->name}} </option>
+                        @endforeach
+                    </select>
+                    <span class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6"  style="padding-right: 0px !important;"  {{ $errors->has('bug_environment_id') ? 'has-error' : '' }}>
+                    <label> Environment Version </label>
+                    <input class="form-control" id="bug_environment_ver_bug" name="bug_environment_ver" type="text">
+                    <span class="text-danger">{{ $errors->first('bug_environment_ver') }}</span>
+                </div>
+                
+            </div>
+           
+            <div class="form-group" {{ $errors->has('assign_to') ? 'has-error' : '' }}>
+                <label> Assign To </label>
+                <select class="form-control" id="assign_to_bug" name="assign_to">
+                    <option value="">Select Assign To</option>
+                    @foreach($users as  $user)
+                        <option value="{{$user->id}}">{{$user->name}} </option>
+                    @endforeach
+                </select>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group" {{ $errors->has('bug_severity_id') ? 'has-error' : '' }}>
+                <label> Severity </label>
+                <select class="form-control" id="bug_severity_id_bug" name="bug_severity_id">
+                    <option value="">Select Severity</option>
+                    @foreach($bugSeveritys as  $bugSeverity)
+                        <option value="{{$bugSeverity->id}}">{{$bugSeverity->name}} </option>
+                    @endforeach
+                </select>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group" {{ $errors->has('bug_status_id') ? 'has-error' : '' }}>
+                <label> Status </label>
+                <select class="form-control" id="bug_status_id_bug" name="bug_status_id">
+                    <option value="">Select Status</option>
+                    @foreach($bugStatuses as  $bugStatus)
+                        <option value="{{$bugStatus->id}}">{{$bugStatus->name}} </option>
+                    @endforeach
+                </select>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group" {{ $errors->has('module_id') ? 'has-error' : '' }}>
+                <label> Module/Feature </label>
+                <select class="form-control" id="module_id_bug" name="module_id">
+                    <option value="">Select Module/Feature</option>
+                    @foreach($filterCategories as  $filterCategory)
+                        <option value="{{$filterCategory}}">{{$filterCategory}} </option>
+                    @endforeach
+                </select>
+                <span class="text-danger"></span>
+            </div>
+
+            <div class="form-group  {{ $errors->has('remark') ? 'has-error' : '' }}">
+                <label> Remark </label>
+                <textarea class="form-control" id="remark_bug" name="remark"></textarea>
+                <span class="text-danger">{{ $errors->first('remark') }}</span>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group" {{ $errors->has('website') ? 'has-error' : '' }}>
+                <label> Website </label>
+                <select class="form-control" id="website_bug" name="website">
+                    <option value="">Select Website</option>
+                    @foreach($filterWebsites as  $filterWebsite)
+                        <option value="{{$filterWebsite->id}}">{{$filterWebsite->title}} </option>
+                    @endforeach
+                </select>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group  {{ $errors->has('parent_id') ? 'has-error' : '' }}">
+                <label> Reference Bug ID </label>
+                 <input class="form-control" name="parent_id" id="parent_id_bug" type="text">
+                <span class="text-danger">{{ $errors->first('parent_id') }}</span>
+            </div> 
+            <div class="form-group">
+                <button type="submit" class="btn btn-secondary btn-save-bug">Store</button>
+            </div>
+            {!! Form::close() !!}
+
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -484,6 +639,7 @@
         var webdevice = $('#web_device').find(":selected").val();
         var startDate = $('input[name="range_start"]').val();
         var endDate = $('input[name="range_end"]').val();
+        var si_status = $('#si_status').find(":selected").val();
 
         if(website == '' ){
              toastr['error']('Please Select Website');
@@ -523,6 +679,10 @@
         if(startDate != ''&& endDate != '' ){
             var origin   = window.location.origin;
             var url = origin+"/scrapper-python/list-images?web_id="+website+"&id="+webstore+"&code="+weblanguage+"&device="+webdevice+"&startDate="+startDate+"&endDate="+endDate;
+        }
+
+        if(si_status != ''){            
+            url += url+"&si_status="+si_status;
         }
        
         window.location.href = url;
@@ -691,6 +851,103 @@
                 });
             }
     
+    $(document).on("click", ".btn-save-bug", function () {
+  $(".text-danger").html("");
+  if ($("#name_bug").val() == "") {
+    $("#name_bug").next().text("Please enter the name");
+    return false;
+  }
+  if ($("#test_cases_bug").val() == "") {
+    $("#test_cases_bug").next().text("Please enter the test cases");
+    return false;
+  }
+  if ($("#step_to_reproduce_bug").val() == "") {
+    $("#step_to_reproduce_bug").next().text("Please enter the steps");
+    return false;
+  }
+
+  if ($("#url_bug").val() == "") {
+    $("#url_bug").next().text("Please enter the url");
+
+    return false;
+  }
+
+  if (
+    $("#bug_environment_id_bug").val() == "" ||
+    $("#bug_environment_id_bug").val() == null ||
+    $("#bug_environment_id_bug").val() == "null"
+  ) {
+    $("#bug_environment_id_bug").next().text("Please enter the environment");
+    return false;
+  }
+
+  if (
+    $("#assign_to_bug").val() == "" ||
+    $("#assign_to_bug").val() == null ||
+    $("#assign_to_bug").val() == "null"
+  ) {
+    $("#assign_to_bug").next().text("Please enter the assign to");
+    return false;
+  }
+
+  if (
+    $("#bug_status_id_bug").val() == "" ||
+    $("#bug_status_id_bug").val() == null ||
+    $("#bug_status_id_bug").val() == "null"
+  ) {
+    $("#bug_status_id_bug").next().text("Please enter the status");
+    return false;
+  }
+  if (
+    $("#module_id_bug").val() == "" ||
+    $("#module_id_bug").val() == null ||
+    $("#module_id_bug").val() == "null"
+  ) {
+    $("#module_id_bug").next().text("Please enter the module");
+    return false;
+  }
+  if ($("#remark_bug").val() == "") {
+    $("#remark_bug").next().text("Please enter the remark");
+    return false;
+  }
+  if (
+    $("#website_bug").val() == "" ||
+    $("#website_bug").val() == null ||
+    $("#website_bug").val() == "null"
+  ) {
+    $("#website_bug").next().text("Please enter the website");
+    return false;
+  }
+  return true;
+});
+
+    $(document).on('click','.reject-scrap-image',function(){
+        var image_id = $(this).data('id');
+        var type = $(this).data('type');        
+
+        var msg = "Are you sure you want to approve this image?";
+        if(type==2){
+            var msg = "Are you sure you want to reject this image?";
+        }
+
+        if (confirm(msg)) {
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: "post",
+                url: "{{ route('scrapper.reject,image') }}",
+                data: {
+                    id: image_id,
+                    si_status: type
+                },
+                success: function(response){
+                    toastr.success('Scrapper image has been successfully rejected.');
+                    location.reload();
+                }
+            })
+        }
+    });
 </script>
 <!-- START - Purpose : Add scroll Interval - DEVTASK-4271 -->
 @endsection

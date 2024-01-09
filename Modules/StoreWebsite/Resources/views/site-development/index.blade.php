@@ -94,6 +94,10 @@
         <input type="hidden" name="website_id_data" id="website_id_data" value="{{ isset($website) ? $website->id : 0 }}" />
         <h2 class="page-heading">Site Development 2 {{ isset($website) ? '- ( ' . $website->website . ' )' : ' ' }} <span class="count-text"></span>
             <div class="pull-right pr-2 d-flex">
+                @if(Auth::user()->isAdmin())
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createTaskUserModal" id="">Create Task Users</button>
+                @endif
+
                 <?php echo Form::select('select_website', ['' => 'All Website'] + $store_websites, null, ['class' => 'form-control select2', 'id' => 'copy_from_website']); ?>
                 <button type="button" class="btn btn-secondary" onClick="copyTasksFromWebsite()">Copy Tasks from
                     website</button>
@@ -694,6 +698,38 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-secondary" onClick="saveMasterCategory()">Create</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="createTaskUserModal" class="modal fade" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form action="{{ route('site-development.create_task_users') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="modal-header">
+                    <h4 class="modal-title">Create Master Category</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="select_website_for_task_add_id">Select User</label>
+
+                        <select name="user_ids[]" id="user_ids" class="form-control" aria-placeholder="Select create Task users" multiple="multiple">
+                            @foreach ($allUsers as $user)
+                            <option value="{{ $user->id }}" @if(in_array($user->id,$user_ids)) {{'selected'}} @endif>{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Create</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

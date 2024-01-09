@@ -35,14 +35,16 @@
 				</button>
 				<form class="form-inline message-search-handler" method="get">
 					   
-					<div class="ml-2">
+					<div class="ml-3">
 						<div class="form-group">
-							<?php echo Form::select("store_website_id",$storeWebsites,request("store_website_id"),["class"=> "form-control select2-ele","placeholder" => "Select Store website"]) ?>
+                            <label>Select Store Website :</label>
+							<?php echo Form::select("store_website_id[]",$storeWebsites,request("store_website_id"),["class"=> "form-control select2-ele",'multiple'=>true]) ?>
 						</div>
 					</div>
-					<div class="ml-2">
+					<div class="ml-3">
 						<div class="form-group">
-							<?php echo Form::select("paths",$paths,request("paths"),["class"=> "form-control select2-ele","placeholder" => "Select Environment path"]) ?>
+                            <label>Select Environment path :</label>
+							<?php echo Form::select("paths[]",$paths,request("paths"),["class"=> "form-control select2-ele",'multiple'=>true]) ?>
 						</div>
 					</div>
 					<div class="ml-2">
