@@ -105,6 +105,13 @@ class CategoryController extends Controller
         return view('category.treeview', compact('category_segments', 'categories', 'allCategories', 'allCategoriesDropdown', 'allCategoriesDropdownEdit', 'selected_value'))->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
+    public function logCategory(Request $request){
+        $result = \App\LogRequest::where('api_name', 'catalogCategoryCreate');
+        $logRequest = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
+        $logRequestCount = $result->count();
+        return view('category.log', compact('logRequest', 'logRequestCount'));
+    }
+
     public function manageCategory11(Request $request)
     {
         $category_segments = CategorySegment::where('status', 1)->get()->pluck('name', 'id');
