@@ -21,6 +21,8 @@ use App\Models\EventRemarkHistory;
 use App\Remark;
 use App\VirtualminDomain;
 use Illuminate\Support\Collection;
+use App\UserAvaibility;
+use App\Models\AppointmentRequest;
 
 class EventController extends Controller
 {
@@ -35,8 +37,20 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
+        //$users = User::where('id','!=', Auth::user()->id)->get()->toArray();
+
+        $user = Auth::user();
+        $admin = $user->isAdmin();
+
+        if($admin){
+            $users = User::where('id', '!=', Auth::user()->id)->orderBy('name', 'ASC')->get()->toArray();
+        } else {
+            $users = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
+            ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();    
+        }
+
         return view(
-            'events.calendar',
+            'events.calendar', compact('users'),
         );
     }
 
@@ -613,12 +627,87 @@ class EventController extends Controller
                     'event_type' => 'TR', // Task Remark
                 ]);
             }
+        } 
+
+        $userAvailableSlot = [];
+        if($request->srchUser>0){
+
+            $stDate =  $request->start;
+            $enDate = $request->end;
+
+            if ($stDate && $enDate) {
+                $filterDates = dateRangeArr($stDate, $enDate);
+                $filterDatesNew = [];
+                foreach ($filterDates as $row) {
+                    $filterDatesNew[$row['date']] = $row;
+                }
+
+                $q = User::query();
+                $q->leftJoin('user_avaibilities as ua', 'ua.user_id', '=', 'users.id');
+                $q->where('users.is_task_planned', 1);
+                $q->where('ua.is_latest', 1);
+                $q->where('users.id', $request->srchUser);
+                $q->select([
+                    'users.id',
+                    'users.name',
+                    \DB::raw('ua.id AS uaId'),
+                    \DB::raw('ua.date AS uaDays'),
+                    \DB::raw('ua.from AS uaFrom'),
+                    \DB::raw('ua.to AS uaTo'),
+                    \DB::raw('ua.start_time AS uaStTime'),
+                    \DB::raw('ua.end_time AS uaEnTime'),
+                    \DB::raw('ua.lunch_time AS uaLunchTime'),
+                    \DB::raw('ua.lunch_time_from AS lunch_time_from'),
+                    \DB::raw('ua.lunch_time_to AS lunch_time_to'),
+                ]);
+                $usersDetails = $q->first();
+
+                if (!empty($usersDetails)) {
+                    $filterDatesOnly = array_column($filterDates, 'date');
+
+                    $userArr = [];
+                
+                    if ($usersDetails->uaId) {
+                        $usersDetails->uaStTime = date('H:i:00', strtotime($usersDetails->uaStTime));
+                        $usersDetails->uaEnTime = date('H:i:00', strtotime($usersDetails->uaEnTime));
+                        $usersDetails->uaLunchTime = $usersDetails->uaLunchTime ? date('H:i:00', strtotime($usersDetails->uaLunchTime)) : '';
+
+                        $usersDetails->uaDays = $usersDetails->uaDays ? explode(',', str_replace(' ', '', $usersDetails->uaDays)) : [];
+                        $availableDates = UserAvaibility::getAvailableDates($usersDetails->uaFrom, $usersDetails->uaTo, $usersDetails->uaDays, $filterDatesOnly);
+                        $availableSlots = UserAvaibility::dateWiseHourlySlotsV2($availableDates, $usersDetails->uaStTime, $usersDetails->uaEnTime, $usersDetails->uaLunchTime, $usersDetails);
+
+                        $iii = 0;
+                        if(!empty($availableSlots)){
+                            foreach ($availableSlots as $keyArray => $valueArray) {
+
+                                if(!empty($valueArray)){
+                                    foreach ($valueArray as $key => $value) {
+
+                                        if($value['type']=='AVL'){
+
+                                            $userAvailableSlot[$iii]['event_id'] = $iii;
+                                            $userAvailableSlot[$iii]['subject'] = $value['st'].' - '.$value['en'];
+                                            $userAvailableSlot[$iii]['title'] = 'Slot - '.($key+1);
+                                            $userAvailableSlot[$iii]['start'] = $value['st'];
+                                            $userAvailableSlot[$iii]['end'] = $value['en'];
+                                            $userAvailableSlot[$iii]['event_type'] = 'AV';
+
+                                            $iii++;
+                                        }
+                                   }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         $merged = $eventSchedules->concat($userPrivateEventCollection)
             ->concat($myAssets)
             ->concat($virtualminDomainCollections)
-            ->concat($taskRemarkCollections);
+            ->concat($taskRemarkCollections)
+            ->concat($userAvailableSlot);
 
         return response()->json($merged);
     }
@@ -926,5 +1015,123 @@ class EventController extends Controller
         }
 
         return response()->json(['code' => 200, 'todo' => $todolists,'event' => $event ,'message' => 'YourStatus has been Updated Succeesfully!']);
+    }
+
+    public function sendAppointmentRequest(Request $request)
+    {
+        $arequest = new AppointmentRequest();
+        $arequest->user_id = Auth::user()->id;
+        $arequest->requested_user_id = $request->requested_user_id;
+        $arequest->remarks = $request->requested_remarks;
+        $arequest->request_status = 0;
+        $arequest->requested_time = $request->requested_time;
+        $arequest->requested_time_end = $request->requested_time_end;
+        $arequest->is_view = 0;
+        $arequest->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Updated successfully !!',
+        ]);
+    }
+
+    public function getAppointmentRequest(Request $request)
+    {
+        $currentDateTimeFormatted = Carbon::now()->format('Y-m-d H:i:s');
+
+        $result = AppointmentRequest::with('user')->where('requested_time', '<=', $currentDateTimeFormatted)
+                    ->where('requested_time_end', '>=', $currentDateTimeFormatted)
+                    ->where('requested_user_id', Auth::user()->id)
+                    ->where('request_status', 0)->orderBy('id', 'DESC')->first();
+
+        $result_rerquest_user = AppointmentRequest::with('userrequest')->where('request_status', '!=', 0)
+                    ->where('user_id', Auth::user()->id)
+                    ->where('is_view', 0)->orderBy('id', 'DESC')->first();
+
+        if (!empty($result) && !empty($result_rerquest_user)) {
+            return response()->json([
+                'code' => 200,
+                'result' => $result,
+                'result_rerquest_user' => $result_rerquest_user,
+                'message' => 'Event Schedule deleted successfully !!',
+            ]);
+        } else if (!empty($result)) {
+            return response()->json([
+                'code' => 200,
+                'result' => $result,
+                'result_rerquest_user' => '',
+                'message' => 'Event Schedule deleted successfully !!',
+            ]);
+        } else if (!empty($result_rerquest_user)) {
+            return response()->json([
+                'code' => 200,
+                'result' => '',
+                'result_rerquest_user' => $result_rerquest_user,
+                'message' => 'Event Schedule deleted successfully !!',
+            ]);
+        } 
+    }
+
+    public function updateAppointmentRequest(Request $request)
+    {
+
+        $arequest = AppointmentRequest::findorfail($request->id);
+        $arequest->request_status = $request->request_status;
+        $arequest->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Updated successfully !!',
+        ]);
+    }
+
+    public function updateuserAppointmentRequest(Request $request)
+    {
+
+        $arequest = AppointmentRequest::findorfail($request->id);
+        $arequest->is_view = 1;
+        $arequest->save();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Updated successfully !!',
+        ]);
+    }
+    
+    public function declineRemarks(Request $request)
+    {
+     
+        $AppointmentRequest = AppointmentRequest::where('id', $request->appointment_requests_id)->first();
+
+        if ($AppointmentRequest) {
+            $AppointmentRequest->decline_remarks = $request->get('appointment_requests_remarks', '');
+            $updatedAppointmentRequest = $AppointmentRequest->save();
+
+            if ($AppointmentRequest) {
+
+                return response()->json(["code" => 200, "data" => $AppointmentRequest, "message" => "Your remarks has been added!"]);
+            }
+        }
+    }
+
+    public function userOnlineStatusUpdate(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        $user->is_online_flag = ($request->is_online_flag=='Online')?1:0;
+        $user->save();
+
+        return response()->json(['code' => 200,'message' => 'User Status has been Updated Succeesfully!']);
+    }
+
+    public function getUserDetailsForOnline(Request $request)
+    {
+        $user = User::find($request->id);
+
+        $is_online_flag = 0;
+        if($user->isOnline()==1 && $user->is_online_flag){
+            $is_online_flag = 1;
+        }
+
+        return response()->json(['code' => 200,'is_online_flag' => $is_online_flag,'name' => $user->name]);
     }
 }
