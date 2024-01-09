@@ -3598,6 +3598,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
     Route::get('/tables-list', [DatabaseTableController::class, 'tableList'])->name('database.tables-list');
     Route::post('truncate-tables', [DatabaseTableController::class, 'truncateTables'])->name('truncate-tables');
+    Route::post('truncate/table-histories', [DatabaseTableController::class, 'getTruncateTableHistories'])->name('truncate.tables.histories');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');

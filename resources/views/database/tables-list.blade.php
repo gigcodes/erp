@@ -21,9 +21,10 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>#</th>
+            <th style="width: 5%;">#</th>
             <th>Table Name</th>
-            <th>Table Size</th>
+            <th style="width: 10%;">Table Size</th>
+            <th style="width: 5%;">Action</th>
           </tr>
         </thead>
 
@@ -42,6 +43,7 @@
                     </td>
                   <td>{{ $value }}</td>
                   <td>{{ $sizeInKB . " KB" }}</td>
+                  <td><button type="button" data-table-name="{{$value}}" class="btn btn-image truncate-history-show" title="Status Histories"><i class="fa fa-info-circle"></i></button></td>
                 </tr>
               <?php }?>
           <?php }?>
@@ -50,6 +52,35 @@
     </div>
   </div>
 </div>
+
+<div id="truncate-table-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Truncate Table Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="20%">Truncate BY</th>
+                                    <th width="30%">Truncate Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="truncate-table-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
@@ -97,6 +128,37 @@
             });      
 
         }
+    });
+
+     $(document).on('click', '.truncate-history-show', function() {
+        var table_name = $(this).attr('data-table-name');
+
+        $.ajax({
+            url: "{{route('truncate.tables.histories')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'table_name' :table_name,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#truncate-table-histories-list").find(".truncate-table-histories-list-view").html(html);
+                    $("#truncate-table-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
     });
 </script>
 @endsection
