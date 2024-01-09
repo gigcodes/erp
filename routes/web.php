@@ -5681,6 +5681,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-updates');
     Route::delete('/{id}/destroy', [TodoListController::class, 'destroy'])->name('todolist.destroy');
     Route::post('/remark/historypost', [TodoListController::class, 'remarkPostHistory'])->name('todolist.remark.history.post');
+    Route::get('/get/todolist/search/', [TodoListController::class, 'searchTodoListHeader'])->name('todolist.module.search');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {

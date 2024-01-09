@@ -399,4 +399,25 @@ class TodoListController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
+    public function searchTodoListHeader(Request $request)
+    {
+        //$type = $request->tasktype ? $request->tasktype : '';
+
+
+        $query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc');
+
+        if ($request->get('keyword') != '') {
+             $query->where('title', 'LIKE', "%".$request->get('keyword')."%")->orWhere('subject', 'LIKE', "%".$request->get('keyword')."%");
+        }
+
+        $todoLists = $query->with('category')->limit(10)->get();
+
+        $statuses = \App\TodoStatus::get();
+
+        return view('todolist.menu-todata', [
+            'todoLists' => $todoLists,
+            'statuses' => $statuses
+        ]);
+    }
 }
