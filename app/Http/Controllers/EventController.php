@@ -1128,8 +1128,15 @@ class EventController extends Controller
         $user = User::find($request->id);
 
         $is_online_flag = 0;
-        if($user->isOnline()==1 && $user->is_online_flag){
-            $is_online_flag = 1;
+
+        if (Auth::user()->isAdmin()) {
+            if($user->isOnline()==1){
+                $is_online_flag = 1;
+            }
+        } else {
+            if($user->isOnline()==1 && $user->is_online_flag){
+                $is_online_flag = 1;
+            }
         }
 
         return response()->json(['code' => 200,'is_online_flag' => $is_online_flag,'name' => $user->name]);
