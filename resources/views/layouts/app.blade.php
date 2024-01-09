@@ -1109,7 +1109,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <option>--Users--</option>
                                         @foreach ($users as $key => $user)
                                             @if($user->id!=auth()->user()->id)
-                                                @if($user->isOnline()==1 && $user->is_online_flag)
+                                                @if($user->isOnline()==1)
                                                     <option value="{{$user->id}}">{{$user->name}}</option>
                                                 @endif
                                             @endif
@@ -1637,15 +1637,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
                                             </a>
                                         </li>
+                                        <li>
+                                            <label class="switchAN">
+                                                <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
+                                                <span class="slider round"></span>
+                                                <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
+                                            </label>
+                                        </li>
                                     @endif
                                 @endauth
-                                <li>
-                                    <label class="switchAN">
-                                        <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
-                                        <span class="slider round"></span>
-                                        <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
-                                    </label>
-                                </li>
+                                
 
                                 <style type="text/css">
                                     .switchAN{position:relative;display:inline-block;width:53px;height:30px}
