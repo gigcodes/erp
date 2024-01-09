@@ -23,17 +23,25 @@
           <tr>
             <th>#</th>
             <th>Table Name</th>
+            <th>Table Size</th>
           </tr>
         </thead>
 
         <tbody>
-        <?php if (!empty($tables)) {?>
-            <?php foreach ($tables as $value) {?>
+        <?php 
+        if (!empty($tables)) {
+            foreach ($tables as $value) {
+                $sizeResult = Illuminate\Support\Facades\DB::select(DB::raw("SHOW TABLE STATUS LIKE '$value'"));
+            
+                // Extract the size information
+                $sizeInBytes = $sizeResult[0]->Data_length + $sizeResult[0]->Index_length;
+                $sizeInKB = round($sizeInBytes / 1024, 2); // Convert bytes to KB ?>
                 <tr>
                     <td>
                         <input type="checkbox" name="tables_check" class="tables_check" value="{{ $value }}" data-id="{{ $value }}">
                     </td>
                   <td>{{ $value }}</td>
+                  <td>{{ $sizeInKB . " KB" }}</td>
                 </tr>
               <?php }?>
           <?php }?>
