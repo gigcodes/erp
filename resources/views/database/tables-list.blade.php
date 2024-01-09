@@ -16,6 +16,27 @@
   </div>
 </div>
 <div class="row">
+    <div class="col-md-12 mb-1">
+        <form method="get" action="{{ route('database.tables-list') }}">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-control" name="table_name">
+                    <option value="">Select Table</option>
+                    @foreach ($tables as $value)
+                        <option value="{{ $value }}" <?php if($value == Request::get('table_name')) echo "selected"; ?>>{{ $value }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                    <img src="/images/search.png" style="cursor: default;">
+                </button>
+                <a href="{{route('database.tables-list')}}" type="button" class="btn btn-image" id=""><img src="/images/resend2.png"></a>    
+            </div>
+        </div>
+        </form>
+    </div>
+    
   <div class="col-md-12">
     <div class="table-responsive-lg" id="page-view-result">
       <table class="table table-bordered">
@@ -32,19 +53,42 @@
         <?php 
         if (!empty($tables)) {
             foreach ($tables as $value) {
-                $sizeResult = Illuminate\Support\Facades\DB::select(DB::raw("SHOW TABLE STATUS LIKE '$value'"));
+
+                if(!empty(Request::get('table_name'))){
+
+                    if($value == Request::get('table_name')) {
+                        $sizeResult = Illuminate\Support\Facades\DB::select(DB::raw("SHOW TABLE STATUS LIKE '$value'"));
+                
+                        // Extract the size information
+                        $sizeInBytes = $sizeResult[0]->Data_length + $sizeResult[0]->Index_length;
+                        $sizeInKB = round($sizeInBytes / 1024, 2); // Convert bytes to KB ?>
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="tables_check" class="tables_check" value="{{ $value }}" data-id="{{ $value }}">
+                            </td>
+                          <td>{{ $value }}</td>
+                          <td>{{ $sizeInKB . " KB" }}</td>
+                          <td><button type="button" data-table-name="{{$value}}" class="btn btn-image truncate-history-show" title="Status Histories"><i class="fa fa-info-circle"></i></button></td>
+                        </tr>
+                <?php
+                    }
+                } else {
+                    $sizeResult = Illuminate\Support\Facades\DB::select(DB::raw("SHOW TABLE STATUS LIKE '$value'"));
             
-                // Extract the size information
-                $sizeInBytes = $sizeResult[0]->Data_length + $sizeResult[0]->Index_length;
-                $sizeInKB = round($sizeInBytes / 1024, 2); // Convert bytes to KB ?>
-                <tr>
-                    <td>
-                        <input type="checkbox" name="tables_check" class="tables_check" value="{{ $value }}" data-id="{{ $value }}">
-                    </td>
-                  <td>{{ $value }}</td>
-                  <td>{{ $sizeInKB . " KB" }}</td>
-                  <td><button type="button" data-table-name="{{$value}}" class="btn btn-image truncate-history-show" title="Status Histories"><i class="fa fa-info-circle"></i></button></td>
-                </tr>
+                    // Extract the size information
+                    $sizeInBytes = $sizeResult[0]->Data_length + $sizeResult[0]->Index_length;
+                    $sizeInKB = round($sizeInBytes / 1024, 2); // Convert bytes to KB ?>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="tables_check" class="tables_check" value="{{ $value }}" data-id="{{ $value }}">
+                        </td>
+                      <td>{{ $value }}</td>
+                      <td>{{ $sizeInKB . " KB" }}</td>
+                      <td><button type="button" data-table-name="{{$value}}" class="btn btn-image truncate-history-show" title="Status Histories"><i class="fa fa-info-circle"></i></button></td>
+                    </tr>
+                <?php
+                } ?>
+                
               <?php }?>
           <?php }?>
         </tbody>
