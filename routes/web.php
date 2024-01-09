@@ -3855,6 +3855,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('statistics/multiple-update-field', [ScrapStatisticsController::class, 'multipleUpdateField'])->name('scrap.multiple.update.field');
     Route::get('statistics/update-scrap-field', [ScrapStatisticsController::class, 'updateScrapperField']);
     Route::get('statistics/show-history', [ScrapStatisticsController::class, 'showHistory']);
+    Route::post('statistics/status/create', [ScrapStatisticsController::class, 'ssstatusCreate'])->name('scrap.status.create');
     Route::post('statistics/update-priority', [ScrapStatisticsController::class, 'updatePriority']);
     Route::get('statistics/history', [ScrapStatisticsController::class, 'getHistory']);
     Route::post('statistics/reply/add', [ScrapStatisticsController::class, 'addReply']);
