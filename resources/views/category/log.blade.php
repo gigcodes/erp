@@ -12,7 +12,7 @@
     </style>
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Categories Log ({{$logRequestCount}})</h2>
+            <h2 class="page-heading">Categories Log ({{$logRequestCount}}) <button id="pushCategoryBtn" style="float: right">Push Category</button></h2>   
         </div>
         <div class="col-md-12">
                 <div class="table-responsive">
@@ -76,6 +76,21 @@
 </div>
 
 @section('scripts')
+<script>
+    document.getElementById('pushCategoryBtn').addEventListener('click', function() {
+        // Make an HTTP request when the button is clicked
+        fetch('/push-category-in-live', {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message); // Show a message or handle the response as needed
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
     <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
