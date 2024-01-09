@@ -7,16 +7,30 @@ use App\BusinessPost;
 use App\BusinessComment;
 use App\GoogleTranslate;
 use App\SocialWebhookLog;
+use App\Reply;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use App\StoreWebsite;
 
 class SocialAccountCommentController extends Controller
 {
-    public function index($postId)
+    public function index(Request $request,  $postId)
     {
         //echo "Due to lake of permission we could not load comment section!!"; die();
         $post = BusinessPost::find($postId);
-        $comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId)->latest('time')->get();
+        //$comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId)->latest('time')->get();
+
+        $search = request('search', '');
+        $comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId);
+        
+        if (! empty($search)) {
+            $comments = $comments->where(function ($q) use ($search) {
+                $q->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $comments = $comments->latest('time')->get();
+
         $googleTranslate = new GoogleTranslate();
         $target = 'en';
         foreach ($comments as $key => $value) {
@@ -25,6 +39,53 @@ class SocialAccountCommentController extends Controller
         }
 
         return view('social-account.comment', compact('post', 'comments'));
+    }
+
+    public function allcomments(Request $request)
+    {
+        $search = request('search', '');
+        $social_config = request('social_config', '');
+        $store_website_id = request('store_website_id', '');
+
+        $totalcomments = BusinessComment::where('is_parent', 0)->count();
+
+        $comments = BusinessComment::with('bussiness_post', 'bussiness_post.bussiness_social_configs', 'bussiness_post.bussiness_social_configs.bussiness_website')->where('is_parent', 0);
+        
+        if (! empty($search)) {
+            $comments = $comments->where(function ($q) use ($search) {
+                $q->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        // Adding filter condition for bussiness_post.bussiness_social_configs
+        if (!empty($social_config)) {
+            $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($social_config) {
+                // Add your filter conditions for bussiness_post.bussiness_social_configs here
+                $query->whereIn('social_configs.platform', $social_config);
+            });
+        }
+
+        if (!empty($store_website_id)) {
+            $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($store_website_id) {
+                // Add your filter conditions for bussiness_post.bussiness_social_configs here
+                $query->whereIn('social_configs.store_website_id', $store_website_id);
+            });
+        }
+
+        $comments = $comments->orderBy('comment_id', 'DESC')->paginate(25);
+
+
+        $googleTranslate = new GoogleTranslate();
+        $target = 'en';
+        foreach ($comments as $key => $value) {
+            $translationString = $googleTranslate->translate('en', $value['message']);
+            $value['translation'] = $translationString;
+        }
+
+        $websites = \App\StoreWebsite::select('id', 'title')->get();
+        $socialconfigs = SocialConfig::get();
+
+        return view('social-account.allcomment', compact('comments', 'totalcomments', 'socialconfigs', 'websites'));
     }
 
     public function replyComments(Request $request)
@@ -107,5 +168,13 @@ class SocialAccountCommentController extends Controller
 
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
     }
 }

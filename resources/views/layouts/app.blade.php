@@ -55,10 +55,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-
-    <!-- Include Summernote CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
-
     @if(Auth::user())
         @if(Auth::user()->user_timeout!=0)
             <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
@@ -801,7 +797,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     
     @auth
         <script type="text/javascript">
-            const IS_ADMIN_USER = @if(!empty(auth()->user()->isAdmin())) {{ auth()->user()->isAdmin() }} @else false @endif;
+            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
             const LOGGED_USER_ID = {{ auth()->user()->id}};
         </script>
     @else
@@ -848,7 +844,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <tbody class="sop_search_result">
                                     @php
                                         $usersop = \App\Sop::all();
-                                        $users = \App\User::all();
+                                        $users = \App\User::orderBy('name', 'ASC')->get();
                                     @endphp
                                     @foreach ($usersop as $key => $value)
                                         <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
@@ -1007,16 +1003,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </button>
                 </div>
                 <div class="modal-body">
-                    @include('emails.shortcuts')
-                    <p><strong>Subject : </strong><input type="text" id="quickemailSubject" name="subject" class="form-control"></p>
-                    <p><strong>Body : </strong><textarea id="reply-message" name="message" class="form-control reply-email-message"></textarea></p>
+                    <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
+                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
                     </br>
-                    <p>
-                        <strong>Message Body : </strong> - <span id="quickemailDate"></span>
-                        <span class="pull-right"><label>History : <input type="checkbox" name="pass_history" id="pass_history" value="1" style=" height: 13px;"></label></span>
-                    </p>
+                    <p><strong>Message Body : </strong><span id="quickemailSubject"></span></p>
                     <input type="hidden" id="receiver_email">
-                    <input type="hidden" id="sender_email_address">
                     <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
 
@@ -1071,6 +1062,77 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
     </div>
+
+    <div id="declien-remarks" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Remarks</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="<?php echo route('appointment-request.declien.remarks'); ?>" id="menu_sop_edit_form">
+                        <input type="text" hidden name="appointment_requests_id" id="appointment_requests_id">
+                        @csrf
+                        <div class="form-group">
+                            <label for="content">Remarks</label>
+                            <textarea class="form-control sop_edit_class" name="appointment_requests_remarks" id="appointment_requests_remarks"></textarea>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary ml-3 updatedeclienremarks">Update</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @auth
+        @if(auth()->user()->isAdmin())
+            <div id="quickRequestZoomModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <form action="#" method="POST" id="send-request-form">
+                            @csrf
+
+                            <div class="modal-header">
+                                <h4 class="modal-title">Send Request</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="form-group">
+                                    <label for="title">Select User</label>
+                                    <select name="requested_ap_user_id" class="form-control" style="width: 100%" id="requested_ap_user_id" required>
+                                        <option>--Users--</option>
+                                        @foreach ($users as $key => $user)
+                                            @if($user->id!=auth()->user()->id)
+                                                @if($user->isOnline()==1 && $user->is_online_flag)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div> 
+
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <textarea name="requested_ap_remarks" id="requested_ap_remarks" placeholder="Enter remarks" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary send-ap-quick-request">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endauth
+
     <!-- sop-search Modal-->
     <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
     <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
@@ -1452,8 +1514,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Add Todo List" class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
-                                <li>
+                                <!-- <li>
                                     <a title="Todo List" class="quick-icon todolist-get" href="#"><span><i class="fa fa-list fa-2x"></i></span></a>
+                                </li> -->
+
+                                <li>
+                                    <a title="Todo List" type="button" class="quick-icon menu-todolist-get" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
@@ -1556,13 +1623,48 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;" id="create-vendor-id">
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#vendorShortcutCreateModal" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa fa-user-plus fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <li>
+                                            <a title="Quick Appointment Request" data-toggle="modal" data-target="#quickRequestZoomModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                                <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endauth
+                                <li>
+                                    <label class="switchAN">
+                                        <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
+                                        <span class="slider round"></span>
+                                        <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
+                                    </label>
+                                </li>
+
+                                <style type="text/css">
+                                    .switchAN{position:relative;display:inline-block;width:53px;height:30px}
+                                    .switchAN input{opacity:0;width:0;height:0}
+                                    .switchAN .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;-webkit-transition:.4s;transition:.4s;border-radius:34px}
+                                    .slider:before{position:absolute;content:"";height:22px;width:22px;left:4px;bottom:4px;background-color:#fff;-webkit-transition:.4s;transition:.4s;border-radius:50%}
+                                    .switchAN input:checked + .slider{background-color:#ddd}
+                                    .switchAN input:focus + .slider{box-shadow:0 0 1px #ddd}
+                                    .switchAN input:checked + .slider:before{-webkit-transform:translateX(22px);-ms-transform:translateX(22px);transform:translateX(22px)}
+                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);color:#808080;font-size:9px}
+                                    .switchAN .slider.round{border-radius:34px}
+                                    .swal2-confirm {
+                                        color: #333 !important;
+                                        background-color: #fff !important;
+                                        border: 1px solid #ccc !important;
+                                    }
+                                    .switchAN .textLeft { left:10px; }
+                                    .switchAN .textRight { right:10px; }
+                                </style>
                             </ul>                         
                         </nav>
                         <div id="permission-request-model" class="modal fade" role="dialog">
@@ -3326,9 +3428,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                             <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('affiliate-marketing.providers')}}">Providers</a>
-                                            </li>
-                                            <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('affiliate-marketing.providerAccounts')}}">Providers Accounts</a>
                                             </li>
                                         </ul>
@@ -4551,12 +4650,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/mailbox">Mailbox</a>
-                                    </li>sssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{route('database.tables-list')}}">Truncate Tables</a>
+                                    </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/scrap/scrap-links">Scrap Links</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/devoops">Dev Oops</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="https://erp.theluxuryunlimited.com/seo/company">Seo Company</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/appointment-request">Appointment Request</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/affiliate-marketing/provider-accounts">Affiliates Providers Sites</a>
                                     </li>
                                 </ul>
                             </li>
@@ -4669,6 +4780,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     </li>
 
                                                     <li class="nav-item dropdown">
+                                                        <a class="dropdown-item" href="/category/new-references-group">New Category
+                                                            Reference Group</a>
+                                                    </li>
+
+                                                    <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
@@ -4688,6 +4804,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item"
                                                             href="{{route('compositions.index')}}">Composition</a>
+                                                    </li>
+                                                    <li class="nav-item dropdown">
+                                                        <a class="dropdown-item"
+                                                            href="{{route('compositions.groups')}}">Composition Groups</a>
                                                     </li>
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="/descriptions">Description</a>
@@ -5208,6 +5328,49 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
 
+        <div id="menu-todolist-get-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Todo List</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <input type="text" name="todolist_search" class="dev-todolist-table" class="form-control" placeholder="Search Keyword">
+                                            <button type="button" class="btn btn-secondary btn-todolist-search-menu" ><i class="fa fa-search"></i></button>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Subject</th>
+                                                    <th>Category</th>
+                                                    <th>Status</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-todolist-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>s
+
         <div id="menu_user_history_modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
                 <!-- Modal content-->
@@ -5449,7 +5612,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     @if (Auth::check())
 
-		<div id="todolist-get-model" class="modal fade" role="dialog">
+		<!-- <div id="todolist-get-model" class="modal fade" role="dialog">
              <div class="modal-content modal-dialog modal-lg">
                     <div class="modal-header">
                         <h4 class="modal-title">Todo List</h4>
@@ -5494,7 +5657,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 				@endif
 			</div>
              </div>
-        </div>
+        </div> -->
 
 
         @if(1 == 2 && auth()->user()->isAdmin())
@@ -6086,38 +6249,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
-        <!-- <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
-
-    <!-- Include Summernote JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
-
-    <script>
-        // Initialize Summernote
-        $(document).ready(function () {
-            $('#reply-message').summernote({
-                height: 300, // Set the height of the editor
-                placeholder: 'Write your content here...', // Placeholder text
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['fontsize', ['fontsize']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['height', ['height']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview']],
-                    ['help', ['help']]
-                ]
-            });
-        });
-
-        function addTextToEditor(text) {
-            // Append the provided text to the existing content of the editor
-            $('#reply-message').summernote('code', text);
-          }
-    </script>
-
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
@@ -6524,7 +6655,6 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             $('#formattedContent').html(formattedHTML);
         }
 
-        $('#sender_email_address').val(userEmail.from);
         $('#receiver_email').val(userEmail.to);
         $('#reply_email_id').val(userEmail.id);
 
@@ -6540,59 +6670,67 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
             return formattedContent;
         }
-        $('#quickemailSubject').val(userEmail.subject);
-        $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
+        $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
+    }
 
-        var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
-        var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
+    $(document).on('click', '.updatedeclienremarks', function (e) {
+        e.preventDefault();
+        var appointment_requests_id = $("#appointment_requests_id").val();
+        var appointment_requests_remarks = $('#appointment_requests_remarks').val();
 
-        //$("#reply-message").val(senderName);
-        //addContentToEditor(senderName);
-        addTextToEditor(senderName);
+        if(appointment_requests_id == '') {
+            alert("Something went wrong. Please try again.");
+            return false;
+        }
 
+        if(appointment_requests_remarks == '') {
+            $('#appointment_requests_remarks').next().text("Please enter the subject");
+            return false;
+        }
 
         $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            url: userEmaillUrl,
-            type: 'get',
+            url: '{{route('appointment-request.declien.remarks')}}',
+            type: 'post',
+            data: {
+                'appointment_requests_id': appointment_requests_id,
+                'appointment_requests_remarks': appointment_requests_remarks,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
         }).done( function(response) {
-            //$("#reply-message").val(senderName+'\n\n'+response);
-            //addContentToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
-            addTextToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
+            $("#loading-image").hide();
+
+            if (data.code == 500) {
+                toastr["error"]('Something went wrong. Please try again.');
+            } else {
+                
+                $("#declien-remarks").modal("hide");
+                toastr["success"](response.message);
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1500);
+            }
         }).fail(function(errObj) {
-        })        
-    }
-
-    /*function addContentToEditor(newContent) {
-        // Get the TinyMCE editor instance by ID
-        var editor = tinymce.get('reply-message');
-
-        if (editor) {
-          // Add content to the editor
-          editor.setContent(newContent);
-        } else {
-          console.error('Editor instance not found.');
-        }
-      }*/
+            $("#loading-image").hide();
+            toastr['error']('Something went wrong. Please try again.');
+            location.reload();
+        });
+    });
 
     $(document).on('click', '.submit-reply-email', function (e) {
         e.preventDefault();
 
-        var quickemailSubject = $("#quickemailSubject").val();
+        var quickemailSubject = $("#quickemailSubject").text();
         var formattedContent = $("#formattedContent").html();
         var replyMessage = $("#reply-message").val();
         var receiver_email = $('#receiver_email').val();
         var reply_email_id= $('#reply_email_id').val();
-
-        var pass_history = $('#pass_history').prop('checked');
-        if (pass_history) {
-          pass_history = 1;
-        } else {
-          pass_history = 0;
-        }
 
             $.ajax({
             headers: {
@@ -6604,8 +6742,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             'receiver_email': receiver_email,
             'subject': quickemailSubject,
             'message': replyMessage,
-            'reply_email_id': reply_email_id,
-            'pass_history': pass_history
+            'reply_email_id': reply_email_id
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -9674,8 +9811,8 @@ if (!\Auth::guest()) {
     });
 
 	$(document).on("click", ".todolist-get", function(e) {
-			e.preventDefault();
-			$("#todolist-get-model").modal("show");
+		e.preventDefault();
+		$("#todolist-get-model").modal("show");
 	});
 
     $(document).on("click", ".menu-create-database", function(e) {
@@ -9691,6 +9828,44 @@ if (!\Auth::guest()) {
     $(document).on("click", ".menu-show-dev-task", function(e) {
         e.preventDefault();
         $("#menu-show-dev-task-model").modal("show");
+    });
+
+    $(document).on("click", ".menu-todolist-get", function(e) {
+        e.preventDefault();
+
+        getTodoListHeader();
+        $("#menu-todolist-get-model").modal("show");
+    });
+
+    function getTodoListHeader(){
+        var keyword = $('.dev-todolist-table').val();
+
+        $.ajax({
+            url: '{{route('todolist.module.search')}}',
+            type: 'GET',       
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                keyword: keyword,
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-todolist-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    }
+
+    $(document).on('click', '.btn-todolist-search-menu', function(e) {
+        getTodoListHeader();
     });
 
     $(document).on('click', '.menu-preview-img-btn', function(e) {
@@ -9930,14 +10105,190 @@ if (!\Auth::guest()) {
           });
     });
 
-    $(".select-multiple-s").select2({
-      tags: true
-  });
+    function checkRecord() {
+        $.ajax({
+            url: `{{ route('event.getAppointmentRequest')}}`, // Replace with your server endpoint
+            method: 'GET',
+            success: function(responseData) {
+                if (responseData.code == 200) {
 
-    /*tinymce.init({
-        selector: '#reply-message',
-        menubar: false
-    });*/
+                    if (responseData.result!='') {
+                        Swal.fire({
+                            title: responseData.result.user.name+' Want to connect on Zoom  - Accept Decline',
+                            text: '',                            
+                            showCancelButton: true,
+                            confirmButtonText: 'Accept',
+                            cancelButtonText: 'Decline'
+                        }).then((result) => {
+                            // Check if the user clicked the Accept button
+                            if (result.isConfirmed) {
+                                var requeststatus = 1;
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                var requeststatus = 2;
+
+                                $("#declien-remarks #appointment_requests_id").val(responseData.result.id);
+                            }
+
+                            if(requeststatus==1 || requeststatus==2){
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result.id,
+                                        request_status : requeststatus                              
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                    if (response.code == 200) {
+
+                                        if(requeststatus==1){
+                                            toastr['success']('You successfully accepeted request.', 'success');
+                                        } else {
+                                            toastr['success']('You successfully decline request.', 'success');
+                                        }
+                                    }
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                    toastr['error']('Sorry, something went wrong', 'error');
+                                });
+
+                                if (requeststatus==2) {
+                                    $("#declien-remarks").modal("show");
+                                }     
+                            }                       
+                        });
+                    } 
+
+                    if (responseData.result_rerquest_user!='') {
+
+                        if(responseData.result_rerquest_user.request_status==1){
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' Confirmed your meeting Request pls. Join zoom'
+                        } else {
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' delicate your meeting request - '+responseData.result_rerquest_user.userrequest.decline_remarks
+                        }
+
+                        Swal.fire({
+                            title: 'Hello!',
+                            text: msgText,
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            // Check if the user clicked the Okay button
+                            if (result.isConfirmed) {
+                                // Perform an AJAX call when the Okay button is clicked
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateuserAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result_rerquest_user.id,
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+            }
+        });
+    }
+
+    setInterval(checkRecord, 5000); 
+
+    $(document).ready(function() {
+        $('#availabilityToggle').change(function() {
+                
+            $('#availabilityText').removeClass('textLeft');
+            $('#availabilityText').removeClass('textRight');
+
+            var isChecked = $(this).prop('checked');
+            var availabilityText = isChecked ? 'Online' : 'Offline';
+            var alignmentText = isChecked ? 'textLeft' : 'textRight';
+
+            // Update the text content within the toggle switch
+            $('#availabilityText').text(availabilityText);
+            var availabilityTextNew = isChecked ? 'On' : 'Off';
+            $('#availabilityText').addClass(availabilityTextNew);
+
+            $.ajax({
+                type: 'POST',
+                url: '{{route('useronlinestatus.status.update')}}',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    is_online_flag : availabilityText,
+                },
+                dataType: "json",
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['success'](response.message, 'success');
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+            });
+        });
+    });
+
+    $(document).on('click', '.send-ap-quick-request', function (event) {
+
+        if($('#requested_ap_user_id').val()==''){
+            alert('Please select user');
+            return false;
+        }
+
+        if($('#requested_ap_remarks').val()==''){
+            alert('Please enter remarks');
+            return false;
+        }     
+
+        var currentDate = moment(); // Current date and time                              
+        var dateAfterOneHour = moment(currentDate).add(1, 'hours');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{route('event.sendAppointmentRequest')}}',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                requested_user_id : $('#requested_ap_user_id').val(),
+                requested_time : moment(currentDate).format('YYYY-MM-DD HH:mm:ss'),
+                requested_time_end : moment(dateAfterOneHour).format('YYYY-MM-DD HH:mm:ss'),
+                requested_remarks : $('#requested_ap_remarks').val(),
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
+        });
+    });
     
     </script>
     @if ($message = Session::get('actSuccess'))

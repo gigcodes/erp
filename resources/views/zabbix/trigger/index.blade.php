@@ -35,7 +35,7 @@
                 <?php echo csrf_field(); ?>
 
                 <div class="col-md-12">
-                    <div class="table-responsive mt-3" id="fresh-page">
+                    <div class="table-responsive mt-3" id="ajax-content">
                         @include('zabbix.trigger.list')
                     </div>
                 </div>

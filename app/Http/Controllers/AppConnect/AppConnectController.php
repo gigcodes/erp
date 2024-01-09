@@ -10,6 +10,7 @@ use App\AppRatingsReport;
 use Illuminate\Http\Request;
 use App\AppSubscriptionReport;
 use App\Http\Controllers\Controller;
+use App\Models\DataTableColumn;
 
 class AppConnectController extends Controller
 {
@@ -34,7 +35,35 @@ class AppConnectController extends Controller
         $id = 0;
         $reports = AppSalesReport::groupBy('start_date')->get();
 
-        return view('appconnect.app-sales', ['reports' => $reports, 'id' => $id]);
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'app-sales-listing')->first();
+
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }
+        
+        return view('appconnect.app-sales', ['reports' => $reports, 'id' => $id, 'dynamicColumnsToShowb' => $dynamicColumnsToShowb]);
+    }
+
+    public function columnVisibilityUpdateAppSales(Request $request){
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','app-sales-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'app-sales-listing';
+            $column->column_name = json_encode($request->column_data); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'app-sales-listing';
+            $column->column_name = json_encode($request->column_data); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function getPaymentReport()

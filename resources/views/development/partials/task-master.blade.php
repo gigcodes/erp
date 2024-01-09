@@ -356,16 +356,34 @@
                             table = table + '</th>';
 
                             if(key=='properties'){
+
+                                var iiii = 1;
                                 if(data.values.properties!=''){
                                     table = table + '<td><table class="table table-bordered table-striped">';
                                     $.each(data.values.properties, function(key, value) {
-                                        table = table + '<tr>';
-                                            table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
-;
-                                            table = table + '</th>';
-                                            table = table + '<td>'+value;
-                                            table = table + '</td>';
-                                        table = table + '</tr>';
+                                        if(key=='category'){
+                                            if(data.values.properties.category){
+
+                                                $.each(data.values.properties.category, function(keyC, valueC) {
+
+                                                    table = table + '<tr>';
+                                                        table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "))+' '+iiii;
+                                                        table = table + '</th>';
+                                                        table = table + '<td>'+valueC;
+                                                        table = table + '</td>';
+                                                    table = table + '</tr>';
+
+                                                    iiii++;
+                                                });
+                                            }
+                                        } else {
+                                            table = table + '<tr>';
+                                                table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
+                                                table = table + '</th>';
+                                                table = table + '<td>'+value;
+                                                table = table + '</td>';
+                                            table = table + '</tr>';
+                                        }
 
                                     });
                                     table = table + '</table></td>';
@@ -498,8 +516,14 @@
                                     @endif
                                 }
                             } else {
-                                table = table + '<td>'+value;
-                                table = table + '</td>';
+
+                                if(key=='url'){
+                                    table = table + '<td><a href="'+value+'" target="_blank">'+value+'</a>';
+                                    table = table + '</td>';
+                                } else {
+                                    table = table + '<td>'+value;
+                                    table = table + '</td>';
+                                }
 
                                 var approveValue = '';
                                 var unapproveValue = '';

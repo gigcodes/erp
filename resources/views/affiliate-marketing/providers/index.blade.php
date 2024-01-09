@@ -138,20 +138,22 @@
                         {{csrf_field()}}
                         <input type="hidden" id="provider_id" name="affiliate_account_id" value="{!! $provider->id !!}">
                         <div class="form-group row">
-                            <label for="headline1" class="col-sm-2 col-form-label">Title</label>
+                            <label for="headline1" class="col-sm-2 col-form-label">
+                                Title
+                                <small style="color:red">*</small>
+                            </label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="group_title" name="title"
                                        placeholder="Title" value="{{ old('title') }}">
-                                @if ($errors->has('title'))
-                                    <span class="text-danger">{{$errors->first('title')}}</span>
-                                @endif
+                                <span id="group_title_err" class="text-danger">{{($errors->has('title'))? $errors->first('title'):''}}</span>
+                                
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="float-right ml-2 custom-button btn" data-dismiss="modal"
                                     aria-label="Close">Close
                             </button>
-                            <button type="submit" class="float-right custom-button btn">Create</button>
+                            <button type="submit" onclick="return validateForm()" class="float-right custom-button btn">Create</button>
                         </div>
                     </form>
                 </div>
@@ -210,6 +212,15 @@
                     }
                 }
             })
+        }
+
+        function validateForm() {
+            let title = $('#group_title').val();
+            if(title == ''){
+                $('#group_title_err').text('The title field is required.');
+                return false;
+            }
+            return true;
         }
     </script>
 @endsection

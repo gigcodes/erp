@@ -9,7 +9,11 @@
     @include("social.posts.history")
 
     <div class="col-md-12">
-        <h2 class="page-heading">Social Posts Grid ({{ $posts->total() }})<span class="count-text"></span></h2>
+        <h2 class="page-heading">
+            Social Posts Grid ({{ $posts->total() }})<span class="count-text"></span>
+
+            <a target="_blank" class="btn btn-secondary mr-2" style="background: #fff;color: #757575;border: 1px solid #ccc;float: right;" href="{{route('social.all-comments')}}">All Comments</a>
+        </h2>
         <div class="col-lg-12">
             <form action="" method="GET" class="form-inline align-items-start">
                 <div class="row mr-3 mb-3">
@@ -55,10 +59,11 @@
                     <table class="table table-bordered" style="table-layout:fixed;">
                         <tr>
                             <th style="width:5%">Image</th>
-                            <th style="width:5%">Date</th>
-                            <th style="width:5%">Website</th>
-                            <th style="width:5%">Platform</th>
+                            <th style="width:8%">Date</th>
+                            <th style="width:10%">Website</th>
+                            <th style="width:6%">Platform</th>
                             <th style="width:25%">Caption</th>
+                            <th style="width:20%">Hashtags</th>
                             <th style="width:30%">Post</th>
                             <th style="width:10%">Posted on</th>
                             <th style="width:5%">Status</th>

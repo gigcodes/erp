@@ -5,7 +5,7 @@
     <?php 
       $rowCount = 0;
     ?>  
-    <?php foreach($raw as $product) { ?>
+    <?php foreach($raw as $key=>$product) { ?>
       <?php 
         /*if($rowCount % 4 == 0) { echo '<div class="row">'; } 
            $rowCount++;  */
@@ -22,8 +22,10 @@
             <img style="object-fit: cover;max-width:75%;" src="{{ $image }}" class="img-responsive grid-image" alt="...">
           </a>      
           <div class="card-body">
+            <p class="card-text">SKU : <span id="skuValue-{{$key}}">{{ $product->sku }}</span> &nbsp;
+              <span class="glyphicon glyphicon-duplicate" style="cursor: copy" aria-hidden="true" onclick="copySKU('skuValue-{{$key}}')"></span>
+            </p>
             <a href="{{ route( 'products.show', $product->id ) }}">
-              <p class="card-text">SKU : {{ $product->sku }}</p>
               <p class="card-text">Id : {{ $product->id }}</p>
               <p class="card-text">Size : {{ $product->size }}</p>
               @if($isAdmin)
@@ -70,3 +72,28 @@
     <?php } ?>
     </div>
 <?php } ?>
+<script>
+  function copySKU(skuId) {
+      // Get the SKU value
+      var skuValueElement = document.getElementById(skuId);
+
+    if (skuValueElement) {
+        var skuValue = skuValueElement.innerText;
+
+        // Create a temporary input element
+        var inputElement = document.createElement("input");
+        inputElement.value = skuValue;
+        document.body.appendChild(inputElement);
+
+        // Select the text in the input
+        inputElement.select();
+
+        // Copy the text to the clipboard
+        document.execCommand("copy");
+
+        // Remove the input element
+        document.body.removeChild(inputElement);
+    }
+
+  }
+</script>

@@ -31,6 +31,7 @@ use EmailReplyParser\Parser\EmailParser;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Models\EmailBox;
+use App\Models\DataTableColumn;
 
 class EmailController extends Controller
 {
@@ -124,9 +125,10 @@ class EmailController extends Controller
         }
         if ($term) {
             $query = $query->where(function ($query) use ($term) {
-                $query->where('from', 'like', '%' . $term . '%')
+                $query->orWhere('from', 'like', '%' . $term . '%')
                     ->orWhere('to', 'like', '%' . $term . '%')
-                    ->orWhere('subject', 'like', '%' . $term . '%')
+                    ->orWhere('emails.subject', 'like', '%' . $term . '%')
+                    ->orWhere(DB::raw('FROM_BASE64(emails.message)'), 'like', '%' . $term . '%')
                     ->orWhere('chat_messages.message', 'like', '%' . $term . '%');
             });
         }
@@ -164,8 +166,8 @@ class EmailController extends Controller
                 $query->orWhere('to', $mailbox);
             });
         }
-
-        if (isset($seen)) {
+        
+        if (isset($seen) && $seen != "0") {
             if ($seen != 'both') {
                 $query = $query->where('seen', $seen);
             } else if ($seen == 'both' && $type == 'outgoing') {
@@ -183,8 +185,10 @@ class EmailController extends Controller
         }
         $query = $query->select('emails.*', 'chat_messages.customer_id', 'chat_messages.supplier_id', 'chat_messages.vendor_id', 'c.is_auto_simulator as customer_auto_simulator',
             'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
+
         if ($admin == 1) {
             $query = $query->orderByDesc('emails.id');
+
             $emails = $query->paginate(30)->appends(request()->except(['page']));
         } else {
             if (count($usernames) > 0) {
@@ -194,11 +198,12 @@ class EmailController extends Controller
                     }
                 });
 
-                $query = $query->orWhere(function ($query) use ($usernames) {
+                $query = $query->where(function ($query) use ($usernames) {
                     foreach ($usernames as $_uname) {
                         $query->orWhere('to', 'like', '%' . $_uname . '%');
                     }
                 });
+                
 
                 $query = $query->orderByDesc('emails.id');
                 $emails = $query->paginate(30)->appends(request()->except(['page']));
@@ -209,6 +214,7 @@ class EmailController extends Controller
                 $emails = $emails->paginate(30)->appends(request()->except(['page']));
             }
         }
+        
 
         //Get Cron Email Histroy
         $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
@@ -266,6 +272,15 @@ class EmailController extends Controller
         $totalEmail = Email::count();
         $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
 
+        $datatableModel = DataTableColumn::select('column_name')
+                                            ->where('user_id', auth()->user()->id)
+                                            ->where('section_name', 'emails')->first();
+        $dynamicColumnsToShowb = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowb = json_decode($hideColumns, true);
+        }
+        
         return view('emails.index',
             [
                 'emails' => $emails,
@@ -279,8 +294,29 @@ class EmailController extends Controller
                 'receiver' => $receiver,
                 'from' => $from,
                 'totalEmail' => $totalEmail,
-                'modelColors' => $modelColors
+                'modelColors' => $modelColors,
+                'dynamicColumnsToShowb' => $dynamicColumnsToShowb
             ])->with('i', ($request->input('page', 1) - 1) * 5);
+    }
+
+    public function emailsColumnVisbilityUpdate(Request $request){
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','emails')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'emails';
+            $column->column_name = json_encode($request->column_data); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'emails';
+            $column->column_name = json_encode($request->column_data); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity saved successfully!');
     }
 
     public function platformUpdate(Request $request)
@@ -1944,5 +1980,13 @@ class EmailController extends Controller
         $emails = $emails->latest()->paginate(\App\Setting::get('pagination', 25));
 
         return view('emails.quick-email-list', compact('emails', 'email_categories', 'senderEmailIds', 'receiverEmailIds', 'modelsTypes', 'mailTypes', 'emailStatuses', 'email_status'));
+    }
+
+    public function getEmailreplies(Request $request)
+    {   
+        $id = $request->id;
+        $emailReplies = Reply::where('category_id', $id)->orderBy('id', 'ASC')->get();
+        
+        return json_encode($emailReplies);
     }
 }
