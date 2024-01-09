@@ -5103,7 +5103,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
