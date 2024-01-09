@@ -5618,6 +5618,8 @@ Route::middleware('auth')->group(function () {
     Route::post('devoopssublist/getstatus', [DevOppsController::class, 'getStatusHistories'])->name('devoopssublist.getstatus');
     Route::post('devoopssublist/upload-file', [DevOppsController::class, 'uploadFile'])->name('devoopssublist.upload-file');
     Route::get('devoopssublist/files/record', [DevOppsController::class, 'getUploadedFilesList'])->name('devoopssublist.files.record');
+    Route::post('devoops/task/upload-document', [DevOppsController::class, 'uploadDocument']);
+    Route::get('devoops/task/get-document', [DevOppsController::class, 'getDocument']);
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);
