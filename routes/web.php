@@ -2046,6 +2046,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::get('category', [CategoryController::class, 'manageCategory'])->name('category');
+    Route::get('category-log', [CategoryController::class, 'logCategory'])->name('category.log');
     Route::get('category-11', [CategoryController::class, 'manageCategory11'])->name('category-11');
     Route::post('add-category', [CategoryController::class, 'addCategory'])->name('add.category');
     Route::post('category/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
