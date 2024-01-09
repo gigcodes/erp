@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\Paginator;
 use App\CategoryCancellationPolicyLog;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Artisan;
 
 class CategoryController extends Controller
 {
@@ -110,6 +111,15 @@ class CategoryController extends Controller
         $logRequest = $result->orderBy('created_at', 'DESC')->paginate(Setting::get('pagination'));
         $logRequestCount = $result->count();
         return view('category.log', compact('logRequest', 'logRequestCount'));
+    }
+
+    public function pushCategoryInLive()
+    {
+        // Run the Artisan command
+        Artisan::call('store-website:push-category-in-live');
+
+        // You can return a response if needed
+        return response()->json(['message' => 'Command executed successfully']);
     }
 
     public function manageCategory11(Request $request)
