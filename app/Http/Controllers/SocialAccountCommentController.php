@@ -44,6 +44,8 @@ class SocialAccountCommentController extends Controller
     public function allcomments(Request $request)
     {
         $search = request('search', '');
+        $social_config = request('social_config', '');
+        $store_website_id = request('store_website_id', '');
 
         $totalcomments = BusinessComment::where('is_parent', 0)->count();
 
@@ -55,7 +57,23 @@ class SocialAccountCommentController extends Controller
             });
         }
 
+        // Adding filter condition for bussiness_post.bussiness_social_configs
+        if (!empty($social_config)) {
+            $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($social_config) {
+                // Add your filter conditions for bussiness_post.bussiness_social_configs here
+                $query->whereIn('social_configs.platform', $social_config);
+            });
+        }
+
+        if (!empty($store_website_id)) {
+            $comments = $comments->whereHas('bussiness_post.bussiness_social_configs', function ($query) use ($store_website_id) {
+                // Add your filter conditions for bussiness_post.bussiness_social_configs here
+                $query->whereIn('social_configs.store_website_id', $store_website_id);
+            });
+        }
+
         $comments = $comments->orderBy('comment_id', 'DESC')->paginate(25);
+
 
         $googleTranslate = new GoogleTranslate();
         $target = 'en';

@@ -42,6 +42,7 @@ use App\Models\DataTableColumn;
 
 use App\Models\OrderPurchaseProductStatus;
 use App\Models\OrderPurchaseProductStatusHistory;
+use App\Models\PurchaseProductOrderStatus;
 
 class PurchaseProductController extends Controller
 {
@@ -823,9 +824,24 @@ class PurchaseProductController extends Controller
                 $dynamicColumnsToShowPurchaseproductorders = json_decode($hideColumns, true);
             }
 
-            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses', 'dynamicColumnsToShowPurchaseproductorders'));
+            $status = PurchaseProductOrderStatus::all();
+
+            return view('purchase-product.partials.purchase-product-order', compact('purchar_product_order', 'request', 'suppliers_all', 'purchaseStatuses', 'dynamicColumnsToShowPurchaseproductorders', 'status'));
         } catch (\Exception $e) {
         }
+    }
+
+    public function statuscolorpp(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = PurchaseProductOrderStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
     }
 
     public function purchaseproductorders_update(Request $request)

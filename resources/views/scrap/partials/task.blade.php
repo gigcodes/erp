@@ -14,7 +14,7 @@
             <thead>
                 <tr>
                     <th width="3%">#</th>
-                    <th width="4%">Task</th>
+                    <th width="8%">Task</th>
                     <th width="20%">Communication</th>
                     <th width="5%">Assigned to</th>
                     <th width="7%">Created at</th>
@@ -47,12 +47,12 @@
                          <td class="table-hover-cell " style="word-break: break-all;padding: 5px;width: 100%;">
                             <div class="row">
                                 <div class="col-md-12 form-inline cls_remove_rightpadding">
-                                    <div class="row cls_textarea_subbox w-100 align-items-center">
-                                        <div class="col-md-5 cls_remove_rightpadding align-items-center">
+                                    <div class="cls_textarea_subbox w-100 align-items-center">
+                                        <div class="col-md-4 cls_remove_rightpadding align-items-center p-0">
                                             <textarea rows="1" cols="25" class="form-control quick-message-field cls_quick_message" id="messageid_{{ $developerTask->id }}" name="message"  placeholder="Message"></textarea>
                                             <div id="message-chat-txt-{{ $developerTask->id }}" class="ml-2 Website-task">{{ substr($message,0,15) }}</div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6 p-0">
                                             <div class="d-flex">
                                                 <select class="form-control quickComments select2-quick-reply" name="quickComment" style="width: 50% !important;" >
                                                     <option  data-vendorid="{{ $developerTask->id }}"  value="">Auto Reply</option>
@@ -81,7 +81,7 @@
                                             </div>
 
                                         </div>
-                                        <div class="col-md-3 text-right">
+                                        <div class="col-md-2 text-right p-0 pt-2">
                                             <button class="btn btn-sm btn-image send-message1" data-task-id="{{ $developerTask->id }}"style="padding:0;"><img src="/images/filled-sent.png"></button>
                                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="1" data-is_hod_crm="" data-object="developer_task" data-id="{{ $developerTask->id }}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                         </div>

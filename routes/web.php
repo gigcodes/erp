@@ -385,6 +385,7 @@ use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
 use App\Http\Controllers\DevOppsController;
 use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
+use App\Http\Controllers\AppointmentRequestController;
 
 Auth::routes();
 
@@ -1168,6 +1169,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('productinventory/import', [ProductInventoryController::class, 'import'])->name('productinventory.import');
     Route::get('productinventory/list', [ProductInventoryController::class, 'list'])->name('productinventory.list');
     Route::get('productinventory/inventory-list', [ProductInventoryController::class, 'inventoryList'])->name('productinventory.inventory-list');
+    Route::post('productinventory-column-visbility', [ProductInventoryController::class, 'columnVisbilityUpdate'])->name('productinventory.column.update');
     Route::get('productinventory/new-inventory-list', [ProductInventoryController::class, 'inventoryListNew'])->name('productinventory.inventory-list-new');
     Route::get('download-report', [ProductInventoryController::class, 'downloadReport'])->name('download-report');
     Route::get('download-scrapped-report', [ProductInventoryController::class, 'downloadScrapReport'])->name('download-scrapped-report');
@@ -2320,7 +2322,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('purchaseproductorders/orderdata', [PurchaseProductController::class, 'purchaseproductorders_orderdata'])->name('purchaseproductorders.orderdata'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders/saveuploads', [PurchaseProductController::class, 'purchaseproductorders_saveuploads'])->name('purchaseproductorders.saveuploads'); //Purpose : Add Route for Purchase Product Order - DEVTASK-4236
     Route::post('purchaseproductorders-column-visbility', [PurchaseProductController::class, 'purchaseproductordersColumnVisbilityUpdate'])->name('purchaseproductorders.column.update');
-
+    Route::post('purchaseproductorders/statuscolor', [PurchaseProductController::class, 'statuscolorpp'])->name('purchaseproductorders.statuscolor');
 
     // Cash Vouchers
     Route::get('/voucher/payment/request', [VoucherController::class, 'paymentRequest'])->name('voucher.payment.request');
@@ -3462,6 +3464,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
+    Route::get('appointment-request', [AppointmentRequestController::class, 'index'])->name('appointment-request.index');
+	Route::get('appointment-request/records', [AppointmentRequestController::class, 'records'])->name('appointment-request.records');
+    Route::get('appointment-request/record-appointment-request-ajax', [AppointmentRequestController::class, 'recordAppointmentRequestAjax'])->name('appointment-request.index_ajax');
+    Route::get('appointment-request-remarks/{id}', [AppointmentRequestController::class, 'AppointmentRequestRemarks'])->name('appointment-request.remarks');
+    Route::post('appointment-decline-remarks', [EventController::class, 'declineRemarks'])->name('appointment-request.declien.remarks');
     Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
     Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
     Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
@@ -4713,7 +4720,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
     Route::get('all/events', [EventController::class, 'publicEvents'])->name('event.public');
     Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
-
+    Route::post('event/send-appointment-request', [EventController::class, 'sendAppointmentRequest'])->name('event.sendAppointmentRequest');
+    Route::post('event/update-appointment-request', [EventController::class, 'updateAppointmentRequest'])->name('event.updateAppointmentRequest');
+    Route::post('event/update-user-appointment-request', [EventController::class, 'updateuserAppointmentRequest'])->name('event.updateuserAppointmentRequest');
+    Route::get('event/get-appointment-request', [EventController::class, 'getAppointmentRequest'])->name('event.getAppointmentRequest');
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
@@ -4721,6 +4731,8 @@ Route::middleware('auth')->group(function () {
     Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
     Route::post('/status/update', [EventController::class, 'statusUpdate'])->name('allevents.status.update');
+    Route::post('/useronlinestatus/update', [EventController::class, 'userOnlineStatusUpdate'])->name('useronlinestatus.status.update');
+    Route::get('user/detailsget', [EventController::class, 'getUserDetailsForOnline'])->name('getuserforonline');
 });
 
 Route::prefix('calendar/public')->group(function () {
