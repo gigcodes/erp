@@ -402,13 +402,17 @@ class TodoListController extends Controller
 
     public function searchTodoListHeader(Request $request)
     {
-        //$type = $request->tasktype ? $request->tasktype : '';
 
+        //$query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc');
 
-        $query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc');
+        $query = \App\TodoList::where('user_id',\Auth()->user()->id)->where('status',1)->orderBy('id', 'DESC');
 
         if ($request->get('keyword') != '') {
              $query->where('title', 'LIKE', "%".$request->get('keyword')."%")->orWhere('subject', 'LIKE', "%".$request->get('keyword')."%");
+        }
+
+        if ($request->get('todolist_start_date') != '' && $request->get('todolist_end_date') != '') {
+            $query->whereBetween('todo_date', [$request->get('todolist_start_date'), $request->get('todolist_end_date')]);
         }
 
         $todoLists = $query->with('category')->limit(10)->get();

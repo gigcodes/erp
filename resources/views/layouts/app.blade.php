@@ -5103,7 +5103,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5345,8 +5345,30 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <?php echo csrf_field(); ?>
                                     <div class="row">
                                         <div class="col-12 pb-3">
-                                            <input type="text" name="todolist_search" class="dev-todolist-table" class="form-control" placeholder="Search Keyword">
-                                            <button type="button" class="btn btn-secondary btn-todolist-search-menu" ><i class="fa fa-search"></i></button>
+                                            <div class="row">
+                                                <div class="col-4 pr-0">
+                                                    <label for="todolist_search">Search Keyword:</label>
+                                                    <input type="text" name="todolist_search" class="dev-todolist-table" class="form-control" placeholder="Search Keyword" style=" width: 100%;">
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="start_date">Start Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_start_date" name="start_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="end_date">End Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_end_date" name="end_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-2 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="button" style=" width: 100%;">&nbsp;</label>
+                                                        <button type="button" class="btn btn-secondary btn-todolist-search-menu" ><i class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-12">
                                             <table class="table table-sm table-bordered">
@@ -9840,7 +9862,9 @@ if (!\Auth::guest()) {
 
     function getTodoListHeader(){
         var keyword = $('.dev-todolist-table').val();
-
+        var todolist_start_date = $('#todolist_start_date').val();
+        var todolist_end_date = $('#todolist_end_date').val();
+        
         $.ajax({
             url: '{{route('todolist.module.search')}}',
             type: 'GET',       
@@ -9849,6 +9873,8 @@ if (!\Auth::guest()) {
             },
             data: {
                 keyword: keyword,
+                todolist_start_date: todolist_start_date,
+                todolist_end_date: todolist_end_date,
             },
             // dataType: 'json',
             beforeSend: function () {
@@ -10282,7 +10308,7 @@ if (!\Auth::guest()) {
 
             setTimeout(function() {
                 location.reload();
-            }, 1000);
+            }, 60000);
 
         }).fail(function (response) {
             $("#loading-image-modal").hide();

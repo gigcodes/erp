@@ -7,7 +7,7 @@
             <td>
                 <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
                     @foreach ($statuses as $status )
-                        <option value="{{$status->name}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
+                        <option value="{{$status->id}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
                     @endforeach
                 </select>
             </td>
