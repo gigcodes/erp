@@ -844,7 +844,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <tbody class="sop_search_result">
                                     @php
                                         $usersop = \App\Sop::all();
-                                        $users = \App\User::all();
+                                        $users = \App\User::orderBy('name', 'ASC')->get();
                                     @endphp
                                     @foreach ($usersop as $key => $value)
                                         <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
