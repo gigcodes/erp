@@ -9,6 +9,7 @@
     .table-scrapper, .table-scrapper th, .table-scrapper td{font-size: 14px}
     .add-scrapper-remarks{float: left;    padding: 10px 2px;}
     .add-scrapper-textarea{float: left; display: inline-block;   width: 90%;}
+    #task_Tables td{word-break: break-all;}
 </style>
 <div style="overflow-x:auto;">
 <table class="table table-bordered table-striped" id="task_Tables">
