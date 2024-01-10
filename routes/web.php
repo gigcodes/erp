@@ -1380,8 +1380,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //new category reference
 
     Route::get('category/new-references', [CategoryController::class, 'newCategoryReferenceIndex']);
-    Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
-    Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
     Route::post('category/new-references/save-category', [CategoryController::class, 'saveCategoryReference']);
     Route::get('category/fix-autosuggested', [CategoryController::class, 'fixAutoSuggested'])->name('category.fix-autosuggested');
     Route::get('category/fix-autosuggested-string', [CategoryController::class, 'fixAutoSuggestedString'])->name('category.fix-autosuggested-via-str');
@@ -1391,6 +1389,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sizes/references', [SizeController::class, 'sizeReference']);
     Route::get('sizes/{id}/used-products', [SizeController::class, 'usedProducts']);
     Route::POST('category/ScraperUserHistory', [CategoryController::class, 'ScraperUserHistory'])->name('ScraperUserHistory');
+
+    //Group by new references category with filter % wise like 
+    Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
+    Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
 
     Route::post('sizes/references/chamge', [SizeController::class, 'referenceAdd']);
     Route::get('sizes/affected-product', [SizeController::class, 'affectedProduct']);
