@@ -74,6 +74,7 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
+use App\scraperImags;
 
 class ProductController extends Controller
 {
@@ -6547,5 +6548,29 @@ class ProductController extends Controller
         } else {
             return response()->json(['code' => 500, 'message' => 'category is unable to update']);
         }
+    }
+
+    public function approvedScrapperImages(Request $request, $pageType = '')
+    {
+
+        $images = new scraperImags();
+        $images = $images->orderBy('id', 'DESC');        
+        $images = $images->paginate(60);
+
+        if ($request->ajax()) {
+            $viewpath = 'products.scrapper_listing_image_ajax';
+
+            return view($viewpath, [
+                'products' => $images,
+                'products_count' => $images->total(),
+            ]);
+        }
+
+        $viewpath = 'products.scrapper_listing';
+
+        return view($viewpath, [
+            'products' => $images,
+            'products_count' => $images->total(),
+        ]);
     }
 }
