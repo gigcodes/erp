@@ -109,11 +109,16 @@
                                             {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }} </br>
 
                                             @if($image['si_status']==2)
-                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
-                                            </br>
-                                            <span class="text-danger">image is rejected.</span> 
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                                </br>
+                                                <span class="text-danger">image is rejected.</span> 
+                                            @elseif($image['si_status']==1 && $image['manually_approve_flag']==1)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                                </br>
+                                                <span class="text-danger">You need to approve or reject this image manually.</span> 
                                             @else 
-                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
                                             @endif
                                         </div>
                                     </div>
@@ -145,11 +150,16 @@
                                             {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }} </br>
 
                                             @if($image['si_status']==2)
-                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
-                                            </br>
-                                            <span class="text-danger">image is rejected.</span> 
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                                </br>
+                                                <span class="text-danger">image is rejected.</span> 
+                                            @elseif($image['si_status']==1 && $image['manually_approve_flag']==1)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                                </br>
+                                                <span class="text-danger">You need to approve or reject this image manually.</span> 
                                             @else 
-                                            <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
                                             @endif
                                         </div>
                                     </div>

@@ -621,6 +621,7 @@ class scrapperPhyhon extends Controller
     {
         $image = \App\scraperImags::find($request->id);
         $image->si_status = $request->si_status;
+        $image->manually_approve_flag = 0;
         $image->save();
 
         return redirect()->back()->with('success', "Scrapper image has been successfully rejected.");
