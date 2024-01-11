@@ -1109,7 +1109,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <option>--Users--</option>
                                         @foreach ($users as $key => $user)
                                             @if($user->id!=auth()->user()->id)
-                                                @if($user->isOnline()==1 && $user->is_online_flag)
+                                                @if($user->isOnline()==1)
                                                     <option value="{{$user->id}}">{{$user->name}}</option>
                                                 @endif
                                             @endif
@@ -1514,8 +1514,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Add Todo List" class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
-                                <li>
+                                <!-- <li>
                                     <a title="Todo List" class="quick-icon todolist-get" href="#"><span><i class="fa fa-list fa-2x"></i></span></a>
+                                </li> -->
+
+                                <li>
+                                    <a title="Todo List" type="button" class="quick-icon menu-todolist-get" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
@@ -1632,15 +1637,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
                                             </a>
                                         </li>
+                                        <li>
+                                            <label class="switchAN">
+                                                <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
+                                                <span class="slider round"></span>
+                                                <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
+                                            </label>
+                                        </li>
                                     @endif
                                 @endauth
-                                <li>
-                                    <label class="switchAN">
-                                        <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
-                                        <span class="slider round"></span>
-                                        <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
-                                    </label>
-                                </li>
+                                
 
                                 <style type="text/css">
                                     .switchAN{position:relative;display:inline-block;width:53px;height:30px}
@@ -5097,7 +5103,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5322,6 +5328,71 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </div>
             </div>
         </div>
+
+        <div id="menu-todolist-get-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Todo List</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <div class="row">
+                                                <div class="col-4 pr-0">
+                                                    <label for="todolist_search">Search Keyword:</label>
+                                                    <input type="text" name="todolist_search" class="dev-todolist-table" class="form-control" placeholder="Search Keyword" style=" width: 100%;">
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="start_date">Start Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_start_date" name="start_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="end_date">End Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_end_date" name="end_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-2 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="button" style=" width: 100%;">&nbsp;</label>
+                                                        <button type="button" class="btn btn-secondary btn-todolist-search-menu" ><i class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Subject</th>
+                                                    <th>Category</th>
+                                                    <th>Status</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-todolist-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>s
 
         <div id="menu_user_history_modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
@@ -5564,7 +5635,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     @if (Auth::check())
 
-		<div id="todolist-get-model" class="modal fade" role="dialog">
+		<!-- <div id="todolist-get-model" class="modal fade" role="dialog">
              <div class="modal-content modal-dialog modal-lg">
                     <div class="modal-header">
                         <h4 class="modal-title">Todo List</h4>
@@ -5609,7 +5680,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 				@endif
 			</div>
              </div>
-        </div>
+        </div> -->
 
 
         @if(1 == 2 && auth()->user()->isAdmin())
@@ -9763,8 +9834,8 @@ if (!\Auth::guest()) {
     });
 
 	$(document).on("click", ".todolist-get", function(e) {
-			e.preventDefault();
-			$("#todolist-get-model").modal("show");
+		e.preventDefault();
+		$("#todolist-get-model").modal("show");
 	});
 
     $(document).on("click", ".menu-create-database", function(e) {
@@ -9780,6 +9851,48 @@ if (!\Auth::guest()) {
     $(document).on("click", ".menu-show-dev-task", function(e) {
         e.preventDefault();
         $("#menu-show-dev-task-model").modal("show");
+    });
+
+    $(document).on("click", ".menu-todolist-get", function(e) {
+        e.preventDefault();
+
+        getTodoListHeader();
+        $("#menu-todolist-get-model").modal("show");
+    });
+
+    function getTodoListHeader(){
+        var keyword = $('.dev-todolist-table').val();
+        var todolist_start_date = $('#todolist_start_date').val();
+        var todolist_end_date = $('#todolist_end_date').val();
+        
+        $.ajax({
+            url: '{{route('todolist.module.search')}}',
+            type: 'GET',       
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                keyword: keyword,
+                todolist_start_date: todolist_start_date,
+                todolist_end_date: todolist_end_date,
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-todolist-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    }
+
+    $(document).on('click', '.btn-todolist-search-menu', function(e) {
+        getTodoListHeader();
     });
 
     $(document).on('click', '.menu-preview-img-btn', function(e) {
@@ -10195,7 +10308,7 @@ if (!\Auth::guest()) {
 
             setTimeout(function() {
                 location.reload();
-            }, 1000);
+            }, 60000);
 
         }).fail(function (response) {
             $("#loading-image-modal").hide();

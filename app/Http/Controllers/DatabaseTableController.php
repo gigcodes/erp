@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\DatabaseTableHistoricalRecord;
+use App\Models\TruncateTableHistory;
 use Illuminate\Support\Facades\Schema;
 
 class DatabaseTableController extends Controller
@@ -71,12 +72,33 @@ class DatabaseTableController extends Controller
         if(!empty($request->ids)){
             foreach ($request->ids as $key => $value) {
                 DB::statement('TRUNCATE TABLE '.$value);
+
+                $tth = new TruncateTableHistory();
+                $tth->user_id = \Auth::user()->id;
+                $tth->table_name = $value;
+                $tth->save();
+                
             }
         }
 
         return response()->json([
             'status' => true,
             'message' => " column visiblity Added Successfully",
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getTruncateTableHistories(Request $request)
+    {
+        $datas = TruncateTableHistory::with(['user'])
+                ->where('table_name', $request->table_name)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
             'status_name' => 'success',
         ], 200);
     }
