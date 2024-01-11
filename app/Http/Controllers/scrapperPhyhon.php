@@ -213,6 +213,9 @@ class scrapperPhyhon extends Controller
                 //     $images = $images->get()
                 //   ->toArray();
                 //        dd($images->pluck("id"));
+
+                $images->update(['si_status' => 2]);
+                
                 $images = $images->paginate(Setting::get('pagination'));
                 // $images =  $images->paginate(2);
             }
