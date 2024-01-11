@@ -6747,4 +6747,37 @@ class ProductController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function approvedScrapperImagesCompare(Request $request, $pageType = '', $id = '')
+    {
+
+        if(!empty($id)){
+            $image = scraperImags::find($id);
+
+            if(!empty($image)){
+                $images = new scraperImags();
+                $images = $images->where('url', $image->url);
+
+                $images = $images->orderBy('id', 'DESC');        
+                $images = $images->paginate(60);
+
+                if ($request->ajax()) {
+
+                    $viewpath = 'products.scrapper_listing_image_ajax_compare';
+
+                    return view($viewpath, [
+                        'products' => $images,
+                        'products_count' => $images->total(),
+                    ]);
+                }
+
+                $viewpath = 'products.scrapper_listing_compare';
+
+                return view($viewpath, [
+                    'products' => $images,
+                    'products_count' => $images->total(),
+                ]);
+            }
+        }
+    }
 }
