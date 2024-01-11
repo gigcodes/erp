@@ -3088,6 +3088,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
         Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
     	Route::get('code-shortcut-title/{id}', [CodeShortcutController::class, 'getListCodeShortCut'])->name('code.get.Shortcut.data');
+    	Route::post('create/shortcut-code', [CodeShortcutController::class, 'createShortcutCode'])->name('shortcut.code.create');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
