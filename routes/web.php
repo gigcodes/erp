@@ -5933,3 +5933,14 @@ Route::middleware('auth')->group(function () {
     Route::get('indexerstate/masterslave', [\App\Http\Controllers\IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
     Route::get('indexerstate/logs/{id?}', [\App\Http\Controllers\IndexerStateController::class, 'logs'])->name('indexer-state.logs');
 });
+
+//Import excel file for bank statement - S
+Route::middleware('auth')->group(function () {
+    Route::get('bank-statement/list', [\App\Http\Controllers\BankStatementController::class, 'index'])->name('bank-statement.index');
+    Route::get('bank-statement/import-file', [\App\Http\Controllers\BankStatementController::class, 'showImportForm'])->name('bank-statement.import');
+    Route::post('bank-statement/import-file/submit', [\App\Http\Controllers\BankStatementController::class, 'import'])->name('bank-statement.import.submit');
+    Route::get('bank-statement/import-file/map/{id}', [\App\Http\Controllers\BankStatementController::class, 'map'])->name('bank-statement.import.map');
+    Route::post('bank-statement/import-file/map/{id}', [\App\Http\Controllers\BankStatementController::class, 'map_import'])->name('bank-statement.import.map.submit');
+    Route::get('bank-statement/import-file/mapped-data/{id}', [\App\Http\Controllers\BankStatementController::class, 'mapped_data'])->name('bank-statement.import.mapped.data');
+});
+//Import excel file for bank statement - E
