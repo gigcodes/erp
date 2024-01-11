@@ -67,6 +67,9 @@
                         @if (!in_array('Product ID', $dynamicColumnsToShowp))
                             <th>Product ID</th>
                         @endif
+                        @if (!in_array('Suppliers', $dynamicColumnsToShowp))
+                            <th>Suppliers</th>
+                        @endif
                         @if (!in_array('Scrape', $dynamicColumnsToShowp))
                             <th>Scrape</th>
                         @endif
@@ -109,6 +112,7 @@
                     @else
                         <th>Date</th>
                         <th>Product ID</th>
+                        <th>Suppliers</th>
                         <th>Scrape</th>
                         <th>Auto crop</th>
                         <th>Final approval</th>
@@ -136,6 +140,12 @@
                                 <a
                                     href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
                             </td>
+                            @endif
+
+                            @if (!in_array('Suppliers', $dynamicColumnsToShowp))
+                                <td>
+                                    <a href="javascript:void(0)" data-id="{{ $product->id }}" id="view-product-suppliers"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                </td>
                             @endif
 
                             @if (!in_array('Scrape', $dynamicColumnsToShowp))
@@ -384,8 +394,10 @@
                         @else
                             <td>{{ isset($request->select_date) ? $request->select_date : date('Y-m-d') }}</td>
                             <td>
-                                <a
-                                    href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
+                                <a href="{{ action([\App\Http\Controllers\ProductController::class, 'show'], $product->id) }}">{{ $product->id }}</a>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" data-id="{{ $product->id }}" id="view-product-suppliers"><i class="fa fa-eye" aria-hidden="true"></i></a>
                             </td>
                             <td>
                                 {{--@if (isset($product->all_pending_log_status[2]))
@@ -603,6 +615,44 @@
             {{ $products->appends($request->except('page'))->links() }}.
         </div>
     </div>
+
+    <div id="product-supplier-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Suppliers</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">     
+                        <thead>
+                            <th>Supplier Name</th>
+                            <th>Action</th>
+                        </thead>                       
+                        <tbody class="product-supplier-list-view">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="show-content-model-table" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                       
+                    </div>
+                </div>
+            </div>
+      </div>
 @endsection
 
 @include("products.partials.column-visibility-modal")
@@ -614,6 +664,104 @@
     <script>
         $("#select_date").datepicker({
             format: 'yyyy-mm-dd'
+        });
+
+        $(document).on('click', '#view-product-suppliers', function() {
+            var product_id = $(this).attr('data-id');
+
+            $.ajax({
+                url: "{{route('products.getsuppliers')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'product_id' :product_id,
+                },
+                success: function(response) {
+                    if (response.status) {
+                        var html = "";
+                        /*html += `<tr>
+                                <td> ${response.supplier} </td>
+                            </tr>`;*/
+                        $.each(response.data, function(k, v) {
+                            html += `<tr>
+                                        <td> ${v.supplier} </td>
+                                        <td> <button data-id="`+v.supplier_id+`" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list"><i class="fa fa-tasks"></i></button> </td>
+                                    </tr>`;
+                        });
+                        $("#product-supplier-list").find(".product-supplier-list-view").html(html);
+                        $("#product-supplier-list").modal("show");
+                    } else {
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on("click",".get-tasks-remote",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '{{ route("scrap.task-list")}}',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task = $(this).data('task-id');
+            var message = $("#messageid_"+task).val();
+            data.append("issue_id", task);
+            data.append("message", message);
+            data.append("status", 1);
+            data.append("sendTo", $(".send-message-number-"+task).val());
+
+            if (message.length > 0) {
+                if (!$(this).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/issue',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                            $("#loading-image").show();
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+task).html(response.message.message);
+                        $("#messageid_"+task).val('');
+                        $("#loading-image").hide();
+                        $(this).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(this).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                        $("#loading-image").hide();
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
         });
     </script>
 @endsection

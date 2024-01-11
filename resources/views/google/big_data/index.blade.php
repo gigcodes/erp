@@ -86,23 +86,63 @@
           <a href="/google/bigData/bigQuery" class="btn btn-image" id=""><img src="{{asset('/images/resend2.png')}}" style="cursor: nwse-resize;"></a>
         </div>
       </form>
+      
     </div>
-
+    <div class="col-12">
+      <div class="col-md-12">
+        <ul class="nav nav-tabs">
+            <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#columnvisibilityList"> Column Visiblity</button></li>
+        </ul>
+      </div>
+    </div>
 	</br>
+
+      @php 
+
+    $columns_array = [
+        ['id' => 'id', 'name' => 'Id'],
+        ['id' => 'google_project_id', 'name' => 'Google Project Id'],
+        ['id' => 'platform', 'name' => 'Platform'],
+        ['id' => 'bundle_identifier', 'name' => 'Bundle Identifier'],
+        ['id' => 'event_id', 'name' => 'Event Id'],
+        ['id' => 'is_fatal', 'name' => 'Is Fatal'],
+        ['id' => 'issue_id', 'name' => 'Issue Id'],
+        ['id' => 'issue_title', 'name' => 'Issue Title'],
+        ['id' => 'issue_subtitle', 'name' => 'Issue Subtitle'],
+        ['id' => 'event_timestamp', 'name' => 'Event Timestamp'],
+        ['id' => 'received_timestamp', 'name' => 'Received Timestamp'],
+        ['id' => 'device', 'name' => 'Device'],
+        ['id' => 'memory', 'name' => 'Memory'],
+        ['id' => 'storage', 'name' => 'Storage'],
+        ['id' => 'operating_system', 'name' => 'Operating System'],
+        ['id' => 'application', 'name' => 'Application'],
+        ['id' => 'user', 'name' => 'User'],
+        // ['id' => 'custom_keys', 'name' => 'Custom Keys'],
+        ['id' => 'installation_uuid', 'name' => 'Installation Uuid'],
+        ['id' => 'crashlytics_sdk_version', 'name' => 'Crashlytics Sdk Version'],
+        ['id' => 'app_orientation', 'name' => 'App Orientation'],
+        ['id' => 'device_orientation', 'name' => 'Device Orientation'],
+        ['id' => 'process_state', 'name' => 'Process State'],
+        // ['id' => 'logs', 'name' => 'Logs'],
+        ['id' => 'breadcrumbs', 'name' => 'Breadcrumbs'],
+        ['id' => 'blame_frame', 'name' => 'Blame Frame'],
+        ['id' => 'exceptions', 'name' => 'Exceptions'],
+        ['id' => 'errors', 'name' => 'Errors'],
+        ['id' => 'threads', 'name' => 'Threads'],
+        ['id' => 'website_id', 'name' => 'Website Id'],
+        ['id' => 'created_at', 'name' => 'Created At'],
+        // ['id' => 'updated_at', 'name' => 'Updated At'],
+    ];
+ 
+      @endphp 
     <div class="infinite-scroll">
 	<div class="table-responsive mt-2">
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Google project id</th>
-            <th>Platform</th>
-            <th>Bundle Identifier</th>
-            <th>Event ID</th>
-            <th>Issue Title</th>
-            <th>Issue Subtitle</th>
-            <th>Event Timestamp</th>
-            <th>Received Timestamp</th>
+            @foreach($columns_array as $k=>$v)
+              <th class="{{ (!empty($dynamicColumnsToShowb) && in_array($v['name'], $dynamicColumnsToShowb)) ? 'd-none' : ''}}" >{{$v['name']}}</th>
+            @endforeach
             <th>Action</th>
           </tr>
         </thead>
@@ -110,15 +150,18 @@
         <tbody>
 			  @foreach ($bigData as $key => $bigDatar)
             <tr>
-            <td>{{$bigDatar->id}}</td>
-            <td>{{$bigDatar->google_project_id}}</td>
-            <td>{{$bigDatar->platform}}</td>
-            <td>{{$bigDatar->bundle_identifier}}</td>
-            <td>{{$bigDatar->event_id}}</td>
-            <td>{{$bigDatar->issue_title}}</td>
-            <td>{{$bigDatar->issue_subtitle}}</td>
-            <td>{{date('Y-m-d H:i:s', strtotime($bigDatar->event_timestamp))}}</td>
-            <td>{{date('Y-m-d H:i:s', strtotime($bigDatar->received_timestamp))}}</td>
+              @foreach($columns_array as $k=>$v)
+                @php
+                  $text_to_show = $bigDatar->{$v['id']};
+                  if($v['id'] == 'event_timestamp' || 
+                    $v['id'] == 'received_timestamp' ||
+                    $v['id'] == 'created_at'){
+                    $text_to_show = date('Y-m-d H:i:s', strtotime($bigDatar->{$v['id']}));
+                  }
+                @endphp
+
+                <td class="{{ (!empty($dynamicColumnsToShowb) && in_array($v['name'], $dynamicColumnsToShowb)) ? 'd-none' : ''}}">{{ $text_to_show }}</td>
+              @endforeach
             <td>
               <a class="btn delete-bigData-btn"  data-id="{{ $bigDatar->id }}" href="#"><img  data-id="{{ $bigDatar->id }}" src="{{asset('/images/delete.png')}}" style="cursor: nwse-resize; width: 16px;"></a>
             </td>
@@ -133,6 +176,9 @@
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
+
+   @include('google.big_data.partials.google-bigdata-bigquery-column-visibility-modal', ['columns_array' => $columns_array])
+
 @endsection
 
 

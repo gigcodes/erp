@@ -53,7 +53,7 @@
     "lazyjsonmapper/lazyjsonmapper": "^1.6",
     "league/color-extractor": "^0.3.2",
     "league/csv": "^9.2",
-    "maatwebsite/excel": "^3.1.8",
+    "maatwebsite/excel": "^3.1",
     "madnest/madzipper": "*",
     "milon/barcode": "^9.0",
     "mtcmedia/dhl-api": "^1.0",

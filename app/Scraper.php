@@ -5,6 +5,7 @@ namespace App;
 /**
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
+use App\Models\ScrapStatisticsStaus;
 use Illuminate\Database\Eloquent\Model;
 
 class Scraper extends Model
@@ -50,6 +51,14 @@ class Scraper extends Model
     public function scraperMadeBy()
     {
         return $this->hasOne(\App\User::class, 'id', 'scraper_made_by');
+    }
+
+    public static function scrapersStatus()
+    {
+        // Fetch statuses from the database dynamically
+        $statuses = ScrapStatisticsStaus::pluck('status', 'status_value')->toArray();
+        
+        return $statuses;
     }
 
     public function scraperParent()

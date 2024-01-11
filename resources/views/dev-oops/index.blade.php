@@ -60,8 +60,8 @@
             display: block;
             width: 100%;
         }
-        #checklist_table td .justify-left {display: inline-block !important;width: 100%;}
-        #checklist_table td .justify-left .edit-checklist, #checklist_table td .justify-left .clsdelete, #checklist_table td .justify-left .sub_edit-checklist, #checklist_table td .justify-left .clssubdelete {float: right;}
+        #devoopslist_table td .justify-left {display: inline-block !important;width: 100%;}
+        #devoopslist_table td .justify-left .edit-checklist, #devoopslist_table td .justify-left .clsdelete, #devoopslist_table td .justify-left .sub_edit-checklist, #devoopslist_table td .justify-left .clssubdelete {float: right;}
     </style>
 @endsection
 
@@ -142,15 +142,15 @@
             </div>
         @endif
         <div class="checklist_data">
-            <table class="table table-bordered " id="checklist_table">
+            <table class="table table-bordered " id="devoopslist_table">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Category Name</th>
-                        <th>Sub Category Name</th>
-                        <th>Remarks</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th width="5%">No</th>
+                        <th width="10%">Category Name</th>
+                        <th width="10%">Sub Category Name</th>
+                        <th width="20%">Remarks</th>
+                        <th width="10%">Status</th>
+                        <th width="12%">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -354,7 +354,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Add Stauts</h4>
+                    <h4 class="modal-title">Add Status</h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <form  method="POST" id="status-create-form">
@@ -382,7 +382,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Update Stauts</h4>
+                    <h4 class="modal-title">Update Status</h4>
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <form  method="POST" id="status-update-form">
@@ -523,6 +523,74 @@
         </div>
     </div>
 
+
+    <!-- Modal -->
+    <div id="upload-document-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload Document</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="upload-task-documents">
+                    <div class="modal-body">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" id="hidden-identifier" name="devoops_task_id" value="">
+                        <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Subject</label>
+                                            <?php echo Form::text("subject",null, ["class" => "form-control", "placeholder" => "Enter subject"]); ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <?php echo Form::textarea("description",null, ["class" => "form-control", "placeholder" => "Enter Description"]); ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Documents</label>
+                                            <input type="file" name="files[]" id="filecount" multiple="multiple">
+                                        </div>
+                                    </div>  
+                                </div>  
+                            </div>  
+                        </div>  
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-default">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="blank-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"></h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('scripts')
@@ -530,6 +598,54 @@
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <script>
+
+    $(document).on("click", ".list-document-btn", function() {
+        var id = $(this).data("id");
+        $.ajax({
+            method: "GET",
+            url: "{{action([\App\Http\Controllers\DevOppsController::class, 'getDocument'])}}",
+            data: {
+                id: id
+            },
+            dataType: "json",
+            success: function(response) {
+                if (response.code == 200) {
+                    $("#blank-modal").find(".modal-title").html("Document List");
+                    $("#blank-modal").find(".modal-body").html(response.data);
+                    $("#blank-modal").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            },
+            error: function(error) {
+                toastr["error"]('Unauthorized permission development-get-document', "Message")
+
+            }
+        });
+    });
+
+    $(document).on("submit", "#upload-task-documents", function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var postData = new FormData(form[0]);
+        $.ajax({
+            method: "post",
+            url: "{{action([\App\Http\Controllers\DevOppsController::class, 'uploadDocument'])}}",
+            data: postData,
+            processData: false,
+            contentType: false,
+            dataType: "json",
+            success: function(response) {
+                if (response.code == 200) {
+                    toastr["success"]("Status updated!", "Message")
+                    $("#upload-document-modal").modal("hide");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
     function DeleteRow(url, oTable) {
         Swal.fire({
             title: 'Are you sure?',
@@ -584,7 +700,7 @@
     // START Print Table Using datatable
     var oTable;
     $(document).ready(function() {
-        oTable = $('#checklist_table').DataTable({
+        oTable = $('#devoopslist_table').DataTable({
             lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
             responsive: true,
             searchDelay: 500,
@@ -659,20 +775,24 @@
                     name: 'magento_modules.id',
                     // visible:false,
                     render: function(data, type, row, meta) {
-                      return `<button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="`+row['id']+`"  data-category_title="Dev Oops Page" data-title="Dev Oops Page - `+row['id']+`"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                      return `<button title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="`+row['id']+`"  data-category_title="Dev Oops Page" data-title="Dev Oops Page - `+row['id']+`"><i class="fa fa-plus" aria-hidden="true"></i></button>
                             <button type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="`+row['id']+`" data-category="`+row['id']+`"><i class="fa fa-info-circle"></i></button>
                             <button class="btn btn-image d-inline upload-task-files-button" type="button" title="Uploaded Files" data-task_id="`+row['id']+`">
                                 <i class="fa fa-cloud-upload" aria-hidden="true"></i>
                             </button>
                             <button class="btn btn-image d-inline view-task-files-button" type="button" title="View Uploaded Files" data-task_id="`+row['id']+`">
                                 <img src="/images/google-drive.png" style="cursor: nwse-resize; width: 10px;">
-                            </button>`;
+                            </button>
+                            <a href="javascript:;" data-id="`+row['id']+`" class="btn btn-image d-inline upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"></a>
+                            <a href="javascript:;" data-id="`+row['id']+`" class="btn btn-image d-inline list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"></a>`;
                     }
                 },
             ],
             rowCallback: function(row, data, index) {
                 // Example: Change background color for rows where status is 'Completed'
-                $(row).css('background-color', ((data.status !== null && data.status !== undefined && data.status.status_color !== undefined) ? data.status.status_color : ''));
+                if(data.status){
+                    $(row).css('background-color', data.status.status_color);
+                }
             },
         });
     });
@@ -1419,6 +1539,12 @@
                 toastr['error']("Something went wrong!");
             }
         });
+    });
+
+    $(document).on("click", ".upload-document-btn", function() {
+        var id = $(this).data("id");
+        $("#upload-document-modal").find("#hidden-identifier").val(id);
+        $("#upload-document-modal").modal("show");
     });
 </script>
 @endsection

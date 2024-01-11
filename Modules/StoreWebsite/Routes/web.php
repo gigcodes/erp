@@ -236,6 +236,8 @@ Route::group([
 
     Route::group(['prefix' => 'category'], function () {
         Route::get('/', [CategoryController::class, 'list'])->name('store-website.category.list');
+        Route::post('/column-visibility-update-app-sales', [CategoryController::class, 'columnVisibilityUpdateStoreWebsiteCategory'])->name('store-website.category.column.update');
+    // columnVisbilityUpdate
         Route::post('category-history', [CategoryController::class, 'categoryHistory'])->name('store-website.category,categoryHistory');
         Route::post('website-category-user-history', [CategoryController::class, 'webiteCategoryUserHistory'])->name('store-website.category,webiteCategoryUserHistory');
         Route::post('save/store/category', [CategoryController::class, 'saveStoreCategory'])->name('store-website.save.store.category');
@@ -396,6 +398,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/copy-tasks', [SiteDevelopmentController::class, 'copyTasksFromWebsite'])->name('site-development.copy.task');
         Route::post('/save-category', [SiteDevelopmentController::class, 'addCategory'])->name('site-development.category.save');
         Route::post('/save-master-category', [SiteDevelopmentController::class, 'addMasterCategory'])->name('site-development.master_category.save');
+        Route::post('/save-create-task-users', [SiteDevelopmentController::class, 'createTaskUsers'])->name('site-development.create_task_users');
         Route::post('/edit-category', [SiteDevelopmentController::class, 'editCategory'])->name('site-development.category.edit');
         Route::post('/save-development', [SiteDevelopmentController::class, 'addSiteDevelopment'])->name('site-development.save');
         Route::post('/disallow-category', [SiteDevelopmentController::class, 'disallowCategory'])->name('site-development.disallow.category');
