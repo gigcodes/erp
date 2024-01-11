@@ -37,6 +37,7 @@
     "intervention/image": "^2.5",
     "iwasherefirst2/laravel-multimail": "^1.3",
     "jenkins-khan/jenkins-api": "dev-master",
+    "jenssegers/imagehash": "^0.9.0",
     "kosinix/grafika": "^2.0",
     "ksubileau/color-thief-php": "^1.4",
     "laravel/framework": "^8.83",
