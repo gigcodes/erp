@@ -3,9 +3,10 @@
         <tr style="color:grey;">
             @if (!in_array('ID', $dynamicColumnsToShowDl))
                 <td>
-                        {{ $issue->id }}
+                        {{ $issue->id }}</br>
                         @if ($issue->is_resolved == 0)
                         <input type="checkbox" name="selected_issue[]" value="{{ $issue->id }}" {{ in_array($issue->id, $priority) ? 'checked' : '' }}>
+                        </br>
                         @endif
 
                     <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"></a>
@@ -464,9 +465,10 @@
     @else
         <tr style="color:grey;">
             <td>
-                    {{ $issue->id }}
+                    {{ $issue->id }}</br>
                     @if ($issue->is_resolved == 0)
                     <input type="checkbox" name="selected_issue[]" value="{{ $issue->id }}" {{ in_array($issue->id, $priority) ? 'checked' : '' }}>
+                    </br>
                     @endif
 
                 <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"></a>
