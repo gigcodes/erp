@@ -75,6 +75,7 @@ class CompareScrapperImages extends Command
 
                                 if ($hammingDistance <= $similarityThreshold) {
                                     $scraperImagscData->manually_approve_flag = 0;
+                                    $scraperImagscData->si_status = 2;
                                 } else {
                                     $scraperImagscData->manually_approve_flag = 1;
                                 }

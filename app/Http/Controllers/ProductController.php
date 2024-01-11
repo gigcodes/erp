@@ -6669,13 +6669,46 @@ class ProductController extends Controller
     {
 
         $images = new scraperImags();
+
+        $checking = 0;
+        if(!empty($request->si_status)){
+            if($request->si_status==1){
+                $images = $images->where('si_status', 1);
+            } else if($request->si_status==2){
+                $images = $images->where('si_status', 2);
+            } else if($request->si_status==3){
+                $images = $images->where('si_status', 3);
+            } else if($request->si_status==4){
+                $images = $images->where('manually_approve_flag', 1);
+            } else{
+                $images = $images->where('si_status', 1);
+                $checking = 1;
+            }
+        } else {
+            $images = $images->where('si_status', 1);
+            $checking = 1;
+        }
+
+        if(!empty($request->url)){
+            $images = $images->where(function ($query) use ($term) {
+                return $query->orWhere('url', 'like', '%' . $term . '%');
+            });
+        }
         $images = $images->orderBy('id', 'DESC');        
         $images = $images->paginate(60);
 
         if ($request->ajax()) {
+
+            if($checking==1){
+                if(!empty($images[0]->id)){
+                    \App\scraperImags::where('id', '>', $images[0]->id)->where('si_status', 1)->where('manually_approve_flag', 0)->update(['si_status' => 2]); 
+                }
+            }
+            
             $viewpath = 'products.scrapper_listing_image_ajax';
 
             return view($viewpath, [
+                'checking' => $checking,
                 'products' => $images,
                 'products_count' => $images->total(),
             ]);
@@ -6684,6 +6717,7 @@ class ProductController extends Controller
         $viewpath = 'products.scrapper_listing';
 
         return view($viewpath, [
+            'checking' => $checking,
             'products' => $images,
             'products_count' => $images->total(),
         ]);

@@ -108,18 +108,33 @@
                                             @endif
                                             {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }} </br>
 
-                                            @if($image['si_status']==2)
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                            @if($product['si_status']==3 && $product['manually_approve_flag']==0)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
                                                 </br>
                                                 <span class="text-danger">image is rejected.</span> 
-                                            @elseif($image['si_status']==1 && $image['manually_approve_flag']==1)
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                            @elseif($image['si_status']==2 && $image['manually_approve_flag']==0)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
+                                            @elseif($image['manually_approve_flag']==1 || $image['si_status']==1)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
+                                                </br>
+                                                @if($image['manually_approve_flag']==1)
+                                                    <span class="text-danger">You need to approve or reject this image manually.</span> 
+                                                @endif
+                                            @endif
+
+                                            <!-- @if($image['si_status']==3)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
+                                                </br>
+                                                <span class="text-danger">image is rejected.</span> 
+                                            @elseif($image['manually_approve_flag']==1)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
                                                 </br>
                                                 <span class="text-danger">You need to approve or reject this image manually.</span> 
                                             @else 
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
-                                            @endif
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
+                                            @endif -->
                                         </div>
                                     </div>
                                 @else
@@ -149,18 +164,33 @@
                                             @endif
                                             {{ \Carbon\Carbon::parse($image['created_at'])->format('d-m-y') }} </br>
 
-                                            @if($image['si_status']==2)
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
+                                            @if($image['si_status']==3 && $image['manually_approve_flag']==0)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
                                                 </br>
                                                 <span class="text-danger">image is rejected.</span> 
-                                            @elseif($image['si_status']==1 && $image['manually_approve_flag']==1)
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="1">Approve</button>
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
+                                            @elseif($image['si_status']==2 && $image['manually_approve_flag']==0)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
+                                            @elseif($image['manually_approve_flag']==1 || $image['si_status']==1)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
+                                                </br>
+                                                @if($image['manually_approve_flag']==1)
+                                                    <span class="text-danger">You need to approve or reject this image manually.</span> 
+                                                @endif
+                                            @endif
+
+                                            <!-- @if($image['si_status']==3)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
+                                                </br>
+                                                <span class="text-danger">image is rejected.</span> 
+                                            @elseif($image['manually_approve_flag']==1)
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Approve</button>
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
                                                 </br>
                                                 <span class="text-danger">You need to approve or reject this image manually.</span> 
                                             @else 
-                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="2">Reject</button> 
-                                            @endif
+                                                <button class="btn btn-secondarys reject-scrap-image btn-default" data-id="{{$image['id']}}" data-type="3">Reject</button> 
+                                            @endif -->
                                         </div>
                                     </div>
                                 @endif
