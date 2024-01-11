@@ -113,12 +113,37 @@ New Category Reference Group
             toastr['error']('Sorry, something went wrong', 'error');
         });
     });
-    $(document).on("click", ".change-selectbox", function() {
-        $('#select' + $(this).data('id')).trigger('change');
+
+    $(document).ready(function() {
+    // When the check-all-btn is clicked
+    $(".check-all-btn").on("change", function() {
+        // If check-all-btn is checked, check all category-checkbox
+        if ($(this).prop("checked")) {
+            $(".category-checkbox").prop("checked", true);
+        } else {
+            // If check-all-btn is unchecked, uncheck all category-checkbox
+            $(".category-checkbox").prop("checked", false);
+        }
     });
-    $(document).on("click", ".check-all-btn", function() {
-        $(".category-checkbox").trigger("click");
+
+    // When any category-checkbox is clicked
+    $(".category-checkbox").on("change", function() {
+        // Check if all category-checkbox are checked, then check the check-all-btn
+        if ($(".category-checkbox:checked").length === $(".category-checkbox").length) {
+            $(".check-all-btn").prop("checked", true);
+        } else {
+            // If any category-checkbox is unchecked, uncheck the check-all-btn
+            $(".check-all-btn").prop("checked", false);
+        }
     });
+});
+
+    // $(document).on("click", ".change-selectbox", function() {
+    //     $('#select' + $(this).data('id')).trigger('change');
+    // });
+    // $(document).on("click", ".check-all-btn", function() {
+    //     $(".category-checkbox").trigger("click");
+    // });
 </script>
 @endsection
 @endsection

@@ -915,11 +915,27 @@ class ScrapController extends Controller
 
         // Overwrite website
         //$request->website = 'internal_scraper';
-
+        
         // Log before validating
         //LogScraper::LogScrapeValidationUsingRequest($request);
         $receivedJson = json_decode($request->getContent());
+        if(!isset($receivedJson)){
+            return response()->json([
+                'status' => 'Json format not valid',
+            ], 400);
+        }
 
+        if($receivedJson->id == ''){
+            return response()->json([
+                'status' => 'Product id empty',
+            ], 400);
+        }
+
+        if($receivedJson->brand == ''){
+            return response()->json([
+                'status' => 'Brand name is empty',
+            ], 400);
+        }
         // Find product
         $product = Product::find($receivedJson->id);
 
