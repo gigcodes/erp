@@ -1647,7 +1647,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     @endif
                                 @endauth
                                 <li>
-                                    <a title="Create Vendor" data-toggle="modal" data-target="#shortcut-header-modal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                    <a title="Keyword Quick Replies" data-toggle="modal" data-target="#shortcut-header-modal" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-font fa-2x" aria-hidden="true"></i></span>
                                     </a>
                                 </li>
