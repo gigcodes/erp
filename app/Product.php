@@ -1523,6 +1523,8 @@ class Product extends Model
             });
         }
 
+        //$query = $query->where('products.id', 1080895);
+
         if (isset($filter_data['supplier_count'])) {
             $query = $query->havingRaw('count(products.id) = ' . $filter_data['supplier_count']);
         }

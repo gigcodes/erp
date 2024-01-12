@@ -15,6 +15,8 @@ use App\DeveloperTask;
 use App\Task;
 use App\Jobs\UploadGoogleDriveScreencast;
 use App\GoogleScreencast;
+use App\Helpers\MessageHelper;
+use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class DevOppsController extends Controller
 {
@@ -295,6 +297,59 @@ class DevOppsController extends Controller
             return response()->json([
                 'data' => view('dev-oops.google-drive-list', ['result' => null])->render(),
             ]);
+        }
+    }
+
+    public function uploadDocument(Request $request)
+    {
+        $id = $request->get('devoops_task_id', 0);
+        $subject = $request->get('subject', null);
+
+        $loggedUser = $request->user();
+
+        if ($id > 0 && ! empty($subject)) {
+            $devTask = DevOppsSubCategory::find($id);
+
+            if (! empty($devTask)) {
+                $devDocuments = new \App\Models\DevOppsSubCategoryDocument;
+                $devDocuments->fill(request()->all());
+                $devDocuments->created_by = \Auth::id();
+                $devDocuments->save();
+
+                if ($request->hasfile('files')) {
+                    foreach ($request->file('files') as $files) {
+                        $media = MediaUploader::fromSource($files)
+                            ->toDirectory('developertask/' . floor($devTask->id / config('constants.image_per_folder')))
+                            ->upload();
+                        $devDocuments->attachMedia($media, config('constants.media_tags'));
+                    }
+
+                    $message = '[ ' . $loggedUser->name . ' ] - #DEVTASK-' . $devTask->id . ' - ' . $devTask->subject . " \n\n" . 'New attchment(s) called ' . $subject . ' has been added. Please check and give your comment or fix it if any issue.';
+
+                    MessageHelper::sendEmailOrWebhookNotification([Auth::user()->id], $message);
+                }
+
+                return response()->json(['code' => 200, 'success' => 'Done!']);
+            }
+
+            return response()->json(['code' => 500, 'error' => 'Oops, There is no record in database']);
+        } else {
+            return response()->json(['code' => 500, 'error' => 'Oops, Please fillup required fields']);
+        }
+    }
+
+    public function getDocument(Request $request)
+    {
+        $id = $request->get('id', 0);
+
+        if ($id > 0) {
+            $devDocuments = \App\Models\DevOppsSubCategoryDocument::where('devoops_task_id', $id)->latest()->get();
+
+            $html = view('dev-oops.document-list', compact('devDocuments'))->render();
+
+            return response()->json(['code' => 200, 'data' => $html]);
+        } else {
+            return response()->json(['code' => 500, 'error' => 'Oops, id is required field']);
         }
     }
 }

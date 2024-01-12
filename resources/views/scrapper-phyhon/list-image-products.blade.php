@@ -229,8 +229,8 @@
                 <div class="col-md-1">
                     <select class="form-control select-multiple" id="si_status" tabindex="-1" aria-hidden="true" name="si_status">
                         <option value="">Select Status</option>
-                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 1 ? 'selected' :'' ) }} value="1">Approved</option>
-                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 2 ? 'selected' :'' ) }} value="2">Rejected</option>
+                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 2 ? 'selected' :'' ) }} value="2">Approved</option>
+                        <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 3 ? 'selected' :'' ) }} value="3">Rejected</option>
                     </select>
                 </div>
                
@@ -926,7 +926,7 @@
         var type = $(this).data('type');        
 
         var msg = "Are you sure you want to approve this image?";
-        if(type==2){
+        if(type==3){
             var msg = "Are you sure you want to reject this image?";
         }
 
