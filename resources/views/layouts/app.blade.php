@@ -877,6 +877,49 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
+    <!-- user-search Modal-->
+    <div id="menu-user-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">User Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" id="menu_user_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="User Search" type="button" id="menu-user-search-btn" class="menu-user-search-btn btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                                <span class="processing-txt d-none">{{ __('Loading...') }}</span>    
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table table-bordered table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable-app-layout">
+                                    <thead>
+                                    <tr>
+                                        <th width="10%">ID</th>
+                                        <th width="30%">Name</th>
+                                        <th width="30%">Email</th>
+                                        <th width="30%">Phone</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="user_search_global_result">
+                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
     <!-- sop-add Modal-->
     <div class="modal fade" id="exampleModalAppLayout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
@@ -1344,6 +1387,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <nav id="quick-sidebars">
                             <ul class="list-unstyled components mr-1">
                                 @if (Auth::user()->hasRole('Admin'))
+                                <li>
+                                    <a href="javascript:void(0);" title="Global User Search" id="menu-user-search" type="button" class="quick-icon menu-user-search" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-search fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
                                 <li>
                                     <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
@@ -6528,6 +6576,52 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         e.preventDefault();
         $("#menu-sop-search-model").modal("show");
     });
+
+    // Global user search from the menu - S
+    $(document).on("click", ".menu-user-search", function(e) {
+        e.preventDefault();
+        $("#menu-user-search-model").modal("show");
+        get_user_data();
+    });
+
+    $(document).on("click", ".menu-user-search-btn", function(e) {
+        e.preventDefault();
+        get_user_data();
+    });
+
+    function get_user_data(){
+        let _token = "{{csrf_token()}}";
+        $(".processing-txt").removeClass('d-none');
+        $.ajax({
+            url: "{{ route('user-search-global') }}",
+            type: "POST",
+            data: {
+                q: $("#menu_user_search").val().trim(),
+                _token: _token
+            },
+            success: function(response) {
+                var trData = "";
+                $(".processing-txt").addClass('d-none');
+                if (response) {
+                    $.each(response, function(index, value) {
+                        var user_email = (value.email != null) ? value.email : "";
+                        var user_name =  (value.name != null) ? value.name : "";
+                        var user_phone =  (value.phone != null) ? value.phone : "";
+                        trData += "<tr>";
+                        trData += "<td>"+value.id+"</td>";
+                        trData += "<td>"+user_name+"</td>";
+                        trData += "<td>"+user_email+"</td>";
+                        trData += "<td>"+user_phone+"</td>";
+                        trData += "</tr>";
+                    });
+                    $(".user_search_global_result").html(trData);
+                    console.log(trData);
+                }
+            }
+        });
+    }
+
+    // Global user search from the menu - E    
 
     $(document).on("click", ".menu-email-search", function(e) {
         e.preventDefault();
