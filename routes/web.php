@@ -1062,6 +1062,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/conditions/upteamstatus/update', [ProductController::class, 'updateConditionUpteamStatus'])->name('products.push.condition.update');
     Route::get('products/listing/scrapper/{images?}', [ProductController::class, 'approvedScrapperImages'])->name('products.listing.scrapper.images');
     Route::get('products/listing/scrapper/{images}/{id}', [ProductController::class, 'approvedScrapperImagesCompare'])->name('products.listing.scrapper.images.comare');
+    Route::post('products/listing/scrapper-images-truncate', [ProductController::class, 'truncateScrapperImagesMedia'])->name('products.listing.scrapper.images.truncate');
 
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
@@ -3094,6 +3095,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
         Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
     	Route::get('code-shortcut-title/{id}', [CodeShortcutController::class, 'getListCodeShortCut'])->name('code.get.Shortcut.data');
+    	Route::post('create/shortcut-code', [CodeShortcutController::class, 'createShortcutCode'])->name('shortcut.code.create');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -5963,4 +5965,8 @@ Route::middleware('auth')->group(function () {
     Route::post('indexerstate/save', [\App\Http\Controllers\IndexerStateController::class, 'save'])->name('indexer-state.save');
     Route::get('indexerstate/masterslave', [\App\Http\Controllers\IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
     Route::get('indexerstate/logs/{id?}', [\App\Http\Controllers\IndexerStateController::class, 'logs'])->name('indexer-state.logs');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
 });
