@@ -279,6 +279,11 @@
         <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.flow-chart')}}">Flow Chart</a>
 
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a>
+
+        @if (auth()->user()->isAdmin())
+        <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newQuestionModal">Create Question</a>
+        <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
+        @endif
     </div>
 </div>
 
@@ -286,6 +291,7 @@
 @include("vendors.partials.modal-status-color")
 @include("vendors.partials.column-visibility-modal")
 @include('vendors.partials.add-flow-chart')
+@include('vendors.partials.add-question')
 <div class="row">
     <div class="col-md-12">
         <div class="panel-group" style="margin-bottom: 5px;">
@@ -1876,6 +1882,109 @@
         } else {
             alert('Please enter a remarks first');
         }
+    });
+
+    $(document).on('click', '.add-question-answer', function() {
+        var vendor_id = $(this).attr('data-id');
+
+        $.ajax({
+            url: "{{route('vendors.getquestion')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.question} </td>
+                                    <td> <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                            <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="answer" placeholder="Enter answer" id="answer_`+vendor_id+`_`+v.id+`" data-vendorid="`+vendor_id+`" data-question_id="`+v.id+`">
+                                            <div style="margin-top: 0px;" class="d-flex p-0">
+                                                <button class="btn pr-0 btn-xs btn-image " onclick="saveAnswer(`+vendor_id+`, `+v.id+`)"><img src="/images/filled-sent.png"></button>
+                                                <button type="button" data-vendorid="`+vendor_id+`" data-question_id="`+v.id+`" class="btn btn-image answer-history-show p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
+                                            </div>
+                                        </div></td>
+                                </tr>`;
+                    });
+                    $("#vqa-histories-list").find(".vqa-histories-list-view").html(html);
+                    $("#vqa-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+
+    function saveAnswer(vendor_id, question_id){
+
+        var answer = $("#answer_"+vendor_id+"_"+question_id).val();
+
+        if(answer==''){
+            alert('Please enter answer.');
+        } else {
+
+            $.ajax({
+                url: "{{route('vendors.question.saveanswer')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'vendor_id' :vendor_id,
+                    'question_id' :question_id,
+                    'answer' :answer,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#answer_"+vendor_id+"_"+question_id).val('');
+                    $("#loading-image").hide();
+                    toastr['success']('Answer Added successfully!!!', 'success');
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+    }
+
+    $(document).on('click', '.answer-history-show', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var question_id = $(this).attr('data-question_id');
+
+        $.ajax({
+            url: "{{route('vendors.question.getgetanswer')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.answer} </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vqa-answer-histories-list").find(".vqa-answer-histories-list-view").html(html);
+                    $("#vqa-answer-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
     });
 </script>
 @endsection
