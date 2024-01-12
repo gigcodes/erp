@@ -720,5 +720,48 @@
                 alert('Please check laravel log for more information')
             });
         });
+
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task = $(this).data('task-id');
+            var message = $("#messageid_"+task).val();
+            data.append("issue_id", task);
+            data.append("message", message);
+            data.append("status", 1);
+            data.append("sendTo", $(".send-message-number-"+task).val());
+
+            if (message.length > 0) {
+                if (!$(this).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/issue',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                            $("#loading-image").show();
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+task).html(response.message.message);
+                        $("#messageid_"+task).val('');
+                        $("#loading-image").hide();
+                        $(this).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(this).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                        $("#loading-image").hide();
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
     </script>
 @endsection

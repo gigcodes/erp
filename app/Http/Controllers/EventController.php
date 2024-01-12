@@ -43,7 +43,7 @@ class EventController extends Controller
         $admin = $user->isAdmin();
 
         if($admin){
-            $users = User::where('id', '!=', Auth::user()->id)->get()->toArray();
+            $users = User::where('id', '!=', Auth::user()->id)->orderBy('name', 'ASC')->get()->toArray();
         } else {
             $users = User::join('role_user', 'role_user.user_id', 'users.id')->join('roles', 'roles.id', 'role_user.role_id')
             ->where('roles.name', 'Admin')->select('users.name', 'users.id')->get();    
@@ -1128,8 +1128,15 @@ class EventController extends Controller
         $user = User::find($request->id);
 
         $is_online_flag = 0;
-        if($user->isOnline()==1 && $user->is_online_flag){
-            $is_online_flag = 1;
+
+        if (Auth::user()->isAdmin()) {
+            if($user->isOnline()==1){
+                $is_online_flag = 1;
+            }
+        } else {
+            if($user->isOnline()==1 && $user->is_online_flag){
+                $is_online_flag = 1;
+            }
         }
 
         return response()->json(['code' => 200,'is_online_flag' => $is_online_flag,'name' => $user->name]);

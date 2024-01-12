@@ -9,6 +9,7 @@
     .table-scrapper, .table-scrapper th, .table-scrapper td{font-size: 14px}
     .add-scrapper-remarks{float: left;    padding: 10px 2px;}
     .add-scrapper-textarea{float: left; display: inline-block;   width: 90%;}
+    #task_Tables td{word-break: break-all;}
 </style>
 <div style="overflow-x:auto;">
 <table class="table table-bordered table-striped" id="task_Tables">
@@ -356,16 +357,34 @@
                             table = table + '</th>';
 
                             if(key=='properties'){
+
+                                var iiii = 1;
                                 if(data.values.properties!=''){
                                     table = table + '<td><table class="table table-bordered table-striped">';
                                     $.each(data.values.properties, function(key, value) {
-                                        table = table + '<tr>';
-                                            table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
-;
-                                            table = table + '</th>';
-                                            table = table + '<td>'+value;
-                                            table = table + '</td>';
-                                        table = table + '</tr>';
+                                        if(key=='category'){
+                                            if(data.values.properties.category){
+
+                                                $.each(data.values.properties.category, function(keyC, valueC) {
+
+                                                    table = table + '<tr>';
+                                                        table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "))+' '+iiii;
+                                                        table = table + '</th>';
+                                                        table = table + '<td>'+valueC;
+                                                        table = table + '</td>';
+                                                    table = table + '</tr>';
+
+                                                    iiii++;
+                                                });
+                                            }
+                                        } else {
+                                            table = table + '<tr>';
+                                                table = table + '<th>'+capitalizeFirstLetter(key.replace("_", " "));
+                                                table = table + '</th>';
+                                                table = table + '<td>'+value;
+                                                table = table + '</td>';
+                                            table = table + '</tr>';
+                                        }
 
                                     });
                                     table = table + '</table></td>';

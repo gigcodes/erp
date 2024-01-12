@@ -239,4 +239,16 @@ class CodeShortcutController extends Controller
             'status_name' => 'success',
         ], 200);
     }
+
+    public function createShortcutCode(Request $request)
+    {
+        $CodeShortcut = new CodeShortcut;
+        $CodeShortcut->title = $request->name;
+        $CodeShortcut->user_id = auth()->user()->id;
+        $CodeShortcut->description = $request->description;
+        $CodeShortcut->solution = $request->solution;
+        $CodeShortcut->save();
+
+        return response()->json(['status' => true, 'message' => 'Code Shortcut Created Successfully']);
+    }
 }
