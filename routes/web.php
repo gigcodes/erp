@@ -2746,6 +2746,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('vendors-autocomplete', [VendorController::class, 'getVendorAutocomplete'])->name('vendors.autocomplete');
     Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
     Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
+    Route::get('vendors/question-answer', [VendorController::class, 'questionAnswer'])->name('vendors.question-answer');
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');
     Route::post('vendors/storeshortcut', [VendorController::class, 'storeshortcut'])->name('vendors.storeshortcut');
@@ -2812,6 +2813,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
     Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
     Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
+    Route::post('vendor/question/create', [VendorController::class, 'questionStore'])->name('vendor.question.store');
+    Route::post('vendor/question/getquestion', [VendorController::class, 'getVendorQuestions'])->name('vendors.getquestion');
+    Route::post('vendor/question/answer', [VendorController::class, 'saveVendorQuestionAnswer'])->name('vendors.question.saveanswer');
+    Route::post('vendor/question/getanswer', [VendorController::class, 'getQuestionAnswerHistories'])->name('vendors.question.getgetanswer');
+    Route::post('vendor/questionansert', [VendorController::class, 'vendorQuestionAnswerStatus'])->name('vendors.questionansert');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');
