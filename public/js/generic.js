@@ -1092,13 +1092,13 @@ $(document).on("click", ".delete-message", function (e) {
 });
 
 $(document).on("click", ".create_short_cut", function () {
-  var msg = $(this).data("message");
+  var msg = $(this).data("msg");
   var name = $(this).data("name");
   var chatID = $(this).data("id");
-  var category = $(this).data("category");
+  //var category = $(this).data("category");
   $("#Create-Sop-Shortcut").find(".name").val(name);
   $("#Create-Sop-Shortcut").find(".chat_message_id").val(chatID);
-  $("#Create-Sop-Shortcut").find(".category").val(category);
+  //$("#Create-Sop-Shortcut").find(".category").val(category);
   $("#Create-Sop-Shortcut").find(".sop_description").text(msg);
 });
 
