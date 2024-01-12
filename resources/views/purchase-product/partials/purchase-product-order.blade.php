@@ -65,6 +65,7 @@ table tr td {
     cursor: pointer;
     color:#000;
 }
+.form-inline .form-group label{float: left; width: 100%;display: inline-block;}
 </style>
 @endsection
 
@@ -78,16 +79,23 @@ table tr td {
 
     <div class="row">
         <div class="col-12" style="padding:0px;">
-            <h2 class="page-heading">Purchase Product Orders List</h2>
+            <h2 class="page-heading">
+                Purchase Product Orders List
+                <div style="float:right;">
+                    <button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#purchaseproductorderscolumnvisibilityList"> Column Visiblity</button>
+                    <button class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                </div>
+            </h2>
         </div>
          <div class="col-10" style="padding-left:0px;">
             <div class="col-md-12">
                 <form class="form-inline" action="" method="GET">
-                    <div class="form-group col-md-2 pd-3">
-
+                    <div class="form-group col-md-1 pd-3">
+                        <label for="order_id">Order id</label>
                         <input style="width:100%;" name="order_id" type="text" class="form-control" value="{{ isset($_REQUEST['order_id']) ? $_REQUEST['order_id'] : '' }}" placeholder="Order id">
                     </div>
-                    <div class="form-group col-md-3 pd-3">
+                    <div class="form-group col-md-2 pd-3">
+                        <label for="supplier_id">Supplier</label>
                         <select class="form-control globalSelect2" data-ajax="{{ route('select2.suppliers') }}" style="width:100%" name="supplier_id" data-placeholder="Search Supplier By Name.." >
 
                         @if(isset($_REQUEST['supplier_id']))
@@ -99,7 +107,8 @@ table tr td {
                         <option ></option>
                         </select>
                     </div>
-                    <div class="form-group col-md-3 pd-3">
+                    <div class="form-group col-md-2 pd-3">
+                        <label for="status">Status</label>
                         <select class="form-control status globalSelect2" name="status" id="status" data-placeholder="Select Status" >
                             <option value="all">Select Status</option>
                             <option {{(@$_REQUEST['status'] == 'pending') ? 'selected' : ''}} value="pending">Pending</option>
@@ -109,7 +118,8 @@ table tr td {
                         </select>                       
                     </div>
 
-                    <div class="form-group col-md-3 pd-3">
+                    <div class="form-group col-md-2 pd-3">
+                        <label for="filter_purchase_status">Purchase Status</label>
                         <select class="form-control purchase_status globalSelect2" name="filter_purchase_status" id="filter_purchase_status">
                             <option value="all">Select Purchase Status</option>
                             @foreach ($purchaseStatuses as $id => $purchaseStatus)
@@ -118,20 +128,16 @@ table tr td {
                         </select>
                     </div>
 
-                    <div class="form-group col-md-3">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="filter_start_date">Created Date From</label>
-                                <input type="date" name="filter_start_date" id="filter_start_date" value="{{ @$_REQUEST['filter_start_date'] }}" class="form-control input-sm" placeholder="Select Start Date">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="filter_end_date">Created Date To</label>
-                                <input type="date" name="filter_end_date" id="filter_end_date" value="{{ @$_REQUEST['filter_end_date'] }}" class="form-control input-sm" placeholder="Select End Date">
-                            </div>    
-                        </div>    
+                    <div class="form-group col-md-1 pd-3">
+                        <label for="filter_start_date">Created Date From</label>
+                        <input type="date" name="filter_start_date" id="filter_start_date" value="{{ @$_REQUEST['filter_start_date'] }}" class="form-control input-sm" placeholder="Select Start Date">
+                    </div>
+
+                    <div class="form-group col-md-1 pd-3 mt-3">
+                        <label for="filter_end_date">Created Date To</label>
+                        <input type="date" name="filter_end_date" id="filter_end_date" value="{{ @$_REQUEST['filter_end_date'] }}" class="form-control input-sm" placeholder="Select End Date">
                     </div>
                    
-
                     <div class="form-group col-md-1 pd-3">
                         <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
 
@@ -143,7 +149,7 @@ table tr td {
         <div class="col-12" style="padding:0px;">
             <div class="col-md-12">
                 <ul class="nav nav-tabs">
-                    <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#purchaseproductorderscolumnvisibilityList"> Column Visiblity</button></li>
+                    <li></li>
                 </ul>
             </div>
         </div>
@@ -239,8 +245,16 @@ table tr td {
 
                         <tbody>
                         @foreach($purchar_product_order as $key => $value)
+
+                            @php
+                                $status_color = \App\Models\PurchaseProductOrderStatus::where('status_alias',$value->purchase_status)->first();
+                                if ($status_color == null) {
+                                    $status_color = new stdClass();
+                                }
+                            @endphp
+
                             @if(!empty($dynamicColumnsToShowPurchaseproductorders))
-                                <tr class="row_{{$value->pur_pro_id}}">
+                                <tr class="row_{{$value->pur_pro_id}}" style="background-color: {{$status_color->status_color ?? ""}}!important;">
                                     <td>{{$key+1}}</td>
 
                                     @if (!in_array('Order Id', $dynamicColumnsToShowPurchaseproductorders))
@@ -368,7 +382,8 @@ table tr td {
                                     <td>{{$date[0]}}</td>
                                     @endif
 
-                                    <td>
+                                    @if (!in_array('Action', $dynamicColumnsToShowPurchaseproductorders))
+                                    <td>            
                                     @php
                                     $order_products_order_id = $value->order_products_order_id;
                                     $vowels = array("[", "]");
@@ -380,10 +395,10 @@ table tr td {
 
                                         <a type="button" class="btn btn-xs load-communication-modal"  data-object="supplier" data-load-type="text" data-all="1" title="Load messages" data-object="supplier" data-id="{{$value->supplier_id}}" ><img src="/images/chat.png" alt="" width="16px"></a>
                                     </td>
-
+                                    @endif
                                 </tr>
                             @else
-                                <tr class="row_{{$value->pur_pro_id}}">
+                                <tr class="row_{{$value->pur_pro_id}}" style="background-color: {{$status_color->status_color ?? ""}}!important;">
                                     <td>{{$key+1}}</td>
                                     <td>{{$value->order_id}}</td>
                                     <!-- <td>{{$value->name}}</td>
@@ -645,7 +660,7 @@ table tr td {
         </div>
     </div>
     @include("purchase-product.partials.column-visibility-modal")
-
+    @include("purchase-product.partials.modal-status-color")
 @endsection
 @section('scripts')
 

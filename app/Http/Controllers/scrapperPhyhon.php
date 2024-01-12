@@ -207,12 +207,26 @@ class scrapperPhyhon extends Controller
                     $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
                 }
 
-                if (!empty($request->si_status)) {
-                    $images = $images->where('si_status', $request->si_status);
+                if(!empty($request->si_status)){
+                    if($request->si_status==1){
+                        $images = $images->where('si_status', 1);
+                    } else if($request->si_status==2){
+                        $images = $images->where('si_status', 2);
+                    } else if($request->si_status==3){
+                        $images = $images->where('si_status', 3);
+                    } else if($request->si_status==4){
+                        $images = $images->where('manually_approve_flag', 1);
+                    } else{
+                        $images = $images->where('si_status', 1);
+                    }
                 }
+
                 //     $images = $images->get()
                 //   ->toArray();
                 //        dd($images->pluck("id"));
+
+                //$images->update(['si_status' => 2]);
+
                 $images = $images->paginate(Setting::get('pagination'));
                 // $images =  $images->paginate(2);
             }
@@ -225,6 +239,8 @@ class scrapperPhyhon extends Controller
         $startDate = $request->startDate;
         $endDate = $request->endDate;
         if ($request->ajax()) {
+
+            $this->listImagesApprove($request);
             $view_path = 'scrapper-phyhon.list-image-products_ajax';
         } else {
             $view_path = 'scrapper-phyhon.list-image-products';
@@ -239,6 +255,64 @@ class scrapperPhyhon extends Controller
         $filterWebsites = StoreWebsite::orderBy('website')->get();        
 
         return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate', 'bugTypes', 'bugEnvironments', 'bugSeveritys', 'bugStatuses', 'filterCategories', 'users', 'filterWebsites'));
+    }
+
+    public function listImagesApprove($requestData)
+    {
+        $store_id = $requestData->id;
+
+        $requestData->page = ($requestData->page-1);
+
+        $oldDate = null;
+        $count = 0;
+        $images = [];
+        $website_id = 0;
+
+        $webStore = \App\WebsiteStore::where('id', $store_id)->first();
+    
+        if ($webStore) {
+
+            $list = Website::where('id', $webStore->website_id)->first();
+            $website_id = $list->id;
+
+            $website_store_views = \App\WebsiteStoreView::where('website_store_id', $webStore->id)->first();
+
+            if ($website_store_views) {
+                $images = \App\scraperImags::where('store_website', $list->store_website_id)
+                ->where('website_id', $requestData->code); // this is language code. dont be confused with column name
+
+                if (isset($requestData->startDate) && isset($requestData->endDate)) {
+                    $images = $images->whereDate('created_at', '>=', date($requestData->startDate))
+                    ->whereDate('created_at', '<=', date($requestData->endDate));
+                } else {
+                    //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                }
+
+                if (isset($requestData->device) && ($requestData->device == 'mobile' || $requestData->device == 'tablet')) {
+                    $images = $images->where('device', $requestData->device);
+                } elseif ($requestData->device == 'desktop') {
+                    $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
+                }
+
+                if(!empty($requestData->si_status)){
+                    if($requestData->si_status==1){
+                        $images = $images->where('si_status', 1);
+                    } else if($requestData->si_status==2){
+                        $images = $images->where('si_status', 2);
+                    } else if($requestData->si_status==3){
+                        $images = $images->where('si_status', 3);
+                    } else if($requestData->si_status==4){
+                        $images = $images->where('manually_approve_flag', 1);
+                    } else{
+                        $images = $images->where('si_status', 1);
+                    }
+                }
+
+                $images->update(['si_status' => 2]);
+
+                $images = $images->paginate(Setting::get('pagination'));
+            }
+        }
     }
 
     public function setDefaultStore(int $website = 0, int $store = 0, $checked = 0)
@@ -621,6 +695,7 @@ class scrapperPhyhon extends Controller
     {
         $image = \App\scraperImags::find($request->id);
         $image->si_status = $request->si_status;
+        $image->manually_approve_flag = 0;
         $image->save();
 
         return redirect()->back()->with('success', "Scrapper image has been successfully rejected.");
