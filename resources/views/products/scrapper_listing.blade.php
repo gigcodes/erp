@@ -92,9 +92,19 @@
 @endsection
 
 @section('large_content')
+<div style="position:fixed;z-index:1"><button class="btn btn-secondary hide start-again" onclick="callinterval();" disabled>Start Scroll</button>
+<button class="btn btn-secondary stopfunc hide pause" id="clearInt">Stop Scroll</button></div>
     <div class="row">
         <div class="col-lg-12 margin-tb p-0">
-            <h2 class="page-heading">Scrapper Product Images ({{ $products_count }}) </h2>
+            <h2 class="page-heading">
+                Scrapper Product Images ({{ $products_count }}) 
+
+                <div style="float: right;">
+                    <button type="button" class="btn btn-secondary truncate-tables-btn" style=" float: right;">
+                        Truncate Scrapper Images Records
+                    </button> 
+                </div>
+            </h2>
 
             <form class="product_filter" action="{{ action([\App\Http\Controllers\ProductController::class, 'approvedScrapperImages']) }}/images" method="GET">
                 <div class="row p-0 m-0">
@@ -113,6 +123,14 @@
                                 <option {{ (isset($_REQUEST['si_status']) && $_REQUEST['si_status'] == 4 ? 'selected' :'' ) }} value="4">Manually Approve or Reject</option>
                             </select>
                         </div>
+                        <div class="col-md-5">
+                            <select class="form-control websites globalSelect2" name="store_website_id[]" data-placeholder="Please select website" style="width:200px !important;" multiple>
+                                <option value=""></option>
+                                @foreach($all_store_websites as $wId => $wTitle)
+                                    <option value="{{ $wId }}" @if(!empty($_REQUEST['store_website_id'])) @if(in_array($wId, $_REQUEST['store_website_id'])) selected @endif @endif>{{ $wTitle }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="col-md-2">
                             <div class="form-group">
                                 <button type="submit" class="btn btn-secondary" title="Filter">
@@ -121,6 +139,18 @@
                                 <a href="{{url()->current()}}" class="btn  btn-secondary" title="Clear">
                                     <i type="submit" class="fa fa-times" aria-hidden="true"></i>
                                 </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">                    
+                        <div class="col-sm-10 ml-2">  
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">  
+                            <div class="form-group">
+                            <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
                             </div>
                         </div>
                     </div>
@@ -149,7 +179,50 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 
 <script type="text/javascript">       
-    
+var i=0;
+var scroll = true;
+var old_product;
+function start_scroll_down() { 
+    if(scroll){
+        console.log("in scroll")
+        let product_id = $(".infinite-scroll-data .gallery .col-md-2").eq(i-1).attr("productid");
+        console.log(product_id)
+      
+        $("html, body").animate({
+            scrollTop: $(".infinite-scroll-data .gallery .col-md-2").eq(i).offset().top
+        }, 500).delay(500); // First value is a speed of scroll, and second time break
+        i++;
+    }else{
+        console.log("no scroll")
+    }
+}
+
+var stop;
+function callinterval(){
+    if($("#scrolltime").val() == ""){
+        toastr["error"]("please add time interval for scroll");
+        return;
+    }
+        
+    $(".start-again").removeClass("hide")
+    $(".pause").removeClass("hide")
+
+    $(".start-again").attr("disabled","disabled")
+    $(".pause").attr("disabled",false)
+    $("html, body").animate({
+        scrollTop: $(".infinite-scroll-data .gallery .col-md-2").eq(i).offset().top
+    }, 500).delay(500); // First value is a speed of scroll, and second time break
+    i++;
+    stop = setInterval(function(){ console.log("Running");start_scroll_down() }, $("#scrolltime").val()*1000);
+}
+
+$('#clearInt').click(function(){ 
+    $(".start-again").attr("disabled",false)
+    $(".pause").attr("disabled","disabled")
+    clearInterval(stop);
+    console.log("Stopped");
+});
+
 var productIds = [
     @foreach ( $products as $product )
     {{ $product->id }},
@@ -321,5 +394,30 @@ lightboxBtns.forEach(btn => {
 lightboxImage.addEventListener('click', (e) => {
     e.stopPropagation();
 })
+
+$(document).on("click",".truncate-tables-btn",function() {
+
+    if (confirm('Are you sure you want to truncate the Scrapper Images Records & Media?')) {
+
+        $("#loading-image-preview").show();
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            type: 'POST',
+            url: '{{ route('products.listing.scrapper.images.truncate') }}',                
+            success: function(response) {
+                $("#loading-image-preview").hide();
+                toastr["success"]("Scrapper Images Table Truncate & Scrapper Images Media remove from the directory.");
+                location.reload();
+            },
+            error: function(error) {
+                console.error('Error:', error);
+                location.reload();
+            }
+        }); 
+    }
+});
 </script>
 @endsection
