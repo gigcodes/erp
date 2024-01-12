@@ -6668,8 +6668,13 @@ class ProductController extends Controller
     public function approvedScrapperImages(Request $request, $pageType = '')
     {
 
-        $images = new scraperImags();
+        $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
 
+        $images = new scraperImags();
+        if(!empty($request->store_website_id)){
+            $images = $images->whereIn('store_website', $request->store_website_id);
+        }
+        
         $checking = 0;
         if(!empty($request->si_status)){
             if($request->si_status==1){
@@ -6719,6 +6724,7 @@ class ProductController extends Controller
         return view($viewpath, [
             'checking' => $checking,
             'products' => $images,
+            'all_store_websites' => $all_store_websites,
             'products_count' => $images->total(),
         ]);
     }
@@ -6779,5 +6785,28 @@ class ProductController extends Controller
                 ]);
             }
         }
+    }
+
+    public function truncateScrapperImagesMedia(Request $request)
+    {   
+
+        $scrapperImages = scraperImags::pluck('img_url');
+
+        if(!empty($scrapperImages)){
+            foreach ($scrapperImages as $key => $value) {
+                $path = public_path() . '/scrappersImages/';
+                if (file_exists($path . $value)) {
+                    unlink($path . $value);
+                }
+            }
+        }
+
+        DB::statement('TRUNCATE TABLE scraper_imags');
+        
+        return response()->json([
+            'status' => true,
+            'message' => " Your selected batabase tables has been truncate successfully",
+            'status_name' => 'success',
+        ], 200);
     }
 }
