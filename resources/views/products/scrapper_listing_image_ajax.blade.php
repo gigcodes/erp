@@ -3,7 +3,7 @@
     <section class="gallery">
         <div class="row d-flex p-0 m-0">
             @foreach ($products as $key => $product)
-                <div class=" col-12 col-md-2 p-3">
+                <div class=" col-12 col-md-2 p-3" productid="{{ $product->id }}">
                     <div class="lightbox_img_wrap">
                         <img class="lightbox-enabled" src="{{asset( 'scrappersImages/'.$product->img_name)}}" data-imgsrc="{{asset( 'scrappersImages/'.$product->img_name)}}">
                     </div>
