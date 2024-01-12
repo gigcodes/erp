@@ -142,17 +142,16 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">                    
-                    <div class="col-sm-2 ml-2">  
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
+                    <div class="col-sm-4">                    
+                        <div class="col-sm-10 ml-2">  
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="scrolltime" placeholder="scroll interval in second"/>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-sm-1">  
-                        <div class="form-group">
-                        <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
+                        <div class="col-sm-1">  
+                            <div class="form-group">
+                            <input type="button" onclick="callinterval()" class="btn btn-secondary" value="Start"/>
+                            </div>
                         </div>
                     </div>
                 </div>
