@@ -6183,11 +6183,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <select class="form-control sop_drop_down ">
                                 <option value="sop">Sop</option>
                                 <option value="knowledge_base">Knowledge Base</option>
+                                <option value="code_shortcut">Code Shortcut</option>
                             </select>
                         </div>
                         <input type="hidden" name="chat_message_id" value="" class="chat_message_id" />
                         <div class="add_sop_div mt-3">
-                            <tr>
+                            <div>
                                 <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
                                     <option value="">Select</option>
                                     <option value="book">Book</option>
@@ -6195,8 +6196,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <option value="page">Page</option>
                                     <option value="shelf">Shelf</option>
                                 </select>
-                            </tr>
-                            <tr>
+                            </div>
+                            <div>
 {{--                                <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>--}}
 {{--                                    <option value="">Select Books</option>--}}
 {{--                                    @php--}}
@@ -6211,20 +6212,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 {{--                                    @endforeach--}}
 {{--                                </select>--}}
                                 <span class="books_error" style="color:red;"></span>
-                            </tr>
-                            <tr>
+                            </div>
+                            <div>
                                 <td>Name:</td>
-                                <td><input type="text" name="name" class="form-control mb-3 name"></td>
-                            </tr>
-                            <tr>
+                                <td><input type="text" name="name" class="form-control mb-3 name" placeholder="Enter Name"></td>
+                            </div>
+                            <div>
                                 <td>Category:</td>
-                                <td><input type="text" name="category" class="form-control mb-3 category"></td>
-                            </tr>
-                            <tr>
+                                <td><input type="text" name="category" class="form-control mb-3 category" placeholder="Enter Category" value="Sop"></td>
+                            </div>
+                            <div>
                                 <td>Description:</td>
-                                <td><textarea name="description" id="" cols="30" rows="10"
-                                        class="form-control sop_description"></textarea></td>
-                            </tr>
+                                <td><textarea name="description" id="" cols="30" rows="10" class="form-control sop_description" placeholder="Enter Description"></textarea></td>
+                            </div>
+                            <div class="sop_solution hidden">
+                                <td>Solution:</td>
+                                <td><textarea name="solution" id="" cols="30" rows="10" class="form-control" placeholder="Enter Solution"></textarea></td>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -6767,12 +6771,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on('change', '.sop_drop_down', function() {
         var val = $(this).val();
+
         if ($(this).val() == "knowledge_base") {
             $(this).parents('.add_sop_modal').find('.knowledge_base').removeAttr('hidden');
+            $('.sop_solution').addClass('hidden');
+        } else if ($(this).val() == "code_shortcut") {
+            $('.sop_solution').removeClass('hidden');
+            $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
+            $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         } else {
             $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
+            $('.sop_solution').addClass('hidden');
         }
+
+        var selectedOptionText = $(this).find('option:selected').text();
+        
+        $(this).parents('.add_sop_modal').find('.category').val(selectedOptionText);
+        
     })
 
     $(document).on('click', '.expand-row-email', function () {
@@ -7484,69 +7500,88 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var category = $(this).parents('#createShortcutForm').find('[name="category"]').val();
         var content = $(this).parents('#createShortcutForm').find('[name="description"]').text();
         var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
-        if (val.length === 0) {
+
+        if($('.sop_drop_down').find(':selected').val()=='code_shortcut'){
             $.ajax({
                 type: "POST",
-                url: "{{ route('shortcut.sop.create') }}",
+                url: "{{ route('shortcut.code.create') }}",
                 data: formdata,
                 success: function(response) {
-                    toastr.success('Sop Added Successfully');
+                    toastr.success('code Shortcut Added Successfully');
                     $('#Create-Sop-Shortcut').modal('hide');
+                    $('#createShortcutForm')[0].reset();
                 }
             })
         }
-        if (val == "book") {
-            $.ajax({
-                type: "POST",
-                url: `/kb/books`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Book Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
-                }
-            })
-        }
-        if (val == "chapter") {
-            if (book_name.length == 0) {
-                $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
-                return;
+
+        if($('.sop_drop_down').find(':selected').val()=='sop'){
+            if (val.length === 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('shortcut.sop.create') }}",
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Sop Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
             }
-            $.ajax({
-                type: "POST",
-                url: `/kb/books/${book_name}/create-chapter`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Chapter Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
-                }
-            })
         }
-        if (val == "page") {
-            if (book_name.length == 0) {
-                $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
-                return;
+
+        if($('.sop_drop_down').find(':selected').val()=='knowledge_base'){
+            if (val == "book") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Book Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
             }
-            $.ajax({
-                type: "get",
-                url: `kb/books/${book_name}/create-page`,
-                data: formdata,
-                success: function(response) {
-                    console.log(response, '======')
-                    toastr.success('Page Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
+            if (val == "chapter") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
                 }
-            })
-        }
-        if (val == "shelf") {
-            $.ajax({
-                type: "POST",
-                url: `/kb/shelves/${name}/add`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Bookshelf Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books/${book_name}/create-chapter`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Chapter Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "page") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
                 }
-            })
+                $.ajax({
+                    type: "get",
+                    url: `kb/books/${book_name}/create-page`,
+                    data: formdata,
+                    success: function(response) {
+                        console.log(response, '======')
+                        toastr.success('Page Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "shelf") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/shelves/${name}/add`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Bookshelf Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
         }
     })
 
