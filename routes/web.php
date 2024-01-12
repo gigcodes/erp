@@ -5947,3 +5947,7 @@ Route::middleware('auth')->group(function () {
     Route::get('indexerstate/masterslave', [\App\Http\Controllers\IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
     Route::get('indexerstate/logs/{id?}', [\App\Http\Controllers\IndexerStateController::class, 'logs'])->name('indexer-state.logs');
 });
+
+Route::middleware('auth')->group(function () {
+    Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
+});
