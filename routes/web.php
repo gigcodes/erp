@@ -385,6 +385,7 @@ use App\Http\Controllers\ScriptDocumentsController;
 use App\Http\Controllers\AssetsManagerUsersAccessController;
 use App\Http\Controllers\DevOppsController;
 use App\Http\Controllers\GlobalComponants\FilesAndAttachmentsController;
+use App\Http\Controllers\AppointmentRequestController;
 
 Auth::routes();
 
@@ -1059,6 +1060,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('products/conditions/status/update', [ProductController::class, 'updateConditionStatus'])->name('products.push.condition.update');
     Route::get('products/listing/final/{images?}', [ProductController::class, 'approvedListing'])->name('products.listing.approved.images');
     Route::get('products/conditions/upteamstatus/update', [ProductController::class, 'updateConditionUpteamStatus'])->name('products.push.condition.update');
+    Route::get('products/listing/scrapper/{images?}', [ProductController::class, 'approvedScrapperImages'])->name('products.listing.scrapper.images');
+    Route::get('products/listing/scrapper/{images}/{id}', [ProductController::class, 'approvedScrapperImagesCompare'])->name('products.listing.scrapper.images.comare');
+    Route::post('products/listing/scrapper-images-truncate', [ProductController::class, 'truncateScrapperImagesMedia'])->name('products.listing.scrapper.images.truncate');
 
     Route::post('products/listing/final/pushproduct', [ProductController::class, 'pushProduct']);
     Route::post('products/listing/final/process-conditions-check', [ProductController::class, 'processProductsConditionsCheck'])->name('products.processProductsConditionsCheck');
@@ -1168,6 +1172,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('productinventory/import', [ProductInventoryController::class, 'import'])->name('productinventory.import');
     Route::get('productinventory/list', [ProductInventoryController::class, 'list'])->name('productinventory.list');
     Route::get('productinventory/inventory-list', [ProductInventoryController::class, 'inventoryList'])->name('productinventory.inventory-list');
+    Route::post('productinventory-column-visbility', [ProductInventoryController::class, 'columnVisbilityUpdate'])->name('productinventory.column.update');
     Route::get('productinventory/new-inventory-list', [ProductInventoryController::class, 'inventoryListNew'])->name('productinventory.inventory-list-new');
     Route::get('download-report', [ProductInventoryController::class, 'downloadReport'])->name('download-report');
     Route::get('download-scrapped-report', [ProductInventoryController::class, 'downloadScrapReport'])->name('download-scrapped-report');
@@ -1378,8 +1383,6 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     //new category reference
 
     Route::get('category/new-references', [CategoryController::class, 'newCategoryReferenceIndex']);
-    Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
-    Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
     Route::post('category/new-references/save-category', [CategoryController::class, 'saveCategoryReference']);
     Route::get('category/fix-autosuggested', [CategoryController::class, 'fixAutoSuggested'])->name('category.fix-autosuggested');
     Route::get('category/fix-autosuggested-string', [CategoryController::class, 'fixAutoSuggestedString'])->name('category.fix-autosuggested-via-str');
@@ -1389,6 +1392,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sizes/references', [SizeController::class, 'sizeReference']);
     Route::get('sizes/{id}/used-products', [SizeController::class, 'usedProducts']);
     Route::POST('category/ScraperUserHistory', [CategoryController::class, 'ScraperUserHistory'])->name('ScraperUserHistory');
+
+    //Group by new references category with filter % wise like 
+    Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
+    Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
 
     Route::post('sizes/references/chamge', [SizeController::class, 'referenceAdd']);
     Route::get('sizes/affected-product', [SizeController::class, 'affectedProduct']);
@@ -2044,6 +2051,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     });
 
     Route::get('category', [CategoryController::class, 'manageCategory'])->name('category');
+    Route::get('category-log', [CategoryController::class, 'logCategory'])->name('category.log');
+    Route::get('/push-category-in-live', [CategoryController::class, 'pushCategoryInLive']);
     Route::get('category-11', [CategoryController::class, 'manageCategory11'])->name('category-11');
     Route::post('add-category', [CategoryController::class, 'addCategory'])->name('add.category');
     Route::post('category/{category}/edit', [CategoryController::class, 'edit'])->name('category.edit');
@@ -3080,6 +3089,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         Route::post('/folder/user/permission', [CodeShortcutController::class, 'shortcutUserPermission'])->name('folder.permission');
         Route::get('code-shortcut/truncate', [CodeShortcutController::class, 'CodeShortCutTruncate'])->name('codeShort.log.truncate');
     	Route::get('code-shortcut-title/{id}', [CodeShortcutController::class, 'getListCodeShortCut'])->name('code.get.Shortcut.data');
+    	Route::post('create/shortcut-code', [CodeShortcutController::class, 'createShortcutCode'])->name('shortcut.code.create');
     });
 
     Route::prefix('erp-events')->middleware('auth')->group(function () {
@@ -3462,6 +3472,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('user-accesses', [AssetsManagerUsersAccessController::class, 'index'])->name('user-accesses.index');
 
+    Route::get('appointment-request', [AppointmentRequestController::class, 'index'])->name('appointment-request.index');
+	Route::get('appointment-request/records', [AppointmentRequestController::class, 'records'])->name('appointment-request.records');
+    Route::get('appointment-request/record-appointment-request-ajax', [AppointmentRequestController::class, 'recordAppointmentRequestAjax'])->name('appointment-request.index_ajax');
+    Route::get('appointment-request-remarks/{id}', [AppointmentRequestController::class, 'AppointmentRequestRemarks'])->name('appointment-request.remarks');
+    Route::post('appointment-decline-remarks', [EventController::class, 'declineRemarks'])->name('appointment-request.declien.remarks');
     Route::get('script-documents', [ScriptDocumentsController::class, 'index'])->name('script-documents.index');
     Route::get('script-documents/records', [ScriptDocumentsController::class, 'records'])->name('script-documents.records');
     Route::get('script-documents/create', [ScriptDocumentsController::class, 'create'])->name('script-documents.create');
@@ -3651,6 +3666,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/command-logs', [DatabaseController::class, 'commandLogs'])->name('database.command-logs');
     Route::get('/tables-list', [DatabaseTableController::class, 'tableList'])->name('database.tables-list');
     Route::post('truncate-tables', [DatabaseTableController::class, 'truncateTables'])->name('truncate-tables');
+    Route::post('truncate/table-histories', [DatabaseTableController::class, 'getTruncateTableHistories'])->name('truncate.tables.histories');
 });
 
 Route::resource('pre-accounts', PreAccountController::class)->middleware('auth');
@@ -3848,6 +3864,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('statistics/multiple-update-field', [ScrapStatisticsController::class, 'multipleUpdateField'])->name('scrap.multiple.update.field');
     Route::get('statistics/update-scrap-field', [ScrapStatisticsController::class, 'updateScrapperField']);
     Route::get('statistics/show-history', [ScrapStatisticsController::class, 'showHistory']);
+    Route::post('statistics/status/create', [ScrapStatisticsController::class, 'ssstatusCreate'])->name('scrap.status.create');
     Route::post('statistics/update-priority', [ScrapStatisticsController::class, 'updatePriority']);
     Route::get('statistics/history', [ScrapStatisticsController::class, 'getHistory']);
     Route::post('statistics/reply/add', [ScrapStatisticsController::class, 'addReply']);
@@ -4712,7 +4729,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('event/delete-schedule/{id}', [EventController::class, 'deleteSchedule'])->name('event.deleteSchedule');
     Route::get('all/events', [EventController::class, 'publicEvents'])->name('event.public');
     Route::post('event/categor/store', [EventController::class, 'eventCategoryStore'])->name('event.category.store');
-
+    Route::post('event/send-appointment-request', [EventController::class, 'sendAppointmentRequest'])->name('event.sendAppointmentRequest');
+    Route::post('event/update-appointment-request', [EventController::class, 'updateAppointmentRequest'])->name('event.updateAppointmentRequest');
+    Route::post('event/update-user-appointment-request', [EventController::class, 'updateuserAppointmentRequest'])->name('event.updateuserAppointmentRequest');
+    Route::get('event/get-appointment-request', [EventController::class, 'getAppointmentRequest'])->name('event.getAppointmentRequest');
     Route::resource('event', EventController::class);
     Route::post('event/reschedule', [EventController::class, 'reschedule'])->name('event.reschedule');
     Route::put('event/stop-recurring/{id}', [EventController::class, 'stopRecurring'])->name('event.stop-recurring');
@@ -4720,6 +4740,8 @@ Route::middleware('auth')->group(function () {
     Route::post('event/list/remark', [EventController::class, 'getEventremarkList'])->name('event.remark.list');
     Route::get('/calendar/getObjectEmail', [CalendarController::class, 'getEmailOftheSelectedObject'])->name('calendar.getObjectEmail');
     Route::post('/status/update', [EventController::class, 'statusUpdate'])->name('allevents.status.update');
+    Route::post('/useronlinestatus/update', [EventController::class, 'userOnlineStatusUpdate'])->name('useronlinestatus.status.update');
+    Route::get('user/detailsget', [EventController::class, 'getUserDetailsForOnline'])->name('getuserforonline');
 });
 
 Route::prefix('calendar/public')->group(function () {
@@ -5603,6 +5625,8 @@ Route::middleware('auth')->group(function () {
     Route::post('devoopssublist/getstatus', [DevOppsController::class, 'getStatusHistories'])->name('devoopssublist.getstatus');
     Route::post('devoopssublist/upload-file', [DevOppsController::class, 'uploadFile'])->name('devoopssublist.upload-file');
     Route::get('devoopssublist/files/record', [DevOppsController::class, 'getUploadedFilesList'])->name('devoopssublist.files.record');
+    Route::post('devoops/task/upload-document', [DevOppsController::class, 'uploadDocument']);
+    Route::get('devoops/task/get-document', [DevOppsController::class, 'getDocument']);
 });
 
 Route::get('test', [ScrapController::class, 'listCron']);
@@ -5667,6 +5691,7 @@ Route::prefix('todolist')->middleware('auth')->group(function () {
     Route::post('/status/color-update', [TodoListController::class, 'StatusColorUpdate'])->name('todolist-color-updates');
     Route::delete('/{id}/destroy', [TodoListController::class, 'destroy'])->name('todolist.destroy');
     Route::post('/remark/historypost', [TodoListController::class, 'remarkPostHistory'])->name('todolist.remark.history.post');
+    Route::get('/get/todolist/search/', [TodoListController::class, 'searchTodoListHeader'])->name('todolist.module.search');
 });
 
 Route::prefix('google-docs')->name('google-docs')->middleware('auth')->group(function () {
@@ -5934,4 +5959,8 @@ Route::middleware('auth')->group(function () {
     Route::post('indexerstate/save', [\App\Http\Controllers\IndexerStateController::class, 'save'])->name('indexer-state.save');
     Route::get('indexerstate/masterslave', [\App\Http\Controllers\IndexerStateController::class, 'masterSlave'])->name('indexer-state.master-slave');
     Route::get('indexerstate/logs/{id?}', [\App\Http\Controllers\IndexerStateController::class, 'logs'])->name('indexer-state.logs');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
 });

@@ -20,6 +20,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Zend\Diactoros\Response\JsonResponse;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
+use App\Models\ScrapStatisticsStaus;
 
 class ScrapStatisticsController extends Controller
 {
@@ -214,7 +215,8 @@ class ScrapStatisticsController extends Controller
 
         /* Scrapper status count */
 
-        $allStatus = Scraper::STATUS;
+        //$allStatus = Scraper::STATUS;
+        $allStatus = Scraper::scrapersStatus();
 
         $allStatusCounts = \App\Scraper::join('suppliers as s', 's.id', 'scrapers.supplier_id')
             ->selectRaw('COUNT(s.id) as total_count, scrapers.status')
@@ -238,7 +240,24 @@ class ScrapStatisticsController extends Controller
             $dynamicColumnsToShows = json_decode($hideColumns, true);
         }
 
+
         return view('scrap.stats', compact('allStatus', 'allStatusCounts', 'activeSuppliers', 'serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper', 'getLatestOptimization', 'scrapper_total', 'dynamicColumnsToShows'));
+    }
+
+    public function ssstatusCreate(Request $request)
+    {
+        try {
+            $status = new ScrapStatisticsStaus();
+            $status->status = $request->status_name;
+            $status->status_value = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
     }
 
     public function columnVisbilityUpdate(Request $request)
@@ -415,7 +434,8 @@ class ScrapStatisticsController extends Controller
             }
         }
 
-        $allStatus = Scraper::STATUS;
+        //$allStatus = Scraper::STATUS;
+        $allStatus = Scraper::scrapersStatus();
 
         $allStatusCounts = \App\Scraper::join('suppliers as s', 's.id', 'scrapers.supplier_id')
             ->selectRaw('COUNT(s.id) as total_count, scrapers.status')

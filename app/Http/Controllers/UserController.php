@@ -668,6 +668,21 @@ class UserController extends Controller
         return $results;
     }
 
+    public function searchUserGlobal(Request $request)
+    {
+        $q = $request->input('q');
+
+        $results = User::select('id', 'name', 'email', 'phone')
+            ->orWhere('name', 'LIKE', '%' . $q . '%')
+            ->orWhere('email', 'LIKE', '%' . $q . '%')
+            ->orWhere('phone', 'LIKE', '%' . $q . '%')
+            ->offset(0)
+            ->limit(200)
+            ->get();
+
+        return $results;
+    }
+
     public function loginIps(Request $request)
     {
         $user_ips = UserLoginIp::join('users', 'user_login_ips.user_id', '=', 'users.id')

@@ -74,6 +74,7 @@ use App\Http\Requests\Products\ProductTranslationRequest;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\ProductListingFinalStatus;
+use App\scraperImags;
 use App\Loggers\LogScraper;
 use App\DescriptionChange;
 
@@ -6664,6 +6665,69 @@ class ProductController extends Controller
         }
     }
 
+    public function approvedScrapperImages(Request $request, $pageType = '')
+    {
+
+        $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
+
+        $images = new scraperImags();
+        if(!empty($request->store_website_id)){
+            $images = $images->whereIn('store_website', $request->store_website_id);
+        }
+        
+        $checking = 0;
+        if(!empty($request->si_status)){
+            if($request->si_status==1){
+                $images = $images->where('si_status', 1);
+            } else if($request->si_status==2){
+                $images = $images->where('si_status', 2);
+            } else if($request->si_status==3){
+                $images = $images->where('si_status', 3);
+            } else if($request->si_status==4){
+                $images = $images->where('manually_approve_flag', 1);
+            } else{
+                $images = $images->where('si_status', 1);
+                $checking = 1;
+            }
+        } else {
+            $images = $images->where('si_status', 1);
+            $checking = 1;
+        }
+
+        if(!empty($request->url)){
+            $images = $images->where(function ($query) use ($term) {
+                return $query->orWhere('url', 'like', '%' . $term . '%');
+            });
+        }
+        $images = $images->orderBy('id', 'DESC');        
+        $images = $images->paginate(60);
+
+        if ($request->ajax()) {
+
+            if($checking==1){
+                if(!empty($images[0]->id)){
+                    \App\scraperImags::where('id', '>', $images[0]->id)->where('si_status', 1)->where('manually_approve_flag', 0)->update(['si_status' => 2]); 
+                }
+            }
+            
+            $viewpath = 'products.scrapper_listing_image_ajax';
+
+            return view($viewpath, [
+                'checking' => $checking,
+                'products' => $images,
+                'products_count' => $images->total(),
+            ]);
+        }
+
+        $viewpath = 'products.scrapper_listing';
+
+        return view($viewpath, [
+            'checking' => $checking,
+            'products' => $images,
+            'all_store_websites' => $all_store_websites,
+            'products_count' => $images->total(),
+        ]);
+    }
     public function getProductSupplierList(Request $request)
     {
 
@@ -6686,6 +6750,62 @@ class ProductController extends Controller
             'data' => $suppliers,
             'supplier' => $supplier,
             'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function approvedScrapperImagesCompare(Request $request, $pageType = '', $id = '')
+    {
+
+        if(!empty($id)){
+            $image = scraperImags::find($id);
+
+            if(!empty($image)){
+                $images = new scraperImags();
+                $images = $images->where('url', $image->url);
+
+                $images = $images->orderBy('id', 'DESC');        
+                $images = $images->paginate(60);
+
+                if ($request->ajax()) {
+
+                    $viewpath = 'products.scrapper_listing_image_ajax_compare';
+
+                    return view($viewpath, [
+                        'products' => $images,
+                        'products_count' => $images->total(),
+                    ]);
+                }
+
+                $viewpath = 'products.scrapper_listing_compare';
+
+                return view($viewpath, [
+                    'products' => $images,
+                    'products_count' => $images->total(),
+                ]);
+            }
+        }
+    }
+
+    public function truncateScrapperImagesMedia(Request $request)
+    {   
+
+        $scrapperImages = scraperImags::pluck('img_url');
+
+        if(!empty($scrapperImages)){
+            foreach ($scrapperImages as $key => $value) {
+                $path = public_path() . '/scrappersImages/';
+                if (file_exists($path . $value)) {
+                    unlink($path . $value);
+                }
+            }
+        }
+
+        DB::statement('TRUNCATE TABLE scraper_imags');
+        
+        return response()->json([
+            'status' => true,
+            'message' => " Your selected batabase tables has been truncate successfully",
             'status_name' => 'success',
         ], 200);
     }

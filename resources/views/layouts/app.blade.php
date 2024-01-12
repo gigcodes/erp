@@ -844,7 +844,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <tbody class="sop_search_result">
                                     @php
                                         $usersop = \App\Sop::all();
-                                        $users = \App\User::all();
+                                        $users = \App\User::orderBy('name', 'ASC')->get();
                                     @endphp
                                     @foreach ($usersop as $key => $value)
                                         <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
@@ -876,6 +876,49 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
     </div>
+
+    <!-- user-search Modal-->
+    <div id="menu-user-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">User Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" id="menu_user_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="User Search" type="button" id="menu-user-search-btn" class="menu-user-search-btn btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                                <span class="processing-txt d-none">{{ __('Loading...') }}</span>    
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table table-bordered table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable-app-layout">
+                                    <thead>
+                                    <tr>
+                                        <th width="10%">ID</th>
+                                        <th width="30%">Name</th>
+                                        <th width="30%">Email</th>
+                                        <th width="30%">Phone</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="user_search_global_result">
+                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
 
     <!-- sop-add Modal-->
     <div class="modal fade" id="exampleModalAppLayout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -1062,6 +1105,77 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
     </div>
+
+    <div id="declien-remarks" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Remarks</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form action="<?php echo route('appointment-request.declien.remarks'); ?>" id="menu_sop_edit_form">
+                        <input type="text" hidden name="appointment_requests_id" id="appointment_requests_id">
+                        @csrf
+                        <div class="form-group">
+                            <label for="content">Remarks</label>
+                            <textarea class="form-control sop_edit_class" name="appointment_requests_remarks" id="appointment_requests_remarks"></textarea>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary ml-3 updatedeclienremarks">Update</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @auth
+        @if(auth()->user()->isAdmin())
+            <div id="quickRequestZoomModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <form action="#" method="POST" id="send-request-form">
+                            @csrf
+
+                            <div class="modal-header">
+                                <h4 class="modal-title">Send Request</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="form-group">
+                                    <label for="title">Select User</label>
+                                    <select name="requested_ap_user_id" class="form-control" style="width: 100%" id="requested_ap_user_id" required>
+                                        <option>--Users--</option>
+                                        @foreach ($users as $key => $user)
+                                            @if($user->id!=auth()->user()->id)
+                                                @if($user->isOnline()==1)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div> 
+
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <textarea name="requested_ap_remarks" id="requested_ap_remarks" placeholder="Enter remarks" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary send-ap-quick-request">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endauth
+
     <!-- sop-search Modal-->
     <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
     <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
@@ -1274,6 +1388,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <ul class="list-unstyled components mr-1">
                                 @if (Auth::user()->hasRole('Admin'))
                                 <li>
+                                    <a href="javascript:void(0);" title="Global User Search" id="menu-user-search" type="button" class="quick-icon menu-user-search" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-search fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
                                         <span class="event-alert-badge hide"></span>
@@ -1443,8 +1562,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Add Todo List" class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
-                                <li>
+                                <!-- <li>
                                     <a title="Todo List" class="quick-icon todolist-get" href="#"><span><i class="fa fa-list fa-2x"></i></span></a>
+                                </li> -->
+
+                                <li>
+                                    <a title="Todo List" type="button" class="quick-icon menu-todolist-get" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
@@ -1554,6 +1678,46 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <li>
+                                            <a title="Quick Appointment Request" data-toggle="modal" data-target="#quickRequestZoomModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                                <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <label class="switchAN">
+                                                <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
+                                                <span class="slider round"></span>
+                                                <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
+                                            </label>
+                                        </li>
+                                    @endif
+                                @endauth
+                                <li>
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#shortcut-header-modal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-font fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
+
+                                <style type="text/css">
+                                    .switchAN{position:relative;display:inline-block;width:53px;height:30px}
+                                    .switchAN input{opacity:0;width:0;height:0}
+                                    .switchAN .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;-webkit-transition:.4s;transition:.4s;border-radius:34px}
+                                    .slider:before{position:absolute;content:"";height:22px;width:22px;left:4px;bottom:4px;background-color:#fff;-webkit-transition:.4s;transition:.4s;border-radius:50%}
+                                    .switchAN input:checked + .slider{background-color:#ddd}
+                                    .switchAN input:focus + .slider{box-shadow:0 0 1px #ddd}
+                                    .switchAN input:checked + .slider:before{-webkit-transform:translateX(22px);-ms-transform:translateX(22px);transform:translateX(22px)}
+                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);color:#808080;font-size:9px}
+                                    .switchAN .slider.round{border-radius:34px}
+                                    .swal2-confirm {
+                                        color: #333 !important;
+                                        background-color: #fff !important;
+                                        border: 1px solid #ccc !important;
+                                    }
+                                    .switchAN .textLeft { left:10px; }
+                                    .switchAN .textRight { right:10px; }
+                                </style>
                             </ul>                         
                         </nav>
                         <div id="permission-request-model" class="modal fade" role="dialog">
@@ -4553,8 +4717,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <a class="dropdown-item" href="https://erp.theluxuryunlimited.com/seo/company">Seo Company</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="/appointment-request">Appointment Request</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="/affiliate-marketing/provider-accounts">Affiliates Providers Sites</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/products/listing/scrapper/images">Scrapper Images</a>
+                                    </li>
+
                                 </ul>
                             </li>
 
@@ -4868,6 +5039,45 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('technical-debt-lists') }}">Technical Debt</a>
                                     </li>
+                                    
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                       
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Google Developer Reports <span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">                                            
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/anr') }}">ANR Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/logs') }}">Developer Reporting Logs Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/crash') }}">Crash Report</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                       
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">IOS App Reports <span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">                                            
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/usage') }}">Usage Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/sales') }}">Sales Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/ads') }}">Ads Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/payments') }}">Payments Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/ratings') }}">Ratings Report</a>
+                                            </li>
+                                        </ul>
+                                    </li>
                                     </ul>
                                 </div>
                             </li>
@@ -4988,7 +5198,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5214,6 +5424,71 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
 
+        <div id="menu-todolist-get-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Todo List</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <div class="row">
+                                                <div class="col-4 pr-0">
+                                                    <label for="todolist_search">Search Keyword:</label>
+                                                    <input type="text" name="todolist_search" class="dev-todolist-table" class="form-control" placeholder="Search Keyword" style=" width: 100%;">
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="start_date">Start Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_start_date" name="start_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="end_date">End Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_end_date" name="end_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-2 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="button" style=" width: 100%;">&nbsp;</label>
+                                                        <button type="button" class="btn btn-secondary btn-todolist-search-menu" ><i class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Subject</th>
+                                                    <th>Category</th>
+                                                    <th>Status</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-todolist-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="menu_user_history_modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
                 <!-- Modal content-->
@@ -5357,6 +5632,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </div>
             </div>
         </div>
+        @include('partials.modals.shortcuts-header')
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
         @include('passwords.search-password')
@@ -5455,7 +5731,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     @if (Auth::check())
 
-		<div id="todolist-get-model" class="modal fade" role="dialog">
+		<!-- <div id="todolist-get-model" class="modal fade" role="dialog">
              <div class="modal-content modal-dialog modal-lg">
                     <div class="modal-header">
                         <h4 class="modal-title">Todo List</h4>
@@ -5500,7 +5776,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 				@endif
 			</div>
              </div>
-        </div>
+        </div> -->
 
 
         @if(1 == 2 && auth()->user()->isAdmin())
@@ -5900,11 +6176,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <select class="form-control sop_drop_down ">
                                 <option value="sop">Sop</option>
                                 <option value="knowledge_base">Knowledge Base</option>
+                                <option value="code_shortcut">Code Shortcut</option>
                             </select>
                         </div>
                         <input type="hidden" name="chat_message_id" value="" class="chat_message_id" />
                         <div class="add_sop_div mt-3">
-                            <tr>
+                            <div>
                                 <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
                                     <option value="">Select</option>
                                     <option value="book">Book</option>
@@ -5912,8 +6189,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <option value="page">Page</option>
                                     <option value="shelf">Shelf</option>
                                 </select>
-                            </tr>
-                            <tr>
+                            </div>
+                            <div>
 {{--                                <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>--}}
 {{--                                    <option value="">Select Books</option>--}}
 {{--                                    @php--}}
@@ -5928,20 +6205,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 {{--                                    @endforeach--}}
 {{--                                </select>--}}
                                 <span class="books_error" style="color:red;"></span>
-                            </tr>
-                            <tr>
+                            </div>
+                            <div>
                                 <td>Name:</td>
-                                <td><input type="text" name="name" class="form-control mb-3 name"></td>
-                            </tr>
-                            <tr>
+                                <td><input type="text" name="name" class="form-control mb-3 name" placeholder="Enter Name"></td>
+                            </div>
+                            <div>
                                 <td>Category:</td>
-                                <td><input type="text" name="category" class="form-control mb-3 category"></td>
-                            </tr>
-                            <tr>
+                                <td><input type="text" name="category" class="form-control mb-3 category" placeholder="Enter Category" value="Sop"></td>
+                            </div>
+                            <div>
                                 <td>Description:</td>
-                                <td><textarea name="description" id="" cols="30" rows="10"
-                                        class="form-control sop_description"></textarea></td>
-                            </tr>
+                                <td><textarea name="description" id="" cols="30" rows="10" class="form-control sop_description" placeholder="Enter Description"></textarea></td>
+                            </div>
+                            <div class="sop_solution hidden">
+                                <td>Solution:</td>
+                                <td><textarea name="solution" id="" cols="30" rows="10" class="form-control" placeholder="Enter Solution"></textarea></td>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -6306,6 +6586,79 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         $("#menu-sop-search-model").modal("show");
     });
 
+    // Global user search from the menu - S
+    $(document).on("click", ".menu-user-search", function(e) {
+        e.preventDefault();
+        $("#menu-user-search-model").modal("show");
+        get_user_data();
+    });
+
+    $(document).on("click", ".menu-user-search-btn", function(e) {
+        e.preventDefault();
+        get_user_data();
+    });
+
+    function get_user_data(){
+        let _token = "{{csrf_token()}}";
+        $(".processing-txt").removeClass('d-none');
+        $.ajax({
+            url: "{{ route('user-search-global') }}",
+            type: "POST",
+            data: {
+                q: $("#menu_user_search").val().trim(),
+                _token: _token
+            },
+            success: function(response) {
+                var trData = "";
+                $(".processing-txt").addClass('d-none');
+                if (response) {
+                    $.each(response, function(index, value) {
+                        var user_email = (value.email != null) ? "<span class='copy_me'>"+value.email+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        var user_name =  (value.name != null) ? "<span class='copy_me'>"+value.name+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        var user_phone =  (value.phone != null) ? "<span class='copy_me'>"+value.phone+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        trData += "<tr>";
+                        trData += "<td>"+value.id+"</td>";
+                        trData += "<td>"+user_name+"</td>";
+                        trData += "<td>"+user_email+"</td>";
+                        trData += "<td>"+user_phone+"</td>";
+                        trData += "</tr>";
+                    });
+                    $(".user_search_global_result").html(trData);
+                    console.log(trData);
+                }
+            }
+        });
+    }
+
+    $(document).on("click", ".copy_the_text", function(e) {
+        // Get the text content of the element
+        var textToCopy = $(this).prev('span.copy_me').text();
+
+        // Create a temporary input element
+        var tempInput = $('<input>');
+        
+        // Set its value to the text content
+        tempInput.val(textToCopy);
+
+        // Append it to the body
+        $('body').append(tempInput);
+
+        // Select the text in the input
+        tempInput.select();
+
+        // Copy the selected text to the clipboard
+        document.execCommand('copy');
+
+        // Remove the temporary input element
+        tempInput.remove();
+        
+        // Optionally, provide feedback to the user
+        // alert('Text copied to clipboard: ' + textToCopy);
+        toastr['success']('Text copied!', 'success');
+    });
+
+    // Global user search from the menu - E    
+
     $(document).on("click", ".menu-email-search", function(e) {
         e.preventDefault();
         $("#menu-email-search-model").modal("show");
@@ -6438,12 +6791,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on('change', '.sop_drop_down', function() {
         var val = $(this).val();
+
         if ($(this).val() == "knowledge_base") {
             $(this).parents('.add_sop_modal').find('.knowledge_base').removeAttr('hidden');
+            $('.sop_solution').addClass('hidden');
+        } else if ($(this).val() == "code_shortcut") {
+            $('.sop_solution').removeClass('hidden');
+            $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
+            $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         } else {
             $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
+            $('.sop_solution').addClass('hidden');
         }
+
+        var selectedOptionText = $(this).find('option:selected').text();
+        
+        $(this).parents('.add_sop_modal').find('.category').val(selectedOptionText);
+        
     })
 
     $(document).on('click', '.expand-row-email', function () {
@@ -6516,6 +6881,55 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         $('#quickemailSubject').html(userEmail.subject);
         $('#iframe').attr('src', userEmaillUrl);
     }
+
+    $(document).on('click', '.updatedeclienremarks', function (e) {
+        e.preventDefault();
+        var appointment_requests_id = $("#appointment_requests_id").val();
+        var appointment_requests_remarks = $('#appointment_requests_remarks').val();
+
+        if(appointment_requests_id == '') {
+            alert("Something went wrong. Please try again.");
+            return false;
+        }
+
+        if(appointment_requests_remarks == '') {
+            $('#appointment_requests_remarks').next().text("Please enter the subject");
+            return false;
+        }
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{route('appointment-request.declien.remarks')}}',
+            type: 'post',
+            data: {
+                'appointment_requests_id': appointment_requests_id,
+                'appointment_requests_remarks': appointment_requests_remarks,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done( function(response) {
+            $("#loading-image").hide();
+
+            if (data.code == 500) {
+                toastr["error"]('Something went wrong. Please try again.');
+            } else {
+                
+                $("#declien-remarks").modal("hide");
+                toastr["success"](response.message);
+
+                setTimeout(function() {
+                    location.reload();
+                }, 1500);
+            }
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+            toastr['error']('Something went wrong. Please try again.');
+            location.reload();
+        });
+    });
 
     $(document).on('click', '.submit-reply-email', function (e) {
         e.preventDefault();
@@ -7106,69 +7520,88 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var category = $(this).parents('#createShortcutForm').find('[name="category"]').val();
         var content = $(this).parents('#createShortcutForm').find('[name="description"]').text();
         var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
-        if (val.length === 0) {
+
+        if($('.sop_drop_down').find(':selected').val()=='code_shortcut'){
             $.ajax({
                 type: "POST",
-                url: "{{ route('shortcut.sop.create') }}",
+                url: "{{ route('shortcut.code.create') }}",
                 data: formdata,
                 success: function(response) {
-                    toastr.success('Sop Added Successfully');
+                    toastr.success('code Shortcut Added Successfully');
                     $('#Create-Sop-Shortcut').modal('hide');
+                    $('#createShortcutForm')[0].reset();
                 }
             })
         }
-        if (val == "book") {
-            $.ajax({
-                type: "POST",
-                url: `/kb/books`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Book Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
-                }
-            })
-        }
-        if (val == "chapter") {
-            if (book_name.length == 0) {
-                $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
-                return;
+
+        if($('.sop_drop_down').find(':selected').val()=='sop'){
+            if (val.length === 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('shortcut.sop.create') }}",
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Sop Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
             }
-            $.ajax({
-                type: "POST",
-                url: `/kb/books/${book_name}/create-chapter`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Chapter Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
-                }
-            })
         }
-        if (val == "page") {
-            if (book_name.length == 0) {
-                $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
-                return;
+
+        if($('.sop_drop_down').find(':selected').val()=='knowledge_base'){
+            if (val == "book") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Book Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
             }
-            $.ajax({
-                type: "get",
-                url: `kb/books/${book_name}/create-page`,
-                data: formdata,
-                success: function(response) {
-                    console.log(response, '======')
-                    toastr.success('Page Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
+            if (val == "chapter") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
                 }
-            })
-        }
-        if (val == "shelf") {
-            $.ajax({
-                type: "POST",
-                url: `/kb/shelves/${name}/add`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Bookshelf Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books/${book_name}/create-chapter`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Chapter Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "page") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
                 }
-            })
+                $.ajax({
+                    type: "get",
+                    url: `kb/books/${book_name}/create-page`,
+                    data: formdata,
+                    success: function(response) {
+                        console.log(response, '======')
+                        toastr.success('Page Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "shelf") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/shelves/${name}/add`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Bookshelf Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
         }
     })
 
@@ -9605,8 +10038,8 @@ if (!\Auth::guest()) {
     });
 
 	$(document).on("click", ".todolist-get", function(e) {
-			e.preventDefault();
-			$("#todolist-get-model").modal("show");
+		e.preventDefault();
+		$("#todolist-get-model").modal("show");
 	});
 
     $(document).on("click", ".menu-create-database", function(e) {
@@ -9622,6 +10055,48 @@ if (!\Auth::guest()) {
     $(document).on("click", ".menu-show-dev-task", function(e) {
         e.preventDefault();
         $("#menu-show-dev-task-model").modal("show");
+    });
+
+    $(document).on("click", ".menu-todolist-get", function(e) {
+        e.preventDefault();
+
+        getTodoListHeader();
+        $("#menu-todolist-get-model").modal("show");
+    });
+
+    function getTodoListHeader(){
+        var keyword = $('.dev-todolist-table').val();
+        var todolist_start_date = $('#todolist_start_date').val();
+        var todolist_end_date = $('#todolist_end_date').val();
+        
+        $.ajax({
+            url: '{{route('todolist.module.search')}}',
+            type: 'GET',       
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                keyword: keyword,
+                todolist_start_date: todolist_start_date,
+                todolist_end_date: todolist_end_date,
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-todolist-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    }
+
+    $(document).on('click', '.btn-todolist-search-menu', function(e) {
+        getTodoListHeader();
     });
 
     $(document).on('click', '.menu-preview-img-btn', function(e) {
@@ -9859,6 +10334,191 @@ if (!\Auth::guest()) {
                     }
               }
           });
+    });
+
+    function checkRecord() {
+        $.ajax({
+            url: `{{ route('event.getAppointmentRequest')}}`, // Replace with your server endpoint
+            method: 'GET',
+            success: function(responseData) {
+                if (responseData.code == 200) {
+
+                    if (responseData.result!='') {
+                        Swal.fire({
+                            title: responseData.result.user.name+' Want to connect on Zoom  - Accept Decline',
+                            text: '',                            
+                            showCancelButton: true,
+                            confirmButtonText: 'Accept',
+                            cancelButtonText: 'Decline'
+                        }).then((result) => {
+                            // Check if the user clicked the Accept button
+                            if (result.isConfirmed) {
+                                var requeststatus = 1;
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                var requeststatus = 2;
+
+                                $("#declien-remarks #appointment_requests_id").val(responseData.result.id);
+                            }
+
+                            if(requeststatus==1 || requeststatus==2){
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result.id,
+                                        request_status : requeststatus                              
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                    if (response.code == 200) {
+
+                                        if(requeststatus==1){
+                                            toastr['success']('You successfully accepeted request.', 'success');
+                                        } else {
+                                            toastr['success']('You successfully decline request.', 'success');
+                                        }
+                                    }
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                    toastr['error']('Sorry, something went wrong', 'error');
+                                });
+
+                                if (requeststatus==2) {
+                                    $("#declien-remarks").modal("show");
+                                }     
+                            }                       
+                        });
+                    } 
+
+                    if (responseData.result_rerquest_user!='') {
+
+                        if(responseData.result_rerquest_user.request_status==1){
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' Confirmed your meeting Request pls. Join zoom'
+                        } else {
+                            var msgText = responseData.result_rerquest_user.userrequest.name+' delicate your meeting request - '+responseData.result_rerquest_user.userrequest.decline_remarks
+                        }
+
+                        Swal.fire({
+                            title: 'Hello!',
+                            text: msgText,
+                            showCancelButton: false,
+                            confirmButtonText: 'Okay'
+                        }).then((result) => {
+                            // Check if the user clicked the Okay button
+                            if (result.isConfirmed) {
+                                // Perform an AJAX call when the Okay button is clicked
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{{route('event.updateuserAppointmentRequest')}}',
+                                    beforeSend: function () {
+                                        $("#loading-image-modal").show();
+                                    },
+                                    data: {
+                                        _token: "{{ csrf_token() }}",
+                                        id : responseData.result_rerquest_user.id,
+                                    },
+                                    dataType: "json"
+                                }).done(function (response) {
+                                    $("#loading-image-modal").hide();
+                                }).fail(function (response) {
+                                    $("#loading-image-modal").hide();
+                                });
+                            }
+                        });
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+            }
+        });
+    }
+
+    setInterval(checkRecord, 5000); 
+
+    $(document).ready(function() {
+        $('#availabilityToggle').change(function() {
+                
+            $('#availabilityText').removeClass('textLeft');
+            $('#availabilityText').removeClass('textRight');
+
+            var isChecked = $(this).prop('checked');
+            var availabilityText = isChecked ? 'Online' : 'Offline';
+            var alignmentText = isChecked ? 'textLeft' : 'textRight';
+
+            // Update the text content within the toggle switch
+            $('#availabilityText').text(availabilityText);
+            var availabilityTextNew = isChecked ? 'On' : 'Off';
+            $('#availabilityText').addClass(availabilityTextNew);
+
+            $.ajax({
+                type: 'POST',
+                url: '{{route('useronlinestatus.status.update')}}',
+                beforeSend: function () {
+                    $("#loading-image-modal").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    is_online_flag : availabilityText,
+                },
+                dataType: "json",
+            }).done(function (response) {
+                $("#loading-image-modal").hide();
+                toastr['success'](response.message, 'success');
+            }).fail(function (response) {
+                $("#loading-image-modal").hide();
+            });
+        });
+    });
+
+    $(document).on('click', '.send-ap-quick-request', function (event) {
+
+        if($('#requested_ap_user_id').val()==''){
+            alert('Please select user');
+            return false;
+        }
+
+        if($('#requested_ap_remarks').val()==''){
+            alert('Please enter remarks');
+            return false;
+        }     
+
+        var currentDate = moment(); // Current date and time                              
+        var dateAfterOneHour = moment(currentDate).add(1, 'hours');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{route('event.sendAppointmentRequest')}}',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                requested_user_id : $('#requested_ap_user_id').val(),
+                requested_time : moment(currentDate).format('YYYY-MM-DD HH:mm:ss'),
+                requested_time_end : moment(dateAfterOneHour).format('YYYY-MM-DD HH:mm:ss'),
+                requested_remarks : $('#requested_ap_remarks').val(),
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            setTimeout(function() {
+                location.reload();
+            }, 60000);
+
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
+        });
     });
     
     </script>

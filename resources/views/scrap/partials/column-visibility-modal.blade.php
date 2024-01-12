@@ -93,12 +93,12 @@
                                     <input type="checkbox" value="Status" id="Status" name="column_s[]" @if (!empty($dynamicColumnsToShows) && in_array('Status', $dynamicColumnsToShows)) checked @endif>
                                 </td>
                             </tr>
-                            <tr>
+                            <!-- <tr>
                                 <td>Remarks</td>
                                 <td>
                                     <input type="checkbox" value="Remarks" id="Remarks" name="column_s[]" @if (!empty($dynamicColumnsToShows) && in_array('Remarks', $dynamicColumnsToShows)) checked @endif>
                                 </td>
-                            </tr>
+                            </tr> -->
                             <tr>
                                 <td>Full scrap</td>
                                 <td>

@@ -624,7 +624,11 @@
                     <button type="button" class="close" data-dismiss="modal">×</button>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-bordered">                            
+                    <table class="table table-bordered">     
+                        <thead>
+                            <th>Supplier Name</th>
+                            <th>Action</th>
+                        </thead>                       
                         <tbody class="product-supplier-list-view">
                         </tbody>
                     </table>
@@ -635,6 +639,20 @@
             </div>
         </div>
     </div>
+
+    <div id="show-content-model-table" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                       
+                    </div>
+                </div>
+            </div>
+      </div>
 @endsection
 
 @include("products.partials.column-visibility-modal")
@@ -663,12 +681,13 @@
                 success: function(response) {
                     if (response.status) {
                         var html = "";
-                        html += `<tr>
+                        /*html += `<tr>
                                 <td> ${response.supplier} </td>
-                            </tr>`;
+                            </tr>`;*/
                         $.each(response.data, function(k, v) {
                             html += `<tr>
                                         <td> ${v.supplier} </td>
+                                        <td> <button data-id="`+v.supplier_id+`" type="button" class="btn btn-xs get-tasks-remote bg-transparent" title="Task list"><i class="fa fa-tasks"></i></button> </td>
                                     </tr>`;
                         });
                         $("#product-supplier-list").find(".product-supplier-list-view").html(html);
@@ -678,6 +697,71 @@
                     }
                 }
             });
+        });
+
+        $(document).on("click",".get-tasks-remote",function (e){
+            e.preventDefault();
+            var id = $(this).data("id");
+            $.ajax({
+                url: '{{ route("scrap.task-list")}}',
+                type: 'GET',
+                data: {id: id},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                }
+            }).done(function(response) {
+                $("#loading-image").hide();
+                var model  = $("#show-content-model-table");
+                model.find(".modal-title").html("Task List");
+                model.find(".modal-body").html(response);
+                model.modal("show");
+            }).fail(function() {
+                $("#loading-image").hide();
+                alert('Please check laravel log for more information')
+            });
+        });
+
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task = $(this).data('task-id');
+            var message = $("#messageid_"+task).val();
+            data.append("issue_id", task);
+            data.append("message", message);
+            data.append("status", 1);
+            data.append("sendTo", $(".send-message-number-"+task).val());
+
+            if (message.length > 0) {
+                if (!$(this).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/issue',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                            $("#loading-image").show();
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+task).html(response.message.message);
+                        $("#messageid_"+task).val('');
+                        $("#loading-image").hide();
+                        $(this).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(this).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                        $("#loading-image").hide();
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
         });
     </script>
 @endsection
