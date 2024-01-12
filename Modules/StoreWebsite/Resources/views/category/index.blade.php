@@ -73,7 +73,7 @@ $columns_array = [
 		<div class="row">
 			<div class="col-md-12 ml-4">
 			  <ul class="nav nav-tabs">
-				  <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#appsalescolumnvisibilityList"> Column Visiblity</button></li>
+				  <li><button class="btn btn-xs btn-secondary my-3" style="color:white;" data-toggle="modal" data-target="#storeWebsiteCategoryColumnvisibilityList"> Column Visiblity</button></li>
 			  </ul>
 			</div>
 		  </div>

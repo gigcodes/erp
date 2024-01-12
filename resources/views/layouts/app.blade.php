@@ -877,6 +877,49 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
+    <!-- user-search Modal-->
+    <div id="menu-user-search-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg"  role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">User Search</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="d-flex" id="search-bar">
+                                <input type="text" value="" name="search" id="menu_user_search" class="form-control" placeholder="Search Here.." style="width: 30%;">
+                                <a title="User Search" type="button" id="menu-user-search-btn" class="menu-user-search-btn btn btn-sm btn-image " style="padding: 10px"><span>
+                                    <img src="{{asset('images/search.png')}}" alt="Search"></span></a>
+                                <span class="processing-txt d-none">{{ __('Loading...') }}</span>    
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="table table-bordered table-responsive mt-3">
+                                <table class="table table-bordered page-notes" style="font-size:13.8px;border:0px !important; table-layout:fixed" id="NameTable-app-layout">
+                                    <thead>
+                                    <tr>
+                                        <th width="10%">ID</th>
+                                        <th width="30%">Name</th>
+                                        <th width="30%">Email</th>
+                                        <th width="30%">Phone</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="user_search_global_result">
+                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
     <!-- sop-add Modal-->
     <div class="modal fade" id="exampleModalAppLayout" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
@@ -1344,6 +1387,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                         <nav id="quick-sidebars">
                             <ul class="list-unstyled components mr-1">
                                 @if (Auth::user()->hasRole('Admin'))
+                                <li>
+                                    <a href="javascript:void(0);" title="Global User Search" id="menu-user-search" type="button" class="quick-icon menu-user-search" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-search fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
                                 <li>
                                     <a title="Event Alerts" id="event-alerts" type="button" class="quick-icon" style="padding: 0px 1px;">
                                         <span><i class="fa fa-clock-o fa-2x" aria-hidden="true"></i></span>
@@ -6128,11 +6176,12 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             <select class="form-control sop_drop_down ">
                                 <option value="sop">Sop</option>
                                 <option value="knowledge_base">Knowledge Base</option>
+                                <option value="code_shortcut">Code Shortcut</option>
                             </select>
                         </div>
                         <input type="hidden" name="chat_message_id" value="" class="chat_message_id" />
                         <div class="add_sop_div mt-3">
-                            <tr>
+                            <div>
                                 <select class="form-control knowledge_base mb-3" name="sop_knowledge_base" hidden>
                                     <option value="">Select</option>
                                     <option value="book">Book</option>
@@ -6140,8 +6189,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <option value="page">Page</option>
                                     <option value="shelf">Shelf</option>
                                 </select>
-                            </tr>
-                            <tr>
+                            </div>
+                            <div>
 {{--                                <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>--}}
 {{--                                    <option value="">Select Books</option>--}}
 {{--                                    @php--}}
@@ -6156,20 +6205,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 {{--                                    @endforeach--}}
 {{--                                </select>--}}
                                 <span class="books_error" style="color:red;"></span>
-                            </tr>
-                            <tr>
+                            </div>
+                            <div>
                                 <td>Name:</td>
-                                <td><input type="text" name="name" class="form-control mb-3 name"></td>
-                            </tr>
-                            <tr>
+                                <td><input type="text" name="name" class="form-control mb-3 name" placeholder="Enter Name"></td>
+                            </div>
+                            <div>
                                 <td>Category:</td>
-                                <td><input type="text" name="category" class="form-control mb-3 category"></td>
-                            </tr>
-                            <tr>
+                                <td><input type="text" name="category" class="form-control mb-3 category" placeholder="Enter Category" value="Sop"></td>
+                            </div>
+                            <div>
                                 <td>Description:</td>
-                                <td><textarea name="description" id="" cols="30" rows="10"
-                                        class="form-control sop_description"></textarea></td>
-                            </tr>
+                                <td><textarea name="description" id="" cols="30" rows="10" class="form-control sop_description" placeholder="Enter Description"></textarea></td>
+                            </div>
+                            <div class="sop_solution hidden">
+                                <td>Solution:</td>
+                                <td><textarea name="solution" id="" cols="30" rows="10" class="form-control" placeholder="Enter Solution"></textarea></td>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -6534,6 +6586,79 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         $("#menu-sop-search-model").modal("show");
     });
 
+    // Global user search from the menu - S
+    $(document).on("click", ".menu-user-search", function(e) {
+        e.preventDefault();
+        $("#menu-user-search-model").modal("show");
+        get_user_data();
+    });
+
+    $(document).on("click", ".menu-user-search-btn", function(e) {
+        e.preventDefault();
+        get_user_data();
+    });
+
+    function get_user_data(){
+        let _token = "{{csrf_token()}}";
+        $(".processing-txt").removeClass('d-none');
+        $.ajax({
+            url: "{{ route('user-search-global') }}",
+            type: "POST",
+            data: {
+                q: $("#menu_user_search").val().trim(),
+                _token: _token
+            },
+            success: function(response) {
+                var trData = "";
+                $(".processing-txt").addClass('d-none');
+                if (response) {
+                    $.each(response, function(index, value) {
+                        var user_email = (value.email != null) ? "<span class='copy_me'>"+value.email+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        var user_name =  (value.name != null) ? "<span class='copy_me'>"+value.name+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        var user_phone =  (value.phone != null) ? "<span class='copy_me'>"+value.phone+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        trData += "<tr>";
+                        trData += "<td>"+value.id+"</td>";
+                        trData += "<td>"+user_name+"</td>";
+                        trData += "<td>"+user_email+"</td>";
+                        trData += "<td>"+user_phone+"</td>";
+                        trData += "</tr>";
+                    });
+                    $(".user_search_global_result").html(trData);
+                    console.log(trData);
+                }
+            }
+        });
+    }
+
+    $(document).on("click", ".copy_the_text", function(e) {
+        // Get the text content of the element
+        var textToCopy = $(this).prev('span.copy_me').text();
+
+        // Create a temporary input element
+        var tempInput = $('<input>');
+        
+        // Set its value to the text content
+        tempInput.val(textToCopy);
+
+        // Append it to the body
+        $('body').append(tempInput);
+
+        // Select the text in the input
+        tempInput.select();
+
+        // Copy the selected text to the clipboard
+        document.execCommand('copy');
+
+        // Remove the temporary input element
+        tempInput.remove();
+        
+        // Optionally, provide feedback to the user
+        // alert('Text copied to clipboard: ' + textToCopy);
+        toastr['success']('Text copied!', 'success');
+    });
+
+    // Global user search from the menu - E    
+
     $(document).on("click", ".menu-email-search", function(e) {
         e.preventDefault();
         $("#menu-email-search-model").modal("show");
@@ -6666,12 +6791,24 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     $(document).on('change', '.sop_drop_down', function() {
         var val = $(this).val();
+
         if ($(this).val() == "knowledge_base") {
             $(this).parents('.add_sop_modal').find('.knowledge_base').removeAttr('hidden');
+            $('.sop_solution').addClass('hidden');
+        } else if ($(this).val() == "code_shortcut") {
+            $('.sop_solution').removeClass('hidden');
+            $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
+            $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
         } else {
             $(this).parents('.add_sop_modal').find('.knowledge_base').attr('hidden', true).val('');
             $(this).parents('.add_sop_modal').find('.knowledge_base_book').attr('hidden', true).val('');
+            $('.sop_solution').addClass('hidden');
         }
+
+        var selectedOptionText = $(this).find('option:selected').text();
+        
+        $(this).parents('.add_sop_modal').find('.category').val(selectedOptionText);
+        
     })
 
     $(document).on('click', '.expand-row-email', function () {
@@ -7383,69 +7520,88 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         var category = $(this).parents('#createShortcutForm').find('[name="category"]').val();
         var content = $(this).parents('#createShortcutForm').find('[name="description"]').text();
         var book_name = $(this).parents('#createShortcutForm').find('.knowledge_base_book').val();
-        if (val.length === 0) {
+
+        if($('.sop_drop_down').find(':selected').val()=='code_shortcut'){
             $.ajax({
                 type: "POST",
-                url: "{{ route('shortcut.sop.create') }}",
+                url: "{{ route('shortcut.code.create') }}",
                 data: formdata,
                 success: function(response) {
-                    toastr.success('Sop Added Successfully');
+                    toastr.success('code Shortcut Added Successfully');
                     $('#Create-Sop-Shortcut').modal('hide');
+                    $('#createShortcutForm')[0].reset();
                 }
             })
         }
-        if (val == "book") {
-            $.ajax({
-                type: "POST",
-                url: `/kb/books`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Book Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
-                }
-            })
-        }
-        if (val == "chapter") {
-            if (book_name.length == 0) {
-                $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
-                return;
+
+        if($('.sop_drop_down').find(':selected').val()=='sop'){
+            if (val.length === 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('shortcut.sop.create') }}",
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Sop Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
             }
-            $.ajax({
-                type: "POST",
-                url: `/kb/books/${book_name}/create-chapter`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Chapter Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
-                }
-            })
         }
-        if (val == "page") {
-            if (book_name.length == 0) {
-                $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
-                return;
+
+        if($('.sop_drop_down').find(':selected').val()=='knowledge_base'){
+            if (val == "book") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Book Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
             }
-            $.ajax({
-                type: "get",
-                url: `kb/books/${book_name}/create-page`,
-                data: formdata,
-                success: function(response) {
-                    console.log(response, '======')
-                    toastr.success('Page Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
+            if (val == "chapter") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
                 }
-            })
-        }
-        if (val == "shelf") {
-            $.ajax({
-                type: "POST",
-                url: `/kb/shelves/${name}/add`,
-                data: formdata,
-                success: function(response) {
-                    toastr.success('Bookshelf Added Successfully');
-                    $('#Create-Sop-Shortcut').modal('hide');
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/books/${book_name}/create-chapter`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Chapter Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "page") {
+                if (book_name.length == 0) {
+                    $(this).parents('#createShortcutForm').find('.books_error').text('Please select Book');
+                    return;
                 }
-            })
+                $.ajax({
+                    type: "get",
+                    url: `kb/books/${book_name}/create-page`,
+                    data: formdata,
+                    success: function(response) {
+                        console.log(response, '======')
+                        toastr.success('Page Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
+            if (val == "shelf") {
+                $.ajax({
+                    type: "POST",
+                    url: `/kb/shelves/${name}/add`,
+                    data: formdata,
+                    success: function(response) {
+                        toastr.success('Bookshelf Added Successfully');
+                        $('#Create-Sop-Shortcut').modal('hide');
+                    }
+                })
+            }
         }
     })
 
