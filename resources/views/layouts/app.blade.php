@@ -1646,7 +1646,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         </li>
                                     @endif
                                 @endauth
-                                
+                                <li>
+                                    <a title="Create Vendor" data-toggle="modal" data-target="#shortcut-header-modal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-font fa-2x" aria-hidden="true"></i></span>
+                                    </a>
+                                </li>
 
                                 <style type="text/css">
                                     .switchAN{position:relative;display:inline-block;width:53px;height:30px}
@@ -5580,6 +5584,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </div>
             </div>
         </div>
+        @include('partials.modals.shortcuts-header')
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
         @include('passwords.search-password')
