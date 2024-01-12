@@ -45,7 +45,7 @@
             @endif
 
             @if (!in_array('Subject', $dynamicColumnsToShowDl))
-                <td style="vertical-align: middle;word-break: break-all;">
+                <td style="">
                     <p>{{ $issue->subject ?? 'N/A' }}</p>
                 </td>
             @endif
@@ -382,7 +382,7 @@
                 </select>
             </td>
             <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
-            <td style="vertical-align: middle;word-break: break-all;">
+            <td style="">
                 <p>{{ $issue->subject ?? 'N/A' }}</p>
             </td>
             <td class="expand-row">
@@ -705,7 +705,7 @@
             </select>
         </td>
         <td class="p-2">{{ Carbon\Carbon::parse($issue->created_at)->format('d-m H:i') }}</td>
-        <td style="vertical-align: middle;word-break: break-all;">
+        <td style="">
             <p>{{ $issue->subject ?? 'N/A' }}</p>
         </td>
         <td class="expand-row">

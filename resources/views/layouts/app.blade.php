@@ -4987,6 +4987,45 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('technical-debt-lists') }}">Technical Debt</a>
                                     </li>
+                                    
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                       
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Google Developer Reports <span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">                                            
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/anr') }}">ANR Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/logs') }}">Developer Reporting Logs Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/crash') }}">Crash Report</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                       
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">IOS App Reports <span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">                                            
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/usage') }}">Usage Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/sales') }}">Sales Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/ads') }}">Ads Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/payments') }}">Payments Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/ratings') }}">Ratings Report</a>
+                                            </li>
+                                        </ul>
+                                    </li>
                                     </ul>
                                 </div>
                             </li>
@@ -5396,7 +5435,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </div>
                 </div>
             </div>
-        </div>s
+        </div>
 
         <div id="menu_user_history_modal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
