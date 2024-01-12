@@ -17,7 +17,9 @@ class scraperImags extends Model
         'device',
         'created_at',
         'updated_at',
-        'si_status'
+        'si_status',
+        'compare_flag',
+        'manually_approve_flag'
     ];
 
     // public function stores()

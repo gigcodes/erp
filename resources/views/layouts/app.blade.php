@@ -844,7 +844,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <tbody class="sop_search_result">
                                     @php
                                         $usersop = \App\Sop::all();
-                                        $users = \App\User::all();
+                                        $users = \App\User::orderBy('name', 'ASC')->get();
                                     @endphp
                                     @foreach ($usersop as $key => $value)
                                         <tr id="sid{{ $value->id }}" class="parent_tr" data-id="{{ $value->id }}">
@@ -1130,6 +1130,52 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             </div>
         </div>
     </div>
+
+    @auth
+        @if(auth()->user()->isAdmin())
+            <div id="quickRequestZoomModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <form action="#" method="POST" id="send-request-form">
+                            @csrf
+
+                            <div class="modal-header">
+                                <h4 class="modal-title">Send Request</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="form-group">
+                                    <label for="title">Select User</label>
+                                    <select name="requested_ap_user_id" class="form-control" style="width: 100%" id="requested_ap_user_id" required>
+                                        <option>--Users--</option>
+                                        @foreach ($users as $key => $user)
+                                            @if($user->id!=auth()->user()->id)
+                                                @if($user->isOnline()==1)
+                                                    <option value="{{$user->id}}">{{$user->name}}</option>
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div> 
+
+                                <div class="form-group">
+                                    <label>Remarks:</label>
+                                    <textarea name="requested_ap_remarks" id="requested_ap_remarks" placeholder="Enter remarks" class="form-control"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary send-ap-quick-request">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endauth
+
     <!-- sop-search Modal-->
     <div id="commandResponseHistoryModelHeader" class="modal fade" role="dialog" style="z-index:2000">
     <div class="modal-dialog modal-lg" style="max-width: 100%;width: 90% !important;">
@@ -1516,8 +1562,13 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <a title="Add Todo List" class="quick-icon todolist-request" href="#"><span><i class="fa fa-plus fa-2x"></i></span></a>
                                 </li>
-                                <li>
+                                <!-- <li>
                                     <a title="Todo List" class="quick-icon todolist-get" href="#"><span><i class="fa fa-list fa-2x"></i></span></a>
+                                </li> -->
+
+                                <li>
+                                    <a title="Todo List" type="button" class="quick-icon menu-todolist-get" style="padding: 0px 1px;">
+                                        <span><i class="fa fa-list fa-2x"></i></span></a>
                                 </li>
                                 <li>
                                     @php
@@ -1627,13 +1678,23 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                 <li>
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
-                                <li>
-                                    <label class="switchAN">
-                                        <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
-                                        <span class="slider round"></span>
-                                        <span class="text" id="availabilityText"></span>
-                                    </label>
-                                </li>
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <li>
+                                            <a title="Quick Appointment Request" data-toggle="modal" data-target="#quickRequestZoomModal" type="button" class="quick-icon" style="padding: 0px 1px;">
+                                                <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <label class="switchAN">
+                                                <input type="checkbox" id="availabilityToggle" @if(auth()->user()->is_online_flag==1) {{'checked'}} @endif>
+                                                <span class="slider round"></span>
+                                                <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif" id="availabilityText">@if(auth()->user()->is_online_flag==1) {{'On'}} @else {{'Off'}} @endif</span>
+                                            </label>
+                                        </li>
+                                    @endif
+                                @endauth
+                                
 
                                 <style type="text/css">
                                     .switchAN{position:relative;display:inline-block;width:53px;height:30px}
@@ -1643,14 +1704,15 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     .switchAN input:checked + .slider{background-color:#ddd}
                                     .switchAN input:focus + .slider{box-shadow:0 0 1px #ddd}
                                     .switchAN input:checked + .slider:before{-webkit-transform:translateX(22px);-ms-transform:translateX(22px);transform:translateX(22px)}
-                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);margin-left:10px;color:#fff;font-size:14px}
+                                    .switchAN .text{position:absolute;top:50%;transform:translateY(-50%);color:#808080;font-size:9px}
                                     .switchAN .slider.round{border-radius:34px}
                                     .swal2-confirm {
                                         color: #333 !important;
                                         background-color: #fff !important;
                                         border: 1px solid #ccc !important;
                                     }
-                                    .switchAN input:focus { background:none !important; }
+                                    .switchAN .textLeft { left:10px; }
+                                    .switchAN .textRight { right:10px; }
                                 </style>
                             </ul>                         
                         </nav>
@@ -4656,6 +4718,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="/affiliate-marketing/provider-accounts">Affiliates Providers Sites</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="/products/listing/scrapper/images">Scrapper Images</a>
+                                    </li>
+
                                 </ul>
                             </li>
 
@@ -4969,6 +5035,45 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     <li class="nav-item dropdown">
                                         <a class="dropdown-item" href="{{ route('technical-debt-lists') }}">Technical Debt</a>
                                     </li>
+                                    
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                       
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">Google Developer Reports <span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">                                            
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/anr') }}">ANR Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/logs') }}">Developer Reporting Logs Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('google/developer-api/crash') }}">Crash Report</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item dropdown dropdown-submenu">
+                                       
+                                        <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre="">IOS App Reports <span class="caret"></span></a>
+
+                                        <ul class="dropdown-menu multi-level">                                            
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/usage') }}">Usage Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/sales') }}">Sales Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/ads') }}">Ads Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/payments') }}">Payments Report</a>
+                                            </li>
+                                            <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{ url('appconnect/ratings') }}">Ratings Report</a>
+                                            </li>
+                                        </ul>
+                                    </li>
                                     </ul>
                                 </div>
                             </li>
@@ -5089,7 +5194,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                             {{-- <input type="text" name="status" class="form-control" value="{{ old('status') }}" required> --}}
                             <select name="status" class="form-control add_todo_status">
                                 @foreach ($statuses as $status )
-                                <option value="{{$status['name']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
+                                <option value="{{$status['id']}}" @if (old('status') == $status['id']) selected @endif>{{$status['name']}}</option>
                                 @endforeach
                             </select>
                             <span class="text-danger"></span>
@@ -5303,6 +5408,71 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                                 </tr>
                                                 </thead>
                                                 <tbody class="show-search-dev-task-list">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-todolist-get-model" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Todo List</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form id="database-form">
+                                    <?php echo csrf_field(); ?>
+                                    <div class="row">
+                                        <div class="col-12 pb-3">
+                                            <div class="row">
+                                                <div class="col-4 pr-0">
+                                                    <label for="todolist_search">Search Keyword:</label>
+                                                    <input type="text" name="todolist_search" class="dev-todolist-table" class="form-control" placeholder="Search Keyword" style=" width: 100%;">
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="start_date">Start Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_start_date" name="start_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="end_date">End Date:</label>
+                                                        <input type="date" class="form-control" id="todolist_end_date" name="end_date">
+                                                    </div>
+                                                </div>
+                                                <div class="col-2 pr-0">
+                                                    <div class="form-group">
+                                                        <label for="button" style=" width: 100%;">&nbsp;</label>
+                                                        <button type="button" class="btn btn-secondary btn-todolist-search-menu" ><i class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <table class="table table-sm table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Subject</th>
+                                                    <th>Category</th>
+                                                    <th>Status</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="show-search-todolist-list">
                                                 </tbody>
                                             </table>
                                         </div>
@@ -5556,7 +5726,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
     @if (Auth::check())
 
-		<div id="todolist-get-model" class="modal fade" role="dialog">
+		<!-- <div id="todolist-get-model" class="modal fade" role="dialog">
              <div class="modal-content modal-dialog modal-lg">
                     <div class="modal-header">
                         <h4 class="modal-title">Todo List</h4>
@@ -5601,7 +5771,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 				@endif
 			</div>
              </div>
-        </div>
+        </div> -->
 
 
         @if(1 == 2 && auth()->user()->isAdmin())
@@ -9801,8 +9971,8 @@ if (!\Auth::guest()) {
     });
 
 	$(document).on("click", ".todolist-get", function(e) {
-			e.preventDefault();
-			$("#todolist-get-model").modal("show");
+		e.preventDefault();
+		$("#todolist-get-model").modal("show");
 	});
 
     $(document).on("click", ".menu-create-database", function(e) {
@@ -9818,6 +9988,48 @@ if (!\Auth::guest()) {
     $(document).on("click", ".menu-show-dev-task", function(e) {
         e.preventDefault();
         $("#menu-show-dev-task-model").modal("show");
+    });
+
+    $(document).on("click", ".menu-todolist-get", function(e) {
+        e.preventDefault();
+
+        getTodoListHeader();
+        $("#menu-todolist-get-model").modal("show");
+    });
+
+    function getTodoListHeader(){
+        var keyword = $('.dev-todolist-table').val();
+        var todolist_start_date = $('#todolist_start_date').val();
+        var todolist_end_date = $('#todolist_end_date').val();
+        
+        $.ajax({
+            url: '{{route('todolist.module.search')}}',
+            type: 'GET',       
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                keyword: keyword,
+                todolist_start_date: todolist_start_date,
+                todolist_end_date: todolist_end_date,
+            },
+            // dataType: 'json',
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+            success: function (response) {
+                $("#loading-image").hide();
+                $('.show-search-todolist-list').html(response);
+            },
+            error: function () {
+                $("#loading-image").hide();
+                toastr["Error"]("An error occured!");
+            }
+        });
+    }
+
+    $(document).on('click', '.btn-todolist-search-menu', function(e) {
+        getTodoListHeader();
     });
 
     $(document).on('click', '.menu-preview-img-btn', function(e) {
@@ -10067,8 +10279,7 @@ if (!\Auth::guest()) {
                     if (responseData.result!='') {
                         Swal.fire({
                             title: responseData.result.user.name+' Want to connect on Zoom  - Accept Decline',
-                            text: 'Do you accept the terms?',
-                            icon: 'question',
+                            text: '',                            
                             showCancelButton: true,
                             confirmButtonText: 'Accept',
                             cancelButtonText: 'Decline'
@@ -10098,11 +10309,16 @@ if (!\Auth::guest()) {
                                 }).done(function (response) {
                                     $("#loading-image-modal").hide();
                                     if (response.code == 200) {
-                                        toastr['success']('You successfully accepeted request.', 'success');
+
+                                        if(requeststatus==1){
+                                            toastr['success']('You successfully accepeted request.', 'success');
+                                        } else {
+                                            toastr['success']('You successfully decline request.', 'success');
+                                        }
                                     }
                                 }).fail(function (response) {
                                     $("#loading-image-modal").hide();
-                                    toastr['error']('You successfully decline request.', 'error');
+                                    toastr['error']('Sorry, something went wrong', 'error');
                                 });
 
                                 if (requeststatus==2) {
@@ -10123,7 +10339,6 @@ if (!\Auth::guest()) {
                         Swal.fire({
                             title: 'Hello!',
                             text: msgText,
-                            icon: 'info',
                             showCancelButton: false,
                             confirmButtonText: 'Okay'
                         }).then((result) => {
@@ -10160,13 +10375,18 @@ if (!\Auth::guest()) {
 
     $(document).ready(function() {
         $('#availabilityToggle').change(function() {
+                
+            $('#availabilityText').removeClass('textLeft');
+            $('#availabilityText').removeClass('textRight');
+
             var isChecked = $(this).prop('checked');
             var availabilityText = isChecked ? 'Online' : 'Offline';
             var alignmentText = isChecked ? 'textLeft' : 'textRight';
 
             // Update the text content within the toggle switch
-            //$('#availabilityText').text(availabilityText);
-            //$('#availabilityText').addClass(alignmentText);
+            $('#availabilityText').text(availabilityText);
+            var availabilityTextNew = isChecked ? 'On' : 'Off';
+            $('#availabilityText').addClass(availabilityTextNew);
 
             $.ajax({
                 type: 'POST',
@@ -10185,6 +10405,52 @@ if (!\Auth::guest()) {
             }).fail(function (response) {
                 $("#loading-image-modal").hide();
             });
+        });
+    });
+
+    $(document).on('click', '.send-ap-quick-request', function (event) {
+
+        if($('#requested_ap_user_id').val()==''){
+            alert('Please select user');
+            return false;
+        }
+
+        if($('#requested_ap_remarks').val()==''){
+            alert('Please enter remarks');
+            return false;
+        }     
+
+        var currentDate = moment(); // Current date and time                              
+        var dateAfterOneHour = moment(currentDate).add(1, 'hours');
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{route('event.sendAppointmentRequest')}}',
+            beforeSend: function () {
+                $("#loading-image-modal").show();
+            },
+            data: {
+                _token: "{{ csrf_token() }}",
+                requested_user_id : $('#requested_ap_user_id').val(),
+                requested_time : moment(currentDate).format('YYYY-MM-DD HH:mm:ss'),
+                requested_time_end : moment(dateAfterOneHour).format('YYYY-MM-DD HH:mm:ss'),
+                requested_remarks : $('#requested_ap_remarks').val(),
+            },
+            dataType: "json"
+        }).done(function (response) {
+            $("#loading-image-modal").hide();
+            if (response.code == 200) {
+                toastr['success'](response.message, 'success');
+            }
+
+            setTimeout(function() {
+                location.reload();
+            }, 60000);
+
+        }).fail(function (response) {
+            $("#loading-image-modal").hide();
+            toastr['error'](response.message, 'error');
+            console.log("Sorry, something went wrong");
         });
     });
     
