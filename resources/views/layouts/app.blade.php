@@ -6434,9 +6434,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 $(".processing-txt").addClass('d-none');
                 if (response) {
                     $.each(response, function(index, value) {
-                        var user_email = (value.email != null) ? value.email : "";
-                        var user_name =  (value.name != null) ? value.name : "";
-                        var user_phone =  (value.phone != null) ? value.phone : "";
+                        var user_email = (value.email != null) ? "<span class='copy_me'>"+value.email+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        var user_name =  (value.name != null) ? "<span class='copy_me'>"+value.name+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
+                        var user_phone =  (value.phone != null) ? "<span class='copy_me'>"+value.phone+"</span> <a href='javascript:void(0)' class='copy_the_text'><i class='fa fa-copy' aria-hidden='true'></i></a>" : "";
                         trData += "<tr>";
                         trData += "<td>"+value.id+"</td>";
                         trData += "<td>"+user_name+"</td>";
@@ -6450,6 +6450,33 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             }
         });
     }
+
+    $(document).on("click", ".copy_the_text", function(e) {
+        // Get the text content of the element
+        var textToCopy = $(this).prev('span.copy_me').text();
+
+        // Create a temporary input element
+        var tempInput = $('<input>');
+        
+        // Set its value to the text content
+        tempInput.val(textToCopy);
+
+        // Append it to the body
+        $('body').append(tempInput);
+
+        // Select the text in the input
+        tempInput.select();
+
+        // Copy the selected text to the clipboard
+        document.execCommand('copy');
+
+        // Remove the temporary input element
+        tempInput.remove();
+        
+        // Optionally, provide feedback to the user
+        // alert('Text copied to clipboard: ' + textToCopy);
+        toastr['success']('Text copied!', 'success');
+    });
 
     // Global user search from the menu - E    
 
