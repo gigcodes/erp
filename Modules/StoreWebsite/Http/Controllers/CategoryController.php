@@ -360,7 +360,10 @@ class CategoryController extends Controller
 
         $storeWebsite = StoreWebsite::query();
         if ($request->website_id != null) {
-            $storeWebsite = $storeWebsite->whereIn('id', $request->website_id)->orWhere('parent_id', $request->website_id)->get();
+            $storeWebsite = $storeWebsite->whereIn('id', $request->website_id)
+                                        // ->orWhere('parent_id', $request->website_id)
+                                        // ->orWhere('parent_id', $request->website_id)
+                                        ->get();
         } else {
             $allStoreWebsite_data = StoreWebsite::query()->first();
             $storeWebsite = $storeWebsite->select('id', 'title')->where('id', $allStoreWebsite_data->id)->orWhere('parent_id', $allStoreWebsite_data->id)->get();
@@ -393,7 +396,7 @@ class CategoryController extends Controller
             $hideColumns = $datatableModel->column_name ?? "";
             $dynamicColumnsToShowb = json_decode($hideColumns, true);
         }
-
+        
         return view('storewebsite::category.index', compact(['title', 'allCategories', 'allStoreWebsite', 'categories', 'storeWebsite', 'resultSw', 'dynamicColumnsToShowb']));
     }
 
