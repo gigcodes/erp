@@ -283,6 +283,8 @@
         @if (auth()->user()->isAdmin())
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newQuestionModal">Create Question</a>
         <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
+        <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newRQuestionModal">Rating Question</a>
+        <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.rating.question-answer')}}">Rating Question-Answer</a>
         @endif
     </div>
 </div>
@@ -1918,6 +1920,78 @@
         });
     });
 
+    $(document).on('click', '.add-rquestion-answer', function() {
+        var vendor_id = $(this).attr('data-id');
+
+        $.ajax({
+            url: "{{route('vendors.getrquestion')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.question} </td>
+                                    <td> <div class=" mb-1 p-0 d-flex pt-2 mt-1"> <select style="margin-top: 0px;width:80% !important;" class="form-control " name="answer" id="answerr_`+vendor_id+`_`+v.id+`" data-vendorid="`+vendor_id+`" data-question_id="`+v.id+`"><option value="">-Select rating-</option>`;
+
+                                        for (var i = 1; i <= 10; i++) {
+                                            html += `<option value='`+i+`'>`+i+`</option>`;
+                                        }
+
+                                            html += `</select><div style="margin-top: 0px;" class="d-flex p-0">
+                                                <button class="btn pr-0 btn-xs btn-image " onclick="saverAnswer(`+vendor_id+`, `+v.id+`)"><img src="/images/filled-sent.png"></button>
+                                                <button type="button" data-vendorid="`+vendor_id+`" data-question_id="`+v.id+`" class="btn btn-image ranswer-history-show p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
+                                            </div>
+                                        </div></td>
+                                </tr>`;
+                    });
+                    $("#vqar-histories-list").find(".vqar-histories-list-view").html(html);
+                    $("#vqar-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    function saverAnswer(vendor_id, question_id){
+
+        var answer = $("#answerr_"+vendor_id+"_"+question_id).find("option:selected").val();
+
+        if(answer==''){
+            alert('Please select answer.');
+        } else {
+
+            $.ajax({
+                url: "{{route('vendors.question.saveranswer')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'vendor_id' :vendor_id,
+                    'question_id' :question_id,
+                    'answer' :answer,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#answer_"+vendor_id+"_"+question_id).val('');
+                    $("#loading-image").hide();
+                    toastr['success']('Answer Added successfully!!!', 'success');
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+    }
 
     function saveAnswer(vendor_id, question_id){
 
@@ -1978,8 +2052,41 @@
                                     <td> ${v.created_at} </td>
                                 </tr>`;
                     });
-                    $("#vqa-answer-histories-list").find(".vqa-answer-histories-list-view").html(html);
-                    $("#vqa-answer-histories-list").modal("show");
+                    $("#vqar-answer-histories-list").find(".vqar-answer-histories-list-view").html(html);
+                    $("#vqar-answer-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on('click', '.ranswer-history-show', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var question_id = $(this).attr('data-question_id');
+
+        $.ajax({
+            url: "{{route('vendors.rquestion.getgetanswer')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.answer} </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vqar-answer-histories-list").find(".vqar-answer-histories-list-view").html(html);
+                    $("#vqar-answer-histories-list").modal("show");
                 } else {
                     toastr["error"](response.error, "Message");
                 }

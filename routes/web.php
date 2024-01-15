@@ -2755,6 +2755,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
     Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
     Route::get('vendors/question-answer', [VendorController::class, 'questionAnswer'])->name('vendors.question-answer');
+    Route::get('vendors/rating-question-answer', [VendorController::class, 'ratingquestionAnswer'])->name('vendors.rating.question-answer');
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');
     Route::post('vendors/storeshortcut', [VendorController::class, 'storeshortcut'])->name('vendors.storeshortcut');
@@ -2823,10 +2824,25 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
     Route::post('vendor/updatefeedbackstatus', [VendorController::class, 'vendorFeedbackStatus'])->name('vendors.feedbackstatus');
     Route::post('vendor/question/create', [VendorController::class, 'questionStore'])->name('vendor.question.store');
+    Route::post('vendor/notes/create', [VendorController::class, 'notesStore'])->name('vendor.notes.store');
+    Route::post('vendor/rquestion/create', [VendorController::class, 'rquestionStore'])->name('vendor.rquestion.store');
     Route::post('vendor/question/getquestion', [VendorController::class, 'getVendorQuestions'])->name('vendors.getquestion');
+    Route::post('vendor/question/getrquestion', [VendorController::class, 'getVendorRatingQuestions'])->name('vendors.getrquestion');
     Route::post('vendor/question/answer', [VendorController::class, 'saveVendorQuestionAnswer'])->name('vendors.question.saveanswer');
+    Route::post('vendor/rquestion/answer', [VendorController::class, 'saveVendorRatingQuestionAnswer'])->name('vendors.question.saveranswer');
     Route::post('vendor/question/getanswer', [VendorController::class, 'getQuestionAnswerHistories'])->name('vendors.question.getgetanswer');
+    Route::post('vendor/rquestion/getanswer', [VendorController::class, 'getRatingQuestionAnswerHistories'])->name('vendors.rquestion.getgetanswer');
     Route::post('vendor/questionansert', [VendorController::class, 'vendorQuestionAnswerStatus'])->name('vendors.questionansert');
+    Route::post('vendor/rquestionansert', [VendorController::class, 'vendorRatingQuestionAnswerStatus'])->name('vendors.rquestionansert');
+    Route::post('vendor/rquestionansertstatus/create', [VendorController::class, 'rqaStatusCreate'])->name('vendors.rqastatus.create');
+    Route::post('vendor/rquestionansertstatuscolor', [VendorController::class, 'rqastatuscolor'])->name('vendors.rqastatuscolor');
+    Route::post('vendor/flowchartstatus/create', [VendorController::class, 'flowchartStatusCreate'])->name('vendors.flowchartstatus.create');
+    Route::post('vendor/flowchartstatuscolor', [VendorController::class, 'flowchartstatuscolor'])->name('vendors.flowchartstatuscolor');
+    Route::post('vendor/update-rqastatus', [VendorController::class, 'rqaupdateStatus'])->name('rqa-update-status');
+    Route::post('vendor/rqastatus/histories', [VendorController::class, 'rqaStatusHistories'])->name('vendors.rqastatus.histories');
+    Route::post('vendor/update-flowchartstatus', [VendorController::class, 'flowchartupdateStatus'])->name('flowchart-update-status');
+    Route::post('vendor/flowchartstatus/histories', [VendorController::class, 'flowchartStatusHistories'])->name('vendors.flowchartstatus.histories');
+    Route::post('vendor/questionanswer/notes', [VendorController::class, 'getVendorRatingQuestionsAnswerNotes'])->name('vendors.getrquestionnotes');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');
