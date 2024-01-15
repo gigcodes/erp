@@ -42,6 +42,13 @@ use App\Models\VendorFlowChart;
 use App\Models\VendorFlowChartRemarks;
 use App\Models\VendorQuestions;
 use App\Models\VendorQuestionAnswer;
+use App\Models\VendorRatingQuestions;
+use App\Models\VendorRatingQuestionAnswer;
+use App\Models\VendorRatingQAStatus;
+use App\Models\VendorFlowChartStatus;
+use App\Models\VendorRatingQAStatusHistory;
+use App\Models\VendorFlowChartStatusHistory;
+use App\Models\VendorRatingQANotes;
 
 class VendorController extends Controller
 {
@@ -294,6 +301,7 @@ class VendorController extends Controller
                     vendors.framework,
                     vendors.fc_status,
                     vendors.question_status,
+                    vendors.rating_question_status,
                     vendors.flowchart_date,
                     category_name,
                   chat_messages.message_id,
@@ -373,6 +381,8 @@ class VendorController extends Controller
 
         $vendor_questions = VendorQuestions::orderBy('id', 'DESC')->get();
 
+        $rating_questions = VendorRatingQuestions::orderBy('id', 'DESC')->get();
+
         return view('vendors.index', [
             'vendors' => $vendors,
             'vendor_categories' => $vendor_categories,
@@ -388,6 +398,7 @@ class VendorController extends Controller
             'whatsapp' => $whatsapp,
             'vendor_flow_charts' => $vendor_flow_charts,
             'vendor_questions' => $vendor_questions,
+            'rating_questions' => $rating_questions,
         ]);
     }
 
@@ -1903,7 +1914,9 @@ class VendorController extends Controller
 
         $vendor_categories = VendorCategory::all();
 
-        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories'))
+        $status = VendorFlowChartStatus::all();
+
+        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories', 'status'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -1928,6 +1941,18 @@ class VendorController extends Controller
         $data = $request->except('_token');
         $data['created_by'] = Auth::user()->id;
         VendorQuestions::create($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a question!');
+    }
+
+    public function rquestionStore(Request $request)
+    {
+        $this->validate($request, [
+            'question' => 'required',
+        ]);
+        $data = $request->except('_token');
+        $data['created_by'] = Auth::user()->id;
+        VendorRatingQuestions::create($data);
 
         return redirect()->back()->with('success', 'You have successfully created a question!');
     }
@@ -2044,9 +2069,38 @@ class VendorController extends Controller
         ], 200);
     }
 
+    public function getVendorRatingQuestions(Request $request)
+    {
+        $datas = VendorQuestions::with(['user'])
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'Question get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
     public function getQuestionAnswerHistories(Request $request)
     {
         $datas = VendorQuestionAnswer::where('vendor_id', $request->vendor_id)
+                ->where('question_id', $request->question_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getRatingQuestionAnswerHistories(Request $request)
+    {
+        $datas = VendorRatingQuestionAnswer::where('vendor_id', $request->vendor_id)
                 ->where('question_id', $request->question_id)
                 ->latest()
                 ->get();
@@ -2077,6 +2131,24 @@ class VendorController extends Controller
         return response()->json(['code' => 200, 'data' => $input]);
     }
 
+    public function saveVendorRatingQuestionAnswer(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'vendor_id' => 'required',
+            'question_id' => 'required',
+            'answer' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        $input['added_by'] = Auth::user()->id;
+        VendorRatingQuestionAnswer::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input]);
+    }
+
     public function vendorQuestionAnswerStatus(Request $request)
     {
 
@@ -2086,6 +2158,22 @@ class VendorController extends Controller
             $data['question_status'] = 1;
         } else {
             $data['question_status'] = null;
+        }
+        
+        Vendor::find($request->id)->update($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a question answer!');
+    }
+
+    public function vendorRatingQuestionAnswerStatus(Request $request)
+    {
+
+        $vendor = Vendor::find($request->id);
+
+        if(empty($vendor->rating_question_status)){
+            $data['rating_question_status'] = 1;
+        } else {
+            $data['rating_question_status'] = null;
         }
         
         Vendor::find($request->id)->update($data);
@@ -2123,5 +2211,200 @@ class VendorController extends Controller
 
         return view('vendors.question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_questions', 'vendor_categories'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
+    }
+
+    public function ratingquestionAnswer(Request $request)
+    {
+        $VendorQuestionAnswer = Vendor::with('category');
+
+        if (request('category') != null) {
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('category_id', $request->category);
+        }
+
+        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $request->selectedId);
+        }
+
+        $VendorQuestionAnswer = $VendorQuestionAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
+
+        $totalVendor = Vendor::where('rating_question_status', 1)->count();
+
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-flow-chart-listing')->first();
+
+        $dynamicColumnsToShowVendorsfc = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
+        }
+
+        $vendor_questions = VendorRatingQuestions::orderBy('id', 'ASC')->get();
+
+        $vendor_categories = VendorCategory::all();
+
+        $status = VendorRatingQAStatus::all();
+
+        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status'))
+            ->with('i', ($request->input('page', 1) - 1) * 25);
+    }
+
+    public function rqaStatusCreate(Request $request)
+    {
+        try {
+            $status = new VendorRatingQAStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function rqastatuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = VendorRatingQAStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function flowchartStatusCreate(Request $request)
+    {
+        try {
+            $status = new VendorFlowChartStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function flowchartstatuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = VendorFlowChartStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function rqaupdateStatus(Request $request)
+    {
+        $vendor_id = $request->input('vendor_id');
+        $question_id = $request->input('question_id');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $vendor_status = VendorRatingQAStatusHistory::where('vendor_id', $vendor_id)->where('question_id', $question_id)->orderBy('id', 'DESC')->first();
+        $history = new VendorRatingQAStatusHistory();
+        $history->vendor_id = $vendor_id;
+        $history->question_id = $question_id;
+
+        if(!empty($vendor_status)){
+            $history->old_value = $vendor_status->new_value;
+        } else {
+            $history->old_value = '';
+        }
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function rqaStatusHistories(Request $request)
+    {
+        $datas = VendorRatingQAStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('vendor_id', $request->vendor_id)
+                ->where('question_id', $request->question_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function flowchartupdateStatus(Request $request)
+    {
+        $vendor_id = $request->input('vendor_id');
+        $flow_chart_id = $request->input('flow_chart_id');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $vendor_status = VendorFlowChartStatusHistory::where('vendor_id', $vendor_id)->where('flow_chart_id', $flow_chart_id)->orderBy('id', 'DESC')->first();
+        $history = new VendorFlowChartStatusHistory();
+        $history->vendor_id = $vendor_id;
+        $history->flow_chart_id = $flow_chart_id;
+
+        if(!empty($vendor_status)){
+            $history->old_value = $vendor_status->new_value;
+        } else {
+            $history->old_value = '';
+        }
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function flowchartStatusHistories(Request $request)
+    {
+        $datas = VendorFlowChartStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('vendor_id', $request->vendor_id)
+                ->where('flow_chart_id', $request->flow_chart_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function getVendorRatingQuestionsAnswerNotes(Request $request)
+    {
+        $datas = VendorRatingQANotes::where('vendor_id', $request->vendor_id)
+                ->where('question_id', $request->question_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'Question get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function notesStore(Request $request)
+    {
+        $this->validate($request, [
+            'notes' => 'required',
+        ]);
+        $data = $request->except('_token');
+        $data['user_id'] = Auth::user()->id;
+        VendorRatingQANotes::create($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a question!');
     }
 }

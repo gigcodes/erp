@@ -267,6 +267,14 @@
                         @if($vendor->question_status==1)
                         <button type="button" class="btn add-question-answer" title="Add Question Answer" data-id="{{$vendor->id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                         @endif
+
+                        <a href="javascript:void(0)" class="btn btn-sm update-rquestion-status" data-id="{{$vendor->id}}" title="Vendor Rating Question Answer Status" @if($vendor->rating_question_status==1) style="color: #0062cc;" @endif>
+                            <i class="fa fa-star" aria-hidden="true"></i>
+                        </a>
+
+                        @if($vendor->rating_question_status==1)
+                            <button type="button" class="btn add-rquestion-answer" title="Add Rating Question Answer" data-id="{{$vendor->id}}"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+                        @endif
                     @endif
                 </div>
             </td>
@@ -482,6 +490,14 @@
                     @if($vendor->question_status==1)
                     <button type="button" class="btn add-question-answer" title="Add Question Answer" data-id="{{$vendor->id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
                     @endif
+
+                    <a href="javascript:void(0)" class="btn btn-sm update-rquestion-status" data-id="{{$vendor->id}}" title="Vendor Rating Question Answer Status" @if($vendor->rating_question_status==1) style="color: #0062cc;" @endif>
+                        <i class="fa fa-star" aria-hidden="true"></i>
+                    </a>
+
+                    @if($vendor->rating_question_status==1)
+                        <button type="button" class="btn add-rquestion-answer" title="Add Rating Question Answer" data-id="{{$vendor->id}}"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+                    @endif
                 @endif
             </div>
         </td>
@@ -618,6 +634,36 @@
                 success: function () {
                     $("#loading-image").hide();
                     toastr["success"]("Vendor question answer status has been updated!", "Message")
+                    window.location.reload();
+                },
+                error: function (error) {
+                    $("#loading-image").hide();
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        } else {
+            return false;
+        }
+    });
+
+    $(document).on('click', '.update-rquestion-status', function() {
+        var vendor_id = $(this).data('id');
+
+        var msg = "Are you sure you want to update rating question answer status?";
+
+        if (confirm(msg)) {
+
+            $("#loading-image").show();
+            $.ajax({
+                url: "{{ route('vendors.rquestionansert')}}",
+                method: "POST",
+                data: {                    
+                    id: vendor_id,
+                },
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                success: function () {
+                    $("#loading-image").hide();
+                    toastr["success"]("Vendor rating question answer status has been updated!", "Message")
                     window.location.reload();
                 },
                 error: function (error) {
