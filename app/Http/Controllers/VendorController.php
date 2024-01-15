@@ -292,6 +292,7 @@ class VendorController extends Controller
                     vendors.framework,
                     vendors.fc_status,
                     vendors.flowchart_date,
+                    vendors.feeback_status,
                     category_name,
                   chat_messages.message_id,
                   vf.name as framework_name
@@ -2010,5 +2011,21 @@ class VendorController extends Controller
         }
 
         return redirect()->back()->with('success', 'The flow-chart sorting updated successfully.');
+    }
+
+    public function vendorFeedbackStatus(Request $request)
+    {
+
+        $vendor = Vendor::find($request->id);
+
+        if(empty($vendor->feeback_status)){
+            $data['feeback_status'] = 1;
+        } else {            
+            $data['feeback_status'] = 0;
+        }
+        
+        Vendor::find($request->id)->update($data);
+
+        return redirect()->back()->with('success', 'Vendor feedback status has been updated!');
     }
 }

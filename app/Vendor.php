@@ -67,6 +67,7 @@ class Vendor extends Model
         'reminder_from',
         'updated_by',
         'status',
+        'feeback_status',
         'frequency_of_payment', 'bank_name', 'bank_address', 'city', 'country', 'ifsc_code', 'remark', 'chat_session_id', 'type', 'framework', 'flowchart_date', 'fc_status'
     ];
 

@@ -92,6 +92,7 @@ class Task extends Model
         'last_date_time_reminder',
         'is_flow_task',
         'user_feedback_cat_id',
+        'user_feedback_vendor_id',
         'parent_review_task_id',
         'time_doctor_task_id',
         'lead_time_doctor_task_id',
