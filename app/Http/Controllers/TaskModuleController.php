@@ -2835,7 +2835,8 @@ class TaskModuleController extends Controller
             $data['subject'] = $request->get('task_subject');
             $data['task'] = $request->get('task_detail');
             $data['task_type_id'] = 1;
-            $data['user_feedback_cat_id'] = $request->get('user_feedback_cat_id') ?? 0;
+            $data['user_feedback_cat_id'] = $request->get('user_feedback_vendor_id') ?? 0;
+            $data['user_feedback_vendor_id'] = $request->get('user_feedback_cat_id') ?? 0;
             $data['site_developement_id'] = $request->get('site_id');
             $data['cost'] = $request->get('cost', 0);
             $data['status'] = 'In Progress';

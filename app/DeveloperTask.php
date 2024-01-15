@@ -112,6 +112,7 @@ class DeveloperTask extends Model
         'task_start',
         'm_start_date',
         'm_end_date',
+        'user_feedback_vendor_id',
     ];
 
     const DEV_TASK_STATUS_DONE = 'Done';
