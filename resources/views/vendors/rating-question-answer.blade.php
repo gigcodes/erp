@@ -594,6 +594,9 @@
                         html += `<tr>
                                     <td> ${k + 1} </td>
                                     <td> ${v.notes} </td>
+                                    <td> <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
+                                      <i class="fa fa-clone" aria-hidden="true"></i>
+                                    </button></td>
                                 </tr>`;
                     });
                     $("#vqarnotes-histories-list").find(".vqarnotes-histories-list-view").html(html);
@@ -604,5 +607,15 @@
             }
         });
     });
+
+    $(document).on("click",".btn-copy-notes",function() {
+          var password = $(this).data('id');
+          var $temp = $("<input>");
+          $("body").append($temp);
+          $temp.val(password).select();
+          document.execCommand("copy");
+          $temp.remove();
+          alert("Copied!");
+        });
 </script>
 @endsection

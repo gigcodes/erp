@@ -283,7 +283,8 @@
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="30%">Note</th>
+                                <th>Note</th>
+                                <th width="5%">Action</th>
                             </tr>
                         </thead>
                         <tbody class="vqarnotes-histories-list-view">
