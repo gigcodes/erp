@@ -1582,7 +1582,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}/{vendor_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
 
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
@@ -2378,6 +2378,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('dailyActivity/get', [DailyActivityController::class, 'get'])->name('dailyActivity.get');
 
     Route::get('/get/feedback-table/data', [UserManagementController::class, 'addFeedbackTableData'])->name('user.get-feedback-table-data');
+    Route::get('/get/feedback-table/datavendor', [UserManagementController::class, 'addFeedbackTableDataVendor'])->name('user.get-feedback-table-datavendor');
+    Route::post('feedback/remarks', [UserManagementController::class, 'saveRemarks'])->name('feedback.saveremarks');
+    Route::post('feedback/getremarks', [UserManagementController::class, 'getRemarksHistories'])->name('feedback.getremarks');
+    Route::post('feedback/statuscolor', [UserManagementController::class, 'statuscolor'])->name('feedback.statuscolor');
+    Route::post('feedback/status/create', [UserManagementController::class, 'statusCreate'])->name('feedback.status.create');
+    Route::get('/save/user-category/status', [UserManagementController::class, 'statusHistory'])->name('user.save.status');
+    Route::get('/get/user-category/status', [UserManagementController::class, 'getStatusHistory'])->name('user.get.status.data');
     Route::get('/save/user-category/sop', [UserManagementController::class, 'sopHistory'])->name('user.save.sop');
     Route::get('/get/user-category/sop', [UserManagementController::class, 'getSopHistory'])->name('user.get.sop.data');
     Route::get('/save/user-category/sop-comment', [UserManagementController::class, 'sopHistoryComment'])->name('user.save.sop.comment');
@@ -2815,6 +2822,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
     Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
     Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
+    Route::post('vendor/updatefeedbackstatus', [VendorController::class, 'vendorFeedbackStatus'])->name('vendors.feedbackstatus');
     Route::post('vendor/question/create', [VendorController::class, 'questionStore'])->name('vendor.question.store');
     Route::post('vendor/notes/create', [VendorController::class, 'notesStore'])->name('vendor.notes.store');
     Route::post('vendor/rquestion/create', [VendorController::class, 'rquestionStore'])->name('vendor.rquestion.store');
