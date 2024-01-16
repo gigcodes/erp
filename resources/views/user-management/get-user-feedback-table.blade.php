@@ -35,117 +35,119 @@
         <div class="row" id="common-page-layout">
             <input type="hidden" name="page_no" class="page_no" />
             <div class="col-lg-12 margin-tb">
-                <h2 class="page-heading">Users Feedback <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
-                    <button class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                <h2 class="page-heading">Users Feedback <button type="button" class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
+                    <button class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+
+                    <button type="button" class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#feedbackdatatablecolumnvisibilityList">Column Visiblity</button>
                 </h2>
                 <div class="" style="margin-bottom:10px;">
-                    <div class="row">
-                        <form class="form-inline message-search-handler" method="get">
-                            <div class="col">
-                                <div class="form-group">
-                                    <select name="user_id" class="form-control  select-multiple">
-                                        <option>-select-</option>
-                                        <?php foreach ($users as $key => $user) {
-                                                $selectedUser = '';
-                                                if($user->id == $request->user_id)
-                                                    $selectedUser = 'selected="selected"';
-                                                echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
-                                        }?>
-                                    </select>
-                                </div>
-                                {{-- <div class="form-group">
-                                    <select name="is_active" class="form-control" placholder="Active:">
-                                        <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
-                                        <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
-                                        </option>
-                                        <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
-                                        </option>
-                                    </select>
-                                </div> --}}
-                                <div class="form-group pl-3">
-                                    <label for="button">&nbsp;</label>
-                                    <button style="display: inline-block;width: 10%;margin-top: -26px; padding-left: 0px"
-                                        class="btn btn-sm btn-image btn-search-action">
-                                        <img src="{{asset('/images/search.png')}}" style="cursor: default;">
-                                    </button>
-                                </div>
+                    <form class="form-inline message-search-handler" method="get">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-3 cls_filter_inputbox p-0 mr-2">
+                                <select name="term" type="text" class="form-control" placeholder="Search Name" id="vendor-search" data-allow-clear="true">
+                                    <?php
+                                    if (request()->get('term')) {
+                                        echo '<option value="' . request()->get('term') . '" selected>' . request()->get('term') . '</option>';
+                                    }
+                                    ?>
+                                </select>
                             </div>
-                        </form>
-                    </div>
+                            <div class="form-group pl-3">
+                                <label for="button">&nbsp;</label>
+                                <button style="display: inline-block;width: 10%;margin-top: -26px; padding-left: 0px"
+                                    class="btn btn-sm btn-image btn-search-action">
+                                    <img src="{{asset('/images/search.png')}}" style="cursor: default;">
+                                </button>
+                            </div>
+
+                            @if (Auth::user()->isAdmin())
+                            <div class="form-group pl-3">
+                                <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category" placeholder="Create Category">
+                                <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
+                            </div>
+                            @endif
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-12">
         <div class="infinite-scroll" style="overflow-y: auto">
-            <table class="table table-bordered" style="margin-top: 25px">
-                <tr>
-                    <th width="17%">Vendor</th>
-                    @foreach ($category as $cat)
-                        <th width="15%">
-                            {{ $cat->category }}
-
-                            @if (auth()->user()->isAdmin())
-                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
-                            @endif
-                        </th>
-                    @endforeach
-                </tr>
-                @if (Auth::user()->isAdmin())
-                <tr>
-                    <td colspan="{{count($category)}}">
-                        <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category" placeholder="Create Category">
-                        <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
-                    </td>
-                    <!-- <td></td>
-                    <td></td>
-                    <td><input type="textbox" style="width:calc(100% - 41px)" id="feedback-status">
-                        <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button></td>
-                    <td></td> -->
-                </tr>
-                @endif
-                <?php $sopOps = ''; ?>
-                @foreach ($sops as $sop)
-                    <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
-                @endforeach
-                @foreach ($vendors as $vendor)
+            
+                <table class="table table-bordered table-striped">
                     <tr>
-                        <td>{{$vendor->name}}</td>
+                        @if(!empty($dynamicColumnsToShowVendorsFeeback))
+                            @if (!in_array('Vendor', $dynamicColumnsToShowVendorsFeeback))
+                                <th width="17%">Vendor</th>
+                            @endif
 
-                        @foreach ($category as $cat)
-                            @php
-                                if($user_id !=''){
-                                    $cat->user_id = $user_id;
-                                }
-                                $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
-                                if ($latest_messages) {
-                                    $latest_msg = $latest_messages->message;
-                                    if (strlen($latest_msg) > 20) {
-                                        $latest_msg = substr($latest_messages->message,0,20).'...';
-                                    }
-                                }
-                                $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_feedback_category_id', $cat->id)->where('user_feedback_vendor_id', $vendor->id)->orderBy('id', 'DESC')->first();
-                                $status_id = 0;
-                                $status_color = new stdClass();
-                                if ($feedback_status) {
-                                    $status_id = $feedback_status->user_feedback_status_id;
+                            @if($category)
+                                @foreach($category as $cat)
+                                    @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
+                                        <th width="15%">{{$cat->category}}</th>
+                                    @endif
+                                @endforeach
+                            @endif
+                        @else
+                            <th width="17%">Vendor</th>
+                            @foreach ($category as $cat)
+                                <th width="15%">
+                                    {{ $cat->category }}
 
-                                    $status_color = \App\UserFeedbackStatus::where('id',$status_id)->first();
-                                }
-                                $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
-                                            ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
-                                            ->orderBy('id','DESC')->first();
-                                $comment = '';
-                                if(isset($latest_comment->comment))
-                                    $comment = $latest_comment->comment.'...';
-                                $commentId = '';
-                                if(isset($latest_comment->comment))
-                                    $commentId = $latest_comment->id;
-                            @endphp
-                            <td style="background-color: {{$status_color->status_color ?? ""}}!important;">
-                                <table class="communication-td">
-                                    <tr data-cat_id="{{ $cat->id }}" data-user_id="{{ $cat->user_id }}">
-                                        <td >
+                                    @if (auth()->user()->isAdmin())
+                                        <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                                    @endif
+                                </th>
+                            @endforeach
+                        @endif
+                    </tr>
+                    
+                    <tbody class="infinite-scroll-data">
+                    <?php $sopOps = ''; ?>
+                    @foreach ($sops as $sop)
+                        <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
+                    @endforeach
+                    @foreach ($vendors as $vendor)
+                        @if(!empty($dynamicColumnsToShowVendorsFeeback))
+                            <tr>
+                                @if (!in_array('ID', $dynamicColumnsToShowVendorsFeeback))
+                                    <td>{{$vendor->name}}</td>
+                                @endif
+
+                                @foreach ($category as $cat)
+
+                                    @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
+                                        @php
+                                            if($user_id !=''){
+                                                $cat->user_id = $user_id;
+                                            }
+                                            $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
+                                            if ($latest_messages) {
+                                                $latest_msg = $latest_messages->message;
+                                                if (strlen($latest_msg) > 20) {
+                                                    $latest_msg = substr($latest_messages->message,0,20).'...';
+                                                }
+                                            }
+                                            $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_feedback_category_id', $cat->id)->where('user_feedback_vendor_id', $vendor->id)->orderBy('id', 'DESC')->first();
+                                            $status_id = 0;
+                                            $status_color = new stdClass();
+                                            if ($feedback_status) {
+                                                $status_id = $feedback_status->user_feedback_status_id;
+
+                                                $status_color = \App\UserFeedbackStatus::where('id',$status_id)->first();
+                                            }
+                                            $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
+                                                        ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
+                                                        ->orderBy('id','DESC')->first();
+                                            $comment = '';
+                                            if(isset($latest_comment->comment))
+                                                $comment = $latest_comment->comment.'...';
+                                            $commentId = '';
+                                            if(isset($latest_comment->comment))
+                                                $commentId = $latest_comment->id;
+                                        @endphp
+                                        <td style="background-color: {{$status_color->status_color ?? ""}}!important;">
                                             @if(\Auth::user()->isAdmin() == true)                                                
                                                 <div class="sop-div">
                                                     <div class=" mb-1 p-0 d-flex pt-2 mt-1">
@@ -196,13 +198,101 @@
                                                 
                                             </div>
                                         </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        @endforeach
-                    </tr>
-                @endforeach
-        </table>
+                                    @endif
+                                @endforeach
+                            </tr>
+                        @else
+                            <tr>
+                                <td>{{$vendor->name}}</td>
+
+                                @foreach ($category as $cat)
+                                    @php
+                                        if($user_id !=''){
+                                            $cat->user_id = $user_id;
+                                        }
+                                        $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
+                                        if ($latest_messages) {
+                                            $latest_msg = $latest_messages->message;
+                                            if (strlen($latest_msg) > 20) {
+                                                $latest_msg = substr($latest_messages->message,0,20).'...';
+                                            }
+                                        }
+                                        $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_feedback_category_id', $cat->id)->where('user_feedback_vendor_id', $vendor->id)->orderBy('id', 'DESC')->first();
+                                        $status_id = 0;
+                                        $status_color = new stdClass();
+                                        if ($feedback_status) {
+                                            $status_id = $feedback_status->user_feedback_status_id;
+
+                                            $status_color = \App\UserFeedbackStatus::where('id',$status_id)->first();
+                                        }
+                                        $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
+                                                    ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
+                                                    ->orderBy('id','DESC')->first();
+                                        $comment = '';
+                                        if(isset($latest_comment->comment))
+                                            $comment = $latest_comment->comment.'...';
+                                        $commentId = '';
+                                        if(isset($latest_comment->comment))
+                                            $commentId = $latest_comment->id;
+                                    @endphp
+                                    <td style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                        @if(\Auth::user()->isAdmin() == true)                                                
+                                            <div class="sop-div">
+                                                <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                    <select class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                                        <option value="">-Select sop-</option>
+                                                        @foreach ($sops as $sop)
+                                                            <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
+                                                        @endforeach
+                                                    </select>
+                                                    <div style="margin-top: 0px;" class="d-flex p-0">
+                                                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+
+                                                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image sop-history" data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" data-vendorid="{{$vendor->id}}" title='history'><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            {{$cat->sop}}
+                                        @endif                        
+                                        
+                                        <div class="status-div">
+                                            <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                <select class="form-control" data-id="{{$cat->id}}" id="status_{{$cat->id}}" name="status_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                                    <option value="">-Select status-</option>
+                                                    @foreach ($status as $st)
+                                                        <option value="{{$st->id}}">{{ $st->status }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-status-save" data-status="status_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+
+                                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image status-history" data-cat_id="{{$cat->id}}" data-status_id="{{$cat->status_id}}" data-vendorid="{{$vendor->id}}" title='history'><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                            <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_{{$cat->id}}_{{$vendor->id}}" data-catid="{{$cat->id}}" data-vendorid="{{$vendor->id}}">
+                                            <div style="margin-top: 0px;" class="d-flex p-0">
+                                                <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$cat->id}}, {{$vendor->id}})"><img src="/images/filled-sent.png"></button>
+                                                <button type="button" data-catid="{{$cat->id}}" data-vendorid="{{$vendor->id}}" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                            </div>
+                                        </div>
+
+                                        <div class="history-div">
+                                            <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                            <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks" data-vendorid="{{$vendor->id}}" title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                                            
+                                        </div>
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        
     </div>
 </div>
 <div id="newStatusColor" class="modal fade" role="dialog">
@@ -497,6 +587,7 @@
         </div>
     </div>
 </div>
+@include("vendors.partials.column-visibility-modal-feedback")
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
@@ -770,12 +861,8 @@
                 },
                 cashe:false,
                 success:function(response){
-                    if (response.message) {
-                        toastr.error(response.message);
-                    }else{
-                        $('#addcategory').val('');
-                        $(document).find('.user-feedback-data').append(response);
-                    }
+                    toastr["success"]('Caetgory successfully added.');
+                    location.reload();
                 }
             });
         }else{
@@ -1086,6 +1173,48 @@
                 }
             }
         });
+    });
+
+    $('#vendor-search').select2({
+        tags: true,
+        width: '100%',
+        ajax: {
+            url: BASE_URL + '/vendor-search',
+            dataType: 'json',
+            delay: 750,
+            data: function(params) {
+                return {
+                    q: params.term, // search term
+                };
+            },
+            processResults: function(data, params) {
+                for (var i in data) {
+                    data[i].id = data[i].name ? data[i].name : data[i].text;
+                }
+                params.page = params.page || 1;
+
+                return {
+                    results: data,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+        },
+        placeholder: 'Search Vendor',
+        escapeMarkup: function(markup) {
+            return markup;
+        },
+        minimumInputLength: 1,
+        templateResult: function(customer) {
+
+            if (customer.name) {
+                //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                return "<p>" + customer.name + "</p>";
+            }
+        },
+        templateSelection: (customer) => customer.text || customer.name,
+
     });
 </script>
 @endsection 
