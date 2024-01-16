@@ -7,10 +7,13 @@ use App\Task;
 use App\User;
 use App\DeveloperTask;
 use App\UserFeedbackStatus;
+use App\UserFeedbackStatusUpdate;
 use Illuminate\Http\Request;
 use App\UserFeedbackCategory;
 use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
+use App\Vendor;
+use App\Models\UserFeedbackRemark;
 
 class UserManagementController extends Controller
 {
@@ -42,14 +45,16 @@ class UserManagementController extends Controller
         $users = User::all();
         $sops = Sop::all();
         //dd($sops);
-        $category = $category->paginate(25);
+        $category = $category->get();
 
-        return view('user-management.get-user-feedback-table', compact('category', 'status', 'user_id', 'users', 'request', 'sops'));
+        $vendors = Vendor::where('feeback_status', 1)->paginate(25);
+
+        return view('user-management.get-user-feedback-table', compact('category', 'status', 'user_id', 'users', 'request', 'sops', 'vendors'));
     }
 
-    public function taskCount(Request $request, $user_feedback_cat_id)
+    public function taskCount(Request $request, $user_feedback_cat_id, $user_feedback_user_id, $user_feedback_vendor_id)
     {
-        $taskStatistics['Devtask'] = DeveloperTask::where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done')->select();
+        $taskStatistics['Devtask'] = DeveloperTask::where('user_feedback_cat_id', $user_feedback_cat_id)->where('user_feedback_vendor_id', $user_feedback_vendor_id)->where('status', '!=', 'Done')->select();
 
         $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->where('status', '!=', 'Done');
         if ($request->user_id != '' && (\Auth::user()->isAdmin)) {
@@ -62,13 +67,13 @@ class UserManagementController extends Controller
         $query = $query->addSelect(\DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
         //print_r($taskStatistics);
-        $othertask = Task::where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed')->select();
-        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed');
-        if ($request->user_id != '' && (\Auth::user()->isAdmin)) {
+        $othertask = Task::where('user_feedback_cat_id', $user_feedback_cat_id)->where('user_feedback_vendor_id', $user_feedback_vendor_id)->whereNull('is_completed')->select();
+        $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('user_feedback_vendor_id', $user_feedback_vendor_id)->where('user_feedback_cat_id', $user_feedback_cat_id)->whereNull('is_completed');
+        /*if ($request->user_id != '' && (\Auth::user()->isAdmin)) {
             $query1->where('users.id', $request->user_id);
         } elseif ((\Auth::user()->isAdmin) == false) {
             $query1->where('users.id', $request->user_id);
-        }
+        }*/
         $query1->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(\DB::raw("'Othertask' as task_type,'task' as message_type"));
         $othertaskStatistics = $query1->get();
@@ -88,6 +93,7 @@ class UserManagementController extends Controller
             $sop->user_id = \Auth::user()->id;
             $sop->sop = $request->sop_text;
             $sop->sops_id = $request->sops_id;
+            $sop->vendor_id = $request->vendor_id;
             $sop->save();
             UserFeedbackCategory::where('id', $request->cat_id)->update(['sop_id' => $sop->id, 'sop' => $request->sop_text, 'sops_id' => $request->sops_id]);
 
@@ -103,7 +109,7 @@ class UserManagementController extends Controller
             if ($request->cat_id == '') {
                 return response()->json(['code' => '500',  'message' => 'History not found']);
             }
-            $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->get();
+            $sop = UserFeedbackCategorySopHistory::where('category_id', $request->cat_id)->where('vendor_id', $request->vendor_id)->orderBy('id', 'DESC')->get();
             $html = '';
             if ($sop) {
                 foreach ($sop as $value) {
@@ -159,5 +165,108 @@ class UserManagementController extends Controller
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
+    }
+
+    public function statusHistory(Request $request)
+    {
+        try {            
+            $sop = new UserFeedbackStatusUpdate();
+            $sop->user_feedback_category_id = $request->cat_id;
+            $sop->user_id = \Auth::user()->id;
+            $sop->user_feedback_status_id = $request->status_id;
+            $sop->user_feedback_vendor_id = $request->vendor_id;
+            $sop->save();
+
+            return response()->json(['code' => '200', 'data' => $sop, 'message' => 'Data saved successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getStatusHistory(Request $request)
+    {
+        try {
+            if ($request->cat_id == '') {
+                return response()->json(['code' => '500',  'message' => 'History not found']);
+            }
+            $sop = UserFeedbackStatusUpdate::where('user_feedback_category_id', $request->cat_id)->where('user_feedback_vendor_id', $request->vendor_id)->orderBy('id', 'DESC')->get();
+            $html = '';
+            if ($sop) {
+                foreach ($sop as $value) {
+                    $status_data = UserFeedbackStatus::where('id', $value->user_feedback_status_id)->first();
+                    $html .= '<tr><td>' . $value->id . '</td><td>' . $status_data->status . '</td>';
+                    $html .= '</tr>';
+                }
+            } else {
+                $html .= '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+            }
+//            dd($html);
+
+            return response()->json(['code' => '200', 'data' => $html, 'message' => 'Data listed successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function statusCreate(Request $request)
+    {
+        try {
+            $status = new UserFeedbackStatus();
+            $status->status = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function statuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = UserFeedbackStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function saveRemarks(Request $request)
+    {   
+
+        $post = $request->all();
+
+        $this->validate($request, [
+            'user_feedback_category_id' => 'required',
+            'user_feedback_vendor_id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        $input = $request->except(['_token']);  
+        $input['added_by'] = \Auth::user()->id;
+        UserFeedbackRemark::create($input);
+
+        return response()->json(['code' => 200, 'data' => $input]);
+    }
+
+    public function getRemarksHistories(Request $request)
+    {
+        $datas = UserFeedbackRemark::with(['user'])
+                ->where('user_feedback_category_id', $request->user_feedback_category_id)
+                ->where('user_feedback_vendor_id', $request->user_feedback_vendor_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

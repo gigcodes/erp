@@ -8,5 +8,6 @@ class UserFeedbackStatus extends Model
 {
     protected $fillable = [
         'status',
+        'status_color',
     ];
 }
