@@ -70,210 +70,157 @@
 </div>
 <script type="text/javascript" src="/js/common-helper.js"></script>
 <script type="text/javascript">
-var siteHelpers = {
-            
-    quickCategoryHeaderAdd : function(ele) {
-        var quickCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickCategoryHeader");
-        var quickCategoryHeaderId = quickCategoryHeader.children("option:selected").data('id');
-        var textBox = ele.closest("div").find(".quick_category");
-        if (textBox.val() == "") {
-            alert("Please Enter Category!!");
-            return false;
-        }
-        var params = {
-            method : 'post',
-            data : {
-                _token : $('meta[name="csrf-token"]').attr('content'),
-                name : textBox.val(),
-                quickCategoryHeaderId : quickCategoryHeaderId
-            },
-            url: "/add-reply-category"
-        };
+$(document).ready(function() {
+    var siteHelpersHeader = {
+                
+        quickCategoryHeaderAdd : function(ele) {
+            var quickCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickCategoryHeader");
+            var quickCategoryHeaderId = quickCategoryHeader.children("option:selected").data('id');
+            var textBox = ele.closest("div").find(".quick_category");
+            if (textBox.val() == "") {
+                alert("Please Enter Category!!");
+                return false;
+            }
+            var params = {
+                method : 'post',
+                data : {
+                    _token : $('meta[name="csrf-token"]').attr('content'),
+                    name : textBox.val(),
+                    quickCategoryHeaderId : quickCategoryHeaderId
+                },
+                url: "/add-reply-category"
+            };
 
-        if(quickCategoryHeaderId!=''){
-            siteHelpers.sendAjax(params,"afterquickSubCategoryHeaderAdd");
-        } else {
-            siteHelpers.sendAjax(params,"afterquickCategoryHeaderAdd");
-        }
-    },
-    afterquickSubCategoryHeaderAdd : function(response) {
-        $(".quick_category").val('');
-        $(".quickSubCategoryHeader").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
-    },
-    afterquickCategoryHeaderAdd : function(response) {
-        $(".quick_category").val('');
-        $(".quickCategoryHeader").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
-    },
-    deletequickCategoryHeader : function(ele) {
-        var quickCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickCategoryHeader");
-        if (quickCategoryHeader.val() == "") {
-            alert("Please Select Category!!");
-            return false;
-        }
-        var quickCategoryHeaderId = quickCategoryHeader.children("option:selected").data('id');
-        if (!confirm("Are sure you want to delete category?")) {
-            return false;
-        }
-        var params = {
-            method : 'post',
-            data : {
-                _token : $('meta[name="csrf-token"]').attr('content'),
-                id : quickCategoryHeaderId
-            },
-            url: "/destroy-reply-category"
-        };
-        siteHelpers.sendAjax(params,"pageReload");
-    },
-    deletequickSubCategoryHeader : function(ele) {
-        var quickSubCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickSubCategoryHeader");
-        if (quickSubCategoryHeader.val() == "") {
-            alert("Please Select Sub Category!!");
-            return false;
-        }
-        var quickSubCategoryHeaderId = quickSubCategoryHeader.children("option:selected").data('id');
-        if (!confirm("Are sure you want to delete sub category?")) {
-            return false;
-        }
-        var params = {
-            method : 'post',
-            data : {
-                _token : $('meta[name="csrf-token"]').attr('content'),
-                id : quickSubCategoryHeaderId
-            },
-            url: "/destroy-reply-category"
-        };
-        siteHelpers.sendAjax(params,"pageReload");
-    },
-    deleteQuickCommentHeader : function(ele) {
-        var quickComment = ele.closest("#shortcut-header-modal").find(".quickCommentEmailHeader");
-        if (quickComment.val() == "") {
-            alert("Please Select Quick Comment!!");
-            return false;
-        }
-        var quickCommentId = quickComment.children("option:selected").data('id');
-        if (!confirm("Are sure you want to delete comment?")) {
-            return false;
-        }
-        var params = {
-            method : 'DELETE',
-            data : {
-                _token : $('meta[name="csrf-token"]').attr('content')
-            },
-            url: "/reply/" + quickCommentId,
-        };
-        siteHelpers.sendAjax(params,"pageReload");
-    },
-    pageReload : function(response) {
-        location.reload();
-    },
-    quickCommentAddHeader : function(ele) {
-        var textBox = ele.closest("div").find(".quick_comment");
-        var quickCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickCategoryHeader");
-        var quickSubCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickSubCategoryHeader");
-        if (textBox.val() == "") {
-            alert("Please Enter New Quick Comment!!");
-            return false;
-        }
-        if (quickCategoryHeader.val() == "") {
-            alert("Please Select Category!!");
-            return false;
-        }
-        var quickCategoryHeaderId = quickCategoryHeader.children("option:selected").data('id');
-        var quickSubCategoryHeaderId = quickSubCategoryHeader.children("option:selected").data('id');
-        var formData = new FormData();
-        formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
-        formData.append("reply", textBox.val());
-        formData.append("category_id", quickCategoryHeaderId);
-        formData.append("sub_category_id", quickSubCategoryHeaderId);
-        formData.append("model", 'Approval Lead');
-        var params = {
-            method : 'post',
-            data : formData,
-            url: "/reply"
-        };
-        siteHelpers.sendFormDataAjax(params,"afterquickCommentAddHeader");
-    },
-    afterquickCommentAddHeader : function(reply) {
-        $(".quick_comment").val('');
-        $('.quickCommentEmailHeader').append($('<option>', {
-            value: reply,
-            text: reply
-        }));
-    },
-    changequickCategoryHeader : function (ele) {
+            if(quickCategoryHeaderId!=''){
+                siteHelpersHeader.sendAjax(params,"afterquickSubCategoryHeaderAdd");
+            } else {
+                siteHelpersHeader.sendAjax(params,"afterquickCategoryHeaderAdd");
+            }
+        },
+        afterquickSubCategoryHeaderAdd : function(response) {
+            $(".quick_category").val('');
+            $(".quickSubCategoryHeader").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+        },
+        afterquickCategoryHeaderAdd : function(response) {
+            $(".quick_category").val('');
+            $(".quickCategoryHeader").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
+        },
+        deletequickCategoryHeader : function(ele) {
+            var quickCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickCategoryHeader");
+            if (quickCategoryHeader.val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            var quickCategoryHeaderId = quickCategoryHeader.children("option:selected").data('id');
+            if (!confirm("Are sure you want to delete category?")) {
+                return false;
+            }
+            var params = {
+                method : 'post',
+                data : {
+                    _token : $('meta[name="csrf-token"]').attr('content'),
+                    id : quickCategoryHeaderId
+                },
+                url: "/destroy-reply-category"
+            };
+            siteHelpersHeader.sendAjax(params,"pageReload");
+        },
+        deletequickSubCategoryHeader : function(ele) {
+            var quickSubCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickSubCategoryHeader");
+            if (quickSubCategoryHeader.val() == "") {
+                alert("Please Select Sub Category!!");
+                return false;
+            }
+            var quickSubCategoryHeaderId = quickSubCategoryHeader.children("option:selected").data('id');
+            if (!confirm("Are sure you want to delete sub category?")) {
+                return false;
+            }
+            var params = {
+                method : 'post',
+                data : {
+                    _token : $('meta[name="csrf-token"]').attr('content'),
+                    id : quickSubCategoryHeaderId
+                },
+                url: "/destroy-reply-category"
+            };
+            siteHelpersHeader.sendAjax(params,"pageReload");
+        },
+        deleteQuickCommentHeader : function(ele) {
+            var quickComment = ele.closest("#shortcut-header-modal").find(".quickCommentEmailHeader");
+            if (quickComment.val() == "") {
+                alert("Please Select Quick Comment!!");
+                return false;
+            }
+            var quickCommentId = quickComment.children("option:selected").data('id');
+            if (!confirm("Are sure you want to delete comment?")) {
+                return false;
+            }
+            var params = {
+                method : 'DELETE',
+                data : {
+                    _token : $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "/reply/" + quickCommentId,
+            };
+            siteHelpersHeader.sendAjax(params,"pageReload");
+        },
+        pageReload : function(response) {
+            location.reload();
+        },
+        quickCommentAddHeader : function(ele) {
+            var textBox = ele.closest("div").find(".quick_comment");
+            var quickCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickCategoryHeader");
+            var quickSubCategoryHeader = ele.closest("#shortcut-header-modal").find(".quickSubCategoryHeader");
+            if (textBox.val() == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+            if (quickCategoryHeader.val() == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            var quickCategoryHeaderId = quickCategoryHeader.children("option:selected").data('id');
+            var quickSubCategoryHeaderId = quickSubCategoryHeader.children("option:selected").data('id');
+            var formData = new FormData();
+            formData.append("_token", $('meta[name="csrf-token"]').attr('content'));
+            formData.append("reply", textBox.val());
+            formData.append("category_id", quickCategoryHeaderId);
+            formData.append("sub_category_id", quickSubCategoryHeaderId);
+            formData.append("model", 'Approval Lead');
+            var params = {
+                method : 'post',
+                data : formData,
+                url: "/reply"
+            };
+            siteHelpersHeader.sendFormDataAjax(params,"afterquickCommentAddHeader");
+        },
+        afterquickCommentAddHeader : function(reply) {
+            $(".quick_comment").val('');
+            $('.quickCommentEmailHeader').append($('<option>', {
+                value: reply,
+                text: reply
+            }));
+        },
+        changequickCategoryHeader : function (ele) {
 
-        var selectedOption = ele.find('option:selected');
-        var dataValue = selectedOption.data('value');
+            var selectedOption = ele.find('option:selected');
+            var dataValue = selectedOption.data('value');
 
-        ele.closest("#shortcut-header-modal").find('.quickSubCategoryHeader').empty();
-        ele.closest("#shortcut-header-modal").find('.quickSubCategoryHeader').append($('<option>', {
-            value: '',
-            text: 'Select Sub Category'
-        }));
-        dataValue.forEach(function (category) {
+            ele.closest("#shortcut-header-modal").find('.quickSubCategoryHeader').empty();
             ele.closest("#shortcut-header-modal").find('.quickSubCategoryHeader').append($('<option>', {
-                value: category.name,
-                text: category.name,
-                'data-id': category.id
-            }));
-        });
-
-        if (ele.val() != "") {
-            var replies = JSON.parse(ele.val());
-            ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').empty();
-            ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').append($('<option>', {
                 value: '',
-                text: 'Quick Reply'
+                text: 'Select Sub Category'
             }));
-            replies.forEach(function (reply) {
-                ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').append($('<option>', {
-                    value: reply.reply,
-                    text: reply.reply,
-                    'data-id': reply.id
+            dataValue.forEach(function (category) {
+                ele.closest("#shortcut-header-modal").find('.quickSubCategoryHeader').append($('<option>', {
+                    value: category.name,
+                    text: category.name,
+                    'data-id': category.id
                 }));
             });
-        }
-    },
-    changeQuickComment : function (ele) {
 
-        var textToCopy = ele.val();
-
-        // Create a temporary input element
-        var tempInput = $("<input>");
-
-        // Set the value of the input to the text you want to copy
-        tempInput.val(textToCopy);
-
-        // Append the input to the body
-        $("body").append(tempInput);
-
-        // Select the text in the input
-        tempInput.select();
-
-        // Execute the copy command
-        document.execCommand("copy");
-
-        // Remove the temporary input
-        tempInput.remove();
-
-        alert("Text copied");
-    },
-    changequickSubCategoryHeader : function (ele) {
-        var selectedOption = ele.find('option:selected');
-        var dataValue = selectedOption.data('id');
-
-        var userEmaillUrl = '/email/email-replise/'+dataValue;
-
-        $.ajax({        
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: userEmaillUrl,
-            type: 'get',
-        }).done( function(response) {
-
-            if(response!=''){
-                var replies = JSON.parse(response);
+            if (ele.val() != "") {
+                var replies = JSON.parse(ele.val());
                 ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').empty();
                 ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').append($('<option>', {
                     value: '',
@@ -287,36 +234,91 @@ var siteHelpers = {
                     }));
                 });
             }
-            
-        }).fail(function(errObj) {
-        })
-    },
-};
+        },
+        changeQuickComment : function (ele) {
 
-$.extend(siteHelpers, common);
+            var textToCopy = ele.val();
 
-$(document).on('click', '.quick_category_addHeader', function () {
-    siteHelpers.quickCategoryHeaderAdd($(this));
-});
-$(document).on('click', '.delete_categoryHeader', function () {
-    siteHelpers.deletequickCategoryHeader($(this));
-});
-$(document).on('click', '.delete_sub_categoryHeader', function () {
-    siteHelpers.deletequickSubCategoryHeader($(this));
-});
-$(document).on('click', '.delete_quick_commentHeader', function () {
-    siteHelpers.deleteQuickCommentHeader($(this));
-});
-$(document).on('click', '.quick_comment_addHeader', function () {
-    siteHelpers.quickCommentAddHeader($(this));
-});
-$(document).on('change', '.quickCategoryHeader', function () {
-    siteHelpers.changequickCategoryHeader($(this));
-});
-$(document).on('change', '.quickCommentEmailHeader', function () {
-    siteHelpers.changeQuickComment($(this));
-});
-$(document).on('change', '.quickSubCategoryHeader', function () {
-    siteHelpers.changequickSubCategoryHeader($(this));
+            // Create a temporary input element
+            var tempInput = $("<input>");
+
+            // Set the value of the input to the text you want to copy
+            tempInput.val(textToCopy);
+
+            // Append the input to the body
+            $("body").append(tempInput);
+
+            // Select the text in the input
+            tempInput.select();
+
+            // Execute the copy command
+            document.execCommand("copy");
+
+            // Remove the temporary input
+            tempInput.remove();
+
+            alert("Text copied");
+        },
+        changequickSubCategoryHeader : function (ele) {
+            var selectedOption = ele.find('option:selected');
+            var dataValue = selectedOption.data('id');
+
+            var userEmaillUrl = '/email/email-replise/'+dataValue;
+
+            $.ajax({        
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: userEmaillUrl,
+                type: 'get',
+            }).done( function(response) {
+
+                if(response!=''){
+                    var replies = JSON.parse(response);
+                    ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').empty();
+                    ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').append($('<option>', {
+                        value: '',
+                        text: 'Quick Reply'
+                    }));
+                    replies.forEach(function (reply) {
+                        ele.closest("#shortcut-header-modal").find('.quickCommentEmailHeader').append($('<option>', {
+                            value: reply.reply,
+                            text: reply.reply,
+                            'data-id': reply.id
+                        }));
+                    });
+                }
+                
+            }).fail(function(errObj) {
+            })
+        },
+    };
+
+    $.extend(siteHelpersHeader, common);
+
+    $(document).on('click', '.quick_category_addHeader', function () {
+        siteHelpersHeader.quickCategoryHeaderAdd($(this));
+    });
+    $(document).on('click', '.delete_categoryHeader', function () {
+        siteHelpersHeader.deletequickCategoryHeader($(this));
+    });
+    $(document).on('click', '.delete_sub_categoryHeader', function () {
+        siteHelpersHeader.deletequickSubCategoryHeader($(this));
+    });
+    $(document).on('click', '.delete_quick_commentHeader', function () {
+        siteHelpersHeader.deleteQuickCommentHeader($(this));
+    });
+    $(document).on('click', '.quick_comment_addHeader', function () {
+        siteHelpersHeader.quickCommentAddHeader($(this));
+    });
+    $(document).on('change', '.quickCategoryHeader', function () {
+        siteHelpersHeader.changequickCategoryHeader($(this));
+    });
+    $(document).on('change', '.quickCommentEmailHeader', function () {
+        siteHelpersHeader.changeQuickComment($(this));
+    });
+    $(document).on('change', '.quickSubCategoryHeader', function () {
+        siteHelpersHeader.changequickSubCategoryHeader($(this));
+    });
 });
 </script>
