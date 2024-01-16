@@ -64,8 +64,14 @@ class BankStatementController extends Controller
         
         return redirect()->back()->with('success', 'File imported successfully.');
     }
+    
+    public function heading_row_number_check(Request $request)
+    {
+        $input = $request->all();
+        return redirect()->route('bank-statement.import.map', ['id' => $input['id'], 'heading_row_number' => $input['heading_row_number']]);       
+    }
 
-    public function map($id, Request $request)
+    public function map(Request $request, $id, $heading_row_number = 1)
     {
         $bankStatement = BankStatementFile::find($id);
         // $filePath = storage_path("app/".$bankStatement->path); //read file path
@@ -74,7 +80,7 @@ class BankStatementController extends Controller
         $data = Excel::toArray([], $filePath);
         
         // Assuming the first row contains column headers
-        $excelHeaders = $data[0][0];
+        $excelHeaders = $data[0][$heading_row_number-1];
 
         // Get the columns of the database table
         // $dbFields = \Schema::getColumnListing('bank_statement'); // Replace with your actual table name
@@ -86,19 +92,24 @@ class BankStatementController extends Controller
             'balance' => "Balance"
         ];
 
-        return view('bank-statement.map', compact('bankStatement','excelHeaders', 'dbFields', 'id'));
+        $row_count = count($data[0]);
+        return view('bank-statement.map', compact('bankStatement','excelHeaders', 'dbFields', 'id', 'row_count', 'heading_row_number'));
     }
 
-    public function map_import($id, Request $request)
+    public function map_import(Request $request, $id, $heading_row_number = 1)
     {
         $bankStatementFile = BankStatementFile::find($id);
         // $filePath = storage_path("app/".$bankStatementFile->path); //read file path
         $filePath = $bankStatementFile->path; //read file path
        
         $data = Excel::toArray([], $filePath);
-        
+        $number = $heading_row_number-1;
+        if($number <= 0){
+            $number = 0;
+        }
         // Assuming the first row contains column headers
-        $excelHeaders = $data[0][0];
+        $excelHeaders = $data[0][$number];
+        
         $data_array = [];
         
         foreach($data[0] as $k=>$v){
@@ -125,6 +136,12 @@ class BankStatementController extends Controller
             $data_array_new_1['bank_statement_file_id'] = $id;
             $data_array_new_1['created_at'] = date("Y-m-d H:i:s");
             // $data_array_new[] = $data_array_new_1;
+            foreach($data_array_new_1 as $k2=>$v2){
+                if($v2 == null || trim($v2) == ""){
+                    $data_array_new_1[$k2] = "-";
+                }
+            }
+           
             $bankStatement = BankStatement::create($data_array_new_1);
         }
 

@@ -37,7 +37,24 @@
         <div class="col-md-12 p-4">    
         <div class="card ml-3">
             <div class="card-body">
-                <h2>{{$bankStatement->filename}} (Status: {{$bankStatement->status}})</h2> <br/>    
+                <h2>{{$bankStatement->filename}} (Status: {{$bankStatement->status}})</h2> <br/>   
+                
+                <form action="{{ route('bank-statement.import.map.number.check', ['id'=> $id, 'heading_row_number' => $heading_row_number]) }}" method="post">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-2 p-4">
+                            <label>Please enter the row you want to choose as a header.</label>
+                        </div>
+                        <div class="col-md-2 p-4">
+                            <input type="hidden" name="id" value="{{ $id }}" />
+                            <input type="number" name="heading_row_number" value="{{ $heading_row_number }}" class="form-control" />
+                        </div>
+                        <div class="col-md-8 p-4">
+                            <input type="submit" name="heading_row_number_submit" id="heading_row_number_submit" />
+                        </div>
+                    </div>
+                </form>
+
                 <form action="{{ route('bank-statement.import.map.submit', ['id'=>$id]) }}" method="post">
                     @csrf
                     <table class="table table-bordered">
