@@ -144,6 +144,10 @@
         right: 10px;
     }
     #vendorCreateModal .select2-container, #vendorEditModal .select2-container {width: 100% !important;}
+
+    table select.form-control, table input.form-control {
+        min-width: 140px;
+    }
 </style>
 @endsection
 
@@ -207,42 +211,40 @@
 @include("vendors.partials.column-visibility-modal-rqa")
 @include('vendors.partials.add-question')
 
-<div class="infinite-scroll">
-    <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table" style="table-layout: fixed;">
-            <thead>
-                <tr>
-                    @if(!empty($dynamicColumnsToShowVendorsrqa))
-                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsrqa))
-                            <th width="10%">Vendor</th>
-                        @endif
-                        @if (!in_array('Category', $dynamicColumnsToShowVendorsrqa))
-                            <th width="10%">Category</th>
-                        @endif
-                        @if($vendor_questions)
-                            @foreach($vendor_questions as $question_data)
-                                @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsrqa))
-                                    <th>{{$question_data->question}}</th>
-                                @endif
-                            @endforeach
-                        @endif
-                    @else
+<div class="infinite-scroll mt-5" style="overflow-y: auto">
+    <table class="table table-bordered" id="vendor-table">
+        <thead>
+            <tr>
+                @if(!empty($dynamicColumnsToShowVendorsrqa))
+                    @if (!in_array('Vendor', $dynamicColumnsToShowVendorsrqa))
                         <th width="10%">Vendor</th>
-                        <th width="10%">Category</th>
-                        @if($vendor_questions)
-                            @foreach($vendor_questions as $question_data)
-                                <th>{{$question_data->question}}</th>
-                            @endforeach
-                        @endif
                     @endif
-                </tr>
-            </thead>
+                    @if (!in_array('Category', $dynamicColumnsToShowVendorsrqa))
+                        <th width="10%">Category</th>
+                    @endif
+                    @if($vendor_questions)
+                        @foreach($vendor_questions as $question_data)
+                            @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsrqa))
+                                <th width="20%">{{$question_data->question}}</th>
+                            @endif
+                        @endforeach
+                    @endif
+                @else
+                    <th width="10%">Vendor</th>
+                    <th width="10%">Category</th>
+                    @if($vendor_questions)
+                        @foreach($vendor_questions as $question_data)
+                            <th width="20%">{{$question_data->question}}</th>
+                        @endforeach
+                    @endif
+                @endif
+            </tr>
+        </thead>
 
-            <tbody id="vendor-body">
-                @include('vendors.partials.data-rqa')
-            </tbody>
-        </table>
-    </div>
+        <tbody id="vendor-body">
+            @include('vendors.partials.data-rqa')
+        </tbody>
+    </table>
 
     {!! $VendorQuestionAnswer->appends(Request::except('page'))->links() !!}
 </div>
@@ -280,7 +282,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Value Histories</h4>
+                <h4 class="modal-title">Status Histories</h4>
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">

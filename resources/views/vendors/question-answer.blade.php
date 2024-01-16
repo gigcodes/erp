@@ -144,6 +144,10 @@
         right: 10px;
     }
     #vendorCreateModal .select2-container, #vendorEditModal .select2-container {width: 100% !important;}
+
+    table select.form-control, table input.form-control {
+        min-width: 140px;
+    }
 </style>
 @endsection
 
@@ -159,6 +163,10 @@
                 <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#qadatatablecolumnvisibilityList">Column Visiblity</button>
 
                 <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newQuestionModal">Create Question</a>
+
+                <button type="button" class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#qa-status-create">Add Status</button>
+
+                <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#qa-newStatusColor"> Status Color</button>
             </div>
         </h2>
     </div>
@@ -203,42 +211,40 @@
 @include("vendors.partials.column-visibility-modal-qa")
 @include('vendors.partials.add-question')
 
-<div class="infinite-scroll">
-    <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table" style="table-layout: fixed;">
-            <thead>
-                <tr>
-                    @if(!empty($dynamicColumnsToShowVendorsqa))
-                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsqa))
-                            <th width="10%">Vendor</th>
-                        @endif
-                        @if (!in_array('Category', $dynamicColumnsToShowVendorsqa))
-                            <th width="10%">Category</th>
-                        @endif
-                        @if($vendor_questions)
-                            @foreach($vendor_questions as $question_data)
-                                @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsqa))
-                                    <th>{{$question_data->question}}</th>
-                                @endif
-                            @endforeach
-                        @endif
-                    @else
+<div class="infinite-scroll mt-5" style="overflow-y: auto">
+    <table class="table table-bordered" id="vendor-table">
+        <thead>
+            <tr>
+                @if(!empty($dynamicColumnsToShowVendorsqa))
+                    @if (!in_array('Vendor', $dynamicColumnsToShowVendorsqa))
                         <th width="10%">Vendor</th>
-                        <th width="10%">Category</th>
-                        @if($vendor_questions)
-                            @foreach($vendor_questions as $question_data)
-                                <th>{{$question_data->question}}</th>
-                            @endforeach
-                        @endif
                     @endif
-                </tr>
-            </thead>
+                    @if (!in_array('Category', $dynamicColumnsToShowVendorsqa))
+                        <th width="10%">Category</th>
+                    @endif
+                    @if($vendor_questions)
+                        @foreach($vendor_questions as $question_data)
+                            @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsqa))
+                                <th width="20%">{{$question_data->question}}</th>
+                            @endif
+                        @endforeach
+                    @endif
+                @else
+                    <th width="10%">Vendor</th>
+                    <th width="10%">Category</th>
+                    @if($vendor_questions)
+                        @foreach($vendor_questions as $question_data)
+                            <th width="20%">{{$question_data->question}}</th>
+                        @endforeach
+                    @endif
+                @endif
+            </tr>
+        </thead>
 
-            <tbody id="vendor-body">
-                @include('vendors.partials.data-qa')
-            </tbody>
-        </table>
-    </div>
+        <tbody id="vendor-body">
+            @include('vendors.partials.data-qa')
+        </tbody>
+    </table>
 
     {!! $VendorQuestionAnswer->appends(Request::except('page'))->links() !!}
 </div>
@@ -262,6 +268,36 @@
                             </tr>
                         </thead>
                         <tbody class="vfc-remarks-histories-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="qa-status-histories-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status Histories</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="30%">Old Status</th>
+                                <th width="30%">New Status</th>
+                                <th width="20%">Updated BY</th>
+                                <th width="30%">Created Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="qa-status-histories-list-view">
                         </tbody>
                     </table>
                 </div>
@@ -384,5 +420,91 @@
             }
         });
     })
+
+    $(document).on("click", ".qa-status-save-btn", function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $.ajax({
+          url: "{{route('vendors.qastatus.create')}}",
+          type: "post",
+          data: $('#qa-status-create-form').serialize()
+        }).done(function(response) {
+          if (response.code = '200') {
+            $('#loading-image').hide();
+            $('#addPostman').modal('hide');
+            toastr['success']('Status  Created successfully!!!', 'success');
+            location.reload();
+          } else {
+            toastr['error'](response.message, 'error');
+          }
+        }).fail(function(errObj) {
+          $('#loading-image').hide();
+          toastr['error'](errObj.message, 'error');
+        });
+      });
+
+    $('.status-dropdown').change(function(e) {
+      e.preventDefault();
+      var vendor_id = $(this).data('id');
+      var question_id = $(this).data('question_id');
+      var selectedStatus = $(this).val();
+
+      // Make an AJAX request to update the status
+      $.ajax({
+        url: '/vendor/update-qastatus',
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+          vendor_id: vendor_id,
+          question_id: question_id,
+          selectedStatus: selectedStatus
+        },
+        success: function(response) {
+          toastr['success']('Status  Created successfully!!!', 'success');
+          console.log(response);
+        },
+        error: function(xhr, status, error) {
+          // Handle the error here
+          console.error(error);
+        }
+      });
+    });
+
+    $(document).on('click', '.status-history-show', function() {
+        var vendor_id = $(this).attr('data-id');
+        var question_id = $(this).attr('data-question_id');
+
+        $.ajax({
+            url: "{{route('vendors.qastatus.histories')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                    <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#qa-status-histories-list").find(".qa-status-histories-list-view").html(html);
+                    $("#qa-status-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
 </script>
 @endsection

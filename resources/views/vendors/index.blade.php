@@ -276,15 +276,13 @@
 
         <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
         <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorsdatatablecolumnvisibilityList">Column Visiblity</button>
-        <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.flow-chart')}}">Flow Chart</a>
-
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a>
-
+        <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.flow-chart')}}">Flow Chart</a>
         @if (auth()->user()->isAdmin())
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newQuestionModal">Create Question</a>
-        <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
+        <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newRQuestionModal">Rating Question</a>
-        <a class="btn btn-secondary btn-xs" style="color:white;" href="{{route('vendors.rating.question-answer')}}">Rating Question-Answer</a>
+        <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.rating.question-answer')}}">Rating Question-Answer</a>
         @endif
     </div>
 </div>

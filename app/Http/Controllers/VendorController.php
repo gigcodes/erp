@@ -49,6 +49,8 @@ use App\Models\VendorFlowChartStatus;
 use App\Models\VendorRatingQAStatusHistory;
 use App\Models\VendorFlowChartStatusHistory;
 use App\Models\VendorRatingQANotes;
+use App\Models\VendorQuestionStatus;
+use App\Models\VendorQuestionStatusHistory;
 
 class VendorController extends Controller
 {
@@ -2268,9 +2270,11 @@ class VendorController extends Controller
 
         $vendor_categories = VendorCategory::all();
 
-        $status = VendorStatus::all();
+        $status = VendorRatingQAStatus::all();
 
-        return view('vendors.question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status'))
+        $status_q = VendorQuestionStatus::all();
+
+        return view('vendors.question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status', 'status_q'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -2304,7 +2308,9 @@ class VendorController extends Controller
 
         $status = VendorRatingQAStatus::all();
 
-        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsrqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status'))
+        $status_q = VendorQuestionStatus::all();
+
+        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsrqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status', 'status_q'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -2467,5 +2473,72 @@ class VendorController extends Controller
         VendorRatingQANotes::create($data);
 
         return redirect()->back()->with('success', 'You have successfully created a question!');
+    }
+
+    public function qaStatusCreate(Request $request)
+    {
+        try {
+            $status = new VendorQuestionStatus();
+            $status->status_name = $request->status_name;
+            $status->save();
+
+            return response()->json(['code' => 200, 'message' => 'status Create successfully']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function qastatuscolor(Request $request)
+    {
+        $status_color = $request->all();
+        $data = $request->except('_token');
+        foreach ($status_color['color_name'] as $key => $value) {
+            $bugstatus = VendorQuestionStatus::find($key);
+            $bugstatus->status_color = $value;
+            $bugstatus->save();
+        }
+
+        return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function qaupdateStatus(Request $request)
+    {
+        $vendor_id = $request->input('vendor_id');
+        $question_id = $request->input('question_id');
+        $selectedStatus = $request->input('selectedStatus');
+
+        $vendor_status = VendorQuestionStatusHistory::where('vendor_id', $vendor_id)->where('question_id', $question_id)->orderBy('id', 'DESC')->first();
+        $history = new VendorQuestionStatusHistory();
+        $history->vendor_id = $vendor_id;
+        $history->question_id = $question_id;
+
+        if(!empty($vendor_status)){
+            $history->old_value = $vendor_status->new_value;
+        } else {
+            $history->old_value = '';
+        }
+        $history->new_value = $selectedStatus;
+        $history->user_id = Auth::user()->id;
+        $history->save();
+
+        return response()->json(['message' => 'Status updated successfully']);
+    }
+
+    public function qaStatusHistories(Request $request)
+    {
+        $datas = VendorQuestionStatusHistory::with(['user', 'newValue', 'oldValue'])
+                ->where('vendor_id', $request->vendor_id)
+                ->where('question_id', $request->question_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'History get successfully',
+            'status_name' => 'success',
+        ], 200);
     }
 }

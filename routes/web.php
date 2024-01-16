@@ -2839,10 +2839,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/rquestionansert', [VendorController::class, 'vendorRatingQuestionAnswerStatus'])->name('vendors.rquestionansert');
     Route::post('vendor/rquestionansertstatus/create', [VendorController::class, 'rqaStatusCreate'])->name('vendors.rqastatus.create');
     Route::post('vendor/rquestionansertstatuscolor', [VendorController::class, 'rqastatuscolor'])->name('vendors.rqastatuscolor');
+    Route::post('vendor/questionansertstatus/create', [VendorController::class, 'qaStatusCreate'])->name('vendors.qastatus.create');
+    Route::post('vendor/questionansertstatuscolor', [VendorController::class, 'qastatuscolor'])->name('vendors.qastatuscolor');
     Route::post('vendor/flowchartstatus/create', [VendorController::class, 'flowchartStatusCreate'])->name('vendors.flowchartstatus.create');
     Route::post('vendor/flowchartstatuscolor', [VendorController::class, 'flowchartstatuscolor'])->name('vendors.flowchartstatuscolor');
     Route::post('vendor/update-rqastatus', [VendorController::class, 'rqaupdateStatus'])->name('rqa-update-status');
     Route::post('vendor/rqastatus/histories', [VendorController::class, 'rqaStatusHistories'])->name('vendors.rqastatus.histories');
+    Route::post('vendor/update-qastatus', [VendorController::class, 'qaupdateStatus'])->name('qa-update-status');
+    Route::post('vendor/qastatus/histories', [VendorController::class, 'qaStatusHistories'])->name('vendors.qastatus.histories');
     Route::post('vendor/update-flowchartstatus', [VendorController::class, 'flowchartupdateStatus'])->name('flowchart-update-status');
     Route::post('vendor/flowchartstatus/histories', [VendorController::class, 'flowchartStatusHistories'])->name('vendors.flowchartstatus.histories');
     Route::post('vendor/questionanswer/notes', [VendorController::class, 'getVendorRatingQuestionsAnswerNotes'])->name('vendors.getrquestionnotes');
