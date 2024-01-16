@@ -549,7 +549,13 @@ class EmailController extends Controller
         $dateCreated = $email->created_at->format('D, d M Y');
         $timeCreated = $email->created_at->format('H:i');
         $originalEmailInfo = "On {$dateCreated} at {$timeCreated}, <{$email->from}> wrote:";
-        $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
+        //$message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
+
+        $message_to_store = $originalEmailInfo . '<br/>' . $request->message;
+        if($request->pass_history==1){
+            $message_to_store = $originalEmailInfo . '<br/>' . $request->message . '<br/>' . $email->message;
+        }
+
         $emailsLog = \App\Email::create([
             'model_id' => $email->id,
             'model_type' => \App\Email::class,
