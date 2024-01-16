@@ -386,6 +386,8 @@ class VendorController extends Controller
 
         $rating_questions = VendorRatingQuestions::orderBy('id', 'DESC')->get();
 
+        $status_q = VendorQuestionStatus::all();
+
         return view('vendors.index', [
             'vendors' => $vendors,
             'vendor_categories' => $vendor_categories,
@@ -402,6 +404,7 @@ class VendorController extends Controller
             'vendor_flow_charts' => $vendor_flow_charts,
             'vendor_questions' => $vendor_questions,
             'rating_questions' => $rating_questions,
+            'status_q' => $status_q,
         ]);
     }
 
@@ -2540,5 +2543,66 @@ class VendorController extends Controller
             'message' => 'History get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function vendorAllSection(Request $request)
+    {
+        $VendorFlowchart = Vendor::with('category');
+
+        if (request('category') != null) {
+            $VendorFlowchart = $VendorFlowchart->where('category_id', $request->category);
+        }
+
+        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+            $VendorFlowchart = $VendorFlowchart->where('id', $request->selectedId);
+        }
+
+        $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->paginate(25);
+
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+
+        $vendor_categories = VendorCategory::all();
+
+        $status = VendorFlowChartStatus::all();
+
+
+
+
+        $VendorQuestionAnswer = Vendor::with('category');
+
+        if (request('category') != null) {
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('category_id', $request->category);
+        }
+
+        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $request->selectedId);
+        }
+
+        $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
+        
+        $vendor_questions = VendorQuestions::orderBy('id', 'ASC')->get();
+
+        $status_q = VendorQuestionStatus::all();
+
+
+
+        $VendorQuestionRAnswer = Vendor::with('category');
+
+        if (request('category') != null) {
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('category_id', $request->category);
+        }
+
+        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('id', $request->selectedId);
+        }
+
+        $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
+
+
+        $vendor_r_questions = VendorRatingQuestions::orderBy('id', 'ASC')->get();
+
+        $status_r = VendorRatingQAStatus::all();
+
+        return view('vendors.all-section', compact('VendorFlowchart', 'VendorQuestionAnswer', 'VendorQuestionRAnswer', 'vendor_flow_charts', 'vendor_categories', 'vendor_r_questions', 'status', 'vendor_questions', 'status_q', 'status_r'));
     }
 }
