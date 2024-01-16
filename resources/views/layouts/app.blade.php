@@ -55,6 +55,10 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+
+    <!-- Include Summernote CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
+
     @if(Auth::user())
         @if(Auth::user()->user_timeout!=0)
             <meta http-equiv="refresh" content = "{{Auth::user()->user_timeout}}; url={{ route('logout-refresh') }}">
@@ -1046,11 +1050,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Subject : </strong><span id="quickemailSubject"></span></p>
-                    <textarea id="reply-message" name="message" class="form-control reply-email-message" rows="3" placeholder="Reply..."></textarea>
+                    @include('emails.shortcuts')
+                    <p><strong>Subject : </strong><input type="text" id="quickemailSubject" name="subject" class="form-control"></p>
+                    <p><strong>Body : </strong><textarea id="reply-message" name="message" class="form-control reply-email-message"></textarea></p>
                     </br>
-                    <p><strong>Message Body : </strong><span id="quickemailSubject"></span></p>
+                    <p>
+                        <strong>Message Body : </strong> - <span id="quickemailDate"></span>
+                        <span class="pull-right"><label>History : <input type="checkbox" name="pass_history" id="pass_history" value="1" style=" height: 13px;"></label></span>
+                    </p>
                     <input type="hidden" id="receiver_email">
+                    <input type="hidden" id="sender_email_address">
                     <input type="hidden" id="reply_email_id">
                     <div id="formattedContent"></div>
 
@@ -6372,6 +6381,39 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+
+
+        <!-- <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+
+    <!-- Include Summernote JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
+
+    <script>
+        // Initialize Summernote
+        $(document).ready(function () {
+            $('#reply-message').summernote({
+                height: 300, // Set the height of the editor
+                placeholder: 'Write your content here...', // Placeholder text
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview']],
+                    ['help', ['help']]
+                ]
+            });
+        });
+
+        function addTextToEditor(text) {
+            // Append the provided text to the existing content of the editor
+            $('#reply-message').summernote('code', text);
+          }
+    </script>
     <script>
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
@@ -6878,8 +6920,29 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
 
             return formattedContent;
         }
-        $('#quickemailSubject').html(userEmail.subject);
+        $('#quickemailSubject').val(userEmail.subject);
+        $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
         $('#iframe').attr('src', userEmaillUrl);
+
+        var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
+        var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
+
+        //$("#reply-message").val(senderName);
+        //addContentToEditor(senderName);
+        addTextToEditor(senderName);
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: userEmaillUrl,
+            type: 'get',
+        }).done( function(response) {
+            //$("#reply-message").val(senderName+'\n\n'+response);
+            //addContentToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
+            addTextToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
+        }).fail(function(errObj) {
+        }) 
     }
 
     $(document).on('click', '.updatedeclienremarks', function (e) {
@@ -6934,11 +6997,18 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
     $(document).on('click', '.submit-reply-email', function (e) {
         e.preventDefault();
 
-        var quickemailSubject = $("#quickemailSubject").text();
+        var quickemailSubject = $("#quickemailSubject").val();
         var formattedContent = $("#formattedContent").html();
         var replyMessage = $("#reply-message").val();
         var receiver_email = $('#receiver_email').val();
         var reply_email_id= $('#reply_email_id').val();
+
+        var pass_history = $('#pass_history').prop('checked');
+        if (pass_history) {
+          pass_history = 1;
+        } else {
+          pass_history = 0;
+        }
 
             $.ajax({
             headers: {
@@ -6950,7 +7020,8 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             'receiver_email': receiver_email,
             'subject': quickemailSubject,
             'message': replyMessage,
-            'reply_email_id': reply_email_id
+            'reply_email_id': reply_email_id,
+            'pass_history': pass_histor
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -10520,6 +10591,10 @@ if (!\Auth::guest()) {
             console.log("Sorry, something went wrong");
         });
     });
+
+    $(".select-multiple-s").select2({
+          tags: true
+      });
     
     </script>
     @if ($message = Session::get('actSuccess'))
