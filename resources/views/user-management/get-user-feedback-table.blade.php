@@ -35,8 +35,10 @@
         <div class="row" id="common-page-layout">
             <input type="hidden" name="page_no" class="page_no" />
             <div class="col-lg-12 margin-tb">
-                <h2 class="page-heading">Users Feedback <button type="button" class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
-                    <button class="btn custom-button float-right mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+                <h2 class="page-heading">Users Feedback <button type="button" class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
+                    <button class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
+
+                    <button type="button" class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#feedbackdatatablecolumnvisibilityList">Column Visiblity</button>
                 </h2>
                 <div class="" style="margin-bottom:10px;">
                     <div class="row">
@@ -53,15 +55,6 @@
                                         }?>
                                     </select>
                                 </div>
-                                {{-- <div class="form-group">
-                                    <select name="is_active" class="form-control" placholder="Active:">
-                                        <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
-                                        <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
-                                        </option>
-                                        <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
-                                        </option>
-                                    </select>
-                                </div> --}}
                                 <div class="form-group pl-3">
                                     <label for="button">&nbsp;</label>
                                     <button style="display: inline-block;width: 10%;margin-top: -26px; padding-left: 0px"
@@ -69,6 +62,11 @@
                                         <img src="{{asset('/images/search.png')}}" style="cursor: default;">
                                     </button>
                                 </div>
+
+                                @if (Auth::user()->isAdmin())
+                                <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category" placeholder="Create Category">
+                                <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
+                                @endif
                             </div>
                         </form>
                     </div>
@@ -80,30 +78,32 @@
         <div class="infinite-scroll" style="overflow-y: auto">
             <table class="table table-bordered" style="margin-top: 25px">
                 <tr>
-                    <th width="17%">Vendor</th>
-                    @foreach ($category as $cat)
-                        <th width="15%">
-                            {{ $cat->category }}
+                    @if(!empty($dynamicColumnsToShowVendorsFeeback))
+                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsFeeback))
+                            <th width="17%">Vendor</th>
+                        @endif
 
-                            @if (auth()->user()->isAdmin())
-                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
-                            @endif
-                        </th>
-                    @endforeach
+                        @if($category)
+                            @foreach($category as $cat)
+                                @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
+                                    <th width="15%">{{$cat->category}}</th>
+                                @endif
+                            @endforeach
+                        @endif
+                    @else
+                        <th width="17%">Vendor</th>
+                        @foreach ($category as $cat)
+                            <th width="15%">
+                                {{ $cat->category }}
+
+                                @if (auth()->user()->isAdmin())
+                                    <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                                @endif
+                            </th>
+                        @endforeach
+                    @endif
                 </tr>
-                @if (Auth::user()->isAdmin())
-                <tr>
-                    <td colspan="{{count($category)}}">
-                        <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category" placeholder="Create Category">
-                        <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
-                    </td>
-                    <!-- <td></td>
-                    <td></td>
-                    <td><input type="textbox" style="width:calc(100% - 41px)" id="feedback-status">
-                        <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button></td>
-                    <td></td> -->
-                </tr>
-                @endif
+                
                 <?php $sopOps = ''; ?>
                 @foreach ($sops as $sop)
                     <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
@@ -497,6 +497,7 @@
         </div>
     </div>
 </div>
+@include("vendors.partials.column-visibility-modal-feedback")
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>

@@ -2843,6 +2843,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/update-flowchartstatus', [VendorController::class, 'flowchartupdateStatus'])->name('flowchart-update-status');
     Route::post('vendor/flowchartstatus/histories', [VendorController::class, 'flowchartStatusHistories'])->name('vendors.flowchartstatus.histories');
     Route::post('vendor/questionanswer/notes', [VendorController::class, 'getVendorRatingQuestionsAnswerNotes'])->name('vendors.getrquestionnotes');
+    Route::post('vendors/feedback/column-visbility', [UserManagementController::class, 'vendorFeedbackVolumnVisbilityUpdate'])->name('vendors.feedback.column.update');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');

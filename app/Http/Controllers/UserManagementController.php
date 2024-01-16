@@ -14,6 +14,7 @@ use App\UserFeedbackCategorySopHistory;
 use App\UserFeedbackCategorySopHistoryComment;
 use App\Vendor;
 use App\Models\UserFeedbackRemark;
+use App\Models\DataTableColumn;
 
 class UserManagementController extends Controller
 {
@@ -49,7 +50,36 @@ class UserManagementController extends Controller
 
         $vendors = Vendor::where('feeback_status', 1)->paginate(25);
 
-        return view('user-management.get-user-feedback-table', compact('category', 'status', 'user_id', 'users', 'request', 'sops', 'vendors'));
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'get-feedback-table-data')->first();
+
+        $dynamicColumnsToShowVendorsFeeback = [];
+        if(!empty($datatableModel->column_name)){
+            $hideColumns = $datatableModel->column_name ?? "";
+            $dynamicColumnsToShowVendorsFeeback = json_decode($hideColumns, true);
+        }
+
+        return view('user-management.get-user-feedback-table', compact('category', 'status', 'user_id', 'users', 'request', 'sops', 'vendors', 'dynamicColumnsToShowVendorsFeeback'));
+    }
+
+    public function vendorFeedbackVolumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','get-feedback-table-data')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'get-feedback-table-data';
+            $column->column_name = json_encode($request->column_vendorsf); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'get-feedback-table-data';
+            $column->column_name = json_encode($request->column_vendorsf); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
     public function taskCount(Request $request, $user_feedback_cat_id, $user_feedback_user_id, $user_feedback_vendor_id)
