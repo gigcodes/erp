@@ -144,6 +144,10 @@
         right: 10px;
     }
     #vendorCreateModal .select2-container, #vendorEditModal .select2-container {width: 100% !important;}
+
+    table select.form-control, table input.form-control {
+        min-width: 140px;
+    }
 </style>
 @endsection
 
@@ -209,42 +213,40 @@
 @include("vendors.partials.column-visibility-modal-fc")
 @include('vendors.partials.add-flow-chart')
 
-<div class="infinite-scroll">
-    <div class="table-responsive mt-3">
-        <table class="table table-bordered table-striped" id="vendor-table">
-            <thead>
-                <tr>
-                    @if(!empty($dynamicColumnsToShowVendorsfc))
-                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
-                            <th width="10%">Vendor</th>
-                        @endif
-                        @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
-                            <th width="10%">Categgory</th>
-                        @endif
-                        @if($vendor_flow_charts)
-                            @foreach($vendor_flow_charts as $flow_chart)
-                                @if (!in_array($flow_chart->id, $dynamicColumnsToShowVendorsfc))
-                                    <th width="20%">{{$flow_chart->name}}</th>
-                                @endif
-                            @endforeach
-                        @endif
-                    @else
+<div class="infinite-scroll mt-5" style="overflow-y: auto">
+    <table class="table table-bordered table-striped" id="vendor-table">
+        <thead>
+            <tr>
+                @if(!empty($dynamicColumnsToShowVendorsfc))
+                    @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
                         <th width="10%">Vendor</th>
-                        <th width="10%">Categgory</th>
-                        @if($vendor_flow_charts)
-                            @foreach($vendor_flow_charts as $flow_chart)
-                                <th width="20%">{{$flow_chart->name}}</th>
-                            @endforeach
-                        @endif
                     @endif
-                </tr>
-            </thead>
+                    @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
+                        <th width="10%">Categgory</th>
+                    @endif
+                    @if($vendor_flow_charts)
+                        @foreach($vendor_flow_charts as $flow_chart)
+                            @if (!in_array($flow_chart->id, $dynamicColumnsToShowVendorsfc))
+                                <th width="20%">{{$flow_chart->name}}</th>
+                            @endif
+                        @endforeach
+                    @endif
+                @else
+                    <th width="10%">Vendor</th>
+                    <th width="10%">Categgory</th>
+                    @if($vendor_flow_charts)
+                        @foreach($vendor_flow_charts as $flow_chart)
+                            <th width="20%">{{$flow_chart->name}}</th>
+                        @endforeach
+                    @endif
+                @endif
+            </tr>
+        </thead>
 
-            <tbody>
-                @include('vendors.partials.data-fc')
-            </tbody>
-        </table>
-    </div>
+        <tbody>
+            @include('vendors.partials.data-fc')
+        </tbody>
+    </table>
 
     {!! $VendorFlowchart->appends(Request::except('page'))->links() !!}
 </div>
@@ -375,15 +377,9 @@
 @include("vendors.partials.modal-flow-chart-sorting")
 @endsection
 @section('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-<script src="{{asset('js/zoom-meetings.js')}}"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
-<script src="{{asset('js/common-email-send.js')}}">
-    //js for common mail
-</script>
 
 <script type="text/javascript">
 

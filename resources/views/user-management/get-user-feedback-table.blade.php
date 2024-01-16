@@ -26,6 +26,9 @@
             width:20px;
         }
 
+        table select.form-control {
+            min-width: 140px;
+        }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
@@ -76,33 +79,34 @@
         <div class="infinite-scroll" style="overflow-y: auto">
             
                 <table class="table table-bordered table-striped">
-                    <tr>
-                        @if(!empty($dynamicColumnsToShowVendorsFeeback))
-                            @if (!in_array('Vendor', $dynamicColumnsToShowVendorsFeeback))
-                                <th width="17%">Vendor</th>
-                            @endif
+                    <thead>
+                        <tr>
+                            @if(!empty($dynamicColumnsToShowVendorsFeeback))
+                                @if (!in_array('Vendor', $dynamicColumnsToShowVendorsFeeback))
+                                    <th width="17%">Vendor</th>
+                                @endif
 
-                            @if($category)
-                                @foreach($category as $cat)
-                                    @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
-                                        <th width="15%">{{$cat->category}}</th>
-                                    @endif
+                                @if($category)
+                                    @foreach($category as $cat)
+                                        @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
+                                            <th width="15%">{{$cat->category}}</th>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @else
+                                <th width="17%">Vendor</th>
+                                @foreach ($category as $cat)
+                                    <th width="15%">
+                                        {{ $cat->category }}
+
+                                        @if (auth()->user()->isAdmin())
+                                            <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                                        @endif
+                                    </th>
                                 @endforeach
                             @endif
-                        @else
-                            <th width="17%">Vendor</th>
-                            @foreach ($category as $cat)
-                                <th width="15%">
-                                    {{ $cat->category }}
-
-                                    @if (auth()->user()->isAdmin())
-                                        <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
-                                    @endif
-                                </th>
-                            @endforeach
-                        @endif
-                    </tr>
-                    
+                        </tr>
+                    </thead>
                     <tbody class="infinite-scroll-data">
                     <?php $sopOps = ''; ?>
                     @foreach ($sops as $sop)
