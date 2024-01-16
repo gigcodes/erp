@@ -156,7 +156,7 @@
         <h2 class="page-heading">
             Vendor Question Answer ({{ $totalVendor }})
             <div style="float: right;">
-                <!-- <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vfcdatatablecolumnvisibilityList">Column Visiblity</button> -->
+                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#rqadatatablecolumnvisibilityList">Column Visiblity</button>
 
                 <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newRQuestionModal">Create Question</a>
 
@@ -204,6 +204,7 @@
 </div>
 
 @include('partials.flash_messages')
+@include("vendors.partials.column-visibility-modal-rqa")
 @include('vendors.partials.add-question')
 
 <div class="infinite-scroll">
@@ -211,19 +212,19 @@
         <table class="table table-bordered" id="vendor-table" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <!-- @if(!empty($dynamicColumnsToShowVendorsfc))
-                        @if (!in_array('ID', $dynamicColumnsToShowVendorsfc))
+                    @if(!empty($dynamicColumnsToShowVendorsrqa))
+                        @if (!in_array('ID', $dynamicColumnsToShowVendorsrqa))
                             <th width="10%">Vendor</th>
                             <th width="10%">Category</th>
                         @endif
-                        @if($vendor_flow_charts)
-                            @foreach($vendor_flow_charts as $flow_chart)
-                                @if (!in_array($flow_chart->id, $dynamicColumnsToShowVendorsfc))
-                                    <th>{{$flow_chart->name}}</th>
+                        @if($vendor_questions)
+                            @foreach($vendor_questions as $question_data)
+                                @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsrqa))
+                                    <th>{{$question_data->question}}</th>
                                 @endif
                             @endforeach
                         @endif
-                    @else -->
+                    @else
                         <th width="10%">Vendor</th>
                         <th width="10%">Category</th>
                         @if($vendor_questions)
@@ -231,7 +232,7 @@
                                 <th>{{$question_data->question}}</th>
                             @endforeach
                         @endif
-                    <!-- @endif -->
+                    @endif
                 </tr>
             </thead>
 

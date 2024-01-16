@@ -2815,6 +2815,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
     Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
     Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
+    Route::post('vendors/rqa/column-visbility', [VendorController::class, 'vendorRqaVolumnVisbilityUpdate'])->name('vendors.rqa.column.update');
+    Route::post('vendors/qa/column-visbility', [VendorController::class, 'vendorQaVolumnVisbilityUpdate'])->name('vendors.qa.column.update');
     Route::post('vendor/question/create', [VendorController::class, 'questionStore'])->name('vendor.question.store');
     Route::post('vendor/notes/create', [VendorController::class, 'notesStore'])->name('vendor.notes.store');
     Route::post('vendor/rquestion/create', [VendorController::class, 'rquestionStore'])->name('vendor.rquestion.store');
