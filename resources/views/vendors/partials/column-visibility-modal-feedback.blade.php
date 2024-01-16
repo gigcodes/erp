@@ -1,4 +1,4 @@
-<div id="storeWebsiteCategoryColumnvisibilityList" class="modal fade" role="dialog">
+<div id="feedbackdatatablecolumnvisibilityList" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -6,7 +6,7 @@
                 <h4 class="modal-title">Columns Visibility Listing</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form action="{{ route('store-website.category.column.update') }}" method="POST" id="postman-column-update">
+            <form action="{{ route('vendors.feedback.column.update') }}" method="POST" id="vendors-flowchart-column-update">
                 @csrf
                 <div class="form-group col-md-12">
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
@@ -15,14 +15,23 @@
                             <td class="text-center"><b>hide</b></td>
                         </tr>
                         <div id="columnVisibilityControls">
-                            @foreach($columns_array as $k=>$v)
                             <tr>
-                                <td>{{$v['name']}}</td>
+                                <td>Vendor</td>
                                 <td>
-                                    <input type="checkbox" value="{{$v['name']}}" id="{{$v['id']}}" name="column_data[]" @if (!empty($dynamicColumnsToShowb) && in_array($v['name'], $dynamicColumnsToShowb)) checked @endif>
+                                    <input type="checkbox" value="Vendor" id="Vendor" name="column_vendorsf[]" @if (!empty($dynamicColumnsToShowVendorsFeeback) && in_array('Vendor', $dynamicColumnsToShowVendorsFeeback)) checked @endif>
                                 </td>
                             </tr>
-                            @endforeach
+
+                            @if($category)
+                                @foreach($category as $cat)
+                                    <tr>
+                                        <td>{{$cat->category}}</td>
+                                        <td>
+                                            <input type="checkbox" value="{{$cat->id}}" id="{{$cat->id}}" name="column_vendorsf[]" @if (!empty($dynamicColumnsToShowVendorsFeeback) && in_array($cat->id, $dynamicColumnsToShowVendorsFeeback)) checked @endif>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </div>
                     </table>
                 </div>

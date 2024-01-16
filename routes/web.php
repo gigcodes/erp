@@ -1582,7 +1582,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
         });
     });
 
-    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
+    Route::get('/hr-ticket/countdevtask/{id}/{user_id?}/{vendor_id?}', [UserManagementController::class, 'taskCount'])->name('hr-ticket.countdevtask');
 
     //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
@@ -2378,6 +2378,13 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('dailyActivity/get', [DailyActivityController::class, 'get'])->name('dailyActivity.get');
 
     Route::get('/get/feedback-table/data', [UserManagementController::class, 'addFeedbackTableData'])->name('user.get-feedback-table-data');
+    Route::get('/get/feedback-table/datavendor', [UserManagementController::class, 'addFeedbackTableDataVendor'])->name('user.get-feedback-table-datavendor');
+    Route::post('feedback/remarks', [UserManagementController::class, 'saveRemarks'])->name('feedback.saveremarks');
+    Route::post('feedback/getremarks', [UserManagementController::class, 'getRemarksHistories'])->name('feedback.getremarks');
+    Route::post('feedback/statuscolor', [UserManagementController::class, 'statuscolor'])->name('feedback.statuscolor');
+    Route::post('feedback/status/create', [UserManagementController::class, 'statusCreate'])->name('feedback.status.create');
+    Route::get('/save/user-category/status', [UserManagementController::class, 'statusHistory'])->name('user.save.status');
+    Route::get('/get/user-category/status', [UserManagementController::class, 'getStatusHistory'])->name('user.get.status.data');
     Route::get('/save/user-category/sop', [UserManagementController::class, 'sopHistory'])->name('user.save.sop');
     Route::get('/get/user-category/sop', [UserManagementController::class, 'getSopHistory'])->name('user.get.sop.data');
     Route::get('/save/user-category/sop-comment', [UserManagementController::class, 'sopHistoryComment'])->name('user.save.sop.comment');
@@ -2747,6 +2754,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('vendors-autocomplete', [VendorController::class, 'getVendorAutocomplete'])->name('vendors.autocomplete');
     Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
     Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
+    Route::get('vendors/all-section', [VendorController::class, 'vendorAllSection'])->name('vendors.all-section');
+    Route::get('vendors/question-answer', [VendorController::class, 'questionAnswer'])->name('vendors.question-answer');
+    Route::get('vendors/rating-question-answer', [VendorController::class, 'ratingquestionAnswer'])->name('vendors.rating.question-answer');
     Route::get('vendors/product', [VendorController::class, 'product'])->name('vendors.product.index');
     Route::post('vendors/store', [VendorController::class, 'store'])->name('vendors.store');
     Route::post('vendors/storeshortcut', [VendorController::class, 'storeshortcut'])->name('vendors.storeshortcut');
@@ -2774,6 +2784,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
     Route::post('vendors/sync-meetings-recordings', [VendorController::class, 'syncMeetingsRecordings'])->name('vendor.meetings.recordings.sync');
     Route::post('vendors/column-visbility', [VendorController::class, 'columnVisbilityUpdate'])->name('vendors.column.update');
+    Route::post('vendors/delete-flowchart-category', [VendorController::class, 'deleteFlowchartCategory'])->name('delete.flowchart-category');
+    Route::post('vendors/delete-qa-category', [VendorController::class, 'deleteQACategory'])->name('delete.qa-category');
+    Route::post('vendors/delete-rqa-category', [VendorController::class, 'deleteRQACategory'])->name('delete.rqa-category');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -2813,6 +2826,35 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/flowchart/remarks', [VendorController::class, 'saveVendorFlowChartRemarks'])->name('vendors.flowchart.saveremarks');
     Route::post('vendor/flowchart/getremarks', [VendorController::class, 'getFlowChartRemarksHistories'])->name('vendors.flowchart.getremarks');
     Route::post('vendors/flowchart/column-visbility', [VendorController::class, 'vendorFlowChartVolumnVisbilityUpdate'])->name('vendors.flowchart.column.update');
+
+    Route::post('vendors/rqa/column-visbility', [VendorController::class, 'vendorRqaVolumnVisbilityUpdate'])->name('vendors.rqa.column.update');
+    Route::post('vendors/qa/column-visbility', [VendorController::class, 'vendorQaVolumnVisbilityUpdate'])->name('vendors.qa.column.update');
+    Route::post('vendor/updatefeedbackstatus', [VendorController::class, 'vendorFeedbackStatus'])->name('vendors.feedbackstatus');
+    Route::post('vendor/question/create', [VendorController::class, 'questionStore'])->name('vendor.question.store');
+    Route::post('vendor/notes/create', [VendorController::class, 'notesStore'])->name('vendor.notes.store');
+    Route::post('vendor/rquestion/create', [VendorController::class, 'rquestionStore'])->name('vendor.rquestion.store');
+    Route::post('vendor/question/getquestion', [VendorController::class, 'getVendorQuestions'])->name('vendors.getquestion');
+    Route::post('vendor/question/getrquestion', [VendorController::class, 'getVendorRatingQuestions'])->name('vendors.getrquestion');
+    Route::post('vendor/question/answer', [VendorController::class, 'saveVendorQuestionAnswer'])->name('vendors.question.saveanswer');
+    Route::post('vendor/rquestion/answer', [VendorController::class, 'saveVendorRatingQuestionAnswer'])->name('vendors.question.saveranswer');
+    Route::post('vendor/question/getanswer', [VendorController::class, 'getQuestionAnswerHistories'])->name('vendors.question.getgetanswer');
+    Route::post('vendor/rquestion/getanswer', [VendorController::class, 'getRatingQuestionAnswerHistories'])->name('vendors.rquestion.getgetanswer');
+    Route::post('vendor/questionansert', [VendorController::class, 'vendorQuestionAnswerStatus'])->name('vendors.questionansert');
+    Route::post('vendor/rquestionansert', [VendorController::class, 'vendorRatingQuestionAnswerStatus'])->name('vendors.rquestionansert');
+    Route::post('vendor/rquestionansertstatus/create', [VendorController::class, 'rqaStatusCreate'])->name('vendors.rqastatus.create');
+    Route::post('vendor/rquestionansertstatuscolor', [VendorController::class, 'rqastatuscolor'])->name('vendors.rqastatuscolor');
+    Route::post('vendor/questionansertstatus/create', [VendorController::class, 'qaStatusCreate'])->name('vendors.qastatus.create');
+    Route::post('vendor/questionansertstatuscolor', [VendorController::class, 'qastatuscolor'])->name('vendors.qastatuscolor');
+    Route::post('vendor/flowchartstatus/create', [VendorController::class, 'flowchartStatusCreate'])->name('vendors.flowchartstatus.create');
+    Route::post('vendor/flowchartstatuscolor', [VendorController::class, 'flowchartstatuscolor'])->name('vendors.flowchartstatuscolor');
+    Route::post('vendor/update-rqastatus', [VendorController::class, 'rqaupdateStatus'])->name('rqa-update-status');
+    Route::post('vendor/rqastatus/histories', [VendorController::class, 'rqaStatusHistories'])->name('vendors.rqastatus.histories');
+    Route::post('vendor/update-qastatus', [VendorController::class, 'qaupdateStatus'])->name('qa-update-status');
+    Route::post('vendor/qastatus/histories', [VendorController::class, 'qaStatusHistories'])->name('vendors.qastatus.histories');
+    Route::post('vendor/update-flowchartstatus', [VendorController::class, 'flowchartupdateStatus'])->name('flowchart-update-status');
+    Route::post('vendor/flowchartstatus/histories', [VendorController::class, 'flowchartStatusHistories'])->name('vendors.flowchartstatus.histories');
+    Route::post('vendor/questionanswer/notes', [VendorController::class, 'getVendorRatingQuestionsAnswerNotes'])->name('vendors.getrquestionnotes');
+    Route::post('vendors/feedback/column-visbility', [UserManagementController::class, 'vendorFeedbackVolumnVisbilityUpdate'])->name('vendors.feedback.column.update');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');

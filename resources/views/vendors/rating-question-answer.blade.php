@@ -158,13 +158,11 @@
 <div class="row">
     <div class="col-md-12 p-0">
         <h2 class="page-heading">
-            Vendor Flow Chart ({{ $totalVendor }})
+            Vendor Rating Question Answer ({{ $totalVendor }})
             <div style="float: right;">
-                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vfcdatatablecolumnvisibilityList">Column Visiblity</button>
+                <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#rqadatatablecolumnvisibilityList">Column Visiblity</button>
 
-                <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a>
-
-                <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#setFlowChartSorting"> Set Flow Chart Sorting</button>
+                <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newRQuestionModal">Create Question</a>
 
                 <button type="button" class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#status-create">Add Status</button>
 
@@ -206,48 +204,44 @@
 </div>
 
 @include('partials.flash_messages')
-@include("vendors.partials.column-visibility-modal-fc")
-@include('vendors.partials.add-flow-chart')
+@include("vendors.partials.column-visibility-modal-rqa")
+@include('vendors.partials.add-question')
 
 <div class="infinite-scroll mt-5" style="overflow-y: auto">
-    <table class="table table-bordered table-striped" id="vendor-table">
+    <table class="table table-bordered" id="vendor-table">
         <thead>
             <tr>
-                @if(!empty($dynamicColumnsToShowVendorsfc))
-                    @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
+                @if(!empty($dynamicColumnsToShowVendorsrqa))
+                    @if (!in_array('Vendor', $dynamicColumnsToShowVendorsrqa))
                         <th width="10%">Vendor</th>
                     @endif
-                    @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
-                        <th width="10%">Categgory</th>
+                    @if (!in_array('Category', $dynamicColumnsToShowVendorsrqa))
+                        <th width="10%">Category</th>
                     @endif
-                    @if($vendor_flow_charts)
-                        @foreach($vendor_flow_charts as $flow_chart)
-                            @if (!in_array($flow_chart->id, $dynamicColumnsToShowVendorsfc))
+                    @if($vendor_questions)
+                        @foreach($vendor_questions as $question_data)
+                            @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsrqa))
                                 <th width="20%">
-
-                                    {{$flow_chart->name}}
+                                    {{$question_data->question}}
 
                                     @if (auth()->user()->isAdmin())
-                                        <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$flow_chart->id}}" ><i class="fa fa-trash"></i></button>
+                                        <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$question_data->id}}" ><i class="fa fa-trash"></i></button>
                                     @endif
-
                                 </th>
                             @endif
                         @endforeach
                     @endif
                 @else
                     <th width="10%">Vendor</th>
-                    <th width="10%">Categgory</th>
-                    @if($vendor_flow_charts)
-                        @foreach($vendor_flow_charts as $flow_chart)
+                    <th width="10%">Category</th>
+                    @if($vendor_questions)
+                        @foreach($vendor_questions as $question_data)
                             <th width="20%">
-
-                                {{$flow_chart->name}}
+                                {{$question_data->question}}
 
                                 @if (auth()->user()->isAdmin())
-                                    <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$flow_chart->id}}" ><i class="fa fa-trash"></i></button>
+                                    <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$question_data->id}}" ><i class="fa fa-trash"></i></button>
                                 @endif
-
                             </th>
                         @endforeach
                     @endif
@@ -255,108 +249,15 @@
             </tr>
         </thead>
 
-        <tbody>
-            @include('vendors.partials.data-fc')
+        <tbody id="vendor-body">
+            @include('vendors.partials.data-rqa')
         </tbody>
     </table>
 
-    {!! $VendorFlowchart->appends(Request::except('page'))->links() !!}
+    {!! $VendorQuestionAnswer->appends(Request::except('page'))->links() !!}
 </div>
 
-<div id="vfc-remarks-histories-list" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Remarks Histories</h4>
-                <button type="button" class="close" data-dismiss="modal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th width="10%">No</th>
-                                <th width="30%">Remarks</th>
-                                <th width="20%">Updated BY</th>
-                                <th width="30%">Created Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="vfc-remarks-histories-list-view">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="status-create" class="modal fade in" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-      <h4 class="modal-title">Add Stauts</h4>
-      <button type="button" class="close" data-dismiss="modal">×</button>
-      </div>
-      <form  method="POST" id="status-create-form">
-        @csrf
-        @method('POST')
-          <div class="modal-body">
-            <div class="form-group">
-              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
-              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
-          </div>
-        </div>
-      </form>
-    </div>
-
-  </div>
-</div>
-<div id="newStatusColor" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Status Color</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <form action="{{ route('vendors.flowchartstatuscolor') }}" method="POST">
-                @csrf
-                <div class="form-group col-md-12">
-                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
-                        <tr>
-                            <td class="text-center"><b>Status Name</b></td>
-                            <td class="text-center"><b>Color Code</b></td>
-                            <td class="text-center"><b>Color</b></td>
-                        </tr>
-                        <?php
-                        foreach ($status as $status_data) { ?>
-                        <tr>
-                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->status_name; ?></td>
-                            <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
-                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
-                        </tr>
-                        <?php } ?>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
-                </div>
-            </form>
-        </div>
-
-    </div>
-</div>
-<div id="fl-status-histories-list" class="modal fade" role="dialog">
+<div id="rqa-status-histories-list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -375,7 +276,7 @@
                                 <th width="30%">Created Date</th>
                             </tr>
                         </thead>
-                        <tbody class="fl-status-histories-list-view">
+                        <tbody class="rqa-status-histories-list-view">
                         </tbody>
                     </table>
                 </div>
@@ -386,42 +287,47 @@
         </div>
     </div>
 </div>
-@include("vendors.partials.modal-flow-chart-sorting")
 @endsection
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script src="{{asset('js/zoom-meetings.js')}}"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+<script src="{{asset('js/common-email-send.js')}}">
+    //js for common mail
+</script>
 
 <script type="text/javascript">
 
-    function saveRemarks(vendor_id, flow_chart_id){
+    function saveAnswer(vendor_id, question_id){
 
-        var remarks = $("#remark_"+vendor_id+"_"+flow_chart_id).val();
+        var answer = $("#answer_"+vendor_id+"_"+question_id).val();
 
-        if(remarks==''){
-            alert('Please enter remarks.');
+        if(answer==''){
+            alert('Please enter answer.');
         } else {
 
             $.ajax({
-                url: "{{route('vendors.flowchart.saveremarks')}}",
+                url: "{{route('vendors.question.saveanswer')}}",
                 type: 'POST',
                 headers: {
                   'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 data: {
                     'vendor_id' :vendor_id,
-                    'flow_chart_id' :flow_chart_id,
-                    'remarks' :remarks,
+                    'question_id' :question_id,
+                    'answer' :answer,
                 },
                 beforeSend: function() {
                     $(this).text('Loading...');
                     $("#loading-image").show();
                 },
                 success: function(response) {
-                    $("#remark_"+vendor_id+"_"+flow_chart_id).val('');
+                    $("#answer_"+vendor_id+"_"+question_id).val('');
                     $("#loading-image").hide();
-                    toastr['success']('Remarks Added successfully!!!', 'success');
+                    toastr['success']('Answer Added successfully!!!', 'success');
                 }
             }).fail(function(response) {
                 $("#loading-image").hide();
@@ -430,19 +336,19 @@
         }
     }
 
-    $(document).on('click', '.remarks-history-show', function() {
+    $(document).on('click', '.answer-history-show', function() {
         var vendor_id = $(this).attr('data-vendorid');
-        var flow_chart_id = $(this).attr('data-flow_chart_id');
+        var question_id = $(this).attr('data-question_id');
 
         $.ajax({
-            url: "{{route('vendors.flowchart.getremarks')}}",
+            url: "{{route('vendors.question.getgetanswer')}}",
             type: 'POST',
             headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
                 'vendor_id' :vendor_id,
-                'flow_chart_id' :flow_chart_id,
+                'question_id' :question_id,
             },
             success: function(response) {
                 if (response.status) {
@@ -450,13 +356,12 @@
                     $.each(response.data, function(k, v) {
                         html += `<tr>
                                     <td> ${k + 1} </td>
-                                    <td> ${(v.remarks != null) ? v.remarks : ' - ' } </td>
-                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.answer} </td>
                                     <td> ${v.created_at} </td>
                                 </tr>`;
                     });
-                    $("#vfc-remarks-histories-list").find(".vfc-remarks-histories-list-view").html(html);
-                    $("#vfc-remarks-histories-list").modal("show");
+                    $("#vqa-answer-histories-list").find(".vqa-answer-histories-list-view").html(html);
+                    $("#vqa-answer-histories-list").modal("show");
                 } else {
                     toastr["error"](response.error, "Message");
                 }
@@ -495,11 +400,79 @@
         });
     })
 
+    $(document).on('click', '.ranswer-history-show', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var question_id = $(this).attr('data-question_id');
+
+        $.ajax({
+            url: "{{route('vendors.rquestion.getgetanswer')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.answer} </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vqar-answer-histories-list").find(".vqar-answer-histories-list-view").html(html);
+                    $("#vqar-answer-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    function saverAnswer(vendor_id, question_id){
+
+        var answer = $("#answerr_"+vendor_id+"_"+question_id).find("option:selected").val();
+
+        if(answer==''){
+            alert('Please select answer.');
+        } else {
+
+            $.ajax({
+                url: "{{route('vendors.question.saveranswer')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'vendor_id' :vendor_id,
+                    'question_id' :question_id,
+                    'answer' :answer,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#answer_"+vendor_id+"_"+question_id).val('');
+                    $("#loading-image").hide();
+                    toastr['success']('Answer Added successfully!!!', 'success');
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+    }
+
     $(document).on("click", ".status-save-btn", function(e) {
         e.preventDefault();
         var $this = $(this);
         $.ajax({
-          url: "{{route('vendors.flowchartstatus.create')}}",
+          url: "{{route('vendors.rqastatus.create')}}",
           type: "post",
           data: $('#status-create-form').serialize()
         }).done(function(response) {
@@ -520,19 +493,19 @@
     $('.status-dropdown').change(function(e) {
       e.preventDefault();
       var vendor_id = $(this).data('id');
-      var flow_chart_id = $(this).data('flow_chart_id');
+      var question_id = $(this).data('question_id');
       var selectedStatus = $(this).val();
 
       // Make an AJAX request to update the status
       $.ajax({
-        url: '/vendor/update-flowchartstatus',
+        url: '/vendor/update-rqastatus',
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         data: {
           vendor_id: vendor_id,
-          flow_chart_id: flow_chart_id,
+          question_id: question_id,
           selectedStatus: selectedStatus
         },
         success: function(response) {
@@ -548,17 +521,17 @@
 
     $(document).on('click', '.status-history-show', function() {
         var vendor_id = $(this).attr('data-id');
-        var flow_chart_id = $(this).attr('data-flow_chart_id');
+        var question_id = $(this).attr('data-question_id');
 
         $.ajax({
-            url: "{{route('vendors.flowchartstatus.histories')}}",
+            url: "{{route('vendors.rqastatus.histories')}}",
             type: 'POST',
             headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: {
                 'vendor_id' :vendor_id,
-                'flow_chart_id' :flow_chart_id,
+                'question_id' :question_id,
             },
             success: function(response) {
                 if (response.status) {
@@ -572,13 +545,61 @@
                                     <td> ${v.created_at} </td>
                                 </tr>`;
                     });
-                    $("#fl-status-histories-list").find(".fl-status-histories-list-view").html(html);
-                    $("#fl-status-histories-list").modal("show");
+                    $("#rqa-status-histories-list").find(".rqa-status-histories-list-view").html(html);
+                    $("#rqa-status-histories-list").modal("show");
                 } else {
                     toastr["error"](response.error, "Message");
                 }
             }
         });
+    });
+
+    $(document).on('click', '.add-note-answer', function() {
+        var vendor_id = $(this).attr('data-id');
+        var question_id = $(this).attr('data-question_id');
+
+        $("#notes_vendor_id").val(vendor_id);
+        $("#notes_question_id").val(question_id);
+
+        $.ajax({
+            url: "{{route('vendors.getrquestionnotes')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.notes} </td>
+                                    <td> <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
+                                      <i class="fa fa-clone" aria-hidden="true"></i>
+                                    </button></td>
+                                </tr>`;
+                    });
+                    $("#vqarnotes-histories-list").find(".vqarnotes-histories-list-view").html(html);
+                    $("#vqarnotes-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click",".btn-copy-notes",function() {
+      var password = $(this).data('id');
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val(password).select();
+      document.execCommand("copy");
+      $temp.remove();
+      alert("Copied!");
     });
 
     $(document).on("click", ".delete-category",function(e){
@@ -589,7 +610,7 @@
         if(category_id!=""){
             if(confirm("Are you sure you want to delete record?")) {
                 $.ajax({
-                    url:"{{ route('delete.flowchart-category') }}",
+                    url:"{{ route('delete.rqa-category') }}",
                     type:"post",
                     data:{
                         id:category_id,

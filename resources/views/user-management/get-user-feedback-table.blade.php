@@ -26,255 +26,345 @@
             width:20px;
         }
 
+        table select.form-control {
+            min-width: 140px;
+        }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-    <div class="col-md-12">
+    <div class="col-md-12 p-0">
         <div class="row" id="common-page-layout">
             <input type="hidden" name="page_no" class="page_no" />
             <div class="col-lg-12 margin-tb">
-                <h2 class="page-heading">Users Feedback</h2>
-                <div class="row">
-                    <div class="col">
-                        <div class="" style="margin-bottom:10px;">
-                            <div class="row">
-                                <form class="form-inline message-search-handler" method="get">
-                                    <div class="col">
-                                        <div class="form-group">
-                                            <select name="user_id" class="form-control  select-multiple">
-                                                <option>-select-</option>
-                                                <?php foreach ($users as $key => $user) {
-                                                        $selectedUser = '';
-                                                        if($user->id == $request->user_id)
-                                                            $selectedUser = 'selected="selected"';
-                                                        echo '<option value="'.$user->id.'" '.$selectedUser.'>'.$user->name.'</option>';
-                                                }?>
-                                            </select>
-                                        </div>
-                                        {{-- <div class="form-group">
-                                            <select name="is_active" class="form-control" placholder="Active:">
-                                                <option value="0" {{ request('is_active') == 0 ? 'selected' : '' }}>All</option>
-                                                <option value="1" {{ request('is_active') == 1 ? 'selected' : '' }}>Active
-                                                </option>
-                                                <option value="2" {{ request('is_active') == 2 ? 'selected' : '' }}>In active
-                                                </option>
-                                            </select>
-                                        </div> --}}
-                                        <div class="form-group pl-3">
-                                            <label for="button">&nbsp;</label>
-                                            <button style="display: inline-block;width: 10%;margin-top: -26px; padding-left: 0px"
-                                                class="btn btn-sm btn-image btn-search-action">
-                                                <img src="{{asset('/images/search.png')}}" style="cursor: default;">
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
+                <h2 class="page-heading">Users Feedback <button type="button" class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#status-create">Add Status</button>
+                    <button class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
 
-                        </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12 margin-tb" id="page-view-result">
+                    <button type="button" class="btn btn-secondary btn-xs float-right mr-3" data-toggle="modal" data-target="#feedbackdatatablecolumnvisibilityList">Column Visiblity</button>
+                </h2>
+                <div class="" style="margin-bottom:10px;">
+                    <form class="form-inline message-search-handler" method="get">
+                        <div class="col-md-12">
+                            <div class="form-group col-md-3 cls_filter_inputbox p-0 mr-2">
+                                <select name="term" type="text" class="form-control" placeholder="Search Name" id="vendor-search" data-allow-clear="true">
+                                    <?php
+                                    if (request()->get('term')) {
+                                        echo '<option value="' . request()->get('term') . '" selected>' . request()->get('term') . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="form-group pl-3">
+                                <label for="button">&nbsp;</label>
+                                <button style="display: inline-block;width: 10%;margin-top: -26px; padding-left: 0px"
+                                    class="btn btn-sm btn-image btn-search-action">
+                                    <img src="{{asset('/images/search.png')}}" style="cursor: default;">
+                                </button>
+                            </div>
 
+                            @if (Auth::user()->isAdmin())
+                            <div class="form-group pl-3">
+                                <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category" placeholder="Create Category">
+                                <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
+                            </div>
+                            @endif
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="table-responsive">
-        <table class="table table-bordered" style="margin-top: 25px">
-            <tr>
-                <th width="17%">Category</th>
-                <th width="15%">SOP</th>
-                <th width="15%">Admin Response</th>
-                <th width="15%">User Response</th>
-                <th width="15%">Status</th>
-                <th width="10%">History</th>
-            </tr>
-            @if (Auth::user()->isAdmin())
-            <tr>
-                <td>
-                    <input type="text" style="width:calc(100% - 41px)" class="quick_feedback" id="addcategory" name="category">
-                    <button style="width: 20px" type="button" class="btn btn-image add-feedback" id="btn-save"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button>
-                </td>
-                <td></td>
-                <td></td>
-                <td><input type="textbox" style="width:calc(100% - 41px)" id="feedback-status">
-                    <button style="width: 20px" type="button" class="btn btn-image user-feedback-status"><img src="{{asset('/images/add.png')}}" style="cursor: nwse-resize; width: 0px;"></button></td>
-                <td></td>
-            </tr>
-            @endif
-            <?php $sopOps = ''; ?>
-            @foreach ($sops as $sop)
-                <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
-            @endforeach
-            @foreach ($category as $cat)
-                @php
-                    if($user_id !=''){
-                        $cat->user_id = $user_id;
-                    }
-                    $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
-                    if ($latest_messages) {
-                        $latest_msg = $latest_messages->message;
-                        if (strlen($latest_msg) > 20) {
-                            $latest_msg = substr($latest_messages->message,0,20).'...';
-                        }
-                    }
-                    $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->first();
-                    $status_id = 0;
-                    if ($feedback_status) {
-                        $status_id = $feedback_status->user_feedback_status_id;
-                    }
-                    $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
-                                ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
-                                ->orderBy('id','DESC')->first();
-                    $comment = '';
-                    if(isset($latest_comment->comment))
-                        $comment = $latest_comment->comment.'...';
-                    $commentId = '';
-                    if(isset($latest_comment->comment))
-                        $commentId = $latest_comment->id;
-                @endphp
-                <tr data-cat_id="{{ $cat->id }}" data-user_id="{{ $cat->user_id }}">
-                    <td>{{ $cat->category }}</td>
-                    <td class="communication-td">
-                        @if(\Auth::user()->isAdmin() == true)
-                            {{-- <input type="text" class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" placeholder="Enter SOP name...."  style="margin-bottom:5px;width:77%;display:inline;"/> --}}
-                            <select class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
-                                <option value="">-Select sop-</option>
-                                @foreach ($sops as $sop)
-                                    <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
-                                @endforeach
-                            </select>
-                            <div class="row">
-                                <div class="col-4 pr-0">
-                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
-                                    @if(Auth::user()->isAdmin())
-                                        <button type="button" class="btn btn-secondary1 mr-2" data-toggle="modal" title="Add Sop Name and category" data-target="#exampleModal"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                                    @endif
-                                </div>
-                                <div class="sop-text-{{$cat->id}}" style="float: left;">
-                                    <div class="expand-row-msg" data-name="name" data-id="{{$cat->id}}"  style="float: left;">
-                                        <span class="show-short-name-{{$cat->id}}">{{ Str::limit($cat->sop, 18, '..')}}</span>
-                                        <span style="word-break:break-all;" class="show-full-name-{{$cat->id}} hidden">{{$cat->sop}}</span>
-                                    </div> 
-                                    <div  style="float: left;">&nbsp;
-                                        <img class='sop-history' src='{{asset('/images/chat.png')}}' data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" alt='history' style='width:17px;cursor: nwse-resize;'>
-                                    </div>
-                                </div>
-                            </div>
-                        @else
-{{--                            <div id="comment_div_{{$cat->id}}">--}}
-{{--                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;--}}
-{{--                                <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No--}}
-{{--                                <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"/>--}}
-{{--                                <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>--}}
-{{--                                <div class="sop-comment-text-{{$cat->id}}">--}}
-{{--                                    <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='/images/chat.png' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
-                            {{$cat->sop}}
-                        @endif                        
-                        
-                    </td>
-                    <td class="communication-td">
-                         <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
-{{--                        <select class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" style="margin-bottom:5px;width:77%;display:inline;" @if (!Auth::user()->isAdmin()) {{ "readonly" }} @endif>--}}
-{{--                            <?php echo $sopOps; ?></?php>--}}
-{{--                        </select>--}}
-                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
-                        @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)
-                            <span class="latest_message">@if ($latest_messages->send_by) {{ $latest_msg }} @endif</span>
-                        @else
-                            <span class="latest_message"></span>
-                        @endif
-                    </td>
-                    <td class="communication-td">
-{{--                        <input type="text" class="form-control send-message-textbox" data-id="{{$cat->user_id}}" id="send_message_{{$cat->user_id}}" name="send_message_{{$cat->user_id}}" placeholder="Enter Message...." style="margin-bottom:5px;width:77%;display:inline;" @if (Auth::user()->isAdmin()) {{ "readonly" }} @endif/>--}}
-{{--                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->user_id}}" ><img src="/images/filled-sent.png"/></button></button>--}}
-{{--                        @if ($latest_messages && $latest_messages->user_feedback_category_id == $cat->id)--}}
-{{--                            <span class="latest_message">@if (!$latest_messages->send_by) {{ $latest_msg }} @endif</span>--}}
-{{--                        @else--}}
-{{--                            <span class="latest_message"></span>--}}
-{{--                        @endif--}}
-                        <div id="comment_div_{{$cat->id}}">
-                            {{-- <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_reject_{{$cat->id}}" value="Yes" style="width: 12px !important;height: 12px !important;"> Yes &nbsp;
-                            <input type="radio" name="accept_reject_{{$cat->id}}" id="accept_rejectN_{{$cat->id}}" value="No" style="width: 12px !important;height: 12px !important;"> No --}}
-                            <input type="text" class="form-control " data-id="{{$cat->id}}" id="comment_{{$cat->id}}" name="comment_{{$cat->id}}" placeholder="Enter comment ...."  style="margin-bottom:5px;width:77%;display:inline;"  @if (Auth::user()->isAdmin()) {{ "readonly" }} @endif/>
-                            @if (Auth::user()->isAdmin())
-
-                            @else
-                                <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-comment-save" data-sop_id="{{$cat->sop_id}}" data-id="{{$cat->id}}" data-comment="comment_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}"  type="submit" id="submit_message" ><img src="/images/filled-sent.png"/></button>
-                            @endif
-
-                            <div class="sop-comment-text-{{$cat->id}}">
-                                <div style='width:50%;'>{{$comment}}</div> <img class='sop-comment-history' src='{{asset('/images/chat.png')}}' data-id="{{$cat->id}}" data-sop_history_id="{{$cat->sop_id}}" data-sop_comment_id="{{$commentId}}" alt='history' style='width:17px;cursor: nwse-resize;'>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <select class="form-control user_feedback_status">
-                            <option value="">Select</option>
-                            @foreach ($status as $st)
-                                <option value="{{$st->id}}" @if ($st->id == $status_id) {{ "selected" }} @endif>{{ $st->status }}</option>
-                            @endforeach
-                        </select>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-feedback_cat_id="{{$cat->id}}" data-object='user-feedback' data-id="{{$cat->user_id}}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="{{asset('/images/chat.png')}}" alt=""></button>
-                        <button type="button" class="btn btn-secondary1 hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                        <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks"  title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
-                        @if (auth()->user()->isAdmin())
-                            <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category"  title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-    </table>
-    {{ $category->links() }}
-</div>
     </div>
-<!--------------------------------------------------- Add Data Modal ------------------------------------------------------->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-aria-hidden="true">
-<div class="modal-dialog" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Add Sop Name and Category</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form id="FormModal">
-                @csrf
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required />
+    <div class="col-md-12">
+        <div class="infinite-scroll" style="overflow-y: auto">
+            
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            @if(!empty($dynamicColumnsToShowVendorsFeeback))
+                                @if (!in_array('Vendor', $dynamicColumnsToShowVendorsFeeback))
+                                    <th width="17%">Vendor</th>
+                                @endif
+
+                                @if($category)
+                                    @foreach($category as $cat)
+                                        @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
+                                            <th width="15%">{{$cat->category}}</th>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @else
+                                <th width="17%">Vendor</th>
+                                @foreach ($category as $cat)
+                                    <th width="15%">
+                                        {{ $cat->category }}
+
+                                        @if (auth()->user()->isAdmin())
+                                            <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category with all data" data-id="{{$cat->id}}" ><i class="fa fa-trash"></i></button>
+                                        @endif
+                                    </th>
+                                @endforeach
+                            @endif
+                        </tr>
+                    </thead>
+                    <tbody class="infinite-scroll-data">
+                    <?php $sopOps = ''; ?>
+                    @foreach ($sops as $sop)
+                        <?php $sopOps .= '<option value="'.$sop->id.'">'.$sop->name.'</option>' ?>
+                    @endforeach
+                    @foreach ($vendors as $vendor)
+                        @if(!empty($dynamicColumnsToShowVendorsFeeback))
+                            <tr>
+                                @if (!in_array('ID', $dynamicColumnsToShowVendorsFeeback))
+                                    <td>{{$vendor->name}}</td>
+                                @endif
+
+                                @foreach ($category as $cat)
+
+                                    @if (!in_array($cat->id, $dynamicColumnsToShowVendorsFeeback))
+                                        @php
+                                            if($user_id !=''){
+                                                $cat->user_id = $user_id;
+                                            }
+                                            $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
+                                            if ($latest_messages) {
+                                                $latest_msg = $latest_messages->message;
+                                                if (strlen($latest_msg) > 20) {
+                                                    $latest_msg = substr($latest_messages->message,0,20).'...';
+                                                }
+                                            }
+                                            $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_feedback_category_id', $cat->id)->where('user_feedback_vendor_id', $vendor->id)->orderBy('id', 'DESC')->first();
+                                            $status_id = 0;
+                                            $status_color = new stdClass();
+                                            if ($feedback_status) {
+                                                $status_id = $feedback_status->user_feedback_status_id;
+
+                                                $status_color = \App\UserFeedbackStatus::where('id',$status_id)->first();
+                                            }
+                                            $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
+                                                        ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
+                                                        ->orderBy('id','DESC')->first();
+                                            $comment = '';
+                                            if(isset($latest_comment->comment))
+                                                $comment = $latest_comment->comment.'...';
+                                            $commentId = '';
+                                            if(isset($latest_comment->comment))
+                                                $commentId = $latest_comment->id;
+                                        @endphp
+                                        <td style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                            @if(\Auth::user()->isAdmin() == true)                                                
+                                                <div class="sop-div">
+                                                    <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                        <select class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                                            <option value="">-Select sop-</option>
+                                                            @foreach ($sops as $sop)
+                                                                <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
+                                                            @endforeach
+                                                        </select>
+                                                        <div style="margin-top: 0px;" class="d-flex p-0">
+                                                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+
+                                                            <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image sop-history" data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" data-vendorid="{{$vendor->id}}" title='history'><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                {{$cat->sop}}
+                                            @endif                        
+                                            
+                                            <div class="status-div">
+                                                <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                    <select class="form-control" data-id="{{$cat->id}}" id="status_{{$cat->id}}" name="status_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                                        <option value="">-Select status-</option>
+                                                        @foreach ($status as $st)
+                                                            <option value="{{$st->id}}">{{ $st->status }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div style="margin-top: 0px;" class="d-flex p-0">
+                                                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-status-save" data-status="status_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+
+                                                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image status-history" data-cat_id="{{$cat->id}}" data-status_id="{{$cat->status_id}}" data-vendorid="{{$vendor->id}}" title='history'><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_{{$cat->id}}_{{$vendor->id}}" data-catid="{{$cat->id}}" data-vendorid="{{$vendor->id}}">
+                                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                                    <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$cat->id}}, {{$vendor->id}})"><img src="/images/filled-sent.png"></button>
+                                                    <button type="button" data-catid="{{$cat->id}}" data-vendorid="{{$vendor->id}}" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                                </div>
+                                            </div>
+
+                                            <div class="history-div">
+                                                <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                                <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks" data-vendorid="{{$vendor->id}}" title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                                                
+                                            </div>
+                                        </td>
+                                    @endif
+                                @endforeach
+                            </tr>
+                        @else
+                            <tr>
+                                <td>{{$vendor->name}}</td>
+
+                                @foreach ($category as $cat)
+                                    @php
+                                        if($user_id !=''){
+                                            $cat->user_id = $user_id;
+                                        }
+                                        $latest_messages = App\ChatMessage::select('message')->where('user_feedback_id', $cat->user_id)->where('user_feedback_category_id', $cat->id)->orderBy('id','DESC')->first();
+                                        if ($latest_messages) {
+                                            $latest_msg = $latest_messages->message;
+                                            if (strlen($latest_msg) > 20) {
+                                                $latest_msg = substr($latest_messages->message,0,20).'...';
+                                            }
+                                        }
+                                        $feedback_status = App\UserFeedbackStatusUpdate::select('user_feedback_status_id')->where('user_feedback_category_id', $cat->id)->where('user_feedback_vendor_id', $vendor->id)->orderBy('id', 'DESC')->first();
+                                        $status_id = 0;
+                                        $status_color = new stdClass();
+                                        if ($feedback_status) {
+                                            $status_id = $feedback_status->user_feedback_status_id;
+
+                                            $status_color = \App\UserFeedbackStatus::where('id',$status_id)->first();
+                                        }
+                                        $latest_comment = App\UserFeedbackCategorySopHistoryComment::select('comment', 'id')
+                                                    ->where('sop_history_id', $cat->sop_id)->whereNotNull('sop_history_id')
+                                                    ->orderBy('id','DESC')->first();
+                                        $comment = '';
+                                        if(isset($latest_comment->comment))
+                                            $comment = $latest_comment->comment.'...';
+                                        $commentId = '';
+                                        if(isset($latest_comment->comment))
+                                            $commentId = $latest_comment->id;
+                                    @endphp
+                                    <td style="background-color: {{$status_color->status_color ?? ""}}!important;">
+                                        @if(\Auth::user()->isAdmin() == true)                                                
+                                            <div class="sop-div">
+                                                <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                    <select class="form-control" data-id="{{$cat->id}}" id="sop_{{$cat->id}}" name="sop_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                                        <option value="">-Select sop-</option>
+                                                        @foreach ($sops as $sop)
+                                                            <?php echo '<option value="'.$sop->id.'">'.$sop->name.'</option>'; ?>
+                                                        @endforeach
+                                                    </select>
+                                                    <div style="margin-top: 0px;" class="d-flex p-0">
+                                                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-sop-save" data-sop="sop_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+
+                                                        <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image sop-history" data-cat_id="{{$cat->id}}" data-sop_id="{{$cat->sop_id}}" data-vendorid="{{$vendor->id}}" title='history'><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            {{$cat->sop}}
+                                        @endif                        
+                                        
+                                        <div class="status-div">
+                                            <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                                <select class="form-control" data-id="{{$cat->id}}" id="status_{{$cat->id}}" name="status_{{$cat->id}}" style="margin-bottom:5px;width:77%;display:inline;">
+                                                    <option value="">-Select status-</option>
+                                                    @foreach ($status as $st)
+                                                        <option value="{{$st->id}}">{{ $st->status }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image user-status-save" data-status="status_{{$cat->id}}" data-feedback_cat_id="{{$cat->id}}" type="submit" id="submit_message"  data-id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" ><img src="{{asset('/images/filled-sent.png')}}"/></button>
+
+                                                    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image status-history" data-cat_id="{{$cat->id}}" data-status_id="{{$cat->status_id}}" data-vendorid="{{$vendor->id}}" title='history'><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                            <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_{{$cat->id}}_{{$vendor->id}}" data-catid="{{$cat->id}}" data-vendorid="{{$vendor->id}}">
+                                            <div style="margin-top: 0px;" class="d-flex p-0">
+                                                <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks({{$cat->id}}, {{$vendor->id}})"><img src="/images/filled-sent.png"></button>
+                                                <button type="button" data-catid="{{$cat->id}}" data-vendorid="{{$vendor->id}}" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                            </div>
+                                        </div>
+
+                                        <div class="history-div">
+                                            <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline hrTicket" data-toggle="modal"  data-feedback_cat_id="{{$cat->id}}" data-vendorid="{{$vendor->id}}" data-id="{{$cat->user_id}}" data-cat_name="{{$cat->category}}" title="Add Ticket" data-target="#hrTicketModal" id="hrTicket"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                            <button style="padding-left: 0px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline count-dev-customer-tasks" data-vendorid="{{$vendor->id}}" title="Show task history" data-id="{{$cat->id}}" data-user_id="{{$cat->user_id}}"><i class="fa fa-info-circle"></i></button>
+                                            
+                                        </div>
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        
+    </div>
+</div>
+<div id="newStatusColor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Status Color</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('feedback.statuscolor') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                {{--                <div class="modal-content">--}}
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Status Name</b></td>
+                            <td class="text-center"><b>Color Code</b></td>
+                            <td class="text-center"><b>Color</b></td>
+                        </tr>
+                        <?php
+                        foreach ($status as $status_data) { ?>
+                        <tr>
+                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->status; ?></td>
+                            <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
+                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
+                        </tr>
+                        <?php } ?>
+                    </table>
                 </div>
-
-                <div class="form-group">
-                    <label for="name">Category</label>
-                    <input type="text" class="form-control" id="category" name="category" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="content">Content</label>
-                    <input type="text" class="form-control" id="content" required />
-                </div>
-
-
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary btnsave" id="btnsave">Submit</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary submit-status-color">Save changes</button>
                 </div>
+                {{--                </div>--}}
             </form>
         </div>
 
     </div>
 </div>
-</div>
 
+<div id="status-create" class="modal fade in" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+      <h4 class="modal-title">Add Stauts</h4>
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      </div>
+      <form  method="POST" id="status-create-form">
+        @csrf
+        @method('POST')
+          <div class="modal-body">
+            <div class="form-group">
+              {!! Form::label('status_name', 'Name', ['class' => 'form-control-label']) !!}
+              {!! Form::text('status_name', null, ['class'=>'form-control','required','rows'=>3]) !!}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary status-save-btn">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
 
 <div class="modal fade" id="hrTicketModal" tabindex="-1" role="dialog" aria-labelledby="hrTicketModalLabel">
     <div class="modal-dialog modal-lg">
@@ -292,6 +382,7 @@ aria-hidden="true">
                     <div class="form-group">
                         <label for="">Subject</label>
                         <input class="form-control" type="text" id="hidden-task-subject" name="task_subject"  />
+                        <input class="form-control" type="hidden" id="hidden-vendor_id" name="user_feedback_vendor_id"  />
                     </div>
                     <div class="form-group">
                         <select class="form-control" style="width:100%;" name="task_type" tabindex="-1"
@@ -366,6 +457,35 @@ aria-hidden="true">
         </div>
     </div>
 </div>
+ <div id="feedback-remarks-histories-list" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remarks Histories</h4>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="10%">No</th>
+                                    <th width="30%">Remarks</th>
+                                    <th width="20%">Updated BY</th>
+                                    <th width="30%">Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="feedback-remarks-histories-list-view">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <div id="dev_task_statistics" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -441,12 +561,12 @@ aria-hidden="true">
         </div>
     </div>
 </div>
-<div id="sop-comment-history" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+<div id="status-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-sm" style="max-width: 600px; width:600px;">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Sop comment history</h5>
+                <h5 class="modal-title">Status history</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -456,12 +576,10 @@ aria-hidden="true">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Comment</th>
-                                    <th>User Name</th>
-                                    <th>Created</th>
+                                    <th>Status Name</th>
                                 </tr>
                             </thead>
-                            <tbody class="show-sop-comment-history-records">
+                            <tbody class="show-status-history-records">
                             </tbody>
                         </table>
                     </div>
@@ -473,7 +591,9 @@ aria-hidden="true">
         </div>
     </div>
 </div>
+@include("vendors.partials.column-visibility-modal-feedback")
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
 <script>
@@ -568,11 +688,13 @@ aria-hidden="true">
 
     $(".hrTicket").bind("click", function() { 
         var feedback_cat_id = $(this).data("feedback_cat_id");
+        var vendor_id = $(this).data("vendorid");
         var cat_name = $(this).data("cat_name");
         $("#user_feedback_cat_id").val(feedback_cat_id);
         let selecUserVal = $('.select-multiple').val();
         $("#task_asssigned_to").val(selecUserVal);
         $("#hidden-task-subject").val(cat_name);
+        $("#hidden-vendor_id").val(vendor_id);
         
     });
 
@@ -672,6 +794,7 @@ aria-hidden="true">
     
     var $this = $(this);
 	var user_feedback = $(this).data("id");
+    var vendor_id = $(this).data("vendorid");
     var isAvaible = getUrlParameter('user_id');
     var is_set = "";
     if(isAvaible)
@@ -679,13 +802,14 @@ aria-hidden="true">
     else
         is_set = "";
     var user_id = $(this).data("user_id");
-    var url = "{{route('hr-ticket.countdevtask',[':user_feedback',':user_id'])}}";
+    var url = "{{route('hr-ticket.countdevtask',[':user_feedback',':user_id',':vendor_id'])}}";
     var url1 = url.replace(':user_feedback',user_feedback);
     var url2 = url1.replace(':user_id',user_id);
+    var url3 = url2.replace(':vendor_id',vendor_id);
 
 	$.ajax({
 		type: 'get',
-		url: url2,
+		url: url3,
 		dataType: "json",
 		beforeSend: function() {
 			$("#loading-image").show();
@@ -727,282 +851,203 @@ aria-hidden="true">
     });
 
     $(document).on("click", "#btn-save",function(e){
-            // $('#btn-save').attr("disabled", "disabled");
-            e.preventDefault();
-             var category = $('#addcategory').val();
-             var user_id = $(this).data('user_id');
-            if(category!=""){
-                 $.ajax({
-                    url:"{{ route('user.feedback-category') }}",
-                    type:"get",
-                    data:{
-                        category:category,
-                        user_id:user_id,
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+         var category = $('#addcategory').val();
+         var user_id = $(this).data('user_id');
+        if(category!=""){
+             $.ajax({
+                url:"{{ route('user.feedback-category') }}",
+                type:"get",
+                data:{
+                    category:category,
+                    user_id:user_id,
+                },
+                cashe:false,
+                success:function(response){
+                    toastr["success"]('Caetgory successfully added.');
+                    location.reload();
+                }
+            });
+        }else{
+           alert("error");
+        }
+    });
+
+         
+    $(document).on('click','.sop-history',function(){
+        var id = $(this).data('id');
+        var catId = $(this).data("cat_id");
+        var vendor_id = $(this).data('vendorid');
+        $.ajax({
+            type: "get",
+            url: '{{ route("user.get.sop.data") }}',
+            data: {
+                    'cat_id': catId,
+                    'vendor_id': vendor_id,
                     },
-                    cashe:false,
-                    success:function(response){
-                        if (response.message) {
-                            toastr.error(response.message);
-                        }else{
-                            $('#addcategory').val('');
-                            $(document).find('.user-feedback-data').append(response);
-                        }
-                    }
-                });
-            }else{
-               alert("error");
+            success:function(response){
+                if (response.code == 200) {
+                    toastr["success"](response.message);
+                    // var t = '';
+                    // $.each(response.data, function(k, v) {
+                    //     t += `<tr><td>` + v.id + `</td>`;
+                    //     t += `<td>` + v.sop + `</td>`;
+                    //     t += `<td>` + v.created_at + `</td></tr>`;
+                    // });
+                    // if (t == '') {
+                    //     t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
+                    // }
+                    $("#sop-history").find(".show-sop-history-records").html(response.data);
+                    $("#sop-history").modal("show");
+
+                } else {
+                    toastr["error"](response.message);
+                }
             }
-         });
+        });
+    });
 
-         $(document).on('click','.user-feedback-status',function(){
-            var status = $('#feedback-status').val();
-            $('.user_feedback_status').text('');
-
-            $.ajax({
-                type: "get",
-                url: '{{ route("user.feedback-status") }}',
-                data: {'status':status},
-                success:function(response){
-                    if (response.status == true) {
-                        $('#feedback-status').val('');
-                        var all_status = response.feedback_status;
-                        var Select = '<option value="">Select</option>'
-                        $('.user_feedback_status').append(Select);
-
-                        for (let i = 0; i < all_status.length; i++) {
-                            var html = '<option value="' + all_status[i].id+'">'+all_status[i].status+'</option>'; 
-                            $('.user_feedback_status').append(html);
-                        }
-                    }
+    $(document).on('click','.status-history',function(){
+        var id = $(this).data('id');
+        var catId = $(this).data("cat_id");
+        var vendor_id = $(this).data('vendorid');
+        $.ajax({
+            type: "get",
+            url: '{{ route("user.get.status.data") }}',
+            data: {
+                    'cat_id': catId,
+                    'vendor_id': vendor_id,
+                    },
+            success:function(response){
+                if (response.code == 200) {
+                    toastr["success"](response.message);
+                    $("#status-history").find(".show-status-history-records").html(response.data);
+                    $("#status-history").modal("show");
+                } else {
+                    toastr["error"](response.message);
                 }
-            });
+            }
         });
-        $(document).on('click','.sop-history',function(){
-            var id = $(this).data('id');
-            var catId = $(this).data("cat_id");
-            $.ajax({
-                type: "get",
-                url: '{{ route("user.get.sop.data") }}',
-                data: {
-                        'cat_id': catId,
-                        },
-                success:function(response){
-                    if (response.code == 200) {
-                        toastr["success"](response.message);
-                        // var t = '';
-                        // $.each(response.data, function(k, v) {
-                        //     t += `<tr><td>` + v.id + `</td>`;
-                        //     t += `<td>` + v.sop + `</td>`;
-                        //     t += `<td>` + v.created_at + `</td></tr>`;
-                        // });
-                        // if (t == '') {
-                        //     t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-                        // }
-                        $("#sop-history").find(".show-sop-history-records").html(response.data);
-                        $("#sop-history").modal("show");
+    });
 
-                    } else {
-                        toastr["error"](response.message);
-                    }
-                }
-            });
-        });
-        $(document).on('dblclick', '.expand-row-msg', function() {
-            var name = $(this).data('name');
-            var id = $(this).data('id');
-            var full = '.expand-row-msg .sop-short-' + name + '-' + id;
-            var mini = '.expand-row-msg .sop-full-' + name + '-' + id;
-            $(full).toggleClass('hidden');
-            $(mini).toggleClass('hidden');
-        });
+    $(document).on('dblclick', '.expand-row-msg', function() {
+        var name = $(this).data('name');
+        var id = $(this).data('id');
+        var full = '.expand-row-msg .sop-short-' + name + '-' + id;
+        var mini = '.expand-row-msg .sop-full-' + name + '-' + id;
+        $(full).toggleClass('hidden');
+        $(mini).toggleClass('hidden');
+    });
 
-        $(document).on('click','.sop-comment-history',function(){
-            var id = $(this).data('id');
-            var sopId = $(this).data("sop_history_id");
-            $.ajax({
-                type: "get",
-                url: '{{ route("user.get.sop-comment.data") }}',
-                data: {
-                        'sop_history_id': sopId,
-                        },
-                success:function(response){
-                    if (response.code == 200) {
-                        toastr["success"](response.message);
-                        
-                        var t = '';
-                        $.each(response.data, function(k, v) {
-                            t += `<tr><td>` + v.id + `</td>`;
-                            t += `<td>` + v.comment + `</td>`;
-                            t += `<td>` + v.username + `</td>`;
-                            t += `<td>` + v.created_at + `</td></tr>`;
-                        });
-                        if (t == '') {
-                            t = '<tr><td colspan="4" class="text-center">No data found</td></tr>';
-                        }
-                        $("#sop-comment-history").find(".show-sop-comment-history-records").html(t);
-                        $("#sop-comment-history").modal("show");
-
-                    } else {
-                        toastr["error"](response.message);
-                    }
-                }
-            });
-        });
-
+    $(document).on('click','.user-sop-save',function(){
+        var id = $(this).data('id');
+        var vendor_id = $(this).data('vendorid');
+        var sop_id = $(this).data('sop');
+        var sop = $("#"+sop_id+ " option:selected").text();
+        //debugger;
+        var sops_id = $("#"+sop_id).val();
+        if(sops_id == ''){
+            toastr["error"]('Please Select Sop');
+            return false
+        }
+        var cat = $(this).data("feedback_cat_id");
         
-        $(document).on('click','.user-sop-save',function(){
-            var id = $(this).data('id');
-            var sop_id = $(this).data('sop');
-            var sop = $("#"+sop_id+ " option:selected").text();
-            //debugger;
-            var sops_id = $("#"+sop_id).val();
-            if(sops_id == ''){
-                toastr["error"]('Please Select Sop');
-                return false
+        $("#send_message_"+$(this).data('id')).val('');
+
+        $.ajax({
+            type: "get",
+            url: '{{ route("user.save.sop") }}',
+            data: {
+                    'cat_id': cat,
+                    'sops_id': sops_id,
+                    'sop_text': sop,
+                    'vendor_id': vendor_id
+                    },
+            success:function(response){
+                if (response.code == 200) {
+                    $("#"+sop_id).val('');
+                    var resSop = response.data.sop;
+                    var resSopshort = '<span style="float:left;width: 41px;overflow: hidden;height: 23px;">'+response.data.sop+'</span>';
+                    var resSopId = response.data.id;
+                    toastr["success"](response.message);
+                    $(".sop-text-"+id).html("<div class='expand-row-msg' data-name='name' data-id='"+id+"' style='float: left;'><span class='show-short-name-"+id+"'>"+resSopshort+"</span><span style='word-break:break-all;' class='show-full-name-"+id+" hidden'>"+resSop+"</span>...</div><div  style='float: left;'>&nbsp; <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='{{asset('/images/chat.png')}}' alt='history' style='width:17px;cursor: nwse-resize;'></div>");
+                } else {
+                    toastr["error"](response.message);
+                }
             }
-            var cat = $(this).data("feedback_cat_id");
-            
-            $("#send_message_"+$(this).data('id')).val('');
-
-            $.ajax({
-                type: "get",
-                url: '{{ route("user.save.sop") }}',
-                data: {
-                        'cat_id': cat,
-                        'sops_id': sops_id,
-                        'sop_text': sop
-                        },
-                success:function(response){
-                    if (response.code == 200) {
-                        $("#"+sop_id).val('');
-                        var resSop = response.data.sop;
-                        var resSopshort = '<span style="float:left;width: 41px;overflow: hidden;height: 23px;">'+response.data.sop+'</span>';
-                        var resSopId = response.data.id;
-                        toastr["success"](response.message);
-                        $(".sop-text-"+id).html("<div class='expand-row-msg' data-name='name' data-id='"+id+"' style='float: left;'><span class='show-short-name-"+id+"'>"+resSopshort+"</span><span style='word-break:break-all;' class='show-full-name-"+id+" hidden'>"+resSop+"</span>...</div><div  style='float: left;'>&nbsp; <img class='sop-history' data-cat_id='"+id+"' data-sop_id='"+resSopId+"' src='{{asset('/images/chat.png')}}' alt='history' style='width:17px;cursor: nwse-resize;'></div>");
-                    } else {
-                        toastr["error"](response.message);
-                    }
-                }
-            });
         });
-        $(document).on('click','.user-sop-comment-save',function(){
-            var id = $(this).data('id');
-            var comment = $("#comment_"+id).val();
-            var acceptReject = $('input[name="accept_reject_'+id+'"]:checked').val();
-            var sopHistoryId = $(this).data("sop_id");
-           
-            $("#send_message_"+$(this).data('id')).val('');
+    });
 
-            $.ajax({
-                type: "get",
-                url: '{{ route("user.save.sop.comment") }}',
-                data: {'sop_history_id': sopHistoryId,
-                        'comment': comment,
-                        'accept_reject': acceptReject
-                        },
-                success:function(response){
-                    if (response.code == 200) {
-                        $('#comment_'+id).val('');
-                        var resSopComm = response.data.comment;
-                        var resSopCommId = response.data.id;
-                        var resSopId = response.data.sop_history_id;
-                        toastr["success"](response.message);
-                        $(".sop-comment-text-"+id).html("<div style='width:50%;'>"+resSopComm+"...</div> <img class='sop-comment-history' data-id='"+id+"' data-sop_history_id='"+resSopId+"' data-sop_comment_id='"+resSopCommasset()+Id+"' src='{{asset('/images/chat.png')}}' alt='history' style='width:17px;cursor: nwse-resize;'>");
-                    } else {
-                        toastr["error"](response.message);
-                    }
+    $(document).on('click','.user-status-save',function(){
+        var id = $(this).data('id');
+        var vendor_id = $(this).data('vendorid');
+        var sop_id = $(this).data('status');
+        var status_id = $("#"+sop_id).val();
+        if(status_id == ''){
+            toastr["error"]('Please Select Status');
+            return false
+        }
+        var cat = $(this).data("feedback_cat_id");
+
+        $.ajax({
+            type: "get",
+            url: '{{ route("user.save.status") }}',
+            data: {
+                'cat_id': cat,
+                'status_id': status_id,
+                'vendor_id': vendor_id
+            },
+            success:function(response){
+                if (response.code == 200) {
+                    toastr["success"](response.message);
+                } else {
+                    toastr["error"](response.message);
                 }
-            });
-        });
-        $(document).on('click', '.send-message-open', function (event) {
-            var feedback_status_id = $(this).parents('tr').find('.user_feedback_status').val();
-            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
-            let user_id = textBox.attr('data-id');
-            let message = textBox.val();
-            var feedback_cat_id = $(this).data('feedback_cat_id');
-            var $this = $(this);
-            if (message == '') {
-                return;
             }
-
-            let self = textBox;
-
-            $.ajax({
-                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback')}}",
-                type: 'POST',
-                data: {
-                    "feedback_status_id": feedback_status_id,
-                    "feedback_cat_id": feedback_cat_id,
-                    "user_id": user_id,
-                    "message": message,
-                    "_token": "{{csrf_token()}}",
-                   "status": 2
-                },
-                dataType: "json",
-                success: function (response) {
-                    toastr["success"]("Message sent successfully!", "Message");
-                    $('#message_list_' + user_id).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
-                    $(self).removeAttr('disabled');
-                    $(self).val('');
-                    var msg = response.message.message;
-                    if (msg.length > 20) {
-                        var msg = msg.substring(1,20)+'...';
-                        $this.siblings('.latest_message').text(msg);
-                    }else{
-                        $this.siblings('.latest_message').text(msg);
-                    }
-                },
-                beforeSend: function () {
-                    $(self).attr('disabled', true);
-                },
-                error: function () {
-                    alert('There was an error sending the message...');
-                    $(self).removeAttr('disabled', true);
-                }
-            });
         });
+    });
 
-        $(document).on('click', '.send-message-open-hr_ticket', function (event) {
-            var feedback_status_id = '1';
-            var textBox = $(this).closest(".communication-hr-ticket-td").find(".quick-message-field");
-            let user_id = textBox.attr('data-user_id');
-            let message = textBox.val();
-            var feedback_cat_id = textBox.attr('data-id');
-            var $this = $(this);
-            if (message == '') {
-                return;
+    $(document).on('click', '.send-message-open-hr_ticket', function (event) {
+        var feedback_status_id = '1';
+        var textBox = $(this).closest(".communication-hr-ticket-td").find(".quick-message-field");
+        let user_id = textBox.attr('data-user_id');
+        let message = textBox.val();
+        var feedback_cat_id = textBox.attr('data-id');
+        var $this = $(this);
+        if (message == '') {
+            return;
+        }
+
+        let self = textBox;
+
+        $.ajax({
+            url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback-hrTicket')}}",
+            type: 'POST',
+            data: {
+                "feedback_status_id": feedback_status_id,
+                "feedback_cat_id": feedback_cat_id,
+                "task_id" : feedback_cat_id,
+                "user_id": user_id,
+                "message": message,
+                "_token": "{{csrf_token()}}",
+               "status": 2
+            },
+            dataType: "json",
+            success: function (response) {
+                $(self).val('');
+                $(self).attr('disabled', false);
+                toastr["success"]("Message sent successfully!", "Message");
+            },
+            beforeSend: function () {
+                $(self).attr('disabled', true);
+            },
+            error: function () {
+                alert('There was an error sending the message...');
+                $(self).removeAttr('disabled', true);
             }
-
-            let self = textBox;
-
-            $.ajax({
-                url: "{{action([\App\Http\Controllers\WhatsAppController::class, 'sendMessage'], 'user-feedback-hrTicket')}}",
-                type: 'POST',
-                data: {
-                    "feedback_status_id": feedback_status_id,
-                    "feedback_cat_id": feedback_cat_id,
-                    "task_id" : feedback_cat_id,
-                    "user_id": user_id,
-                    "message": message,
-                    "_token": "{{csrf_token()}}",
-                   "status": 2
-                },
-                dataType: "json",
-                success: function (response) {
-                    $(self).val('');
-                    $(self).attr('disabled', false);
-                    toastr["success"]("Message sent successfully!", "Message");
-                },
-                beforeSend: function () {
-                    $(self).attr('disabled', true);
-                },
-                error: function () {
-                    alert('There was an error sending the message...');
-                    $(self).removeAttr('disabled', true);
-                }
-            });
         });
+    });
 
     $(document).on('click', '.expand-row-msg', function () {
         var name = $(this).data('name');
@@ -1014,36 +1059,166 @@ aria-hidden="true">
     });
 
     $(document).on("click", ".delete-category",function(e){
-            // $('#btn-save').attr("disabled", "disabled");
-            e.preventDefault();
-            let _token = $("input[name=_token]").val();
-            let category_id =  $(this).data('id');
-            if(category_id!=""){
-                if(confirm("Are you sure you want to delete record?")) {
-                    debugger;
-                    $.ajax({
-                        url:"{{ route('delete.user.feedback-category') }}",
-                        type:"post",
-                        data:{
-                            id:category_id,
-                            _token: _token
-                        },
-                        cashe:false,
-                        success:function(response){
-                            if (response.message) {
-                                toastr["success"](response.message, "Message");
-                                location.reload();
-                            }else{
-                                toastr.error(response.message);
-                            }
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let category_id =  $(this).data('id');
+        if(category_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                debugger;
+                $.ajax({
+                    url:"{{ route('delete.user.feedback-category') }}",
+                    type:"post",
+                    data:{
+                        id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
                         }
-                    });
-                } else {
+                    }
+                });
+            } else {
 
-                }
-            }else{
-                toastr.error("Please realod and try again");
             }
-         });
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on("click", ".status-save-btn", function(e) {
+    e.preventDefault();
+    var $this = $(this);
+    $.ajax({
+      url: "{{route('feedback.status.create')}}",
+      type: "post",
+      data: $('#status-create-form').serialize()
+    }).done(function(response) {
+      if (response.code = '200') {
+        $('#loading-image').hide();
+        toastr['success']('Status  Created successfully!!!', 'success');
+        location.reload();
+      } else {
+        toastr['error'](response.message, 'error');
+      }
+    }).fail(function(errObj) {
+      $('#loading-image').hide();
+      toastr['error'](errObj.message, 'error');
+    });
+  });
+
+    function saveRemarks(user_feedback_category_id, user_feedback_vendor_id){
+
+        var remarks = $("#remark_"+user_feedback_category_id+"_"+user_feedback_vendor_id).val();
+
+        if(remarks==''){
+            alert('Please enter remarks.');
+            return false;
+        }
+
+        $.ajax({
+            url: "{{route('feedback.saveremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'user_feedback_category_id' :user_feedback_category_id,
+                'user_feedback_vendor_id' :user_feedback_vendor_id,
+                'remarks' :remarks,
+            },
+            beforeSend: function() {
+                $(this).text('Loading...');
+                $("#loading-image").show();
+            },
+            success: function(response) {
+                $("#loading-image").hide();
+                toastr['success']('Remarks successfully added.');
+            }
+        }).fail(function(response) {
+            $("#loading-image").hide();
+            toastr['error'](response.responseJSON.message);
+        });
+    }
+
+    $(document).on('click', '.remarks-history-show', function() {
+        var user_feedback_category_id = $(this).attr('data-catid');
+        var user_feedback_vendor_id = $(this).attr('data-vendorid');
+        $.ajax({
+            url: "{{route('feedback.getremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'user_feedback_category_id' :user_feedback_category_id,
+                'user_feedback_vendor_id' :user_feedback_vendor_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.remarks != null) ? v.remarks : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#feedback-remarks-histories-list").find(".feedback-remarks-histories-list-view").html(html);
+                    $("#feedback-remarks-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $('#vendor-search').select2({
+        tags: true,
+        width: '100%',
+        ajax: {
+            url: BASE_URL + '/vendor-search',
+            dataType: 'json',
+            delay: 750,
+            data: function(params) {
+                return {
+                    q: params.term, // search term
+                };
+            },
+            processResults: function(data, params) {
+                for (var i in data) {
+                    data[i].id = data[i].name ? data[i].name : data[i].text;
+                }
+                params.page = params.page || 1;
+
+                return {
+                    results: data,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+        },
+        placeholder: 'Search Vendor',
+        escapeMarkup: function(markup) {
+            return markup;
+        },
+        minimumInputLength: 1,
+        templateResult: function(customer) {
+
+            if (customer.name) {
+                //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                return "<p>" + customer.name + "</p>";
+            }
+        },
+        templateSelection: (customer) => customer.text || customer.name,
+
+    });
 </script>
 @endsection 
