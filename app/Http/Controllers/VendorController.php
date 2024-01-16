@@ -2031,6 +2031,48 @@ class VendorController extends Controller
         return redirect()->back()->with('success', 'column visiblity Added Successfully!');
     }
 
+    public function vendorRqaVolumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-rqa-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'vendors-rqa-listing';
+            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'vendors-rqa-listing';
+            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
+    public function vendorQaVolumnVisbilityUpdate(Request $request)
+    {   
+        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','vendors-qa-listing')->first();
+
+        if($userCheck)
+        {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'vendors-qa-listing';
+            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->save();
+        } else {
+            $column = new DataTableColumn();
+            $column->section_name = 'vendors-qa-listing';
+            $column->column_name = json_encode($request->column_vendorsfc); 
+            $column->user_id =  auth()->user()->id;
+            $column->save();
+        }
+
+        return redirect()->back()->with('success', 'column visiblity Added Successfully!');
+    }
+
     public function getVendorAutocomplete(Request $request)
     {
         $input = $_GET['term'];
@@ -2214,19 +2256,21 @@ class VendorController extends Controller
 
         $totalVendor = Vendor::where('question_status', 1)->count();
 
-        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-flow-chart-listing')->first();
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-qa-listing')->first();
 
-        $dynamicColumnsToShowVendorsfc = [];
+        $dynamicColumnsToShowVendorsqa = [];
         if(!empty($datatableModel->column_name)){
             $hideColumns = $datatableModel->column_name ?? "";
-            $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
+            $dynamicColumnsToShowVendorsqa = json_decode($hideColumns, true);
         }
-
+        
         $vendor_questions = VendorQuestions::orderBy('id', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
 
-        return view('vendors.question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_questions', 'vendor_categories'))
+        $status = VendorStatus::all();
+
+        return view('vendors.question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -2246,12 +2290,12 @@ class VendorController extends Controller
 
         $totalVendor = Vendor::where('rating_question_status', 1)->count();
 
-        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-flow-chart-listing')->first();
+        $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'vendors-rqa-listing')->first();
 
-        $dynamicColumnsToShowVendorsfc = [];
+        $dynamicColumnsToShowVendorsrqa = [];
         if(!empty($datatableModel->column_name)){
             $hideColumns = $datatableModel->column_name ?? "";
-            $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
+            $dynamicColumnsToShowVendorsrqa = json_decode($hideColumns, true);
         }
 
         $vendor_questions = VendorRatingQuestions::orderBy('id', 'ASC')->get();
@@ -2260,7 +2304,7 @@ class VendorController extends Controller
 
         $status = VendorRatingQAStatus::all();
 
-        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status'))
+        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsrqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 

@@ -211,18 +211,20 @@
 
 <div class="infinite-scroll">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table" style="table-layout: fixed;">
+        <table class="table table-bordered table-striped" id="vendor-table">
             <thead>
                 <tr>
                     @if(!empty($dynamicColumnsToShowVendorsfc))
-                        @if (!in_array('ID', $dynamicColumnsToShowVendorsfc))
+                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
                             <th width="10%">Vendor</th>
+                        @endif
+                        @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
                             <th width="10%">Categgory</th>
                         @endif
                         @if($vendor_flow_charts)
                             @foreach($vendor_flow_charts as $flow_chart)
                                 @if (!in_array($flow_chart->id, $dynamicColumnsToShowVendorsfc))
-                                    <th>{{$flow_chart->name}}</th>
+                                    <th width="20%">{{$flow_chart->name}}</th>
                                 @endif
                             @endforeach
                         @endif
@@ -231,14 +233,14 @@
                         <th width="10%">Categgory</th>
                         @if($vendor_flow_charts)
                             @foreach($vendor_flow_charts as $flow_chart)
-                                <th>{{$flow_chart->name}}</th>
+                                <th width="20%">{{$flow_chart->name}}</th>
                             @endforeach
                         @endif
                     @endif
                 </tr>
             </thead>
 
-            <tbody id="vendor-body">
+            <tbody>
                 @include('vendors.partials.data-fc')
             </tbody>
         </table>
