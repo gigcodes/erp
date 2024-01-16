@@ -2547,62 +2547,85 @@ class VendorController extends Controller
 
     public function vendorAllSection(Request $request)
     {
-        $VendorFlowchart = Vendor::with('category');
 
-        if (request('category') != null) {
-            $VendorFlowchart = $VendorFlowchart->where('category_id', $request->category);
+        $VendorFlowchart = [];
+        $VendorQuestionAnswer = [];
+        $VendorQuestionRAnswer = [];
+
+        if((!empty(request('vendors')) && (request('vendors') != null))) {
+
+            $VendorFlowchart = Vendor::with('category');
+
+            if((!empty(request('vendors')) && (request('vendors') != null))) {
+                $VendorFlowchart = $VendorFlowchart->whereIn('id', $request->vendors);
+            }
+
+            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->get();
+
+            
+            $VendorQuestionAnswer = Vendor::with('category');
+
+            if((!empty(request('vendors')) && (request('vendors') != null))) {
+                $VendorQuestionAnswer = $VendorQuestionAnswer->whereIn('id', $request->vendors);
+            }
+
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->get();
+
+
+            $VendorQuestionRAnswer = Vendor::with('category');
+
+            if((!empty(request('vendors')) && (request('vendors') != null))) {
+                $VendorQuestionRAnswer = $VendorQuestionRAnswer->whereIn('id', $request->vendors);
+            }
+
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->get();
+
         }
-
-        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
-            $VendorFlowchart = $VendorFlowchart->where('id', $request->selectedId);
-        }
-
-        $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->paginate(25);
-
+        
         $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
 
         $status = VendorFlowChartStatus::all();
 
-
-
-
-        $VendorQuestionAnswer = Vendor::with('category');
-
-        if (request('category') != null) {
-            $VendorQuestionAnswer = $VendorQuestionAnswer->where('category_id', $request->category);
-        }
-
-        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
-            $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $request->selectedId);
-        }
-
-        $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
-        
         $vendor_questions = VendorQuestions::orderBy('id', 'ASC')->get();
 
         $status_q = VendorQuestionStatus::all();
-
-
-
-        $VendorQuestionRAnswer = Vendor::with('category');
-
-        if (request('category') != null) {
-            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('category_id', $request->category);
-        }
-
-        if((!empty(request('selectedId')) && (request('selectedId') != null))) {
-            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('id', $request->selectedId);
-        }
-
-        $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->paginate(25);
-
 
         $vendor_r_questions = VendorRatingQuestions::orderBy('id', 'ASC')->get();
 
         $status_r = VendorRatingQAStatus::all();
 
         return view('vendors.all-section', compact('VendorFlowchart', 'VendorQuestionAnswer', 'VendorQuestionRAnswer', 'vendor_flow_charts', 'vendor_categories', 'vendor_r_questions', 'status', 'vendor_questions', 'status_q', 'status_r'));
+    }
+
+    public function deleteFlowchartCategory(Request $request)
+    {
+        try {
+            VendorFlowChart::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deleteQACategory(Request $request)
+    {
+        try {
+            VendorQuestions::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deleteRQACategory(Request $request)
+    {
+        try {
+            VendorRatingQuestions::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
     }
 }

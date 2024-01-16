@@ -283,6 +283,7 @@
         <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newRQuestionModal">Rating Question</a>
         <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.rating.question-answer')}}">Rating Question-Answer</a>
+        <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.all-section')}}">Vendor All Section</a>
         @endif
     </div>
 </div>

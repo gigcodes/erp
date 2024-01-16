@@ -2784,6 +2784,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/refresh-meetings-recordings', [VendorController::class, 'refreshMeetingList'])->name('vendor.meeting.refresh');
     Route::post('vendors/sync-meetings-recordings', [VendorController::class, 'syncMeetingsRecordings'])->name('vendor.meetings.recordings.sync');
     Route::post('vendors/column-visbility', [VendorController::class, 'columnVisbilityUpdate'])->name('vendors.column.update');
+    Route::post('vendors/delete-flowchart-category', [VendorController::class, 'deleteFlowchartCategory'])->name('delete.flowchart-category');
+    Route::post('vendors/delete-qa-category', [VendorController::class, 'deleteQACategory'])->name('delete.qa-category');
+    Route::post('vendors/delete-rqa-category', [VendorController::class, 'deleteRQACategory'])->name('delete.rqa-category');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
