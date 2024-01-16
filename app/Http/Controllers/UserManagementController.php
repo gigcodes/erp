@@ -48,7 +48,13 @@ class UserManagementController extends Controller
         //dd($sops);
         $category = $category->get();
 
-        $vendors = Vendor::where('feeback_status', 1)->paginate(25);
+        $query = Vendor::where('feeback_status', 1);
+
+        if (request('term') != null) {
+            $query = $query->where('name', 'LIKE', "%{$request->term}%");
+        }
+
+        $vendors = $query->paginate(25);                
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'get-feedback-table-data')->first();
 
