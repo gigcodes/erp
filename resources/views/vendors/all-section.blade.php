@@ -163,32 +163,17 @@
     </div>
 
     <div class="col-12">
-        <form class="form-inline" action="{{ route('vendors.flow-chart') }}" method="GET">
+        <form class="form-inline" action="{{ route('vendors.all-section') }}" method="GET">
 
-            <div class="form-group mr-3">
+            <div class="form-group mr-3 col-md-6 p-0">
                 <strong>Select Vendor :</strong></br>
-                <input type="text" name="term" id="searchInput" value="{{ request('term') }}" class="form-control" placeholder="Enter Vendor Name">
-                <input type="hidden" id="selectedId" name="selectedId" value="{{ request('selectedId') }}">
+
+                {{ Form::select("vendors[]", \App\Vendor::orderBy('name')->pluck('name','id')->toArray(), request('vendors'), ["class" => "form-control selectx-vendor", "multiple"]) }}
             </div>
 
-            <div class="form-group mr-3">
-                <strong>Select Vendor Category :</strong></br>
-                <?php
-                $category_post = request('category');
-                ?>
-                <select class="form-control" name="category" id="category">
-                    <option value="">Category</option>
-                    <?php
-                    foreach ($vendor_categories as $row_cate) { ?>
-                        <option value="<?php echo $row_cate->id; ?>" <?php if ($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title; ?></option>
-                    <?php }
-                    ?>
-                </select>
-            </div>
-
-            <div class="form-group col-md-1 pr-0 pt-20" style=" padding-top: 20px;">
+            <div class="form-group col-md-2 pr-0 pt-20" style=" padding-top: 20px;">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
-                <a href="{{route('vendors.flow-chart')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                <a href="{{route('vendors.all-section')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
             </div>
         </form>
     </div>
@@ -196,7 +181,8 @@
 
 @include('partials.flash_messages')
 
-<div class="infinite-scroll mt-5" style="overflow-y: auto">
+@if(count($VendorFlowchart)>0)
+<div class="infinite-scroll mt-2" style="overflow-y: auto">
     <div class="col-md-12 p-0">
         <h2 class="page-heading">
             Vendor Flow Chart
@@ -209,7 +195,13 @@
                 <th width="10%">Categgory</th>
                 @if($vendor_flow_charts)
                     @foreach($vendor_flow_charts as $flow_chart)
-                        <th width="20%">{{$flow_chart->name}}</th>
+                        <th width="20%">
+                            {{$flow_chart->name}}
+
+                            @if (auth()->user()->isAdmin())
+                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$flow_chart->id}}" ><i class="fa fa-trash"></i></button>
+                            @endif
+                        </th>
                     @endforeach
                 @endif
             </tr>
@@ -253,7 +245,9 @@
         </tbody>
     </table>
 </div>
+@endif
 
+@if(count($VendorQuestionAnswer)>0)
 <div class="infinite-scroll mt-5" style="overflow-y: auto">
     <div class="col-md-12 p-0">
         <h2 class="page-heading">
@@ -267,7 +261,13 @@
                 <th width="10%">Category</th>
                 @if($vendor_questions)
                     @foreach($vendor_questions as $question_data)
-                        <th width="20%">{{$question_data->question}}</th>
+                        <th width="20%">
+                            {{$question_data->question}}
+
+                            @if (auth()->user()->isAdmin())
+                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-qa-category" title="Delete Category" data-id="{{$question_data->id}}" ><i class="fa fa-trash"></i></button>
+                            @endif
+                        </th>
                     @endforeach
                 @endif
             </tr>
@@ -313,7 +313,9 @@
         </tbody>
     </table>
 </div>
+@endif
 
+@if(count($VendorQuestionRAnswer)>0)
 <div class="infinite-scroll mt-5" style="overflow-y: auto">
     <h2 class="page-heading">
             Vendor Rating Question Answer
@@ -325,7 +327,13 @@
                 <th width="10%">Category</th>
                 @if($vendor_r_questions)
                     @foreach($vendor_r_questions as $question_data)
-                        <th width="20%">{{$question_data->question}}</th>
+                        <th width="20%">
+                            {{$question_data->question}}
+
+                            @if (auth()->user()->isAdmin())
+                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-rqa-category" title="Delete Category" data-id="{{$question_data->id}}" ><i class="fa fa-trash"></i></button>
+                            @endif
+                        </th>
                     @endforeach
                 @endif
             </tr>
@@ -374,6 +382,7 @@
         </tbody>
     </table>
 </div>
+@endif
 
 <div id="vfc-remarks-histories-list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -629,37 +638,6 @@
             }
         });
     });
-
-    $("#filter_vendor").select2();
-
-    $(document).ready(function($) {
-        $("#searchInput").autocomplete({
-            source: function(request, response) {
-                // Send an AJAX request to the server-side script
-                $.ajax({
-                    url: '{{ route('vendors.autocomplete') }}',
-                    dataType: 'json',
-                    data: {
-                        term: request.term // Pass user input as 'term' parameter
-                    },
-                    success: function (data) {
-                        var transformedData = Object.keys(data).map(function(key) {
-                            return {
-                                label: data[key],
-                                value: data[key],
-                                id: key
-                            };
-                        });
-                        response(transformedData); // Populate autocomplete suggestions with label, value, and id
-                    }
-                });
-            },
-            minLength: 2, // Minimum characters before showing suggestions
-            select: function(event, ui) {
-                $('#selectedId').val(ui.item.id);
-            }
-        });
-    })
 
     $('.status-dropdown').change(function(e) {
       e.preventDefault();
@@ -989,5 +967,108 @@
             }
         });
     });
+
+    $(document).on("click", ".delete-category",function(e){
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let category_id =  $(this).data('id');
+        if(category_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                
+                $.ajax({
+                    url:"{{ route('delete.flowchart-category') }}",
+                    type:"post",
+                    data:{
+                        id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on("click", ".delete-qa-category",function(e){
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let category_id =  $(this).data('id');
+        if(category_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                
+                $.ajax({
+                    url:"{{ route('delete.qa-category') }}",
+                    type:"post",
+                    data:{
+                        id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on("click", ".delete-rqa-category",function(e){
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let category_id =  $(this).data('id');
+        if(category_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                
+                $.ajax({
+                    url:"{{ route('delete.rqa-category') }}",
+                    type:"post",
+                    data:{
+                        id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(".selectx-vendor").select2({
+            tags: true
+        });
 </script>
 @endsection
