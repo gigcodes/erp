@@ -40,15 +40,18 @@ class BankStatementController extends Controller
         $mimeType = mime_content_type($tempPath);
         $size = filesize($tempPath);
 
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $path = $file->move(storage_path('app/files/bank_statements'), $fileName);
+        $path = 'files/bank_statements/'.$fileName;
+      
         // Create an UploadedFile instance manually
-        $uploadedFile = new UploadedFile(
-            $tempPath,       // Temporary path
-            $originalName,   // Original file name
-            $mimeType,       // File mime type
-            $size           // File size
-        );
-
-        $path = $uploadedFile->store('files/bank_statements');
+        // $uploadedFile = new UploadedFile(
+        //     $tempPath,       // Temporary path
+        //     $originalName,   // Original file name
+        //     $mimeType,       // File mime type
+        //     $size           // File size
+        // );
+        // $path = $uploadedFile->store('files/bank_statements');
 
         $bankStatement = BankStatementFile::create([
             'filename' => $originalName,
@@ -65,7 +68,8 @@ class BankStatementController extends Controller
     public function map($id, Request $request)
     {
         $bankStatement = BankStatementFile::find($id);
-        $filePath = storage_path("app/".$bankStatement->path); //read file path
+        // $filePath = storage_path("app/".$bankStatement->path); //read file path
+        $filePath = $bankStatement->path; //read file path
        
         $data = Excel::toArray([], $filePath);
         
