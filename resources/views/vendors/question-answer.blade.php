@@ -195,11 +195,7 @@
                 </select>
             </div>
 
-            {{-- <div class="form-group col-md-3 pr-0">
-                <strong>Select Vendor :</strong>
-                {{ Form::select("filter_vendor[]", \App\Vendor::orderBy('name')->pluck('name','id')->toArray(), request('filter_vendor'), ["class" => "form-control select2", "multiple", "id" => "filter_vendor"]) }}
-            </div> --}}
-            <div class="form-group col-md-1 pr-0 pt-20" style=" padding-top: 20px;">
+            <div class="form-group col-md-2 pr-0 pt-20" style=" padding-top: 20px;">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                 <a href="{{route('vendors.flow-chart')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
             </div>
@@ -225,7 +221,15 @@
                     @if($vendor_questions)
                         @foreach($vendor_questions as $question_data)
                             @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsqa))
-                                <th width="20%">{{$question_data->question}}</th>
+                                <th width="20%">
+
+                                    {{$question_data->question}}
+
+                                    @if (auth()->user()->isAdmin())
+                                        <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$question_data->id}}" ><i class="fa fa-trash"></i></button>
+                                    @endif
+
+                                </th>
                             @endif
                         @endforeach
                     @endif
@@ -234,7 +238,15 @@
                     <th width="10%">Category</th>
                     @if($vendor_questions)
                         @foreach($vendor_questions as $question_data)
-                            <th width="20%">{{$question_data->question}}</th>
+                            <th width="20%">
+
+                                {{$question_data->question}}
+
+                                @if (auth()->user()->isAdmin())
+                                    <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-category" title="Delete Category" data-id="{{$question_data->id}}" ><i class="fa fa-trash"></i></button>
+                                @endif
+
+                            </th>
                         @endforeach
                     @endif
                 @endif
@@ -476,6 +488,38 @@
                 }
             }
         });
+    });
+
+    $(document).on("click", ".delete-category",function(e){
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let category_id =  $(this).data('id');
+        if(category_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                $.ajax({
+                    url:"{{ route('delete.qa-category') }}",
+                    type:"post",
+                    data:{
+                        id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
     });
 </script>
 @endsection
