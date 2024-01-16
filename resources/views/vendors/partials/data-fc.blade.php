@@ -1,7 +1,7 @@
 @foreach ($VendorFlowchart as $vendor)
     @if(!empty($dynamicColumnsToShowVendorsfc))
         <tr>
-            @if (!in_array('ID', $dynamicColumnsToShowVendorsfc))
+            @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
                 <td>{{ $vendor->name }}</td>
             @endif
 

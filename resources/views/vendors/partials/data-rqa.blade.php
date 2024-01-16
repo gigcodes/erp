@@ -1,7 +1,7 @@
 @foreach ($VendorQuestionAnswer as $vendor)
     @if(!empty($dynamicColumnsToShowVendorsrqa))
         <tr>
-            @if (!in_array('ID', $dynamicColumnsToShowVendorsrqa))
+            @if (!in_array('Vendor', $dynamicColumnsToShowVendorsrqa))
                 <td>{{ $vendor->name }}</td>
             @endif
 

@@ -215,8 +215,10 @@
             <thead>
                 <tr>
                     @if(!empty($dynamicColumnsToShowVendorsfc))
-                        @if (!in_array('ID', $dynamicColumnsToShowVendorsfc))
+                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
                             <th width="10%">Vendor</th>
+                        @endif
+                        @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
                             <th width="10%">Categgory</th>
                         @endif
                         @if($vendor_flow_charts)

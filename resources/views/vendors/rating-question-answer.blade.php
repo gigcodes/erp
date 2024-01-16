@@ -213,8 +213,10 @@
             <thead>
                 <tr>
                     @if(!empty($dynamicColumnsToShowVendorsrqa))
-                        @if (!in_array('ID', $dynamicColumnsToShowVendorsrqa))
+                        @if (!in_array('Vendor', $dynamicColumnsToShowVendorsrqa))
                             <th width="10%">Vendor</th>
+                        @endif
+                        @if (!in_array('Category', $dynamicColumnsToShowVendorsrqa))
                             <th width="10%">Category</th>
                         @endif
                         @if($vendor_questions)
