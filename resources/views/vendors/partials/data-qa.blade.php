@@ -28,7 +28,7 @@
                                     <button type="button" data-vendorid="{{ $vendor->id }}" data-question_id="{{ $question_data->id }}" class="btn btn-image answer-history-show p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
                                 </div>
 
-                                <select style="margin-top: 0px;width:10% !important;" class="form-control status-dropdown" name="status" class="status-dropdown" data-id="{{$vendor->id}}" data-question_id="{{$question_data->id}}">
+                                <select style="margin-top: 0px;width:10% !important;" class="form-control status-dropdown" name="status" data-id="{{$vendor->id}}" data-question_id="{{$question_data->id}}">
                                     <option value="">Select Status</option>
                                     @foreach ($status_q as $stat)
                                         <option value="{{$stat->id}}">{{$stat->status_name}}</option>
@@ -65,7 +65,7 @@
                                 <button type="button" data-vendorid="{{ $vendor->id }}" data-question_id="{{ $question_data->id }}" class="btn btn-image answer-history-show p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
                             </div>
 
-                            <select style="margin-top: 0px;width:10% !important;" class="form-control status-dropdown" name="status" class="status-dropdown" data-id="{{$vendor->id}}" data-question_id="{{$question_data->id}}">
+                            <select style="margin-top: 0px;width:10% !important;" class="form-control status-dropdown" name="status" data-id="{{$vendor->id}}" data-question_id="{{$question_data->id}}">
                                 <option value="">Select Status</option>
                                 @foreach ($status_q as $stat)
                                     <option value="{{$stat->id}}">{{$stat->status_name}}</option>
@@ -73,7 +73,6 @@
                             </select>
                             <button type="button" data-id="{{ $vendor->id  }}" data-question_id="{{$question_data->id}}" class="btn btn-image status-history-show p-0 ml-2"  title="Status Histories" ><i class="fa fa-info-circle"></i></button>
 
-                            <button type="button" class="btn btn-image add-note-answer" title="Add Rating Question Answer Note" data-id="{{$vendor->id}}" data-question_id="{{$question_data->id}}"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
                         </div>
                     </td>
                 @endforeach

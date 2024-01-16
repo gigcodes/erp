@@ -158,7 +158,7 @@
 <div class="row">
     <div class="col-md-12 p-0">
         <h2 class="page-heading">
-            Vendor Question Answer ({{ $totalVendor }})
+            Vendor Rating Question Answer ({{ $totalVendor }})
             <div style="float: right;">
                 <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#rqadatatablecolumnvisibilityList">Column Visiblity</button>
 
@@ -249,35 +249,6 @@
     {!! $VendorQuestionAnswer->appends(Request::except('page'))->links() !!}
 </div>
 
-<div id="vfc-remarks-histories-list" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Remarks Histories</h4>
-                <button type="button" class="close" data-dismiss="modal">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th width="10%">No</th>
-                                <th width="30%">Remarks</th>
-                                <th width="20%">Updated BY</th>
-                                <th width="30%">Created Date</th>
-                            </tr>
-                        </thead>
-                        <tbody class="vfc-remarks-histories-list-view">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 <div id="rqa-status-histories-list" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
