@@ -9,8 +9,8 @@
                 <td>@if(!empty($vendor->category->title)) {{ $vendor->category->title }} @endif</td>
             @endif
             
-            @if($vendor_questions)
-                @foreach($vendor_questions as $question_data)
+            @if($rating_questions)
+                @foreach($rating_questions as $question_data)
                     @if (!in_array($question_data->id, $dynamicColumnsToShowVendorsrqa))
                         @php
                             $status_color = new stdClass();
@@ -28,7 +28,7 @@
                                 @endfor
                                 </select>
                                 <div style="margin-top: 0px; margin-right: 10px;" class="d-flex p-0">
-                                    <button class="btn pr-0 btn-xs btn-image " onclick="saverAnswer({{ $vendor->id }}, {{ $question_data->id }})"><img src="/images/filled-sent.png"></button>
+                                    <button type="button" class="btn pr-0 btn-xs btn-image " onclick="saverAnswer({{ $vendor->id }}, {{ $question_data->id }})"><img src="/images/filled-sent.png"></button>
                                     <button type="button" data-vendorid="{{ $vendor->id }}" data-question_id="{{ $question_data->id }}" class="btn btn-image ranswer-history-show p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             
@@ -51,8 +51,8 @@
         <tr>
             <td>{{ $vendor->name }}</td>
             <td>@if(!empty($vendor->category->title)) {{ $vendor->category->title }} @endif</td>
-            @if($vendor_questions)
-                @foreach($vendor_questions as $question_data)
+            @if($rating_questions)
+                @foreach($rating_questions as $question_data)
                     @php
                         $status_color = new stdClass();
                         $status_hcolor = \App\Models\VendorRatingQAStatusHistory::where('question_id',$question_data->id)->where('vendor_id',$vendor->id)->orderBy('id', 'DESC')->first();
@@ -69,7 +69,7 @@
                             @endfor
                             </select>
                             <div style="margin-top: 0px; margin-right: 10px;" class="d-flex p-0">
-                                <button class="btn pr-0 btn-xs btn-image " onclick="saverAnswer({{ $vendor->id }}, {{ $question_data->id }})"><img src="/images/filled-sent.png"></button>
+                                <button type="button" class="btn pr-0 btn-xs btn-image " onclick="saverAnswer({{ $vendor->id }}, {{ $question_data->id }})"><img src="/images/filled-sent.png"></button>
                                 <button type="button" data-vendorid="{{ $vendor->id }}" data-question_id="{{ $question_data->id }}" class="btn btn-image ranswer-history-show p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
                             </div>
                         

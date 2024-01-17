@@ -285,9 +285,9 @@ class VendorController extends Controller
 
         $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
 
-        $vendor_questions = VendorQuestions::orderBy('id', 'DESC')->get();
+        $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
 
-        $rating_questions = VendorRatingQuestions::orderBy('id', 'DESC')->get();
+        $rating_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
 
         $status_q = VendorQuestionStatus::all();
 
@@ -2183,7 +2183,7 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendorsqa = json_decode($hideColumns, true);
         }
         
-        $vendor_questions = VendorQuestions::orderBy('id', 'ASC')->get();
+        $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
 
@@ -2219,7 +2219,7 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendorsrqa = json_decode($hideColumns, true);
         }
 
-        $vendor_questions = VendorRatingQuestions::orderBy('id', 'ASC')->get();
+        $rating_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
 
@@ -2227,7 +2227,7 @@ class VendorController extends Controller
 
         $status_q = VendorQuestionStatus::all();
 
-        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsrqa', 'totalVendor', 'vendor_questions', 'vendor_categories', 'status', 'status_q'))
+        return view('vendors.rating-question-answer', compact('VendorQuestionAnswer', 'dynamicColumnsToShowVendorsrqa', 'totalVendor', 'rating_questions', 'vendor_categories', 'status', 'status_q'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
@@ -2250,13 +2250,44 @@ class VendorController extends Controller
     {
         $status_color = $request->all();
         $data = $request->except('_token');
-        foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = VendorRatingQAStatus::find($key);
-            $bugstatus->status_color = $value;
-            $bugstatus->save();
+        foreach ($status_color['colorname'] as $key => $value) {
+            $vr_status = VendorRatingQAStatus::find($key);
+            $vr_status->status_name = $value;
+            $vr_status->status_color = $status_color['color_name'][$key];
+            $vr_status->save();
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function deleteFlowchartstatus(Request $request)
+    {
+        try {
+            VendorFlowChartStatus::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deleteQAStatus(Request $request)
+    {
+        try {
+            VendorQuestionStatus::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function deleteRQAStatus(Request $request)
+    {
+        try {
+            VendorRatingQAStatus::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
     }
 
     public function flowchartStatusCreate(Request $request)
@@ -2278,10 +2309,11 @@ class VendorController extends Controller
     {
         $status_color = $request->all();
         $data = $request->except('_token');
-        foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = VendorFlowChartStatus::find($key);
-            $bugstatus->status_color = $value;
-            $bugstatus->save();
+        foreach ($status_color['colorname'] as $key => $value) {
+            $vf_status = VendorFlowChartStatus::find($key);
+            $vf_status->status_name = $value;
+            $vf_status->status_color = $status_color['color_name'][$key];
+            $vf_status->save();
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
@@ -2411,10 +2443,11 @@ class VendorController extends Controller
     {
         $status_color = $request->all();
         $data = $request->except('_token');
-        foreach ($status_color['color_name'] as $key => $value) {
-            $bugstatus = VendorQuestionStatus::find($key);
-            $bugstatus->status_color = $value;
-            $bugstatus->save();
+        foreach ($status_color['colorname'] as $key => $value) {
+            $vq_status = VendorQuestionStatus::find($key);
+            $vq_status->status_name = $value;
+            $vq_status->status_color = $status_color['color_name'][$key];
+            $vq_status->save();
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
@@ -2461,7 +2494,6 @@ class VendorController extends Controller
 
     public function vendorAllSection(Request $request)
     {
-
         $VendorFlowchart = [];
         $VendorQuestionAnswer = [];
         $VendorQuestionRAnswer = [];
@@ -2502,11 +2534,11 @@ class VendorController extends Controller
 
         $status = VendorFlowChartStatus::all();
 
-        $vendor_questions = VendorQuestions::orderBy('id', 'ASC')->get();
+        $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
 
         $status_q = VendorQuestionStatus::all();
 
-        $vendor_r_questions = VendorRatingQuestions::orderBy('id', 'ASC')->get();
+        $vendor_r_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
 
         $status_r = VendorRatingQAStatus::all();
 
@@ -2541,5 +2573,114 @@ class VendorController extends Controller
         } catch (\Exception $e) {
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
+    }
+
+    public function flowchartSortOrder(Request $request)
+    {
+        $flowchart_vendor = $request->all();
+        $data = $request->except('_token');
+        foreach ($flowchart_vendor['sorting'] as $key => $value) {
+            $f_vendor = VendorFlowChart::find($key);
+            $f_vendor->sorting = $value;
+            $f_vendor->save();
+        }
+
+        return redirect()->back()->with('success', 'The sort order updated successfully.');
+    }
+
+    public function qaSortOrder(Request $request)
+    {
+        $question_vendor = $request->all();
+        $data = $request->except('_token');
+        foreach ($question_vendor['sorting'] as $key => $value) {
+            $qa_vendor = VendorQuestions::find($key);
+            $qa_vendor->sorting = $value;
+            $qa_vendor->save();
+        }
+
+        return redirect()->back()->with('success', 'The sort order updated successfully.');
+    }
+
+    public function rqaSortOrder(Request $request)
+    {
+        $rquestion_vendor = $request->all();
+        $data = $request->except('_token');
+        foreach ($rquestion_vendor['sorting'] as $key => $value) {
+            $rqa_vendor = VendorRatingQuestions::find($key);
+            $rqa_vendor->sorting = $value;
+            $rqa_vendor->save();
+        }
+
+        return redirect()->back()->with('success', 'The sort order updated successfully.');
+    }
+
+    public function searchVendorFlowcharts(Request $request)
+    {
+        $vendor_id = $request->vendor_id;
+
+        $VendorFlowchart = [];
+
+        if((!empty($vendor_id) && ($vendor_id != null))) {
+
+            $VendorFlowchart = Vendor::with('category');
+
+            $VendorFlowchart = $VendorFlowchart->where('id', $vendor_id);
+
+            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->get();
+
+        }
+        
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+
+        $status = VendorFlowChartStatus::all();
+
+
+        return view('vendors.partials.search-data-fc', compact('VendorFlowchart', 'vendor_flow_charts', 'status', 'vendor_id'));
+    }
+
+    public function searchVendorQa(Request $request)
+    {
+        $vendor_id = $request->vendor_id;
+
+        $VendorQuestionAnswer = [];
+
+        if((!empty($vendor_id) && ($vendor_id != null))) {
+
+            $VendorQuestionAnswer = Vendor::with('category');
+
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('id', $vendor_id);
+
+            $VendorQuestionAnswer = $VendorQuestionAnswer->where('question_status',1)->orderBy("flowchart_date", "DESC")->get();
+
+        }
+
+        $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
+
+        $status_q = VendorQuestionStatus::all();
+
+        return view('vendors.partials.search-data-qa', compact('VendorQuestionAnswer', 'vendor_questions', 'status_q', 'vendor_id'));
+    }
+
+    public function searchVendorRQa(Request $request)
+    {
+        $vendor_id = $request->vendor_id;
+
+        $VendorQuestionRAnswer = [];
+
+        if((!empty($vendor_id) && ($vendor_id != null))) {
+
+            $VendorQuestionRAnswer = Vendor::with('category');
+
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('id', $vendor_id);
+
+            $VendorQuestionRAnswer = $VendorQuestionRAnswer->where('rating_question_status',1)->orderBy("flowchart_date", "DESC")->get();
+
+        }
+
+        $vendor_r_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
+
+        $status_r = VendorRatingQAStatus::all();
+
+        return view('vendors.partials.search-data-rqa', compact('VendorQuestionRAnswer', 'vendor_r_questions', 'status_r', 'vendor_id'));
     }
 }

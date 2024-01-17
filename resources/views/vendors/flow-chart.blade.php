@@ -336,13 +336,19 @@
                             <td class="text-center"><b>Status Name</b></td>
                             <td class="text-center"><b>Color Code</b></td>
                             <td class="text-center"><b>Color</b></td>
+                            <td class="text-center"><b>Action</b></td>
                         </tr>
                         <?php
                         foreach ($status as $status_data) { ?>
                         <tr>
-                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->status_name; ?></td>
+                            <td>
+                                <input type="text" name="colorname[<?php echo $status_data->id; ?>]" class="form-control" value="<?php echo $status_data->status_name; ?>">
+                            </td>
                             <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
-                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
+                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>
+                            <td>
+                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-status-fc" title="Delete Status" data-id="{{$status_data->id}}" ><i class="fa fa-trash"></i></button>
+                            </td>                           
                         </tr>
                         <?php } ?>
                     </table>
@@ -593,6 +599,38 @@
                     type:"post",
                     data:{
                         id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on("click", ".delete-status-fc",function(e){
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let status_id =  $(this).data('id');
+        if(status_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                $.ajax({
+                    url:"{{ route('delete.flowchart-status') }}",
+                    type:"post",
+                    data:{
+                        id:status_id,
                         _token: _token
                     },
                     cashe:false,

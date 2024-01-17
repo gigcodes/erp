@@ -16,6 +16,14 @@
                     @endif
                 </div>
 
+                <div class="form-group">
+                    <input type="number" class="form-control" name="sorting" placeholder="Sorting" value="{{ old('sorting') }}" required>
+
+                    @if ($errors->has('sorting'))
+                        <div class="alert alert-danger">{{$errors->first('sorting')}}</div>
+                    @endif
+                </div>
+
                 <button type="submit" class="btn btn-secondary">Add Question</button>
             </form>
 
@@ -24,11 +32,14 @@
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
                         <tr>
                             <th>Question</th>
+                            <td class="text-center"><b>Sorting</b></td>
                         </tr>
                         <?php
                         foreach ($vendor_questions as $questions) { ?>
                             <tr>
                                 <td><?php echo $questions->question; ?></td>
+
+                                <td><?php echo $questions->sorting; ?></td>    
                             </tr>
                         <?php } ?>
                     </table>
@@ -113,6 +124,14 @@
                     @endif
                 </div>
 
+                <div class="form-group">
+                    <input type="number" class="form-control" name="sorting" placeholder="Sorting" value="{{ old('sorting') }}" required>
+
+                    @if ($errors->has('sorting'))
+                        <div class="alert alert-danger">{{$errors->first('sorting')}}</div>
+                    @endif
+                </div>
+
                 <button type="submit" class="btn btn-secondary">Add Question</button>
             </form>
 
@@ -121,11 +140,13 @@
                     <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
                         <tr>
                             <th>Rating Question</th>
+                            <td class="text-center"><b>Sorting</b></td>
                         </tr>
                         <?php
                         foreach ($rating_questions as $questions_r) { ?>
                             <tr>
                                 <td><?php echo $questions_r->question; ?></td>
+                                <td><?php echo $questions_r->sorting; ?></td>
                             </tr>
                         <?php } ?>
                     </table>
@@ -234,13 +255,21 @@
                             <td class="text-center"><b>Status Name</b></td>
                             <td class="text-center"><b>Color Code</b></td>
                             <td class="text-center"><b>Color</b></td>
+                            <td class="text-center"><b>Action</b></td>
                         </tr>
                         <?php
                         foreach ($status as $status_data) { ?>
                         <tr>
-                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data->status_name; ?></td>
+                            <td>
+                                <input type="text" name="colorname[<?php echo $status_data->id; ?>]" class="form-control" value="<?php echo $status_data->status_name; ?>">
+                            </td>
                             <td style="text-align:center;"><?php echo $status_data->status_color; ?></td>
-                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;"></td>                              
+                            <td style="text-align:center;">
+                                <input type="color" name="color_name[<?php echo $status_data->id; ?>]" class="form-control" data-id="<?php echo $status_data->id; ?>" id="color_name_<?php echo $status_data->id; ?>" value="<?php echo $status_data->status_color; ?>" style="height:30px;padding:0px;">
+                            </td>     
+                            <td>
+                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-status-rq" title="Delete Status" data-id="{{$status_data->id}}" ><i class="fa fa-trash"></i></button>
+                            </td>                         
                         </tr>
                         <?php } ?>
                     </table>
@@ -342,13 +371,19 @@
                             <td class="text-center"><b>Status Name</b></td>
                             <td class="text-center"><b>Color Code</b></td>
                             <td class="text-center"><b>Color</b></td>
+                            <td class="text-center"><b>Action</b></td>
                         </tr>
                         <?php
                         foreach ($status_q as $status_data_q) { ?>
                         <tr>
-                            <td>&nbsp;&nbsp;&nbsp;<?php echo $status_data_q->status_name; ?></td>
+                            <td>
+                                <input type="text" name="colorname[<?php echo $status_data_q->id; ?>]" class="form-control" value="<?php echo $status_data_q->status_name; ?>">
+                            </td>
                             <td style="text-align:center;"><?php echo $status_data_q->status_color; ?></td>
-                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data_q->id; ?>]" class="form-control" data-id="<?php echo $status_data_q->id; ?>" id="color_name_<?php echo $status_data_q->id; ?>" value="<?php echo $status_data_q->status_color; ?>" style="height:30px;padding:0px;"></td>                              
+                            <td style="text-align:center;"><input type="color" name="color_name[<?php echo $status_data_q->id; ?>]" class="form-control" data-id="<?php echo $status_data_q->id; ?>" id="color_name_<?php echo $status_data_q->id; ?>" value="<?php echo $status_data_q->status_color; ?>" style="height:30px;padding:0px;"></td> 
+                            <td>
+                                <button style="padding-left: 10px;padding-right:0px;margin-top:2px;" type="button" class="btn pt-1 btn-image d-inline delete-status-q" title="Delete Status" data-id="{{$status_data_q->id}}" ><i class="fa fa-trash"></i></button>
+                            </td>                              
                         </tr>
                         <?php } ?>
                     </table>
