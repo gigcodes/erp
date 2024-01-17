@@ -39,8 +39,10 @@ class BankStatementController extends Controller
         $originalName = $file->getClientOriginalName();
         $mimeType = mime_content_type($tempPath);
         $size = filesize($tempPath);
-
-        $fileName = time() . '_' . $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        
+        // $fileName = time() . '_' . $file->getClientOriginalName();
+        $fileName = md5(time()) . '.' . $extension;
         $path = $file->move(storage_path('app/files/bank_statements'), $fileName);
         $path = 'files/bank_statements/'.$fileName;
       
@@ -74,9 +76,9 @@ class BankStatementController extends Controller
     public function map(Request $request, $id, $heading_row_number = 1)
     {
         $bankStatement = BankStatementFile::find($id);
-        // $filePath = storage_path("app/".$bankStatement->path); //read file path
-        $filePath = $bankStatement->path; //read file path
-       
+        $filePath = storage_path("app/".$bankStatement->path); //read file path
+        // $filePath = $bankStatement->path; //read file path
+        
         $data = Excel::toArray([], $filePath);
         
         // Assuming the first row contains column headers
@@ -99,8 +101,8 @@ class BankStatementController extends Controller
     public function map_import(Request $request, $id, $heading_row_number = 1)
     {
         $bankStatementFile = BankStatementFile::find($id);
-        // $filePath = storage_path("app/".$bankStatementFile->path); //read file path
-        $filePath = $bankStatementFile->path; //read file path
+        $filePath = storage_path("app/".$bankStatementFile->path); //read file path
+        // $filePath = $bankStatementFile->path; //read file path
        
         $data = Excel::toArray([], $filePath);
         $number = $heading_row_number-1;
