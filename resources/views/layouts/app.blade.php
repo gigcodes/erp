@@ -1592,6 +1592,11 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         </a>
 
                                 </li>
+                                <li>
+                                    <a href="{{ route('bank-statement.index') }}" title="Bank statements" class="quick-icon">
+                                        <span><i class="fa fa-list fa-2x"></i></span>
+                                    </a>
+                                </li>
                                 @endif
                                 <li>
                                     <a title="Quick User Event Notification" class="notification-button quick-icon" href="#"><span><i
@@ -4596,7 +4601,9 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                         <li class="nav-item">
                                             <a class="dropdown-item" href="{{ route('magento.command') }}">Magento Command</a>
                                         </li>
-
+                                        <li class="nav-item">
+                                            <a class="dropdown-item" href="{{ route('bank-statement.index') }}">Bank statements</a>
+                                        </li>
                                 </ul>
                             </li>
                             @endif
