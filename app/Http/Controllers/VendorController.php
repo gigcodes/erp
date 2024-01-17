@@ -51,6 +51,8 @@ use App\Models\VendorFlowChartStatusHistory;
 use App\Models\VendorRatingQANotes;
 use App\Models\VendorQuestionStatus;
 use App\Models\VendorQuestionStatusHistory;
+use App\Models\VendorFLowChartNotes;
+use App\Models\VendorFlowChartSorting;
 
 class VendorController extends Controller
 {
@@ -2510,6 +2512,18 @@ class VendorController extends Controller
         return redirect()->back()->with('success', 'You have successfully created a question!');
     }
 
+    public function flowchartnotesStore(Request $request)
+    {
+        $this->validate($request, [
+            'notes' => 'required',
+        ]);
+        $data = $request->except('_token');
+        $data['user_id'] = Auth::user()->id;
+        VendorFLowChartNotes::create($data);
+
+        return redirect()->back()->with('success', 'You have successfully created a question!');
+    }
+
     public function qaStatusCreate(Request $request)
     {
         try {
@@ -2768,5 +2782,81 @@ class VendorController extends Controller
         $status_r = VendorRatingQAStatus::all();
 
         return view('vendors.partials.search-data-rqa', compact('VendorQuestionRAnswer', 'vendor_r_questions', 'status_r', 'vendor_id'));
+    }
+
+    public function getVendorFlowchartNotes(Request $request)
+    {
+        $datas = VendorFLowChartNotes::where('vendor_id', $request->vendor_id)
+                ->where('flow_chart_id', $request->flow_chart_id)
+                ->latest()
+                ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $datas,
+            'message' => 'Question get successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function searchforVendorFlowcharts(Request $request)
+    {
+        $vendor_id = $request->vendor_id;
+
+        $VendorFlowchart = [];
+
+        if((!empty($vendor_id) && ($vendor_id != null))) {
+
+            $VendorFlowchart = Vendor::with('category');
+
+            $VendorFlowchart = $VendorFlowchart->where('id', $vendor_id);
+
+            $VendorFlowchart = $VendorFlowchart->whereNotNull('flowchart_date')->orderBy("flowchart_date", "DESC")->get();
+
+        }
+  
+        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+
+        if(!empty($vendor_flow_charts)){
+            foreach ($vendor_flow_charts as $key => $value) {
+
+                $vendorflowcharts = VendorFlowChartSorting::where('vendor_id', $vendor_id)->where('flow_chart_id', $value->id)->first();
+
+                if(empty($vendorflowcharts)){
+
+                    $vendorflowchartsSorting = VendorFlowChartSorting::where('vendor_id', $vendor_id)->orderBy('sorting_f', 'DESC')->first();
+
+                    $sorting_f = ($key+1);
+                    if(!empty($vendorflowchartsSorting)){
+                        $sorting_f = ($vendorflowchartsSorting->sorting_f+1);
+                    }
+
+                    $vendorfs = new VendorFlowChartSorting();
+                    $vendorfs->vendor_id = $vendor_id;
+                    $vendorfs->flow_chart_id = $value->id;
+                    $vendorfs->sorting_f = $sorting_f;
+                    $vendorfs->save();
+                }
+            }
+        }            
+
+        $vendor_flow_charts = VendorFlowChartSorting::with('flowchart')->where('vendor_id', $vendor_id)->orderBy('sorting_f', 'ASC')->get();
+
+        $status = VendorFlowChartStatus::all();
+
+        return view('vendors.partials.search-data-fc-vendor', compact('VendorFlowchart', 'vendor_flow_charts', 'status', 'vendor_id'));
+    }
+
+    public function flowchartupdatesorting(Request $request)
+    {
+        $update_sorting = $request->all();
+        $data = $request->except('_token');
+        foreach ($update_sorting['updatesorting'] as $key => $value) {
+            $upsorting = VendorFlowChartSorting::find($key);
+            $upsorting->sorting_f = $value;
+            $upsorting->save();
+        }
+
+        return redirect()->back()->with('success', 'The sorting updated successfully.');
     }
 }

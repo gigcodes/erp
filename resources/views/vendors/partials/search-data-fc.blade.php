@@ -16,7 +16,10 @@
 
                                     <button type="button" data-vendorid="{{ $vendor_id }}" data-flow_chart_id="{{ $flow_chart->id }}" class="btn btn-image remarks-history-show-header-fc p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
                                 </div>
-
+                            </div>
+                        </td>
+                        <td>
+                            <div class=" mb-1 p-0 d-flex pt-2 mt-1">
                                 <select style="margin-top: 0px;width:40% !important;" class="form-control status-dropdown-header-fc" name="status" data-id="{{$vendor_id}}" data-flow_chart_id="{{$flow_chart->id}}">
                                     <option value="">Select Status</option>
                                     @foreach ($status as $stat)

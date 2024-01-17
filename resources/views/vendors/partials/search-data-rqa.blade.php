@@ -22,7 +22,10 @@
 
                                     <button type="button" data-vendorid="{{ $vendor_id }}" data-rqa_id="{{ $question_data->id }}" class="btn btn-image ranswer-history-show-header-rqa p-0 ml-2" title="Answer Histories"><i class="fa fa-info-circle"></i></button>
                                 </div>
-
+                            </div>
+                        </td>
+                        <td>
+                            <div class=" mb-1 p-0 d-flex pt-2 mt-1">
                                 <select style="margin-top: 0px;width:40% !important;" class="form-control status-dropdown-header-rqa" name="status" data-id="{{$vendor_id}}" data-rqa_id="{{$question_data->id}}">
                                     <option value="">Select Status</option>
                                     @foreach ($status_r as $stat)
