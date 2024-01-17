@@ -1732,6 +1732,16 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                                     .switchAN .textLeft { left:10px; }
                                     .switchAN .textRight { right:10px; }
                                 </style>
+
+                                <li>
+                                    <a title="Vendor Flow charts" type="button" class="quick-icon vendor-flowchart-header" style="padding: 0px 1px;"><span><i class="fa fa-line-chart fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
+                                    <a title="Vendor Question Answer" type="button" class="quick-icon vendor-qa-header" style="padding: 0px 1px;"><span><i class="fa fa-question fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
+                                <li>
+                                    <a title="Vendor Rating Question Answer" type="button" class="quick-icon vendor-rqa-header" style="padding: 0px 1px;"><span><i class="fa fa-question-circle-o fa-2x" aria-hidden="true"></i></span></a>
+                                </li>
                             </ul>                         
                         </nav>
                         <div id="permission-request-model" class="modal fade" role="dialog">
@@ -5648,6 +5658,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 </div>
             </div>
         </div>
+        @include('partials.modals.vendor-action-modal')
         @include('partials.modals.shortcuts-header')
         @include('googledocs.partials.create-doc')
         @include('googledocs.partials.search-doc')
@@ -7088,6 +7099,102 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
                 toastr["Error"]("An error occured!");
             }
         });
+    });
+
+    $(document).on("click", ".btn-vendor-search-flowchart", function (e) {        
+        var fc_vendor_id = $('#fc_vendor_id').val();
+
+        if(fc_vendor_id>0){
+
+            $.ajax({
+                url: '{{route('vendors.flowcharts.search')}}',
+                type: 'POST',
+                data: {
+                    vendor_id: fc_vendor_id,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $('.show-vendor-search-flowchart-list').html(response);
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        } else {
+            alert('Please select vendor.')
+        }
+    });
+
+    $(document).on("click", ".btn-vendor-search-qa", function (e) {        
+        var qa_vendor_id = $('#qa_vendor_id').val();
+
+        if(qa_vendor_id>0){
+
+            $.ajax({
+                url: '{{route('vendors.qa.search')}}',
+                type: 'POST',
+                data: {
+                    vendor_id: qa_vendor_id,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $('.show-vendor-search-qa-list').html(response);
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        } else {
+            alert('Please select vendor.')
+        }
+    });
+
+    $(document).on("click", ".btn-vendor-search-rqa", function (e) {        
+        var rqa_vendor_id = $('#rqa_vendor_id').val();
+
+        if(rqa_vendor_id>0){
+
+            $.ajax({
+                url: '{{route('vendors.rqa.search')}}',
+                type: 'POST',
+                data: {
+                    vendor_id: rqa_vendor_id,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $('.show-vendor-search-rqa-list').html(response);
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        } else {
+            alert('Please select vendor.')
+        }
     });
 
     $(document).on("click", ".btn-dev-task-search-menu", function (e) {
@@ -10130,6 +10237,21 @@ if (!\Auth::guest()) {
         $("#menu-show-task-model").modal("show");
     });
 
+    $(document).on("click", ".vendor-flowchart-header", function(e) {
+        e.preventDefault();
+        $("#vendor-flowchart-header-model").modal("show");
+    });
+
+    $(document).on("click", ".vendor-qa-header", function(e) {
+        e.preventDefault();
+        $("#vendor-qa-header-model").modal("show");
+    });
+
+    $(document).on("click", ".vendor-rqa-header", function(e) {
+        e.preventDefault();
+        $("#vendor-rqa-header-model").modal("show");
+    });
+
     $(document).on("click", ".menu-show-dev-task", function(e) {
         e.preventDefault();
         $("#menu-show-dev-task-model").modal("show");
@@ -10140,6 +10262,404 @@ if (!\Auth::guest()) {
 
         getTodoListHeader();
         $("#menu-todolist-get-model").modal("show");
+    });
+
+    function saveRemarksHeaderFc(vendor_id, flow_chart_id){
+
+        var remarks = $("#remark_header_"+vendor_id+"_"+flow_chart_id).val();
+
+        if(remarks==''){
+            alert('Please enter remarks.');
+        } else {
+
+            $.ajax({
+                url: "{{route('vendors.flowchart.saveremarks')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'vendor_id' :vendor_id,
+                    'flow_chart_id' :flow_chart_id,
+                    'remarks' :remarks,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#remark_header_"+vendor_id+"_"+flow_chart_id).val('');
+                    $("#loading-image").hide();
+                    toastr['success']('Remarks Added successfully!!!', 'success');
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+    }
+    
+    $(document).on('click', '.remarks-history-show-header-fc', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var flow_chart_id = $(this).attr('data-flow_chart_id');
+
+        $.ajax({
+            url: "{{route('vendors.flowchart.getremarks')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'flow_chart_id' :flow_chart_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.remarks != null) ? v.remarks : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vfc-remarks-histories-list-header-fc").find(".vfc-remarks-histories-list-view-header-fc").html(html);
+                    $("#vfc-remarks-histories-list-header-fc").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on('change', '.status-dropdown-header-fc', function(e) {        
+        e.preventDefault();
+        var vendor_id = $(this).data('id');
+        var flow_chart_id = $(this).data('flow_chart_id');
+        var selectedStatus = $(this).val();
+
+        // Make an AJAX request to update the status
+        $.ajax({
+            url: '/vendor/update-flowchartstatus',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                vendor_id: vendor_id,
+                flow_chart_id: flow_chart_id,
+                selectedStatus: selectedStatus
+            },
+            success: function(response) {
+                toastr['success']('Status  Created successfully!!!', 'success');
+                console.log(response);
+            },
+            error: function(xhr, status, error) {
+                // Handle the error here
+                console.error(error);
+            }
+        });
+    });
+
+    $(document).on('click', '.status-history-show-header-fc', function() {
+        var vendor_id = $(this).attr('data-id');
+        var flow_chart_id = $(this).attr('data-flow_chart_id');
+
+        $.ajax({
+            url: "{{route('vendors.flowchartstatus.histories')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'flow_chart_id' :flow_chart_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                    <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#fl-status-histories-list-header-fc").find(".fl-status-histories-list-view-header-fc").html(html);
+                    $("#fl-status-histories-list-header-fc").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    function saveAnswerHeaderQa(vendor_id, question_id){
+
+        var answer = $("#answer_header_"+vendor_id+"_"+question_id).val();
+
+        if(answer==''){
+            alert('Please enter answer.');
+        } else {
+
+            $.ajax({
+                url: "{{route('vendors.question.saveanswer')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'vendor_id' :vendor_id,
+                    'question_id' :question_id,
+                    'answer' :answer,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#answer_header_"+vendor_id+"_"+question_id).val('');
+                    $("#loading-image").hide();
+                    toastr['success']('Answer Added successfully!!!', 'success');
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+    }
+
+    $(document).on('click', '.answer-history-show-header-qa', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var question_id = $(this).attr('data-qa_id');
+
+        $.ajax({
+            url: "{{route('vendors.question.getgetanswer')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.answer} </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vqa-answer-histories-list-header-qa").find(".vqa-answer-histories-list-view-header-qa").html(html);
+                    $("#vqa-answer-histories-list-header-qa").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on('change', '.status-dropdown-header-qa', function(e) {
+        e.preventDefault();
+        var vendor_id = $(this).data('id');
+        var question_id = $(this).data('qa_id');
+        var selectedStatus = $(this).val();
+
+        // Make an AJAX request to update the status
+        $.ajax({
+            url: '/vendor/update-qastatus',
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              vendor_id: vendor_id,
+              question_id: question_id,
+              selectedStatus: selectedStatus
+            },
+            success: function(response) {
+              toastr['success']('Status  Created successfully!!!', 'success');
+              console.log(response);
+            },
+            error: function(xhr, status, error) {
+              // Handle the error here
+              console.error(error);
+            }
+        });
+    });
+
+    $(document).on('click', '.status-history-show-header-qa', function() {
+        var vendor_id = $(this).attr('data-id');
+        var question_id = $(this).attr('data-qa_id');
+
+        $.ajax({
+            url: "{{route('vendors.qastatus.histories')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                    <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#qa-status-histories-list-header-qa").find(".qa-status-histories-list-view-header-qa").html(html);
+                    $("#qa-status-histories-list-header-qa").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+
+    function saveAnswerHeaderRQa(vendor_id, question_id){
+
+        var answer = $("#answerr_header_"+vendor_id+"_"+question_id).find("option:selected").val();
+
+        if(answer==''){
+            alert('Please select answer.');
+        } else {
+
+            $.ajax({
+                url: "{{route('vendors.question.saveranswer')}}",
+                type: 'POST',
+                headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    'vendor_id' :vendor_id,
+                    'question_id' :question_id,
+                    'answer' :answer,
+                },
+                beforeSend: function() {
+                    $(this).text('Loading...');
+                    $("#loading-image").show();
+                },
+                success: function(response) {
+                    $("#answerr_header_"+vendor_id+"_"+question_id+" option:first").prop('selected', true);                    
+                    $("#loading-image").hide();
+                    toastr['success']('Answer Added successfully!!!', 'success');
+                }
+            }).fail(function(response) {
+                $("#loading-image").hide();
+                toastr['error'](response.responseJSON.message);
+            });
+        }
+    }
+
+    $(document).on('click', '.ranswer-history-show-header-rqa', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var question_id = $(this).attr('data-rqa_id');
+
+        $.ajax({
+            url: "{{route('vendors.rquestion.getgetanswer')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.answer} </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#vqar-answer-histories-list-header-rqa").find(".vqar-answer-histories-list-view-header-rqa").html(html);
+                    $("#vqar-answer-histories-list-header-rqa").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on('change', '.status-dropdown-header-rqa', function(e) {
+        e.preventDefault();
+        var vendor_id = $(this).data('id');
+        var question_id = $(this).data('rqa_id');
+        var selectedStatus = $(this).val();
+
+        // Make an AJAX request to update the status
+        $.ajax({
+            url: '/vendor/update-rqastatus',
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+              vendor_id: vendor_id,
+              question_id: question_id,
+              selectedStatus: selectedStatus
+            },
+            success: function(response) {
+              toastr['success']('Status  Created successfully!!!', 'success');
+              console.log(response);
+            },
+            error: function(xhr, status, error) {
+              // Handle the error here
+              console.error(error);
+            }
+        });
+    });
+
+    $(document).on('click', '.status-history-show-header-rqa', function() {
+        var vendor_id = $(this).attr('data-id');
+        var question_id = $(this).attr('data-rqa_id');
+
+        $.ajax({
+            url: "{{route('vendors.rqastatus.histories')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'question_id' :question_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${(v.old_value != null) ? v.old_value.status_name : ' - ' } </td>
+                                    <td> ${(v.new_value != null) ? v.new_value.status_name : ' - ' } </td>
+                                    <td> ${(v.user !== undefined) ? v.user.name : ' - ' } </td>
+                                    <td> ${v.created_at} </td>
+                                </tr>`;
+                    });
+                    $("#rqa-status-histories-list-header-rqa").find(".rqa-status-histories-list-view-header-rqa").html(html);
+                    $("#rqa-status-histories-list-header-rqa").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
     });
 
     function getTodoListHeader(){

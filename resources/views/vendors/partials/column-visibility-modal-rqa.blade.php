@@ -27,8 +27,8 @@
                                     <input type="checkbox" value="Categgory" id="Categgory" name="column_vendorsfc[]" @if (!empty($dynamicColumnsToShowVendorsrqa) && in_array('Categgory', $dynamicColumnsToShowVendorsrqa)) checked @endif>
                                 </td>
                             </tr>                            
-                            @if($vendor_questions)
-                                @foreach($vendor_questions as $question_data)
+                            @if($rating_questions)
+                                @foreach($rating_questions as $question_data)
                                     <tr>
                                         <td>{{$question_data->question}}</td>
                                         <td>

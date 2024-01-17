@@ -2785,8 +2785,14 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/sync-meetings-recordings', [VendorController::class, 'syncMeetingsRecordings'])->name('vendor.meetings.recordings.sync');
     Route::post('vendors/column-visbility', [VendorController::class, 'columnVisbilityUpdate'])->name('vendors.column.update');
     Route::post('vendors/delete-flowchart-category', [VendorController::class, 'deleteFlowchartCategory'])->name('delete.flowchart-category');
+    Route::post('vendors/delete-flowchart-status', [VendorController::class, 'deleteFlowchartstatus'])->name('delete.flowchart-status');
     Route::post('vendors/delete-qa-category', [VendorController::class, 'deleteQACategory'])->name('delete.qa-category');
+    Route::post('vendors/delete-qa-status', [VendorController::class, 'deleteQAStatus'])->name('delete.qa-status');
     Route::post('vendors/delete-rqa-category', [VendorController::class, 'deleteRQACategory'])->name('delete.rqa-category');
+    Route::post('vendors/delete-rqa-status', [VendorController::class, 'deleteRQAStatus'])->name('delete.rqa-status');
+    Route::post('vendors/flowchart-sort-order', [VendorController::class, 'flowchartSortOrder'])->name('vendors.flowchart-sort-order');
+    Route::post('vendors/qa-sort-order', [VendorController::class, 'qaSortOrder'])->name('vendors.qa-sort-order');
+    Route::post('vendors/rqa-sort-order', [VendorController::class, 'rqaSortOrder'])->name('vendors.rqa-sort-order');
 
     Route::get('negative/coupon/response', [NegativeCouponResponseController::class, 'index'])->name('negative.coupon.response');
     Route::get('negative/coupon/response/search', [NegativeCouponResponseController::class, 'search'])->name('negative.coupon.response.search');
@@ -2855,6 +2861,9 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/flowchartstatus/histories', [VendorController::class, 'flowchartStatusHistories'])->name('vendors.flowchartstatus.histories');
     Route::post('vendor/questionanswer/notes', [VendorController::class, 'getVendorRatingQuestionsAnswerNotes'])->name('vendors.getrquestionnotes');
     Route::post('vendors/feedback/column-visbility', [UserManagementController::class, 'vendorFeedbackVolumnVisbilityUpdate'])->name('vendors.feedback.column.update');
+    Route::post('vendors/search-flowchart-header/', [VendorController::class, 'searchVendorFlowcharts'])->name('vendors.flowcharts.search');
+    Route::post('vendors/search-qa-header/', [VendorController::class, 'searchVendorQa'])->name('vendors.qa.search');
+    Route::post('vendors/search-rqa-header/', [VendorController::class, 'searchVendorRQa'])->name('vendors.rqa.search');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');

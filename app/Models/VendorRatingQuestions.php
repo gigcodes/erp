@@ -9,7 +9,7 @@ class VendorRatingQuestions extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['created_by','question'];
+    protected $fillable = ['created_by','question', 'sorting'];
 
     public function user()
     {
