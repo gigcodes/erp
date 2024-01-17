@@ -192,11 +192,10 @@
                     <?php
                     $category_post = request('category');
                     ?>
-                    <select class="form-control" name="category" id="category">
-                        <option value="">Category</option>
+                    <select class="form-control" name="category[]" id="category" multiple="multiple">
                         <?php
                         foreach ($vendor_categories as $row_cate) { ?>
-                            <option value="<?php echo $row_cate->id; ?>" <?php if ($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title; ?></option>
+                            <option value="<?php echo $row_cate->id; ?>" <?php if(!empty($category_post)) { if (in_array($row_cate->id, $category_post)) { echo "selected"; } } ?>><?php echo $row_cate->title; ?></option>
                         <?php }
                         ?>
                     </select>
@@ -337,7 +336,7 @@
                 <tr>
                     @if(!empty($dynamicColumnsToShowVendors))
                         @if (!in_array('ID', $dynamicColumnsToShowVendors))
-                            <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                            <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="text-dark">ID</a></th>
                         @endif
 
                         @if (!in_array('WhatsApp', $dynamicColumnsToShowVendors))
@@ -345,7 +344,7 @@
                         @endif
 
                         @if (!in_array('Category', $dynamicColumnsToShowVendors))
-                            <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                            <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="text-dark">Category</a></th>
                         @endif
 
                         @if (!in_array('Status', $dynamicColumnsToShowVendors))
@@ -365,7 +364,7 @@
                         @endif
 
                         @if (!in_array('Communication', $dynamicColumnsToShowVendors))
-                            <th width="21%">Communication</th>
+                            <th width="21%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Communication</a></th>
                         @endif
 
                         @if (!in_array('Remarks', $dynamicColumnsToShowVendors))
@@ -388,14 +387,14 @@
                             <th width="3%">Action</th>
                         @endif
                     @else
-                        <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">ID</a></th>
+                        <th width="2%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="text-dark">ID</a></th>
                         <th width="5%">WhatsApp</th>
-                        <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Category</a></th>
+                        <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}" class="text-dark">Category</a></th>
                         <th width="7%">Status</th>
                         <th width="6%">Name</th>
                         <th width="4%">Phone</th>
                         <th width="5%">Email</th>
-                        <th width="21%">Communication</th>
+                        <th width="21%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}" class="text-dark">Communication</a></th>
                         <th width="8%">Remarks</th>
                         <th width="8%">Type</th>
                         <th width="8%">Framework</th>
@@ -2091,6 +2090,41 @@
                 }
             }
         });
+    });
+
+    $(document).on("click", ".delete-status-v",function(e){
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let status_id =  $(this).data('id');
+        if(status_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                $.ajax({
+                    url:"{{ route('delete.v-status') }}",
+                    type:"post",
+                    data:{
+                        id:status_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $("#category").select2({
+        tags: true,
+        placeholder: "Select a category"
     });
 </script>
 @endsection

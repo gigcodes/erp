@@ -2789,6 +2789,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/delete-qa-category', [VendorController::class, 'deleteQACategory'])->name('delete.qa-category');
     Route::post('vendors/delete-qa-status', [VendorController::class, 'deleteQAStatus'])->name('delete.qa-status');
     Route::post('vendors/delete-rqa-category', [VendorController::class, 'deleteRQACategory'])->name('delete.rqa-category');
+    Route::post('vendors/delete-v-status', [VendorController::class, 'deleteVStatus'])->name('delete.v-status');
     Route::post('vendors/delete-rqa-status', [VendorController::class, 'deleteRQAStatus'])->name('delete.rqa-status');
     Route::post('vendors/flowchart-sort-order', [VendorController::class, 'flowchartSortOrder'])->name('vendors.flowchart-sort-order');
     Route::post('vendors/qa-sort-order', [VendorController::class, 'qaSortOrder'])->name('vendors.qa-sort-order');
