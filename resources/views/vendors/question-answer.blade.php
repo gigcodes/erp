@@ -167,6 +167,8 @@
                 <button type="button" class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#qa-status-create">Add Status</button>
 
                 <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#qa-newStatusColor"> Status Color</button>
+
+                <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#setQuestionSorting"> Set Question Sorting</button>
             </div>
         </h2>
     </div>
@@ -202,6 +204,46 @@
         </form>
     </div>
 </div>
+
+<div id="setQuestionSorting" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Set Flow Chart Sorting</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="{{ route('vendors.qa-sort-order') }}" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group col-md-12">
+                    <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
+                        <tr>
+                            <td class="text-center"><b>Question</b></td>
+                            <td class="text-center"><b>Sorting</b></td>
+                        </tr>
+                        <?php
+                        foreach ($vendor_questions as $vendorquestion) { ?>
+                        <tr>
+                            <td><?php echo $vendorquestion->question; ?></td>
+                            
+                            <td style="text-align:center;">
+                                <input type="number" name="sorting[<?php echo $vendorquestion->id; ?>]" class="form-control" value="<?php echo $vendorquestion->sorting; ?>">
+                            </td>                              
+                        </tr>
+                        <?php } ?>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
 
 @include('partials.flash_messages')
 @include("vendors.partials.column-visibility-modal-qa")
@@ -502,6 +544,38 @@
                     type:"post",
                     data:{
                         id:category_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on("click", ".delete-status-q",function(e){
+        // $('#btn-save').attr("disabled", "disabled");
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let status_id =  $(this).data('id');
+        if(status_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                $.ajax({
+                    url:"{{ route('delete.qa-status') }}",
+                    type:"post",
+                    data:{
+                        id:status_id,
                         _token: _token
                     },
                     cashe:false,
