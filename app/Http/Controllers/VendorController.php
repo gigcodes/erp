@@ -2509,7 +2509,7 @@ class VendorController extends Controller
         $data['user_id'] = Auth::user()->id;
         VendorRatingQANotes::create($data);
 
-        return redirect()->back()->with('success', 'You have successfully created a question!');
+        return redirect()->back()->with('success', 'You have successfully created a notes!');
     }
 
     public function flowchartnotesStore(Request $request)
@@ -2521,7 +2521,7 @@ class VendorController extends Controller
         $data['user_id'] = Auth::user()->id;
         VendorFLowChartNotes::create($data);
 
-        return redirect()->back()->with('success', 'You have successfully created a question!');
+        return redirect()->back()->with('success', 'You have successfully created a notes!');
     }
 
     public function qaStatusCreate(Request $request)
@@ -2858,5 +2858,51 @@ class VendorController extends Controller
         }
 
         return redirect()->back()->with('success', 'The sorting updated successfully.');
+    }
+
+    public function getVendorFlowchartUpdateNotes(Request $request)
+    {
+        $vendorN = VendorFLowChartNotes::find($request->note_id);
+        $data['notes'] = $request->notes;
+        $vendorN->update($data);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Notes updated successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function deleteFlowchartnotes(Request $request)
+    {
+        try {
+            VendorFLowChartNotes::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getVendorrqaUpdateNotes(Request $request)
+    {
+        $vendorN = VendorRatingQANotes::find($request->note_id);
+        $data['notes'] = $request->notes;
+        $vendorN->update($data);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Notes updated successfully',
+            'status_name' => 'success',
+        ], 200);
+    }
+
+    public function deleteRqnotes(Request $request)
+    {
+        try {
+            VendorRatingQANotes::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
     }
 }

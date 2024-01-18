@@ -549,10 +549,18 @@
                     $.each(response.data, function(k, v) {
                         html += `<tr>
                                     <td> ${k + 1} </td>
-                                    <td> ${v.notes} </td>
-                                    <td> <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
-                                      <i class="fa fa-clone" aria-hidden="true"></i>
-                                    </button></td>
+                                    <td> <input type="text" value="`+v.notes+`" style="width:100%" id="note_`+v.id+`"> </td>
+                                    <td> 
+                                        <button type="button"  class="btn btn-edit-notes btn-sm p-0" data-id="`+v.id+`">
+                                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button"  class="btn btn-copy-notes btn-sm p-0" data-id="`+v.notes+`">
+                                          <i class="fa fa-clone" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button"  class="btn btn-delete-notes btn-sm p-0" data-id="`+v.id+`">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
                                 </tr>`;
                     });
                     $("#vqarnotes-histories-list").find(".vqarnotes-histories-list-view").html(html);
@@ -618,6 +626,77 @@
                     type:"post",
                     data:{
                         id:status_id,
+                        _token: _token
+                    },
+                    cashe:false,
+                    success:function(response){
+                        if (response.message) {
+                            toastr["success"](response.message, "Message");
+                            location.reload();
+                        }else{
+                            toastr.error(response.message);
+                        }
+                    }
+                });
+            } else {
+
+            }
+        }else{
+            toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on('click', '.btn-edit-notes', function() {
+        var note_id = $(this).attr('data-id');
+
+        var notes = $("#note_"+note_id).val();
+
+        if(notes==''){
+            alert('Please add notes.')
+            return false;
+        }
+
+        if(note_id>0){
+
+            $.ajax({
+                url: '{{route('vendors.getrqaupdatenotes')}}',
+                type: 'POST',
+                data: {
+                    note_id: note_id,
+                    notes: notes,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    toastr["success"]('Note successfully updated.');
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        } else {
+            alert('Something went wrong. please try again.')
+        }
+    });
+
+    $(document).on("click", ".btn-delete-notes",function(e){        
+        e.preventDefault();
+        let _token = $("input[name=_token]").val();
+        let note_id =  $(this).data('id');
+        if(note_id!=""){
+            if(confirm("Are you sure you want to delete record?")) {
+                $.ajax({
+                    url:"{{ route('delete.rqa-notes') }}",
+                    type:"post",
+                    data:{
+                        id:note_id,
                         _token: _token
                     },
                     cashe:false,
