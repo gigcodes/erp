@@ -215,10 +215,10 @@
             <tr>
                 @if(!empty($dynamicColumnsToShowVendorsfc))
                     @if (!in_array('Vendor', $dynamicColumnsToShowVendorsfc))
-                        <th width="10%">Vendor</th>
+                        <th width="20%">Vendor</th>
                     @endif
                     @if (!in_array('Categgory', $dynamicColumnsToShowVendorsfc))
-                        <th width="10%">Categgory</th>
+                        <th width="20%">Categgory</th>
                     @endif
                     @if($vendor_flow_charts)
                         @foreach($vendor_flow_charts as $flow_chart)
@@ -236,8 +236,8 @@
                         @endforeach
                     @endif
                 @else
-                    <th width="10%">Vendor</th>
-                    <th width="10%">Categgory</th>
+                    <th width="20%">Vendor</th>
+                    <th width="20%">Categgory</th>
                     @if($vendor_flow_charts)
                         @foreach($vendor_flow_charts as $flow_chart)
                             <th width="20%">
@@ -388,6 +388,71 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fchartnotes-histories-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Flow Chart Notes</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <div class="modal-body">
+                <form style="padding:10px;" action="{{ route('vendor.flowchart.notes.store') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <input type="hidden" id="notes_vendor_id" name="vendor_id">
+                        <input type="hidden" id="notes_flow_chart_id" name="flow_chart_id">
+                        <textarea class="form-control" name="notes" placeholder="Enter Notes" value="{{ old('notes') }}" required></textarea>
+
+                        @if ($errors->has('notes'))
+                            <div class="alert alert-danger">{{$errors->first('notes')}}</div>
+                        @endif
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary">Add Notes</button>
+                </form>
+
+                <div class="col-md-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th>Note</th>
+                                <th width="5%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="fchartnotes-histories-list-view">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="vendor-flowchart-history-model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vendor Flow charts <span><b id="vendornameTitle"></b></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="show-vendor-history-flowchart-list" id="">
+                            
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -648,6 +713,91 @@
             }
         }else{
             toastr.error("Please realod and try again");
+        }
+    });
+
+    $(document).on('click', '.add-note-flowchart', function() {
+        var vendor_id = $(this).attr('data-id');
+        var flow_chart_id = $(this).attr('data-flow_chart_id');
+
+        $("#notes_vendor_id").val(vendor_id);
+        $("#notes_flow_chart_id").val(flow_chart_id);
+
+        $.ajax({
+            url: "{{route('vendors.getflowchartnotes')}}",
+            type: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                'vendor_id' :vendor_id,
+                'flow_chart_id' :flow_chart_id,
+            },
+            success: function(response) {
+                if (response.status) {
+                    var html = "";
+                    $.each(response.data, function(k, v) {
+                        html += `<tr>
+                                    <td> ${k + 1} </td>
+                                    <td> ${v.notes} </td>
+                                    <td> <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
+                                      <i class="fa fa-clone" aria-hidden="true"></i>
+                                    </button></td>
+                                </tr>`;
+                    });
+                    $("#fchartnotes-histories-list").find(".fchartnotes-histories-list-view").html(html);
+                    $("#fchartnotes-histories-list").modal("show");
+                } else {
+                    toastr["error"](response.error, "Message");
+                }
+            }
+        });
+    });
+
+    $(document).on("click",".btn-copy-notes",function() {
+      var password = $(this).data('id');
+      var $temp = $("<input>");
+      $("body").append($temp);
+      $temp.val(password).select();
+      document.execCommand("copy");
+      $temp.remove();
+      alert("Copied!");
+    });
+
+    $(document).on('click', '.flowchart-history-show', function() {
+        var vendor_id = $(this).attr('data-vendorid');
+        var vendor_name = $(this).attr('data-vendorname');
+
+        $('#vendornameTitle').text('');
+        if(vendor_id>0){
+
+            $('#vendornameTitle').text(' - '+vendor_name);
+
+            $.ajax({
+                url: '{{route('vendors.flowchartssearch')}}',
+                type: 'POST',
+                data: {
+                    vendor_id: vendor_id,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#vendor-flowchart-history-model").find(".show-vendor-history-flowchart-list").html(response);
+                    $("#vendor-flowchart-history-model").modal("show");
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        } else {
+            alert('Please select vendor.')
         }
     });
 </script>

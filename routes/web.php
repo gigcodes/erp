@@ -2839,6 +2839,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/updatefeedbackstatus', [VendorController::class, 'vendorFeedbackStatus'])->name('vendors.feedbackstatus');
     Route::post('vendor/question/create', [VendorController::class, 'questionStore'])->name('vendor.question.store');
     Route::post('vendor/notes/create', [VendorController::class, 'notesStore'])->name('vendor.notes.store');
+    Route::post('vendor/flowchartnotes/create', [VendorController::class, 'flowchartnotesStore'])->name('vendor.flowchart.notes.store');
     Route::post('vendor/rquestion/create', [VendorController::class, 'rquestionStore'])->name('vendor.rquestion.store');
     Route::post('vendor/question/getquestion', [VendorController::class, 'getVendorQuestions'])->name('vendors.getquestion');
     Route::post('vendor/question/getrquestion', [VendorController::class, 'getVendorRatingQuestions'])->name('vendors.getrquestion');
@@ -2863,8 +2864,11 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/questionanswer/notes', [VendorController::class, 'getVendorRatingQuestionsAnswerNotes'])->name('vendors.getrquestionnotes');
     Route::post('vendors/feedback/column-visbility', [UserManagementController::class, 'vendorFeedbackVolumnVisbilityUpdate'])->name('vendors.feedback.column.update');
     Route::post('vendors/search-flowchart-header/', [VendorController::class, 'searchVendorFlowcharts'])->name('vendors.flowcharts.search');
+    Route::post('vendors/search-flowchart/', [VendorController::class, 'searchforVendorFlowcharts'])->name('vendors.flowchartssearch');
     Route::post('vendors/search-qa-header/', [VendorController::class, 'searchVendorQa'])->name('vendors.qa.search');
     Route::post('vendors/search-rqa-header/', [VendorController::class, 'searchVendorRQa'])->name('vendors.rqa.search');
+    Route::post('vendor/flowchart/notes', [VendorController::class, 'getVendorFlowchartNotes'])->name('vendors.getflowchartnotes');
+    Route::post('vendor/flowchartupdatesorting', [VendorController::class, 'flowchartupdatesorting'])->name('vendors.flowchartupdatesorting');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');
