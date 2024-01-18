@@ -292,9 +292,9 @@
                 <button type="button" class="close" data-dismiss="modal">×</button>
             </div>
             <div class="modal-body">
-                <form style="padding:10px;" action="{{ route('vendor.notes.store') }}" method="POST">
+                <form action="{{ route('vendor.notes.store') }}" method="POST">
                     @csrf
-                    <div class="form-group">
+                    <div class="form-group col-md-10 p-0">
                         <input type="hidden" id="notes_vendor_id" name="vendor_id">
                         <input type="hidden" id="notes_question_id" name="question_id">
                         <textarea class="form-control" name="notes" placeholder="Enter Notes" value="{{ old('notes') }}" required></textarea>
@@ -303,17 +303,18 @@
                             <div class="alert alert-danger">{{$errors->first('notes')}}</div>
                         @endif
                     </div>
-
-                    <button type="submit" class="btn btn-secondary">Add Notes</button>
+                    <div class="form-group col-md-1">
+                        <button type="submit" class="btn btn-secondary">Add Notes</button>
+                    </div>
                 </form>
 
-                <div class="col-md-12">
+                <div class="col-md-12 p-0">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th width="10%">No</th>
                                 <th>Note</th>
-                                <th width="5%">Action</th>
+                                <th width="10%">Action</th>
                             </tr>
                         </thead>
                         <tbody class="vqarnotes-histories-list-view">
