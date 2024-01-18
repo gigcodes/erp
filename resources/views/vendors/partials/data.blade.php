@@ -511,6 +511,10 @@
                     @if($vendor->rating_question_status==1)
                         <button type="button" class="btn add-rquestion-answer" title="Add Rating Question Answer" data-id="{{$vendor->id}}"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
                     @endif
+
+                    <a href="javascript:void(0)" class="btn btn-sm get-email-list" data-id="{{$vendor->id}}" title="Vendor Emails">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                        </a>
                 @endif
 
             </div>
@@ -726,7 +730,7 @@
         if(vendor_id>0){
 
             $.ajax({
-                url: '{{route('vendors.emails')}}',
+                url: '{{route('vendors.emails.action')}}',
                 type: 'POST',
                 data: {
                     vendor_id: vendor_id,
@@ -740,8 +744,8 @@
                 },
                 success: function (response) {
                     $("#loading-image").hide();
-                    $("#vendor-flowchart-history-model").find(".show-vendor-history-flowchart-list").html(response);
-                    $("#vendor-flowchart-history-model").modal("show");
+                    $("#vendor-emails-list-model").find(".show-vendor-emails-list").html(response);
+                    $("#vendor-emails-list-model").modal("show");
                 },
                 error: function () {
                     $("#loading-image").hide();
