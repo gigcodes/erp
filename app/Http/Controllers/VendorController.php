@@ -93,19 +93,25 @@ class VendorController extends Controller
     public function index(Request $request)
     {
         $term = $request->term ?? '';
-        $sortByClause = '';
-        $orderby = 'DESC';
+        $sortByClause = 'id';
+        $orderby = 'ASC';
 
         if ($request->orderby == '') {
-            $orderby = 'ASC';
+            $orderby = 'DESC';
         }
 
         if ($request->sortby == 'category') {
-            $sortByClause = "category_name $orderby,";
+            $sortByClause = "category_name";
         }
+
+        if ($request->sortby == 'communication') {
+            $sortByClause = "message_created_at";
+        }
+
         if ($request->sortby == 'id') {
-            $sortByClause = "id $orderby,";
+            $sortByClause = "id";
         }
+
         $whereArchived = ' `deleted_at` IS NULL ';
 
         if ($request->get('with_archived') == 'on') {
@@ -118,238 +124,135 @@ class VendorController extends Controller
         } else {
             $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
         }
-        //getting request
-        /*if (
-            $request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
-            $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null || $request->whatsapp_number != null || $request->flt_vendor_status != null
-        ) {
-            //Query Initiate
-            if ($isAdmin) {
-                $query = Vendor::query();
-            } else {
-                $imp_permi = implode(',', $permittedCategories);
-                if ($imp_permi != 0 && $imp_permi != '') {
-                    $query = Vendor::whereIn('category_id', $permittedCategories);
-                } else {
-                    $query = Vendor::query();
-                }
-                $query->where('email', Auth::user()->email);
+        
+        $updatedByWhere = '';
+        if ($isAdmin) {
+            $permittedCategories = '';
+        } else {
+            if (empty($permittedCategories)) {
+                $permittedCategories = [0];
             }
-
-            if (request('term') != null) {
-                $query->where('name', 'LIKE', "%{$request->term}%");
-            }
-
-            //if Id is not null
-            if (request('id') != null) {
-                $query->where('id', request('id', 0));
-            }
-
-            //If name is not null
-            if (request('name') != null) {
-                $query->where('name', 'LIKE', '%' . request('name') . '%');
-            }
-
-            //if addess is not null
-            if (request('address') != null) {
-                $query->where('address', 'LIKE', '%' . request('address') . '%');
-            }
-
-            //if email is not null
-            if (request('email') != null) {
-                $query->where('email', 'LIKE', '%' . request('email') . '%');
-            }
-
-            if (request('whatsapp_number') != null) {
-                $query->where('whatsapp_number', 'LIKE', '%' . request('whatsapp_number') . '%');
-            }
-
-            //if phone is not null
-            if (request('phone') != null) {
-                $query->where('phone', 'LIKE', '%' . request('phone') . '%');
-            }
-            $status = request('status');
-            if ($status != null && !request('with_archived')) {
-                $query = $query->where(function ($q) use ($status) {
-                    $q->orWhere('status', $status);
-                });
-                // $query->orWhere('status', $status);
-            }
-
-            if (request('updated_by') != null && !request('with_archived')) {
-                $query = $query->where(function ($q) {
-                    $q->orWhere('updated_by', request('updated_by'));
-                });
-                // $query->orWhere('updated_by', request('updated_by'));
-            }
-
-            //if category is not nyll
-            if (request('category') != null) {
-                $query->whereHas('category', function ($qu) {
-                    $qu->where('category_id', '=', request('category'));
-                });
-            }
-            //if email is not nyll
-            if (request('email') != null) {
-                $query->where('email', 'like', '%' . request('email') . '%');
-            }
-
-            if (request('communication_history') != null && !request('with_archived')) {
-                $communication_history = request('communication_history');
-                $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
-            }
-            if ($request->flt_vendor_status != null) {
-                $query->where('vendor_status', 'LIKE', '%' . $request->flt_vendor_status . '%');
-            }
-            if ($request->with_archived != null && $request->with_archived != '') {
-                $pagination = Setting::get('pagination');
-                if (request()->get('select_all') == 'true') {
-                    $pagination = $vendors->count();
-                }
-
-                $totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
-                $vendors = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
-            } else {
-                $pagination = Setting::get('pagination');
-                if (request()->get('select_all') == 'true') {
-                    $pagination = $vendors->count();
-                }
-                $totalVendor = $query->orderby('name', 'asc')->count();
-                $vendors = $query->orderby('name', 'asc')->paginate($pagination);
-            }
-        } else {*/
-            $updatedByWhere = '';
-            if ($isAdmin) {
+            $permittedCategories_all = implode(',', $permittedCategories);
+            if ($permittedCategories_all == 0) {
                 $permittedCategories = '';
             } else {
-                if (empty($permittedCategories)) {
-                    $permittedCategories = [0];
-                }
-                $permittedCategories_all = implode(',', $permittedCategories);
-                if ($permittedCategories_all == 0) {
-                    $permittedCategories = '';
-                } else {
-                    $permittedCategories = 'and vendors.category_id in (' . implode(',', $permittedCategories) . ')';
-                }
-                $updatedByWhere = ' and vendors.email="' . Auth::user()->email . '"';
+                $permittedCategories = 'and vendors.category_id in (' . implode(',', $permittedCategories) . ')';
             }
+            $updatedByWhere = ' and vendors.email="' . Auth::user()->email . '"';
+        }
 
-            $whereCondition = [];
-            if (request('term') != null) {
-                $whereCondition[] = 'name LIKE "%' . $request->term . '%"';                
-            }
+        $whereCondition = [];
+        if (request('term') != null) {
+            $whereCondition[] = 'name LIKE "%' . $request->term . '%"';                
+        }
 
-            //if email is not null
-            if (request('email') != null) {
-                $whereCondition[] = 'email LIKE "%' . $request->email . '%"';
-            }
+        //if email is not null
+        if (request('email') != null) {
+            $whereCondition[] = 'email LIKE "%' . $request->email . '%"';
+        }
 
-            if (request('whatsapp_number') != null) {
-                $whereCondition[] = 'whatsapp_number LIKE "%' . $request->whatsapp_number . '%"';
-            }
+        if (request('whatsapp_number') != null) {
+            $whereCondition[] = 'whatsapp_number LIKE "%' . $request->whatsapp_number . '%"';
+        }
 
-            //if phone is not null
-            if (request('phone') != null) {
-                $whereCondition[] = 'phone LIKE "%' . $request->phone . '%"';
-            }
+        //if phone is not null
+        if (request('phone') != null) {
+            $whereCondition[] = 'phone LIKE "%' . $request->phone . '%"';
+        }
 
-            $status = request('status');
-            if ($status != null && !request('with_archived')) {
-                $whereCondition[] = 'status = "' . $status . '"';
-            }
+        $status = request('status');
+        if ($status != null && !request('with_archived')) {
+            $whereCondition[] = 'status = "' . $status . '"';
+        }
 
-            if (request('updated_by') != null && !request('with_archived')) {
-                $whereCondition[] = 'updated_by = "' . $request->updated_by . '"';
-            }
+        if (request('updated_by') != null && !request('with_archived')) {
+            $whereCondition[] = 'updated_by = "' . $request->updated_by . '"';
+        }
 
-            //if category is not nyll
-            if (request('category') != null) {
-                $whereCondition[] = 'category_id = "' . $request->category . '"';
-            }
-            
-            if (request('category') != null) {
-                $whereCondition[] = 'category_id = "' . $request->category . '"';
-            }
+        //if category is not nyll
+        if (request('category') != null) {
+            $whereCondition[] = 'category_id IN (' . implode(",",$request->category) . ')';
+        }
+        
+        if (request('type') != null) {
+            $whereCondition[] = 'type = "' . $request->type . '"';
+        }
 
-            if (request('type') != null) {
-                $whereCondition[] = 'type = "' . $request->type . '"';
-            }
+        if (request('framework') != null) {
+            $whereCondition[] = 'framework = "' . $request->framework . '"';
+        }
 
-            if (request('framework') != null) {
-                $whereCondition[] = 'framework = "' . $request->framework . '"';
-            }
+        if (request('communication_history') != null && !request('with_archived')) {
+            $communication_history = request('communication_history');
+            $whereCondition[] = 'vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message LIKE "%' . $communication_history . '%"';                
+        }
 
-            if (request('communication_history') != null && !request('with_archived')) {
-                $communication_history = request('communication_history');
-                $whereCondition[] = 'vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message LIKE "%' . $communication_history . '%"';                
-            }
+        if ($request->flt_vendor_status != null) {
+            $whereCondition[] = 'vendor_status LIKE "%' . $request->flt_vendor_status . '%"';
+        }
 
-            if ($request->flt_vendor_status != null) {
-                $whereCondition[] = 'vendor_status LIKE "%' . $request->flt_vendor_status . '%"';
-            }
+        $vendorsQuery = 'SELECT *,
+              (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
+              (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
+              (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
 
-            $vendorsQuery = 'SELECT *,
-                  (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
-                  (SELECT mm2.status FROM chat_messages mm2 WHERE mm2.id = message_id) as message_status,
-                  (SELECT mm3.created_at FROM chat_messages mm3 WHERE mm3.id = message_id) as message_created_at
+              FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.vendor_status, vendors.account_swift,
+                vendors.created_at,vendors.updated_at,
+                vendors.updated_by,
+                vendors.reminder_from,
+                vendors.reminder_last_reply,
+                vendors.status,
+                vendors.whatsapp_number,
+                vendors.remark,
+                vendors.type,
+                vendors.framework,
+                vendors.fc_status,
+                vendors.question_status,
+                vendors.rating_question_status,
+                vendors.flowchart_date,
+                vendors.feeback_status,
+                category_name,
+              chat_messages.message_id,
+              vf.name as framework_name
+              FROM vendors
+              LEFT JOIN vendor_frameworks AS vf ON vendors.framework = vf.id
+              LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
+              ON vendors.id = chat_messages.vendor_id
 
-                  FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.vendor_status, vendors.account_swift,
-                    vendors.created_at,vendors.updated_at,
-                    vendors.updated_by,
-                    vendors.reminder_from,
-                    vendors.reminder_last_reply,
-                    vendors.status,
-                    vendors.whatsapp_number,
-                    vendors.remark,
-                    vendors.type,
-                    vendors.framework,
-                    vendors.fc_status,
-                    vendors.question_status,
-                    vendors.rating_question_status,
-                    vendors.flowchart_date,
-                    vendors.feeback_status,
-                    category_name,
-                  chat_messages.message_id,
-                  vf.name as framework_name
-                  FROM vendors
-                  LEFT JOIN vendor_frameworks AS vf ON vendors.framework = vf.id
-                  LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
-                  ON vendors.id = chat_messages.vendor_id
+              LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
+              ON vendors.category_id = vendor_categories.id WHERE ' . $whereArchived . $updatedByWhere . '
+              )
 
-                  LEFT JOIN (SELECT id, title AS category_name FROM vendor_categories) AS vendor_categories
-                  ON vendors.category_id = vendor_categories.id WHERE ' . $whereArchived . $updatedByWhere . '
-                  )
+              AS vendors ';
 
-                  AS vendors ';
-
-                  if(!empty($whereCondition)){
-                        $vendorsQuery .= 'WHERE ( '.implode(' AND ', $whereCondition).') ' . $permittedCategories . ' ORDER BY ' . $sortByClause . ' message_created_at DESC';  
-                  } else {
-                        $vendorsQuery .= 'WHERE 1 '.$permittedCategories . ' ORDER BY ' . $sortByClause . ' message_created_at DESC';
-                  }
+              if(!empty($whereCondition)){
+                    $vendorsQuery .= 'WHERE ( '.implode(' AND ', $whereCondition).') ' . $permittedCategories . ' ORDER BY ' . $sortByClause.' '.$orderby;  
+              } else {
+                    $vendorsQuery .= 'WHERE 1 '.$permittedCategories . ' ORDER BY ' . $sortByClause.' '.$orderby;
+              }
 
 
-            $vendors = DB::select($vendorsQuery);
+        $vendors = DB::select($vendorsQuery);
 
-            $totalVendor = count($vendors);
+        $totalVendor = count($vendors);
 
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $perPage = Setting::get('pagination');
-            if (request()->get('select_all') == 'true') {
-                $perPage = count($vendors);
-                $currentPage = 1;
-            }
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = Setting::get('pagination');
+        if (request()->get('select_all') == 'true') {
+            $perPage = count($vendors);
+            $currentPage = 1;
+        }
 
-            if (!is_numeric($perPage)) {
-                $perPage = 2;
-            }
+        if (!is_numeric($perPage)) {
+            $perPage = 2;
+        }
 
-            $currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
+        $currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
 
-            $vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
-                'path' => LengthAwarePaginator::resolveCurrentPath(),
-            ]);
-        //}
+        $vendors = new LengthAwarePaginator($currentItems, count($vendors), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+        ]);
+        
 
         $vendor_categories = VendorCategory::all();
 
@@ -1675,13 +1578,24 @@ class VendorController extends Controller
     {
         $status_color = $request->all();
         $data = $request->except('_token');
-        foreach ($status_color['color_name'] as $key => $value) {
+        foreach ($status_color['colorname'] as $key => $value) {
             $status_vendor = VendorStatus::find($key);
-            $status_vendor->color = $value;
+            $status_vendor->name = $value;
+            $status_vendor->color = $status_color['color_name'][$key];
             $status_vendor->save();
         }
 
         return redirect()->back()->with('success', 'The status color updated successfully.');
+    }
+
+    public function deleteVStatus(Request $request)
+    {
+        try {
+            VendorStatus::where('id', $request->id)->delete();
+            return response()->json(['code' => '200', 'data' => [], 'message' => 'Data deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+        }
     }
 
     public function storeshortcut(Request $request)
