@@ -739,10 +739,15 @@
                     $.each(response.data, function(k, v) {
                         html += `<tr>
                                     <td> ${k + 1} </td>
-                                    <td> ${v.notes} </td>
-                                    <td> <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
-                                      <i class="fa fa-clone" aria-hidden="true"></i>
-                                    </button></td>
+                                    <td> <input type="text" value="`+v.notes+`" style="width:100%"> </td>
+                                    <td> 
+                                        <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
+                                            <i class="fa fa-clone" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button"  class="btn btn-copy-notes btn-sm float-right" data-id="`+v.notes+`">
+                                            <i class="fa fa-clone" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
                                 </tr>`;
                     });
                     $("#fchartnotes-histories-list").find(".fchartnotes-histories-list-view").html(html);
