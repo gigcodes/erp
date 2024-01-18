@@ -37,6 +37,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 use App\Models\DataTableColumn;
 use App\Models\VendorFrameworks;
+use App\Models\VendorFrequency;
 use App\Models\VendorRemarksHistory;
 use App\Models\VendorFlowChart;
 use App\Models\VendorFlowChartRemarks;
@@ -53,6 +54,7 @@ use App\Models\VendorQuestionStatus;
 use App\Models\VendorQuestionStatusHistory;
 use App\Models\VendorFLowChartNotes;
 use App\Models\VendorFlowChartSorting;
+use App\Models\VendorPriceHistory;
 
 class VendorController extends Controller
 {
@@ -211,6 +213,10 @@ class VendorController extends Controller
                 vendors.rating_question_status,
                 vendors.flowchart_date,
                 vendors.feeback_status,
+                vendors.price,
+                vendors.currency,
+                vendors.price_remarks,
+                vendors.frequency_of_payment,
                 category_name,
               chat_messages.message_id,
               vf.name as framework_name
@@ -496,12 +502,41 @@ class VendorController extends Controller
         if(!empty($request["framework"])){
             $data['framework'] = implode(",", $request['framework']);
         }
+        if(!empty($request["frequency_of_payment"])){
+            $data['frequency_of_payment'] = implode(",", $request['frequency_of_payment']);
+        }
+
+        $VPHA = 0;
+        $VPH = new VendorPriceHistory;
+        if(!empty($request["price"])){
+            $data['price'] = $request['price'];
+            $VPH->price = $request['price'];
+            $VPHA = 1;
+        }
+        if(!empty($request["currency"])){
+            $data['currency'] = $request['currency'];
+            $VPH->currency = $request['currency'];
+            $VPHA = 1;
+        }
+        if(!empty($request["price_remarks"])){
+            $data['price_remarks'] = $request['price_remarks'];
+            $VPH->hisotry = $request['price_remarks'];
+            $VPHA = 1;
+        }
+
+        
         $mainVendorData[0] = $data;
         $existArray = [];
         $sourceStatus = $validateStatus = false;
         $inputsData = array_merge($mainVendorData, $vendorData);
         foreach ($inputsData as $key => $data) {
-            Vendor::create($data);
+            $vendorInsert = Vendor::create($data);
+
+            if($VPHA==1){
+                $VPH->vendor_id = $vendorInsert->id;
+                $VPH->user_id = Auth::user()->id;;
+                $VPH->save();
+            }
 
             if ($request->create_user == 'on') {
                 if ($data['email'] != null) {
@@ -685,13 +720,52 @@ class VendorController extends Controller
             'remark' => 'sometimes|nullable|max:255',
         ]);
 
+        $vendorData = Vendor::find($id);
+
         $data = $request->except('_token');
 
         if(!empty($request["framework"])){
             $data['framework'] = implode(",", $request['framework']);
         }
 
+        if(!empty($request["frequency_of_payment"])){
+            $data['frequency_of_payment'] = implode(",", $request['frequency_of_payment']);
+        }
+
+        $VPHA = 0;
+        $VPH = new VendorPriceHistory;
+        if(!empty($request["price"])){
+            $data['price'] = $request['price'];
+
+            if($vendorData['price']!=$request['price']){
+                $VPH->price = $request['price'];  
+                $VPHA = 1;
+            }
+        }
+        if(!empty($request["currency"])){
+            $data['currency'] = $request['currency'];
+
+            if($vendorData['currency']!=$request['currency']){
+                $VPH->currency = $request['currency'];  
+                $VPHA = 1;
+            }
+        }
+        if(!empty($request["price_remarks"])){
+            $data['price_remarks'] = $request['price_remarks'];
+
+            if($vendorData['price_remarks']!=$request['price_remarks']){
+                $VPH->hisotry = $request['price_remarks'];  
+                $VPHA = 1;  
+            }
+        }
+
         Vendor::find($id)->update($data);
+
+        if($VPHA==1){
+            $VPH->vendor_id = $id;
+            $VPH->user_id = Auth::user()->id;;
+            $VPH->save();
+        }
 
         return redirect()->route('vendors.index')->withSuccess('You have successfully updated a vendor!');
     }
@@ -1767,7 +1841,7 @@ class VendorController extends Controller
     public function framworkAdd(Request $request)
     {
         try {
-            $framework = VendorFrameworks::create(
+            $framework = VendorFrequency::create(
                 [
                     'user_id' => \Auth::user()->id,
                     'name' => $request->framework_name,
@@ -1799,7 +1873,7 @@ class VendorController extends Controller
                     'vendor_id' => $request->vendor_id,
                 ]
             );
-            $remarks = VendorFrameworks::where('id', $remarks->id)->first();
+            $remarks = VendorRemarksHistory::where('id', $remarks->id)->first();
 
             return response()->json(['code' => 200, 'data' => $remarks, 'message' => 'Added successfully!!!']);
         } catch (\Exception $e) {
@@ -2772,5 +2846,31 @@ class VendorController extends Controller
         }
 
         return redirect()->back()->with('success', 'The sorting updated successfully.');
+    }
+
+    public function frequencyAdd(Request $request)
+    {
+        try {
+            $frequency = VendorFrequency::create(
+                [
+                    'user_id' => \Auth::user()->id,
+                    'name' => $request->frequency_name,
+                ]
+            );
+            $frequency = VendorFrequency::where('id', $frequency->id)->first();
+
+            return response()->json(['code' => 200, 'data' => $frequency, 'message' => 'Added successfully!!!']);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
+
+    public function vendorPriceHistory(Request $request)
+    {
+        $data = VendorPriceHistory::with(['user' => function ($query) {
+        }])->where('vendor_id', $request->id)->get();
+
+        return response()->json(['code' => 200, 'data' => $data, 'message' => 'Message sent successfully']);
     }
 }

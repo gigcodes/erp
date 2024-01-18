@@ -88,6 +88,12 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>Price</td>
+                                <td>
+                                    <input type="checkbox" value="Price" id="Price" name="column_vendors[]" @if (!empty($dynamicColumnsToShowVendors) && in_array('Price', $dynamicColumnsToShowVendors)) checked @endif>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Action</td>
                                 <td>
                                     <input type="checkbox" value="Action" id="Action" name="column_vendors[]" @if (!empty($dynamicColumnsToShowVendors) && in_array('Action', $dynamicColumnsToShowVendors)) checked @endif>

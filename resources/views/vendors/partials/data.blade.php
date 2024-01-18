@@ -30,7 +30,7 @@
 
         @if (!in_array('WhatsApp', $dynamicColumnsToShowVendors))
             <td>
-                <select class="form-control ui-autocomplete-input" id="whatsapp_number" data-vendor-id="{{ $vendor->id }}">
+                <select class="form-control ui-autocomplete-input" id="whatsapp_number" data-vendor-id="{{ $vendor->id }}" style="    min-width: 130px;">
                     <option>-- Select --</option>
                     @foreach($whatsapp as $wp)
                     <option value="{{ $wp->number }}" @if($vendor->whatsapp_number == $wp->number) selected=selected @endif>
@@ -59,7 +59,7 @@
 
         @if (!in_array('Status', $dynamicColumnsToShowVendors))
             <td class="expand-row-msg position-relative" data-name="status" data-id="{{$vendor->id}}">
-            <?php echo Form::select("vendor_status",[null=>'Select Status']+$statusList,$vendor->vendor_status,["class" => "form-control select-width","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
+            <?php echo Form::select("vendor_status",[null=>'Status']+$statusList,$vendor->vendor_status,["style" => "min-width: 100px;","class" => "form-control select-width","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
             <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$vendor->id}}">
                         <i class="fa fa-info-circle i-vendor-status-history"></i>
             </button>
@@ -121,52 +121,31 @@
         <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
 
         @if (!in_array('Communication', $dynamicColumnsToShowVendors))
-            <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }}">
-                <div class="row">
-                    <div class="col-md-8 form-inline cls_remove_rightpadding">
-                        <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
-                            
-                                <textarea rows="1" class="form-control quick-message-field cls_quick_message mr-1" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
-                         
-                           
-                                <button class="btn btn-sm btn-xs send-message1 mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
-                                <button type="button" class="btn btn-xs load-communication-modal m-0 mr-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
-                            
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="communication-div-5">
-                            <div class="row">
-                                <div class="col-md-10 cls_remove_allpadding">
-                                    <div class="d-flex">
-                                        <?php
-                                        //echo "<pre>";print_r($replies);echo "</pre>"; 
-                                        ?>
-                                        <?php 
-                                        //echo Form::select("quickComment",["" => "Auto Reply"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]);
+            <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }} Communication-div">
+                <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
+                        
+                    <textarea rows="1" class="form-control quick-message-field cls_quick_message mr-1" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
+             
+               
+                    <button class="btn btn-sm btn-xs send-message1 mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
+                    <button type="button" class="btn btn-xs load-communication-modal m-0 mr-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
 
-                                        ?>
-                                        <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;" >
-                                            <option  data-vendorid="{{ $vendor->id }}"  value="">Auto Reply</option>
-                                            <?php
-                                            foreach ($replies as $key_r => $value_r) { ?>
-                                                <option title="<?php echo $value_r;?>" data-vendorid="{{ $vendor->id }}" value="<?php echo $key_r;?>">
-                                                    <?php
-                                                    $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
-                                                    echo $reply_msg;
-                                                    ?>
-                                                </option>
-                                            <?php }
-                                            ?>
-                                        </select>
-                                        <a class="btn btn-xs delete_quick_comment text-secondary ml-1"><i class="fa fa-trash"></i></a>
-                                    </div>
-                                </div> 
-                            </div>
-                        </div>        
-                    </div> 
+                    <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;" >
+                        <option  data-vendorid="{{ $vendor->id }}"  value="">Auto Reply</option>
+                        <?php
+                        foreach ($replies as $key_r => $value_r) { ?>
+                            <option title="<?php echo $value_r;?>" data-vendorid="{{ $vendor->id }}" value="<?php echo $key_r;?>">
+                                <?php
+                                $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
+                                echo $reply_msg;
+                                ?>
+                            </option>
+                        <?php }
+                        ?>
+                    </select>
+                    <a class="btn btn-xs delete_quick_comment text-secondary ml-1"><i class="fa fa-trash"></i></a>
+                            
                 </div>
-                
             </td>
         @endif
 
@@ -196,6 +175,16 @@
 
         @if (!in_array('Framework', $dynamicColumnsToShowVendors))
             <td>{{ $vendor_frameworksv }}</td>
+        @endif
+
+        @if (!in_array('Price', $dynamicColumnsToShowVendors))
+            <td>
+                {{ $vendor->currency }} @if(!empty($vendor->price)) {{ $vendor->price }} @else {{0}} @endif
+
+                <button type="button" class="btn btn-xs show-price-history" title="Show Status History" data-id="{{$vendor->id}}">
+                    <i class="fa fa-info-circle"></i>
+                </button>
+            </td>
         @endif
 
         @if (!in_array('Created Date', $dynamicColumnsToShowVendors))
@@ -288,7 +277,7 @@
     <tr style="background-color: {{$status_color->color ?? ""}}!important;">
         <td>{{ $vendor->id }}</td>
         <td>
-            <select class="form-control ui-autocomplete-input" id="whatsapp_number" data-vendor-id="{{ $vendor->id }}">
+            <select class="form-control ui-autocomplete-input" id="whatsapp_number" data-vendor-id="{{ $vendor->id }}" style="    min-width: 130px;">
                 <option>-- Select --</option>
                 @foreach($whatsapp as $wp)
                 <option value="{{ $wp->number }}" @if($vendor->whatsapp_number == $wp->number) selected=selected @endif>
@@ -311,7 +300,7 @@
             </span>
         </td>
         <td class="expand-row-msg position-relative" data-name="status" data-id="{{$vendor->id}}">
-        <?php echo Form::select("vendor_status",[null=>'Select Status']+$statusList,$vendor->vendor_status,["class" => "form-control select-width","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
+        <?php echo Form::select("vendor_status",[null=>'Status']+$statusList,$vendor->vendor_status,["style" => "min-width: 100px;","class" => "form-control select-width","onchange" => "updateVendorStatus(this, ".$vendor->id.")"]); ?>
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-status-history" title="Show Status History" data-id="{{$vendor->id}}">
                     <i class="fa fa-info-circle i-vendor-status-history"></i>
         </button>
@@ -361,52 +350,31 @@
         {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
         <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
 
-        <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }}">
-            <div class="row">
-                <div class="col-md-8 form-inline cls_remove_rightpadding">
-                    <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
+        <td class="table-hover-cell p-0 pt-1 pl-1 {{ $vendor->message_status == 0 ? 'text-danger' : '' }} Communication-div">
+            <div class="d-flex cls_textarea_subbox" style="justify-content: space-between;">
                         
-                            <textarea rows="1" class="form-control quick-message-field cls_quick_message mr-1" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
-                     
-                       
-                            <button class="btn btn-sm btn-xs send-message1 mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
-                            <button type="button" class="btn btn-xs load-communication-modal m-0 mr-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
-                        
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="communication-div-5">
-                        <div class="row">
-                            <div class="col-md-10 cls_remove_allpadding">
-                                <div class="d-flex">
-                                    <?php
-                                    //echo "<pre>";print_r($replies);echo "</pre>"; 
-                                    ?>
-                                    <?php 
-                                    //echo Form::select("quickComment",["" => "Auto Reply"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]);
+                <textarea rows="1" class="form-control quick-message-field cls_quick_message mr-1" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
+         
+           
+                <button class="btn btn-sm btn-xs send-message1 mr-1" data-vendorid="{{ $vendor->id }}"><i class="fa fa-paper-plane"></i></button>
+                <button type="button" class="btn btn-xs load-communication-modal m-0 mr-1" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><i class="fa fa-comments"></i></button>
 
-                                    ?>
-                                    <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;" >
-                                        <option  data-vendorid="{{ $vendor->id }}"  value="">Auto Reply</option>
-                                        <?php
-                                        foreach ($replies as $key_r => $value_r) { ?>
-                                            <option title="<?php echo $value_r;?>" data-vendorid="{{ $vendor->id }}" value="<?php echo $key_r;?>">
-                                                <?php
-                                                $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
-                                                echo $reply_msg;
-                                                ?>
-                                            </option>
-                                        <?php }
-                                        ?>
-                                    </select>
-                                    <a class="btn btn-xs delete_quick_comment text-secondary ml-1"><i class="fa fa-trash"></i></a>
-                                </div>
-                            </div> 
-                        </div>
-                    </div>        
-                </div> 
+                <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;" >
+                    <option  data-vendorid="{{ $vendor->id }}"  value="">Auto Reply</option>
+                    <?php
+                    foreach ($replies as $key_r => $value_r) { ?>
+                        <option title="<?php echo $value_r;?>" data-vendorid="{{ $vendor->id }}" value="<?php echo $key_r;?>">
+                            <?php
+                            $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
+                            echo $reply_msg;
+                            ?>
+                        </option>
+                    <?php }
+                    ?>
+                </select>
+                <a class="btn btn-xs delete_quick_comment text-secondary ml-1"><i class="fa fa-trash"></i></a>
+                        
             </div>
-            
         </td>
 
         <td>
@@ -430,6 +398,14 @@
         <td>{{ $vendor->type }}</td>
 
         <td>{{ $vendor_frameworksv }}</td>
+
+        <td>
+            {{ $vendor->currency }} @if(!empty($vendor->price)) {{ $vendor->price }} @else {{0}} @endif
+
+            <button type="button" class="btn btn-xs show-price-history" title="Show Status History" data-id="{{$vendor->id}}">
+                <i class="fa fa-info-circle"></i>
+            </button>
+        </td>
 
         <td>{{ $vendor->created_at }}</td>
 
@@ -714,6 +690,32 @@
         } else {
             return false;
         }
+    });
+
+    $(document).on('click', '.show-price-history', function() {
+
+        var issueId = $(this).data('id');
+        $('#price_history_modal table tbody').html('');
+        $.ajax({
+            url: "{{ route('vendor.price.history.get') }}",
+            data: {id: issueId},
+            success: function (data) {
+                if(data.data.length > 0) {
+                    $.each(data.data, function(i, item) {
+                        $('#price_history_modal table tbody').append(
+                            '<tr>\
+                                <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                <td>'+item['currency']+'</td>\
+                                <td>'+item['price']+'</td>\
+                                <td>'+item['hisotry']+'</td>\
+                                <td>'+item['user']['name']+'</td>\
+                            </tr>'
+                        );
+                    });
+                }
+            }
+        });
+        $('#price_history_modal').modal('show');
     });
 </script>
    

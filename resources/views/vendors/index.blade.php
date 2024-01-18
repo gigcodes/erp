@@ -379,6 +379,10 @@
                             <th width="8%">Framework</th>
                         @endif
 
+                        @if (!in_array('Price', $dynamicColumnsToShowVendors))
+                            <th width="3%">Price</th>
+                        @endif
+
                         @if (!in_array('Created Date', $dynamicColumnsToShowVendors))
                             <th width="8%">Created Date</th>
                         @endif
@@ -398,6 +402,7 @@
                         <th width="8%">Remarks</th>
                         <th width="8%">Type</th>
                         <th width="8%">Framework</th>
+                        <th width="3%">Price</th>
                         <th width="8%">Created Date</th>
                         <th width="3%">Action</th>
                     @endif
@@ -928,9 +933,18 @@
             $('#framework_update option[value="' + value + '"]').prop('selected', true);
         });
 
+        var myStringF = vendor.frequency_of_payment;
+        var myArrayF = myStringF.split(',');
+
+        $.each(myArrayF, function(index, value) {
+            $('#frequency_of_payment_update option[value="' + value + '"]').attr('selected', true);
+            $('#frequency_of_payment_update option[value="' + value + '"]').prop('selected', true);
+        });
+
         $('#vendorEditModal form').attr('action', url);
         $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
         $('#vendor_type option[value="' + vendor.type + '"]').attr('selected', true);
+        $('#vendor_currency option[value="' + vendor.currency + '"]').attr('selected', true);
         
         $('#vendorEditModal #vendor_name').val(vendor.name);
         $('#vendorEditModal #vendor_address').val(vendor.address);
@@ -943,6 +957,8 @@
         $('#vendorEditModal #vendor_gst').val(vendor.gst);
         $('#vendorEditModal #vendor_account_name').val(vendor.account_name);
         $('#vendorEditModal #vendor_account_iban').val(vendor.account_iban);
+        $('#vendorEditModal #vendor_price').val(vendor.price);
+        $('#vendorEditModal #vendor_price_remarks').val(vendor.price_remarks);
         $('#vendorEditModal #vendor_account_swift').val(vendor.account_swift);
         $('#vendorEditModal #vendor_frequency_of_payment').val(vendor.frequency_of_payment);
         $('#vendorEditModal #vendor_bank_name').val(vendor.bank_name);
@@ -1447,7 +1463,7 @@
 
         });
 
-        $(".select2-quick-reply, .select-multiple-f").select2({
+        $(".select2-quick-reply, .select-multiple-f, .select-multiple-ff").select2({
             tags: true
         });
 
@@ -2125,6 +2141,33 @@
     $("#category").select2({
         tags: true,
         placeholder: "Select a category"
+    });
+
+    $(document).on("click", ".vendors-addfrequency", function(e) {
+        e.preventDefault();
+        var frequencyName = $('#frequencyName').val();
+        $.ajax({
+            url: "vendors/add/frequency",
+            type: "post",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                frequency_name: frequencyName
+            }
+        }).done(function(response) {
+            if (response.code = '200') {
+                $('#frequencyName').val('')
+                $('#frequency_of_payment').append(`<option value='${response.data.id}'> ${response.data.name} </option>`);
+                $('#frequency_of_payment_update').append(`<option value='${response.data.id}'> ${response.data.name} </option>`);
+                toastr['success']('Frequency Added successfully!!!', 'success');
+            } else {
+                toastr['error'](response.message, 'error');
+            }
+        }).fail(function(errObj) {
+            $('#loading-image').hide();
+            toastr['error'](errObj.message, 'error');
+        });
     });
 </script>
 @endsection

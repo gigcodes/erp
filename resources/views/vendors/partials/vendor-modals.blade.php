@@ -157,14 +157,6 @@
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="text" name="frequency_of_payment" placeholder="Frequency of Payment:" class="form-control" value="{{ old('frequency_of_payment') }}">
-                  @if ($errors->has('frequency_of_payment'))
-                  <div class="alert alert-danger">{{$errors->first('frequency_of_payment')}}</div>
-                  @endif
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
                   <input type="text" name="bank_name" placeholder="Bank Name:" class="form-control" value="{{ old('bank_name') }}">
                   @if ($errors->has('bank_name'))
                   <div class="alert alert-danger">{{$errors->first('bank_name')}}</div>
@@ -200,6 +192,50 @@
                   <input type="text" name="ifsc_code" class="form-control" placeholder="IFSC:" value="{{ old('ifsc_code') }}">
                   @if ($errors->has('ifsc_code'))
                   <div class="alert alert-danger">{{$errors->first('ifsc_code')}}</div>
+                  @endif
+                </div>
+              </div>
+              <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="body_framework" class="label-btn">Frequency of Payment
+                      <button type="button" class="add-frequency" data-toggle="modal" data-target="#addFrequencyModel">Add Frequency</button>
+                    </label>
+                    <?php
+                    $frequencyVer = \App\Models\VendorFrequency::all();
+                    ?>
+                    <select name="frequency_of_payment[]" value="" class="form-control select-multiple-ff selectpicker" id="frequency_of_payment_update" multiple>
+                      @foreach ($frequencyVer as $fVer)
+                        <option value="{{$fVer->id}}">{{$fVer->name}}</option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                        <?php
+                        $currency = \App\Currency::all();
+                        ?>
+                        <select name="currency" value="" class="form-control" id="currency">
+                            <option value="">Select a currency</option>
+                      @foreach ($currency as $curr)
+                        <option value="{{$curr->name}}">{{$curr->name}}</option>
+                      @endforeach
+                    </select>                    
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                  <input type="text" name="price" class="form-control" placeholder="Price:" value="{{ old('price') }}">
+                  @if ($errors->has('price'))
+                  <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                  @endif
+                </div>
+              </div>
+             <div class="col-md-12">
+                <div class="form-group">
+                  <input type="text" name="price_remarks" class="form-control" placeholder="Price Remark:" value="{{ old('price_remarks') }}">
+                  @if ($errors->has('price_remarks'))
+                  <div class="alert alert-danger">{{$errors->first('price_remarks')}}</div>
                   @endif
                 </div>
               </div>
@@ -410,11 +446,47 @@
                 @endif
               </div>
             </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="body_framework" class="label-btn">Frequency of Payment
+                  <button type="button" class="add-frequency" data-toggle="modal" data-target="#addFrequencyModel">Add Frequency</button>
+                </label>
+                <?php
+                $frequencyVer = \App\Models\VendorFrequency::all();
+                ?>
+                <select name="frequency_of_payment[]" value="" class="form-control select-multiple-ff selectpicker" id="frequency_of_payment" multiple>
+                  @foreach ($frequencyVer as $fVer)
+                    <option value="{{$fVer->id}}" {{ $fVer->id == old('frequency_of_payment') ? 'selected' : '' }}>{{$fVer->name}}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
             <div class="col-md-6">
               <div class="form-group">
-                <input type="text" name="frequency_of_payment" class="form-control" value="{{ old('frequency_of_payment') }}" id="vendor_frequency_of_payment" placeholder="Frequency of Payment:">
-                @if ($errors->has('frequency_of_payment'))
-                <div class="alert alert-danger">{{$errors->first('frequency_of_payment')}}</div>
+                    <?php
+                    $currency = \App\Currency::all();
+                    ?>
+                    <select name="currency" value="" class="form-control" id="vendor_currency">
+                        <option value="">Select a currency</option>
+                  @foreach ($currency as $curr)
+                    <option value="{{$curr->name}}" {{ $curr->name == old('currency') ? 'selected' : '' }}>{{$curr->name}}</option>
+                  @endforeach
+                </select>                    
+                </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <input type="text" name="price" class="form-control" value="{{ old('price') }}" id="vendor_price" placeholder="Price:">
+                @if ($errors->has('price'))
+                <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                @endif
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <input type="text" name="price_remarks" class="form-control" value="{{ old('price_remarks') }}" id="vendor_price_remarks" placeholder="Price Remark:">
+                @if ($errors->has('price_remarks'))
+                <div class="alert alert-danger">{{$errors->first('price_remarks')}}</div>
                 @endif
               </div>
             </div>
@@ -504,6 +576,39 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-secondary vendors-addframework">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="addFrequencyModel" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content ">
+      <div id="add-mail-content">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Frequency</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="postmanform" method="post">
+              @csrf
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <label for="frequencyName">Name</label>
+                  <input type="text" name="frequencyName" required value="" class="form-control" id="frequencyName" placeholder="Enter frequency Name">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary vendors-addfrequency">Save</button>
           </div>
         </div>
       </div>
