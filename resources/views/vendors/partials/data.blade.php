@@ -279,6 +279,10 @@
                         @if($vendor->rating_question_status==1)
                             <button type="button" class="btn add-rquestion-answer" title="Add Rating Question Answer" data-id="{{$vendor->id}}"><i class="fa fa-plus-circle" aria-hidden="true"></i></button>
                         @endif
+
+                        <a href="javascript:void(0)" class="btn btn-sm get-email-list" data-id="{{$vendor->id}}" title="Vendor Emails">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                        </a>
                     @endif
                 </div>
             </td>
@@ -715,5 +719,37 @@
             return false;
         }
     });
+
+    $(document).on('click', '.get-email-list', function() {
+        var vendor_id = $(this).attr('data-id');        
+
+        if(vendor_id>0){
+
+            $.ajax({
+                url: '{{route('vendors.emails')}}',
+                type: 'POST',
+                data: {
+                    vendor_id: vendor_id,
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                // dataType: 'json',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (response) {
+                    $("#loading-image").hide();
+                    $("#vendor-flowchart-history-model").find(".show-vendor-history-flowchart-list").html(response);
+                    $("#vendor-flowchart-history-model").modal("show");
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["Error"]("An error occured!");
+                }
+            });
+        } else {
+            alert('Please select vendor.')
+        }
+    });
 </script>
-   

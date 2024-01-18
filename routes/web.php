@@ -2869,6 +2869,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/search-rqa-header/', [VendorController::class, 'searchVendorRQa'])->name('vendors.rqa.search');
     Route::post('vendor/flowchart/notes', [VendorController::class, 'getVendorFlowchartNotes'])->name('vendors.getflowchartnotes');
     Route::post('vendor/flowchartupdatesorting', [VendorController::class, 'flowchartupdatesorting'])->name('vendors.flowchartupdatesorting');
+    Route::post('vendors/emails/', [VendorController::class, 'searchforVendorFlowcharts'])->name('vendors.emails');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');

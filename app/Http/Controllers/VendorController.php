@@ -2773,4 +2773,271 @@ class VendorController extends Controller
 
         return redirect()->back()->with('success', 'The sorting updated successfully.');
     }
+
+    public function searchforVendorFlowcharts(Request $request)
+    {
+        $vendor_id = $request->vendor_id;
+
+        $vendor = Vendor::find($vendor_id);
+
+        if(!empty($vendor)){
+
+            $user = Auth::user();
+            $admin = $user->isAdmin();
+            $usernames = [];
+            if (!$admin) {
+                $emaildetails = \App\EmailAssign::select('id', 'email_address_id')
+                    ->with('emailAddress:username')
+                    ->where(['user_id' => $user->id])
+                    ->getModels();
+                if ($emaildetails) {
+                    $usernames = array_map(fn ($item) => $item->emailAddress->username, $emaildetails);
+                }
+            }
+
+            // Set default type as incoming
+            $type = 'incoming';
+            $seen = '0';
+            $from = ''; //Purpose : Add var -  DEVTASK-18283
+
+            $term = $request->term ?? '';
+            $sender = $request->sender ?? '';
+            $receiver = $request->receiver ?? '';
+            $status = $request->status ?? '';
+            $category = $request->category ?? '';
+            $mailbox = $request->mail_box ?? '';
+            $email_model_type = $request->email_model_type ?? '';
+
+            $date = $request->date ?? '';
+            $type = $request->type ?? $type;
+            $seen = $request->seen ?? $seen;
+            $query = (new Email())->newQuery();
+            $trash_query = false;
+            $query = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
+                ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
+                ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
+                ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id');
+            if (count($usernames) > 0) {
+                $query = $query->where(function ($query) use ($usernames) {
+                    foreach ($usernames as $_uname) {
+                        $query->orWhere('from', 'like', '%' . $_uname . '%');
+                    }
+                });
+
+                $query = $query->orWhere(function ($query) use ($usernames) {
+                    foreach ($usernames as $_uname) {
+                        $query->orWhere('to', 'like', '%' . $_uname . '%');
+                    }
+                });
+            }
+
+            //START - Purpose : Add Email - DEVTASK-18283
+            if ($email != '' && $receiver == '') {
+                $receiver = $email;
+                $from = 'order_data';
+                $seen = 'both';
+                $type = 'outgoing';
+            }
+            //END - DEVTASK-18283
+
+            // If type is bin, check for status only
+            if ($type == 'bin') {
+                $trash_query = true;
+                $query = $query->where('emails.status', 'bin');
+            } elseif ($type == 'draft') {
+                $query = $query->where('is_draft', 1)->where('emails.status', '<>', 'pre-send');
+            } elseif ($type == 'pre-send') {
+                $query = $query->where('emails.status', 'pre-send');
+            } else {
+                $query = $query->where(function ($query) use ($type) {
+                    $query->where('emails.type', $type)->orWhere('emails.type', 'open')->orWhere('emails.type', 'delivered')->orWhere('emails.type', 'processed');
+                });
+            }
+            if ($email_model_type) {
+                $model_type = explode(',', $email_model_type);
+                $query = $query->where(function ($query) use ($model_type) {
+                    $query->whereIn('model_type', $model_type);
+                });
+            }
+            if ($date) {
+                $query = $query->whereDate('created_at', $date);
+            }
+            if ($term) {
+                $query = $query->where(function ($query) use ($term) {
+                    $query->orWhere('from', 'like', '%' . $term . '%')
+                        ->orWhere('to', 'like', '%' . $term . '%')
+                        ->orWhere('emails.subject', 'like', '%' . $term . '%')
+                        ->orWhere(DB::raw('FROM_BASE64(emails.message)'), 'like', '%' . $term . '%')
+                        ->orWhere('chat_messages.message', 'like', '%' . $term . '%');
+                });
+            }
+
+            if (! $term) {
+                if ($sender) {
+                    $sender = explode(',', $request->sender);
+                    $query = $query->where(function ($query) use ($sender) {
+                        $query->whereIn('emails.from', $sender);
+                    });
+                }
+                if ($receiver) {
+                    $receiver = explode(',', $request->receiver);
+                    $query = $query->where(function ($query) use ($receiver) {
+                        $query->whereIn('emails.to', $receiver);
+                    });
+                }
+                if ($status) {
+                    $status = explode(',', $request->status);
+                    $query = $query->where(function ($query) use ($status) {
+                        $query->whereIn('emails.status', $status);
+                    });
+                }
+                if ($category) {
+                    $category = explode(',', $request->category);
+                    $query = $query->where(function ($query) use ($category) {
+                        $query->whereIn('email_category_id', $category);
+                    });
+                }
+            }
+
+            if (! empty($mailbox)) {
+                $mailbox = explode(',', $request->mail_box);
+                $query = $query->where(function ($query) use ($mailbox) {
+                    $query->orWhere('to', $mailbox);
+                });
+            }
+            
+            if (isset($seen) && $seen != "0") {
+                if ($seen != 'both') {
+                    $query = $query->where('seen', $seen);
+                } else if ($seen == 'both' && $type == 'outgoing') {
+                    $query = $query->where('emails.status', 'outgoing');
+                }
+            }
+
+            // If it isn't trash query remove email with status trashed
+            if (! $trash_query) {
+                $query = $query->where(function ($query) use ($type) {
+                    $isDraft = ($type == 'draft') ? 1 : 0;
+
+                    return $query->where('emails.status', '<>', 'bin')->orWhereNull('emails.status')->where('is_draft', $isDraft);
+                });
+            }
+            $query = $query->select('emails.*', 'chat_messages.customer_id', 'chat_messages.supplier_id', 'chat_messages.vendor_id', 'c.is_auto_simulator as customer_auto_simulator',
+                'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
+
+            if ($admin == 1) {
+                $query = $query->orderByDesc('emails.id');
+
+                $emails = $query->paginate(30)->appends(request()->except(['page']));
+            } else {
+                if (count($usernames) > 0) {
+                    $query = $query->where(function ($query) use ($usernames) {
+                        foreach ($usernames as $_uname) {
+                            $query->orWhere('from', 'like', '%' . $_uname . '%');
+                        }
+                    });
+
+                    $query = $query->where(function ($query) use ($usernames) {
+                        foreach ($usernames as $_uname) {
+                            $query->orWhere('to', 'like', '%' . $_uname . '%');
+                        }
+                    });
+                    
+
+                    $query = $query->orderByDesc('emails.id');
+                    $emails = $query->paginate(30)->appends(request()->except(['page']));
+                } else {
+                    $emails = (new Email())->newQuery();
+                    $emails = $emails->whereNull('id');
+                    $emails = $emails->orderByDesc('emails.id');
+                    $emails = $emails->paginate(30)->appends(request()->except(['page']));
+                }
+            }
+            
+
+            //Get Cron Email Histroy
+            $reports = CronJobReport::where('cron_job_reports.signature', 'fetch:all_emails')
+                ->join('cron_jobs', 'cron_job_reports.signature', 'cron_jobs.signature')
+                ->whereDate('cron_job_reports.created_at', '>=', Carbon::now()->subDays(10))
+                ->select(['cron_job_reports.*', 'cron_jobs.last_error'])->paginate(15);
+
+            //Get All Status
+            $email_status = DB::table('email_status');
+
+            /*if (! empty($request->type) && $request->type == 'outgoing') {
+                $email_status = $email_status->where('type', 'sent');
+            } else {
+                $email_status = $email_status->where('type', '!=', 'sent');
+            }*/
+
+            $email_status = $email_status->get(['id', 'email_status']);
+
+            //Get List of model types
+            $emailModelTypes = Email::emailModelTypeList();
+
+            //Get All Category
+            $email_categories = DB::table('email_category');
+
+            /*if (! empty($request->type) && $request->type == 'outgoing') {
+                $email_categories = $email_categories->where('type', 'sent');
+            } else {
+                $email_categories = $email_categories->where('type', '!=', 'sent');
+            }*/
+
+            $email_categories = $email_categories->get(['id', 'category_name']);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'tbody' => view('emails.search', compact('emails', 'date', 'term', 'type', 'email_categories', 'email_status', 'emailModelTypes'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                    'links' => (string) $emails->links(),
+                    'count' => $emails->total(),
+                    'emails' => $emails,
+                ], 200);
+            }
+
+            // suggested search for email forwarding
+            $search_suggestions = $this->getAllEmails();
+
+            // dd(array_values($search_suggestions));
+
+            // if($request->AJAX()) {
+            //     return view('emails.search',compact('emails'));
+            // }
+
+            // dont load any data, data will be loaded by tabs based on ajax
+            // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
+            $digita_platfirms = DigitalMarketingPlatform::all();
+
+            $totalEmail = Email::count();
+            $modelColors = ModelColor::whereIn('model_name', ['customer', 'vendor', 'supplier', 'user'])->limit(10)->get();
+
+            $datatableModel = DataTableColumn::select('column_name')
+                                                ->where('user_id', auth()->user()->id)
+                                                ->where('section_name', 'emails')->first();
+            $dynamicColumnsToShowb = [];
+            if(!empty($datatableModel->column_name)){
+                $hideColumns = $datatableModel->column_name ?? "";
+                $dynamicColumnsToShowb = json_decode($hideColumns, true);
+            }
+            
+            return view('emails.index',
+                [
+                    'emails' => $emails,
+                    'type' => 'email',
+                    'search_suggestions' => $search_suggestions,
+                    'email_status' => $email_status,
+                    'email_categories' => $email_categories,
+                    'emailModelTypes' => $emailModelTypes,
+                    'reports' => $reports,
+                    'digita_platfirms' => $digita_platfirms,
+                    'receiver' => $receiver,
+                    'from' => $from,
+                    'totalEmail' => $totalEmail,
+                    'modelColors' => $modelColors,
+                    'dynamicColumnsToShowb' => $dynamicColumnsToShowb
+                ])->with('i', ($request->input('page', 1) - 1) * 5);
+
+            return view('vendors.partials.search-data-fc-vendor', compact('VendorFlowchart', 'vendor_flow_charts', 'status', 'vendor_id'));
+        }
+    }
 }
