@@ -2868,4 +2868,48 @@ class VendorController extends Controller
             return response()->json(['code' => '500',  'message' => $e->getMessage()]);
         }
     }
+
+    public function searchforSupplierEmails(Request $request)
+    {
+        $supplier_id = $request->supplier_id;
+
+        $supplier = Supplier::find($supplier_id);
+
+        if(!empty($supplier)){
+
+            // Set default type as incoming
+            $type = 'incoming';
+            $seen = '0';
+            $from = ''; //Purpose : Add var -  DEVTASK-18283
+
+            $sender = $supplier->email;
+            $date = $request->date ?? '';
+
+            $query = (new Email())->newQuery();
+            
+            $query = $query->leftJoin('chat_messages', 'chat_messages.email_id', 'emails.id')
+                ->leftjoin('customers as c', 'c.id', 'chat_messages.customer_id')
+                ->leftJoin('vendors as v', 'v.id', 'chat_messages.vendor_id')
+                ->leftJoin('suppliers as s', 's.id', 'chat_messages.supplier_id');
+
+            $query = $query->where(function ($query) use ($type) {
+                $query->where('emails.type', $type)->orWhere('emails.type', 'open')->orWhere('emails.type', 'delivered')->orWhere('emails.type', 'processed');
+            });
+            
+            $query = $query->where(function ($query) use ($sender) {
+                $query->where('emails.from', $sender)->orWhere('emails.to', $sender);
+            });
+
+            $query = $query->select('emails.*', 'chat_messages.customer_id', 'chat_messages.supplier_id', 'chat_messages.vendor_id', 'c.is_auto_simulator as customer_auto_simulator',
+                'v.is_auto_simulator as vendor_auto_simulator', 's.is_auto_simulator as supplier_auto_simulator');
+
+            $query = $query->orderByDesc('emails.id');
+
+            $emails = $query->orderBy('emails.id', 'DESC')->take(5)->get();
+
+            $emailModelTypes = Email::emailModelTypeList();        
+        
+            return view('suppliers.partials.suppliers-email', compact('emails', 'emailModelTypes'));
+        }
+    }
 }

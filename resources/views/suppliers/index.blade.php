@@ -432,6 +432,10 @@
                 @endif
                 <button type="button" class="btn send-email-common-btn" title="Send Email" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
                 <button type="button" class="btn quick-reply-model" title="Quick Reply" data-id="{{$supplier->id}}"><i class="fa fa-fast-forward"></i></button>
+
+                <a href="javascript:void(0)" class="btn get-email-list" data-id="{{$supplier->id}}" title="supplier Emails" style="padding: 1px;">
+                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                </a>
             </td>
             </tr>
           @endforeach
@@ -640,6 +644,41 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="supplier-emails-list-model" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Supplier Emails</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="6%">Date</th>
+                                        <th width="4%">Sender</th>
+                                        <th width="4%">Receiver</th>
+                                        <th width="4%">Model Type</th>
+                                        <th width="3%">Mail Type</th>
+                                        <th width="5%">Subject</th>
+                                        <th width="5%">Body</th>                                    
+                                        <th width="1%">Draft</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="show-supplier-emails-list">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1757,5 +1796,37 @@ console.log($('.newBrandSelection').val(),'this value is gettitng from ulr')
             siteHelpers.changeQuickComment($(this));
         });
 
+        $(document).on('click', '.get-email-list', function() {
+            var supplier_id = $(this).attr('data-id');        
+
+            if(supplier_id>0){
+
+                $.ajax({
+                    url: '{{route('supplier.emails.action')}}',
+                    type: 'POST',
+                    data: {
+                        supplier_id: supplier_id,
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    // dataType: 'json',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        $("#supplier-emails-list-model").find(".show-supplier-emails-list").html(response);
+                        $("#supplier-emails-list-model").modal("show");
+                    },
+                    error: function () {
+                        $("#loading-image").hide();
+                        toastr["Error"]("An error occured!");
+                    }
+                });
+            } else {
+                alert('Please select supplier.')
+            }
+        });
   </script>
 @endsection
