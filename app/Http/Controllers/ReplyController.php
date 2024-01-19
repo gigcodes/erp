@@ -32,7 +32,7 @@ class ReplyController extends Controller
 
     public function index(Request $request)
     {
-        $reply_categories = ReplyCategory::all();
+        $reply_categories = ReplyCategory::where('parent_id', 0)->orderBy('name', 'ASC')->get();
 
         $replies = Reply::with('category', 'category.parent');
 
@@ -40,8 +40,16 @@ class ReplyController extends Controller
             $replies->where('reply', 'LIKE', '%' . $request->keyword . '%');
         }
 
-        if (! empty($request->category_id)) {
+        $replysubcategories = [];
+        if (! empty($request->sub_category_id)) {
             $replies->where('category_id', $request->category_id);
+
+            $replysubcategories = ReplyCategory::where('parent_id', $request->category_id)->get();
+
+        } else if (! empty($request->category_id)) {
+            $replies->where('category_id', $request->category_id);
+
+            $replysubcategories = ReplyCategory::where('parent_id', $request->category_id)->get();
         }
 
         $replies->orderBy('replies.id', 'DESC');
@@ -50,7 +58,7 @@ class ReplyController extends Controller
 
         $reply_main_categories = ReplyCategory::where('parent_id', 0)->get();
 
-        return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories'))
+        return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories', 'replysubcategories', 'subcategoryid'))
         ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -176,12 +184,23 @@ class ReplyController extends Controller
         $id = $request->get('id', 0);
         $ReplyNotes = \App\Reply::where('id', $id)->first();
         if ($ReplyNotes) {
-            $reply_categories = ReplyCategory::all();
+            $reply_categories = ReplyCategory::where('parent_id', 0)->get();
 
-            return view('reply.edit', compact('ReplyNotes', 'reply_categories'));
+            $reply_sub_categories = ReplyCategory::where('parent_id', $request->c_id)->get();
+
+            $category_id = $request->c_id;
+            $sub_category_id = $request->sc_id;
+
+            return view('reply.edit', compact('ReplyNotes', 'reply_categories', 'category_id', 'sub_category_id', 'reply_sub_categories'));
         }
 
         return 'Quick Reply Not Found';
+    }
+
+    public function getSubcategories(Request $request)
+    {
+        $subcategories = ReplyCategory::where('parent_id', $request->category_id)->pluck('name', 'id');
+        return response()->json($subcategories);
     }
 
     /**

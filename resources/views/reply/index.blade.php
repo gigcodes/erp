@@ -4,39 +4,48 @@
 <div class="row ">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Quick Replies List</h2>
-        <div class="pull-left">
-            <div class="row m-4">
-                <div class="col-md-4">            
-                    <form action="{{ route('reply.index') }}" method="get" class="search">
-                        <div class="row">
-                            <div class="col-md-6 p-0">
-                                <select class="form-control" name="category_id" id="category_id">
-                                    <option value="">Select Category</option>
-                                    @foreach($reply_categories as $cat)
-                                        <option {{request()->get('category_id')==$cat->id ? 'selected' : ''}} value="{{$cat->id}}">{{$cat->name}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-5 pd-sm">
-                                <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
-                            </div>
-
-                            <div class="col-md-1 pd-sm">
-                                 <button type="submit" class="btn btn-image search mt-0" onclick="document.getElementById('download').value = 1;">
-                                    <img src="{{ asset('images/search.png') }}" alt="Search">
-                                </button>
-                            </div>
+        <div class="row m-4">
+            <div class="col-md-6">            
+                <form action="{{ route('reply.index') }}" method="get" class="search">
+                    <div class="row">
+                        <div class="col-md-4 p-0">
+                            <select class="form-control" name="category_id" id="category_id_filter">
+                                <option value="">Select Category</option>
+                                @foreach($reply_categories as $cat)
+                                    <option {{request()->get('category_id')==$cat->id ? 'selected' : ''}} value="{{$cat->id}}">{{$cat->name}}</option>
+                                @endforeach
+                            </select>
                         </div>
-                    </form>
-                </div>
-                <div class="col-md-8">
-                    <div class="pull-right">
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#categoryModal">Create Category</button>
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#categorySubModal">Create Sub Category</button>
-                        <a class="btn btn-secondary" href="{{ route('reply.create') }}">+</a>
-                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createQuickModal">Create Quick Reply</button>
+
+                        <div class="col-md-4 pd-sm">
+                            <select class="form-control" name="sub_category_id" id="sub_category_id_filter">
+                                <option value="">Select Sub Category</option>
+                                @if(!empty($replysubcategories))
+                                    @foreach($replysubcategories as $cat)
+                                        <option {{request()->get('sub_category_id')==$cat->id ? 'selected' : ''}} value="{{$cat->id}}">{{$cat->name}}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 pd-sm">
+                            <input type="text" name="keyword" placeholder="keyword" class="form-control" value="{{ request()->get('keyword') }}">
+                        </div>
+
+                        <div class="col-md-1 pd-sm">
+                             <button type="submit" class="btn btn-image search mt-0" onclick="document.getElementById('download').value = 1;">
+                                <img src="{{ asset('images/search.png') }}" alt="Search">
+                            </button>
+                        </div>
                     </div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#categoryModal">Create Category</button>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#categorySubModal">Create Sub Category</button>
+                    <!-- <a class="btn btn-secondary" href="{{ route('reply.create') }}">+</a> -->
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createQuickModal">Create Quick Reply</button>
                 </div>
             </div>
         </div>
@@ -50,7 +59,7 @@
 @endif
 
 <div class="row ml-4 mr-4">
-    <div class="col-md-12">
+    <div class="col-md-12 p-0">
         <div class="panel-group" style="margin-bottom: 5px;">
             <div class="panel mt-3 panel-default">
                 <div class="panel-heading">
@@ -110,54 +119,61 @@
 <div class="tab-content ">
     <!-- Pending task div start -->
     <div class="tab-pane active" id="1">
-        <div class="row" style="margin:10px;"> 
-            <div class="col-12">
-                <div class="table-responsive">
-                    <table class="table table-bordered">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th width="2%">ID</th>
+                        <th width="10%">Category</th>
+                        <th width="10%">Sub Category</th>
+                        <th width="50%">Name</th>
+                        <th width="10%">Model</th>
+                        <th width="20%">Action</th>
+                    </tr>
+                    @foreach ($replies as $key => $reply)
                         <tr>
-                            <th width="2%">ID</th>
-                            <th width="10%">Category</th>
-                            <th width="10%">Sub Category</th>
-                            <th width="50%">Name</th>
-                            <th width="10%">Model</th>
-                            <th width="20%">Action</th>
+                            <td id="reply_id">{{ $reply->id }}</td>
+
+                            @if(!isset($reply->category->parent))
+                                <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
+                                <td>-</td>
+                                @php 
+                                    $category_id_data = $reply->category_id;
+                                    $sub_category_id_data = 0;
+                                @endphp
+                            @else
+                                <td id="reply_category_name">{{ ($reply->category->parent) ?  $reply->category->parent->name : '-' }}</td>
+                                <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
+
+                                @php 
+                                    $category_id_data = $reply->category->parent_id;
+                                    $sub_category_id_data = $reply->category->id;
+                                @endphp
+                            @endif
+                            <td id="reply_text">{{ $reply->reply }}</td>
+                            <td id="reply_model">{{ $reply->model }}</td>
+                            <td>
+                                <!-- <a class="btn btn-image" href="{{ route('reply.edit',$reply->id) }}"><img src="/images/edit.png" /></a> -->
+
+                                <a class="btn btn-image intent-edit" data-toggle="modal" data-target="#auto-reply-popup" title="Add Popup">
+                                  <i class="fa fa-plus" aria-hidden="true"></i>
+                                </a>
+                                
+                                <a href="javascript:;" data-note-id = "{{$reply->id}}" data-c-id = "{{$category_id_data}}" data-sc-id ="{{$sub_category_id_data}}" class="reply_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a>
+
+                                {!! Form::open(['method' => 'DELETE','route' => ['reply.destroy',$reply->id],'style'=>'display:inline']) !!}
+                                <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                                {!! Form::close() !!}
+
+                                <button type="button"  class="btn-xs btn btn-image p-2 btn btn-copy-reply" data-id="{{ $reply->reply }} ">
+                                  <i class="fa fa-clone" aria-hidden="true"></i>
+                                </button>
+                            </td>
                         </tr>
-                        @foreach ($replies as $key => $reply)
-                            <tr>
-                                <td id="reply_id">{{ $reply->id }}</td>
-
-                                @if(!isset($reply->category->parent))
-                                    <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
-                                    <td>-</td>
-                                @else
-                                    <td id="reply_category_name">{{ ($reply->category->parent) ?  $reply->category->parent->name : '-' }}</td>
-                                    <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
-                                @endif
-                                <td id="reply_text">{{ $reply->reply }}</td>
-                                <td id="reply_model">{{ $reply->model }}</td>
-                                <td>
-                                    <!-- <a class="btn btn-image" href="{{ route('reply.edit',$reply->id) }}"><img src="/images/edit.png" /></a> -->
-
-                                    <a class="btn btn-image intent-edit" data-toggle="modal" data-target="#auto-reply-popup" title="Add Popup">
-                                      <i class="fa fa-plus" aria-hidden="true"></i>
-                                    </a>
-                                    
-                                    <a href="javascript:;" data-note-id = "{{$reply->id}}" class="reply_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a>
-
-                                    {!! Form::open(['method' => 'DELETE','route' => ['reply.destroy',$reply->id],'style'=>'display:inline']) !!}
-                                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                                    {!! Form::close() !!}
-
-                                    <button type="button"  class="btn btn-image btn-copy-reply" data-id="{{ $reply->reply }} ">
-                                      <i class="fa fa-clone" aria-hidden="true"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </table>
-                </div>
-                    {!! $replies->links() !!}
+                    @endforeach
+                </table>
             </div>
+                {!! $replies->links() !!}
         </div>
     </div>
 </div>                        
@@ -280,7 +296,7 @@
                     
                     <div class="form-group">
                         <strong>Category</strong>
-                        <select class="form-control" name="category_id" required>
+                        <select class="form-control" name="category_id" required id="category_id_dropdown">
                           @foreach ($reply_categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                           @endforeach
@@ -289,6 +305,13 @@
                             <div class="alert alert-danger">{{$errors->first('model')}}</div>
                         @endif
                     </div>
+
+                    <div class="form-group">
+                        <strong>Sub category</strong>
+                        <select class="form-control" name="sub_category_id" id="subcategory">
+                            <option value="">Select Subcategory</option>
+                        </select>
+                    </div>        
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -430,7 +453,9 @@ $(document).on('click', '.reply_edit', function () {
     $.ajax({
         type: "GET",
         data : {
-          id : $this.data("note-id")
+          id : $this.data("note-id"),
+          c_id : $this.data("c-id"),
+          sc_id : $this.data("sc-id"),
         },
         url: "{{ route('editReply') }}"
     }).done(function (data) {
@@ -439,6 +464,48 @@ $(document).on('click', '.reply_edit', function () {
        $("#erp-notes").modal("show");
     }).fail(function (response) {
         console.log(response);
+    });
+});
+
+$(document).ready(function () {
+    $('#category_id_dropdown').on('change', function () {
+        var categoryId = $(this).val();
+        if (categoryId) {
+            $.ajax({
+                url: '/get-subcategories',
+                type: 'GET',
+                data: { category_id: categoryId },
+                success: function (data) {
+                    $('#subcategory').empty();
+                    $.each(data, function (key, value) {
+                        $('#subcategory').append('<option value="' + key + '">' + value + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('#subcategory').empty();
+        }
+    });
+});
+
+$(document).ready(function () {
+    $('#category_id_filter').on('change', function () {
+        var categoryId = $(this).val();
+        if (categoryId) {
+            $.ajax({
+                url: '/get-subcategories',
+                type: 'GET',
+                data: { category_id: categoryId },
+                success: function (data) {
+                    $('#sub_category_id_filter').empty();
+                    $.each(data, function (key, value) {
+                        $('#sub_category_id_filter').append('<option value="' + key + '">' + value + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('#sub_category_id_filter').empty();
+        }
     });
 });
 </script>

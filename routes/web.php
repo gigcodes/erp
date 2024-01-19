@@ -1297,6 +1297,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
 
     Route::put('brand/priority/{id}', [BrandController::class, 'priority']);
     
+    Route::get('get-subcategories', [ReplyController::class, 'getSubcategories']);
     Route::get('reply/editreply', [ReplyController::class, 'editReply'])->name('editReply');
     Route::resource('reply', ReplyController::class);
 
