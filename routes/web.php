@@ -2870,6 +2870,10 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendor/flowchart/notes', [VendorController::class, 'getVendorFlowchartNotes'])->name('vendors.getflowchartnotes');
     Route::post('vendor/flowchartupdatesorting', [VendorController::class, 'flowchartupdatesorting'])->name('vendors.flowchartupdatesorting');
     Route::post('vendors/emails/', [VendorController::class, 'searchforVendorEmails'])->name('vendors.emails.action');
+    Route::post('vendor/flowchart/notes-update', [VendorController::class, 'getVendorFlowchartUpdateNotes'])->name('vendors.getflowchartupdatenotes');
+    Route::post('vendors/delete-flowchart-notes', [VendorController::class, 'deleteFlowchartnotes'])->name('delete.flowchart-notes');
+    Route::post('vendor/rqa/notes-update', [VendorController::class, 'getVendorrqaUpdateNotes'])->name('vendors.getrqaupdatenotes');
+    Route::post('vendors/delete-rqa-notes', [VendorController::class, 'deleteRqnotes'])->name('delete.rqa-notes');
 
     Route::prefix('hubstaff-payment')->group(function () {
         Route::get('/', [HubstaffPaymentController::class, 'index'])->name('hubstaff-payment.index');

@@ -134,6 +134,10 @@
                                     {!! Form::open(['method' => 'DELETE','route' => ['reply.destroy',$reply->id],'style'=>'display:inline']) !!}
                                     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                                     {!! Form::close() !!}
+
+                                    <button type="button"  class="btn btn-image btn-copy-reply" data-id="{{ $reply->reply }} ">
+                                      <i class="fa fa-clone" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -323,5 +327,14 @@ var searchForIntent = function(ele) {
 };
 searchForIntent($("#auto-reply-popup"));
 
+$(document).on("click",".btn-copy-reply",function() {
+    var password = $(this).data('id');
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val(password).select();
+    document.execCommand("copy");
+    $temp.remove();
+    alert("Copied!");
+});
 </script>
 @endsection
