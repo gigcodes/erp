@@ -34,7 +34,7 @@ class ReplyController extends Controller
     {
         $reply_categories = ReplyCategory::all();
 
-        $replies = Reply::oldest();
+        $replies = Reply::with('category', 'category.parent');
 
         if (! empty($request->keyword)) {
             $replies->where('reply', 'LIKE', '%' . $request->keyword . '%');
@@ -43,6 +43,8 @@ class ReplyController extends Controller
         if (! empty($request->category_id)) {
             $replies->where('category_id', $request->category_id);
         }
+
+        $replies->orderBy('replies.id', 'DESC');
 
         $replies = $replies->paginate(Setting::get('pagination'));
 
@@ -167,6 +169,19 @@ class ReplyController extends Controller
         $data['reply_categories'] = ReplyCategory::all();
 
         return view('reply.form', $data);
+    }
+
+    public function editReply(Request $request)
+    {
+        $id = $request->get('id', 0);
+        $ReplyNotes = \App\Reply::where('id', $id)->first();
+        if ($ReplyNotes) {
+            $reply_categories = ReplyCategory::all();
+
+            return view('reply.edit', compact('ReplyNotes', 'reply_categories'));
+        }
+
+        return 'Quick Reply Not Found';
     }
 
     /**

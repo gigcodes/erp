@@ -35,6 +35,7 @@
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#categoryModal">Create Category</button>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#categorySubModal">Create Sub Category</button>
                         <a class="btn btn-secondary" href="{{ route('reply.create') }}">+</a>
+                        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createQuickModal">Create Quick Reply</button>
                     </div>
                 </div>
             </div>
@@ -116,6 +117,7 @@
                         <tr>
                             <th width="2%">ID</th>
                             <th width="10%">Category</th>
+                            <th width="10%">Sub Category</th>
                             <th width="50%">Name</th>
                             <th width="10%">Model</th>
                             <th width="20%">Action</th>
@@ -123,14 +125,25 @@
                         @foreach ($replies as $key => $reply)
                             <tr>
                                 <td id="reply_id">{{ $reply->id }}</td>
-                                <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
+
+                                @if(!isset($reply->category->parent))
+                                    <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
+                                    <td>-</td>
+                                @else
+                                    <td id="reply_category_name">{{ ($reply->category->parent) ?  $reply->category->parent->name : '-' }}</td>
+                                    <td id="reply_category_name">{{ ($reply->category) ?  $reply->category->name : '-' }}</td>
+                                @endif
                                 <td id="reply_text">{{ $reply->reply }}</td>
                                 <td id="reply_model">{{ $reply->model }}</td>
                                 <td>
-                                    <a class="btn btn-image" href="{{ route('reply.edit',$reply->id) }}"><img src="/images/edit.png" /></a>
-                                    <a class="btn intent-edit" data-toggle="modal" data-target="#auto-reply-popup">
-                                      <span>Add Popup</span>
+                                    <!-- <a class="btn btn-image" href="{{ route('reply.edit',$reply->id) }}"><img src="/images/edit.png" /></a> -->
+
+                                    <a class="btn btn-image intent-edit" data-toggle="modal" data-target="#auto-reply-popup" title="Add Popup">
+                                      <i class="fa fa-plus" aria-hidden="true"></i>
                                     </a>
+                                    
+                                    <a href="javascript:;" data-note-id = "{{$reply->id}}" class="reply_edit btn-xs btn btn-image p-2"><img src="/images/edit.png"></a>
+
                                     {!! Form::open(['method' => 'DELETE','route' => ['reply.destroy',$reply->id],'style'=>'display:inline']) !!}
                                     <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                                     {!! Form::close() !!}
@@ -227,6 +240,80 @@
     </div>
 </div>
 
+<div id="createQuickModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Quick Reply</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <form action="{{route('reply.store')}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <strong>Quick Reply</strong>
+                        <textarea class="form-control" name="reply" placeholder="Quick Reply" required></textarea>
+                        @if ($errors->has('reply'))
+                            <div class="alert alert-danger">{{$errors->first('reply')}}</div>
+                        @endif
+                    </div>
+                    
+                    <div class="form-group">
+                        <strong>Model</strong>
+                        <select class="form-control" name="model" required>
+                          <option value="">Select Model</option>
+                          <option value="Approval Lead">Approval Lead</option>
+                          <option value="Internal Lead">Internal Lead</option>
+                          <option value="Approval Order">Approval Order</option>
+                          <option value="Internal Order">Internal Order</option>
+                          <option value="Approval Purchase">Approval Purchase</option>
+                          <option value="Internal Purchase">Internal Purchase</option>
+                        </select>
+                        @if ($errors->has('model'))
+                            <div class="alert alert-danger">{{$errors->first('model')}}</div>
+                        @endif
+                    </div>
+                    
+                    <div class="form-group">
+                        <strong>Category</strong>
+                        <select class="form-control" name="category_id" required>
+                          @foreach ($reply_categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                          @endforeach
+                        </select>
+                        @if ($errors->has('model'))
+                            <div class="alert alert-danger">{{$errors->first('model')}}</div>
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-secondary">Create</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div id="erp-notes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Quick Reply</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            
+            </div>
+        </div>
+    </div>
+</div>
 
 @include('partials.modals.auto-reply')
 
@@ -335,6 +422,24 @@ $(document).on("click",".btn-copy-reply",function() {
     document.execCommand("copy");
     $temp.remove();
     alert("Copied!");
+});
+
+$(document).on('click', '.reply_edit', function () {
+
+   var $this = $(this);
+    $.ajax({
+        type: "GET",
+        data : {
+          id : $this.data("note-id")
+        },
+        url: "{{ route('editReply') }}"
+    }).done(function (data) {
+       $("#erp-notes").find(".modal-body").html(data);
+       
+       $("#erp-notes").modal("show");
+    }).fail(function (response) {
+        console.log(response);
+    });
 });
 </script>
 @endsection
