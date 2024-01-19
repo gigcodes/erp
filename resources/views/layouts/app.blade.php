@@ -1040,7 +1040,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         </div>
     </div>
 
-    <div id="view-quick-email" class="modal" tabindex="-1" role="dialog">
+    <div id="view-quick-email" class="modal" tabindex="-1" role="dialog" style="z-index: 99999;">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -6942,14 +6942,14 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
         $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
         $('#iframe').attr('src', userEmaillUrl);
 
-        var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
+        //var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
         var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
 
         //$("#reply-message").val(senderName);
         //addContentToEditor(senderName);
         addTextToEditor(senderName);
 
-        $.ajax({
+        /*$.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
@@ -6960,7 +6960,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             //addContentToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
             addTextToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
         }).fail(function(errObj) {
-        }) 
+        }) */
     }
 
     $(document).on('click', '.updatedeclienremarks', function (e) {
@@ -7039,7 +7039,7 @@ if (isset($metaData->page_title) && $metaData->page_title != '') {
             'subject': quickemailSubject,
             'message': replyMessage,
             'reply_email_id': reply_email_id,
-            'pass_history': pass_histor
+            'pass_history': pass_history
             },
             beforeSend: function () {
                 $("#loading-image").show();
