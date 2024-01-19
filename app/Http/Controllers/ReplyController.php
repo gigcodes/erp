@@ -58,7 +58,7 @@ class ReplyController extends Controller
 
         $reply_main_categories = ReplyCategory::where('parent_id', 0)->get();
 
-        return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories', 'replysubcategories', 'subcategoryid'))
+        return view('reply.index', compact('replies', 'reply_categories', 'reply_main_categories', 'replysubcategories'))
         ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
