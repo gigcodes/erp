@@ -1296,7 +1296,8 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('brand', BrandController::class);
 
     Route::put('brand/priority/{id}', [BrandController::class, 'priority']);
-
+    
+    Route::get('reply/editreply', [ReplyController::class, 'editReply'])->name('editReply');
     Route::resource('reply', ReplyController::class);
 
     Route::post('reply/statuscolor', [ReplyController::class, 'statusColor'])->name('reply.statuscolor');
