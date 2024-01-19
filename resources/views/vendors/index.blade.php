@@ -329,6 +329,40 @@
 
     </div>
 </div>
+<div id="vendor-emails-list-model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Vendor Emails <span><b id="vendornameTitle"></b></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th width="6%">Date</th>
+                                    <th width="4%">Sender</th>
+                                    <th width="4%">Receiver</th>
+                                    <th width="4%">Model Type</th>
+                                    <th width="3%">Mail Type</th>
+                                    <th width="5%">Subject</th>
+                                    <th width="5%">Body</th>                                    
+                                    <th width="1%">Draft</th>
+                                </tr>
+                            </thead>
+                            <tbody class="show-vendor-emails-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table" style="table-layout: fixed;">

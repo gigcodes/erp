@@ -2789,7 +2789,7 @@ button.show-task-history {
 }
 
 @media (min-width: 992px) {
-#addPostman .modal-lg, #assetsEditModal .modal-dialog, #assetsCreateModal .modal-dialog, #SearchGoogleDocModal .modal-dialog, #showAssetsManagementUsersModel .modal-dialog, #dev_task_statistics .modal-dialog, #view-quick-email .modal-dialog, #modalTaskInformationUpdates .modal-dialog, #acknowledgement_statistics .modal-dialog, #dev_scrapper_statistics .modal-dialog, #dev_scrapper_statistics_history .modal-dialog, #showAssetsManagementTerminalUsersModel .modal-dialog, #show-content-model-table .modal-dialog, #menu-todolist-get-model .modal-dialog {
+#addPostman .modal-lg, #assetsEditModal .modal-dialog, #assetsCreateModal .modal-dialog, #SearchGoogleDocModal .modal-dialog, #showAssetsManagementUsersModel .modal-dialog, #dev_task_statistics .modal-dialog, #view-quick-email .modal-dialog, #modalTaskInformationUpdates .modal-dialog, #acknowledgement_statistics .modal-dialog, #dev_scrapper_statistics .modal-dialog, #dev_scrapper_statistics_history .modal-dialog, #showAssetsManagementTerminalUsersModel .modal-dialog, #show-content-model-table .modal-dialog, #menu-todolist-get-model .modal-dialog, #vendor-emails-list-model .modal-dialog, #supplier-emails-list-model .modal-dialog{
     width: 1180px !important;
     max-width: 1500px !important;
   }
