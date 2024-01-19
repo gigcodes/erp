@@ -2777,6 +2777,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::delete('vendors/{vendor}/payments/{vendor_payment}', [VendorPaymentController::class, 'destroy'])->name('vendors.payments.destroy');
     Route::resource('vendors', VendorController::class);
     Route::post('vendors/add/framwork', [VendorController::class, 'framworkAdd']);
+    Route::post('vendors/add/frequency', [VendorController::class, 'frequencyAdd']);
     Route::post('vendors/statuscolor', [VendorController::class, 'statuscolor'])->name('vendors.statuscolor');
     Route::post('vendors/update-status', [VendorController::class, 'updateStatus'])->name('vendor.status.update');
     Route::get('vendors/meetings/list', [VendorController::class, 'zoomMeetingList'])->name('vendor.meeting.list');
@@ -2810,6 +2811,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('vendors/cv/get-address', [VendorResumeController::class, 'getAddress'])->name('vendors.cv.address');
 
     Route::get('vendor/status/history', [VendorController::class, 'vendorStatusHistory'])->name('vendor.status.history.get');
+    Route::get('vendor/price/history', [VendorController::class, 'vendorPriceHistory'])->name('vendor.price.history.get');
     Route::get('vendor/remark/history', [VendorController::class, 'vendorRemarkHistory'])->name('vendor.remark.history.get');
     Route::post('vendor/remark/history', [VendorController::class, 'vendorRemarkPostHistory'])->name('vendor.remark.history.post');
     Route::get('vendor/status/history/detail', [VendorController::class, 'vendorDetailStatusHistory'])->name('vendor.status.history.detail');
