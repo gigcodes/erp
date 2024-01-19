@@ -2820,6 +2820,7 @@ class VendorController extends Controller
             $emailModelTypes = Email::emailModelTypeList();        
         
             return view('vendors.partials.vendor-email', compact('emails', 'emailModelTypes'));
+        }
     }
       
     public function getVendorFlowchartUpdateNotes(Request $request)
