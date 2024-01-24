@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use App\Models\VendorFlowChartMaster;
+use App\Models\VendorFlowChart;
+
+class VendorFlowChartMasterSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        for ($i=1; $i <= 2; $i++) { 
+            $masterRec = new VendorFlowChartMaster();
+            $masterRec->title = 'Flow Chart '.$i;
+            $masterRec->save();
+        }
+
+        //Get 1st Record of Master and update Child table
+
+        $master_rec = VendorFlowChartMaster::first();
+        if($master_rec) {
+            VendorFlowChart::query()->update(['master_id' => $master_rec->id]);
+        }
+
+    }
+}
