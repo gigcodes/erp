@@ -76,10 +76,12 @@ class SocialConfigController extends Controller
 
     protected function getAdditionalData(Request $request)
     {
+        $socialConfig = SocialConfig::select(['email', 'platform'])->distinct()->get();
+
         return [
             'websites' => StoreWebsite::select('id', 'title')->get(),
-            'user_names' => SocialConfig::select('email')->distinct()->get(),
-            'platforms' => SocialConfig::select('platform')->distinct()->get(),
+            'user_names' => $socialConfig->pluck('email')->unique(),
+            'platforms' => $socialConfig->pluck('platform')->unique(),
             'languages' => Language::get(),
             'selected_website' => $request->store_website_id,
             'selected_user_name' => $request->user_name,
