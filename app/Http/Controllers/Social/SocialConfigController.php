@@ -9,55 +9,82 @@ use App\Language;
 use App\LogRequest;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\View\Factory;
+use App\Http\Requests\SocialConfig\EditRequest;
+use Illuminate\Contracts\Foundation\Application;
 
 class SocialConfigController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return array|Application|Factory|View|JsonResponse
      */
     public function index(Request $request)
     {
-        if ($request->number || $request->username || $request->provider || $request->customer_support || $request->term || $request->date && $request->customer_support == 0) {
-            $query = SocialConfig::query();
+        $query = SocialConfig::query();
 
-            $socialConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
+        // Refactor the condition to make it more readable and efficient
+        if ($this->shouldApplyBasicFilter($request)) {
+            // No additional conditions are applied
         } else {
-            $query = SocialConfig::query();
-
-            if ($request->store_website_id) {
-                $query->whereIn('store_website_id', $request->store_website_id);
-            }
-
-            if ($request->user_name) {
-                $query->whereIn('email', $request->user_name);
-            }
-
-            if ($request->platform) {
-                $query->whereIn('platform', $request->platform);
-            }
-            $socialConfigs = $query->orderby('id', 'desc')->paginate(Setting::get('pagination'));
+            // Apply filters based on the request
+            $this->applyAdvancedFilters($query, $request);
         }
 
-        // $adsAccountManager = $this->getadsAccountManager();
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
-        $user_names = SocialConfig::select('email')->distinct()->get();
-        $platforms = SocialConfig::select('platform')->distinct()->get();
-        $languages = Language::get();
+        $socialConfigs = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
 
-        $selected_website = $request->store_website_id;
-        $selected_user_name = $request->user_name;
-        $selected_platform = $request->platform;
+        // Load additional data only if it's not an AJAX request
+        if (! $request->ajax()) {
+            $additionalData = $this->getAdditionalData();
+        }
+
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.configs.partials.data', compact('socialConfigs'))->render(),
-                'links' => (string) $socialConfigs->render(),
+                'links' => (string) $socialConfigs->links(),
             ], 200);
         }
 
-        return view('social.configs.index', compact('socialConfigs', 'websites', 'user_names', 'platforms', 'languages', 'selected_website', 'selected_user_name', 'selected_platform'));
+        return view('social.configs.index', array_merge(compact('socialConfigs'), $additionalData ?? []));
+    }
+
+    protected function shouldApplyBasicFilter(Request $request)
+    {
+        return $request->number || $request->username || $request->provider ||
+            ($request->customer_support || $request->term || $request->date) &&
+            $request->customer_support == 0;
+    }
+
+    protected function applyAdvancedFilters($query, Request $request)
+    {
+        if ($request->store_website_id) {
+            $query->whereIn('store_website_id', $request->store_website_id);
+        }
+
+        if ($request->user_name) {
+            $query->whereIn('email', $request->user_name);
+        }
+
+        if ($request->platform) {
+            $query->whereIn('platform', $request->platform);
+        }
+    }
+
+    protected function getAdditionalData()
+    {
+        return [
+            'websites' => \App\StoreWebsite::select('id', 'title')->get(),
+            'user_names' => SocialConfig::select('email')->distinct()->get(),
+            'platforms' => SocialConfig::select('platform')->distinct()->get(),
+            'languages' => Language::get(),
+            'selected_website' => request()->store_website_id,
+            'selected_user_name' => request()->user_name,
+            'selected_platform' => request()->platform,
+        ];
     }
 
     public function getadsAccountManager(Request $request)
@@ -83,16 +110,6 @@ class SocialConfigController extends Controller
         $data = json_decode($response, true);
 
         return $data['data'];
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     public function getfbToken()
@@ -233,35 +250,13 @@ class SocialConfigController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\SocialConfig  $SocialConfig
-     * @return \Illuminate\Http\Response
-     */
-    public function show(SocialConfig $SocialConfig)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param  \App\SocialConfig  $SocialConfig
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request)
+    public function edit(EditRequest $request)
     {
-        $this->validate($request, [
-            'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            //  'email' => 'required',
-            //   'password' => 'required',
-            'status' => 'required',
-            'page_id' => 'required',
-            'page_token' => 'required',
-            'webhook_token' => 'required',
-        ]);
         $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
         $data = $request->except('_token', 'id');
@@ -306,17 +301,6 @@ class SocialConfigController extends Controller
         // $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed  Config');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\SocialConfig  $SocialConfig
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, SocialConfig $SocialConfig)
-    {
-        //
     }
 
     /**
