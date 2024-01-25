@@ -24,4 +24,12 @@ class SocialConfig extends Model
     {
         return $this->belongsTo(StoreWebsite::class, 'store_website_id')->select('title', 'id');
     }
+
+    public function setPasswordAttribute($password)
+    {
+        if(trim($password) == ''){
+            return;
+        }
+        $this->attributes['password'] = encrypt($password);
+    }
 }

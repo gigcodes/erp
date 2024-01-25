@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Social;
 
-use Crypt;
-use Response;
-use App\Setting;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\SocialConfig\EditRequest;
+use App\Http\Requests\SocialConfig\StoreRequest;
 use App\Language;
 use App\LogRequest;
+use App\Setting;
 use App\Social\SocialConfig;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\View\View;
-use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\Factory;
-use App\Http\Requests\SocialConfig\EditRequest;
+use App\StoreWebsite;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SocialConfigController extends Controller
 {
@@ -39,14 +39,14 @@ class SocialConfigController extends Controller
 
         // Load additional data only if it's not an AJAX request
         if (! $request->ajax()) {
-            $additionalData = $this->getAdditionalData();
+            $additionalData = $this->getAdditionalData($request);
         }
 
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.configs.partials.data', compact('socialConfigs'))->render(),
                 'links' => (string) $socialConfigs->links(),
-            ], 200);
+            ]);
         }
 
         return view('social.configs.index', array_merge(compact('socialConfigs'), $additionalData ?? []));
@@ -74,16 +74,16 @@ class SocialConfigController extends Controller
         }
     }
 
-    protected function getAdditionalData()
+    protected function getAdditionalData(Request $request)
     {
         return [
-            'websites' => \App\StoreWebsite::select('id', 'title')->get(),
+            'websites' => StoreWebsite::select('id', 'title')->get(),
             'user_names' => SocialConfig::select('email')->distinct()->get(),
             'platforms' => SocialConfig::select('platform')->distinct()->get(),
             'languages' => Language::get(),
-            'selected_website' => request()->store_website_id,
-            'selected_user_name' => request()->user_name,
-            'selected_platform' => request()->platform,
+            'selected_website' => $request->store_website_id,
+            'selected_user_name' => $request->user_name,
+            'selected_platform' => $request->platform,
         ];
     }
 
@@ -196,21 +196,10 @@ class SocialConfigController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $this->validate($request, [
-            'store_website_id' => 'required',
-            'platform' => 'required',
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
-            'status' => 'required',
-            'page_id' => 'required',
-            'page_token' => 'required',
-            'webhook_token' => 'required',
-        ]);
         $pageId = $request->page_id;
-        $data = $request->except('_token');
+        $data = $request->validated();
         $data['page_language'] = $request->page_language;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if ($request->platform == 'instagram') {
@@ -243,16 +232,14 @@ class SocialConfigController extends Controller
         } else {
             $data['account_id'] = $pageId;
         }
-        $data['password'] = Crypt::encrypt($request->password);
-        SocialConfig::create($data);
 
+        SocialConfig::create($data);
         return redirect()->back()->withSuccess('You have successfully stored Config.');
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\SocialConfig  $SocialConfig
      * @return \Illuminate\Http\Response
      */
     public function edit(EditRequest $request)
@@ -295,7 +282,6 @@ class SocialConfigController extends Controller
             $data['account_id'] = $pageId;
         }
         $data['page_language'] = $request->page_language;
-        $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
         // $config->update($data);
@@ -306,17 +292,12 @@ class SocialConfigController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\SocialConfig  $SocialConfig
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function destroy(Request $request)
     {
         $config = SocialConfig::findorfail($request->id);
         $config->delete();
-
-        return Response::json([
-            'success' => true,
-            'message' => ' Config Deleted',
-        ]);
+        return response()->jsonResponse(message:'Config Deleted');
     }
 }
