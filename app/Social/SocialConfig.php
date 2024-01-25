@@ -3,6 +3,9 @@
 namespace App\Social;
 use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SocialConfig extends Model
 {
@@ -10,17 +13,17 @@ class SocialConfig extends Model
         'store_website_id', 'page_language', 'platform', 'name', 'email', 'password', 'api_key', 'api_secret', 'token', 'status', 'page_id', 'page_token', 'account_id', 'webhook_token', 'ads_manager',
     ];
 
-    public function storeWebsite()
+    public function storeWebsite(): HasOne
     {
-        return $this->hasOne(\App\StoreWebsite::class, 'id', 'store_website_id');
+        return $this->hasOne(StoreWebsite::class, 'id', 'store_website_id');
     }
 
-    public function businessPost()
+    public function businessPost(): HasMany
     {
         return $this->hasMany(\App\BusinessPost::class);
     }
 
-    public function bussiness_website()
+    public function bussiness_website(): BelongsTo
     {
         return $this->belongsTo(StoreWebsite::class, 'store_website_id')->select('title', 'id');
     }
