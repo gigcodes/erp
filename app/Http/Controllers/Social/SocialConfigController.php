@@ -20,8 +20,15 @@ use Illuminate\Support\Facades\Http;
 
 class SocialConfigController extends Controller
 {
+    protected string $fb_base_url;
+
+    public function __construct()
+    {
+        $this->fb_base_url = 'https://graph.facebook.com/'.config('facebook.config.default_graph_version').'/';
+    }
+
     /**
-     * Display a listing of the resource.
+     * Social config page results
      *
      * @return array|Application|Factory|View|JsonResponse
      */
@@ -29,7 +36,6 @@ class SocialConfigController extends Controller
     {
         $query = SocialConfig::query();
 
-        // Refactor the condition to make it more readable and efficient
         if ($this->shouldApplyBasicFilter($request)) {
             // No additional conditions are applied
         } else {
@@ -39,7 +45,6 @@ class SocialConfigController extends Controller
 
         $socialConfigs = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
 
-        // Load additional data only if it's not an AJAX request
         if (!$request->ajax()) {
             $additionalData = $this->getAdditionalData($request);
         }
@@ -76,6 +81,11 @@ class SocialConfigController extends Controller
         }
     }
 
+    /**
+     * Data that is sent to the index blade on all the conditions
+     * @param Request $request
+     * @return array
+     */
     protected function getAdditionalData(Request $request)
     {
         return [
@@ -97,24 +107,16 @@ class SocialConfigController extends Controller
         $user_access_token = $request['token'];
         $fields = 'account_id,name,currency,balance,account_status,business_name,business_id';
 
-        $url = 'https://graph.facebook.com/v15.0/me/adaccounts?fields=' . $fields;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = $this->fb_base_url.'me/adaccounts?fields=' . $fields;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $user_access_token,
-        ]);
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $http = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $user_access_token,
+        ])->get($url);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, SocialConfigController::class, 'getadsAccountManager');
-
-        $data = json_decode($response, true);
-
-        return $data['data'];
+        $response = $http->json();
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'getadsAccountManager');
+        return $response['data'];
     }
 
     //@todo need to confirm is this being used anywhere
@@ -153,8 +155,8 @@ class SocialConfigController extends Controller
     {
         $code = $request['code'];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $accessTokenUrl = 'https://graph.facebook.com/'.config('facebook.config.default_graph_version').
-            '/oauth/access_token?client_id=' .
+        $accessTokenUrl = $this->fb_base_url.
+            'oauth/access_token?client_id=' .
             config('facebook.config.app_id') . '&redirect_uri=' . route('social.config.fbtokenback') .
             '&client_secret=' . config('facebook.config.app_secret') . '&code=' . $code;
 
@@ -168,7 +170,7 @@ class SocialConfigController extends Controller
             'getfbTokenBack'
         );
 
-        $meUrl = 'https://graph.facebook.com/v15.0/me/?access_token=' . $response['access_token'];
+        $meUrl = $this->fb_base_url.'me/?access_token=' . $response['access_token'];
         $meHttp = Http::get($meUrl);
         $meResponse = $meHttp->json();
 
