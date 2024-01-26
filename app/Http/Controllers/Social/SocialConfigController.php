@@ -2,21 +2,22 @@
 
 namespace App\Http\Controllers\Social;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\SocialConfig\EditRequest;
-use App\Http\Requests\SocialConfig\StoreRequest;
+use App\Setting;
 use App\Language;
 use App\LogRequest;
-use App\Setting;
-use App\Social\SocialConfig;
 use App\StoreWebsite;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\View\View;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\Factory;
+use App\Http\Requests\SocialConfig\EditRequest;
+use App\Http\Requests\SocialConfig\StoreRequest;
+use Illuminate\Contracts\Foundation\Application;
 
 class SocialConfigController extends Controller
 {
@@ -24,7 +25,7 @@ class SocialConfigController extends Controller
 
     public function __construct()
     {
-        $this->fb_base_url = 'https://graph.facebook.com/'.config('facebook.config.default_graph_version').'/';
+        $this->fb_base_url = 'https://graph.facebook.com/' . config('facebook.config.default_graph_version') . '/';
     }
 
     /**
@@ -45,14 +46,14 @@ class SocialConfigController extends Controller
 
         $socialConfigs = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
 
-        if (!$request->ajax()) {
+        if (! $request->ajax()) {
             $additionalData = $this->getAdditionalData($request);
         }
 
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.configs.partials.data', compact('socialConfigs'))->render(),
-                'links' => (string)$socialConfigs->links(),
+                'links' => (string) $socialConfigs->links(),
             ]);
         }
 
@@ -83,14 +84,14 @@ class SocialConfigController extends Controller
 
     /**
      * Data that is sent to the index blade on all the conditions
-     * @param Request $request
+     *
      * @return array
      */
     protected function getAdditionalData(Request $request)
     {
         return [
-            'facebook_url' => 'https://www.facebook.com/dialog/oauth?client_id='.config('facebook.config.app_id').
-                '&redirect_uri='.config('app.url').
+            'facebook_url' => 'https://www.facebook.com/dialog/oauth?client_id=' . config('facebook.config.app_id') .
+                '&redirect_uri=' . config('app.url') .
                 '/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,pages_manage_posts,pages_show_list',
             'websites' => StoreWebsite::select('id', 'title')->get(),
             'user_names' => SocialConfig::select('email')->distinct()->get(),
@@ -109,7 +110,7 @@ class SocialConfigController extends Controller
         $fields = 'account_id,name,currency,balance,account_status,business_name,business_id';
 
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = $this->fb_base_url.'me/adaccounts?fields=' . $fields;
+        $url = $this->fb_base_url . 'me/adaccounts?fields=' . $fields;
 
         $http = Http::withHeaders([
             'Authorization' => 'Bearer ' . $user_access_token,
@@ -117,6 +118,7 @@ class SocialConfigController extends Controller
 
         $response = $http->json();
         LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'getadsAccountManager');
+
         return $response['data'];
     }
 
@@ -149,14 +151,13 @@ class SocialConfigController extends Controller
      * Method to generate the Facebook access token and get
      * the basic profile details about the account.
      *
-     * @param Request $request
      * @return RedirectResponse
      */
     public function getfbTokenBack(Request $request)
     {
         $code = $request['code'];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $accessTokenUrl = $this->fb_base_url.
+        $accessTokenUrl = $this->fb_base_url .
             'oauth/access_token?client_id=' .
             config('facebook.config.app_id') . '&redirect_uri=' . route('social.config.fbtokenback') .
             '&client_secret=' . config('facebook.config.app_secret') . '&code=' . $code;
@@ -171,7 +172,7 @@ class SocialConfigController extends Controller
             'getfbTokenBack'
         );
 
-        $meUrl = $this->fb_base_url.'me/?access_token=' . $response['access_token'];
+        $meUrl = $this->fb_base_url . 'me/?access_token=' . $response['access_token'];
         $meHttp = Http::get($meUrl);
         $meResponse = $meHttp->json();
 
@@ -180,7 +181,7 @@ class SocialConfigController extends Controller
         SocialConfig::create([
             'account_id' => $meResponse['id'],
             'name' => $meResponse['name'],
-            'token' => $response['access_token']
+            'token' => $response['access_token'],
         ]);
 
         return redirect()->route('social.config.index');
@@ -229,6 +230,7 @@ class SocialConfigController extends Controller
         }
 
         SocialConfig::create($data);
+
         return redirect()->back()->withSuccess('You have successfully stored Config.');
     }
 
@@ -293,6 +295,7 @@ class SocialConfigController extends Controller
     {
         $config = SocialConfig::findorfail($request->id);
         $config->delete();
-        return response()->jsonResponse(message: 'Config Deleted');
+
+        return Response::jsonResponse(message: 'Config Deleted');
     }
 }
