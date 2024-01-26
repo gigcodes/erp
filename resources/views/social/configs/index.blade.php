@@ -60,7 +60,7 @@
                     </form>
                 </div>
                 <div class="pull-right">
-                  <a class="fb-login-btn" href="{{$facebook_url}}">Login Facebook/Insta</a>
+                  <a class="fb-login-btn" href="{{$facebook_url}}">Login Facebook</a>
                 </div>
                 <div class="pull-right">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>
