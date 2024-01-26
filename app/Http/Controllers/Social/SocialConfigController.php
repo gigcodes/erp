@@ -14,7 +14,10 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redirect;
 
 class SocialConfigController extends Controller
 {
@@ -38,14 +41,14 @@ class SocialConfigController extends Controller
         $socialConfigs = $query->orderBy('id', 'desc')->paginate(Setting::get('pagination'));
 
         // Load additional data only if it's not an AJAX request
-        if (! $request->ajax()) {
+        if (!$request->ajax()) {
             $additionalData = $this->getAdditionalData($request);
         }
 
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.configs.partials.data', compact('socialConfigs'))->render(),
-                'links' => (string) $socialConfigs->links(),
+                'links' => (string)$socialConfigs->links(),
             ]);
         }
 
@@ -107,13 +110,14 @@ class SocialConfigController extends Controller
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\Social\SocialConfigController::class, 'getadsAccountManager');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, SocialConfigController::class, 'getadsAccountManager');
 
         $data = json_decode($response, true);
 
         return $data['data'];
     }
 
+    //@todo need to confirm is this being used anywhere
     public function getfbToken()
     {
         return redirect('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
@@ -135,60 +139,45 @@ class SocialConfigController extends Controller
         $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\Social\SocialConfigController::class, 'getfbToken');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'getfbToken');
     }
 
+    /**
+     * Method to generate the Facebook access token and get
+     * the basic profile details about the account.
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function getfbTokenBack(Request $request)
     {
         $code = $request['code'];
-        $redirect = 'https://erpstage.theluxuryunlimited.com/social/config/fbtokenback';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $accessTokenUrl = 'https://graph.facebook.com/v15.0/oauth/access_token?client_id=' .
+            config('facebook.config.app_id') . '&redirect_uri=' . route('social.config.fbtokenback') .
+            '&client_secret=' . config('facebook.config.app_secret') . '&code=' . $code;
 
-        $curl = curl_init();
+        $http = Http::get($accessTokenUrl);
+        $response = $http->json();
 
-        $url = sprintf('https://graph.facebook.com/v15.0/oauth/access_token?client_id=559475859451724&redirect_uri=' . $redirect . '&client_secret=53ecd1fd8103c478830c8fef0673087e&code=' . $code);
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
+        LogRequest::log(
+            $startTime, $accessTokenUrl, 'GET',
+            json_encode([]), $response, $http->status(),
+            SocialConfigController::class,
+            'getfbTokenBack'
+        );
+
+        $meUrl = 'https://graph.facebook.com/v15.0/me/?access_token=' . $response['access_token'];
+        $meHttp = Http::get($meUrl);
+        $meResponse = $meHttp->json();
+
+        LogRequest::log($startTime, $meUrl, 'GET', json_encode([]), $meResponse, $meHttp->status(), SocialConfigController::class, 'getfbTokenBack');
+
+        SocialConfig::create([
+            'account_id' => $meResponse['id'],
+            'name' => $meResponse['name'],
+            'token' => $response['access_token']
         ]);
-
-        $response = json_decode(curl_exec($curl), true); //response decoded
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\Social\SocialConfigController::class, 'getfbTokenBack');
-
-        $curl = curl_init();
-
-        $url = sprintf('https://graph.facebook.com/v15.0//me/?access_token=' . $response['access_token']);
-
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-        ]);
-
-        $responseMe = json_decode(curl_exec($curl), true); //response decoded
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseMe, $httpcode, \App\Http\Controllers\Social\SocialConfigController::class, 'getfbTokenBack');
-
-        $data['account_id'] = $responseMe['id'];
-        $data['name'] = $responseMe['name'];
-        $data['token'] = $response['access_token'];
-        SocialConfig::create($data);
 
         return redirect()->route('social.config.index');
     }
@@ -224,7 +213,7 @@ class SocialConfigController extends Controller
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
 
-            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\Social\SocialConfigController::class, 'store');
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'store');
 
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
@@ -273,7 +262,7 @@ class SocialConfigController extends Controller
 
             curl_close($curl);
 
-            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, \App\Http\Controllers\Social\SocialConfigController::class, 'edit');
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'edit');
 
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
@@ -300,6 +289,6 @@ class SocialConfigController extends Controller
     {
         $config = SocialConfig::findorfail($request->id);
         $config->delete();
-        return response()->jsonResponse(message:'Config Deleted');
+        return response()->jsonResponse(message: 'Config Deleted');
     }
 }
