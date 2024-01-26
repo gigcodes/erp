@@ -60,17 +60,13 @@
                     </form>
                 </div>
                 <div class="pull-right">
-
-                  <!-- <button type="button" class="btn btn-secondary" id="fb_redirect">Login Facebook</button> -->
-                  <a class="fb-login-btn" href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri={{config('app.url')}}/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,manage_pages,pages_manage_posts,pages_show_list">Login Facebook/Insta</a>
+                  <a class="fb-login-btn" href="{{$facebook_url}}">Login Facebook/Insta</a>
                 </div>
                 <div class="pull-right">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>
                 </div>
-
             </div>
         </div>
-
 
         @if ($message = Session::get('success'))
             <div class="alert alert-success">
@@ -103,32 +99,18 @@
             <th style="width: 5% !important;">Started At</th>
             <th style="width: 7% !important;">Actions</th>
           </tr>
-
-          <!-- <tr>
-            <th style="width: 3% !important;"><input type="text" id="username" class="search form-control"></th>
-            <th style="width: 3% !important;"></th>
-            <th style="width: 3% !important;"><input type="text" id="number" class="search form-control"></th>
-            <th style="width: 3% !important;"><input type="text" id="provider" class="search form-control"></th>
-            <th style="width: 3% !important;"></th>
-
-            <th style="width: 3% !important;"></th>
-          </tr> -->
         </thead>
 
         <tbody>
 
        @include('social.configs.partials.data')
-
           {!! $socialConfigs->render() !!}
-
         </tbody>
       </table>
     </div>
     </div>
 @include('social.configs.partials.add-modal')
-
 @endsection
-
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
@@ -170,9 +152,7 @@
             });
 
         });
-     //   $('#adset_id').click(function()
         $('#token').focusout(function()
-
         {
             let token = $("#token").val();
            // alert(token)

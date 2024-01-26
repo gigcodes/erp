@@ -79,6 +79,9 @@ class SocialConfigController extends Controller
     protected function getAdditionalData(Request $request)
     {
         return [
+            'facebook_url' => 'https://www.facebook.com/dialog/oauth?client_id='.config('facebook.config.app_id').
+                '&redirect_uri='.config('app.url').
+                '/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,pages_manage_posts,pages_show_list',
             'websites' => StoreWebsite::select('id', 'title')->get(),
             'user_names' => SocialConfig::select('email')->distinct()->get(),
             'platforms' => SocialConfig::select('platform')->distinct()->get(),
@@ -150,7 +153,8 @@ class SocialConfigController extends Controller
     {
         $code = $request['code'];
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $accessTokenUrl = 'https://graph.facebook.com/v15.0/oauth/access_token?client_id=' .
+        $accessTokenUrl = 'https://graph.facebook.com/'.config('facebook.config.default_graph_version').
+            '/oauth/access_token?client_id=' .
             config('facebook.config.app_id') . '&redirect_uri=' . route('social.config.fbtokenback') .
             '&client_secret=' . config('facebook.config.app_secret') . '&code=' . $code;
 
