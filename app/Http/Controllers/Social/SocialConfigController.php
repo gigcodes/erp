@@ -82,8 +82,8 @@ class SocialConfigController extends Controller
 
         return [
             'websites' => StoreWebsite::select('id', 'title')->get(),
-            'user_names' => $socialConfig->pluck('email')->unique()->filter() ?? [],
-            'platforms' => $socialConfig->pluck('platform')->unique()->filter(),
+            'user_names' => SocialConfig::select('email')->distinct()->get(),
+            'platforms' => SocialConfig::select('platform')->distinct()->get(),
             'languages' => Language::get(),
             'selected_website' => $request->store_website_id,
             'selected_user_name' => $request->user_name,
