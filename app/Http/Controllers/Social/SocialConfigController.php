@@ -17,7 +17,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Redirect;
 
 class SocialConfigController extends Controller
 {
@@ -83,8 +82,8 @@ class SocialConfigController extends Controller
 
         return [
             'websites' => StoreWebsite::select('id', 'title')->get(),
-            'user_names' => $socialConfig->pluck('email')->unique(),
-            'platforms' => $socialConfig->pluck('platform')->unique(),
+            'user_names' => $socialConfig->pluck('email')->unique()->filter() ?? [],
+            'platforms' => $socialConfig->pluck('platform')->unique()->filter(),
             'languages' => Language::get(),
             'selected_website' => $request->store_website_id,
             'selected_user_name' => $request->user_name,
