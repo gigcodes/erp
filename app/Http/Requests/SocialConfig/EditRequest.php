@@ -24,7 +24,7 @@ class EditRequest extends FormRequest
     public function rules()
     {
         return [
-            'store_website_id' => 'required',
+            'store_website_id' => 'required|exists:store_websites,id',
             'platform' => 'required',
             'name' => 'required',
             //  'email' => 'required',

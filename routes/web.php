@@ -5619,9 +5619,6 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
     Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
-    //@todo need to confirm is this being used anywhere
-    Route::get('config/fbtoken', [Social\SocialConfigController::class, 'getfbToken'])->name('social.config.fbtoken');
-
     Route::get('config/fbtokenback', [Social\SocialConfigController::class, 'getfbTokenBack'])->name('social.config.fbtokenback');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');

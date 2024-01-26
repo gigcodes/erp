@@ -122,31 +122,6 @@ class SocialConfigController extends Controller
         return $response['data'];
     }
 
-    //@todo need to confirm is this being used anywhere
-    public function getfbToken()
-    {
-        return redirect('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
-        $curl = curl_init();
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = sprintf('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-        ]);
-
-        $response = json_decode(curl_exec($curl), true); //response decoded
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'getfbToken');
-    }
-
     /**
      * Method to generate the Facebook access token and get
      * the basic profile details about the account.
