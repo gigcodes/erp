@@ -8,10 +8,10 @@ use App\LogRequest;
 use App\StoreWebsite;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Contracts\View\Factory;
@@ -199,27 +199,10 @@ class SocialConfigController extends Controller
         $data['page_language'] = $request->page_language;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if ($request->platform == 'instagram') {
-            $curl = curl_init();
-
-            $url = sprintf('https://graph.facebook.com/v15.0/' . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->page_token);
-
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-            ]);
-
-            $response = json_decode(curl_exec($curl), true); //response deocded
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            curl_close($curl);
-
-            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'store');
-
+            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->page_token);
+            $http = Http::get($url);
+            $response = $http->json();
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'store');
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
             } else {
@@ -241,35 +224,20 @@ class SocialConfigController extends Controller
      */
     public function edit(EditRequest $request)
     {
-        $pageId = $request->page_id;
         $config = SocialConfig::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+
+        $pageId = $request->page_id;
+        $data = $request->validated();
+
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (isset($request->adsmanager)) {
             $data['ads_manager'] = $request->adsmanager;
         }
-
         if ($request->platform == 'instagram') {
-            $curl = curl_init();
-            $url = sprintf('https://graph.facebook.com/v16.0/' . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->token);
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-            ]);
-
-            $response = json_decode(curl_exec($curl), true); //response deocded
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-            curl_close($curl);
-
-            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'edit');
-
+            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->token);
+            $http = Http::get($url);
+            $response = $http->json();
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'edit');
             if ($id = $response['instagram_business_account']['id']) {
                 $data['account_id'] = $id;
             } else {
@@ -279,10 +247,8 @@ class SocialConfigController extends Controller
             $data['account_id'] = $pageId;
         }
         $data['page_language'] = $request->page_language;
-        $config->fill($data);
-        $config->save();
-        // $config->update($data);
 
+        $config->update($data);
         return redirect()->back()->withSuccess('You have successfully changed  Config');
     }
 

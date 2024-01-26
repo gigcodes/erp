@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Social;
+
 use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SocialConfig extends Model
 {
@@ -30,7 +31,7 @@ class SocialConfig extends Model
 
     public function setPasswordAttribute($password): void
     {
-        if(trim($password) == ''){
+        if (trim($password) == '') {
             return;
         }
         $this->attributes['password'] = encrypt($password);
