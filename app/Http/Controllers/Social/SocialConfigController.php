@@ -102,6 +102,7 @@ class SocialConfigController extends Controller
         ];
     }
 
+    //@todo on validation of the request it is redirecting the page multiple times. Need to validate what is happening.
     public function getadsAccountManager(Request $request)
     {
         $user_access_token = $request['token'];
