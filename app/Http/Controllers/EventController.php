@@ -449,7 +449,7 @@ class EventController extends Controller
         $start = explode('T', $request->get('start'))[0];
         $end = explode('T', $request->get('end'))[0];
 
-        $eventSchedules = EventSchedule::
+        $eventSchedules = EventSchedule::where('start_at','!=','00:00:00')->where('end_at','!=','00:00:00')->
         whereBetween('schedule_date', [$start, $end])->
             whereHas('event', function ($event) use ($userId,$start,$end) {
                 $event->where('user_id', $userId)->where('event_type', 'PU');
