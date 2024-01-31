@@ -492,4 +492,14 @@ class TestCaseController extends Controller
             return response()->json(['code' => 500, 'error' => 'website is required']);
         }
     }
+
+ public function testCasesByModule($module_id) {
+    $testCases = TestCase::where('module_id',$module_id)->select('id','name')->get();
+    return response()->json(['code'=> 200, 'testCases'=> $testCases]);
+ }
+
+ public function show($id) {
+    $testCase = TestCase::findorFail($id);
+    return response()->json(['code'=> 200, 'testCase'=> $testCase]);
+ }
 }

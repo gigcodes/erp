@@ -146,7 +146,15 @@ class BugTrackingController extends Controller
         //     );
         // }
         if ($keyword = request('website')) {
-            $records = $records->WhereIn('website', $keyword);
+            
+                $records =  $records->where(
+                    function ($q) use ($keyword) {
+                        foreach($keyword as $search_val_web) {
+                        $q->orWhereRaw("FIND_IN_SET({$search_val_web}, website)");
+                        }
+                    }
+                );
+            
         }
         if ($keyword = request('date')) {
             $records = $records->where(
@@ -170,7 +178,9 @@ class BugTrackingController extends Controller
                 //            $bug->bug_severity_id = BugSeverity::where('id',$bug->bug_severity_id)->value('name');
                 $bug->bug_color = BugStatus::where('id', $bug->bug_status_id)->value('bug_color');
                 $bug->bug_history = BugTrackerHistory::where('bug_id', $bug->id)->get();
-                $bug->website = StoreWebsite::where('id', $bug->website)->value('title');
+                $store_websites = StoreWebsite::whereIn('id', explode(",",$bug->website) )->pluck('title')->toArray();
+                // dd($store_websites);
+                $bug->website = implode(" ,",$store_websites);
                 $bug->summary_short = Str::limit($bug->summary, 10, '..');
                 $bug->step_to_reproduce_short = Str::limit($bug->step_to_reproduce, 60, '..');
                 $bug->url_short = Str::limit($bug->url, 5, '..');
@@ -406,6 +416,11 @@ class BugTrackingController extends Controller
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
         $filterWebsites = StoreWebsite::orderBy('website')->pluck('website')->toArray();
+        $testCases = [];
+        if($bugTracker->module_id) {
+
+            $testCases = TestCase::where('module_id',$bugTracker->module_id)->select('id','name')->get();
+        }
         if ($bugTracker) {
             return response()->json(
                 [
@@ -418,6 +433,7 @@ class BugTrackingController extends Controller
                     'filterCategories' => $filterCategories,
                     'users' => $users,
                     'filterWebsites' => $filterWebsites,
+                    'testCases' => $testCases
                 ]
             );
         }
@@ -573,7 +589,7 @@ class BugTrackingController extends Controller
                 'bug_status_id' => 'required|string',
                 'module_id' => 'required|string',
                 'remark' => 'required|string',
-                'website' => 'required|string',
+                'website' => 'required|array',
 
             ]
         );
@@ -600,6 +616,8 @@ class BugTrackingController extends Controller
         $bug['created_by'] = \Auth::user()->id;
         $bug['summary'] = str_replace("\n", '<br/>', $bug['summary']);
         $bug['step_to_reproduce'] = str_replace("\n", '<br/>', $bug['step_to_reproduce']);
+        $bug['expected_result'] = str_replace("\n", '<br/>', $bug['expected_result']);
+        $bug['website'] = implode(',', $request->website);
         $records->fill($bug);
 
         $records->save();
@@ -683,13 +701,15 @@ class BugTrackingController extends Controller
                 'bug_status_id' => 'required|string',
                 'module_id' => 'required|string',
                 'remark' => 'required|string',
-                'website' => 'required|string',
+                'website' => 'required|array',
 
             ]
         );
 
         $data = $request->except('_token', 'id');
         $bug = BugTracker::where('id', $request->id)->first();
+
+        
 
         $old_severity_id = $bug->bug_severity_id;
 
@@ -711,26 +731,29 @@ class BugTrackingController extends Controller
         $data['summary'] = str_replace("\n", '<br/>', $request->summary);
         $data['step_to_reproduce'] = str_replace("\n", '<br/>', $request->step_to_reproduce);
 
-        if ($bug->test_case_id) {
-            $testCase = new TestCase;
-            $testCase->module_id = $request->module_id;
-            $testCase->step_to_reproduce = $data['step_to_reproduce'];
-            $testCase->expected_result = $request->expected_result;
-            $testCase->website = $request->website;
-            $testCase->assign_to = $request->assign_to;
-            $testCase->created_by = $data['created_by'];
-            $testCase->bug_id = $request->id;
-            $testCase->save();
+        $data['expected_result'] = str_replace("\n", '<br/>', $data['expected_result']);
+        $data['website'] = implode(',', $request->website);
 
-            $testCaseHistory = new TestCaseHistory();
-            $testCaseHistory->module_id = $request->module_id;
-            $testCaseHistory->step_to_reproduce = $data['step_to_reproduce'];
-            $testCaseHistory->expected_result = $request->expected_result;
-            $testCaseHistory->website = $request->website;
-            $testCaseHistory->assign_to = $request->assign_to;
-            $testCaseHistory->created_by = $data['created_by'];
-            $testCaseHistory->bug_id = $request->id;
-            $testCaseHistory->save();
+        if ($bug->test_case_id) {
+            // $testCase = new TestCase;
+            // $testCase->module_id = $request->module_id;
+            // $testCase->step_to_reproduce = $data['step_to_reproduce'];
+            // $testCase->expected_result = $request->expected_result;
+            // $testCase->website = $request->website;
+            // $testCase->assign_to = $request->assign_to;
+            // $testCase->created_by = $data['created_by'];
+            // $testCase->bug_id = $request->id;
+            // $testCase->save();
+
+            // $testCaseHistory = new TestCaseHistory();
+            // $testCaseHistory->module_id = $request->module_id;
+            // $testCaseHistory->step_to_reproduce = $data['step_to_reproduce'];
+            // $testCaseHistory->expected_result = $request->expected_result;
+            // $testCaseHistory->website = $request->website;
+            // $testCaseHistory->assign_to = $request->assign_to;
+            // $testCaseHistory->created_by = $data['created_by'];
+            // $testCaseHistory->bug_id = $request->id;
+            // $testCaseHistory->save();
         }
 
         if ($bug->bug_status_id == '7') {

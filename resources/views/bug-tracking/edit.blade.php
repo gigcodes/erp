@@ -16,11 +16,24 @@
                     </div>
                 @endif
 
-                <div class="form-group {{ $errors->has('summary') ? 'has-error' : '' }}">
-                    <label> Summary </label>
-					<input class="form-control id" name="id" type="hidden">
-                    <textarea class="form-control summary" id="summary_update" name="summary"></textarea>                    
-                    <span class="text-danger">{{ $errors->first('summary') }}</span>
+                <div class="form-group" {{ $errors->has('module_id') ? 'has-error' : '' }}>
+                    <label> Module/Feature </label>
+                    <select class="form-control module_id" id="module_id_update"  name="module_id">
+                        <option value="">Select Module/Feature</option>
+                        @foreach($filterCategories as  $filterCategory)
+                            <option value="{{$filterCategory}}">{{$filterCategory}} </option>
+                        @endforeach
+                    </select>
+					<span class="text-danger"></span>
+                </div>
+
+                <div class="form-group" {{ $errors->has('test_case_id') ? 'has-error' : '' }}>
+                    <label> Test Case </label>
+                    <select class="form-control" id="test_case_bug_edit" name="test_case_id">
+                        <option value="">Select Test Case</option>
+                    </select>
+                    <span class="text-danger"></span>
+    
                 </div>
 
                 <div class="form-group {{ $errors->has('step_to_reproduce') ? 'has-error' : '' }}">
@@ -28,6 +41,34 @@
 					<textarea class="form-control step_to_reproduce" id="step_to_reproduce_update" name="step_to_reproduce"></textarea>
                     <span class="text-danger">{{ $errors->first('step_to_reproduce') }}</span>
                 </div>
+
+                <div class="form-group {{ $errors->has('expected_result') ? 'has-error' : '' }}">
+                    <label> Expected Result </label>                
+                    <textarea class="form-control" id="expected_result_update" name="expected_result"></textarea>
+                    <span class="text-danger">{{ $errors->first('expected_result') }}</span>
+                </div>
+
+
+                <div class="form-group {{ $errors->has('summary') ? 'has-error' : '' }}">
+                    <label> Summary </label>
+					<input class="form-control id" name="id" type="hidden">
+                    <textarea class="form-control summary" id="summary_update" name="summary"></textarea>                    
+                    <span class="text-danger">{{ $errors->first('summary') }}</span>
+                </div>
+
+
+                <div class="form-group" {{ $errors->has('website') ? 'has-error' : '' }}>
+                    <label> Website </label>
+                    <select class="form-control website select-multiple" id="website_update" name="website[]" multiple>
+                        <option value="">Select Website</option>
+                        @foreach($filterWebsites as  $filterWebsite)
+                            <option value="{{$filterWebsite->id}}">{{$filterWebsite->title}} </option>
+                        @endforeach
+                    </select>
+					<span class="text-danger"></span>
+                </div>
+
+                
 
                 {{-- <div class="form-group {{ $errors->has('url') ? 'has-error' : '' }}">
                     <label> ScreenShot/ Video Url </label>
@@ -98,33 +139,14 @@
                     </select>
 					<span class="text-danger"></span>
                 </div>
-                <div class="form-group" {{ $errors->has('module_id') ? 'has-error' : '' }}>
-                    <label> Module/Feature </label>
-                    <select class="form-control module_id" id="module_id_update"  name="module_id">
-                        <option value="">Select Module/Feature</option>
-                        @foreach($filterCategories as  $filterCategory)
-                            <option value="{{$filterCategory}}">{{$filterCategory}} </option>
-                        @endforeach
-                    </select>
-					<span class="text-danger"></span>
-                </div>
-
+                
                 <div class="form-group  {{ $errors->has('remark') ? 'has-error' : '' }}">
                     <label> Remark </label>
                     <textarea class="form-control remark" id="remark_update" name="remark"></textarea>
                     <span class="text-danger">{{ $errors->first('remark') }}</span>
 					<span class="text-danger"></span>
                 </div>
-                <div class="form-group" {{ $errors->has('website') ? 'has-error' : '' }}>
-                    <label> Website </label>
-                    <select class="form-control website" id="website_update" name="website">
-                        <option value="">Select Website</option>
-                        @foreach($filterWebsites as  $filterWebsite)
-                            <option value="{{$filterWebsite->id}}">{{$filterWebsite->title}} </option>
-                        @endforeach
-                    </select>
-					<span class="text-danger"></span>
-                </div>
+                
 				<div class="form-group  {{ $errors->has('parent_id') ? 'has-error' : '' }}">
 					<label> Reference Bug ID </label>
 					 <input class="form-control parent_id" name="parent_id" id="parent_id_update" type="text">
@@ -143,6 +165,98 @@
 </div>
 
 <script>
+    $(document).ready(function(){
+
+    
+
+$("#module_id_update").on('change',function(){
+    let module_id = $(this).val();
+    let test_case_url = "{{route('test-cases.bymodule',':id')}}";
+    let ajax_url = test_case_url.replace(':id',module_id);
+
+    $('#test_case_bug_edit').html('<option value="">Select Test Case</option>');
+    
+
+
+    if(module_id) {
+        $.ajax({
+            url: ajax_url,
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            datatype: "json"
+        }).done(function(response) {
+            $("#loading-image").hide();
+            //test_case_bug
+            let test_cases = response.testCases;
+            
+            if(test_cases.length) {
+                
+                $.each(test_cases, function(key, test_case) {   
+                    $('#test_case_bug_edit')
+                        .append($("<option></option>")
+                                    .attr("value", test_case.id)
+                                    .text(test_case.name)); 
+                });
+            } else {
+                
+            }
+            //$this.siblings('input').val("");				
+            
+        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+        });
+
+    }
+});
+
+});
+
+$("#test_case_bug_edit").on('change',function(){
+
+let test_case_id = $(this).val();
+let test_case_url = "{{route('test-cases.show',':id')}}";
+let ajax_url = test_case_url.replace(':id',test_case_id);
+
+$('#step_to_reproduce_update').val('');
+$('#expected_result_update').val('');
+// $('#step_to_reproduce').attr('readonly',false);
+
+
+if(test_case_id) {
+    $.ajax({
+        url: ajax_url,
+        beforeSend: function() {
+            $("#loading-image").show();
+        },
+        datatype: "json"
+    }).done(function(response) {
+        $("#loading-image").hide();
+        //test_case_bug
+        let test_cases = response.testCase;
+        if(test_cases) {
+            // $('#step_to_reproduce').attr('readonly',true);
+            $('#step_to_reproduce_update').val(test_cases.step_to_reproduce);
+
+            
+            $('#expected_result_update').val(test_cases.expected_result);
+            
+            
+        } else {
+            // $('#step_to_reproduce').attr('readonly',false);
+        }
+        //$this.siblings('input').val("");				
+        
+    }).fail(function(jqXHR, ajaxOptions, thrownError) {
+        toastr["error"]("Oops,something went wrong");
+        $("#loading-image").hide();
+    });
+
+}
+
+
+});
 $(document).on('click', '.btn-update-bug', function() {
 	$('.text-danger').html('');
 	
