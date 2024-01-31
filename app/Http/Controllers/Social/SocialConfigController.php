@@ -122,6 +122,30 @@ class SocialConfigController extends Controller
         return $response['data'];
     }
 
+    public function getfbToken()
+    {
+        return redirect('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
+        $curl = curl_init();
+        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+        $url = sprintf('https://www.facebook.com/dialog/oauth?client_id=1465672917171155&redirect_uri=https://example.com&scope=manage_pages,pages_manage_posts');
+        curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+        ]);
+
+        $response = json_decode(curl_exec($curl), true); //response decoded
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $httpcode, SocialConfigController::class, 'getfbToken');
+    }
+
     /**
      * Method to generate the Facebook access token and get
      * the basic profile details about the account.
@@ -162,6 +186,26 @@ class SocialConfigController extends Controller
         return redirect()->route('social.config.index');
     }
 
+    public function getNeverExpiringToken(array $data): string|bool
+    {
+        $url = $this->fb_base_url . 'oauth/access_token?grant_type=fb_exchange_token&client_id=' . config('facebook.config.app_id')
+            . '&client_secret=' . config('facebook.config.app_secret') . '&fb_exchange_token=' . $data['page_token'];
+        $http = Http::get($url);
+        $response = $http->json();
+        if (isset($response['error'])) {
+            return false;
+        }
+        $long_lived_token = $response['access_token'];
+        $permanent_token_url = $this->fb_base_url . $data['page_id'] . '?fields=access_token&access_token=' . $long_lived_token;
+        $httpPT = Http::get($permanent_token_url);
+        $ptResponse = $httpPT->json();
+        if (! isset($ptResponse['access_token'])) {
+            return false;
+        }
+
+        return $ptResponse['access_token'];
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -173,6 +217,11 @@ class SocialConfigController extends Controller
         $data = $request->validated();
         $data['page_language'] = $request->page_language;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
+
+        $neverExpiringToken = $this->getNeverExpiringToken($data);
+        if (! $neverExpiringToken) {
+            return redirect()->back()->withError('Unable to refactor the token. Kindly validate it');
+        }
         if ($request->platform == 'instagram') {
             $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->page_token);
             $http = Http::get($url);
@@ -186,6 +235,8 @@ class SocialConfigController extends Controller
         } else {
             $data['account_id'] = $pageId;
         }
+
+        $data['page_token'] = $neverExpiringToken;
 
         SocialConfig::create($data);
 
@@ -204,12 +255,17 @@ class SocialConfigController extends Controller
         $pageId = $request->page_id;
         $data = $request->validated();
 
+        $neverExpiringToken = $this->getNeverExpiringToken($data);
+        if (! $neverExpiringToken) {
+            return redirect()->back()->withError('Unable to refactor the token. Kindly validate it');
+        }
+
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (isset($request->adsmanager)) {
             $data['ads_manager'] = $request->adsmanager;
         }
         if ($request->platform == 'instagram') {
-            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->token);
+            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $neverExpiringToken);
             $http = Http::get($url);
             $response = $http->json();
             LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'edit');
@@ -222,8 +278,10 @@ class SocialConfigController extends Controller
             $data['account_id'] = $pageId;
         }
         $data['page_language'] = $request->page_language;
+        $data['page_token'] = $neverExpiringToken;
 
         $config->update($data);
+
         return redirect()->back()->withSuccess('You have successfully changed  Config');
     }
 

@@ -5620,6 +5620,7 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
 
     Route::get('config/fbtokenback', [Social\SocialConfigController::class, 'getfbTokenBack'])->name('social.config.fbtokenback');
+    Route::get('config/fbtoken', [Social\SocialConfigController::class, 'getfbToken'])->name('social.config.fbtoken');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
