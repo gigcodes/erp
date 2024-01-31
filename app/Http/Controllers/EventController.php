@@ -239,8 +239,10 @@ class EventController extends Controller
                 $eventAvailability = new EventAvailability();
                 $eventAvailability->event_id = $event->id;
                 $eventAvailability->numeric_day = $key;
-                $eventAvailability->start_at = date('H:i:s', strtotime($event_availability['start_at']));
-                $eventAvailability->end_at = date('H:i:s', strtotime($event_availability['end_at']));
+                // $eventAvailability->start_at = date('H:i:s', strtotime($event_availability['start_at']));
+                // $eventAvailability->end_at = date('H:i:s', strtotime($event_availability['end_at']));
+                $eventAvailability->start_at = $event_availability['start_at'].':00';
+                $eventAvailability->end_at = $event_availability['end_at'].':00';
                 $eventAvailability->save();
             }
         }
@@ -447,9 +449,21 @@ class EventController extends Controller
         $start = explode('T', $request->get('start'))[0];
         $end = explode('T', $request->get('end'))[0];
 
-        $eventSchedules = EventSchedule::whereBetween('schedule_date', [$start, $end])
-            ->whereHas('event', function ($event) use ($userId) {
+        $eventSchedules = EventSchedule::
+        whereBetween('schedule_date', [$start, $end])->
+            whereHas('event', function ($event) use ($userId,$start,$end) {
                 $event->where('user_id', $userId)->where('event_type', 'PU');
+                $event
+                ->orWhereBetween('start_date', [$start, $end])
+                    ->orWhereBetween('end_date', [$start, $end])
+                    ->orWhere([
+                        ['start_date', '<=', $start],
+                        ['end_date', '=', null],
+                    ])
+                    ->orWhere([
+                        ['start_date', '<=', $start],
+                        ['end_date', '>=', $end],
+                    ]);
             })
             ->get()
             ->map(function ($eventSchedule) {
@@ -470,14 +484,20 @@ class EventController extends Controller
             ->select('events.*', 'event_availabilities.numeric_day', 'event_availabilities.start_at', 'event_availabilities.end_at')
             ->where('user_id', $userId)
             ->where(function ($query) use ($start, $end) {
-                $query->orWhereBetween('start_date', [$start, $end])
+                $query
+                ->orWhereBetween('start_date', [$start, $end])
                     ->orWhereBetween('end_date', [$start, $end])
                     ->orWhere([
                         ['start_date', '<=', $start],
                         ['end_date', '=', null],
+                    ])
+                    ->orWhere([
+                        ['start_date', '<=', $start],
+                        ['end_date', '>=', $end],
                     ]);
             })
             ->get();
+            
 
         $userPrivateEventCollection = new Collection();
 
@@ -541,8 +561,8 @@ class EventController extends Controller
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
-                            'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
-                            'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                            'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
+                            'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                             'event_type' => 'AS',
                         ]);
                     }
@@ -555,8 +575,8 @@ class EventController extends Controller
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
-                            'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
-                            'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                            'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
+                            'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                             'event_type' => 'AS',
                         ]);
                     }
@@ -569,8 +589,8 @@ class EventController extends Controller
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
-                            'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
-                            'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                            'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
+                            'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                             'event_type' => 'AS',
                         ]);
                     }
@@ -595,8 +615,8 @@ class EventController extends Controller
                         'subject' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
                         'title' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
                         'description' => 'Domain Expiry' . ' ( ' . ($virtualminDomain->name ?? '-') . " )",
-                        'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
-                        'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                        'start' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
+                        'end' => $cDueDate->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                         'event_type' => 'VD',
                     ]);
                 }
@@ -622,8 +642,8 @@ class EventController extends Controller
                     'subject' => "Task #{$taskRemark->taskid} - {$taskRemark->remark}",
                     'title' => "Task #{$taskRemark->taskid} - {$taskRemark->remark}",
                     'description' => "Task #{$taskRemark->taskid} - {$taskRemark->remark}",
-                    'start' => $taskRemarkCreated->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
-                    'end' => $taskRemarkCreated->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateString(),
+                    'start' => $taskRemarkCreated->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
+                    'end' => $taskRemarkCreated->setMonth($cStartDate->month)->setYear($cStartDate->year)->toDateTimeString(),
                     'event_type' => 'TR', // Task Remark
                 ]);
             }
@@ -781,8 +801,8 @@ class EventController extends Controller
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
-                            'start' => $cDueDate->setMonth($dt->month)->setYear($dt->year)->toDateString(),
-                            'end' => $cDueDate->setMonth($dt->month)->setYear($dt->year)->toDateString(),
+                            'start' => $cDueDate->setMonth($dt->month)->setYear($dt->year)->toDateTimeString(),
+                            'end' => $cDueDate->setMonth($dt->month)->setYear($dt->year)->toDateTimeString(),
                             'event_type' => Event::ASSET,
                             'event_type_name' => Event::$eventTypes[Event::ASSET],
                         ]);
@@ -800,8 +820,8 @@ class EventController extends Controller
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
-                            'start' => $cDueDate->setYear($dt->year)->toDateString(),
-                            'end' => $cDueDate->setYear($dt->year)->toDateString(),
+                            'start' => $cDueDate->setYear($dt->year)->toDateTimeString(),
+                            'end' => $cDueDate->setYear($dt->year)->toDateTimeString(),
                             'event_type' => Event::ASSET,
                             'event_type_name' => Event::$eventTypes[Event::ASSET],
                         ]);
@@ -817,8 +837,8 @@ class EventController extends Controller
                             'subject' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'title' => 'Payment Due' . ' (Asset: ' . ($assetsManager->name ?? '-') . ", Provider name: $assetsManager->provider_name, Location: $assetsManager->location )",
                             'description' => "Provider name: $assetsManager->provider_name, Location: $assetsManager->location",
-                            'start' => $cDueDate->toDateString(),
-                            'end' => $cDueDate->toDateString(),
+                            'start' => $cDueDate->toDateTimeString(),
+                            'end' => $cDueDate->toDateTimeString(),
                             'event_type' => Event::ASSET,
                             'event_type_name' => Event::$eventTypes[Event::ASSET],
                         ]);
