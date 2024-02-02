@@ -12,6 +12,7 @@
  */
 
 use App\Email;
+use App\Http\Controllers\EmailReceiverMasterController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\Mail;
@@ -23,6 +24,7 @@ use App\Http\Controllers\gtmetrix;
 use App\Http\Controllers\Hubstaff;
 use App\Http\Controllers\Products;
 use App\Http\Controllers\Marketing;
+use App\Models\EmailReceiverMaster;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdsController;
 use App\Http\Controllers\EnvController;
@@ -6040,4 +6042,5 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
+    Route::resource('email-receiver-master', EmailReceiverMasterController::class);
 });

@@ -6,6 +6,8 @@ use App\Email;
 use App\GmailDataList;
 use App\GmailDataMedia;
 use App\ContentManageentEmail;
+use App\Models\EmailReceiverMaster;
+use App\ResourceImage;
 
 class EmailObserver
 {
@@ -16,6 +18,8 @@ class EmailObserver
      */
     public function created(Email $email)
     {
+        //Email Receiver Module
+        $this->emailReceive($email);
         return $this->gmailData($email);
     }
 
@@ -57,6 +61,47 @@ class EmailObserver
     public function forceDeleted(Email $email)
     {
         //
+    }
+
+    private function emailReceive(Email $email)
+    {
+        //Get recever email
+        try {
+
+            $emailReceivRec = EmailReceiverMaster::where('module_name','resource')->first();
+            if($emailReceivRec && trim(strtolower($emailReceivRec->email)) == trim(strtolower($email->to))) {
+                $json_configs = $emailReceivRec->configs;
+                if($json_configs) {
+                    $configs = json_decode($json_configs);
+                    if($configs && $configs->cat) {
+                        
+                        $resourceimg = new ResourceImage();
+                        $resourceimg->cat_id = $configs->cat;
+                        $resourceimg->sub_cat_id = $configs->sub_cat ? $configs->sub_cat : 0;
+                        $resourceimg->images = '';
+                        $resourceimg->url ='';
+                        $resourceimg->description = $email->message;
+                        $resourceimg->subject = $email->subject;
+                        $resourceimg->sender = $email->from;
+                        $resourceimg->created_at = date('Y-m-d H:i:s');
+                        $resourceimg->updated_at = date('Y-m-d H:i:s');
+                        $resourceimg->created_by = 'Email Receiver';
+                        $resourceimg->is_pending = 1;
+                        $resourceimg->save();
+    
+                    }
+                }
+                
+    
+    
+            }
+        } catch (\Exception $e) {
+
+        }
+
+
+
+
     }
 
     public function gmailData(Email $email)
