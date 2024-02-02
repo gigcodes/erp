@@ -6,6 +6,7 @@ use App\Email;
 use App\GmailDataList;
 use App\GmailDataMedia;
 use App\ContentManageentEmail;
+use App\Models\BlogCentralize;
 use App\Models\EmailReceiverMaster;
 use App\ResourceImage;
 
@@ -65,9 +66,9 @@ class EmailObserver
 
     private function emailReceive(Email $email)
     {
-        //Get recever email
+        
+        //Resources
         try {
-
             $emailReceivRec = EmailReceiverMaster::where('module_name','resource')->first();
             if($emailReceivRec && trim(strtolower($emailReceivRec->email)) == trim(strtolower($email->to))) {
                 $json_configs = $emailReceivRec->configs;
@@ -91,10 +92,30 @@ class EmailObserver
     
                     }
                 }
-                
-    
-    
             }
+            //Resources
+        } catch (\Exception $e) {
+
+        }
+        //Blog
+        try{
+
+            $emailReceivRec = EmailReceiverMaster::where('module_name','blog')->first();
+            if($emailReceivRec && trim(strtolower($emailReceivRec->email)) == trim(strtolower($email->to))) {
+                        
+                $centralBlog = new BlogCentralize();
+                
+                $centralBlog->title = $email->subject;
+                $centralBlog->content = $email->message;
+                $centralBlog->receive_from = $email->from;
+                $centralBlog->created_at = date('Y-m-d H:i:s');
+                $centralBlog->updated_at = date('Y-m-d H:i:s');
+                $centralBlog->created_by = 'Email Receiver';
+                $centralBlog->save();
+                
+            }
+
+            //Blog
         } catch (\Exception $e) {
 
         }
