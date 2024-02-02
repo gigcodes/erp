@@ -5727,28 +5727,28 @@ class DevelopmentController extends Controller
             $returnData = [];
             $jsonString = $request->scrapper_values;
             $phpArray = json_decode($jsonString, true);
-            if(!empty($phpArray)){
+            // if(!empty($phpArray)){
 
-                if(!empty($phpArray)){
+            //     if(!empty($phpArray)){
 
-                    foreach ($phpArray as $key_json => $value_json) {
+            //         foreach ($phpArray as $key_json => $value_json) {
 
-                        if($key_json!='is_sale'){
-                            if(empty($value_json)){
-                                $returnData[] = ucwords(str_replace("_", " ", $key_json));
-                            }
+            //             if($key_json!='is_sale'){
+            //                 if(empty($value_json)){
+            //                     $returnData[] = ucwords(str_replace("_", " ", $key_json));
+            //                 }
 
-                            if($key_json=='properties'){
-                                foreach ($phpArray['properties'] as $key => $value) {
-                                    if(empty($phpArray['properties'][$key])){
-                                        $returnData[] = 'Properties - '.ucwords(str_replace("_", " ", $key_json));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } 
+            //                 if($key_json=='properties'){
+            //                     foreach ($phpArray['properties'] as $key => $value) {
+            //                         if(empty($phpArray['properties'][$key])){
+            //                             $returnData[] = 'Properties - '.ucwords(str_replace("_", " ", $key_json));
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // } 
 
             if(!empty($returnData)){
                 return response()->json(
