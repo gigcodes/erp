@@ -2235,19 +2235,19 @@ class WhatsAppController extends FindByNumberController
                         if ($recepient == 'assign_by') {
                             $adm = User::find($task->assign_from);
                             if ($adm) {
-                                $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
+                                //$this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
                                 WebNotificationController::sendBulkNotification($adm->id, 'Task & Activity', $data['message']);
                             }
                         } elseif ($recepient == 'assigned_to') {
                             foreach ($task->users as $key => $user) {
-                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                //$this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
                                 WebNotificationController::sendBulkNotification($user->id, 'Task & Activity', $data['message']);
                             }
                         } elseif ($recepient == 'master_user_id') {
                             if (! empty($task->master_user_id)) {
                                 $userMaster = User::find($task->master_user_id);
                                 if ($userMaster) {
-                                    $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                    //$this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
                                     WebNotificationController::sendBulkNotification($userMaster->id, 'Task & Activity', $data['message']);
                                 }
                             }
@@ -2255,7 +2255,7 @@ class WhatsAppController extends FindByNumberController
                             if (! empty($task->second_master_user_id)) {
                                 $userMaster = User::find($task->second_master_user_id);
                                 if ($userMaster) {
-                                    $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                                    //$this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
                                     WebNotificationController::sendBulkNotification($userMaster->id, 'Task & Activity', $data['message']);
                                 }
                             }
@@ -2266,7 +2266,7 @@ class WhatsAppController extends FindByNumberController
                                     if ($key == 0) {
                                         $data['contact_id'] = $task->assign_to;
                                     } else {
-                                        $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
+                                        //$this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
                                     }
                                 }
                                 // } else {
@@ -2282,7 +2282,7 @@ class WhatsAppController extends FindByNumberController
                                 if ($key == 0) {
                                     $data['erp_user'] = $user->id;
                                 } else {
-                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                    //$this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
                                     WebNotificationController::sendBulkNotification($user->id, 'Task & Activity', $data['message']);
                                 }
                             }
@@ -2291,13 +2291,13 @@ class WhatsAppController extends FindByNumberController
                                 if ($key == 0) {
                                     $data['erp_user'] = $user->id;
                                 } else {
-                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                    //$this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
                                     WebNotificationController::sendBulkNotification($user->id, 'Task & Activity', $data['message']);
                                 }
                             }
                             $adm = User::find($task->assign_from);
                             if ($adm) {
-                                $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
+                                //$this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data['message']);
                                 WebNotificationController::sendBulkNotification($adm->id, 'Task & Activity', $data['message']);
                             }
                         } else {
@@ -2305,7 +2305,7 @@ class WhatsAppController extends FindByNumberController
                                 $data['erp_user'] = $task->assign_from;
 
                                 foreach ($task->users as $key => $user) {
-                                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                    //$this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
                                     WebNotificationController::sendBulkNotification($user->id, 'Task & Activity', $data['message']);
                                 }
                             } else {
@@ -2314,7 +2314,7 @@ class WhatsAppController extends FindByNumberController
                                         $data['erp_user'] = $task->assign_from;
                                     } else {
                                         if ($user->id != Auth::id()) {
-                                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
+                                            //$this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data['message']);
                                             WebNotificationController::sendBulkNotification($user->id, 'Task & Activity', $data['message']);
                                         }
                                     }
@@ -2329,7 +2329,7 @@ class WhatsAppController extends FindByNumberController
                             if ($key == 0) {
                                 $data['contact_id'] = $task->assign_to;
                             } else {
-                                $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
+                                //$this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data['message']);
                             }
                         }
                         // } else {
@@ -2344,7 +2344,7 @@ class WhatsAppController extends FindByNumberController
                             $extraUser = $data;
                             $extraUser['erp_user'] = $task->master_user_id;
                             $extraUser['user_id'] = $task->master_user_id;
-                            $this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
+                            //$this->sendWithThirdApi($userMaster->phone, $userMaster->whatsapp_number, $data['message']);
                         }
                     }
                 }
