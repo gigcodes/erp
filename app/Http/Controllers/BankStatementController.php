@@ -19,7 +19,7 @@ class BankStatementController extends Controller
     public function index()
     {
         $data = BankStatementFile::with('user')->paginate(25);
-        
+
         return View('bank-statement.index',
             compact('data')
         );
@@ -33,19 +33,12 @@ class BankStatementController extends Controller
     public function import(Request $request)
     {
         $file = $request->file('excel_file');
-        
+
         // Extract file information from the temporary path
-        $tempPath = $file->path();
         $originalName = $file->getClientOriginalName();
-        $mimeType = mime_content_type($tempPath);
-        $size = filesize($tempPath);
-        $extension = $file->getClientOriginalExtension();
-        
-        // $fileName = time() . '_' . $file->getClientOriginalName();
-        $fileName = md5(time()) . '.' . $extension;
-        $path = $file->move(storage_path('app/files/bank_statements'), $fileName);
-        $path = 'files/bank_statements/'.$fileName;
-      
+
+        $path = $request->file('excel_file')->store(storage_path('app/files/bank_statements'));
+
         // Create an UploadedFile instance manually
         // $uploadedFile = new UploadedFile(
         //     $tempPath,       // Temporary path
@@ -63,14 +56,14 @@ class BankStatementController extends Controller
             'created_by' => \Auth::id(),
             'created_at' => date("Y-m-d H:i:s")
         ]);
-        
+
         return redirect()->back()->with('success', 'File imported successfully.');
     }
-    
+
     public function heading_row_number_check(Request $request)
     {
         $input = $request->all();
-        return redirect()->route('bank-statement.import.map', ['id' => $input['id'], 'heading_row_number' => $input['heading_row_number']]);       
+        return redirect()->route('bank-statement.import.map', ['id' => $input['id'], 'heading_row_number' => $input['heading_row_number']]);
     }
 
     public function map(Request $request, $id, $heading_row_number = 1)
@@ -78,9 +71,9 @@ class BankStatementController extends Controller
         $bankStatement = BankStatementFile::find($id);
         $filePath = storage_path("app/".$bankStatement->path); //read file path
         // $filePath = $bankStatement->path; //read file path
-        
+
         $data = Excel::toArray([], $filePath);
-        
+
         // Assuming the first row contains column headers
         $excelHeaders = $data[0][$heading_row_number-1];
 
@@ -103,7 +96,7 @@ class BankStatementController extends Controller
         $bankStatementFile = BankStatementFile::find($id);
         $filePath = storage_path("app/".$bankStatementFile->path); //read file path
         // $filePath = $bankStatementFile->path; //read file path
-       
+
         $data = Excel::toArray([], $filePath);
         $number = $heading_row_number-1;
         if($number <= 0){
@@ -111,15 +104,15 @@ class BankStatementController extends Controller
         }
         // Assuming the first row contains column headers
         $excelHeaders = $data[0][$number];
-        
+
         $data_array = [];
-        
+
         foreach($data[0] as $k=>$v){
             foreach($excelHeaders as $k1=>$v1){
                 $data_array[$k][trim($v1)] = $v[trim($k1)];
             }
         }
-        
+
         $fields_db = [
             "transaction_date",
             "transaction_reference_no",
@@ -133,7 +126,7 @@ class BankStatementController extends Controller
         foreach($data_array as $k=>$v){
             $data_array_new_1 = [];
             foreach($fields_db  as $k1=>$v1){
-                $data_array_new_1[trim($v1)] = @$v[trim($inputes[$v1])]; 
+                $data_array_new_1[trim($v1)] = @$v[trim($inputes[$v1])];
             }
             $data_array_new_1['bank_statement_file_id'] = $id;
             $data_array_new_1['created_at'] = date("Y-m-d H:i:s");
@@ -143,7 +136,7 @@ class BankStatementController extends Controller
                     $data_array_new_1[$k2] = "-";
                 }
             }
-           
+
             $bankStatement = BankStatement::create($data_array_new_1);
         }
 
@@ -153,7 +146,7 @@ class BankStatementController extends Controller
 
         return redirect()->route('bank-statement.index')->with('success', 'File imported data mapped successfully.');
     }
-    
+
     public function mapped_data($id, Request $request)
     {
         $data = BankStatement::where(['bank_statement_file_id' => $id])->with('user')->paginate(25);
@@ -162,5 +155,5 @@ class BankStatementController extends Controller
             compact('data', 'bankStatementFile')
         );
     }
-    
+
 }

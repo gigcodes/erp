@@ -80,9 +80,8 @@ class ContentManagementController extends Controller
     {
         $content = file_get_contents($request->image_url);
         $random = bin2hex(random_bytes(20)) . '.png';
-        $path = asset('/uploads/gmail_media/' . $random);
 
-        Storage::disk('uploads')->put('gmail_media/' . $random, $content);
+        $path = Storage::put('uploads/gmail_media/' . $random, $content);
 
         return response()->json(['random' => $random, 'image_path' => $path, 'status' => true]);
     }
@@ -366,15 +365,11 @@ class ContentManagementController extends Controller
     {
         $path = storage_path('tmp/uploads');
 
-        if (! file_exists($path)) {
-            mkdir($path, 0777, true);
-        }
-
         $file = $request->file('file');
 
         $name = uniqid() . '_' . trim($file->getClientOriginalName());
 
-        $file->move($path, $name);
+        $file->store($path.$name);
 
         return response()->json([
             'name' => $name,

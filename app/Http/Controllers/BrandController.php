@@ -718,7 +718,7 @@ class BrandController extends Controller
 
                 $log = BrandLogo::create($params);
 
-                $file->move(public_path('brand_logo'), $fileName);
+                $file->store(public_path('brand_logo').'/'.$fileName);
             }
 
             return response()->json(['code' => 200, 'msg' => 'files uploaded successfully', 'data' => $fileNameArray]);

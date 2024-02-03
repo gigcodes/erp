@@ -28,6 +28,7 @@ use App\SiteDevelopment;
 use App\StoreSocialContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ChatMessagesController extends Controller
 {
@@ -516,14 +517,10 @@ class ChatMessagesController extends Controller
         // Return JSON
         if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
             $storagelocation = storage_path() . '/chatMessageFiles';
-            if (! is_dir($storagelocation)) {
-                mkdir($storagelocation, 0777, true);
-            }
             $filename = $request->object . $request->object_id . '_chat.txt';
             $file = $storagelocation . '/' . $filename;
-            $txt = fopen($file, 'w') or exit('Unable to open file!');
-            fwrite($txt, $chatFileData);
-            fclose($txt);
+            Storage::put($file,$chatFileData);
+
             if ($chatFileData == '') {
                 return response()->json([
                     'downloadUrl' => '',

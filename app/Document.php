@@ -38,7 +38,7 @@ class Document extends Model
     {
         $document = $this::find($id);
 
-        return Storage::disk('files')->url('documents/' . $document->filename);
+        return Storage::url('files/documents/' . $document->filename);
     }
 
     public function documentCategory()

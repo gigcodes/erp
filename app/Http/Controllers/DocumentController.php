@@ -188,7 +188,7 @@ class DocumentController extends Controller
             $data['filename'] = $file->getClientOriginalName();
             $data['file_contents'] = $file->openFile()->fread($file->getSize());
 
-            $file->storeAs('documents', $data['filename'], 'files');
+            $file->store('files/documents', $data['filename']);
 
             Document::create($data);
         }
@@ -212,13 +212,9 @@ class DocumentController extends Controller
         ->header('Content-length', strlen($document->file_contents))
         ->header('Content-Disposition', 'attachment; filename=' . $document->filename)
         ->header('Content-Transfer-Encoding', 'binary');
-
-            /*return response()->make($document->file_contents, 200, array(
-                'Content-Type' => (new finfo(FILEINFO_MIME))->buffer($document->file_contents)
-            ));*/
         }
 
-        return Storage::disk('files')->download('documents/' . $document->filename);
+        return Storage::download('files/documents/' . $document->filename);
     }
 
     /**
@@ -271,7 +267,7 @@ class DocumentController extends Controller
     {
         $document = Document::find($id);
 
-        Storage::disk('files')->delete("documents/$document->filename");
+        Storage::delete("files/documents/$document->filename");
 
         $document->delete();
 
@@ -292,18 +288,16 @@ class DocumentController extends Controller
 
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
-                $filename = $file->getClientOriginalName();
+                $path = $file->store('files/documents');
 
-                $file->storeAs('documents', $filename, 'files');
-
-                $file_paths[] = "documents/$filename";
+                $file_paths[] = $path;
             }
         }
 
         $document = Document::findOrFail($request->document_id);
 
         if ($document) {
-            $file_paths[] = "documents/$document->filename";
+            $file_paths[] = "files/documents/$document->filename";
         }
 
         // dd($file_paths);
@@ -542,7 +536,7 @@ class DocumentController extends Controller
         $file = $request->file('files');
         $document->filename = $file->getClientOriginalName();
         $document->file_contents = $file->openFile()->fread($file->getSize());
-        $file->storeAs('documents', $document->filename, 'files');
+        $file->store('files/documents', $document->filename);
         $document->save();
 
         return redirect()->route('document.index')->withSuccess('You have successfully uploaded document(s)!');

@@ -256,9 +256,6 @@ class MailinglistTemplateController extends Controller
         $mltemplate = MailinglistTemplate::where('id', $id)->first();
 
         $path = 'mailinglist/email-templates/' . $id;
-        if (! file_exists($path)) {
-            mkdir($path, 0777, true);
-        }
 
         $m = MailingTemplateFile::where('mailing_id', $id)->first();
 

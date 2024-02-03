@@ -31,7 +31,7 @@ class BrokenLinkCheckerController extends Controller
      */
     public function getBrokenLinkDetails()
     {
-        $json_file = Storage::disk('local')->get('/files/broken-link-checker.json');
+        $json_file = Storage::get('local/files/broken-link-checker.json');
         if ($json_file) {
             $info = json_decode($json_file, true);
             $json['type'] = 'success';
