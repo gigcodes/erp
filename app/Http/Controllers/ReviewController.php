@@ -567,8 +567,8 @@ class ReviewController extends Controller
     {
         $serverId = $request->serverId;
 
-        // $url = 'http://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
-        $url = 'http://' . $serverId . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        // $url = 'https://'.$serverId.'.theluxuryunlimited.com:' . env('NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
+        $url = 'https://' . $serverId . '.theluxuryunlimited.com:' . config('env.NODE_SERVER_PORT') . '/restart-script?filename=reviewScraper/trustPilot.js';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $curl = curl_init();
 

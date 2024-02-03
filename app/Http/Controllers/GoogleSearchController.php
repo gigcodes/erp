@@ -228,11 +228,11 @@ class GoogleSearchController extends Controller
      *    {  "searchKeyword": "GKy1",
      *    "description": "This is description about web page in search result",
      *    "crawledAt": "2019-01-10",
-     *    "URL": "http://www.searchedweb1.com" },
+     *    "URL": "https://www.searchedweb1.com" },
      *    { "searchKeyword": "GKy2",
      *    "description": "This is description about web page in search result",
      *    "crawledAt": "2019-01-10",
-     *    "URL": "http://www.searchedweb2.com" }
+     *    "URL": "https://www.searchedweb2.com" }
      * ]
      *
      * @return json response status

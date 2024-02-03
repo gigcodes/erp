@@ -325,7 +325,7 @@ class CroppedImageReferenceController extends Controller
             })
             ->addColumn('original_image', function ($row) {
                 $original_image = '<div style="width: 100px;margin-top: 25px; display: inline-block;">';
-                $src = $row->media ? $row->media->getUrl() : 'http://localhost/erp/public/uploads/product/29/296559/123.webp';
+                $src = $row->media ? $row->media->getUrl() : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
                 $onclick_url = $row->media ? $row->media->getUrl() : '';
                 $original_image .= '<img src="' . $src . '" alt="" height="100" width="100"  alt="" height="100" width="100" onclick="bigImg(`' . $onclick_url . '`)">';
                 $original_image .= '</div>';
@@ -342,7 +342,7 @@ class CroppedImageReferenceController extends Controller
                         $cropped_image .= '<td>';
                         $cropped_image .= '<div style="width: 100px;margin: 0px;display: inline-block;">';
                         $cropped_image .= ($images->newMedia) ? $images->getDifferentWebsiteName($images->newMedia->id) : 'N/A';
-                        $src = $images->newMedia ? $images->newMedia->getUrl() : 'http://localhost/erp/public/uploads/product/29/296559/123.webp';
+                        $src = $images->newMedia ? $images->newMedia->getUrl() : 'https://localhost/erp/public/uploads/product/29/296559/123.webp';
                         $onclick = $images->newMedia ? $images->newMedia->getUrl() : '';
                         $cropped_image .= '<img src="' . $src . '" alt="" height="100" width="100" onclick="bigImg(`' . $onclick . '`)">';
                         $cropped_image .= '</div>';
@@ -518,7 +518,7 @@ class CroppedImageReferenceController extends Controller
 
     public function loginstance(Request $request)
     {
-        $url = 'http://173.212.203.50:100/get-logs';
+        $url = 'https://173.212.203.50:100/get-logs';
         $date = $request->date;
         $id = $request->id;
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
@@ -588,19 +588,19 @@ class CroppedImageReferenceController extends Controller
     }
 
     public function cropColumnVisbilityUpdate(Request $request)
-    {   
+    {
         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','crop-references-grid')->first();
 
         if($userCheck)
         {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'crop-references-grid';
-            $column->column_name = json_encode($request->column_crop); 
+            $column->column_name = json_encode($request->column_crop);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'crop-references-grid';
-            $column->column_name = json_encode($request->column_crop); 
+            $column->column_name = json_encode($request->column_crop);
             $column->user_id =  auth()->user()->id;
             $column->save();
         }

@@ -19,9 +19,9 @@ class UrlReport extends Model
     {
         $key = env('KEY');
         $apis = [
-            'url_organic_search_keywords' => 'https://api.semrush.com/?type=url_organic&key=' . $key . '&display_limit=10&export_columns=Ph,Po,Nq,Cp,Co,Tr,Tc,Nr,Td&url=http://tools.seobook.com/&database=' . $db,
+            'url_organic_search_keywords' => 'https://api.semrush.com/?type=url_organic&key=' . $key . '&display_limit=10&export_columns=Ph,Po,Nq,Cp,Co,Tr,Tc,Nr,Td&url=https://tools.seobook.com/&database=' . $db,
 
-            'url_paid_search_keywords' => 'https://api.semrush.com/?type=url_adwords&key=' . $key . '&display_limit=5&export_columns=Ph,Po,Nq,Cp,Co,Tr,Tc,Nr,Td,Tt,Ds&url=http://www.amazon.com/&database=' . $db,
+            'url_paid_search_keywords' => 'https://api.semrush.com/?type=url_adwords&key=' . $key . '&display_limit=5&export_columns=Ph,Po,Nq,Cp,Co,Tr,Tc,Nr,Td,Tt,Ds&url=https://www.amazon.com/&database=' . $db,
         ];
 
         if ($column == null) {

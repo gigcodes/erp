@@ -28,16 +28,16 @@ class DomainOrganicPage extends Model
     {
         $apisResponse = [
             'organic_page' => 'Url;Number of Keywords;Traffic;Traffic (%)
-http://www.seobook.com/;317;2488;15.14
-http://tools.seobook.com/meta-medic/;492;1289;7.84
-http://tools.seobook.com/robots-txt/generator/;197;1133;6.89
-http://tools.seobook.com/;588;1015;6.17
-http://tools.seobook.com/ppc-tools/free-ppc-ad-coupons.html;930;916;5.57
-http://tools.seobook.com/general/keyword-density/;417;794;4.83
-http://tools.seobook.com/keyword-tools/seobook/;262;729;4.43
-http://tools.seobook.com/server-header-checker/;322;722;4.39
-http://tools.seobook.com/robots-txt/;319;583;3.54
-http://tools.seobook.com/keyword-list/generator.php;103;469;2.85',
+https://www.seobook.com/;317;2488;15.14
+https://tools.seobook.com/meta-medic/;492;1289;7.84
+https://tools.seobook.com/robots-txt/generator/;197;1133;6.89
+https://tools.seobook.com/;588;1015;6.17
+https://tools.seobook.com/ppc-tools/free-ppc-ad-coupons.html;930;916;5.57
+https://tools.seobook.com/general/keyword-density/;417;794;4.83
+https://tools.seobook.com/keyword-tools/seobook/;262;729;4.43
+https://tools.seobook.com/server-header-checker/;322;722;4.39
+https://tools.seobook.com/robots-txt/;319;583;3.54
+https://tools.seobook.com/keyword-list/generator.php;103;469;2.85',
 
         ];
 

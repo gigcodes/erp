@@ -261,7 +261,7 @@ class ProjectController extends Controller
                 $verbosity = 'high';
 
                 try {
-                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
+                    $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $job = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($jenkins->getJob($jobName)) {
                         $job = $jenkins->getJob($jobName);
@@ -443,7 +443,7 @@ class ProjectController extends Controller
                 $verbosity = 'high';
                 //$branch_name="stage";$repository="brands-labels";
                 try {
-                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
+                    $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity]);
                     if ($launchJobStatus) {
                         $job = $jenkins->getJob($jobName);
@@ -675,7 +675,7 @@ class ProjectController extends Controller
             $project_id = $responseLog->store_website_id;
             if ($responseLog->status != 'SUCCESS' && $responseLog->status != 'ABORTED') {
                 try {
-                    $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
+                    $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                     $job = $jenkins->getJob($job_name);
                     if ($job) {
                         $build = $job->getJenkinsBuild($build_number);
@@ -897,14 +897,14 @@ class ProjectController extends Controller
         $projectIds = explode(',', $selectedIdsString);
         $responseResults = [];
         $metapackage_branch = "";
-        
+
         if($request->metapackage_branch == 'master' &&  $request->repository == 353671452)
         {
             $metapackage_branch = "master";
         } else {
             $metapackage_branch = "";
         }
-        
+
         foreach ($projectIds as $projectId) {
             $project = Project::find($projectId);
             $job_name = $project->job_name;
@@ -967,7 +967,7 @@ class ProjectController extends Controller
                     $verbosity = 'high';
 
                     try {
-                        $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
+                        $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:11286d3dbdb6345298c8b6811e016d8b1e@deploy.theluxuryunlimited.com');
                         $launchJobStatus = $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'repository' => $repository, 'serverenv' => $serverenv, 'verbosity' => $verbosity, 'metapackage_branch' => $metapackage_branch ]);
                         if ($launchJobStatus) {
                             $job = $jenkins->getJob($jobName);
