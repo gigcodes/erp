@@ -192,31 +192,19 @@ class MailinglistTemplateController extends Controller
 
         $mailing_item->save();
 
-        // this is related to image upload
-
         $path = 'mailinglist/email-templates/' . $mailing_item->id;
-        if (! file_exists($path)) {
-            mkdir($path, 0777, true);
-        }
-        $filename = date('U') . Str::random(10);
 
-        if (! empty($_FILES['image'])) {
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $path = $path . '/' . $filename . '.' . $ext;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
-                $mailing_item->example_image = $path;
-                $mailing_item->save();
-            }
+        if($request->hasFile('image')){
+            $path = $request->file('image')->store($path);
+            $mailing_item->example_image = $path;
         }
-        $filename = date('U') . Str::random(10);
-        if (! empty($_FILES['logo'])) {
-            $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
-            $path = $path . '/' . $filename . '.' . $ext;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
-                $mailing_item->logo = $path;
-                $mailing_item->save();
-            }
+
+        if($request->hasFile('logo')){
+            $path = $request->file('logo')->store($path);
+            $mailing_item->logo = $path;
         }
+
+        $mailing_item->save();
 
         return response()->json(
             [
@@ -272,15 +260,12 @@ class MailinglistTemplateController extends Controller
             mkdir($path, 0777, true);
         }
 
-        $filename = date('U') . Str::random(10);
-        if (! empty($_FILES['image'])) {
-            $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $path = $path . '/' . $filename . '.' . $ext;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $path)) {
-            }
+        $m = MailingTemplateFile::where('mailing_id', $id)->first();
+
+        if($request->hasFile('image')){
+            $m->path = $request->file('image')->store($path);
         }
 
-        $m = MailingTemplateFile::where('mailing_id', $id)->first();
         if ($m) {
             MailingTemplateFilesHistory::insert(
                 [
@@ -291,7 +276,6 @@ class MailinglistTemplateController extends Controller
                     'updated_by' => Auth()->id(),
                 ]
             );
-            $m->path = $path;
             $m->save();
         } else {
             MailingTemplateFile::insert(
