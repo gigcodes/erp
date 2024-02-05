@@ -143,7 +143,7 @@ class googleAddsController extends Controller
                 $searchParameters[] = $networkSearchParameter;
 
                 // Optional: Set additional criteria for filtering estimates.
-                // See http://code.google.com/apis/adwords/docs/appendix/countrycodes.html
+                // See https://code.google.com/apis/adwords/docs/appendix/countrycodes.html
                 // for a detailed list of country codes.
                 // Set targeting criteria. Only locations and languages are supported.
 

@@ -400,7 +400,7 @@ class InstagramController extends Controller
                 'image_names' => array_map(function ($img) {
                     return [
                         'id' => $img['id'],
-                        'name' => $img['filename'] ? asset('uploads/social-media') . '/' . $img['filename'] : 'http://lorempixel.com/555/300/black',
+                        'name' => $img['filename'] ? asset('uploads/social-media') . '/' . $img['filename'] : 'https://lorempixel.com/555/300/black',
                     ];
                 }, $item['images']->get(['id', 'filename'])->toArray()),
             ];

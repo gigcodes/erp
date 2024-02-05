@@ -152,7 +152,7 @@ class StoreWebsite extends Model
         $url = $this->website;
         $parsed = parse_url($url);
         if (empty($parsed['scheme'])) {
-            return $urlStr = 'http://' . ltrim($url, '/');
+            return $urlStr = 'https://' . ltrim($url, '/');
         }
 
         return $url;
