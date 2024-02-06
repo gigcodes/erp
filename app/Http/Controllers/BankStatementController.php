@@ -60,8 +60,8 @@ class BankStatementController extends Controller
     public function map(Request $request, $id, $heading_row_number = 1)
     {
         $bankStatement = BankStatementFile::find($id);
-        $filePath = storage_path('app/' . $bankStatement->path); //read file path
-        // $filePath = $bankStatement->path; //read file path
+
+        $filePath = Storage::url($bankStatement->path);
 
         $data = Excel::toArray([], $filePath);
 
