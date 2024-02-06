@@ -240,6 +240,13 @@
                 <button style="padding:3px;" title="Email Auto Acknowledgement" type="button" class="btn btn-xs p-0 m-0 text-secondary mr-2 create-email-auto-acknowledgement" data-id="{{ $server->id }}"><i class="fa fa-envelope" aria-hidden="true"></i></button>
 
                 <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-xs p-0 m-0 text-secondary mr-2  count-email-acknowledgement" title="Email Auto Acknowledgement history" data-id="{{ $server->id }}"><i class="fa fa-info-circle"></i></button>
+                @if(auth()->user()->isAdmin())
+                <label class="switchAN" title="Email Alert">
+                    <input data-id={{$server->id}} class ="emailAlertSwitch" type="checkbox"  @if($server->email_alert) {{'checked'}} @endif>
+                    <span class="slider round"></span>
+                    <span class="text @if($server->email_alert) {{'textLeft'}} @else {{'textRight'}} @endif" >@if($server->email_alert) {{'On'}} @else {{'Off'}} @endif</span>
+                </label>
+                @endif
               </td>
             </tr>
 
@@ -1444,6 +1451,42 @@ function sendtoWhatsapp(password_id) {
             }
           });
         });
+
+        $(document).on('click','.emailAlertSwitch',function(){
+            $(this).parent().find('span .text').removeClass('textLeft');
+            $(this).parent().find('span .text').removeClass('textRight');
+
+            var isChecked = $(this).prop('checked');
+            var availabilityText = isChecked ? 'Online' : 'Offline';
+            var alignmentText = isChecked ? 'textLeft' : 'textRight';
+
+            // Update the text content within the toggle switch
+            $(this).parent().find('span .text').text(availabilityText);
+            var availabilityTextNew = isChecked ? 'On' : 'Off';
+            $(this).parent().find('span .text').addClass(availabilityTextNew);
+            let email_address_id = $(this).attr('data-id');
+
+            $.ajax({
+                type: 'POST',
+                url: "{{route('email-addresses.email-alert')}}",
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    id : email_address_id,
+                    email_alert : isChecked
+                },
+                dataType: "json",
+            }).done(function (response) {
+                $("#loading-image").hide();
+                toastr['success'](response.message, 'success');
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error']('Error', 'error');
+
+            });
+        })
 
   </script>
 @endsection

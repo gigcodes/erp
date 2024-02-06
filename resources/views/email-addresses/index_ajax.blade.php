@@ -103,6 +103,14 @@
                             </div>
                         </div>
                     </div>
+
+                    @if(auth()->user()->isAdmin())
+                    <label class="switchAN" title="Email Alert">
+                        <input class ="emailAlertSwitch" type="checkbox"  @if($server->email_alert) {{'checked'}} @endif>
+                        <span class="slider round"></span>
+                        <span class="text @if($server->email_alert) {{'textLeft'}} @else {{'textRight'}} @endif" >@if($server->email_alert) {{'On'}} @else {{'Off'}} @endif</span>
+                    </label>
+                    @endif
                 </td>
             </tr>
 			

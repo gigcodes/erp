@@ -3,9 +3,11 @@
 namespace App\Observers;
 
 use App\Email;
+use App\EmailAddress;
 use App\GmailDataList;
 use App\GmailDataMedia;
 use App\ContentManageentEmail;
+use App\Events\EmailReceivedAlert;
 
 class EmailObserver
 {
@@ -16,6 +18,7 @@ class EmailObserver
      */
     public function created(Email $email)
     {
+        $this->checkEmailAlert($email);
         return $this->gmailData($email);
     }
 
@@ -87,5 +90,20 @@ class EmailObserver
                 }
             }
         }
+    }
+
+    private function checkEmailAlert(Email $email)
+    {
+        try {
+            //Email Alerts
+            $enabledAlertEmails = EmailAddress::where('email_alert',1)->pluck('from_address')->toArray();
+            if(count($enabledAlertEmails) && in_array($email->to, $enabledAlertEmails)) {
+                EmailReceivedAlert::dispatch($email);
+            }
+           
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
     }
 }
