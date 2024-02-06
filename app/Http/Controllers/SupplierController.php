@@ -1430,9 +1430,9 @@ class SupplierController extends Controller
         if ($request->file('excel_file')) {
             $file = $request->file('excel_file');
             if ($file->getClientOriginalExtension() == 'xls' || $file->getClientOriginalExtension() == 'xlsx') {
-                $path = storage_path('app/files/email-attachments/file/');
-                $file->save($path.'/'.$file->getClientOriginalName());
-                $filePath = '/file/' . $file->getClientOriginalName();
+                $path = 'files/email-attachments/file';
+                $fileName = $file->hashName();
+                $filePath = $file->saveAs($path, $fileName);
                 $supplier = Supplier::find($request->id);
                 if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
                     $excel = $supplier->getSupplierExcelFromSupplierEmail();
