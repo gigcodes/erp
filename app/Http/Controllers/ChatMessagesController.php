@@ -44,98 +44,35 @@ class ChatMessagesController extends Controller
         $loadAttached = $request->get('load_attached', 0);
         $loadAllMessages = $request->get('load_all', 0);
         // Get object (customer, vendor, etc.)
-        switch ($request->object) {
-            case 'customer':
-                $object = Customer::find($request->object_id);
-                break;
-            case 'user-feedback':
-                $object = User::find($request->object_id);
-                break;
-            case 'user-feedback-hrTicket':
-                $object = User::find($request->object_id);
-                break;
-            case 'hubstuff':
-                $object = User::find($request->object_id);
-                break;
-            case 'user':
-                $object = User::find($request->object_id);
-                break;
-            case 'vendor':
-                $object = Vendor::find($request->object_id);
-                break;
-            case 'charity':
-                $object = CustomerCharity::find($request->object_id);
-                break;
-            case 'task':
-                $object = Task::find($request->object_id);
-                break;
-            case 'ticket':
-                $object = Tickets::find($request->object_id);
-                break;
-            case 'developer_task':
-                $object = DeveloperTask::find($request->object_id);
-                break;
-            case 'supplier':
-                $object = Supplier::find($request->object_id);
-                break;
-            case 'old':
-                $object = Old::find($request->object_id);
-                break;
-            case 'site_development':
-                $object = SiteDevelopment::find($request->object_id);
-                break;
-            case 'site_development':
-                $object = SiteDevelopment::find($request->object_id);
-                break;
-            case 'social_strategy':
-                $object = SocialStrategy::find($request->object_id);
-                break;
-            case 'content_management':
-                $object = StoreSocialContent::find($request->object_id);
-                break;
-            case 'order':
-                $object = Order::find($request->object_id);
-                break;
-            case 'payment-receipts':
-                $object = PaymentReceipt::find($request->object_id);
-                break;
-                //START - Purpose - Add learning - DEVTASK-4020
-            case 'learning':
-                $object = Learning::find($request->object_id);
-                break;
-                //END - DEVTASK-4020
-            case 'SOP':
-                $object = User::find($request->object_id);
-                break;
-                // no break
-            case 'document' :
-                $object = Document::find($request->object_id);
-                break;
-            case 'uicheck' :
-                $object = Uicheck::find($request->object_id);
-                //dd($object);
-                break;
-            case 'bug' :
-                $object = BugTracker::find($request->object_id);
-                //dd($object);
-                break;
-            case 'testcase' :
-                $object = TestCase::find($request->object_id);
-                //dd($object);
-                break;
-            case 'testsuites' :
-                $object = TestSuites::find($request->object_id);
-                //dd($object);
-                break;
-            case 'timedoctor':
-                $object = User::find($request->object_id);
-                break;
-            case 'email':
-                $object = Email::find($request->object_id);
-                break;
-            default:
-                $object = Customer::find($request->object);
-        }
+        $object = match ($request->object) {
+            'customer' => Customer::find($request->object_id),
+            'user-feedback' => User::find($request->object_id),
+            'user-feedback-hrTicket' => User::find($request->object_id),
+            'hubstuff' => User::find($request->object_id),
+            'user' => User::find($request->object_id),
+            'vendor' => Vendor::find($request->object_id),
+            'charity' => CustomerCharity::find($request->object_id),
+            'task' => Task::find($request->object_id),
+            'ticket' => Tickets::find($request->object_id),
+            'developer_task' => DeveloperTask::find($request->object_id),
+            'supplier' => Supplier::find($request->object_id),
+            'old' => Old::find($request->object_id),
+            'site_development' => SiteDevelopment::find($request->object_id),
+            'social_strategy' => SocialStrategy::find($request->object_id),
+            'content_management' => StoreSocialContent::find($request->object_id),
+            'order' => Order::find($request->object_id),
+            'payment-receipts' => PaymentReceipt::find($request->object_id),
+            'learning' => Learning::find($request->object_id),
+            'SOP' => User::find($request->object_id),
+            'document' => Document::find($request->object_id),
+            'uicheck' => Uicheck::find($request->object_id),
+            'bug' => BugTracker::find($request->object_id),
+            'testcase' => TestCase::find($request->object_id),
+            'testsuites' => TestSuites::find($request->object_id),
+            'timedoctor' => User::find($request->object_id),
+            'email' => Email::find($request->object_id),
+            default => Customer::find($request->object),
+        };
         // Set raw where query
         $rawWhere = "(message!='' or media_url!='')";
 
@@ -145,8 +82,6 @@ class ChatMessagesController extends Controller
             $rawWhere = '1=1';
         }
 
-        // Get chat messages
-//        $currentPage = request('page', 1);
         $currentPage = $request->get('page', 1);
         $skip = ($currentPage - 1) * $limit;
 
@@ -516,10 +451,11 @@ class ChatMessagesController extends Controller
 
         // Return JSON
         if (isset($request->downloadMessages) && $request->downloadMessages == 1) {
-            $storagelocation = storage_path() . '/chatMessageFiles';
+            $storagelocation = 'chatMessageFiles';
             $filename = $request->object . $request->object_id . '_chat.txt';
             $file = $storagelocation . '/' . $filename;
-            Storage::put($file,$chatFileData);
+
+            Storage::put($file, $chatFileData);
 
             if ($chatFileData == '') {
                 return response()->json([
