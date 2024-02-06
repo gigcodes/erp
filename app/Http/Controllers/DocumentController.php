@@ -185,10 +185,10 @@ class DocumentController extends Controller
         $data = $request->except(['_token', 'file']);
         // dd($data);
         foreach ($request->file('file') as $file) {
-            $data['filename'] = $file->getClientOriginalName();
+            $data['filename'] = $file->hashName();
             $data['file_contents'] = $file->openFile()->fread($file->getSize());
 
-            $file->store('files/documents', $data['filename']);
+            $file->storeAs('files/documents', $data['filename']);
 
             Document::create($data);
         }
@@ -289,7 +289,6 @@ class DocumentController extends Controller
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
                 $path = $file->store('files/documents');
-
                 $file_paths[] = $path;
             }
         }
@@ -320,23 +319,8 @@ class DocumentController extends Controller
             foreach ($request->users as $key) {
                 $user = User::findOrFail($key);
                 $user_email = $user->email;
-                //  dd($request->all());
-                /* echo $request["mitali1@gmail.com"];
-                  echo $user_email;
-                 dd($request->all());
-                 dd($request[$user->email]);
-                 dd($request[$user_email]);*/
                 $reqKey = 'selected_email_' . $key;
                 $email = (isset($request[$reqKey])) ? $request[$reqKey] : $user->email;
-
-                /*$mail = Mail::to($user->email);
-
-                if ($cc) {
-                    $mail->cc($cc);
-                }
-                if ($bcc) {
-                    $mail->bcc($bcc);
-                }*/
 
                 //History
                 $history['send_by'] = Auth::id();
@@ -364,24 +348,6 @@ class DocumentController extends Controller
                 ]);
 
                 \App\Jobs\SendEmail::dispatch($email)->onQueue('send_email');
-
-                /*$mail->send(new DocumentEmail($request->subject, $request->message, $file_paths));
-
-                $params = [
-                    'model_id' => $user->id,
-                    'model_type' => User::class,
-                    'from' => 'documents@amourint.com',
-                    'seen' => 1,
-                    'to' => $user->email,
-                    'subject' => $request->subject,
-                    'message' => $request->message,
-                    'template' => 'customer-simple',
-                    'additional_data' => json_encode(['attachment' => $file_paths]),
-                    'cc' => $cc ? : null,
-                    'bcc' => $bcc ? : null,
-                ];
-
-                Email::create($params);*/
             }
         } elseif ($request->user_type == 2) {
             foreach ($request->users as $key) {
@@ -534,9 +500,9 @@ class DocumentController extends Controller
         //Update the version and files name
         $document->version = ($document->version + 1);
         $file = $request->file('files');
-        $document->filename = $file->getClientOriginalName();
+        $document->filename = $file->hashName();
         $document->file_contents = $file->openFile()->fread($file->getSize());
-        $file->store('files/documents', $document->filename);
+        $file->storeAs('files/documents', $document->filename);
         $document->save();
 
         return redirect()->route('document.index')->withSuccess('You have successfully uploaded document(s)!');
