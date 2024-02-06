@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Marketing;
 
-use View;
 use App\StoreWebsite;
-use Illuminate\Support\Str;
 use App\MailinglistTemplate;
 use App\MailingTemplateFile;
 use Illuminate\Http\Request;
@@ -19,15 +17,6 @@ class MailinglistTemplateController extends Controller
     public function index()
     {
         $mailings = MailinglistTemplate::with('category', 'storeWebsite')->paginate(20);
-
-        // get first all mail class
-        /* $mailEclipse = mailEclipse::getMailables();
-         $rLstMails   = [];
-         if (!empty($mailEclipse)) {
-             foreach ($mailEclipse as $lms) {
-                 $rLstMails[$lms["namespace"]] = $lms["name"];
-             }
-         }*/
 
         // get all templates for mail
         $mailEclipseTpl = mailEclipse::getTemplates();
@@ -163,20 +152,6 @@ class MailinglistTemplateController extends Controller
         $mailing_item->subject = $data['subject'];
         $mailing_item->static_template = $data['static_template'];
 
-        // if($mailFile) {
-        //     $mailing_item->mail_class  = isset($data['mail_class']) ? $data['mail_class'] : null;
-        //     if($mailFile["data"]->view != $data['mail_tpl']) {
-        //         if (View::exists($data['mail_tpl'])) {
-        //             $viewPath    = View($data['mail_tpl'])->getPath();
-        //             $viewContent = "this->view('".$mailFile["data"]->view;
-        //             $replaceContent = "this->view('".$data['mail_tpl'];
-        //             $contents = file_get_contents($mailFile["path_name"]);
-        //             $newContents = str_replace($viewContent, $replaceContent, $contents);
-        //             file_put_contents($mailFile["path_name"], $newContents);
-        //         }
-        //     }
-        // }
-
         $mailing_item->mail_tpl = isset($data['mail_tpl']) ? $data['mail_tpl'] : null;
         $mailing_item->image_count = isset($data['image_count']) ? $data['image_count'] : 0;
         $mailing_item->text_count = isset($data['text_count']) ? $data['text_count'] : 0;
@@ -194,12 +169,12 @@ class MailinglistTemplateController extends Controller
 
         $path = 'mailinglist/email-templates/' . $mailing_item->id;
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $path = $request->file('image')->store($path);
             $mailing_item->example_image = $path;
         }
 
-        if($request->hasFile('logo')){
+        if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store($path);
             $mailing_item->logo = $path;
         }
@@ -259,7 +234,7 @@ class MailinglistTemplateController extends Controller
 
         $m = MailingTemplateFile::where('mailing_id', $id)->first();
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $m->path = $request->file('image')->store($path);
         }
 
