@@ -33,11 +33,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      */
     protected function gate()
     {
-        Gate::define('viewHorizon', function ($user) {
-            return in_array($user->email, [
-                //
-            ]);
-        });
+        Gate::define('viewHorizon', fn () => true);
     }
 
     /**
@@ -48,5 +44,12 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     public function register()
     {
         //
+    }
+
+    protected function authorization()
+    {
+        Horizon::auth(function () {
+            return true;
+        });
     }
 }
