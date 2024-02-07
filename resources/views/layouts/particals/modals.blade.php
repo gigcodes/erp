@@ -1180,19 +1180,6 @@
                                 </select>
                             </div>
                             <div>
-{{--                                <select class="form-control knowledge_base_book mb-3" name="knowledge_base_book" hidden>--}}
-{{--                                    <option value="">Select Books</option>--}}
-{{--                                    @php--}}
-{{--                                    $books =--}}
-{{--                                    Illuminate\Support\Facades\Cache::remember('Modules\BookStack\Entities\Book::get',--}}
-{{--                                    60 * 60 * 24 * 7, function(){--}}
-{{--                                    return Modules\BookStack\Entities\Book::get();--}}
-{{--                                    });--}}
-{{--                                    @endphp--}}
-{{--                                    @foreach ($books as $book)--}}
-{{--                                    <option value="{{ $book->name }}">{{ $book->name }}</option>--}}
-{{--                                    @endforeach--}}
-{{--                                </select>--}}
                                 <span class="books_error" style="color:red;"></span>
                             </div>
                             <div>
@@ -1289,14 +1276,7 @@
                             </thead>
                             <tbody id="userAllIps">
                             </tbody>
-                            <!-- @if (!empty($final_array)) @foreach (array_reverse($final_array) as $values)
-                                    <tr>
-                                        <td>{{ isset($values[0]) ? $values[0] : '' }}</td>
-                                        <td>{{ isset($values[1]) ? $values[1] : '' }}</td>
-                                        <td>{{ isset($values[2]) ? $values[2] : '' }}</td>
-                                        <td><button class="btn-warning btn deleteIp" data-index="{{ $values[0] }}">Delete</button></td>
-                                    </tr> @endforeach
-                            @endif -->
+                            
                         </table>
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 @php
 $currentRoutes = \Route::current();
-//$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 $metaData = '';
 @endphp
 <!DOCTYPE html>
@@ -43,10 +42,9 @@ $metaData = '';
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/richtext.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    {{--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />--}}
 
     <script src="{{siteJs('site.js')}}" defer></script>
-    <!-- <script src="https://erp.theluxuryunlimited.com/js/pages/site.js?v=2023112408" defer></script> -->
+    
     <script>var BASE_URL = "{{config('app.url')}}";</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
@@ -77,24 +75,9 @@ $metaData = '';
     </script>
     {{--I/m geting error in console thats why commented--}}
 
-    {{-- <script>--}}
-    {{-- $('.readmore').readmore({--}}
-    {{-- speed: 75,--}}
-    {{-- moreLink: '<a href="#">Read more</a>',--}}
-    {{-- lessLink: '<a href="#">Read less</a>'--}}
-    {{-- });--}}
-    {{-- </script>--}}
     @stack("jquery")
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script> --}}
-
-    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script> --}}
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> --}}
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script> --}}
-
-    {{-- When jQuery UI is included tooltip doesn't work --}}
-    {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 
@@ -126,7 +109,7 @@ $metaData = '';
     </script>
 
     @if(Auth::user())
-    {{--<link href="{{ url('/css/chat.css') }}" rel="stylesheet">--}}
+    
     <script>
     window.userid = "{{Auth::user()->id}}";
 
@@ -136,8 +119,7 @@ $metaData = '';
     </script>
     @endif
     <script type="text/javascript">
-    var BASE_URL = '{{ config('
-    app.url ') }}';
+    var BASE_URL = '{{ config('app.url ') }}';
     </script>
 
 
@@ -157,7 +139,6 @@ $metaData = '';
 
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
-    {{-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
     <link rel="stylesheet"
@@ -224,39 +205,14 @@ $metaData = '';
         });
     </script>
     <script>
-    window.Laravel = '{{!!json_encode(['
-    csrfToken '=>csrf_token(),'
-    user '=>['
-    authenticated '=>auth()->check(),'
-    id '=>auth()->check() ? auth()->user()->id : null,'
-    name '=>auth()->check() ? auth()->user()-> name : null,]], JSON_INVALID_UTF8_IGNORE)!!}';
+    window.Laravel = '{{!!json_encode(['csrfToken '=>csrf_token(),'user '=>['authenticated '=>auth()->check(),'id '=>auth()->check() ? auth()->user()->id : null,'name '=>auth()->check() ? auth()->user()-> name : null,]], JSON_INVALID_UTF8_IGNORE)!!}}';
     </script>
 
-
-    {{-- <script src="https://js.pusher.com/4.3/pusher.min.js"></script>
-
-    <script>
-      // Enable pusher logging - don't include this in production
-      Pusher.logToConsole = true;
-
-      var pusher = new Pusher('df4fad9e0f54a365c85c', {
-          cluster: 'ap2',
-          forceTLS: true
-      });
-    </script> --}}
 
     <script>
     initializeTwilio();
     </script>
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-
-
-    @endif
-
-    {{-- <script src="{{ asset('js/pusher.chat.js') }}"></script>
-
-    <script src="{{ asset('js/chat.js') }}"></script> --}}
-
+    
     
     @stack("styles")
     
@@ -284,8 +240,6 @@ $metaData = '';
 
         <div class="stack-container stacked" id="orders-notification"></div>
 
-        {{-- <div class="stack-container stacked" id="messages-notification"></div> --}}
-
         <div class="stack-container stacked" id="tasks-notification"></div>
 
     </div>
@@ -293,7 +247,6 @@ $metaData = '';
     <div id="app">
 
         <nav class="navbar navbar-expand-lg navbar-light navbar-laravel py-1">
-            <!--<div class="container container-wide">-->
 
                 <div class="container-fluid pr-md-0 pl-md-0 pl-xl-3 flex-xl-row flex-lg-column">
                 <a class="navbar-brand pl-0" href="{{ url('/task') }}">
@@ -645,12 +598,6 @@ $metaData = '';
                     <div class="secondary-header">
                         <!-- Left Side Of Navbar -->
 
-                        {{-- <ul class="navbar-nav mr-auto">
-
-
-                        </ul> --}}
-
-
                         <!-- Right Side Of Navbar -->
 
                         <ul id="navs" class="navbar-nav ml-auto pl-0"
@@ -666,12 +613,6 @@ $metaData = '';
 
                             </li>
 
-                            {{--<li class="nav-item">
-
-                                <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-
-                            </li>--}}
-
                             @else
 
                             <?php
@@ -686,21 +627,14 @@ $metaData = '';
 
                                 }
                             }
-
-                            /* ?>
-                            @include('partials.notifications')
-                            <?php */?>
-                            {{-- <li class="nav-item">
-                                <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
-                            </li> --}}
-
+                            
+                            ?>
 
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
                                     aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                                 <ul class="dropdown-menu multi-level">
                                     {{-- Sub Menu Product --}}
-
 
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" data-toggle="dropdown" role="button"
@@ -2152,9 +2086,7 @@ $metaData = '';
                                             aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span
                                                 class="caret"></span></a>
                                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                            <!-- <li class="nav-item dropdown">
-                                                <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
-                                            </li> -->
+                                            
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents /
                                                     Entities</a>
@@ -2447,7 +2379,7 @@ $metaData = '';
                             </li>
                             @if(auth()->user()->isAdmin())
                             <li class="nav-item dropdown">
-                                {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>--}}
+                                
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false" v-pre="">Multi Site<span
                                         class="caret"></span></a>
@@ -2777,7 +2709,6 @@ $metaData = '';
                             @endif
                             @if(auth()->user()->isAdmin())
                             <li class="nav-item dropdown">
-                                {{--                                            <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>--}}
 
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
                                     aria-haspopup="true" aria-expanded="false" v-pre="">Admin<span
@@ -3282,9 +3213,7 @@ $metaData = '';
                                                     <a class="dropdown-item"
                                                         href="{{ url('hubstaff/tasks') }}">Tasks</a>
                                                 </li>
-                                                        <!-- <li class="nav-item dropdown">
-                                                    <a class="dropdown-item" href="{{ url('hubstaff/payments') }}">Payments</a>
-                                                </li> -->
+                                                       
                                                 <li class="nav-item dropdown">
                                                     <a class="dropdown-item"
                                                         href="{{ url('hubstaff-payment') }}">Payments Report</a>
@@ -3831,7 +3760,7 @@ $metaData = '';
 
                                     <!------    System Menu     !-------->
                                     <li class="nav-item dropdown dropdown-submenu">
-                                        {{--                                        <a href="#" class="nav-link dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">System <span class="caret"></span></a>--}}
+                                        
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre="">System <span
                                                 class="caret"></span></a>
@@ -3848,7 +3777,7 @@ $metaData = '';
 
 
                                     <li class="nav-item dropdown dropdown-submenu">
-                                        {{--                                        <a href="#" class="nav-link dropdown-item dropdown-items" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin Menu <span class="caret"></span></a>--}}
+                                        
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre="">Admin Menu <span
                                                 class="caret"></span></a>
@@ -4047,116 +3976,7 @@ $metaData = '';
 
     @if (Auth::check())
 
-		<!-- <div id="todolist-get-model" class="modal fade" role="dialog">
-             <div class="modal-content modal-dialog modal-lg">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Todo List</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-			
-			<div class="modal-body show-list-records" id="todolist-request">
-				@if($todoLists->count())
-				<table class="table table-bordered">
-					 <tbody>
-					  <tr>
-						<th>Title</th>
-						<th>Subject</th>
-						<th>Category</th>
-						<th>Status</th>
-						<th>Date</th>
-					  </tr>
-					@foreach($todoLists as $todoList)
-					  <tr>
-						<td>{{ $todoList->title }}</td>
-						<td>{{ $todoList->subject }}</td>
-						<td>{{ isset($todoList->category->name) ? $todoList->category->name : ''; }}</td>
-						<td>
-                            <select name="status" class="form-control" onchange="todoHomeStatusChange({{$todoList->id}}, this.value)" >
-                                @foreach ($statuses as $status )
-                                <option value="{{$status->name}}" @if ($todoList->status == $status->id) selected @endif>{{$status->name}}</option>
-                                @endforeach
-                            </select>
-						</td>
-                        </div>
-
-						<td>{{ $todoList->todo_date}}</td>
-					  </tr>
-					@endforeach
-					</tbody>
-				</table>
-				@else
-					<h4 class="modal-title">No Records</h4>
-				@endif
-			</div>
-             </div>
-        </div> -->
-
-
-        @if(1 == 2 && auth()->user()->isAdmin())
-        <div class="float-container developer-float hidden-xs hidden-sm">
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-pending">L-{{ $lukas_pending_devtasks_count }}</span>
-            </a>
-
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-completed">L-{{ $lukas_completed_devtasks_count }}</span>
-            </a>
-
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-other">R-{{ $rishab_pending_devtasks_count }}</span>
-            </a>
-
-            <a href="{{ route('development.index') }}">
-                <span class="badge badge-task-other right completed">R-{{ $rishab_completed_devtasks_count }}</span>
-            </a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickDevelopmentModal">+
-                DEVELOPMENT</button>
-        </div>
-
-        <div class="float-container instruction-float hidden-xs hidden-sm">
-            
-
-            <a href="{{ route('instruction.index') }}">
-                <span class="badge badge-task-pending">{{ $pending_instructions_count }}</span>
-            </a>
-
-            <a href="{{ route('instruction.index') }}#verify-instructions">
-                <span class="badge badge-task-completed">{{ $completed_instructions_count }}</span>
-            </a>
-
-            <a href="{{ route('instruction.list') }}">
-                <span class="badge badge-task-other">S-{{ $sushil_pending_instructions_count }}</span>
-            </a>
-
-            <a href="{{ route('instruction.list') }}">
-                <span class="badge badge-task-other right">A-{{ $andy_pending_instructions_count }}</span>
-            </a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickInstructionModal">+
-                INSTRUCTION</button>
-        </div>
-
-        <div class="float-container hidden-xs hidden-sm">
-            
-
-            <a href="/#1">
-                <span class="badge badge-task-pending">{{ $pending_tasks_count }}</span>
-            </a>
-
-            <a href="/#3">
-                <span class="badge badge-task-completed">{{ $completed_tasks_count }}</span>
-            </a>
-
-            <a href="{{ route('task.list') }}">
-                <span class="badge badge-task-other">S-{{ $sushil_pending_tasks_count }}</span>
-            </a>
-
-            <a href="{{ route('task.list') }}">
-                <span class="badge badge-task-other right">A-{{ $andy_pending_tasks_count }}</span>
-            </a>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#quickTaskModal">+
-                TASK</button>
-        </div>
-        @endif
+		 
         @include('twilio.receive_call_popup')
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
@@ -4175,61 +3995,7 @@ $metaData = '';
 
         @include('partials.modals.quick-chatbox-window')
         @endif
-        {{--        @if(Auth::check())--}}
-        {{--            <!---start section for the sidebar toggle -->--}}
-        {{--            <nav id="quick-sidebar">--}}
-        {{--                <ul class="list-unstyled components">--}}
-        {{--                    <li>--}}
-        {{--                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>--}}
-        {{--                    </li>--}}
-        {{--                    <li>--}}
-        {{--                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>--}}
-        {{--                    </li>--}}
-        {{--                    <li>--}}
-        {{--                        <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">--}}
-        {{--                            <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>--}}
-        {{--                        </a>--}}
-        {{--                    </li>--}}
-        {{--                    --}}
-        {{--                    <li>--}}
-        {{--                        <a id="message-chat-data-box" class="quick-icon">--}}
-        {{--                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }}
-        @else 0 @endif">--}}
-        {{--                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>--}}
-        {{--                           </span>--}}
-        {{--                        </a>--}}
-        {{--                    </li>--}}
-        {{--                    <li>--}}
-        {{--                        <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">--}}
-        {{--                            <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>--}}
-        {{--                        </a>--}}
-        {{--                    </li>--}}
-        {{--                    <li>--}}
-        {{--                        <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">--}}
-        {{--                            <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>--}}
-        {{--                        </a>--}}
-        {{--                    </li>--}}
-        {{--                    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))--}}
-        {{--                        <li>--}}
-        {{--                            <a title="Manual Payment" class="manual-payment-btn quick-icon">--}}
-        {{--                                <span><i class="fa fa-money fa-2x" aria-hidden="true"></i></span>--}}
-        {{--                            </a>--}}
-        {{--                        </li>--}}
-        {{--                    @endif--}}
-        {{--                    <li>--}}
-        {{--                        <a title="Manual Request" class="manual-request-btn quick-icon">--}}
-        {{--                            <span><i class="fa fa-credit-card-alt fa-2x" aria-hidden="true"></i></span>--}}
-        {{--                        </a>--}}
-        {{--                    </li>--}}
-        {{--                    <li>--}}
-        {{--                        <a title="Auto Refresh" class="auto-refresh-run-btn quick-icon">--}}
-        {{--                            <span><i class="fa fa-refresh fa-2x" aria-hidden="true"></i></span>--}}
-        {{--                        </a>--}}
-        {{--                    </li>--}}
-        {{--                </ul>--}}
-        {{--            </nav>--}}
-        {{--            <!-- end section for sidebar toggle -->--}}
-        {{--        @endif--}}
+        
         @if (trim($__env->yieldContent('large_content')))
         <div class="col-md-12">
             @yield('large_content')
@@ -4238,11 +4004,7 @@ $metaData = '';
         @yield('core_content')
         @else
         <main class="container container-grow" style="display: inline-block;">
-            <!-- Showing fb like page div to all pages  -->
-            {{-- @if(Auth::check())
-                <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
-
-                @endif --}}
+            
             @yield('content')
             <!-- End of fb page like  -->
         </main>
@@ -4256,21 +4018,7 @@ $metaData = '';
 
 
     <div class="chat-button-wrapper">
-        {{--        <div class="chat-button-float">--}}
-        {{--            <button class="chat-button">--}}
-        {{--                <img src="/images/chat.png" class="img-responsive"/>--}}
-        {{--                <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0
-        @endif</span>--}}
-        {{--            </button>--}}
-        {{--        </div>--}}
-        {{--        <div class="notification-badge">--}}
-        {{--            <button class="chat-button">--}}
-        {{--                <a href="{{route('notifications')}}">--}}
-        {{--                <img src="/images/notification-icon.png" class="img-responsive"/>--}}
-        {{--                <span id="notification_unread">@if(isset($unread)) {{ $unread }} @else 0 @endif</span>--}}
-        {{--                </a>--}}
-        {{--            </button>--}}
-        {{--        </div>--}}
+        
         <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
                 <div class="row">
@@ -4278,10 +4026,7 @@ $metaData = '';
                         <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                             <div class="card-header">
                                 <div class="input-group">
-                                    {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-                                        </div> --}}
+                                    
                                 </div>
                             </div>
                             <div class="card-body contacts_body">
@@ -4326,12 +4071,11 @@ $metaData = '';
                                 <div class="d-flex bd-highlight align-items-center justify-content-between">
                                     <div class="img_cont">
                                         <soan class="rounded-circle user_inital" id="user_inital"></soan>
-                                        {{-- <img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img"> --}}
+                                        
 
                                     </div>
                                     <div class="user_info" id="user_name">
-                                        {{-- <span>Chat with Khalid</span>
-                                            <p>1767 Messages</p> --}}
+                                        
                                     </div>
                                     <div class="video_cam">
                                         <span><i class="fa fa-video"></i></span>
@@ -4353,12 +4097,7 @@ $metaData = '';
                                 </div>
                                 <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
                                 <div class="action_menu">
-                                    {{-- <ul>
-                                            <li><i class="fa fa-user-circle"></i> View profile</li>
-                                            <li><i class="fa fa-users"></i> Add to close friends</li>
-                                            <li><i class="fa fa-plus"></i> Add to group</li>
-                                            <li><i class="fa fa-ban"></i> Block</li>
-                                        </ul> --}}
+                                    
                                 </div>
                             </div>
                             <div class="card-body msg_card_body" id="message-recieve">
@@ -4367,10 +4106,7 @@ $metaData = '';
                             <div class="typing-indicator" id="typing-indicator"></div>
                             <div class="card-footer">
                                 <div class="input-group">
-                                    {{-- <div class="input-group-append">
-                                        <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
-                                        <input type="file" id="imgupload" style="display:none" />
-                                    </div> --}}
+                                    
                                     <div class="card-footer">
                                         <div class="input-group">
                                             <div class="input-group-append">
@@ -4442,7 +4178,7 @@ $metaData = '';
 
     <!-- Scripts -->
 
-    {{--  @include('partials.chat')--}}
+    
     <div id="loading-image-preview"
         style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
     </div>
@@ -4451,23 +4187,9 @@ $metaData = '';
     <!-- Like page plugin script  -->
     @yield('models')
 
-    {{-- <script>(function(d, s, id) {
-
-  var js, fjs = d.getElementsByTagName(s)[0];
-
-  if (d.getElementById(id)) return;
-
-  js = d.createElement(s); js.id = id;
-
-  js.src = 'https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v3.2&appId=2045896142387545&autoLogAppEvents=1';
-
-  fjs.parentNode.insertBefore(js, fjs);
-
-}(document, 'script', 'facebook-jssdk'));</script> --}}
 
     @yield('scripts')
 
-{{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>--}}
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script type="text/javascript" src="{{asset('js/jquery.cookie.js')}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
@@ -4484,9 +4206,6 @@ $metaData = '';
 
 
         <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
-
-
-        <!-- <script src="https://cdn.tiny.cloud/1/{{env('TINY_MCE_API_KEY')}}/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
 
     <!-- Include Summernote JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
@@ -4521,16 +4240,13 @@ $metaData = '';
         $('#ipusers').select2({width: '20%'});
         $('#task_user_id').select2({width: '20%'});
         $('#quicktask_user_id').select2({width: '20%'});
-        //$('.select-multiple').select2({margin-top: '-32px'});
         CKEDITOR.replace('content-app-layout');
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
     @include('layouts.particals.app_js')
     <script>
-    // $('#chat-list-history').on('hidden.bs.modal', function (e) {
-    //     document.body.addClass('sasadasd')
-    // })
+    
 
     
     </script>

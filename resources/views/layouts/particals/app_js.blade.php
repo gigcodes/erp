@@ -496,26 +496,9 @@ $(document).on('click', '.menu_editor_copy', function() {
         $('#quickemailSubject').val(userEmail.subject);
         $('#quickemailDate').html(moment(userEmail.created_at).format('YYYY-MM-DD H:mm:ss'));
         $('#iframe').attr('src', userEmaillUrl);
-
-        //var userEmaillUrl = '/email/email-frame-info/'+userEmail.id;
+        
         var senderName = 'Hello '+userEmail.from.split('@')[0]+',';
-
-        //$("#reply-message").val(senderName);
-        //addContentToEditor(senderName);
         addTextToEditor(senderName);
-
-        /*$.ajax({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            url: userEmaillUrl,
-            type: 'get',
-        }).done( function(response) {
-            //$("#reply-message").val(senderName+'\n\n'+response);
-            //addContentToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
-            addTextToEditor('<p>'+senderName+'</p><p>'+response+'</p>');
-        }).fail(function(errObj) {
-        }) */
     }
 
     $(document).on('click', '.updatedeclienremarks', function (e) {
@@ -919,7 +902,6 @@ $(document).on('click', '.menu_editor_copy', function() {
         var thiss = $(this);
         var data = new FormData();
         var task_id = $(this).data('taskid');
-        // var message = $(this).siblings('input').val();
         if ($(this).hasClass("onpriority")) {
             var message = $('#getMsgPopup' + task_id).val();
         } else {
@@ -1036,22 +1018,20 @@ $(document).on('click', '.menu_editor_copy', function() {
         var task_id = $("#confirm_task_id").val();
         var message = $("#confirm_message").val();
         var status = $("#confirm_status").val();
-        //    alert(message)
         data.append("task_id", task_id);
         data.append("message", message);
         data.append("status", status);
-        // var checkedValue = $('.send_message_recepients:checked').val();
         var checkedValue = [];
         var i = 0;
         $('.send_message_recepients:checked').each(function() {
             checkedValue[i++] = $(this).val();
         });
         data.append("send_message_recepients", checkedValue);
-        //  console.log(checkedValue);
+        
         if (message.length > 0) {
             if (!$(thiss).is(':disabled')) {
                 $.ajax({
-                    //  url: '/whatsapp/sendMessage/task',
+                    
                     url: "{{ route('whatsapp.send','task')}}",
                     type: 'POST',
                     "dataType": 'json', // what to expect back from the PHP script, if anything
@@ -1145,7 +1125,6 @@ $(document).on('click', '.menu_editor_copy', function() {
             url: '/task/save-documents',
             type: 'POST',
             enctype: 'multipart/form-data',
-            // contentType: 'multipart/form-data',
             cache: false,
             contentType: false,
             processData: false,
@@ -1605,23 +1584,7 @@ $(document).on('click', '.menu_editor_copy', function() {
             },
             dataType: 'json',
             success: function(result) {
-
-
-                // I feel below code not need. 
-                //  const arr = object.entries(result.data)?.sort((a,b) => a[1] - b[1]);
-
-                // t += '<option value="">Select user</option>';
-                // arr.forEach(([key,value]) => {
-                //     t+=`<option value="${key}">${value}</option>`
-                // })
-                // //$.each(arr, function([key, value], j) {
-                //  //   console.log('index->', i , 'j index', j );
-                //  //   t += '<option value="' + i + '">' + j + '</option>'
-                // //});
-                // t += '<option value="other">Other</option>';
-                // // console.log(t);
-                // $("#ipusers").html(t);
-                console.log(result.usersystemips);
+               
                 $.each(result.usersystemips, function(k, v) {
                     ip += '<tr>';
                     ip += '<td> ' + v.index_txt + ' </td>';
@@ -1649,8 +1612,7 @@ $(document).on('click', '.menu_editor_copy', function() {
 
     <script>
     $(document).ready(function() {
-        //$.cookie('auto_refresh', '0', { path: '/{{ Request::path() }}' });
-
+        
         var autoRefresh = $.cookie('auto_refresh');
         if (typeof autoRefresh == "undefined" || autoRefresh == 1) {
             $(".auto-refresh-run-btn").attr("title", "Stop Auto Refresh");
@@ -1731,8 +1693,6 @@ $(document).on('click', '.menu_editor_copy', function() {
 
     $('.instruction-button').on('click', function() {
         $("#quick-instruction-modal").modal("show");
-        //$('.help-button-wrapper').toggleClass('expanded');
-        //$('.instruction-notes-list-rt').toggleClass('dis-none');
     });
 
 
@@ -2025,17 +1985,7 @@ $(document).on('click', '.menu_editor_copy', function() {
         openChatBox(true);
     });
 
-    // $('.chat-button').on('click', function () {
-    //     $('.chat-button-wrapper').toggleClass('expanded');
-    //     $('.page-chat-list-rt').toggleClass('dis-none');
-    //     if($('.chat-button-wrapper').hasClass('expanded')){
-    //         chatBoxOpen = true;
-    //         openChatBox(true);
-    //     }else{
-    //         chatBoxOpen = false;
-    //         openChatBox(false);
-    //     }
-    // });
+   
 
     var notesBtn = $(".save-user-notes");
 
@@ -2112,31 +2062,7 @@ $(document).on('click', '.menu_editor_copy', function() {
     @endif
 
     var getNotesList = function() {
-        //$.ajax({
-        //            type: "GET",
-        //          url: "/page-notes/list",
-        //        data: {
-        //          _token: window.token,
-        //        url: "<?php echo request()->url() ?>"
-        //  },
-        //            dataType: "json",
-        //          success: function (data) {
-        //            if (data.code > 0) {
-        //              var listOfN = "";
-        //            $.each(data.notes, function (k, v) {
-        //              listOfN += "<tr>";
-        //            listOfN += "<td scope='row'>" + v.id + "</td>";
-        //          listOfN += "<td>" + v.note + "</td>";
-        //        listOfN += "<td>" + v.category_name + "</td>";
-        //      listOfN += "<td>" + v.name + "</td>";
-        //    listOfN += "<td>" + v.created_at + "</td>";
-        //  listOfN += "</tr>";
-        //                    });
-        //
-        //                  $(".page-notes-list").prepend(listOfN);
-        //            }
-        //      },
-        //});
+        
     }
 
     if ($(".help-button-wrapper").length > 0) {
@@ -2144,23 +2070,7 @@ $(document).on('click', '.menu_editor_copy', function() {
     }
 
 
-    // $(document).click(function() {
-    //     if (collectedData[0].data.length > 10) {
-    //         let data_ = collectedData[0].data;
-    //         let type_ = collectedData[0].type;
-    //
-    //         $.ajax({
-    //             url: "/track",
-    //             type: 'post',
-    //             csrf: token,
-    //             data: {
-    //                 url: url,
-    //                 item: type_,
-    //                 data: data_
-    //             }
-    //         });
-    //     }
-    // });
+    
     @if(Auth::check())
     $(document).ready(function() {
         var url = window.location.href;
@@ -2339,9 +2249,7 @@ if (!\Auth::guest()) {
                 $.ajax({
                     type: "GET",
                     url: "{{route('task.estimate.list')}}",
-                    // data: {
-                    //     task: tasktype
-                    // },
+                    
                     success: function (response) {
                         $("#showLatestEstimateTime").modal('show');
                         $("#showLatestEstimateTime .modal-table").html(response);
@@ -2384,10 +2292,6 @@ if (!\Auth::guest()) {
         $('#showLatestEstimateTime').on('hide.bs.modal', function (e) {
             $("#modalTaskInformationUpdates .modal-body .row").show()
             $("#modalTaskInformationUpdates .modal-body hr").show()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).show()
-            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).show()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).show()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).show()
         })
 
 
@@ -2396,10 +2300,7 @@ if (!\Auth::guest()) {
             let type = $(this).data('type');
             let task_id = $(this).data('task');
             let history_id = $(this).data('id');
-            // console.log(type,
-            // task_id,
-            // history_id);
-            // return
+            
             if (type == "TASK") {
                 $.ajax({
                 url: "/task/time/history/approve",
@@ -2528,8 +2429,6 @@ if (!\Auth::guest()) {
         var task_type = $(this).val();
         console.log(task_type);
         if (task_type == 3) {
-            // $('.normal-subject').hide();
-            // $('.discussion-task-subject').show();
             $.ajax({
                 url: '/task/get-discussion-subjects',
                 type: 'GET',
@@ -3311,10 +3210,7 @@ if (!\Auth::guest()) {
             } else {
             html += "<td>-</td>"; 
             }
-            /*html += "<td>" + shortnote.title + "</td>";
-            html += "<td>" + shortnote.code + "</td>";
-            html += "<td>" + shortnote.description + "</td>"; 
-            html += "<td>" + shortnote.solution + "</td>"; */
+            
             html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="title" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';            
             html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="code" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
             html += '<td><button type="button" data-id="'+ shortnote.id+'" data-type="description" class="btn list-code-shortcut-title-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
@@ -4426,18 +4322,10 @@ if (!\Auth::guest()) {
         let tasktype = $(elm).data('task');
         let taskid = $(elm).data('id');
         if(tasktype == "DEVTASK") {
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(1).hide()
-            // $("#modalTaskInformationUpdates .modal-body hr").eq(1).hide()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
-            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(5).hide()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(6).hide()
+            
             estimatefunTaskInformationModal(elm, taskid, tasktype)
         } else {
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(3).hide()
-            // $("#modalTaskInformationUpdates .modal-body hr").eq(3).hide()
-            // $("#modalTaskInformationUpdates .modal-body .row").eq(4).hide()
-            // $("#modalTaskInformationUpdates .modal-body hr").eq(4).hide()
+            
             estimatefunTaskInformationModal(elm, taskid, tasktype)
         }
     }

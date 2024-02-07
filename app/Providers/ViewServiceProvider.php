@@ -55,13 +55,6 @@ class ViewServiceProvider extends ServiceProvider
                 $todoLists = TodoList::where('user_id',$request->user()->id)->where('status','Active')->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
                 $statuses = TodoStatus::get();
     
-                $lukas_pending_devtasks_count =DeveloperTask::where('user_id', 3)->where('status', '!=',
-                'Done')->count();
-                $lukas_completed_devtasks_count = DeveloperTask::where('user_id', 3)->where('status', 'Done')->count();
-                $rishab_pending_devtasks_count = DeveloperTask::where('user_id', 65)->where('status', '!=',
-                'Done')->count();
-                $rishab_completed_devtasks_count = DeveloperTask::where('user_id', 65)->where('status',
-                'Done')->count();
     
                 $liveChatUsers = LiveChatUser::where('user_id',$request->user()->id)->first();
                 $key_ls = LivechatincSetting::first();
@@ -70,19 +63,11 @@ class ViewServiceProvider extends ServiceProvider
                 $request->user()->id)->whereNull('completed_at')->count();
                 $completed_instructions_count = Instruction::where('assigned_to',
                 $request->user()->id)->whereNotNull('completed_at')->count();
-                $sushil_pending_instructions_count = Instruction::where('assigned_from',
-                $request->user()->id)->where('assigned_to', 7)->whereNull('completed_at')->count();
-                $andy_pending_instructions_count = Instruction::where('assigned_from',
-                $request->user()->id)->where('assigned_to', 56)->whereNull('completed_at')->count();
     
                 $pending_tasks_count = Task::where('is_statutory', 0)->where('assign_to',
                 $request->user()->id)->whereNull('is_completed')->count();
                 $completed_tasks_count = Task::where('is_statutory', 0)->where('assign_to',
                 $request->user()->id)->whereNotNull('is_completed')->count();
-                $sushil_pending_tasks_count = Task::where('is_statutory', 0)->where('assign_to',
-                7)->whereNull('is_completed')->count();
-                $andy_pending_tasks_count = Task::where('is_statutory', 0)->where('assign_to',
-                56)->whereNull('is_completed')->count();
     
                 $chatIds = cache()->remember('CustomerLiveChat::with::customer::orderby::seen_asc', 60 * 60 * 24 * 1, function(){
                     return CustomerLiveChat::with('customer')->orderBy('seen','asc')
@@ -102,7 +87,6 @@ class ViewServiceProvider extends ServiceProvider
                 $websites = StoreWebsite::get();
                 $todoCategories = TodoCategory::get();
                 $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
-                // $statuses = TodoStatus::all()->toArray();
     
                 $view->with('d_taskList', $d_taskList)
                       ->with('g_taskList', $g_taskList)
@@ -113,20 +97,15 @@ class ViewServiceProvider extends ServiceProvider
                       ->with('description', $description)
                       ->with('todoLists', $todoLists)
                       ->with('statuses', $statuses)
-                      ->with('lukas_pending_devtasks_count', $lukas_pending_devtasks_count)
-                      ->with('lukas_completed_devtasks_count', $lukas_completed_devtasks_count)
-                      ->with('rishab_pending_devtasks_count', $rishab_pending_devtasks_count)
-                      ->with('rishab_completed_devtasks_count', $rishab_completed_devtasks_count)
                       ->with('liveChatUsers', $liveChatUsers)
                       ->with('key_ls', $key_ls)
+
                       ->with('pending_instructions_count', $pending_instructions_count)
                       ->with('completed_instructions_count', $completed_instructions_count)
-                      ->with('sushil_pending_instructions_count', $sushil_pending_instructions_count)
-                      ->with('andy_pending_instructions_count', $andy_pending_instructions_count)
+                      
                       ->with('pending_tasks_count', $pending_tasks_count)
                       ->with('completed_tasks_count', $completed_tasks_count)
-                      ->with('sushil_pending_tasks_count', $sushil_pending_tasks_count)
-                      ->with('andy_pending_tasks_count', $andy_pending_tasks_count)
+
                       ->with('chatIds', $chatIds)
                       ->with('newMessageCount', $newMessageCount)
                       ->with('usersop', $usersop)
