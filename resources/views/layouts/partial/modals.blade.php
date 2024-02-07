@@ -750,9 +750,6 @@
                                         </tr>
                                         </thead>
                                         <tbody class="menu_tbody">
-                                            @php
-                                              $database_table_name = \DB::table('information_schema.TABLES')->where('table_schema', env('DB_DATABASE'))->get();
-                                            @endphp
                                             @foreach(json_decode($database_table_name) as $name)
                                             <tr>
                                                 <td><input type="checkbox" name="tables[]" value="{{$name->TABLE_NAME}}"></td>
@@ -1224,10 +1221,6 @@
                     <div class="col-md-12" id="permission-request">
                         @php
                         
-                       
-
-                        $shell_list = shell_exec('bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh
-                        -f list');
                         $final_array = [];
                         if ($shell_list != '') {
                         $lines = explode(PHP_EOL, $shell_list);

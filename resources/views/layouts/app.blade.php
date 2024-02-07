@@ -154,13 +154,13 @@ $metaData = '';
     <script src="https://cdn.jsdelivr.net/npm/clockpicker@0.0.7/dist/bootstrap-clockpicker.min.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: '{{env('FCM_API_KEY')}}',
-            authDomain: '{{env('FCM_AUTH_DOMAIN')}}',
-            projectId: '{{env('FCM_PROJECT_ID')}}',
-            storageBucket: '{{env('FCM_STORAGE_BUCKET')}}',
-            messagingSenderId: '{{env('FCM_MESSAGING_SENDER_ID')}}',
-            appId: '{{env('FCM_APP_ID')}}',
-            measurementId: '{{env('FCM_MEASUREMENT_ID')}}'
+            apiKey: '{{config('env.FCM_API_KEY')}}',
+            authDomain: '{{config('env.FCM_AUTH_DOMAIN')}}',
+            projectId: '{{config('env.FCM_PROJECT_ID')}}',
+            storageBucket: '{{config('env.FCM_STORAGE_BUCKET')}}',
+            messagingSenderId: '{{config('env.FCM_MESSAGING_SENDER_ID')}}',
+            appId: '{{config('env.FCM_APP_ID')}}',
+            measurementId: '{{config('env.FCM_MEASUREMENT_ID')}}'
         };
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();

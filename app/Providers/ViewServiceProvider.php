@@ -91,6 +91,9 @@ class ViewServiceProvider extends ServiceProvider
                 $storeWebsiteConnections = StoreWebsite::DB_CONNECTION;
 
                 $isAdmin = auth()->user()->isAdmin();
+
+                $database_table_name = \DB::table('information_schema.TABLES')->where('table_schema', config('env.DB_DATABASE'))->get();
+                $shell_list = shell_exec('bash ' . config('env.DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
     
                 $view->with('d_taskList', $d_taskList)
                       ->with('g_taskList', $g_taskList)
@@ -120,6 +123,8 @@ class ViewServiceProvider extends ServiceProvider
                       ->with('userLists', $userLists)
                       ->with('storeWebsiteConnections', $storeWebsiteConnections)
                       ->with('isAdmin', $isAdmin)
+                      ->with('database_table_name',$database_table_name)
+                      ->with('shell_list',$shell_list)
                       ;
 
             }
