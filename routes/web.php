@@ -629,7 +629,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento_module/unit-m2-remark-history', [MagentoModuleController::class, 'getM2RemarkHistories'])->name('magento_module.m2-error-remark-history');
     Route::post('magento_module/column-visbility', [MagentoModuleController::class, 'columnVisbilityUpdate'])->name('magento_module.column.update');
     Route::post('sync-logs-column-visbility', [MagentoModuleController::class, 'syncLogsColumnVisbilityUpdate'])->name('magento_module.sync.logs.column.update');
-    
+
     Route::resource('magento_module_types', MagentoModuleTypeController::class);
 
     Route::resource('magento-setting-revision-history', MagentoSettingRevisionHistoryController::class);
@@ -1298,7 +1298,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('brand', BrandController::class);
 
     Route::put('brand/priority/{id}', [BrandController::class, 'priority']);
-    
+
     Route::get('get-subcategories', [ReplyController::class, 'getSubcategories']);
     Route::get('reply/editreply', [ReplyController::class, 'editReply'])->name('editReply');
     Route::resource('reply', ReplyController::class);
@@ -1397,7 +1397,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('sizes/{id}/used-products', [SizeController::class, 'usedProducts']);
     Route::POST('category/ScraperUserHistory', [CategoryController::class, 'ScraperUserHistory'])->name('ScraperUserHistory');
 
-    //Group by new references category with filter % wise like 
+    //Group by new references category with filter % wise like
     Route::get('category/new-references-group', [CategoryController::class, 'newCategoryReferenceGroup']);
     Route::get('category/group/{name}/{threshold}', [CategoryController::class, 'newCategoryReferenceGroupBy']);
 
@@ -1817,7 +1817,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::get('/videos/recoirding-show', [Meeting\ZoomMeetingController::class,'showVideo'])->name('recording.video.show');
     Route::get('/videos/participant-recoirding-show', [Meeting\ZoomMeetingController::class,'showParticipantVideo'])->name('participant-recording.video.show');
     Route::get('all/participant/lists', [Meeting\ZoomMeetingController::class, 'listAllParticipants'])->name('list.all-participants');
-    
+
     Route::post('meeting/update-participant-description', [Meeting\ZoomMeetingController::class, 'updateParticipantDescription'])->name('participant.description.update');
     Route::get('participant-description/histories', [Meeting\ZoomMeetingController::class, 'participantDescriptionHistory'])->name('participant.description.show');
 
@@ -2476,7 +2476,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('development/historyscrapper', [DevelopmentController::class, 'devScrappingTaskHistoryIndex'])->name('development.historyscrapper');
     Route::get('development/scrapperhistory/{id}', [DevelopmentController::class, 'devScrappingTaskHistory'])->name('development.scrapper_hisotry');
     Route::post('development-scrapper-update-all-statusdata', [DevelopmentController::class, 'developmentUpdateAllScrapperStatusData'])->name('development.updateallstatusdata');
-    
+
 
     Route::post('ds-column-visbility', [DevelopmentController::class, 'dsColumnVisbilityUpdate'])->name('ds.column.update');
     Route::post('dl-column-visbility', [DevelopmentController::class, 'dlColumnVisbilityUpdate'])->name('dl.column.update');
@@ -5622,8 +5622,9 @@ Route::middleware('auth')->prefix('social')->group(function () {
     Route::post('config/edit', [Social\SocialConfigController::class, 'edit'])->name('social.config.edit');
     Route::post('config/delete', [Social\SocialConfigController::class, 'destroy'])->name('social.config.delete');
     Route::get('config/adsmanager', [Social\SocialConfigController::class, 'getadsAccountManager'])->name('social.config.adsmanager');
-    Route::get('config/fbtoken', [Social\SocialConfigController::class, 'getfbToken'])->name('social.config.fbtoken');
+
     Route::get('config/fbtokenback', [Social\SocialConfigController::class, 'getfbTokenBack'])->name('social.config.fbtokenback');
+    Route::get('config/fbtoken', [Social\SocialConfigController::class, 'getfbToken'])->name('social.config.fbtoken');
 
     Route::get('posts/{id}', [Social\SocialPostController::class, 'index'])->name('social.post.index');
     Route::post('post/store', [Social\SocialPostController::class, 'store'])->name('social.post.store');
@@ -6015,7 +6016,7 @@ Route::middleware('auth')->group(function () {
     Route::get('magento-problems/status/histories/{id}', [MagentoProblemController::class, 'magentoproblemsStatusHistories'])->name('magento-problems.status.histories');
     Route::post('magento-problems/updateuser', [MagentoProblemController::class, 'updateUser'])->name('magento-problems.updateuser');
     Route::get('magento-problems/user/histories/{id}', [MagentoProblemController::class, 'magentoproblemsUserHistories'])->name('magento-problems.user.histories');
-});   
+});
 Route::middleware('auth')->group(function () {
     Route::get('monit-status/list', [MonitStatusController::class, 'listMonitStatus'])->name('monit-status.index');
     Route::post('monit-status/command/run', [MonitStatusController::class, 'runCommand'])->name('monit-status.command.run');

@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use App\Permission;
-
 class PermissionCheck
 {
     public function checkUser($link)
@@ -11,13 +9,13 @@ class PermissionCheck
         //Check if user is Admin
         $authcheck = auth()->user()->isAdmin();
         //Return True if user is Admin
-        if ($authcheck == true) {
+        if ($authcheck) {
             return true;
         }
         //Check User Role and Permission
         $permission_check = auth()->user()->hasPermission($link);
         //Return True If User Has Role
-        if ($permission_check == true) {
+        if ($permission_check) {
             return true;
         }
         //Return False When user doesnt have permission

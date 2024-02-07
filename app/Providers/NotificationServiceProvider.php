@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Composers\NotificationComposer;
 use Illuminate\Support\ServiceProvider;
 
 class NotificationServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class NotificationServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        view()->composer('partials.notifications', \App\Http\Composers\NotificaitonComposer::class);
+        view()->composer('partials.notifications', NotificationComposer::class);
     }
 
     /**
