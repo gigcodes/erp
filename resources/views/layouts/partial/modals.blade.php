@@ -262,7 +262,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <form action="<?php echo route('updateName'); ?>" id="menu_sop_edit_form">
+                    <form action="{{route('updateName')}}" id="menu_sop_edit_form">
                         <input type="text" hidden name="id" id="sop_edit_id">
                         @csrf
                         <div class="form-group">
@@ -299,7 +299,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <form action="<?php echo route('appointment-request.declien.remarks'); ?>" id="menu_sop_edit_form">
+                    <form action="{{route('appointment-request.declien.remarks')}}" id="menu_sop_edit_form">
                         <input type="text" hidden name="appointment_requests_id" id="appointment_requests_id">
                         @csrf
                         <div class="form-group">
@@ -438,11 +438,10 @@
                                         <select name="websites_ids[]" class="websites_ids form-control dropdown-mul-1" style="width: 100%;" id="websites_ids" required>
                                             <option>--Website--</option>
                                             <option value="ERP">ERP</option>
-                                            <?php
-                            foreach($websites as $website){
-                                echo '<option value="'.$website->id.'" data-website="'.$website->website.'">'.$website->title.'</option>';
-                            }
-                          ?>
+                                            @foreach($websites as $website)
+                                                <option value="{{$website->id}}" data-website="{{$website->website}}">{{$website->title}}</option>
+                                            @endforeach
+                            
                                         </select>
                                     </div>
                                 </div>
@@ -690,24 +689,24 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <form id="database-form">
-                                    <?php echo csrf_field(); ?>
+                                    @csrf
                                     <input type="hidden" name="database_user_id" class="app-database-user-id" id="database-user-id" value="">
                                     <div class="row">
                                         <div class="col">
                                             <select class="form-control choose-db" name="connection">
-                                                <?php foreach (\App\StoreWebsite::DB_CONNECTION as $k => $connection) {?>
-                                                <option {{($connection == $k)?"selected='selected'":''}} value="<?php echo $k; ?>"><?php echo $connection; ?></option>
-                                                <?php } ?>
+                                                @foreach($storeWebsiteConnections as $k => $connection)
+                                                <option {{($connection == $k)?"selected='selected'":''}} value="{{$k}}">{{$connection}}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col">
                                             <select class="form-control choose-username" name="username">
                                                 <option value="">Select User</option>
-                                                <?php
                                                 
-                                                foreach ($users as $k => $connection) {?>
-                                                <option value="<?php echo $connection->id; ?>" data-name="{{$connection->name}}"><?php echo $connection->name; ?></option>
-                                                <?php } ?>
+                                                
+                                                @foreach ($users as $k => $connection)
+                                                <option value="{{$connection->id}}" data-name="{{$connection->name}}">{{$connection->name}}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col">
@@ -724,7 +723,7 @@
                         </div>
                         <div class="row mt-5">
                             <form>
-                                <?php echo csrf_field(); ?>
+                                @csrf
                                 <div class="col-lg-12">
                                     <div class="row">
                                         <div class="col">
@@ -783,7 +782,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <form id="database-form">
-                                <?php echo csrf_field(); ?>
+                                @csrf
                                 <div class="row">
                                     <div class="col-12 pb-3">
                                         <input type="text" name="task_search" class="task-search-table" class="form-control" placeholder="Enter Task Id & Keyword">
@@ -832,7 +831,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <form id="database-form">
-                                <?php echo csrf_field(); ?>
+                                @csrf
                                 <div class="row">
                                     <div class="col-12 pb-3">
                                         <input type="text" name="task_search" class="dev-task-search-table" class="form-control" placeholder="Enter Dev Task Id & Keyword">
@@ -881,7 +880,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <form id="database-form">
-                                <?php echo csrf_field(); ?>
+                                @csrf
                                 <div class="row">
                                     <div class="col-12 pb-3">
                                         <div class="row">
@@ -1022,7 +1021,7 @@
                 </div>
                 <form id="menu-upload-task-documents">
                     <div class="modal-body">
-                        <?php echo csrf_field(); ?>
+                        @csrf
                         <input type="hidden" id="hidden-identifier" name="developer_task_id" value="">
                         <div class="row">
                             <div class="col-md-10 col-md-offset-1">
@@ -1030,13 +1029,13 @@
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Subject</label>
-                                            <?php echo Form::text("subject",null, ["class" => "form-control", "placeholder" => "Enter subject"]); ?>
+                                            {{Form::text("subject",null, ["class" => "form-control", "placeholder" => "Enter subject"])}}
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Description</label>
-                                            <?php echo Form::textarea("description",null, ["class" => "form-control", "placeholder" => "Enter Description"]); ?>
+                                            {{Form::textarea("description",null, ["class" => "form-control", "placeholder" => "Enter Description"]);}}
                                         </div>
                                     </div>
                                     <div class="col-md-12">

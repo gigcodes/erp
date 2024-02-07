@@ -87,6 +87,8 @@ class ViewServiceProvider extends ServiceProvider
                 $websites = StoreWebsite::get();
                 $todoCategories = TodoCategory::get();
                 $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
+
+                $storeWebsiteConnections = StoreWebsite::DB_CONNECTION;
     
                 $view->with('d_taskList', $d_taskList)
                       ->with('g_taskList', $g_taskList)
@@ -114,6 +116,7 @@ class ViewServiceProvider extends ServiceProvider
                       ->with('websites', $websites)
                       ->with('todoCategories', $todoCategories)
                       ->with('userLists', $userLists)
+                      ->with('storeWebsiteConnections', $storeWebsiteConnections)
                       ;
 
             }

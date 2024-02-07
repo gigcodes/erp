@@ -1999,7 +1999,7 @@ $(document).on('click', '.menu_editor_copy', function() {
                 _token: window.token,
                 note: $form.find("#note").val(),
                 category_id: $form.find("#category_id").val(),
-                url: "<?php echo request()->url() ?>"
+                url: "{{request()->url()}}"
             },
             dataType: "json",
             success: function(data) {
@@ -2107,19 +2107,19 @@ $(document).on('click', '.menu_editor_copy', function() {
     </script>
     @endif
     <script>
-    <?php
-if (!\Auth::guest()) {
+    @php
+    if (!\Auth::guest()) {
     $path = Request::path();
     $hasPage = \App\AutoRefreshPage::where("page", $path)->where("user_id", \Auth()->user()->id)->first();
     if ($hasPage) {
-        ?>
+    @endphp
 
     var idleTime = 0;
 
     function reloadPageFun() {
         idleTime = idleTime + 1000;
         var autoRefresh = $.cookie('auto_refresh');
-        if (idleTime > <?php echo $hasPage->time * 1000; ?> && (typeof autoRefresh == "undefined" || autoRefresh ==
+        if (idleTime > {{$hasPage->time * 1000}} && (typeof autoRefresh == "undefined" || autoRefresh ==
                 1)) {
             window.location.reload();
         }
@@ -2139,7 +2139,7 @@ if (!\Auth::guest()) {
         });
     });
 
-    <?php }}?>
+    @php }} @endphp
 
     function filterFunction() {
         var input, filter, ul, li, a, i;

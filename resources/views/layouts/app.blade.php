@@ -12,13 +12,9 @@ $metaData = '';
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <?php
-    if (isset($metaData->page_title) && $metaData->page_title != '') {
-        $title = $metaData->page_title;
-    } else {
-        $title = trim($__env->yieldContent('title'));
-    }
-    ?>
+    @php
+    $title = ((isset($metaData->page_title) && $metaData->page_title != '') ? $metaData->page_title : trim($__env->yieldContent('title')));
+    @endphp
     @if (trim($__env->yieldContent('favicon')))
     <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @elseif (!\Auth::guest())
@@ -232,7 +228,7 @@ $metaData = '';
 <body>
     @stack('modals')
 
-    @include('layouts.particals.modals')
+    @include('layouts.partial.modals')
 
     <div class="notifications-container">
 
@@ -613,22 +609,7 @@ $metaData = '';
 
                             </li>
 
-                            @else
-
-                            <?php
-
-                            //getting count of unreach notification
-                            $unread = 0;
-                            if (!empty($notifications)) {
-                                foreach ($notifications as $notification) {
-                                    if (!$notification->isread) {
-                                        $unread++;
-                                    }
-
-                                }
-                            }
-                            
-                            ?>
+                            @else                            
 
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3990,7 +3971,7 @@ $metaData = '';
 
        
 
-        <input type="hidden" id="live_chat_key" value="@if(isset($key_ls)){{ $key_ls->key}}@else @endif">
+        <input type="hidden" id="live_chat_key" value="@if(isset($key_ls)){{ $key_ls->key}}@endif">
         @include('partials.chat')
 
         @include('partials.modals.quick-chatbox-window')
@@ -4244,7 +4225,7 @@ $metaData = '';
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
-    @include('layouts.particals.app_js')
+    @include('layouts.partial.app_js')
     <script>
     
 
@@ -4252,12 +4233,12 @@ $metaData = '';
     </script>
     @if ($message = Session::get('actSuccess'))
     <script>
-    toastr['success']('<?php echo $message; ?>', 'success');
+    toastr['success']('{{$message}}', 'success');
     </script>
     @endif
     @if ($message = Session::get('actError'))
     <script>
-    toastr['error']('<?php echo $message; ?>', 'error');
+    toastr['error']('{{$message}}', 'error');
     </script>
     @endif
 
