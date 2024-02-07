@@ -22,6 +22,8 @@
         <td><a href="{{ $resources['url'] }}" title="View Url"
                 target="_blank">{{ isset($resources['url']) ? $resources['url'] : '-' }}</a>
         </td>
+        <td>{{$resources->subject}}</td>
+        <td  data-toggle="modal" data-target="#resource-email-description"  style="cursor: pointer;" onclick="showResDescription({{$resources->id}})"> {{ substr(strip_tags($resources->description), 0,  120) }} {{strlen(strip_tags($resources->description)) > 110 ? '...' : '' }}</td>
         <td> 
             <a href="javascript:void(0)" title="View Images" data-id="{{ $resources->id }}" class="view-resources-center-images"><i class="fa fa-eye" aria-hidden="true"></i></a>
             <!-- @isset($allresources['image1'])
@@ -81,6 +83,6 @@
 @endforeach
 @else
 <tr>
-    <td class="text-center" colspan="8">No Record found.</td>
+    <td class="text-center" colspan="11">No Record found.</td>
 </tr>
 @endif

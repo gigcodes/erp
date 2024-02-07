@@ -60,6 +60,8 @@
                         <th style="width: 2%;">Checkbox</th>
                         <th style="width: 10%;">Category</th>
                         <th style="width: 10%;">Sub Category</th>
+                        <th>Subject</th>
+                        <th>Description</th>
                         <th>Url</th>
                         <th style="width: 5%;">Images</th>
                         <th style="width: 10%;">Created at</th>
@@ -77,6 +79,7 @@
 	@include('resourceimg.partials.modal-create-resource-center')
 	@include('resourceimg.partials.modal-create-edit-category')
     @include('resourceimg.partials.modal-images')
+    @include('resourceimg.partial_email_description')
     <input type="hidden" name='hiddenShowImage' id='hiddenShowImage'data-target="#showresource" data-toggle="modal">
     <div id='modelShowImage'></div>
 			
