@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EmailReceiverMaster;
 use Auth;
 use Exception;
 use App\ResourceImage;
@@ -50,6 +51,18 @@ class ResourceImgController extends Controller
 
         $allresources = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->except(['page']));
 
+        //Email Reciever
+        $emailReceivRec = EmailReceiverMaster::where('module_name','resource')->first();
+        if($emailReceivRec) {
+            if($emailReceivRec->configs) {
+                $emailRecConfig = json_decode($emailReceivRec->configs);
+                
+                if($emailRecConfig->cat) {
+                    $emailReceivRec->sub_cat_list = ResourceCategory::where('parent_id', $emailRecConfig->cat)->get();
+                }
+            }
+        }
+
         if ($request->ajax()) {
             Log::info('enter in ajax');
             LOG::info(\DB::getQueryLog());
@@ -60,7 +73,7 @@ class ResourceImgController extends Controller
                 'count' => $allresources->total(),
             ], 200);
         } else {
-            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories', 'ResourceStatus'))
+            return view('resourceimg.index', compact('Categories', 'categories', 'allresources', 'sub_categories', 'ResourceStatus','emailReceivRec'))
                 ->with('i', ($request->input('page', 1) - 1) * 5);
         }
     }
@@ -487,5 +500,10 @@ class ResourceImgController extends Controller
             'message' => 'Images get successfully',
             'status_name' => 'success',
         ], 200);
+    }
+
+    public function show($id) {
+        $resImg = ResourceImage::find($id);
+        return ['status'=>true,'data'=>$resImg];
     }
 }

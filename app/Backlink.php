@@ -58,7 +58,7 @@ class Backlink extends Model
 74;22063983;49145;13059030;47793;22956;20457307;1606307;258;1475;21784602;278624;437;320',
 
             'backlinks' => 'page_ascore;source_title;source_url;target_url;anchor;external_num;internal_num;first_seen;last_seen
-88;ChevyBike.com is available at DomainMarket.com. Call 888-694-6735;https://www.domainmarket.com/buynow/chevybike.com;http://www.searchenginejournal.com/how-your-domain-name-will-impact-seo-social-media-marketing;Search Engine Journal;18;41;1560106298;1566808385
+88;ChevyBike.com is available at DomainMarket.com. Call 888-694-6735;https://www.domainmarket.com/buynow/chevybike.com;https://www.searchenginejournal.com/how-your-domain-name-will-impact-seo-social-media-marketing;Search Engine Journal;18;41;1560106298;1566808385
 87;Colorlib - How To Start A Blog From Scratch Using WordPress;https://colorlib.com/;https://www.searchenginejournal.com/how-your-domain-name-will-impact-seo-social-media-marketing/;a significant impact;22;30;1454645248;1580401052
 86;Blogging Fusion - Blog Directory - Article Directory - RSS Directory - Web Directory;https://www.bloggingfusion.com/;https://www.searchenginejournal.com/;Search Engine Journal;49;425;1496340118;1575940029
 85;SEO Hacker on Flipboard by Sean Si | Google Lens, WordPress, DuckDuckGo;https://flipboard.com/@seansi/seo-hacker-2leifaa4z;https://www.searchenginejournal.com/wordpress-hackers-are-using-vulnerable-plugins-to-gain-access-to-sites/324171/;searchenginejournal.com - Matt Southern;27;114;1567808179;1572994828
@@ -80,7 +80,7 @@ read more >;2;114350;1545826610;1580411612',
 
             'indexed_pages' => 'source_url;source_title;response_code;backlinks_num;domains_num;last_seen;external_num;internal_num
 https://www.searchenginejournal.com/;Search Engine Journal - SEO, Search Marketing News and Tutorials;200;129873;3602;1580113263;16;405
-http://www.searchenginejournal.com/;;301;213841;3543;1580400186;0;0
+https://www.searchenginejournal.com/;;301;213841;3543;1580400186;0;0
 https://www.searchenginejournal.com/seo-101/seo-statistics/;60+ Mind-Blowing Search Engine Optimization Stats - SEO 101;200;11746;1675;1580367611;88;156
 https://www.searchenginejournal.com/24-eye-popping-seo-statistics/42665/;;301;3127;822;1579709305;0;0
 https://www.searchenginejournal.com/seo-guide/;A Complete Guide to SEO | Search Engine Journal;200;12856;743;1580411596;19;130',
@@ -168,8 +168,8 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
             'backlinks' => '{
         "refpages": [
             {
-                "url_to": "http://ahrefs.com/serp-checker",
-                "url_from": "http://www.aletenky.cz/",
+                "url_to": "https://ahrefs.com/serp-checker",
+                "url_from": "https://www.aletenky.cz/",
                 "ahrefs_rank": 21,
                 "domain_rating": 48,
                 "ahrefs_top": 2348,
@@ -195,8 +195,8 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
                 "url_from_first_seen": "2013-11-07T06:58:50Z"
             },
             {
-                "url_to": "http://ahrefs.com/",
-                "url_from": "http://oni.toypark.in/",
+                "url_to": "https://ahrefs.com/",
+                "url_from": "https://oni.toypark.in/",
                 "ahrefs_rank": 16,
                 "domain_rating": 62,
                 "ahrefs_top": 456783,
@@ -266,7 +266,7 @@ amazon.com;root_domain;94;6258027263;2679680;1012020;3901022285;2355705949;45227
             "content_encoding": "gzip"
         },
         {
-            "url": "http://ahrefs.com/",
+            "url": "https://ahrefs.com/",
             "ahrefs_rank": 81,
             "first_seen": "2013-01-03T16:50:51Z",
             "last_visited": "2013-11-23T16:50:51Z",

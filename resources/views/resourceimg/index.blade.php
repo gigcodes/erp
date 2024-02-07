@@ -14,6 +14,9 @@
                 List Resources Center (<span id="translation_count">{{ $allresources->total() }}</span>)
 
                 <div class="pull-right">
+                    
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#email-receive-modal">Email Receive</button>
+                    
                     <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#status-create">Add Status</button>
                     <button class="btn btn-secondary" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
                     <a href="{{ url('/resourceimg/pending/1') }}"><button type="button" class="btn btn-secondary">Pending</button></a>
@@ -78,6 +81,8 @@
                             <th style="width: 10%;">Category</th>
                             <th style="width: 15%;">Sub Category</th>
                             <th style="width: 30%;">Url</th>
+                            <th style="">Subject</th>
+                            <th style="">Description</th>
                             <th style="width: 5%;">Images</th>
                             <th style="width: 10%;">Status</th>
                             <th style="width: 15%;">Remarks</th>
@@ -128,6 +133,10 @@
     @include('resourceimg.partials.modal-create-resource-center')
     @include('resourceimg.partials.modal-create-edit-category')
     @include('resourceimg.partials.modal-images')
+    @include('resourceimg.partial_email_description')
+    
+    @include('resourceimg.partials.modal-email-receive')
+    
     <input type="hidden" name='hiddenShowImage' id='hiddenShowImage'data-target="#showresource" data-toggle="modal">
     <div id='modelShowImage'></div>
 

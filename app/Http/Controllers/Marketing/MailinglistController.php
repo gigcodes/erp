@@ -42,9 +42,9 @@ class MailinglistController extends Controller
         $email = 'technodeviser05@gmail.com';
         $ch = curl_init();
         $url = 'http://165.232.42.174/api/v1/lists';
-        $req = 'api_token=' . getenv('ACELLE_MAIL_API_TOKEN') . '&name=List+1&from_email=admin@abccorp.org&from_name=ABC+Corp.&default_subject=Welcome+to+ABC+Corp.&contact[company]=ABC+Corp.&contact[state]=Armagh&contact[address_1]=14+Tottenham+Court+Road+London+England&contact[address_2]=44-46+Morningside+Road+Edinburgh+Scotland&contact[city]=Noname&contact[zip]=80000&contact[phone]=123+456+889&contact[country_id]=1&contact[email]=info@abccorp.org&contact[url]=http://www.abccorp.org&subscribe_confirmation=1&send_welcome_email=1&unsubscribe_notification=1';
+        $req = 'api_token=' . getenv('ACELLE_MAIL_API_TOKEN') . '&name=List+1&from_email=admin@abccorp.org&from_name=ABC+Corp.&default_subject=Welcome+to+ABC+Corp.&contact[company]=ABC+Corp.&contact[state]=Armagh&contact[address_1]=14+Tottenham+Court+Road+London+England&contact[address_2]=44-46+Morningside+Road+Edinburgh+Scotland&contact[city]=Noname&contact[zip]=80000&contact[phone]=123+456+889&contact[country_id]=1&contact[email]=info@abccorp.org&contact[url]=https://www.abccorp.org&subscribe_confirmation=1&send_welcome_email=1&unsubscribe_notification=1';
 
-        //curl_setopt($ch, CURLOPT_URL, 'http://acelle.wsl/api/v1/lists');
+        //curl_setopt($ch, CURLOPT_URL, 'https://acelle.wsl/api/v1/lists');
         // curl_setopt($ch, CURLOPT_URL, 'https://demo.acellemail.com/api/v1/lists');
         curl_setopt($ch, CURLOPT_URL, $url);
         // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

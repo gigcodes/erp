@@ -110,7 +110,7 @@ class DevAPIReport extends Command
                             //         $log->result="401 error";
                             //         $log->save();
                                 echo '401 error';
-                                // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+                                // $redirect_uri = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
                                 // $client->setRedirectUri($redirect_uri);
                             }
                         }
@@ -207,7 +207,7 @@ class DevAPIReport extends Command
                                 // $log->result="401 error";
                                 // $log->save();
                                 echo '401 error';
-                                // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+                                // $redirect_uri = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
                                 // $client->setRedirectUri($redirect_uri);
                             }
                         }

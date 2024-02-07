@@ -117,7 +117,7 @@ class GetGebnegozionlineProductDetailsWithEmulator extends Command
     {
         $this->info('here saving to server');
         $client = new Client();
-        $response = $client->request('POST', 'http://erp.sololuxury.co.in/api/sync-product', [
+        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
                 'sku' => $image->sku,

@@ -53,7 +53,7 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     private function authenticate()
     {
-        $url = 'http://shop.cuccuini.it/it/register.html';
+        $url = 'https://shop.cuccuini.it/it/register.html';
 
         $duskShell = new CucProductDataEmulator();
         $this->setCountry('IT');
@@ -68,7 +68,7 @@ class GetCuccuiniDetailsWithEmulator extends Command
 
     public function doesProductExist($product)
     {
-        $url = 'http://shop.cuccuini.it/it/register.html';
+        $url = 'https://shop.cuccuini.it/it/register.html';
 
         $duskShell = new CucProductExistsEmulator();
         $this->setCountry('IT');
@@ -92,7 +92,7 @@ class GetCuccuiniDetailsWithEmulator extends Command
     {
         $this->info('here saving to server');
         $client = new Client();
-        $response = $client->request('POST', 'http://erp.sololuxury.co.in/api/sync-product', [
+        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             //        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
             'form_params' => [
                 'sku' => $image->sku,

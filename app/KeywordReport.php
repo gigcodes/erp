@@ -76,16 +76,16 @@ ahrefs.com;https://ahrefs.com/blog/seo-basics/;1;
 searchenginewatch.com;https://www.searchenginewatch.com/2016/01/21/seo-basics-22-essentials-you-need-for-optimizing-your-site/;1;',
 
             'paid_results' => 'Domain;Url;Visible Url
-wix.com;http://www.wix.com/;www.wix.com/
-webcreationus.com;http://amp.webcreationus.com/google/seo;amp.webcreationus.com/google/seo
-wix.com;http://www.wix.com/;www.wix.com/
-wix.com;http://www.wix.com/;www.wix.com/
-brunnerworks.com;http://www.brunnerworks.com/;www.brunnerworks.com/
-wix.com;http://www.wix.com/;www.wix.com/
-brunnerworks.com;http://www.brunnerworks.com/;www.brunnerworks.com/
-wix.com;http://www.wix.com/;www.wix.com/
-rankingcoach.com;http://www.rankingcoach.com/;www.rankingcoach.com/
-hinadm.com;http://www.hinadm.com/;www.hinadm.com/',
+wix.com;https://www.wix.com/;www.wix.com/
+webcreationus.com;https://amp.webcreationus.com/google/seo;amp.webcreationus.com/google/seo
+wix.com;https://www.wix.com/;www.wix.com/
+wix.com;https://www.wix.com/;www.wix.com/
+brunnerworks.com;https://www.brunnerworks.com/;www.brunnerworks.com/
+wix.com;https://www.wix.com/;www.wix.com/
+brunnerworks.com;https://www.brunnerworks.com/;www.brunnerworks.com/
+wix.com;https://www.wix.com/;www.wix.com/
+rankingcoach.com;https://www.rankingcoach.com/;www.rankingcoach.com/
+hinadm.com;https://www.hinadm.com/;www.hinadm.com/',
 
             'related_keyword' => 'Keyword;Search Volume;CPC;Competition;Number of Results;Trends;Related Relevance;SERP Features
 beginners guide;880;0;0.01;1750000000;0.82,1.00,0.82,1.00,0.82,0.82,0.67,0.82,1.00,1.00,1.00,1.00;0.05;1,6,7,20,21
