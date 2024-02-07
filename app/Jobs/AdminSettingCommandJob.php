@@ -46,9 +46,9 @@ class AdminSettingCommandJob implements ShouldQueue
     {
         \Log::info("Admin setting command");
         foreach ($this->_selectedCheckboxes as $key => $values) {
-            
+
             $magentoSettings = MagentoSetting::where('id', $values)->first();
-        
+
             $requestData['command'] = 'bin/magento config:set '.$this->_path.' '.$this->_value;
             \Log::info("REquest command ".$requestData['command']);
             $storeWebsiteData = StoreWebsite::where('id', $magentoSettings->store_website_id)->first();
@@ -66,7 +66,7 @@ class AdminSettingCommandJob implements ShouldQueue
                 $ch = curl_init();
 
                 // Set cURL options for a POST request
-                curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                curl_setopt($ch, CURLOPT_URL, 'https://s10.theluxuryunlimited.com:5000/execute');
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
@@ -101,5 +101,5 @@ class AdminSettingCommandJob implements ShouldQueue
             }
         }
     }
-    
+
 }

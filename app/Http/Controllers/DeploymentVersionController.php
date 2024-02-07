@@ -50,7 +50,7 @@ class DeploymentVersionController extends Controller
         $revision = $deploymentVersion->revision;
 
         try {
-            $jenkins = new \JenkinsKhan\Jenkins('http://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
+            $jenkins = new \JenkinsKhan\Jenkins('https://apibuild:117ed14fbbe668b88696baa43d37c6fb48@build.theluxuryunlimited.com:8080');
             $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'serverenv' => $serverenv, 'revision' => $revision, 'pull_no' => $pullNo]);
             $job = $jenkins->getJob($jobName);
             $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
@@ -88,7 +88,7 @@ class DeploymentVersionController extends Controller
 
         try {
             // Jenkins API URL
-            $jenkinsApiUrl = 'http://build.theluxuryunlimited.com:8080';
+            $jenkinsApiUrl = 'https://build.theluxuryunlimited.com:8080';
 
             // Authentication credentials
             $username = 'apibuild';

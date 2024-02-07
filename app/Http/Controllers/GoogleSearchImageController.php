@@ -786,7 +786,7 @@ class GoogleSearchImageController extends Controller
         foreach ($logs as $log) {
             $url = $log->image_url;
             $website = explode('/', $url);
-            $website = $website[2]; //assuming that the url starts with http:// or https://
+            $website = $website[2]; //assuming that the url starts with https:// or https://
             if (! in_array($website, $logArray)) {
                 array_push($logArray, $website);
             }

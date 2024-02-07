@@ -3615,6 +3615,8 @@ Route::middleware('auth')->group(function () {
     Route::get('test-cases/usertest-history/{id}', [TestCaseController::class, 'usertestHistory'])->name('test-cases.usertest-history');
     Route::get('test-cases/user-teststatus-history/{id}', [TestCaseController::class, 'userteststatusHistory'])->name('test-cases.usertest-history');
     Route::delete('test-cases/delete-multiple-test-cases', [TestCaseController::class, 'deleteTestCases'])->name('test-cases.delete_multiple_test_cases');
+    Route::get('test-cases/module/{id}', [TestCaseController::class, 'testCasesByModule'])->name('test-cases.bymodule');
+    Route::get('test-cases/{id}', [TestCaseController::class, 'show'])->name('test-cases.show');
 
     Route::get('test-suites', [TestSuitesController::class, 'index'])->name('test-suites.index');
     Route::get('test-suites/records', [TestSuitesController::class, 'records'])->name('test-suites.records');

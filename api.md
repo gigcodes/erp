@@ -1803,7 +1803,7 @@ GET https://erp.theluxuryunlimited.com/api/all-reviews
         "repository": null,
         "semrush_project_id": null,
         "mailing_service_id": 1,
-        "website_url": "http://www.lussolicious.com"
+        "website_url": "https://www.lussolicious.com"
       }
     }
   ],
