@@ -12,6 +12,8 @@
  */
 
 use App\Email;
+use App\Http\Controllers\BlogCentralizeController;
+use App\Http\Controllers\EmailReceiverMasterController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\Mail;
@@ -6042,4 +6044,6 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
+    Route::resource('email-receiver-master', EmailReceiverMasterController::class);
+    Route::resource('blog-centralize', BlogCentralizeController::class);
 });
