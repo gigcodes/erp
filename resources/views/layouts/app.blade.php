@@ -214,7 +214,7 @@ $metaData = '';
     
     @auth
         <script type="text/javascript">
-            const IS_ADMIN_USER = {{ auth()->user()->isAdmin() }};
+            const IS_ADMIN_USER = {{ $isAdmin }};
             const LOGGED_USER_ID = {{ auth()->user()->id}};
         </script>
     @else
@@ -314,7 +314,7 @@ $metaData = '';
                                         $currentDate = Illuminate\Support\Carbon::now()->format('Y-m-d');
                                         
 
-                                        if(!auth()->user()->isAdmin()) {
+                                        if(!($isAdmin)) {
                                             $logs->where('user_id', auth()->user()->id);
                                         }
 
@@ -555,7 +555,7 @@ $metaData = '';
                                     <input type="text" id="searchField" placeholder="Search">
                                 </li>
                                 @auth
-                                    @if(auth()->user()->isAdmin())
+                                    @if($isAdmin)
                                         <li>
                                             <a title="Quick Appointment Request" data-toggle="modal" data-target="#quickRequestZoomModal" type="button" class="quick-icon" style="padding: 0px 1px;">
                                                 <span><i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></span>
@@ -823,7 +823,7 @@ $metaData = '';
                                                         history</a>
                                                 </ul>
                                             </li>
-                                            @if(auth()->user()->isAdmin())
+                                            @if($isAdmin)
 
                                             <li class="nav-item dropdown dropdown-submenu">
                                                 <a id="navbarDropdown" class="" href="#" role="button"
@@ -1704,7 +1704,7 @@ $metaData = '';
                                             Email Accounts
                                         </a>
                                     </li>
-                                    @if(auth()->user()->isAdmin())
+                                    @if($isAdmin)
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
@@ -1859,7 +1859,7 @@ $metaData = '';
                                     </li>
                                     @endif
 
-                                    @if(auth()->user()->isAdmin())
+                                    @if($isAdmin)
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>LiveChat, Inc.<span
@@ -2299,7 +2299,7 @@ $metaData = '';
                                     <li class="nav-item dropdown">
                                         <a href="{{route('social.post.grid')}}">Social Posts Grid</a>
                                     </li>
-                                    @if(auth()->user()->isAdmin())
+                                    @if($isAdmin)
                                     <li class="nav-item dropdown dropdown-submenu">
                                         <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span
@@ -2358,7 +2358,7 @@ $metaData = '';
                                     @endif
                                 </ul>
                             </li>
-                            @if(auth()->user()->isAdmin())
+                            @if($isAdmin)
                             <li class="nav-item dropdown">
                                 
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
@@ -2688,7 +2688,7 @@ $metaData = '';
                                 </ul>
                             </li>
                             @endif
-                            @if(auth()->user()->isAdmin())
+                            @if($isAdmin)
                             <li class="nav-item dropdown">
 
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
@@ -2935,7 +2935,7 @@ $metaData = '';
                                                 </li>
                                             </ul>
                                         </li>
-                                        @if(auth()->user()->isAdmin())
+                                        @if($isAdmin)
 
 
                                         <li class="nav-item dropdown">
@@ -3568,7 +3568,7 @@ $metaData = '';
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{ route('task.list') }}">Tasks List</a>
                                             </li>
-                                            @if(auth()->user()->isAdmin())
+                                            @if($isAdmin)
                                             <li class="nav-item dropdown">
                                                 <a class="dropdown-item" href="{{route('password.index')}}">Password Manager</a>
                                             </li>
@@ -3676,7 +3676,7 @@ $metaData = '';
                                                     aria-haspopup="true" aria-expanded="false" v-pre>Customer<span
                                                         class="caret"></span></a>
                                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                                    @if(auth()->user()->isAdmin())
+                                                    @if($isAdmin)
                                                     <li class="nav-item dropdown">
                                                         <a class="dropdown-item" href="{{route('task_category.index')}}">Task
                                                             Category</a>

@@ -89,6 +89,8 @@ class ViewServiceProvider extends ServiceProvider
                 $userLists = User::where('is_active', 1)->orderBy('name','asc')->get();
 
                 $storeWebsiteConnections = StoreWebsite::DB_CONNECTION;
+
+                $isAdmin = auth()->user()->isAdmin();
     
                 $view->with('d_taskList', $d_taskList)
                       ->with('g_taskList', $g_taskList)
@@ -117,6 +119,7 @@ class ViewServiceProvider extends ServiceProvider
                       ->with('todoCategories', $todoCategories)
                       ->with('userLists', $userLists)
                       ->with('storeWebsiteConnections', $storeWebsiteConnections)
+                      ->with('isAdmin', $isAdmin)
                       ;
 
             }

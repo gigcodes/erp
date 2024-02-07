@@ -317,7 +317,7 @@
     </div>
 
     @auth
-        @if(auth()->user()->isAdmin())
+        @if($isAdmin)
             <div id="quickRequestZoomModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <!-- Modal content-->
@@ -418,7 +418,7 @@
                                 <input type="hidden" id="command_id" name="id" value="" />
 
                                 @auth
-                                    @if(auth()->user()->isAdmin())
+                                    @if($isAdmin)
                                         <div class="form-group col-md-12">
                                             <label for="title">User Name</label>
                                             <select name="user_permission[]" multiple class="form-control dropdown-mul-1" style="width: 100%" id="user_permission" required>
