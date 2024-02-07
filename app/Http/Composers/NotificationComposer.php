@@ -12,7 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Contracts\Auth\Guard;
 use App\Http\Controllers\NotificaitonContoller;
 
-class NotificaitonComposer
+class NotificationComposer
 {
     public function __construct(Guard $auth)
     {
