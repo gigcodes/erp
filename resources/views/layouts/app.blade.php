@@ -4233,12 +4233,9 @@ $metaData = '';
         CKEDITOR.replace('content');
         CKEDITOR.replace('sop_edit_content');
     </script>
+    
     @include('layouts.partial.app_js')
-    <script>
-    
 
-    
-    </script>
     @if ($message = Session::get('actSuccess'))
     <script>
     toastr['success']('{{$message}}', 'success');
