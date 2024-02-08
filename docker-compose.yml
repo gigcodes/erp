@@ -33,10 +33,20 @@ services:
     #network_mode: host
     env_file:
       - ".env"
-      #        command: bash -c "composer config -g github-oauth.github.com ${GITHUB_TOKEN}"
+        #        command: bash -c "composer config -g github-oauth.github.com ${GITHUB_TOKEN}"
     networks:
       - erp
-
+      
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.1
+    container_name: pma
+    environment:
+      PMA_HOST: erp-prod.cv6cock2mhwb.us-east-2.rds.amazonaws.com
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8098:80
 volumes:
   dbdata:
 networks:
