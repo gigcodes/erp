@@ -174,7 +174,7 @@
     </div>
 
     <div class="col-12">
-        <form class="form-inline" action="{{ route('vendors.flow-chart') }}" method="GET">
+        <form class="form-inline" action="{{ route('vendors.rating.question-answer') }}" method="GET">
 
             <div class="form-group mr-3">
                 <strong>Select Vendor :</strong></br>
@@ -199,7 +199,7 @@
 
             <div class="form-group col-md-2 pr-0 pt-20" style=" padding-top: 20px;">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
-                <a href="{{route('vendors.flow-chart')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
+                <a href="{{route('vendors.rating.question-answer')}}" class="btn btn-image" id=""><img src="/images/resend2.png" style="cursor: nwse-resize;"></a>
             </div>
         </form>
     </div>

@@ -2758,7 +2758,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     // Vendor Module
     Route::get('vendors-autocomplete', [VendorController::class, 'getVendorAutocomplete'])->name('vendors.autocomplete');
     Route::post('vendors/sorting', [VendorController::class, 'sortingVendorFlowchart'])->name('vendors.sorting');
-    Route::get('vendors/flow-chart', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
+    Route::get('vendors/flow-chart/{id}', [VendorController::class, 'flowChart'])->name('vendors.flow-chart');
     Route::get('vendors/all-section', [VendorController::class, 'vendorAllSection'])->name('vendors.all-section');
     Route::get('vendors/question-answer', [VendorController::class, 'questionAnswer'])->name('vendors.question-answer');
     Route::get('vendors/rating-question-answer', [VendorController::class, 'ratingquestionAnswer'])->name('vendors.rating.question-answer');
