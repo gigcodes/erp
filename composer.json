@@ -15,6 +15,7 @@
     "barryvdh/laravel-ide-helper": "^2.8",
     "barryvdh/laravel-snappy": "*",
     "becker/laravel-zabbix-api": "^0.3.0",
+    "beyondcode/laravel-websockets": "^1.14",
     "brotzka/laravel-dotenv-editor": "2.1.0",
     "bugsnag/bugsnag-laravel": "^2.20",
     "commerceguys/guzzle-oauth2-plugin": "*",

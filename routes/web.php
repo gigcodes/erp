@@ -14,6 +14,7 @@
 use App\Email;
 use App\Http\Controllers\BlogCentralizeController;
 use App\Http\Controllers\EmailReceiverMasterController;
+use App\Http\Controllers\MindMapDiagramController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
 use App\Http\Controllers\Mail;
@@ -1143,7 +1144,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::post('products/{id}/originalColor', [ProductController::class, 'originalColor']);
     Route::post('products/{id}/submitForApproval', [ProductController::class, 'submitForApproval']);
     Route::get('products/{id}/category-history', [ProductCategoryController::class, 'history']);
-//    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
+    //    Route::post('products/{id}/addListingRemarkToProduct', [ProductController::class, 'addListingRemarkToProduct']);
     Route::get('products/{id}/get-translation-product', [ProductController::class, 'getTranslationProduct']);
     Route::post('products/{id}/
     ', [ProductController::class, 'updateApprovedBy']);
@@ -3028,6 +3029,7 @@ Route::middleware('auth', 'optimizeImages')->group(function () {
     Route::resource('email-addresses', EmailAddressesController::class);
     Route::post('email-addresses/create-acknowledgement', [EmailAddressesController::class, 'createAcknowledgement'])->name('email-addresses.create.acknowledgement');
     Route::get('email-addresses/countemailacknowledgement/{id}', [EmailAddressesController::class, 'acknowledgementCount']);
+    Route::post('email-addresses/email-alert', [EmailAddressesController::class, 'setEmailAlert'])->name('email-addresses.email-alert');
 
     Route::post('email/geterroremailhistory', [EmailAddressesController::class, 'getErrorEmailHistory']);
 
@@ -6047,4 +6049,10 @@ Route::middleware('auth')->group(function () {
     Route::post('user-search-global/', [UserController::class, 'searchUserGlobal'])->name('user-search-global');
     Route::resource('email-receiver-master', EmailReceiverMasterController::class);
     Route::resource('blog-centralize', BlogCentralizeController::class);
+});
+
+//Mind Map
+
+Route::middleware('auth')->group(function () {
+    Route::resource('mind-map', MindMapDiagramController::class);
 });

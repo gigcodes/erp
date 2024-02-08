@@ -4145,6 +4145,31 @@ $metaData = '';
 
     @endif
     
+
+    @if(auth()->user()?->isAdmin())
+    <!-- Modal -->
+    <div id="emailAlertModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+    
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+
+            <h4 class="modal-title" id="emailAlert-modal-subject">Subject</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <p id="emailAlert-modal-body"><iframe style="width: 100%;border:none;height:100vh;" id="emailAlert-modal-body-myframe" frameborder="0"></iframe></p>
+            </div>
+            <div class="modal-footer">
+            <button id="emailAlert-reply" type="button" class="btn btn-default" data-dismiss="modal">Reply</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    
+        </div>
+    </div>
+    @endif
     @php
 
     $url = strtolower(str_replace(array('https://', 'http://'),array('', ''),config('app.url')));
@@ -4240,6 +4265,19 @@ $metaData = '';
     <script>
     toastr['error']('{{$message}}', 'error');
     </script>
+    @endif
+    @if(auth()->user()?->isAdmin())
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.11.2/dist/echo.iife.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.0.3/pusher.min.js"></script>
+    <script>
+        var config = {
+            pusher: {
+                key : "{{ config('broadcasting.connections.pusher.key') }}",
+                cluster : "{{ config('broadcasting.connections.pusher.options.cluster') }}",
+            }
+        };
+    </script>
+    <script src="{{asset("js/email-alert-echo.js")}}"></script>
     @endif
 
 </body>
