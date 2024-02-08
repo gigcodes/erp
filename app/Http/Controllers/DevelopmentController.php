@@ -2218,7 +2218,7 @@ class DevelopmentController extends Controller
                 $time_doctor_task->save();
         }
 
-        return $timeDoctorTaskResponse;
+        return $timeDoctorTaskResponse ?? null;
     }
 
     /**
