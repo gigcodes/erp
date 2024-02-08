@@ -2203,11 +2203,8 @@ class DevelopmentController extends Controller
             if (! empty($timeDoctorTaskResponse['data'])) {
                 $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
             }
-        } else {
-            $timeDoctorTaskId = 34543;
-        }
 
-        if ($timeDoctorTaskId && $timeDoctorTaskId != '') {
+            if ($timeDoctorTaskId && $timeDoctorTaskId != '') {
                 $task->time_doctor_task_id = $timeDoctorTaskId;
                 $task->save();
                 $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
@@ -2216,9 +2213,12 @@ class DevelopmentController extends Controller
                 $time_doctor_task->time_doctor_project_id = $projectId;
                 $time_doctor_task->summery = $message;
                 $time_doctor_task->save();
-        }
+            }
 
-        return $timeDoctorTaskResponse ?? null;
+            return $timeDoctorTaskResponse;
+        }else{
+            return false;
+        }
     }
 
     /**
@@ -4662,7 +4662,6 @@ class DevelopmentController extends Controller
                 } else {
                     $user_id = $task->master_user_id;
                 }
-                // $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
                 $hubstaff_project_id = config('env.HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
                 $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
@@ -4709,6 +4708,7 @@ class DevelopmentController extends Controller
             } else {
                 $timeDoctorTaskResponse = $this->timeDoctorActions('DEVTASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
                 $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
+                if(!$timeDoctorTaskResponse) return response()->json(['message' => 'Unable to create task'],500);
                 if ($timeDoctorTaskResponse['code'] != '200') {
                     $message = match ($timeDoctorTaskResponse['code']) {
                         '401' => $errorMessages['401'],
@@ -4721,13 +4721,17 @@ class DevelopmentController extends Controller
 
                     return response()->json([
                         'message' => $message,
-                    ], $timeDoctorTaskResponse['code']);
+                    ],$timeDoctorTaskResponse['code']);
+                }else{
+                    return response()->json([
+                        'message' => 'Successful',
+                    ]);
                 }
             }
 
             return response()->json([
                 'message' => 'Successful',
-            ], 200);
+            ]);
         } else {
             return response()->json([
                 'message' => 'Task not found',
