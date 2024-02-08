@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('styles')
-    
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style type="text/css">
@@ -11,20 +10,29 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+         .fb-login-btn{
+             padding: 7px;
+             background-color: #6c757d;
+             color: #fff;
+             border-radius: 4px;
+             margin-left: 5px;
+             display: inline-block;
+             vertical-align: middle;
+         }
     </style>
 @endsection
 
 
 @section('content')
     <div id="myDiv">
-       <img id="loading-image" src="{{env('APP_URL')}}/images/pre-loader.gif" style="display:none;"/>
+       <img id="loading-image" src="{{config('app.url')}}/images/pre-loader.gif" style="display:none;" alt=""/>
    </div>
         <div class="col-md-12">
             <div class="row">
             <div class="col-lg-12 margin-tb">
                 <h2 class="page-heading"> Configs</h2>
                 <div class="col-lg-12">
-                    <form action="" method="GET" class="form-inline align-items-start">
+                    <form action="{{route('social.config.index')}}" method="GET" class="form-inline align-items-start">
                         <div class="row mr-3 mb-3">
                             <div class="form-group">
                                 <select id="store_website_id" class="form-control store_website_id" name="store_website_id[]" multiple>
@@ -52,25 +60,13 @@
                     </form>
                 </div>
                 <div class="pull-right">
-                
-                  <!-- <button type="button" class="btn btn-secondary" id="fb_redirect">Login Facebook</button> -->
-                  <a href="https://www.facebook.com/dialog/oauth?client_id=559475859451724&redirect_uri=https://erpstage.theluxuryunlimited.com/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,manage_pages,pages_manage_posts,pages_show_list" style="
-    padding: 7px;
-    background-color: #6c757d;
-    color: #fff;
-    border-radius: 4px;
-    margin-left: 5px;
-    display: inline-block;
-    vertical-align: middle;
-">Login Facebook/Insta</a>
+                  <a class="fb-login-btn" href="{{$facebook_url}}">Login Facebook</a>
                 </div>
                 <div class="pull-right">
                   <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#ConfigCreateModal">+</button>
                 </div>
-                
             </div>
         </div>
-
 
         @if ($message = Session::get('success'))
             <div class="alert alert-success">
@@ -103,39 +99,25 @@
             <th style="width: 5% !important;">Started At</th>
             <th style="width: 7% !important;">Actions</th>
           </tr>
-
-          <!-- <tr>
-            <th style="width: 3% !important;"><input type="text" id="username" class="search form-control"></th>
-            <th style="width: 3% !important;"></th>
-            <th style="width: 3% !important;"><input type="text" id="number" class="search form-control"></th>
-            <th style="width: 3% !important;"><input type="text" id="provider" class="search form-control"></th>
-            <th style="width: 3% !important;"></th>
-            
-            <th style="width: 3% !important;"></th> 
-          </tr> -->
         </thead>
 
         <tbody>
 
        @include('social.configs.partials.data')
-
           {!! $socialConfigs->render() !!}
-          
         </tbody>
       </table>
     </div>
     </div>
 @include('social.configs.partials.add-modal')
-   
 @endsection
-
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-        
+
         $('#fb_redirect').click(function()
         {
             alert('yuuuuu');
@@ -154,11 +136,11 @@
                             console.log("come toadsets adsets ");
                             console.log(result);
                             $.each(result,function(key,value){
-                                html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
                             });
                         }
                         $('#adset_id').html(html);
-                    
+
                     }else{
                         $("#loading-image").hide();
                         alert("token Expired");
@@ -170,10 +152,8 @@
             });
 
         });
-     //   $('#adset_id').click(function()
         $('#token').focusout(function()
-       
-        { 
+        {
             let token = $("#token").val();
            // alert(token)
             if(!token){
@@ -197,11 +177,11 @@
                                 console.log("come toadsets adsets ");
                                 console.log(result);
                                 $.each(result,function(key,value){
-                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                    html += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
                                 });
                             }
                             $('#adset_id').html(html);
-                        
+
                         }else{
                             $("#loading-image").hide();
                             alert("token Expired");
@@ -272,20 +252,20 @@
                                     if(value.id == config.ads_manager){
                                         htmledit +=  `<option value="${value.id}" selected>${value.name}</option>`;
                                     }else{
-                                        htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
+                                        htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
                                     }
-                                    
-                                }else{
-                                    htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`; 
-                                }
-                                
 
-                                
+                                }else{
+                                    htmledit += `<option value="${value.id}" rel="${value.name}" >${value.name}</option>`;
+                                }
+
+
+
                             });
                             $('.adsmanager').html(htmledit);
                         }
-                        
-                    
+
+
                     }else{
                         $("#loading-image").hide();
                         alert("token Expired");
@@ -297,7 +277,7 @@
             });
 
     }
-    
+
     function deleteConfig(config_id) {
         event.preventDefault();
         if (confirm("Are you sure?")) {
@@ -316,7 +296,7 @@
         });
         }
         return false;
-       
+
     }
 
     $(document).ready(function() {
@@ -327,7 +307,7 @@
             // username = $('#username').val();
             // provider = $('#provider').val();
             // customer_support = $('#customer_support').val();
-          
+
 
             $.ajax({
                 url: src,
@@ -337,12 +317,12 @@
                     // username : username,
                     // provider : provider,
                     // customer_support : customer_support,
-                
+
                 },
                 beforeSend: function() {
                        $("#loading-image").show();
                 },
-            
+
             }).done(function (data) {
                  $("#loading-image").hide();
                 console.log(data);
@@ -352,18 +332,18 @@
                 } else {
                     $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
                 }
-                
+
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
         },
         minLength: 1,
-       
+
         });
     });
 
 
-  
+
 
 </script>
 @endsection

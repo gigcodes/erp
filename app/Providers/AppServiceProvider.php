@@ -3,25 +3,20 @@
 namespace App\Providers;
 
 use Blade;
-use App\DatabaseLog;
 use Facebook\Facebook;
 use Studio\Totem\Totem;
 use App\CallBusyMessage;
 use App\ScrapedProducts;
 use Illuminate\View\View;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades;
 use App\Models\GoogleDocsCategory;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
 use App\Observers\CallBusyMessageObserver;
-use App\User;
-use App\StoreWebsite;
-use App\MagentoCommand;
-use App\AssetsManager;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -80,9 +75,39 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('googleDocCategory', []);
             }
         });
-         
-        view()->composer('*',function($view) {
 
+        /**
+         * @param  mixed|null  $data
+         * @param  mixed  $message
+         * @param  \Throwable|null  $e
+         * @param  int  $code
+         * @param  array  $headers
+         * @return mixed|null
+         */
+        Response::macro(name: 'jsonResponse', macro: function (mixed $message = '', bool $success = true, mixed $data = null, \Throwable $e = null, int $code = Response::HTTP_OK, $statusMessages = [], array $headers = []) {
+            $response = [];
+            $response['success'] = $success;
+
+            if ($data) {
+                $response['data'] = $data;
+            }
+            if ($message) {
+                $response['message'] = $message;
+            }
+            if (count($statusMessages)) {
+                $response['status_messages'] = $statusMessages;
+            }
+            if ($e && config('app.debug')) {
+                $response['debug'] = [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTrace(),
+                ];
+                $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+            }
+
+            return response()->json($response, $code, $headers);
         });
     }
 
