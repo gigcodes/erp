@@ -36,9 +36,4 @@ class SocialConfig extends Model
         }
         $this->attributes['password'] = encrypt($password);
     }
-
-    public function posts(): HasMany
-    {
-        return $this->hasMany(SocialPost::class,'config_id');
-    }
 }

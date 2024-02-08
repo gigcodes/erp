@@ -90,6 +90,9 @@ class SocialConfigController extends Controller
     protected function getAdditionalData(Request $request)
     {
         return [
+            'facebook_url' => 'https://www.facebook.com/dialog/oauth?client_id=' . config('facebook.config.app_id') .
+                '&redirect_uri=' . config('app.url') .
+                '/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,pages_manage_posts,pages_show_list',
             'websites' => StoreWebsite::select('id', 'title')->get(),
             'user_names' => SocialConfig::select('email')->distinct()->get(),
             'platforms' => SocialConfig::select('platform')->distinct()->get(),
@@ -219,38 +222,21 @@ class SocialConfigController extends Controller
         if (! $neverExpiringToken) {
             return redirect()->back()->withError('Unable to refactor the token. Kindly validate it');
         }
-
-        /**
-         * Currently we will only have the user access token.
-         * We need to fetch the page access token
-         */
-        $pageInfoParams = [ // endpoint and params for getting page
-            'endpoint_path' => $pageId,
-            'fields' => 'access_token',
-            'access_token' => $neverExpiringToken,
-            'request_type' => 'GET',
-        ];
-
-        $pageInfo = getFacebookResults($pageInfoParams);
-
-        //@todo add instagram functionalities.
-
         if ($request->platform == 'instagram') {
-//            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->page_token);
-//            $http = Http::get($url);
-//            $response = $http->json();
-//            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'store');
-//            if ($id = $response['instagram_business_account']['id']) {
-//                $data['account_id'] = $id;
-//            } else {
-//                return redirect()->back()->withError('Page Linked Account ID not found.');
-//            }
+            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $request->page_token);
+            $http = Http::get($url);
+            $response = $http->json();
+            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'store');
+            if ($id = $response['instagram_business_account']['id']) {
+                $data['account_id'] = $id;
+            } else {
+                return redirect()->back()->withError('Page Linked Account ID not found.');
+            }
         } else {
             $data['account_id'] = $pageId;
         }
 
-        $data['token'] = $neverExpiringToken;
-        $data['page_token'] = $pageInfo['data']['access_token'];
+        $data['page_token'] = $neverExpiringToken;
 
         SocialConfig::create($data);
 
