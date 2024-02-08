@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TimeDoctor\TimeDoctorAccount;
 use Auth;
 use File;
 use View;
@@ -673,19 +674,19 @@ class DevelopmentController extends Controller
     }
 
     public function dlColumnVisbilityUpdate(Request $request)
-    {   
+    {
         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','development-list')->first();
 
         if($userCheck)
         {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'development-list';
-            $column->column_name = json_encode($request->column_dl); 
+            $column->column_name = json_encode($request->column_dl);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'development-list';
-            $column->column_name = json_encode($request->column_dl); 
+            $column->column_name = json_encode($request->column_dl);
             $column->user_id =  auth()->user()->id;
             $column->save();
         }
@@ -694,19 +695,19 @@ class DevelopmentController extends Controller
     }
 
     public function dsColumnVisbilityUpdate(Request $request)
-    {   
+    {
         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','development-summarylist')->first();
 
         if($userCheck)
         {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'development-summarylist';
-            $column->column_name = json_encode($request->column_ds); 
+            $column->column_name = json_encode($request->column_ds);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'development-summarylist';
-            $column->column_name = json_encode($request->column_ds); 
+            $column->column_name = json_encode($request->column_ds);
             $column->user_id =  auth()->user()->id;
             $column->save();
         }
@@ -1400,7 +1401,7 @@ class DevelopmentController extends Controller
             $userid = $request->input('selected_user');
             $issues = $issues->where('developer_tasks.assigned_to', $userid);
         }
-        
+
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message   FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
         if ($request->get('last_communicated', 'off') == 'on') {
@@ -2176,7 +2177,6 @@ class DevelopmentController extends Controller
 
     public function timeDoctorActions($type, $task, $projectId, $accountId, $assignTo)
     {
-        $check_entry = 0;
         $project_data = [];
         $project_data['time_doctor_project'] = $projectId;
         $project_data['time_doctor_task_name'] = $task['subject'] ?? '';
@@ -2184,47 +2184,38 @@ class DevelopmentController extends Controller
 
         if ($type == 'DEVTASK') {
             $message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
-            $assignedToId = $assignTo;
+            $projectId = '#DEVTASK-' . $task->id;
         } elseif ($type == 'TASK') {
             $message = '#TASK-' . $task->id . ' => ' . $task->task_subject . '. ' . $task->task_details;
-            $assignedToId = $assignTo;
+            $projectId = '#TASK-' . $task->id;
         } else {
             return false;
         }
 
-        // $assignUsersData = \App\TimeDoctor\TimeDoctorMember::where('user_id', $assignedToId)->get();
-        $assignUsersData = \App\TimeDoctor\TimeDoctorAccount::find($accountId);
-
+        $assignUsersData = TimeDoctorAccount::find($accountId);
         $timedoctor = Timedoctor::getInstance();
-
         $companyId = $assignUsersData->company_id;
         $accessToken = $assignUsersData->auth_token;
 
-        $taskSummary = substr($message, 0, 200);
-        if (env('PRODUCTION', true)) {
+        if (config('app.env') === 'production') {
             $timeDoctorTaskId = '';
             $timeDoctorTaskResponse = $timedoctor->createGeneralTask($companyId, $accessToken, $project_data, $task->id, $type);
             if (! empty($timeDoctorTaskResponse['data'])) {
                 $timeDoctorTaskId = $timeDoctorTaskResponse['data']['id'];
             }
         } else {
-            $projectId = '#TASK-3';
-            $timeDoctorUserId = 406; //for local system
-            $timeDoctorTaskId = 34543; //for local system
+            $timeDoctorTaskId = 34543;
         }
 
-        if ($timeDoctorTaskId != '') {
-            if ($timeDoctorTaskId) {
+        if ($timeDoctorTaskId && $timeDoctorTaskId != '') {
                 $task->time_doctor_task_id = $timeDoctorTaskId;
                 $task->save();
-
                 $time_doctor_task = new \App\TimeDoctor\TimeDoctorTask();
                 $time_doctor_task->time_doctor_task_id = $timeDoctorTaskId;
                 $time_doctor_task->project_id = $projectId;
                 $time_doctor_task->time_doctor_project_id = $projectId;
                 $time_doctor_task->summery = $message;
                 $time_doctor_task->save();
-            }
         }
 
         return $timeDoctorTaskResponse;
@@ -3195,9 +3186,9 @@ class DevelopmentController extends Controller
             if (! isAdmin()) {
                 $q->where('users.id', loginId());
             }
-            
+
             $q->where('users.id', $user_id);
-            
+
             if (request('is_active')) {
                 $q->where('users.is_active', request('is_active') == 1 ? 1 : 0);
             }
@@ -3379,8 +3370,8 @@ class DevelopmentController extends Controller
                                 if (in_array($slot['type'], ['AVL', 'SMALL-LUNCH', 'LUNCH-START', 'LUNCH-END']) && $slot['slot_type'] != 'PAST') {
                                     $ut_array = [];
                                     $ut_arrayManually = [];
-                                    
-                                    
+
+
                                     if (!empty($slot['userTasks'])) {
                                         foreach ($slot['userTasks'] as $ut) {
 
@@ -3399,7 +3390,7 @@ class DevelopmentController extends Controller
                                             return $slot;
                                         }
                                     }
-                                    
+
                                 }
                             }
                         }
@@ -4719,28 +4710,14 @@ class DevelopmentController extends Controller
                 $timeDoctorTaskResponse = $this->timeDoctorActions('DEVTASK', $task, $request->time_doctor_project, $request->time_doctor_account, $request->assigned_to);
                 $errorMessages = config('constants.TIME_DOCTOR_API_RESPONSE_MESSAGE');
                 if ($timeDoctorTaskResponse['code'] != '200') {
-                    $message = '';
-                    switch ($timeDoctorTaskResponse['code']) {
-                        case '401':
-                            $message = $errorMessages['401'];
-                            break;
-                        case '403':
-                            $message = $errorMessages['403'];
-                            break;
-                        case '409':
-                            $message = $errorMessages['409'];
-                            break;
-                        case '422':
-                            $message = $errorMessages['422'];
-                            break;
-                        case '500':
-                        case '404':
-                            $message = $errorMessages['404'];
-                            break;
-                        default:
-                            $message = 'Time doctor task created successfully';
-                            break;
-                    }
+                    $message = match ($timeDoctorTaskResponse['code']) {
+                        '401' => $errorMessages['401'],
+                        '403' => $errorMessages['403'],
+                        '409' => $errorMessages['409'],
+                        '422' => $errorMessages['422'],
+                        '500', '404' => $errorMessages['404'],
+                        default => 'Time doctor task created successfully',
+                    };
 
                     return response()->json([
                         'message' => $message,
@@ -5158,7 +5135,7 @@ class DevelopmentController extends Controller
             $old = $issue->estimate_minutes;
             $start_date = $issue->start_date;
             $estimate_date = $issue->estimate_date;
-            
+
             $issue->estimate_minutes = $new;
             $issue->start_date = $start_date;
             $issue->estimate_date = $estimate_date;
@@ -5748,7 +5725,7 @@ class DevelopmentController extends Controller
                         }
                     }
                 }
-            } 
+            }
 
             if(!empty($returnData)){
                 return response()->json(
@@ -5763,10 +5740,10 @@ class DevelopmentController extends Controller
             $column = new ScrapperValues();
             $column->task_id = $request->task_id;
             $column->task_type = $request->task_type;
-            $column->scrapper_values =  $request->scrapper_values; 
+            $column->scrapper_values =  $request->scrapper_values;
             $column->added_by =  auth()->user()->id;
             $column->save();
-           
+
             return response()->json(
                 [
                     'code' => 200,
@@ -5804,11 +5781,11 @@ class DevelopmentController extends Controller
                     $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id', $task_id)->get();
 
                     foreach ($phpArray as $key_json => $value_json) {
-                        $returnData[$key_json] = $value_json;         
+                        $returnData[$key_json] = $value_json;
                     }
                 }
-               
-            } 
+
+            }
 
             $id = $ScrapperValues->id;
         }
@@ -5872,7 +5849,7 @@ class DevelopmentController extends Controller
         ScrapperValuesRemarksHistory::updateOrCreate(
             ['task_id' => $request->task_id, 'column_name' => $request->column_name], $input
         );
-      
+
         return response()->json(
             [
                 'code' => 200,
@@ -5940,19 +5917,19 @@ class DevelopmentController extends Controller
     }
 
     public function scrapperColumnVisbilityUpdate(Request $request)
-    {   
+    {
         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','development-scrapper-listing')->first();
 
         if($userCheck)
         {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'development-scrapper-listing';
-            $column->column_name = json_encode($request->column_scrapper); 
+            $column->column_name = json_encode($request->column_scrapper);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'development-scrapper-listing';
-            $column->column_name = json_encode($request->column_scrapper); 
+            $column->column_name = json_encode($request->column_scrapper);
             $column->user_id =  auth()->user()->id;
             $column->save();
         }
@@ -5961,7 +5938,7 @@ class DevelopmentController extends Controller
     }
 
     public function developmentScrapperData($id)
-    {   
+    {
         $ScrapperValues = ScrapperValues::findorFail($id);
 
         $properties = [];
@@ -5971,11 +5948,11 @@ class DevelopmentController extends Controller
             if(!empty($phpArray)){
                 foreach ($phpArray as $key_json => $value_json) {
                     if($key_json=='properties'){
-                        $properties[] = $value_json;         
+                        $properties[] = $value_json;
                     }
                 }
-            }           
-        }       
+            }
+        }
 
         $html = '';
         if(!empty($properties)){
@@ -5995,9 +5972,9 @@ class DevelopmentController extends Controller
                         } else {
                             $html .= '<td>'.$value[$value_k].'</td>';
                         }
-                        $html .= '</tr>';        
+                        $html .= '</tr>';
                     }
-                }                
+                }
             }
 
             $html .= '</tbody>';
@@ -6012,7 +5989,7 @@ class DevelopmentController extends Controller
     }
 
     public function developmentScrapperImagesData($id)
-    {   
+    {
         $ScrapperValues = ScrapperValues::findorFail($id);
 
         $images = [];
@@ -6022,11 +5999,11 @@ class DevelopmentController extends Controller
             if(!empty($phpArray)){
                 foreach ($phpArray as $key_json => $value_json) {
                     if($key_json=='images'){
-                        $images[] = $value_json;         
+                        $images[] = $value_json;
                     }
                 }
-            }           
-        }       
+            }
+        }
 
         $html = '';
         if(!empty($images)){
@@ -6039,9 +6016,9 @@ class DevelopmentController extends Controller
                     foreach ($value as $key_k => $value_k) {
                         $html .= '<div class="col-lg-1">';
                             $html .= '<img src="'.$value_k.'">';
-                        $html .= '</div>';        
+                        $html .= '</div>';
                     }
-                }                
+                }
             }
 
             $html .= '</div>';
@@ -6056,13 +6033,13 @@ class DevelopmentController extends Controller
     }
 
     public function developmentGetScrapperData(Request $request)
-    {   
+    {
         $ScrapperValuesHistory = ScrapperValuesHistory::where('task_id',$request->task_id)->where('column_name',$request->column_name)->first();
 
         $ScrapperValuesRemarksHistory = [];
         if(!empty($ScrapperValuesHistory)){
             if($ScrapperValuesHistory['status']=='Unapprove'){
-                $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id',$request->task_id)->where('column_name',$request->column_name)->first();        
+                $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id',$request->task_id)->where('column_name',$request->column_name)->first();
             }
         }
 
@@ -6094,11 +6071,11 @@ class DevelopmentController extends Controller
                         $ScrapperValuesRemarksHistory = ScrapperValuesRemarksHistory::where('task_id', $request->task_id)->get();
 
                         foreach ($phpArray as $key_json => $value_json) {
-                            $returnData[$key][$key_json] = $value_json;         
+                            $returnData[$key][$key_json] = $value_json;
                         }
-                    }                   
-                }     
-            }       
+                    }
+                }
+            }
         }
         return response()->json(['code' => 200, 'values' => $returnData, 'task_id' => $request->task_id]);
     }
@@ -6142,11 +6119,11 @@ class DevelopmentController extends Controller
     }
 
     public function developmentUpdateAllScrapperStatusData(Request $request)
-    {   
+    {
 
         $recordsScrapper = ScrapperValues::where('id', $request->scrapper_id)->first();
 
-        if(!empty($recordsScrapper)){            
+        if(!empty($recordsScrapper)){
 
             if($request->type==1){
                 $jsonString = $recordsScrapper['scrapper_values'];
@@ -6156,14 +6133,14 @@ class DevelopmentController extends Controller
                     if(!empty($phpArray)){
 
                         foreach ($phpArray as $key_json => $value_json) {
-                            
+
 
                             if($key_json=='properties'){
                                 if(!empty($value_json)){
                                     foreach ($value_json as $key => $value) {
 
                                         $ScrapperValuesHistory = ScrapperValuesHistory::where('column_name', $key)->where('task_id', $recordsScrapper['task_id'])->first();
-                                        
+
                                         if(empty($ScrapperValuesHistory)){
                                             $ScrapperValuesHistoryNew = new ScrapperValuesHistory;
                                             $ScrapperValuesHistoryNew->status = 'Approve';
@@ -6204,7 +6181,7 @@ class DevelopmentController extends Controller
                         $task = DeveloperTask::find($recordsScrapper['task_id']);
                         $task->status = 'Scrapper Data Approved';
                         $task->save();
-                    }                   
+                    }
                 }
 
                 return response()->json([
@@ -6242,7 +6219,7 @@ class DevelopmentController extends Controller
             $history = new DeveloperTaskStartEndHistory();
             $history->user_id = auth()->user()->id;
             $history->task_id = $request->developer_task_id;
-            $history->start_date = Carbon::now();            
+            $history->start_date = Carbon::now();
             $history->save();
 
         } else if($request->task_type==2){
@@ -6251,7 +6228,7 @@ class DevelopmentController extends Controller
 
             $history = DeveloperTaskStartEndHistory::where('task_id', $request->developer_task_id)->orderBy('id', 'DESC')->first();
 
-            if(!empty($history)){                
+            if(!empty($history)){
                 $history->end_date = Carbon::now();
                 $history->save();
             }
