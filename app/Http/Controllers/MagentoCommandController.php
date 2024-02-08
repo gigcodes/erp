@@ -51,7 +51,7 @@ class MagentoCommandController extends Controller
             $magentoCommand = MagentoCronList::orderBy('created_at', 'DESC')->paginate($limit)->appends(request()->except(['page']));
 
             $allMagentoCommandListArray = MagentoCronList::get()->pluck('cron_name', 'id')->toArray();
-            
+
             return view('magento-command.index_command', compact('magentoCommand', 'allMagentoCommandListArray'));
         } catch (\Exception $e) {
             $msg = $e->getMessage();
@@ -63,7 +63,7 @@ class MagentoCommandController extends Controller
     public function storecommand(Request $request)
     {
         try {
-            
+
             if (isset($request->id) && $request->id > 0) {
                 $mCom = MagentoCronList::where('id', $request->id)->first();
             } else {
@@ -86,7 +86,7 @@ class MagentoCommandController extends Controller
 
     public function getMagentoCommand(Request $request)
     {
-        
+
         $magentoCommand = MagentoCommand::whereNotNull('id')->orderby('id', 'DESC');
         $magentoCommandListArray = MagentoCommand::whereNotNull('command_type')->whereNotNull('command_name')->groupBy('command_type')->get()->pluck('command_type', 'command_name')->toArray();
         if (! empty($request->website)) {
@@ -216,7 +216,7 @@ class MagentoCommandController extends Controller
                     $ch = curl_init();
 
                     // Set cURL options for a POST request
-                    curl_setopt($ch, CURLOPT_URL, 'http://s10.theluxuryunlimited.com:5000/execute');
+                    curl_setopt($ch, CURLOPT_URL, 'https://s10.theluxuryunlimited.com:5000/execute');
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $requestJson);
@@ -245,7 +245,7 @@ class MagentoCommandController extends Controller
                     }
 
                     \Log::info("Test response".print_r($response, true));
-                    
+
                     MagentoCommandRunLog::create([
                             'command_id' => $mCom->id,
                             'user_id' => \Auth::user()->id ?? '',
@@ -846,7 +846,7 @@ class MagentoCommandController extends Controller
                         $result = curl_exec($ch);
                         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                         LogRequest::log($startTime, $url, 'POST', json_encode([]), json_decode($result), $httpcode, \App\Http\Controllers\MagentoCommandController::class, 'cronHistoryLog');
-                       
+
                         $response = json_decode($result);
                         \Log::info('API Response: ' . $result);
                         if (isset($response->data) && isset($response->data->result)) {

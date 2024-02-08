@@ -734,7 +734,7 @@ table{border-collapse: collapse;}
 	<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js')}}"></script>
 	<script src="{{ asset('/js/jquery-ui.js')}}"></script>
 	<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
-	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('/js/bug-tracker.js?v=1') }}"></script>
 	
 	
 	

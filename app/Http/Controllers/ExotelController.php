@@ -21,8 +21,8 @@ class ExotelController extends FindByNumberController
             'CallType' => 'promo', //Can be "trans" for transactional and "promo" for promotional content
         ];
 
-        $exotel_sid = 'sololuxury'; // Your Exotel SID - Get it from here: http://my.exotel.in/settings/site#api-settings
-        $exotel_token = '815a3a4dbf47e348d5f45c19c4067de14c120046'; // Your exotel token - Get it from here: http://my.exotel.in/settings/site#api-settings
+        $exotel_sid = 'sololuxury'; // Your Exotel SID - Get it from here: https://my.exotel.in/settings/site#api-settings
+        $exotel_token = '815a3a4dbf47e348d5f45c19c4067de14c120046'; // Your exotel token - Get it from here: https://my.exotel.in/settings/site#api-settings
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = 'https://' . $exotel_sid . ':' . $exotel_token . '@twilix.exotel.in/v1/Accounts/' . $exotel_sid . '/Calls/connect';
 

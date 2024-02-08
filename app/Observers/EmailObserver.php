@@ -3,9 +3,14 @@
 namespace App\Observers;
 
 use App\Email;
+use App\EmailAddress;
 use App\GmailDataList;
 use App\GmailDataMedia;
 use App\ContentManageentEmail;
+use App\Events\EmailReceivedAlert;
+use App\Models\BlogCentralize;
+use App\Models\EmailReceiverMaster;
+use App\ResourceImage;
 
 class EmailObserver
 {
@@ -16,6 +21,9 @@ class EmailObserver
      */
     public function created(Email $email)
     {
+        $this->checkEmailAlert($email);
+        //Email Receiver Module
+        $this->emailReceive($email);
         return $this->gmailData($email);
     }
 
@@ -59,6 +67,67 @@ class EmailObserver
         //
     }
 
+    private function emailReceive(Email $email)
+    {
+        
+        //Resources
+        try {
+            $emailReceivRec = EmailReceiverMaster::where('module_name','resource')->first();
+            if($emailReceivRec && trim(strtolower($emailReceivRec->email)) == trim(strtolower($email->to))) {
+                $json_configs = $emailReceivRec->configs;
+                if($json_configs) {
+                    $configs = json_decode($json_configs);
+                    if($configs && $configs->cat) {
+                        
+                        $resourceimg = new ResourceImage();
+                        $resourceimg->cat_id = $configs->cat;
+                        $resourceimg->sub_cat_id = $configs->sub_cat ? $configs->sub_cat : 0;
+                        $resourceimg->images = '';
+                        $resourceimg->url ='';
+                        $resourceimg->description = $email->message;
+                        $resourceimg->subject = $email->subject;
+                        $resourceimg->sender = $email->from;
+                        $resourceimg->created_at = date('Y-m-d H:i:s');
+                        $resourceimg->updated_at = date('Y-m-d H:i:s');
+                        $resourceimg->created_by = 'Email Receiver';
+                        $resourceimg->is_pending = 1;
+                        $resourceimg->save();
+    
+                    }
+                }
+            }
+            //Resources
+        } catch (\Exception $e) {
+
+        }
+        //Blog
+        try{
+
+            $emailReceivRec = EmailReceiverMaster::where('module_name','blog')->first();
+            if($emailReceivRec && trim(strtolower($emailReceivRec->email)) == trim(strtolower($email->to))) {
+                        
+                $centralBlog = new BlogCentralize();
+                
+                $centralBlog->title = $email->subject;
+                $centralBlog->content = $email->message;
+                $centralBlog->receive_from = $email->from;
+                $centralBlog->created_at = date('Y-m-d H:i:s');
+                $centralBlog->updated_at = date('Y-m-d H:i:s');
+                $centralBlog->created_by = 'Email Receiver';
+                $centralBlog->save();
+                
+            }
+
+            //Blog
+        } catch (\Exception $e) {
+
+        }
+
+
+
+
+    }
+
     public function gmailData(Email $email)
     {
         $receiver_email = $email->to;
@@ -87,5 +156,20 @@ class EmailObserver
                 }
             }
         }
+    }
+
+    private function checkEmailAlert(Email $email)
+    {
+        try {
+            //Email Alerts
+            $enabledAlertEmails = EmailAddress::where('email_alert',1)->pluck('from_address')->toArray();
+            if(count($enabledAlertEmails) && in_array($email->to, $enabledAlertEmails)) {
+                EmailReceivedAlert::dispatch($email);
+            }
+           
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
     }
 }

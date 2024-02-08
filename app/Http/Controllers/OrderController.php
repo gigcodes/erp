@@ -2197,7 +2197,7 @@ class OrderController extends Controller
         $soap->printRequest = false;
         $soap->formatXML = true;
 
-        $actionHeader = new \SoapHeader('http://www.w3.org/5005/08/addressing', 'Action', 'http://tempuri.org/IWayBillGeneration/GenerateWayBill', true);
+        $actionHeader = new \SoapHeader('https://www.w3.org/5005/08/addressing', 'Action', 'https://tempuri.org/IWayBillGeneration/GenerateWayBill', true);
 
         $soap->__setSoapHeaders($actionHeader);
 
@@ -3178,7 +3178,7 @@ class OrderController extends Controller
      *  @return view;
      */
     public function getOrderJourney(Request $request)
-    {   
+    {
         $filter_order = $request->input('filter_order');
         $filer_customer_list = $request->filer_customer_list ?? '';
         //$orders = Order::latest('id')->paginate(25);
@@ -3218,19 +3218,19 @@ class OrderController extends Controller
     }
 
     public function columnVisbilityUpdate(Request $request)
-    {   
+    {
         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','get-order-journey')->first();
 
         if($userCheck)
         {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'get-order-journey';
-            $column->column_name = json_encode($request->column_oj); 
+            $column->column_name = json_encode($request->column_oj);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'get-order-journey';
-            $column->column_name = json_encode($request->column_oj); 
+            $column->column_name = json_encode($request->column_oj);
             $column->user_id =  auth()->user()->id;
             $column->save();
         }
@@ -5635,19 +5635,19 @@ class OrderController extends Controller
     }
 
     public function ordersColumnVisbilityUpdate(Request $request)
-    {   
+    {
         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','orders-listing')->first();
 
         if($userCheck)
         {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'orders-listing';
-            $column->column_name = json_encode($request->column_orders); 
+            $column->column_name = json_encode($request->column_orders);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'orders-listing';
-            $column->column_name = json_encode($request->column_orders); 
+            $column->column_name = json_encode($request->column_orders);
             $column->user_id =  auth()->user()->id;
             $column->save();
         }
@@ -5656,7 +5656,7 @@ class OrderController extends Controller
     }
 
     public function orderChangeStatusHistory(Request $request)
-    {   
+    {
         $order_id = $request->order_id;
         $order_product_id = $request->product_item_id;
 

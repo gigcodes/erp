@@ -323,6 +323,7 @@ var page = {
     $(".id").val("");
     $(".summary").val("");
     $(".step_to_reproduce").val("");
+    $("#expected_result_update").val("");
     $(".url").val("");
     $(".bug_type_id").val("");
     $(".bug_environment_id").val("");
@@ -345,6 +346,15 @@ var page = {
     $(".step_to_reproduce").val(
       response.data.step_to_reproduce.replaceAll("<br/>", "\n")
     );
+    if(response.data.expected_result) {
+      $("#expected_result_update").val(
+        response.data.expected_result.replaceAll("<br>", "\n")
+      );
+      $("#expected_result_update").val(
+        response.data.expected_result.replaceAll("<br/>", "\n")
+      );
+
+    }
     $(".url").val(response.data.url);
     $(".bug_type_id").val(response.data.bug_type_id);
     $(".bug_environment_id").val(response.data.bug_environment_id);
@@ -353,9 +363,24 @@ var page = {
     $("#bug_severity_id_update").val(response.data.bug_severity_id);
     $("#bug_status_id_update").val(response.data.bug_status_id);
     $(".module_id").val(response.data.module_id);
+    $('#test_case_bug_edit').html('<option value="">Select Test Case</option>');
+    if(response.testCases.length) {
+      let testCases = response.testCases;
+        $.each(testCases, function(key, test_case) {   
+            $('#test_case_bug_edit')
+                .append($("<option></option>")
+                            .attr("value", test_case.id)
+                            .text(test_case.name)); 
+            
+        });
+        $("#test_case_bug_edit").val(response.data.test_case_id);
+    } 
+    
     $(".remark").val(response.data.remark);
-    $(".website").val(response.data.website);
-    $(".parent_id").val(response.data.parent_id);
+    if(response.data.website)
+      $(".website").val(response.data.website.split(',')).trigger('change');
+
+    $(".parent_id").val(response.data.parent_id); 
   },
 
   submitFormSite: function (ele) {

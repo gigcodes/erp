@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        //Force assets to ssl
+        if(config('app.env') === 'production') {
+            \URL::forceScheme('https');
+        }
         //
         Schema::defaultStringLength(191);
 
