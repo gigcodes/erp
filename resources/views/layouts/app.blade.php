@@ -17,7 +17,7 @@ $metaData = '';
     @endphp
     @if (trim($__env->yieldContent('favicon')))
     <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
-    @elseif (!\Auth::guest())
+    @else
     <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
     <title>{!! $title !!}</title>
@@ -89,8 +89,6 @@ $metaData = '';
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
     <script src="{{ asset('js/calls.js') }}"></script>
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-    @endif
 
     <script src="{{ asset('js/custom.js') }}"></script>
 
@@ -216,11 +214,6 @@ $metaData = '';
         <script type="text/javascript">
             const IS_ADMIN_USER = {{ $isAdmin }};
             const LOGGED_USER_ID = {{ auth()->user()->id}};
-        </script>
-    @else
-        <script type="text/javascript">
-            const IS_ADMIN_USER = false;
-            const LOGGED_USER_ID = null;
         </script>
     @endauth
 </head>
@@ -599,17 +592,7 @@ $metaData = '';
                         <ul id="navs" class="navbar-nav ml-auto pl-0"
                             style="display:flex;text-align: center;flex-grow: 1;gap:6px">
 
-                            <!-- Authentication Links -->
-
-                            @guest
-
-                            <li class="nav-item">
-
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-
-                            </li>
-
-                            @else                            
+                            <!-- Authentication Links -->                     
 
                             <li class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
@@ -3882,7 +3865,7 @@ $metaData = '';
                                 </div>
                             </li>
                         </ul>
-                        @endif
+                       
                         <div style="width: 100%">
                             <div class="header-search-bar">
                                 <div class="nav-item dropdown" id="search_li">                                        <input type="text" class="form-control nav-link w-100" placeholder="Search"
