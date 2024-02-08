@@ -5612,9 +5612,6 @@ Route::get('/hubstuff_activity_command', function () {
     \Artisan::call('HubstuffActivity:Command');
 });
 
-/*
- * All Social Networking routes
- */
 Route::middleware('auth')->prefix('social')->group(function () {
     Route::get('config', [Social\SocialConfigController::class, 'index'])->name('social.config.index');
     Route::post('config/store', [Social\SocialConfigController::class, 'store'])->name('social.config.store');
