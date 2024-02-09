@@ -41,7 +41,7 @@ class Controller extends BaseController
         $translated_message = ApiResponseMessagesTranslation::where('store_website_id', $store_website_id)->where('lang_code', $lang_code)->where('key', $key)->first();
 
         if (! empty($translated_message)) {
-            return $message = $translated_message->value;
+            return $translated_message->value;
         }
 
         $return_message = ApiResponseMessage::where('store_website_id', $store_website_id)->where('key', $key)->first();
@@ -70,7 +70,7 @@ class Controller extends BaseController
                     ->first();
 
                 if (! empty($translated_message)) {
-                    return $message = $translated_message->value;
+                    return $translated_message->value;
                 }
 
                 $local_code = Language::where('name', $lan_name->name)->first();

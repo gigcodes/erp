@@ -33,7 +33,7 @@ class RouteServiceProvider extends ServiceProvider
 
             $this->mapWebRoutes();
 
-            //
+            $this->mapSocialRoutes();
         });
     }
 
