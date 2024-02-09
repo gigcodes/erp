@@ -23,6 +23,7 @@ class SocialConfigController extends Controller
 {
     protected string $fb_base_url;
 
+
     public function __construct()
     {
         $this->fb_base_url = 'https://graph.facebook.com/' . config('facebook.config.default_graph_version') . '/';

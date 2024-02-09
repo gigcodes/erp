@@ -28,7 +28,7 @@
                     </div>
                     <div class="form-group">
                         <label for="contacts">Vendors</label>
-                        <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
+                        <?php echo Form::select("vendors[]",$vendors->pluck("name","id")->toArray(),null,[
                             "id" => "e_vendors" , "class" => "form-control e_select2-vendor", "required"=>true, "multiple" => true , "style" => "width:100%"
                         ]); ?>
                     </div>

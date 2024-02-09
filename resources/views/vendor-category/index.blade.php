@@ -39,24 +39,24 @@
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
-					</form>	
+					  </div>
+					</form>
 		    	</div>
 		    </div>
-	    </div>	
+	    </div>
 		<div class="col-md-12 margin-tb" id="page-view-result">
 
 		</div>
 	</div>
 </div>
-<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+<div id="loading-image" style="position: fixed;left: 0;top: 0;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
           50% 50% no-repeat;display:none;">
 </div>
 <div class="common-modal modal" role="dialog">
   	<div class="modal-dialog" role="document">
-  	</div>	
+  	</div>
 </div>
 
 @include("vendor-category.templates.list-template")

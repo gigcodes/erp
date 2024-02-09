@@ -28,32 +28,27 @@ class SocialPostController extends Controller
      * @return \Illuminate\Http\Response
      */
     private $fb;
-
-    private $user_access_token;
-
     private $page_access_token;
-
-    private $page_id;
-
-    private $ad_acc_id;
 
     public function index(Request $request, $id)
     {
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
-            $query = SocialPost::where('config_id', $id);
-
+            $query = SocialPost::where('config_id', $id)->with('account');
             $posts = $query->orderby('id', 'desc');
         } else {
-            $posts = SocialPost::where('config_id', $id)->latest()->paginate(Setting::get('pagination'));
+            $posts = SocialPost::where('config_id', $id)
+                ->with('account')
+                ->latest()
+                ->paginate(Setting::get('pagination'));
         }
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
+        $websites = StoreWebsite::select('id', 'title')->get();
 
         $posts = $posts->paginate(Setting::get('pagination'));
 
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.posts.data', compact('posts'))->render(),
-                'links' => (string) $posts->render(),
+                'links' => $posts->render(),
             ], 200);
         }
 
@@ -125,7 +120,7 @@ class SocialPostController extends Controller
 
         $posts = $posts->orderby('social_posts.id', 'desc')->paginate(Setting::get('pagination'));
 
-        $websites = \App\StoreWebsite::select('id', 'title')->get();
+        $websites = StoreWebsite::select('id', 'title')->get();
         $socialconfigs = SocialConfig::get();
 
         if ($request->ajax()) {

@@ -6,6 +6,7 @@ namespace App\Social;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -34,8 +35,8 @@ class SocialPost extends Model
         'status',
     ];
 
-    public function account()
+    public function account(): BelongsTo
     {
-        return $this->belongsTo(\App\Social\SocialConfig::class);
+        return $this->belongsTo(SocialConfig::class, 'config_id');
     }
 }
