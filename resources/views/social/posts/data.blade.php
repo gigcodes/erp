@@ -11,7 +11,7 @@
             @endif
         </td>
         <td>{{ $post->account->platform }}</td>
-        <td>{{ $post->caption }}</td>
+        <td>{{ $post->post_body }}</td>
         <td>{{ $post->hashtag }}</td>
         <td>{{ $post->translation_approved_by ??'-' }}</td>
         <td>{{ \Carbon\Carbon::parse($post->created_at)->format('d-m-y h:m') }}</td>

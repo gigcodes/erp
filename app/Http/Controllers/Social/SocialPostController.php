@@ -179,29 +179,22 @@ class SocialPostController extends Controller
 
     public function deletePost(Request $request)
     {
-        $query = SocialPost::where('ref_post_id', $request['post_id'])->get();
-        $config = SocialConfig::find($query[0]['config_id']);
+        $post = SocialPost::where('ref_post_id', $request['post_id'])->with('account')->first();
 
-        $pageAccessToken = $config['page_token'];
-        $postId = $request['post_id']; // Replace with the ID of the post you want to delete
-        $apiEndpoint = 'https://graph.facebook.com/' . $postId . '?access_token=' . $pageAccessToken;
-        $curlSession = curl_init($apiEndpoint);
+        $pageInfoParams = [
+            'endpoint_path' => $request['post_id'],
+            'fields' => 'message,id,created_time',
+            'access_token' => $post->account->page_token,
+            'request_type' => 'DELETE',
+        ];
 
-        curl_setopt($curlSession, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
+        $response = getFacebookResults($pageInfoParams);
 
-        $response = curl_exec($curlSession);
-        curl_close($curlSession);
-
-        $responseData = json_decode($response, true);
-        if ($responseData['success']) {
-            $query->delete();
-
-            return redirect()->back()->withSuccess('Post deleted sucessfully!!');
-
+        if (isset($response['data']['success']) && $response['data']['success']) {
+            $post->delete();
             return Response::json([
                 'success' => true,
-                'message' => ' Config Deleted',
+                'message' => 'Post deleted successfully',
             ]);
         } else {
             return false;

@@ -14,15 +14,7 @@ function makeApiCall(string $endpoint, string $type, array $params): array
 {
     // create endpoint with params
     $apiEndpoint = $endpoint . '?' . http_build_query($params);
-
-    switch ($type) {
-        default:
-        case 'GET' :
-            $http = Http::get($apiEndpoint);
-            break;
-        case 'POST':
-            $http = Http::post($apiEndpoint);
-    }
+    $http = Http::send($type, $apiEndpoint);
 
     return [ // return data
         'type' => $type,
