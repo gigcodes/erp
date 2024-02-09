@@ -32,11 +32,10 @@ jobs:
           mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports['3306'] }} -uerp_user -psecret -e "SHOW DATABASES"
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-          token: ${{ secrets.PERSONAL_TOKEN }}
 
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.github', '.env');"
