@@ -90,9 +90,6 @@ class SocialConfigController extends Controller
     protected function getAdditionalData(Request $request)
     {
         return [
-            'facebook_url' => 'https://www.facebook.com/dialog/oauth?client_id=' . config('facebook.config.app_id') .
-                '&redirect_uri=' . config('app.url') .
-                '/social/config/fbtokenback&scope=instagram_basic,instagram_manage_insights,instagram_content_publish,instagram_manage_comments,instagram_manage_messages,pages_manage_posts,pages_show_list',
             'websites' => StoreWebsite::select('id', 'title')->get(),
             'user_names' => SocialConfig::select('email')->distinct()->get(),
             'platforms' => SocialConfig::select('platform')->distinct()->get(),
