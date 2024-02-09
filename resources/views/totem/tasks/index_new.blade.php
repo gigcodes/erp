@@ -147,11 +147,8 @@ table tr td {
 .select2-container--default .select2-results__group{display: inline-block !important;}
 </style>
 @endsection
-<?php /*print_r($developer_module); */?>
 @section('large_content')
     <script src="/js/jquery.jscroll.min.js"></script>
-
-    
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -169,7 +166,7 @@ table tr td {
                     </button>
                 </div>
                 <form class="form-inline" action="" method="GET">
-                    
+
                     <div class="form-group col-md-2 pd-3">
                         <input list="tasks-lists" style="width:100%;" id="totem__search__form" name="q" type="text" class="form-control" value="{{ isset($_REQUEST['q']) ? $_REQUEST['q'] : '' }}" placeholder="Search...">
                         <datalist id="tasks-lists">
@@ -199,18 +196,17 @@ table tr td {
                         <a href="{{ route('totem.tasks.all') }}" class="fa fa-refresh" aria-hidden="true"></a>
                     </div>
                 </form>
-                
-            
+
+
         </div>
         <div class="col-5 pl-2" style="padding-left:0px;">
             @if(auth()->user()->isAdmin() || auth()->user()->isCronManager())
-
                     <div class="form-group" style="display: flex;">
                         <h4 class="pt-2">Assign Cron to User</h4>
                         <div>
                             <form class="post-assign-cron" action="" method="POST">
                                 @csrf
-                                
+
                                 <input type="hidden" id="taskId" name="task-id"/>
                                 <select class="js-select2" multiple="multiple" name="users_id[]" >
                                     @foreach ($users as $key => $userData)
@@ -230,7 +226,7 @@ table tr td {
 
     <div class="row">
         <div class="infinite-scroll" style="width:100%;padding: 0 8px">
-            
+
             <div class="col-md-12 pl-1" style="display: flex">
                 <button id="enableAllData"  class="btn btn-primary m-2 enable-disable" cron-status="1">Enable</button>
                 <button id="disableAllData" class="btn btn-danger m-2 enable-disable" cron-status="0" >Disable</button>
@@ -290,7 +286,7 @@ table tr td {
                                     @if(isset($task->frequencies) && count($task->frequencies) > 0)
                                     {{$task->frequencies[0]->interval}}
                                     @endif
-                                    
+
                                 </td>
                                 <td class="uk-text-center@m">
                                     <a style="padding:1px;" class="btn d-inline btn-image view-task" href="#" data-id="{{$task->id}}" title="view task" data-expression="{{$task->getCronExpression()}}"><img src="/images/view.png" style="cursor: pointer; width: 0px;"></a>
@@ -328,7 +324,7 @@ table tr td {
                 {!! $tasks->links() !!}
 	        </div>
         </div>
-        
+
     </div>
 
 
@@ -349,23 +345,23 @@ table tr td {
                         <tr>
                             <th width="5%">Description</th>
                             <th width="5%">Command</th>
-                            <th width="5%">Parameters</th> 
-                            <th width="5%">Cron Expression</th> 
-                            <th width="5%">Timezone</th> 
-                            <th width="5%">Created At</th> 
-                            <th width="5%">Updated At</th> 
-                            <th width="5%">Email Notification</th> 
-                            <th width="5%">SMS Notification</th> 
-                            <th width="5%">Slack Notification</th> 
-                            <th width="5%">Average Run Time</th> 
-                            <th width="5%">Next Run Schedule</th>  
+                            <th width="5%">Parameters</th>
+                            <th width="5%">Cron Expression</th>
+                            <th width="5%">Timezone</th>
+                            <th width="5%">Created At</th>
+                            <th width="5%">Updated At</th>
+                            <th width="5%">Email Notification</th>
+                            <th width="5%">SMS Notification</th>
+                            <th width="5%">Slack Notification</th>
+                            <th width="5%">Average Run Time</th>
+                            <th width="5%">Next Run Schedule</th>
                         </tr>
                         </thead>
 
                         <tbody>
                         </tbody>
                     </table>
-                </div>  
+                </div>
             </form>
             <br>
             <h4 class="modal-title notes d-none">Notes</h4>
@@ -379,7 +375,7 @@ table tr td {
                 <li class="run_on_one_server d-none">
                     <span class="uk-float-left">Runs on a single server<br>
                 </li>
-        
+
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -402,15 +398,15 @@ table tr td {
                                 <option value="{{ json_encode($frequency) }}">{{$frequency['label']}}</option>
                             @endforeach
                         </select>
-                    </div>   
-                </div>  
+                    </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-default add_freq">Add</button>
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
 
 
     <div class="modal fade" id="view_execution_history" tabindex="-1" role="dialog" aria-hidden="true" style="overflow-y:auto;">
@@ -429,14 +425,14 @@ table tr td {
                     <tr>
                         <th width="5%">Executes At</th>
                         <th width="5%">Duration</th>
-                        <th width="5%">Status</th>  
+                        <th width="5%">Status</th>
                     </tr>
                     </thead>
 
                     <tbody>
                     </tbody>
                 </table>
-            </div>  
+            </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -551,17 +547,17 @@ table tr td {
                         <tr>
                             <th width="5%">ID</th>
                             <th width="5%">Signature</th>
-                            <th width="5%">Error</th>  
+                            <th width="5%">Error</th>
                             <th width="5%">Error Count</th>
                             <th width="5%">Status</th>
                             <th width="5%">Date</th>
                         </tr>
                         </thead>
-    
+
                         <tbody >
                         </tbody>
                     </table>
-                </div>  
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -592,16 +588,14 @@ table tr td {
                             <select id="command" name="command" class="form-control select2" width="100%" placeholder="Click here to select one of the available commands">
                                 <option value="">Select a command</option>
                                 @forelse ($commands as $k => $command)
-                                <!-- <optgroup label="{{$command->getName()}}"> -->
                                     <option value="{{$command->getName()}}">
                                         {{$command->getDescription()}}
                                     </option>
-                                <!-- </optgroup> -->
                                 <p class="d-none"></p>
                                 @empty
                                 @endforelse
                             </select>
-                        </div>  
+                        </div>
                         <div class="form-group">
                             <label>Parameters (Optional)</label><i class="fa fa-info-circle" title="Command parameters required to run the selected command"></i>
                             <input class="form-control" placeholder="e.g. --type=all for options or name=John for arguments" name="parameters" id="parameters" value="" type="text">
@@ -635,11 +629,11 @@ table tr td {
                             <label>
                                 <input type="radio" name="type" value="frequency" checked> Frequencies
                             </label>
-                        </div> 
+                        </div>
                         <div class="form-group cron_expression d-none">
                             <label>CRON EXPRESSION</label><i class="fa fa-info-circle" title="Add a cron expression for your task"></i><br>
                             <input class="form-control" placeholder="e.g * * * * * to run this task all the time" name="expression" id="expression" value="" type="text">
-                         </div> 
+                         </div>
                         <div class="form-group frequencies">
                             <label>FREQUENCIES</label><i class="fa fa-info-circle" title="Add   to your task. These frequencies will be converted into a cron expression while scheduling the task"></i><br>
                             <button type="button" class="btn btn-default btn-sm add-remark add-remark-s" data-toggle="modal" data-target="#addFrequencyModal">Add Frequency</button>
@@ -647,7 +641,7 @@ table tr td {
                             <table class="uk-table table-bordered uk-table-divider uk-margin-remove">
                                 <thead>
                                     <tr>
-                                        <th>Frequency</th> 
+                                        <th>Frequency</th>
                                         <th colspan="2">Parameters</th>
                                     </tr>
                                 </thead>
@@ -656,9 +650,9 @@ table tr td {
                                 </tbody>
                             </table>
                             </div>
-                        </div> 
+                        </div>
 
-                        <hr> 
+                        <hr>
                         <div class="form-group">
                             <label>Email Notification (optional)</label><i class="fa fa-info-circle" title="Add an email address to receive notifications when this task gets executed. Leave empty if you do not wish to receive email notifications"></i>
                             <input id="email" class="form-control" placeholder="e.g. john.doe@name.tld" name="notification_email_address" value="" type="text">
@@ -673,7 +667,7 @@ table tr td {
                             <label>Slack Notification (optional)</label><i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <input  id="slack" placeholder="e.g. https://hooks.slack.com/TXXXXX/BXXXXX/XXXXXXXXXX" class="form-control" name="notification_slack_webhook" value="" type="text">
                             <p class="d-none"></p>
-                        </div> 
+                        </div>
                         <hr>
                         <div class="form-group">
                             <label>Miscellaneous Options</label>
@@ -682,18 +676,18 @@ table tr td {
                             <input type="checkbox" name="dont_overlap" id="dont_overlap" value="1" class="mr-2">Don't Overlap
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
-                            
+
                             <input type="hidden" name="run_in_maintenance" id="run_in_maintenance" value="0" checked>
                             <input type="checkbox" name="run_in_maintenance" id="run_in_maintenance" value="1" class="mr-2">Run in maintenance mode
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
                             <br>
-                            
+
                             <input type="hidden" name="run_on_one_server" id="run_on_one_server" value="0" checked>
                             <input type="checkbox" name="run_on_one_server" id="run_on_one_server" value="1" class="mr-2">Run on a single server
                             <i class="fa fa-info-circle" title="Add a slack web hook url to recieve slack notifications. Phone numbers should include country code and are digits only. Leave empty if you do not wish to receive slack notifications"></i>
-                             
+
                             <p class="d-none"></p>
-                        </div>  
+                        </div>
                         <hr>
                         <div class="form-group">
                             <label>Cleanup Options</label><i class="fa fa-info-circle" title="Determine if an over-abundance of results will be removed after a set limit or age. Set non-zero value to enable."></i>
@@ -705,7 +699,7 @@ table tr td {
                                         <input type="radio" name="auto_cleanup_type" value="results"> Results
                                     </label>
                             <p class="d-none"></p>
-                        </div>  
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -714,7 +708,7 @@ table tr td {
                 </form>
             </div>
         </div>
-      </div>  
+      </div>
 
 
       <div id="showResultModal" class="modal fade" role="dialog" style="z-index: 999999999">
@@ -726,13 +720,13 @@ table tr td {
                 </div>
                 <div class="modal-body">
                     <h5></h5>
-                </div>  
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
 
     <div id="show-development-history" class="modal fade" role="dialog" style="z-index: 999999999">
         <div class="modal-dialog modal-lg">
@@ -742,8 +736,8 @@ table tr td {
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    
-                </div>  
+
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
@@ -784,7 +778,6 @@ table tr td {
         .select2-selection .select2-selection--multiple:after {
             content: 'hhghgh';
         }
-        /* select with icons badges single*/
         .select-icon .select2-selection__placeholder .badge {
             display: none;
         }
@@ -831,7 +824,6 @@ table tr td {
         var originalOptionBadge = $(originalOption).data('badge');
         return $('<span><i class="fa ' + $(originalOption).data('icon') + '"></i> ' + icon.text + '<span class="badge">' + originalOptionBadge + '</span></span>');
     }
-    // $('ul.pagination').hide();
      $(function() {
         $(document).on("change","#ckbCheckAll",function (e) {
             var status = $(this).is(":checked") ? true : false;
@@ -839,27 +831,12 @@ table tr td {
             $(".checkBoxClass").prop("checked",status);
         });
          $(".table").tablesorter();
-    //     $('.infinite-scroll').jscroll({
-    //         autoTrigger: true,
-    //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-    //         padding: 2500,
-    //         nextSelector: '.pagination li.active + li a',
-    //         contentSelector: 'div.infinite-scroll',
-    //         callback: function() {
-    //             $('ul.pagination').hide();
-    //             setTimeout(function(){
-    //                 $('ul.pagination').first().remove();
-    //             }, 2000);
-    //             $(".select-multiple").select2();
-    //             initialize_select2();
-    //         }
-    //     });
      });
 
     $('#command').select2({
         dropdownParent: $('#addEditTaskModal')
     });
-    
+
     $(".enable-disable").click(function () {
         let type = $(this).attr('cron-status')
         var selectedIds = []
@@ -913,16 +890,16 @@ table tr td {
         let expression = $(this).attr('data-expression');
         $.ajax({
             type: "GET",
-            url: "/totem/tasks/"+$(this).data('id'), 
+            url: "/totem/tasks/"+$(this).data('id'),
             dataType : "json",
             success: function (response) {
                 var html_content = '';
-                html_content += '<tr class="supplier-10">';      
+                html_content += '<tr class="supplier-10">';
                 html_content += '<td>' + response.task.description.substring(0, 80) + '</td>';
                 html_content += '<td>' + response.task.command + '</td>';
                 var parameters = response.task.parameters != null ? response.task.parameters : 'N/A';
                 html_content += '<td>' + parameters + '</td>';
-                html_content += '<td>' + expression + '</td>'; 
+                html_content += '<td>' + expression + '</td>';
                 html_content += '<td>' + response.task.timezone + '</td>';
                 html_content += '<td>' + response.task.created_at + '</td>';
                 html_content += '<td>' + response.task.updated_at + '</td>';
@@ -937,45 +914,45 @@ table tr td {
                 html_content += '</tr>';
 
                 if(response.task.dont_overlap || response.task.run_in_maintenance || response.task.run_on_one_server){
-                    $("#view_task_modal .notes").removeClass('d-none');                   
+                    $("#view_task_modal .notes").removeClass('d-none');
                 }
 
                 if(response.task.dont_overlap){
-                    $("#view_task_modal .dont_overlap").removeClass('d-none');                   
+                    $("#view_task_modal .dont_overlap").removeClass('d-none');
                 }
 
                 if(response.task.run_in_maintenance){
-                    $("#view_task_modal .run_in_maintenance").removeClass('d-none');                   
+                    $("#view_task_modal .run_in_maintenance").removeClass('d-none');
                 }
 
                 if(response.task.run_on_one_server){
-                    $("#view_task_modal .run_on_one_server").removeClass('d-none');                   
+                    $("#view_task_modal .run_on_one_server").removeClass('d-none');
                 }
-                $("#view_task_modal tbody").html(html_content);                   
-                $('#view_task_modal').modal('show');   
+                $("#view_task_modal tbody").html(html_content);
+                $('#view_task_modal').modal('show');
             },
             error: function () {
                 toastr['error']('Something went wrong!');
             }
         });
-    }); 
+    });
 
     $(document).off().on("click",".command-execution-error",function(e) {
-           
+
         $.ajax({
             type: "POST",
-            url: "/totem/tasks/"+$(this).data('id')+"/get-error", 
+            url: "/totem/tasks/"+$(this).data('id')+"/get-error",
             dataType : "json",
-            data:{ 
+            data:{
                 id:$(this).data('id'),
-                _token: "{{ csrf_token() }}", 
+                _token: "{{ csrf_token() }}",
              },
             dataType : "json",
             success: function (response) {
                 var t = ''
                 //$( response.data ).each(function(key, val ) {
                 var d = response.data;
-                for(let i=0; i< response.data.length; i++){ 
+                for(let i=0; i< response.data.length; i++){
                    // console.log( key + ": " + val);
                     t += '<tr><td>'+d[i].id+'</td>';
                     t += '<td>'+d[i].signature+'</td>'
@@ -984,8 +961,8 @@ table tr td {
                     t += '<td>'+d[i].status+'</td>'
                     t += '<td>'+d[i].module+'</td></tr>'
                  };
-                $("#view_execution_error tbody").html(t);                   
-                $('#view_execution_error').modal('show'); 
+                $("#view_execution_error tbody").html(t);
+                $('#view_execution_error').modal('show');
                 toastr['success'](response.message);
             },
             error: function () {
@@ -997,8 +974,8 @@ table tr td {
     $(document).on("click",".execution-history",function(e) {
         let results = JSON.parse($(this).attr('data-results'));
         var html_content = '';
-        for(let i=0; i< results.length; i++){ 
-            html_content += '<tr>'; 
+        for(let i=0; i< results.length; i++){
+            html_content += '<tr>';
             html_content += '<td>' + results[i].ran_at + '</td>';
             html_content += '<td>' + (results[i].duration / 1000).toFixed(2) + ' seconds</td>';
             html_content += `<td id="show-result" data-output="${results[i].result}"><i class="fa fa-info-circle"></i></td>`;
@@ -1007,8 +984,8 @@ table tr td {
         if(results.length == 0){
             html_content += '<tr class="text-center"><td colspan="3"><h5>' + 'Not executed yet.' + '</h5></td></tr>';
         }
-        $("#view_execution_history tbody").html(html_content);                   
-        $('#view_execution_history').modal('show'); 
+        $("#view_execution_history tbody").html(html_content);
+        $('#view_execution_history').modal('show');
     });
 
     $(document).on("click",".command-schedule",function(e) {
@@ -1069,9 +1046,9 @@ table tr td {
     });
 
     $(document).on("click","#show-result",function(e) {
-        let results = $(this).attr('data-output'); 
-        $("#showResultModal .modal-body h5").html(results);                   
-        $('#showResultModal').modal('show'); 
+        let results = $(this).attr('data-output');
+        $("#showResultModal .modal-body h5").html(results);
+        $('#showResultModal').modal('show');
     });
 
     $(document).on("click",".execute-task",function(e) {
@@ -1079,7 +1056,7 @@ table tr td {
         thiss.html(`<img src="/images/loading_new.gif" style="cursor: pointer; width: 0px;">`);
         $.ajax({
             type: "GET",
-            url: "/totem/tasks/"+$(this).data('id')+"/execute", 
+            url: "/totem/tasks/"+$(this).data('id')+"/execute",
             dataType : "json",
             success: function (response) {
                 toastr['success']('Task executed successfully!');
@@ -1094,16 +1071,16 @@ table tr td {
                 thiss.html(`<img src="/images/send.png" style="cursor: pointer; width: 0px;">`);
             }
         });
-    }); 
+    });
 
     $(document).on("click",".delete-tasks",function(e) {
         if(confirm('Do you really want to delete this task?')){
             $.ajax({
             type: "POST",
-            url: "/totem/tasks/"+$(this).data('id')+"/delete", 
+            url: "/totem/tasks/"+$(this).data('id')+"/delete",
             data: {
-				_token: "{{ csrf_token() }}", 
-            }, 
+				_token: "{{ csrf_token() }}",
+            },
             dataType : "json",
             success: function (response) {
                 if(response.status){
@@ -1120,17 +1097,17 @@ table tr td {
             }
         });
         }
-    }); 
+    });
 
     $(document).on("click",".active-task",function(e) {
         let active = $(this).attr('data-active');
         $.ajax({
             type: "POST",
-            url: "/totem/tasks/"+$(this).data('id')+"/status", 
+            url: "/totem/tasks/"+$(this).data('id')+"/status",
             data: {
                 active: active,
-				_token: "{{ csrf_token() }}", 
-            }, 
+				_token: "{{ csrf_token() }}",
+            },
             dataType : "json",
             success: function (response) {
                 if(response.status){
@@ -1146,7 +1123,7 @@ table tr td {
                 toastr['error']('Something went wrong!');
             }
         });
-    });   
+    });
 
     $('#frequency').change(function(){
         $('.added_params').remove();
@@ -1157,12 +1134,12 @@ table tr td {
                 html += `
                 <div class="form-group added_params">
                     <input type="text" value="" name="${params.parameters[i].name}" placeholder="${params.parameters[i].label}" class="form-control">
-                </div> 
+                </div>
                 `;
             }
             $(this).closest('.modal-body').append(html);
         }
-    }); 
+    });
 
     $('input[name="type"]').change(function(){
         if($(this).val() == 'expression'){
@@ -1172,7 +1149,7 @@ table tr td {
             $('.frequencies').removeClass('d-none');
             $('.cron_expression').addClass('d-none');
         }
-    }); 
+    });
 
     $(document).on('click', '.remove_td', function(){
         $(this).closest('tr').remove();
@@ -1183,7 +1160,7 @@ table tr td {
         let freq_type = JSON.parse($('#addFrequencyModal').find('select').val());
         let input_fields = $('#addFrequencyModal').find('input');
         let tr = `
-                    <tr> 
+                    <tr>
                     <td data-id="${freq}">${freq_type.label}
                         <input type="hidden" name="frequencies[${freq}][interval]" value="${freq_type.interval}">
                         <input type="hidden" name="frequencies[${freq}][label]" value="${freq_type.label}">
@@ -1197,7 +1174,7 @@ table tr td {
                     `;
         }
         if(input_fields.length == 0){
-            tr += `No Parameters`; 
+            tr += `No Parameters`;
         }
         tr += ` </td>
                 <td>
@@ -1208,17 +1185,17 @@ table tr td {
                 </tr>`;
         $('.freq').append(tr);
         freq++;
-        $('#addFrequencyModal').modal('hide');   
-    }); 
+        $('#addFrequencyModal').modal('hide');
+    });
 
     $('.submit_btn').click(function(){
-        
+
         $('.error').remove();
         let url = $('#addEditTaskModal').attr('data-id') == '' ? '/totem/tasks/create' : `/totem/tasks/${$('#addEditTaskModal').attr('data-id')}/edit`
         var form_data =  $('.taskForm').serialize();
         $.ajax({
             type: "POST",
-            url: url,  
+            url: url,
             data: form_data,
             dataType : "json",
             success: function (response) {
@@ -1365,7 +1342,7 @@ table tr td {
     $(document).on("click",".task-history",function() {
         $.ajax({
             type: "GET",
-            url: "/totem/tasks/"+$(this).data('id')+"/development-task",  
+            url: "/totem/tasks/"+$(this).data('id')+"/development-task",
             beforeSend : function() {
                 $(".ajax-loader").show();
             },
@@ -1374,19 +1351,19 @@ table tr td {
                 $("#show-development-history").find(".modal-body").html(response);
                 $("#show-development-history").modal("show");
             },
-            error: function (response) { 
+            error: function (response) {
                 $(".ajax-loader").hide();
-                if(response.status != 200){      
+                if(response.status != 200){
                     toastr['error']('Something went wrong!');
                 }
             }
         });
     });
     $('.add-torterm').click(function(){
-        $('#addEditTaskModal').modal('show');  
+        $('#addEditTaskModal').modal('show');
     });
     $('.add-remark-s').click(function(){
-        $('#addFrequencyModal').modal('show');  
+        $('#addFrequencyModal').modal('show');
     });
     $('.edit-task').click(function(){
         freq = 0;
@@ -1394,18 +1371,18 @@ table tr td {
         $('#addEditTaskModal .modal-title').html('Edit task');
         $.ajax({
             type: "GET",
-            url: "/totem/tasks/"+$(this).data('id'),  
+            url: "/totem/tasks/"+$(this).data('id'),
             dataType : "json",
             success: function (response) {
                 let task_fields = response.task;
-               
+
                 for (var key in task_fields) {
                     console.log(key);
                     if($(`input[name="${key}"]`).length != 0){
                         $(`input[name="${key}"]`).val(task_fields[key]);
                         if($(`input[type="checkbox"]`) && task_fields[key] == 1)
                             $(`input[name="${key}"]`).prop( "checked", true );
-                        
+
 
                     }else if(task_fields[key]  != null && $(`select[name="${key}"]`).length != 0){
                         $(`select[name="${key}"]`).val(task_fields[key]);
@@ -1417,11 +1394,11 @@ table tr td {
                             $('.default_td').remove();
                         }
                         for(let i=0; i<task_fields[key].length; i++){
-                            let interval = task_fields[key][i].interval; 
-                            let label = task_fields[key][i].label; 
-                            let parameters = task_fields[key][i].parameters; 
+                            let interval = task_fields[key][i].interval;
+                            let label = task_fields[key][i].label;
+                            let parameters = task_fields[key][i].parameters;
                             let tr = `
-                                        <tr> 
+                                        <tr>
                                         <td data-id="${freq}">${label}
                                             <input type="hidden" name="frequencies[${freq}][interval]" value="${interval}">
                                             <input type="hidden" name="frequencies[${freq}][label]" value="${label}">
@@ -1435,7 +1412,7 @@ table tr td {
                                         `;
                             }
                             if(task_fields[key][i].parameters.length == 0){
-                                tr += `No Parameters`; 
+                                tr += `No Parameters`;
                             }
                             tr += ` </td>
                                     <td>
@@ -1448,12 +1425,12 @@ table tr td {
                             freq++;
                         }
                     }
-                      
+
                 }
                 $('#addEditTaskModal').modal('show');
             },
-            error: function (response) { 
-                if(response.status != 200){      
+            error: function (response) {
+                if(response.status != 200){
                     toastr['error']('Something went wrong!');
                 }
             }

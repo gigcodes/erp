@@ -64,6 +64,14 @@ class RouteServiceProvider extends ServiceProvider
              ->group(base_path('routes/api.php'));
     }
 
+    protected function mapSocialRoutes()
+    {
+        Route::prefix('social')
+            ->middleware('auth')
+            ->name('social.')
+            ->group(base_path('routes/social.php'));
+    }
+
     /**
      * Configure the rate limiters for the application.
      *
