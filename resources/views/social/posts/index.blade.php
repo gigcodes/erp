@@ -56,7 +56,7 @@
                         <th style="width:5%">Image</th>
                         <th style="width:5%">Website</th>
                         <th style="width:5%">Platform</th>
-                        <th style="width:25%">Caption</th>
+                        <th style="width:25%">Body</th>
                         <th style="width:30%">Hashtags</th>
                         <th style="width:10%">Translation Approved & Post By</th>
                         <th style="width:10%">Posted on</th>
