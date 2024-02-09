@@ -42,4 +42,8 @@ class SocialPost extends Model
     {
         return $this->belongsTo(SocialConfig::class, 'config_id');
     }
+
+    protected $casts = [
+        'posted_on' => 'datetime'
+    ];
 }

@@ -10,11 +10,15 @@ const FB_GRAPH_DOMAIN = 'https://graph.facebook.com/';
  * @param  array  $params to send along with the request
  * @return array with the api response
  */
-function makeApiCall(string $endpoint, string $type, array $params): array
+function makeApiCall(string $endpoint, string $type, array $params, array|null $data): array
 {
-    // create endpoint with params
     $apiEndpoint = $endpoint . '?' . http_build_query($params);
-    $http = Http::send($type, $apiEndpoint);
+    $http = Http::send($type, $apiEndpoint, [
+        'json' => $data,
+        'headers' => [
+            'Content-Type' => 'application/json',
+        ],
+    ]);
 
     return [ // return data
         'type' => $type,
@@ -40,8 +44,9 @@ function getFacebookResults(array $params): array
     $endpointParams = [ // params for the endpoint
         'fields' => $params['fields'],
         'access_token' => $params['access_token'],
+        'data' => $params['data'] ?? null,
     ];
 
     // make the api call
-    return makeApiCall($endpoint, $params['request_type'], $endpointParams);
+    return makeApiCall($endpoint, $params['request_type'], $endpointParams, $endpointParams['data']);
 }

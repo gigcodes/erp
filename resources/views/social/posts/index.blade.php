@@ -95,9 +95,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js">
     </script>
-
     <script type="text/javascript">
-
       $(document).on("click", ".account-history", function(e) {
         e.preventDefault();
         var post_id = $(this).data("id");
