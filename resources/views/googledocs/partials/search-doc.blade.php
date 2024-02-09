@@ -11,10 +11,10 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <form id="database-form">
-                            <?php echo csrf_field(); ?>
+                            @csrf
                             <div class="row">
                                 <div class="col-12 pb-3">
-                                    <input type="text" name="task_search" class="google-doc-search-table" class="form-control" placeholder="Enter File Name">
+                                    <input type="text" name="task_search" class="google-doc-search-table form-control" placeholder="Enter File Name">
                                     <button type="button" class="btn btn-secondary btn-google-doc-search-menu" ><i class="fa fa-search"></i></button>
                                 </div>
                                 <div class="col-12">
@@ -58,13 +58,10 @@
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            // dataType: 'json',
             beforeSend: function () {
                 $("#loading-image").show();
             },
             success: function (response) {
-                console.log("Responsessssssssssss");
-                console.log(response);
                 $("#loading-image").hide();
                 $('.show-search-google-doc-list').html(response);
             },

@@ -1,7 +1,7 @@
  <!-- Platform Modal content-->
 	 <div id="code-shortcut-platform" class="modal fade in" role="dialog">
 		<div class="modal-dialog">
-  
+
 			<!-- Modal content-->
 			<div class="modal-content">
 			  <div class="modal-header">
@@ -10,7 +10,6 @@
 			  </div>
 				<form action="{{route('code-shortcuts.platform.store')}}" method="POST" id="code-shortcut-platform-form">
 					@csrf
-					@method('POST')
 					  <div class="modal-body">
 						  <div class="form-group">
 							  {!! Form::label('platform_name', 'Name', ['class' => 'form-control-label']) !!}
@@ -23,7 +22,7 @@
 					</div>
 				</form>
 			</div>
-  
+
 		</div>
 	</div>
 
@@ -40,14 +39,14 @@
                     </button>
                 </div>
                 <form method="post" enctype="multipart/form-data" id="code-shortcut-from" action="{{route('code-shortcuts.store')}}">
-                    @csrf    
+                    @csrf
                     <div class="modal-body">
-    
+
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Supplier</label>
                                     <?php echo Form::select("supplier",['' => ''],null,["class" => "form-control globalSelect2" ,"style" => "width:100%;", 'data-ajax' => route('select2.shortcutsuplliers'), 'data-placeholder' => 'supplier']); ?>
-    
+
                             </div>
                         </div>
                         <div class="col-sm-12">
@@ -68,7 +67,7 @@
                                 <input type="file" name="notesfile" id="shortnotefileInput" >
                             </div>
                         </div>
-    
+
                         <div class="col-sm-12">
                             <div class="form-group">
                                 <label>Code</label>
@@ -115,7 +114,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12" id="show_full_log_modal_content">
-                            
+
                         </div>
                     </div>
                 </div>

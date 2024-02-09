@@ -10,7 +10,6 @@
 
             <form action="{{ route('google-docs.create') }}" method="POST">
                 @csrf
-
                 <div class="modal-body">
                     <div class="form-group">
                         <strong>Document type:</strong>
@@ -27,28 +26,10 @@
                     <div class="form-group">
                         <strong>Name:</strong>
                         <input type="text" name="doc_name" value="{{ old('doc_name') }}" class="form-control input-sm" placeholder="Document Name" required>
-
                         @if ($errors->has('doc_name'))
                             <div class="alert alert-danger">{{$errors->first('doc_name')}}</div>
                         @endif
                     </div>
-
-                    {{-- <input type="text" name="doc_category" value="{{ old('doc_category') }}" class="form-control input-sm" placeholder="Document Category" required> --}}
-                    {{-- <div class="form-group">
-                        <strong>Category:</strong>
-                        <select name="doc_category" class="form-control" id="doc-category" required>
-                            <option>Select Category</option>
-                            @if (isset($googleDocCategory) && count($googleDocCategory) > 0)
-                                @foreach ($googleDocCategory as $key => $category)
-                                    <option value="{{$key}}">{{$category}}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                        @if ($errors->has('doc_category'))
-                            <div class="alert alert-danger">{{$errors->first('doc_category')}}</div>
-                        @endif
-                    </div> --}}
-
                     <div class="form-group">
                         <strong>Existing Doc Id:</strong>
                         <input type="text" name="existing_doc_id" value="{{ old('existing_doc_id') }}" class="form-control input-sm" placeholder="Existing Document ID">

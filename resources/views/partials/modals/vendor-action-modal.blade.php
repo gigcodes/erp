@@ -109,7 +109,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <form id="database-form">
-                            <?php echo csrf_field(); ?>
+                            @csrf
                             <div class="row">
                                 <div class="col-12 pb-3">
                                     @php

@@ -17,9 +17,8 @@
                         </tr>
                     </thead>
                     <tbody class="show-search-password-list" id="live-laravel-logs-summary-modal-html">
-                        
                     </tbody>
-                </table> 
+                </table>
            </div>
         </div>
     </div>

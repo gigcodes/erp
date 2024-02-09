@@ -22,12 +22,9 @@
                         </tr>
                     </thead>
                     <tbody class="show-search-password-list" id="zabbix-issues-summary-modal-html">
-                        <!-- Table rows will be dynamically populated here -->
                     </tbody>
-                </table> 
-                <!-- Pagination links -->
+                </table>
                 <div id="zabbix-issues-summary-modal-table-paginationLinks">
-                    <!-- Pagination links will be dynamically populated here -->
                 </div>
            </div>
         </div>

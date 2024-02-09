@@ -7,7 +7,6 @@
     <div class="modal-content">
       <form action="{{ url('vendors/storeshortcut') }}" method="POST" id="createVendorForm">
         @csrf
-
         <input type="hidden" id="vendor_organization_id" name="organization_id">
         <div class="modal-header">
           <h4 class="modal-title">Store a Vendor</h4>
@@ -41,9 +40,9 @@
                     <label for="body_framework" class="label-btn">Frameworks
                       <button type="button" class="add-framework" data-toggle="modal" data-target="#addFramewrokShortcutModel">Add Framework</button>
                     </label>
-                    <?php
+                    @php
                     $frameworkVer = \App\Models\VendorFrameworks::all();
-                    ?>
+                    @endphp
                     <select name="framework[]" value="" class="form-control select-multiple-s selectpicker" id="framework_s" multiple>
                       @foreach ($frameworkVer as $fVer)
                         <option value="{{$fVer->id}}">{{$fVer->name}}</option>

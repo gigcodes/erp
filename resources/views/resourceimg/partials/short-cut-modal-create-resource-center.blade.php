@@ -22,9 +22,6 @@
 </style>
 @php
 	$shortcut_resource_categories = App\ResourceCategory::where('parent_id', '=', 0)->get();
-	// $shortcut_resource_sub_categories = App\ResourceCategory::where('parent_id', '!=', 0)->get();
-
-	// dd($shortcut_resource_categories);
 @endphp
 <div class="modal fade" id="shortcut_addresource" tabindex="-1" role="dialog">
 	   	<div class="modal-dialog modal-md">
@@ -43,7 +40,7 @@
 	        			                     {!! Form::label('Select Category:') !!}
 					  		                	<div class="input-group {{ $errors->has('cat_id') ? 'has-error' : '' }}">
 				  		                		<select class="form-control" name="cat_id" data-live-search="true" id="shortcut_category_id">
-												
+
 					  		                	@foreach($shortcut_resource_categories as $s_r_c)
 					  		                		<option value="{{ $s_r_c->id }}">{{ $s_r_c->title }}</option>
 					  		                	@endforeach
@@ -106,7 +103,7 @@
 				        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i></button>
 				    </div>
 				{!! Form::close() !!}
-			</div>	
+			</div>
 	  	</div>
 	</div>
 
@@ -152,12 +149,9 @@
 		$(document).ready(function () {
 			$('#shortcut_category_id').select2({ width: "100%" });
             $('#shortcut_category_id').val(null).trigger('change');
-            $('#shortcut_category_id').change(function (e) { 
+            $('#shortcut_category_id').change(function (e) {
                 e.preventDefault();
                 $('#shortcut_sub_cat_id').html('');
-                // $('#shortcut_sub_cat_id').multiselect('rebuild');
-                // console.log($(this).val());
-                // return
                 var selected = $(this).val();
                 if (selected.length > 0) {
                     $.ajax({
@@ -170,7 +164,6 @@
                         success: function(data) {
 
                             $('#shortcut_sub_cat_id').html(data);
-                            // $('#shortcut_sub_cat_id').multiselect('rebuild');
                             $("#shortcut_sub_cat_id").select2("destroy").select2({width: "100%"});
                             $("#shortcut_sub_cat_id").val(null).trigger('change');
                         }
@@ -179,7 +172,7 @@
             });
 
 			$('#shortcut_sub_cat_id').select2({
-                width: "100%"    
+                width: "100%"
             });
 		});
     </script>
