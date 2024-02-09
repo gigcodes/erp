@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\GoogleDeveloperLogs;
 use Illuminate\Http\Request;
 
-session_start();
-
 class GoogleDeveloperLogsController extends Controller
 {
     public static function index()

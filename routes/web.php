@@ -20,9 +20,7 @@ use App\Http\Controllers\MagentoCareersController;
 use App\Http\Controllers\MindMapDiagramController;
 use App\Http\Controllers\Seo;
 use App\Http\Controllers\Cron;
-use App\Http\Controllers\Mail;
 use App\Http\Controllers\Github;
-use App\Http\Controllers\Social;
 use App\Http\Controllers\Logging;
 use App\Http\Controllers\Meeting;
 use App\Http\Controllers\gtmetrix;
@@ -237,7 +235,6 @@ use App\Http\Controllers\MonitorServerController;
 use App\Http\Controllers\PictureColorsController;
 use App\Http\Controllers\ProductListerController;
 use App\Http\Controllers\QuickCustomerController;
-use App\Http\Controllers\SocialAccountController;
 use App\Http\Controllers\StatusMappingController;
 use App\Http\Controllers\TechnicalDebtController;
 use App\Http\Controllers\VendorPaymentController;
@@ -329,7 +326,6 @@ use App\Http\Controllers\NotificationQueueController;
 use App\Http\Controllers\ProductSupervisorController;
 use App\Http\Controllers\SimplyDutyCountryController;
 use App\Http\Controllers\SimplyDutySegmentController;
-use App\Http\Controllers\SocialAccountPostController;
 use App\Http\Controllers\SopShortcutCreateController;
 use App\Http\Controllers\ZabbixWebhookDataController;
 use App\Http\Controllers\ApiResponseMessageController;
@@ -1630,10 +1626,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('monetary-account', MonetaryAccountController::class);
 
     // Mailchimp Module
-    Route::get('manageMailChimp', [Mail\MailchimpController::class, 'manageMailChimp'])->name('manage.mailchimp');
-    Route::post('subscribe', [Mail\MailchimpController::class, 'subscribe'])->name('subscribe');
-    Route::post('sendCompaign', [Mail\MailchimpController::class, 'sendCompaign'])->name('sendCompaign');
-    Route::get('make-active-subscribers', [Mail\MailchimpController::class, 'makeActiveSubscriber'])->name('make.active.subscriber');
+    //@todo there is no mailchimp controller class
+//    Route::get('manageMailChimp', [MailchimpController::class, 'manageMailChimp'])->name('manage.mailchimp');
+//    Route::post('subscribe', [MailchimpController::class, 'subscribe'])->name('subscribe');
+//    Route::post('sendCompaign', [MailchimpController::class, 'sendCompaign'])->name('sendCompaign');
+//    Route::get('make-active-subscribers', [MailchimpController::class, 'makeActiveSubscriber'])->name('make.active.subscriber');
 
     //Hubstaff Module
     Route::get('v1/auth', [Hubstaff\HubstaffController::class, 'authenticationPage'])->name('get.token');

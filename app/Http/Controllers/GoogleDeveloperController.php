@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\GoogleDeveloper;
 use Illuminate\Http\Request;
 
-session_start();
-
 class GoogleDeveloperController extends Controller
 {
     public static function getDeveloperApianr()

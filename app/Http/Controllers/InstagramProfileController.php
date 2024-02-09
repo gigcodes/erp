@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\HashTag;
-use App\Customer;
-use App\ColdLeads;
+use App\Services\Instagram\Instagram;
 use Illuminate\Http\Request;
 
-//use InstagramAPI\Instagram;
-//use InstagramAPI\Signatures;
 
-Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+//Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class InstagramProfileController extends Controller
 {

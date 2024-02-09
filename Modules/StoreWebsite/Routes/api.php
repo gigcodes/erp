@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ColorController;
+use Modules\StoreWebsite\Http\Controllers\ColorController;
+use Modules\StoreWebsite\Http\Controllers\WebsiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,4 @@ use App\Http\Controllers\ColorController;
 
 //Giving All Brands with Reference
 Route::get('colors', [ColorController::class, 'colorReference']);
-Route::get('websitesStores', [\Modules\StoreWebsite\Http\Controllers\WebsiteController::class, 'websitesStores']);
+Route::get('websitesStores', [WebsiteController::class, 'websitesStores']);
