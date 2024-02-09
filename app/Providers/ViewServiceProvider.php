@@ -121,6 +121,8 @@ class ViewServiceProvider extends ServiceProvider
                         'key_ls',
                         'pending_instructions_count',
                         'completed_instructions_count',
+                        'pending_tasks_count',
+                        'completed_tasks_count',
                         'chatIds',
                         'newMessageCount',
                         'usersop',
