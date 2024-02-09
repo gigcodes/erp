@@ -289,7 +289,7 @@ class SocialPostController extends Controller
             $post->save();
 
             Session::flash('message', 'Post created successfully');
-            return redirect()->route('post.index', ['id' => $request->config_id]);
+            return redirect()->route('social.post.index', ['id' => $request->config_id]);
         } else {
             $post = new SocialPost;
             $post->config_id = $request->config_id;
@@ -660,45 +660,6 @@ class SocialPostController extends Controller
         $resp = json_decode($resp, true);
         if (isset($resp['id'])) {
             $this->socialPostLog($config->id, $post_id, $config->platform, 'addMedia', $resp['id']);
-
-            return $resp['id'];
-        }
-
-        return '';
-    }
-
-    private function publishMedia($config, $post, $media_id, $insta_id)
-    {
-        $token = $config->token;
-        $page_id = $config->page_id;
-        $post_id = $post->id;
-        $caption = $post->post_body;
-        $postfields = "creation_id=$media_id&access_token=$token";
-        $request_params = [
-            'access_token' => $token,
-            'creation_id' => $media_id,
-            'caption' => $caption,
-        ];
-
-        $url = "https://graph.facebook.com/v12.0/$insta_id/media_publish";
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-        $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode($postfields), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'publishMedia');
-        $this->socialPostLog($config->id, $post_id, $config->platform, 'response publishMedia', $resp);
-        $resp = json_decode($resp, true);
-
-        if (isset($resp['id'])) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'publishMedia', $resp['id']);
 
             return $resp['id'];
         }
