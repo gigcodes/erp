@@ -8,12 +8,19 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    @php
+    if (isset($metaData->page_title) && $metaData->page_title != '') {
+        $title = $metaData->page_title;
+    } else {
+        $title = trim($__env->yieldContent('title'));
+    }
+    @endphp
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @else
         <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-    <title>{!! ((isset($metaData->page_title) && $metaData->page_title != '') ? $metaData->page_title : trim($__env->yieldContent('title'))) !!}</title>
+    <title>{!! $title !!}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="{{ $metaData->page_description ?? config('app.name') }}">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
