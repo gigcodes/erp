@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <form id="database-form">
-                            <?php echo csrf_field(); ?>
+                            @csrf
                             <div class="row">
                                 <div class="col-12 pb-3">
                                     @php
@@ -25,9 +25,7 @@
                                     </select>
                                     <button type="button" class="btn btn-secondary btn-vendor-search-flowchart" ><i class="fa fa-search"></i></button>
                                 </div>
-                                <div class="col-12 show-vendor-search-flowchart-list" id="">
-                                    
-                                </div>
+                                <div class="col-12 show-vendor-search-flowchart-list" id=""></div>
                             </div>
                         </form>
                     </div>
@@ -126,7 +124,7 @@
                                     <button type="button" class="btn btn-secondary btn-vendor-search-qa" ><i class="fa fa-search"></i></button>
                                 </div>
                                 <div class="col-12 show-vendor-search-qa-list" id="">
-                                    
+
                                 </div>
                             </div>
                         </form>
@@ -210,7 +208,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <form id="database-form">
-                            <?php echo csrf_field(); ?>
+                            @csrf
                             <div class="row">
                                 <div class="col-12 pb-3">
                                     @php
@@ -225,7 +223,7 @@
                                     <button type="button" class="btn btn-secondary btn-vendor-search-rqa" ><i class="fa fa-search"></i></button>
                                 </div>
                                 <div class="col-12 show-vendor-search-rqa-list" id="">
-                                    
+
                                 </div>
                             </div>
                         </form>

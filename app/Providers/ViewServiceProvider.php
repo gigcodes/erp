@@ -46,8 +46,8 @@ class ViewServiceProvider extends ServiceProvider
             $auth_user = $request->user();
             $route_name = request()->route()->getName();
             if ($auth_user) {
-                $d_taskList = DeveloperTask::select('id')->orderBy('id', 'desc')->get()->pluck('id');
-                $g_taskList = Task::select('id')->orderBy('id', 'desc')->get()->pluck('id');
+                $d_taskList = DeveloperTask::select('id')->orderBy('id', 'desc')->pluck('id');
+                $g_taskList = Task::select('id')->orderBy('id', 'desc')->pluck('id');
                 $status = MonitorServer::where('status', 'off')->count();
                 $logs = TimeDoctorLog::query()->with(['user']);
                 $dbBackupList = DatabaseBackupMonitoring::where('is_resolved', 0)->count();
@@ -55,26 +55,35 @@ class ViewServiceProvider extends ServiceProvider
                 $description = ZoomMeetingParticipant::whereNull('description')->count();
                 $todoLists = TodoList::where('user_id', $auth_user->id)->where('status', 'Active')
                     ->orderByRaw('if(isnull(todo_lists.todo_date) >= curdate() , todo_lists.todo_date, todo_lists.created_at) desc')->with('category')->limit(10)->get();
-                $statuses = TodoStatus::get();
+                $statuses = TodoStatus::all();
 
                 $liveChatUsers = LiveChatUser::where('user_id', $auth_user->id)->first();
                 $key_ls = LivechatincSetting::first();
 
-                $pending_instructions_count = Instruction::where('assigned_to',
-                    $auth_user->id)->whereNull('completed_at')->count();
-                $completed_instructions_count = Instruction::where('assigned_to',
-                    $auth_user->id)->whereNotNull('completed_at')->count();
+                // Instruction counts
+                $pending_instructions_count = Instruction::where('assigned_to', $auth_user->id)
+                    ->whereNull('completed_at')
+                    ->count();
+                $completed_instructions_count = Instruction::where('assigned_to', $auth_user->id)
+                    ->whereNotNull('completed_at')
+                    ->count();
 
-                $pending_tasks_count = Task::where('is_statutory', 0)->where('assign_to',
-                    $auth_user->id)->whereNull('is_completed')->count();
-                $completed_tasks_count = Task::where('is_statutory', 0)->where('assign_to',
-                    $auth_user->id)->whereNotNull('is_completed')->count();
+                // Task counts
+                $pending_tasks_count = Task::where('is_statutory', 0)
+                    ->where('assign_to', $auth_user->id)
+                    ->whereNull('is_completed')
+                    ->count();
+                $completed_tasks_count = Task::where('is_statutory', 0)
+                    ->where('assign_to', $auth_user->id)
+                    ->whereNotNull('is_completed')
+                    ->count();
 
                 $chatIds = cache()->remember('CustomerLiveChat::with::customer::orderby::seen_asc', 60 * 60 * 24 * 1, function () {
                     return CustomerLiveChat::with('customer')->orderBy('seen', 'asc')
                         ->orderBy('status', 'desc')
                         ->get();
                 });
+
                 $newMessageCount = CustomerLiveChat::where('seen', 0)->count();
 
                 $usersop = Sop::all();
@@ -93,37 +102,39 @@ class ViewServiceProvider extends ServiceProvider
 
                 $isAdmin = $auth_user->isAdmin();
 
-                $database_table_name = \DB::table('information_schema.TABLES')->where('table_schema', config('env.DB_DATABASE'))->get();
+                $database_table_name = \DB::table('information_schema.TABLES')
+                    ->where('table_schema', config('database.connections.mysql.database'))
+                    ->get();
                 $shell_list = shell_exec('bash ' . config('env.DEPLOYMENT_SCRIPTS_PATH') . '/webaccess-firewall.sh -f list');
 
-                $view->with('d_taskList', $d_taskList)
-                    ->with('g_taskList', $g_taskList)
-                    ->with('status', $status)
-                    ->with('logs', $logs)
-                    ->with('dbBackupList', $dbBackupList)
-                    ->with('permissionCount', $permissionCount)
-                    ->with('description', $description)
-                    ->with('todoLists', $todoLists)
-                    ->with('statuses', $statuses)
-                    ->with('liveChatUsers', $liveChatUsers)
-                    ->with('key_ls', $key_ls)
-                    ->with('pending_instructions_count', $pending_instructions_count)
-                    ->with('completed_instructions_count', $completed_instructions_count)
-                    ->with('pending_tasks_count', $pending_tasks_count)
-                    ->with('completed_tasks_count', $completed_tasks_count)
-                    ->with('chatIds', $chatIds)
-                    ->with('newMessageCount', $newMessageCount)
-                    ->with('usersop', $usersop)
-                    ->with('users', $users)
-                    ->with('userEmails', $userEmails)
-                    ->with('websites', $websites)
-                    ->with('todoCategories', $todoCategories)
-                    ->with('userLists', $userLists)
-                    ->with('storeWebsiteConnections', $storeWebsiteConnections)
-                    ->with('isAdmin', $isAdmin)
-                    ->with('database_table_name', $database_table_name)
-                    ->with('route_name', $route_name)
-                    ->with('shell_list', $shell_list);
+                $view->with(
+                    compact('d_taskList',
+                        'g_taskList',
+                        'status',
+                        'logs',
+                        'dbBackupList',
+                        'permissionCount',
+                        'description',
+                        'todoLists',
+                        'statuses',
+                        'liveChatUsers',
+                        'key_ls',
+                        'pending_instructions_count',
+                        'completed_instructions_count',
+                        'chatIds',
+                        'newMessageCount',
+                        'usersop',
+                        'users',
+                        'userEmails',
+                        'websites',
+                        'todoCategories',
+                        'userLists',
+                        'storeWebsiteConnections',
+                        'isAdmin',
+                        'database_table_name',
+                        'route_name',
+                        'shell_list'
+                    ));
             } else {
                 $view->with('route_name', $route_name)
                     ->with('isAdmin', false);
