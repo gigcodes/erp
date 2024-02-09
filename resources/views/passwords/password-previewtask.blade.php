@@ -3,8 +3,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Task Remark</h4>
-{{--                    <input type="text" name="remark_pop" class="form-control remark_pop" placeholder="Please enter remark" style="width: 200px;">--}}
-{{--                    <button type="button" class="btn btn-default sub_remark" data-password_id="">Save</button>--}}
             </div>
             <div class="modal-body">
                 <div class="col-md-12">

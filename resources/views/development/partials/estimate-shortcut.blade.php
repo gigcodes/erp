@@ -15,7 +15,7 @@ if(typeof estimatefunTaskInformationModal === 'undefined') {
         siteLoader(1);
         estimatetaskType = tasktype;
         estimateCurrTaskInformationTaskId = taskId;
-        
+
         let url = '';
         let mdl = null;
         if (tasktype == "DEVTASK") {
@@ -45,13 +45,13 @@ if(typeof estimatefunTaskInformationModal === 'undefined') {
                     mdl.find('input[name="lead_estimate_time"]').val(res.data.lead_estimate_time);
                     mdl.find('input[name="remark"]').val('');
                     mdl.find('input[name="lead_remark"]').val('');
-    
+
                     mdl.find('.cls-actual_start_date').html(res.data.actual_start_date ? res.data.actual_start_date : '-');
                     mdl.find('.cls-actual_end_date').html(res.data.actual_end_date ? res.data.actual_end_date : '-');
-    
+
                     mdl.find('.estimate-show-time-history').attr('data-id', res.data.id);
                     mdl.find('.estimate-show-time-history').attr('data-userid', res.data.user_id);
-    
+
                     if (mdl.find('.show-lead-time-history').length) {
                         mdl.find('.show-lead-time-history').attr('data-id', res.data.id);
                     }
@@ -295,70 +295,11 @@ if(typeof estimatefunTaskHistories === 'undefined') {
     }
 }
 
-// if(typeof funTaskApproveRecord === 'undefined') {
-//     function funTaskApproveRecord(btn) {
-//         let type = jQuery(btn).attr('data-recordtype');
-//         jQuery.ajax({
-//             headers: {
-//                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-//             },
-//             url: "{!! route('development-task.history.approve') !!}",
-//             type: 'POST',
-//             data: jQuery(btn).closest('form').serialize(),
-//         }).done(function(res) {
-//             siteSuccessAlert(res);
-//             siteLoader(0);
-//         }).fail(function(err) {
-//             siteErrorAlert(err);
-//             siteLoader(0);
-//         });
-//     }
-// }
-
-// if(typeof funTaskApproveHistory === 'undefined') {
-//     function funTaskApproveHistory(ele) {
-//         let type = jQuery('#modalTaskHistories').find('input[name="type"]').val();
-
-//         let mdl = jQuery('#modalTaskApprovedHistories');
-//         mdl.find('.modal-title').html('Approved History');
-//         if (type == 'start_date') {} else if (type == 'estimate_date') {} else {
-//             return;
-//         }
-
-//         siteLoader(1);
-//         jQuery.ajax({
-//             headers: {
-//                 'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-//             },
-//             url: "{{ route('development-task.history.approve-history') }}",
-//             type: 'GET',
-//             data: {
-//                 type: type,
-//                 id: estimateCurrTaskInformationTaskId
-//             }
-//         }).done(function(response) {
-//             mdl.find('.modal-body').html(response.data);
-//             mdl.modal('show');
-//             siteLoader(0);
-//         }).fail(function(err) {
-//             siteErrorAlert(err);
-//             siteLoader(0);
-//         });
-
-//     }
-// }
-
 jQuery(document).on('click', '.estimate-show-time-history', function() {
-    
+
         var userId = jQuery(this).attr('data-userid');
         var issueId = jQuery(this).attr('data-id');
         jQuery('#estimate_time_history_div table tbody').html('');
-
-        // const hasText = jQuery(this).siblings('input').val()
-        // if (!hasText) {
-        //     jQuery('#estimate_time_history_modal .revise_btn').prop('disabled', true);
-        //     jQuery('#estimate_time_history_modal .remind_btn').prop('disabled', false);
-        // }
 
         jQuery.ajax({
             url: "{{ route('development/time/history') }}",
@@ -471,13 +412,6 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
         var userId = jQuery(this).attr('data-user_id');
         var issueId = jQuery(this).attr('data-id');
         jQuery('#estimate_time_history_div table tbody').html('');
-
-        // const hasText = jQuery(this).siblings('input').val()
-        // if (!hasText) {
-        //     jQuery('#time_history_modal .revise_btn').prop('disabled', true);
-        //     jQuery('#time_history_modal .remind_btn').prop('disabled', false);
-        // }
-
         jQuery.ajax({
             url: "{{ route('task.time.history') }}",
             data: {
@@ -486,7 +420,7 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
             },
             success: function(data) {
                 if (data != 'error') {
-                    
+
                     jQuery('input[name="developer_task_id"]').val(issueId);
                     jQuery.each(data, function(i, item) {
                         if (item['is_approved'] == 1) {
@@ -593,7 +527,7 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
             });
         }
     });
-    
+
 </script>
 <div id="estimateModalTaskInformationUpdates" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -603,10 +537,10 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <?php
+                @php
                 $cls_1 = 'col-md-8';
                 $cls_2 = 'col-md-4';
-                ?>
+                @endphp
                 <div class="row">
                     <div class="col-md-4">
                         <label>Estimated Time: [In Minutes]</label>
@@ -687,10 +621,10 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <?php
+                @php
                 $cls_1 = 'col-md-8';
                 $cls_2 = 'col-md-4';
-                ?>
+                @endphp
                 <div class="row">
                     <div class="col-md-4">
                         <label>Estimated Time: [In Minutes]</label>
@@ -755,7 +689,7 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                     </div>
                 </div>
 
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -826,8 +760,6 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                 </div>
                 <div class="modal-body"></div>
                 <div class="modal-footer">
-                    {{-- <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveRecord(this)">Save</button>
-                    <button type="button" class="btn btn-secondary cls-save" onclick="funTaskApproveHistory(this)">History</button> --}}
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </form>
@@ -843,10 +775,10 @@ jQuery(document).on('click', '.estimate-show-time-history', function() {
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <?php
+                @php
                 $cls_1 = 'col-md-8';
                 $cls_2 = 'col-md-4';
-                ?>
+                @endphp
                 <div class="row">
                     <div class="col-md-4">
                         <label>Estimated Time: [In Minutes]</label>

@@ -44,38 +44,30 @@
         </div>
     </div>
 </div>
-{{-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script> --}}
 <script type="text/javascript">
     $(document).ready(function() {
         $('#e_date').datetimepicker({
             format: 'YYYY-MM-DD'
         });
-
         $('#e_time').datetimepicker({
             format: 'HH:mm'
         });
-
         $(".e_select2-vendor").select2({ tags : true});
-
     });
 
     $("#shortcut_create_event_form").submit(function (e) {
         e.preventDefault();
-        
         const modal = document.getElementById('shortcut-user-event-model');
-
         const date = modal.querySelector('#e_date').value;
         const time = modal.querySelector('#e_time').value;
         const subject = modal.querySelector('#e_subject').value;
         const description = modal.querySelector('#e_description').value;
         const contacts = modal.querySelector('#e_contacts').value;
         const type = modal.querySelector('#e_type').value;
-        const vendors = [];    
+        const vendors = [];
         $("#e_vendors :selected").each(function(){
-            vendors.push($(this).val()); 
+            vendors.push($(this).val());
         });
-
         $.post(
             '/calendar/events', {
                 date,

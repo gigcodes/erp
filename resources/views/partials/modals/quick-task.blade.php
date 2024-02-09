@@ -30,15 +30,9 @@
 
           <div class="form-group">
               <strong>Assigned To:</strong>
-              @php
-                // $quick_task_users = \App\User::all();
-              @endphp
-
               <select class="globalSelect2 form-control" data-ajax="{{ route('select2.user',['format' => 'name-email']) }}" data-live-search="true" data-size="15" id="quick_task_assign_to" name="assign_to[]" data-placeholder="Choose a User" multiple>
                 <option></option>
-                {{-- @foreach ($quick_task_users as $user)
-                  <option data-tokens="{{ $user['name'] }} {{ $user['email'] }}" value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                @endforeach --}}
+
               </select>
 
               @if ($errors->has('assign_to'))

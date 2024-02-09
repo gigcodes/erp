@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <form id="database-form">
-                            <?php echo csrf_field(); ?>
+                            @csrf
                             <div class="row">
                                 <div class="col-12 pb-3">
                                     <input type="text" name="task_search" class="password-search-table" class="form-control" placeholder="Enter Website">
@@ -30,16 +30,6 @@
                                                 <th width="15%">Remark</th>
                                                 <th width="8%">Actions</th>
                                             </tr>
-
-                                            <!-- <tr>
-                                                <th></th>
-                                                <th><input type="text" id="website" class="search form-control"></th>
-                                                <th><input type="text" id="username" class="search form-control"></th>
-                                                <th></th>
-                                                <th><input type="text" id="registered_with" class="search form-control"></th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr> -->
                                         </thead>
                                         <tbody class="show-search-password-list">
                                         </tbody>

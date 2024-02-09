@@ -1,10 +1,6 @@
-
-
 <div id="magento-commands-modal" class="modal fade" role="dialog">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 <style>
@@ -53,7 +49,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-           
+
             <div class="modal-body">
                 <div class="row">
                     <div class="col-lg-12">

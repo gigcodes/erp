@@ -197,6 +197,7 @@ return [
 
         App\Providers\EmailServiceProvider::class,
         App\Providers\ConfigServiceProvider::class,
+        App\Providers\ViewServiceProvider::class,
     ],
 
     /*
