@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\VendorFlowChartMaster;
 use Auth;
 use Hash;
 use Mail;
@@ -291,13 +292,15 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendors = json_decode($hideColumns, true);
         }
 
-        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+        $flowchart_master = VendorFlowChartMaster::all();
+        $vendor_flow_charts = VendorFlowChart::with('master')->orderBy('sorting', 'ASC')->get();
 
         $vendor_questions = VendorQuestions::orderBy('sorting', 'ASC')->get();
 
         $rating_questions = VendorRatingQuestions::orderBy('sorting', 'ASC')->get();
 
         $status_q = VendorQuestionStatus::all();
+
 
         return view('vendors.index', [
             'vendors' => $vendors,
@@ -312,6 +315,7 @@ class VendorController extends Controller
             'statusList' => $statusList,
             'dynamicColumnsToShowVendors' => $dynamicColumnsToShowVendors,
             'whatsapp' => $whatsapp,
+            'flowchart_master'=>$flowchart_master,
             'vendor_flow_charts' => $vendor_flow_charts,
             'vendor_questions' => $vendor_questions,
             'rating_questions' => $rating_questions,
@@ -1882,8 +1886,9 @@ class VendorController extends Controller
         }
     }
 
-    public function flowChart(Request $request)
+    public function flowChart(Request $request,$master_id)
     {
+        
         $VendorFlowchart = Vendor::with('category');
 
         if (request('category') != null) {
@@ -1906,19 +1911,22 @@ class VendorController extends Controller
             $dynamicColumnsToShowVendorsfc = json_decode($hideColumns, true);
         }
 
-        $vendor_flow_charts = VendorFlowChart::orderBy('sorting', 'ASC')->get();
+        $flowchart_master = VendorFlowChartMaster::where('id',$master_id)->get();
+
+        $vendor_flow_charts = VendorFlowChart::where('master_id',$master_id)->orderBy('sorting', 'ASC')->get();
 
         $vendor_categories = VendorCategory::all();
 
         $status = VendorFlowChartStatus::all();
 
-        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories', 'status'))
+        return view('vendors.flow-chart', compact('VendorFlowchart', 'dynamicColumnsToShowVendorsfc', 'totalVendor', 'vendor_flow_charts', 'vendor_categories', 'status','master_id','flowchart_master'))
             ->with('i', ($request->input('page', 1) - 1) * 25);
     }
 
     public function flowchartStore(Request $request)
     {
         $this->validate($request, [
+            'master_id' => 'required',
             'name' => 'required|string',
             'sorting' => 'required|numeric',
         ]);

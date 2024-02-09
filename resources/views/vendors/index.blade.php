@@ -275,8 +275,25 @@
 
         <button class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#newStatusColor"> Status Color</button>
         <button type="button" class="btn btn-secondary btn-xs" data-toggle="modal" data-target="#vendorsdatatablecolumnvisibilityList">Column Visiblity</button>
-        <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a>
-        <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.flow-chart')}}">Flow Chart</a>
+
+        <span class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                Flow Charts
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            <li><a class="btn"    data-toggle="modal" data-target="#newFlowChartModal">Create Flow Chart</a></li>
+            <li role="separator" class="divider"></li>
+
+                @foreach($flowchart_master as $flowchart_master_record)
+                <li><a class="btn"   target="_blank"  href="{{route('vendors.flow-chart',['id'=>$flowchart_master_record->id])}}">{{$flowchart_master_record->title}}</a></li>
+                @endforeach
+            </ul>
+        </span>
+
+        
+
+        
         @if (auth()->user()->isAdmin())
         <a class="btn btn-secondary btn-xs" style="color:white;" data-toggle="modal" data-target="#newQuestionModal">Create Question</a>
         <a class="btn btn-secondary btn-xs" target="_blank" style="color:white;" href="{{route('vendors.question-answer')}}">Vendor Question-Answer</a>
