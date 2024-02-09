@@ -6,9 +6,9 @@ namespace App\Social;
  * @SWG\Definition(type="object", @SWG\Xml(name="User"))
  */
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SocialPost extends Model
 {
@@ -27,12 +27,15 @@ class SocialPost extends Model
     protected $fillable = [
         'config_id',
         'caption',
-        'hashtag',
         'post_body',
         'post_by',
-        'translation_approved_by',
         'posted_on',
+        'ref_post_id',
+        'image_path',
         'status',
+        'hashtag',
+        'translation_approved_by',
+        'post_medium',
     ];
 
     public function account(): BelongsTo

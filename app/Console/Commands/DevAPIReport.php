@@ -10,8 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-session_start();
-
 class DevAPIReport extends Command
 {
     /**
