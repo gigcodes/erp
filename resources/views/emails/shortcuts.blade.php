@@ -227,8 +227,8 @@
                 $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
             },
             deleteQuickCategory : function(ele) {
-                var quickCategory = ele.closest("#view-quick-email").find(".quickCategory");
-                if (quickCategory.val() == "") {
+              const quickCategory = ele.closest("#view-quick-email").find(".quickCategory");
+              if (quickCategory.val() === "") {
                     alert("Please Select Category!!");
                     return false;
                 }

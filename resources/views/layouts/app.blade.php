@@ -178,7 +178,7 @@
                         @if(Auth::check())
                             <nav id="quick-sidebars">
                                 <ul class="list-unstyled components mr-1">
-                                    @if (Auth::user()->hasRole('Admin'))
+                                    @if ($isAdmin)
                                         <li>
                                             <a href="javascript:void(0);" title="Global User Search"
                                                id="menu-user-search" type="button" class="quick-icon menu-user-search"
@@ -478,7 +478,7 @@
                                             <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                                         </a>
                                     </li>
-                                    @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                                    @if ($isAdmin || Auth::user()->hasRole('HOD of CRM'))
                                         <li>
                                             <a title="Manual Payment" class="manual-payment-btn quick-icon">
                                                 <span><i class="fa fa-money fa-2x" aria-hidden="true"></i></span>
@@ -525,33 +525,31 @@
                                     <li>
                                         <input type="text" id="searchField" placeholder="Search">
                                     </li>
-                                    @auth
-                                        @if($isAdmin)
-                                            <li>
-                                                <a title="Quick Appointment Request" data-toggle="modal"
-                                                   data-target="#quickRequestZoomModal" type="button" class="quick-icon"
-                                                   style="padding: 0px 1px;">
+                                    @if($isAdmin)
+                                        <li>
+                                            <a title="Quick Appointment Request" data-toggle="modal"
+                                               data-target="#quickRequestZoomModal" type="button" class="quick-icon"
+                                               style="padding: 0px 1px;">
                                                     <span><i class="fa fa-paper-plane fa-2x"
                                                              aria-hidden="true"></i></span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <label class="switchAN">
-                                                    <input type="checkbox"
-                                                           id="availabilityToggle" @if(auth()->user()->is_online_flag==1)
-                                                        {{'checked'}}
-                                                            @endif>
-                                                    <span class="slider round"></span>
-                                                    <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif"
-                                                          id="availabilityText">@if(auth()->user()->is_online_flag==1)
-                                                            {{'On'}}
-                                                        @else
-                                                            {{'Off'}}
-                                                        @endif</span>
-                                                </label>
-                                            </li>
-                                        @endif
-                                    @endauth
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <label class="switchAN">
+                                                <input type="checkbox"
+                                                       id="availabilityToggle" @if(auth()->user()->is_online_flag==1)
+                                                    {{'checked'}}
+                                                        @endif>
+                                                <span class="slider round"></span>
+                                                <span class="text @if(auth()->user()->is_online_flag==1) {{'textLeft'}} @else {{'textRight'}} @endif"
+                                                      id="availabilityText">@if(auth()->user()->is_online_flag==1)
+                                                        {{'On'}}
+                                                    @else
+                                                        {{'Off'}}
+                                                    @endif</span>
+                                            </label>
+                                        </li>
+                                    @endif
                                     <li>
                                         <a title="Keyword Quick Replies" data-toggle="modal"
                                            data-target="#shortcut-header-modal" type="button" class="quick-icon"
