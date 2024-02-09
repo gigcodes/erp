@@ -118,7 +118,8 @@
     },
     "files": [
       "app/Helpers/common_functions.php",
-      "app/Helpers/semrush_helper.php"
+      "app/Helpers/semrush_helper.php",
+      "app/Helpers/facebook-helper.php"
     ]
   },
   "autoload-dev": {
