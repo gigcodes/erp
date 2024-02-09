@@ -32,16 +32,13 @@
             <div class="form-group">
               <strong>Username:</strong>
               <input type="text" name="username" class="form-control" value="{{ old('username') }}" required>
-
               @if ($errors->has('username'))
                 <div class="alert alert-danger">{{$errors->first('username')}}</div>
               @endif
             </div>
-
             <div class="form-group">
               <strong>Password:</strong> <a href="javascript:void(0);" class="generatepasswordadd" style=" float: right;">Generate Password</a>
               <input type="text" name="password" class="form-control password-add" value="{{ old('password') }}" required>
-
               @if ($errors->has('password'))
                 <div class="alert alert-danger">{{$errors->first('password')}}</div>
               @endif
@@ -49,10 +46,7 @@
             <div class="form-group">
                   <strong>Registered With:</strong>
                   <input type="text" name="registered_with" class="form-control"  required>
-
-
             </div>
-
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

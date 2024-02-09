@@ -38,7 +38,7 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -67,37 +67,6 @@
         });
         $('.multiselect-2').select2({width:'92%'});
         $('.select-multiple').select2({width: '100%'});
-        /*$(document).ready(function () {
-            $(document).on('click', '.pagination a', function (event) {
-                event.preventDefault();
-                $('li').removeClass('active');
-                $(this).parent('li').addClass('active');
-                var myurl = $(this).attr('href');
-                var page = $(this).attr('href').split('page=')[1];
-                getData(page);
-            });
-        });*/
-        /*$('#search_frm').submit(function(e){
-            e.preventDefault();
-            getData(1);
-        })*/
-        /*function getData(page) {
-            $.ajax(
-                {
-                    url: '?page=' + page+'&pageType='+pageType,
-                    type: "get",
-                    data: $('#search_frm').serialize(),
-                    //dataType: "json"
-                }).done(function (html) {
-                    $("#customer-list").html();
-                    //$(".page-heading").empty().html(data.heading);
-                    location.hash = page;
-                    $('.multiselect-2').select2({width:'92%'});
-                    $(".customer_message").prop("checked", all_customers.length != 0);
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        }*/
         // this is helper class we need to move to another location
         // @todo
         var siteHelpers = {
@@ -258,8 +227,8 @@
                 $(".quickCategory").append('<option value="[]" data-id="' + response.data.id + '">' + response.data.name + '</option>');
             },
             deleteQuickCategory : function(ele) {
-                var quickCategory = ele.closest("#view-quick-email").find(".quickCategory");
-                if (quickCategory.val() == "") {
+              const quickCategory = ele.closest("#view-quick-email").find(".quickCategory");
+              if (quickCategory.val() === "") {
                     alert("Please Select Category!!");
                     return false;
                 }
@@ -367,7 +336,7 @@
                   addTextToEditor('<p>'+senderName+'</p><p>'+ele.val()+'</p><p>'+response+'</p>');
                 }).fail(function(errObj) {
                 })
-                
+
             },
             leadsChart : function () {
                 var params = {
@@ -2807,9 +2776,9 @@ $(document).on('click','.set-vendor-id',function(e){
             });
 
       });
-    
+
     let customer_priority = null;
-    
+
     $(document).on('click','.set-priority',function(e){
         e.preventDefault()
         customer_id__ = $(this).data("customer_id");
@@ -2833,7 +2802,7 @@ $(document).on('click','.set-vendor-id',function(e){
                     $("#priority").val(response.data.priority) ;
                     var htmlData = '<tr><td>1</td><td>Lead Point</td><td>'+response.data.lead_count+'</td></tr><tr><td>2</td><td>Orders Point</td><td>'+response.data.orders_count+'</td></tr><tr><td>3</td><td>Refund Point</td><td>'+response.data.refund_count+'</td></tr><tr><td>4</td><td>Tickets Point</td><td>'+response.data.tickets_count+'</td></tr><tr><td>5</td><td>Return Point</td><td>'+response.data.returns_count+'</td></tr>';
                     $('.info_priority').html(htmlData);
-                    
+
                 }else{
                     var htmlData = '<tr><td>1</td><td>Lead Point</td><td>0</td></tr><tr><td>2</td><td>Orders Point</td><td>0</td></tr><tr><td>3</td><td>Refund Point</td><td>0</td></tr><tr><td>4</td><td>Tickets Point</td><td>0</td></tr><tr><td>5</td><td>Return Point</td><td>0</td></tr>';
                     $('#priority-form')[0].reset()

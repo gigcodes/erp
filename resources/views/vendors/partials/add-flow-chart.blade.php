@@ -8,6 +8,21 @@
             </div>
             <form style="padding:10px;" action="{{ route('vendor.flowchart.store') }}" method="POST">
                 @csrf
+
+                <div class="form-group">
+                    <select name="master_id" class="form-control" required @if($flowchart_master->count() == 1) {{'readonly'}} @endif>
+                        <option @if($flowchart_master->count() == 1) {{'disabled'}} @endif value="" >Select Type</option>
+                        @foreach($flowchart_master as $flowchart_master_record)
+                        <option @if($flowchart_master->count() == 1) {{'selected'}} @endif value="{{$flowchart_master_record->id}}">{{$flowchart_master_record->title}}</option>
+                        @endforeach
+
+                    </select>
+
+                    @if ($errors->has('master_id'))
+                        <div class="alert alert-danger">{{$errors->first('master_id')}}</div>
+                    @endif
+                </div>
+
                 <div class="form-group">
                     <input type="text" class="form-control" name="name" placeholder="Name" value="{{ old('name') }}" required>
 
@@ -30,12 +45,14 @@
             <div class="form-group col-md-12">
                 <table cellpadding="0" cellspacing="0" border="1" class="table table-bordered">
                     <tr>
+                        <td class="text-center"><b>Type</b></td>
                         <td class="text-center"><b>Flow Chart</b></td>
                         <td class="text-center"><b>Sorting</b></td>
                     </tr>
                     <?php
                     foreach ($vendor_flow_charts as $vendorflowchart) { ?>
                     <tr>
+                        <td><?php echo ($vendorflowchart->master ? $vendorflowchart->master->title : ''); ?></td>
                         <td><?php echo $vendorflowchart->name; ?></td>
                         
                         <td>

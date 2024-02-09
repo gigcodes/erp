@@ -8,8 +8,8 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="create-event-submit-form" action="<?php echo route('event.store') ?>" method="post">
-                    {{ csrf_field() }}    
+                <form id="create-event-submit-form" action="{{route('event.store')}}" method="post">
+                    @csrf
                     <div class="form-group">
                         <div class="form-check-inline">
                             <label class="form-check-label event-type-label" for="public">
@@ -37,7 +37,6 @@
                         <label for="event-name">Event User</label>
                         <select name="event_user_id" id="event_user_id" class="form-control select2">
                             <option value="">-- Select User --</option>
-                            @php  $users =  \App\User::get(); @endphp
                             @foreach ($users as $user)
                                 <option value="{{$user->id}}">{{$user->name}}</option>
                             @endforeach
@@ -151,7 +150,7 @@
                         <input type="date" name="end_date" id="event-end-date" value="{{ date('Y-m-d') }}" class="form-control input-sm" placeholder="Select End Date">
                         <span id="end_date_error" class="text-danger"></span>
                     </div>
-                                     
+
                     <div class="form-group">
                         <table class="table table-bordered table-hover">
                             <tbody>
@@ -258,7 +257,7 @@
                                 <tr class="day-row saturday">
                                     <td><input type="checkbox" name="event_availability[6][day]"></td>
                                     <td>SAT</td>
-                                    <td>  
+                                    <td>
                                         <div class="input-group clockpicker">
                                          <input name="event_availability[6][start_at]" class="form-control clockpicker" placeholder="Start Time" type="text">
                                          <span class="input-group-addon">
@@ -294,7 +293,7 @@
                                             </span>
                                         </div>
                                     </td>
-                                 
+
                                 </tr>
                             </tbody>
                         </table>
@@ -303,27 +302,21 @@
                     <div class="form-group pull-right">
                         <input id="event-submit" class="btn btn-secondary" type="submit">
                     </div>
-               </form> 
+               </form>
            </div>
         </div>
     </div>
 </div>
-   
+
 <script type="text/javascript">
 $(document).ready(function() {
-
     var days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-
     function updateDayRows(startDate, endDate) {
         $('.day-row').hide();
-    
     var currentDate = new Date(startDate);
-    
         while (currentDate <= endDate) {
             var currentDay = currentDate.getDay();
             $('.' + days[currentDay]).show();
-            
-            // Move to the next day
             currentDate.setDate(currentDate.getDate() + 1);
         }
     }

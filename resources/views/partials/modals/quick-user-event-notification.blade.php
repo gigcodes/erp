@@ -9,18 +9,18 @@
             </div>
             <div class="modal-body">
                 <form id="notification-submit-form" action="<?php echo route('calendar.event.create') ?>" method="post">
-                    {{ csrf_field() }}    
+                    @csrf
                     <div class="form-group">
                         <label for="notification-date">Date</label>
                         <input id="notification-date" name="date" class="form-control" type="text">
                         <span id="date_error" class="text-danger"></span>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="notification-time">Time</label>
                         <input id="notification-time" name="time" class="form-control" type="text">
                         <span id="time_error" class="text-danger"></span>
-                    </div>    
+                    </div>
                     <div class="row">
                         <div class="form-group col-6">
                             <label for="notification-time">Repeat</label>
@@ -30,7 +30,7 @@
                                 <option value="weekly">Weekly</option>
                                 <option value="monthly">Monthly</option>
                             </select>
-                        </div>    
+                        </div>
                         <div class="form-group col-6 hide" id="repeat_on">
                             <label for="notification-time">Repeat on</label>
                             <select name="repeat_on" class="form-control">
@@ -43,7 +43,7 @@
                                 <option value="sunday">Sunday</option>
                             </select>
                         </div>
-                    </div> 
+                    </div>
                     <div class="row">
                         <div class="form-group col-6 hide" id="ends_on">
                             <label for="notification-time">Ends</label>
@@ -52,7 +52,7 @@
                                 <option value="never">Never</option>
                                 <option value="on">On</option>
                             </select>
-                        </div>    
+                        </div>
                         <div class="form-group col-6 hide" id="repeat_end_date">
                             <label for="repeat_end_date">Select date</label>
                             <input id="repeat_end" name="repeat_end_date" class="form-control" type="text">
@@ -90,7 +90,7 @@
                         <label for="timezone">Participants Time zone</label>
                         <select name="timezone" id="timezone" class="form-control">
                             <option value="">Select option</option>
-                            @foreach (timezone_identifiers_list() as $zone) 
+                            @foreach (timezone_identifiers_list() as $zone)
                                 <option value="{{$zone}}">{{$zone}}</option>
                             @endforeach
                         </select>
@@ -127,7 +127,7 @@
                     <div class="form-group">
                         <input id="notification-submit" class="btn btn-secondary" type="submit">
                     </div>
-               </form> 
+               </form>
            </div>
         </div>
     </div>

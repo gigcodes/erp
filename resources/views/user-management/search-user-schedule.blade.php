@@ -1,10 +1,3 @@
-@php
-    if (!isset($users)) {
-        $users = \App\User::select('id', 'name', 'email')
-            ->orderBy('name')
-            ->get();
-    }
-@endphp
 <div id="searchUserSchedule" class="modal fade" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -26,11 +19,8 @@
                                     <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                             </select>
-                            {{-- <button style="" class="btn btn-sm btn-image p-3 mb-2 mr-4" title="Search" onclick="funUserAvailabilitySearchShortcut()">
-                                <img src="/images/search.png" style="cursor: nwse-resize;">
-                            </button> --}}
                             <span id="add-user-availability-button-container">
-                                
+
                             </span>
                         </div>
                     </div>
@@ -65,11 +55,11 @@
             <button type="button" class="close" data-dismiss="modal">&times;</button>
           </div>
           <div class="modal-body">
-            <?php
+            @php
             $cls_1 = 'col-md-6';
             $cls_2 = 'col-md-6';
-            ?>
-  
+            @endphp
+
             <div class="row">
               <div class="col-md-12">
                 <label>Days:</label>
@@ -84,9 +74,9 @@
                 </div>
               </div>
             </div>
-  
+
             <hr />
-  
+
             <div class="row">
               <div class="{{$cls_1}}">
                 <label>From Date:</label>
@@ -107,9 +97,9 @@
                 </div>
               </div>
             </div>
-  
+
             <hr />
-                     
+
             <div class="row">
               <div class="{{$cls_1}}">
                 <label>From Lunch Time:</label>
@@ -130,7 +120,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="row">
               <div class="col-md-4">
                 <label>Start Time:</label>
@@ -151,9 +141,7 @@
                 </div>
               </div>
             </div>
-  
             <hr />
-  
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="funUserAvailabilitySaveShortcut(this)">Save</button>
@@ -168,28 +156,18 @@
         setTimeout(() => {
             $('#select-user-to-check-availability').select2();
         }, 500);
-        // $('#searchUserSchedule').on('shown.bs.modal', function (e) {
-        //     $('#select-user-to-check-availability').select2('destroy');
-        //     $('#select-user-to-check-availability').select2();
-        // })
-
-        $("#select-user-to-check-availability").change(function (e) { 
+        $("#select-user-to-check-availability").change(function (e) {
             $("#user-availability-table tbody").html("<tr><td colspan='6'>Loading...</td></tr>");
             $("#add-user-availability-button-container").html("");
             funUserAvailabilitySearchShortcut();
         });
-
         applyDatePicker(jQuery('.cls-datepicker'));
         applyTimePicker(jQuery('.cls-timepicker'));
-        
     });
 
     if (typeof funUserAvailabilitySaveShortcut !== "function") {
         function funUserAvailabilitySaveShortcut(ele) {
             let frm = jQuery(ele).closest('form');
-
-            // frm.find('input[name="user_id"]').val(currModalUserAvailabilityListUserId);
-
             siteLoader(1);
             jQuery.ajax({
                 headers: {
@@ -241,7 +219,6 @@
             $("#add_avalibility_user_id").val(user_id);
             let mdl = jQuery('#modalUserAvailabilityFormShortcut');
             let frm = mdl.find('form');
-
             frm.find('input[name="from"]').val('');
             frm.find('input[name="to"]').val('');
             frm.find('input[name="id"]').val('');
@@ -249,7 +226,6 @@
             frm.find('input[name="end_time"]').val('');
             frm.find('input[name="lunch_time"]').val('');
             frm.find('input[name="day[]"]').prop('checked', false);
-
             mdl.modal('show');
         }
     }

@@ -148,7 +148,7 @@ class Select2Controller extends Controller
         foreach ($users as $user) {
             $text = $user->name;
 
-            if ($request->format === 'name-email') {
+            if ($request->get('format') === 'name-email') {
                 $text = $user->name . ' - ' . $user->email;
             }
 
@@ -180,7 +180,7 @@ class Select2Controller extends Controller
         foreach ($users as $user) {
             $text = $user->name;
 
-            if ($request->format === 'name-email') {
+            if ($request->get('format') === 'name-email') {
                 $text = $user->name . ' - ' . $user->email;
             }
 
@@ -205,7 +205,7 @@ class Select2Controller extends Controller
         foreach ($vendors as $user) {
             $text = $user->name;
 
-            if ($request->format === 'name-email') {
+            if ($request->get('format') === 'name-email') {
                 $text = $user->name . ' - ' . $user->email;
             }
 

@@ -9,5 +9,10 @@ class VendorFlowChart extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name','created_by','sorting'];
+    protected $fillable = ['name','created_by','sorting','master_id'];
+
+    public function master()
+    {
+        return $this->belongsTo(VendorFlowChartMaster::class);
+    }
 }

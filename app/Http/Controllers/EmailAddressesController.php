@@ -896,4 +896,12 @@ class EmailAddressesController extends Controller
 
         return view('email-addresses.email-run-log-listing', compact('emailJobs'));
     }
+
+    public  function setEmailAlert(Request $request) {
+        $emailAddressId = $request->id;
+        $emaiAddress = EmailAddress::findorfail($emailAddressId);
+        $emaiAddress->email_alert = $request->email_alert == "true" ? 1 : 0;
+        $emaiAddress->save();
+        return ['status'=>true,'message'=>'Email alert Updated'];
+    }
 }

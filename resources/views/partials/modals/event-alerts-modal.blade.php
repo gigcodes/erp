@@ -22,7 +22,6 @@
                     <div class="col-lg-12">
                         <div class="row">
                             <div class="col-12" id="event-alerts-modal-html">
-
                             </div>
                         </div>
                     </div>
