@@ -33,9 +33,12 @@
             <a href="javascript:" data-id="{{ $post->id }}" class="account-history">
                 <i class="fa fa-history" title="History"></i>
             </a>
-            <a href="{{ url('social/'.$post->ref_post_id.'/comments') }}">
-                <i class="fa fa-envelope" aria-hidden="true" title="comment"></i>
-            </a>
+            @if($post->ref_post_id)
+                <a href="{{ route('social.account.comments',$post->ref_post_id) }}">
+                    <i class="fa fa-envelope" aria-hidden="true" title="comment"></i>
+                </a>
+            @endif
+
             <a href="javascript:" data-id="{{ $post->ref_post_id }}" class="post-delete">
                 <i class="fa fa-trash-o" title="Delete Post"></i>
             </a>
