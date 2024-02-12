@@ -23,6 +23,7 @@ return [
         'files',
         'adsapi',
         'google_ads',
+        's3'
     ],
 
     /*
