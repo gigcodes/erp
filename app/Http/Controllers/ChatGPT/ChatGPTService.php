@@ -140,11 +140,6 @@ class ChatGPTService
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
-            //            CURLOPT_HTTPHEADER => [
-            //                'Content-Type: multipart/form-data',
-            ////                'Content-Type: application/json',
-            //                'Authorization: Bearer ' . $this->api_key,
-            //            ],
             CURLOPT_HTTPHEADER => $header,
         ]);
 
@@ -180,12 +175,8 @@ class ChatGPTService
     {
         try {
             $string = @unserialize($string);
-//            echo "<pre>";print_r('---');print_r($string);die();
-//            if (is_array($string)) {
-//                return implode(' , ', $string);
-//            } else {
+
             return $string;
-//            }
         } catch (Exception $e) {
             return $string;
         }
