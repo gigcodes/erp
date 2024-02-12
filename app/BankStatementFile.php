@@ -13,7 +13,7 @@ class BankStatementFile extends Model
         'path',
         'mapping_fields',
         'status',
-        'created_by'
+        'created_by',
     ];
 
     public function user()

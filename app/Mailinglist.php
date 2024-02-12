@@ -53,7 +53,6 @@ class Mailinglist extends Model
         $api_key = (isset($website->send_in_blue_smtp_email_api) && $website->send_in_blue_smtp_email_api != '') ? $website->send_in_blue_smtp_email_api : getenv('SEND_IN_BLUE_SMTP_EMAIL_API');
 
         if (strpos(strtolower($service->name), strtolower('SendInBlue')) !== false) {
-            //if(!empty($mailing_item['static_template'])) {
             $emailEvent = EmailEvent::create(['list_contact_id' => $mailingList->list_contact_id, 'template_id' => $mailing_item->id]);
             $htmlContent = $emailClass['template'];
             $data = [
@@ -85,9 +84,7 @@ class Mailinglist extends Model
             $response = json_decode($response);
             curl_close($curl);
 
-        //}
         } elseif (strpos($service->name, 'AcelleMail') !== false) {
-            //if(!empty($mailing_item['static_template'])) {
             $htmlContent = $emailClass['template'];
             $curl = curl_init();
 
@@ -106,7 +103,6 @@ class Mailinglist extends Model
             $response = curl_exec($curl);
             $response = json_decode($response);
             curl_close($curl);
-            //}
         }
     }
 }

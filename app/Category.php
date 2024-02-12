@@ -346,10 +346,6 @@ class Category extends Model
                             }
                         }
                     }
-                } else {
-                    // Add additional category to tree
-                    /*if ( !empty( $categoryInstance->show_all_id ) )
-                        $categoryTree[] = $categoryInstance->show_all_id;*/
                 }
 
                 // Set new parent ID
@@ -818,12 +814,6 @@ class Category extends Model
 
         $mainCategory = false;
 
-        // // dd($categoryy[0]);
-        // foreach($categoryy as $key=> $cat){
-
-        //     self::$categories_with_childs[$cat->title] = $cat;
-        // }
-        // dd(self::$categories_with_childs);
         if (! empty($expression)) {
             foreach ($expression as $exr) {
                 foreach ($liForMen as $li) {
@@ -892,7 +882,6 @@ class Category extends Model
 
     public static function updateCategoryAutoSpace($name)
     {
-        //$expression = explode(" ",$name);
         $categories = \App\Category::where('id', '!=', 143)->get();
         $matchedWords = [];
         foreach ($categories as $cat) {
@@ -911,9 +900,6 @@ class Category extends Model
         }
 
         $latestMatch = $matchedWords;
-
-        //ksort($matchedWords);
-
         $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
         $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
         $liForKids = ['KIDS'];

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PayentMailData extends Model
 {
-    //
     protected $table = 'payment_mail_records';
 
     protected $fillable = [

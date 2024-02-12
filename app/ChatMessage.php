@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Elasticsearch\Elasticsearch;
 use Plank\Mediable\Mediable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,6 +38,7 @@ class ChatMessage extends Model
     const ERROR_STATUS_SUCCESS = 0;
 
     const ERROR_STATUS_ERROR = 1;
+
     const ELASTIC_INDEX = 'messages';
 
     use Mediable;

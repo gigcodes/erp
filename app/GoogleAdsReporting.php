@@ -39,17 +39,6 @@ class GoogleAdsReporting extends Model
         return $this->belongsTo(\App\GoogleAdsGroup::class, 'google_adgroup_id', 'google_adgroup_id');
     }
 
-    // public function ad(){
-
-    //     if($this->campaign_type == "SEARCH"){
-    //         return $ad = \App\GoogleAd::where('google_ad_id', $this->google_ad_id)->first();
-    //     }else if($this->campaign_type == "DISPLAY"){
-    //         return $ad = \App\Models\GoogleResponsiveDisplayAd::where('google_ad_id', $this->google_ad_id)->first();
-    //     } else if($this->campaign_type == "MULTI_CHANNEL"){
-    //         return $ad = \App\Models\GoogleAppAd::where('google_ad_id', $this->google_ad_id)->first();
-    //     }
-    // }
-
     public function search_ad()
     {
         return $this->belongsTo(\App\GoogleAd::class, 'google_ad_id', 'google_ad_id');

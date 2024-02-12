@@ -23,6 +23,5 @@ class HistoryWhatsappNumber extends Model
 
     public $table = 'history_whatsapp_number';
 
-    //
     protected $fillable = ['date_time', 'object', 'object_id', 'old_number', 'new_number'];
 }

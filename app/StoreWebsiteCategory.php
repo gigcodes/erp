@@ -38,7 +38,6 @@ class StoreWebsiteCategory extends Model
 
     public function storeAndGetPlatformId($store_website_id, $categoryId, $storeValue, $url, $api_token, $replyId = 0)
     {
-        // \Log::info('Category Id generating');
 
         $categoryDetails = \App\ReplyCategory::find($categoryId);
 

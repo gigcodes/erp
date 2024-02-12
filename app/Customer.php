@@ -31,8 +31,6 @@ class Customer extends Model
      * @SWG\Property(property="do_not_disturb",type="sting")
      */
     use SoftDeletes;
-
-    // protected $appends = ['communication'];
     protected $fillable = [
         'name',
         'email',

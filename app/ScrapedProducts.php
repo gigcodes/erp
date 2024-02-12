@@ -66,11 +66,9 @@ class ScrapedProducts extends Model
         ini_set('max_execution_time', 300);
         // Check array
         if (! is_array($arrBulkJson) || count($arrBulkJson) == 0) {
-            // return false
             return false;
         }
 
-        // Set count to 0
         $count = 0;
 
         //Created product count
@@ -121,15 +119,6 @@ class ScrapedProducts extends Model
                         $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
                         $scrapedProduct->save();
 
-                        // Add to scrap statistics
-                        // $scrapStatistics = new ScrapStatistics();
-                        // $scrapStatistics->supplier = $json->website;
-                        // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
-                        // $scrapStatistics->brand = $brandName;
-                        // $scrapStatistics->url = $json->url;
-                        // $scrapStatistics->description = $json->sku;
-                        // $scrapStatistics->save();
-
                         // Create the product
                         $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
                         if (is_array($productsCreatorResult)) {
@@ -159,15 +148,6 @@ class ScrapedProducts extends Model
                         $scrapedProduct->is_sale = $json->is_sale;
                         $scrapedProduct->properties = $json->properties;
                         $scrapedProduct->save();
-
-                        // Add to scrap statistics
-                        // $scrapStatistics = new ScrapStatistics();
-                        // $scrapStatistics->supplier = $json->website;
-                        // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
-                        // $scrapStatistics->brand = $brandName;
-                        // $scrapStatistics->url = $json->url;
-                        // $scrapStatistics->description = $json->sku;
-                        // $scrapStatistics->save();
 
                         // Create the product
                         $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
