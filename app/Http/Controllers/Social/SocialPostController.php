@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Social;
 use Auth;
 use Crypt;
 use Session;
-use Storage;
 use Response;
 use App\Setting;
 use App\LogRequest;
@@ -175,7 +174,7 @@ class SocialPostController extends Controller
             }
 
             return view('social.posts.viewpost', compact('collection'));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->socialPostLog($config->id, $config->id, $config->platform, 'error', $e);
             Session::flash('message', $e);
             \Log::error($e);
@@ -250,7 +249,7 @@ class SocialPostController extends Controller
 
             $website = StoreWebsite::where('id', $config->store_website_id)->first();
             $media = $website->getMedia('website-image-attach');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             Session::flash('message', $e);
 
             \Log::error($e);
@@ -282,9 +281,7 @@ class SocialPostController extends Controller
 
         $data['caption'] = $post->caption;
         $data['published'] = 'true';
-        //$data['access_token']=$config->page_token;
         $pageToken = $this->getPageAccessToken($config, $fb, $post->id);
-        //    dd($pageToken);
 
         $data['message'] = $post->post_body;
         $data['post_body'] = $post->post_body;
@@ -292,9 +289,7 @@ class SocialPostController extends Controller
         $multiPhotoPost['attached_media'] = [];
         if ($request->file('source')) {
             $file = $request->file('source');
-
             $name = time() . '.' . $file->extension();
-
             $file->move(public_path() . '/social_images/', $name);
             $imagePath = public_path() . '/social_images/' . $name;
             $data['source'] = $fb->fileToUpload($imagePath);
@@ -381,8 +376,8 @@ class SocialPostController extends Controller
                             try {
                                 foreach ($request->file('source') as $key => $source) {
                                     $media = MediaUploader::fromSource($source)
-                                            ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
-                                            ->upload();
+                                        ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
+                                        ->upload();
                                     $post->attachMedia($media, config('constants.media_tags'));
                                 }
 
@@ -393,7 +388,6 @@ class SocialPostController extends Controller
                                     $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
                                     foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
                                         $mediaurl = $file->getUrl();
-                                        //$mediaurl = 'https://www.1800flowers.com/blog/wp-content/uploads/2017/03/single-red-rose.jpg';
                                         $post->posted_on = $request->input('date');
                                         $post->image_path = $mediaurl;
                                         $post->status = 2;
@@ -404,7 +398,7 @@ class SocialPostController extends Controller
                                 \Log::info($e); // handle exception
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                             }
-                        }	// Video Case
+                        }    // Video Case
                         elseif ($request->hasFile('video1')) {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
                             try {
@@ -412,7 +406,6 @@ class SocialPostController extends Controller
                                 ini_set('max_execution_time', '-1');
                                 $access_token = $config->page_token;
                                 $page_id = $config->page_id;
-                                //  $message = $request->input('message');
                                 $media = MediaUploader::fromSource($request->file('video1'))
                                     ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
                                     ->upload();
@@ -425,36 +418,6 @@ class SocialPostController extends Controller
                                 $post->image_path = $mediaurl;
                                 $post->status = 2;
                                 $post->save();
-
-                                // $uploadUrl = "https://graph-video.facebook.com/v16.0/{$page_id}/videos";
-                                // $curl = curl_init($uploadUrl);
-                                // curl_setopt($curl, CURLOPT_POST, true);
-                                // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                                // curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                                //     'file_url' =>  $mediaurl,
-                                //     'access_token' => $access_token,
-                                //     'description' => $message
-                                // ));
-
-                                // // execute the cURL request and handle any errors
-                                // $response = curl_exec($curl);
-                                // if ($response === false) {
-                                //     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
-                                // }
-                                // $response = json_decode($response);
-                                // curl_close($curl);
-
-                                // if(isset($response->id)){
-                                //     $post->status = 1;
-                                //     $post->ref_post_id = $response->id;
-                                //     $post->save();
-                                //     Session::flash('message', 'Content Posted successfully');
-                                //     $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                                // }else{
-                                //     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
-                                //     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', 'post faild');
-                                //     Session::flash('message', $response->error->message);
-                                // }
                             } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
                             }
@@ -467,7 +430,6 @@ class SocialPostController extends Controller
                             foreach ($request->image as $key => $source) {
                                 $fbImage = [
                                     'access_token' => $access_token,
-                                    //'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg',
                                     'url' => $source,
                                     'caption' => $message,
                                 ];
@@ -476,25 +438,8 @@ class SocialPostController extends Controller
                                 $post->image_path = $source;
                                 $post->status = 2;
                                 $post->save();
-
-                                // $response = SocialHelper::curlPostRequest($image_upload_url,$fbImage);
-                                // $response = json_decode($response);
-
-                                // if (isset($response->error->message)) {
-                                //     $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $response->error->message);
-                                // }else{
-
-                                //     $post->posted_on = $request->input('date');
-                                //     $post->status = 1;
-                                //     if (isset($response->post_id)) {
-                                //         $post->ref_post_id = $response->post_id;
-                                //     }
-                                //     $post->save();
-                                //     $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                                // }
                             }
-                        }
-                        // Simple Post Case
+                        } // Simple Post Case
                         else {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to text post');
 
@@ -508,30 +453,6 @@ class SocialPostController extends Controller
                             $post->posted_on = $request->input('date');
                             $post->status = 2;
                             $post->save();
-
-                            // $curlSession = curl_init($apiEndpoint);
-
-                            // curl_setopt($curlSession, CURLOPT_POST, true);
-                            // curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
-
-                            // $response = curl_exec($curlSession);
-                            // curl_close($curlSession);
-
-                            // $responseData = json_decode($response, true);
-
-                            // if (isset($responseData->error->message)) {
-                            //     Session::flash('message', $responseData->error->message);
-                            // } else {
-
-                            //     if (isset($responseData['id'])) {
-                            //         $post->status = 1;
-                            //         $post->ref_post_id = $responseData['id'];
-                            //     }
-
-                            //     $post->save();
-                            //     Session::flash('message', 'Content Posted successfully');
-                            //     $this->socialPostLog($config->id, $post->id, $config->platform, 'success', 'post saved success');
-                            // }
                         }
                     } else {
                         $post = new SocialPost;
@@ -548,21 +469,6 @@ class SocialPostController extends Controller
                         if ($insta_id != '') {
                             $this->socialPostLog($config->id, $post->id, $config->platform, 'get-insta-id', $insta_id);
                             $images = [];
-
-                            /*foreach($request->file('source') as $key =>$source)
-                            {
-                                dd($source);
-                                $filename = str_random(40).'_'.$source[0]->getClientOriginalName();
-
-                                $source->move(public_path().'/social_images/', $filename);
-                                //        $path = $request->files[$key]->store('social_images');
-                                $path =  asset('social_images/'.$filename);
-                                $media_id = $this->addMedia($config,$post,$path,$insta_id);
-
-                                dd($path);
-
-
-                            }*/
 
                             if ($request->hasfile('source')) {
                                 ini_set('memory_limit', '-1');   // Added memory limit allowing maximum memory
@@ -587,7 +493,6 @@ class SocialPostController extends Controller
                             if (isset($request['image'])) {
                                 foreach ($request['image'] as $key => $value) {
                                     $mediaurl = $value;
-                                    //$mediaurl="https://th-thumbnailer.cdn-si-edu.com/i_y5C_IJJg3PLZUKzJ15hJt-C1E=/1072x720/filters:no_upscale()/https://tf-cmsv2-smithsonianmag-media.s3.amazonaws.com/filer/a9/ff/a9ff31d0-aecd-464e-80c7-873e4651cd2b/mufasa.jpeg";
                                     $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id, $message);
 
                                     if (! empty($media_id)) {
@@ -608,9 +513,6 @@ class SocialPostController extends Controller
                                 $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
                                 foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
                                     $mediaurl = $file->getUrl();
-                                    // $mediaurl = 'https://www.1800flowers.com/blog/wp-content/uploads/2017/03/single-red-rose.jpg';
-
-                                    // $mediaurl="https://thumbs.dreamstime.com/b/red-rose-4590099.jpg";
                                     $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id, $message);
                                     if (! empty($media_id)) {
                                         $res = $this->publishMedia($config, $post, $media_id, $insta_id);
@@ -622,30 +524,13 @@ class SocialPostController extends Controller
                                     }
                                 }
                             }
-
-                            //    $mediaurl="https://images.unsplash.com/photo-1550330562-b055aa030d73?ixlib=rb-1.2.1";
                         }
                     }
                 } else {
                     return redirect()->back()->withError('Error in creating post');
                 }
             }
-
-            //$this->page_access_token = $this->getPageAccessToken($config, $this->fb, $post->id);
-            // $this->page_access_token = $config->page_token;
-            // $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'get page access token');
-            // $request->validate([
-            // 	'message' => 'required',
-            // 	'source.*' => 'mimes:jpeg,bmp,png,gif,tiff,jpg',
-            // //	'video' =>'mimes:3g2,3gp,3gpp,asf,avi,dat,divx,dv,f4v,flv,gif,m2ts,m4v,mkv,mod,mov,mp4,mpe, mpeg,mpeg4,mpg,mts,nsv,ogm,ogv,qt,tod,tsvob,wmv',
-
-            // ]);
-
-            // Message
-
-            // $message = $request->input('message');
-            // $message = $message . ' ' . $request->input('hashtags');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
             Session::flash('message', $e);
 
@@ -687,7 +572,6 @@ class SocialPostController extends Controller
         $data['password'] = Crypt::encrypt($request->password);
         $config->fill($data);
         $config->save();
-        // $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed  Config');
     }
@@ -727,13 +611,10 @@ class SocialPostController extends Controller
 
         try {
             $token = $config->token;
-
-            // 'EAAIALK1F98IBAEOcpbWHkBG2KyDfaqNoFWpgvxBw9k5wWn2RiQYXlsQFhzoQYHp9ZCwxjuM3Y3IMKKyGVYIvn2WM3bTGBxNbRR18OtbTtJFH2kZBsZCmPDMnZBuK8QkGQbrhdKrjLYAZB1y8WNRd5CtdnoJfv6Mvk4p5fLbZAd9CbbaaBc44espdHp2obEpxdIPPhB8QoqXXD7D3TwxypmOSFLTlzcOvqdUGuqyHZA5qAZDZD';
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
             $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token->' . $token);
-            //$response = $fb->get('/me/accounts', $token);
 
             $url = sprintf('https://graph.facebook.com/v15.0//me/accounts?access_token=' . $token);
             $response = SocialHelper::curlGetRequest($url);
@@ -757,12 +638,6 @@ class SocialPostController extends Controller
                         }
                     }
                 }
-
-                // foreach ($pages as $val) {
-                //     if ($val['id'] == $page_id) {
-                //         return $val['access_token'];
-                //     }
-                // }
             } catch (\Exception $e) {
                 $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->' . $e->getMessage());
             }
@@ -804,7 +679,6 @@ class SocialPostController extends Controller
 
     private function addMedia($config, $post, $mediaurl, $insta_id, $message)
     {
-        //$mediaurl = 'https://t3.gstatic.com/licensed-image?q=tbn:ANd9GcSJ8o7X29SK1xD2JsVcP2_A0E8ZDGWV3ib5es32LHnzHQ3gu5_p9bReGNF9nxf39k-4Lumy6iEFjkQbgJg';
         $token = $config->token;
         $page_id = $config->page_id;
         $post_id = $post->id;
@@ -827,17 +701,6 @@ class SocialPostController extends Controller
         $resp = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
-        // $ch = curl_init();
-        // curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-        // $resp = curl_exec($ch);
 
         LogRequest::log($startTime, $url, 'POST', json_encode($request_params), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
         $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
