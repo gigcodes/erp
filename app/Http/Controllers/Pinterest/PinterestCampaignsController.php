@@ -66,16 +66,6 @@ class PinterestCampaignsController extends Controller
                 'status' => 'required|in:ACTIVE,PAUSED,ARCHIVED',
                 'lifetime_spend_cap' => 'required_without:daily_spend_cap|integer|nullable',
                 'daily_spend_cap' => 'required_without:lifetime_spend_cap|integer|nullable',
-                //                'tracking_urls_impression' => 'sometimes|array|max:3',
-                //                'tracking_urls_impression.*' => 'sometimes|url|nullable|max:2000',
-                //                'tracking_urls_click' => 'sometimes|array|max:3',
-                //                'tracking_urls_click.*' => 'sometimes|url|nullable|max:2000',
-                //                'tracking_urls_engagement' => 'sometimes|array|max:3',
-                //                'tracking_urls_engagement.*' => 'sometimes|url|nullable|max:2000',
-                //                'tracking_urls_buyable_button' => 'sometimes|array|max:3',
-                //                'tracking_urls_buyable_button.*' => 'sometimes|url|nullable|max:2000',
-                //                'tracking_urls_audience_verification' => 'sometimes|array|max:3',
-                //                'tracking_urls_audience_verification.*' => 'sometimes|url|nullable|max:2000',
                 'start_time' => 'required|date',
                 'end_time' => 'required|date',
                 'summary_status' => 'sometimes|nullable|in:RUNNING,PAUSED,NOT_STARTED,COMPLETED,ADVERTISER_DISABLED,ARCHIVED',
@@ -98,7 +88,6 @@ class PinterestCampaignsController extends Controller
                     'status' => $request->get('status', 'ACTIVE'),
                     'lifetime_spend_cap' => $request->has('lifetime_spend_cap') ? $request->get('lifetime_spend_cap', 0) * 1000000 : null,
                     'daily_spend_cap' => $request->has('daily_spend_cap') ? $request->get('daily_spend_cap', 0) * 1000000 : null,
-                    //                    'tracking_urls' => count($urls) > 0 ? $this->buildTrackingUrls($request->all()) : null,
                     'start_time' => $request->has('start_time') && $request->start_time ? strtotime($request->get('start_time')) : null,
                     'end_time' => $request->has('end_time') && $request->end_time ? strtotime($request->get('end_time')) : null,
                     'summary_status' => $request->get('summary_status'),
@@ -117,7 +106,6 @@ class PinterestCampaignsController extends Controller
                     'status' => $request->get('status', 'ACTIVE'),
                     'lifetime_spend_cap' => $request->has('lifetime_spend_cap') ? $request->get('lifetime_spend_cap', 0) : null,
                     'daily_spend_cap' => $request->has('daily_spend_cap') ? $request->get('daily_spend_cap', 0) : null,
-                    //                    'tracking_urls' => json_encode($this->buildTrackingUrls($request->all())),
                     'start_time' => $request->has('start_time') && $request->start_time ? strtotime($request->get('start_time')) : null,
                     'end_time' => $request->has('end_time') && $request->end_time ? strtotime($request->get('end_time')) : null,
                     'summary_status' => $request->get('summary_status'),
@@ -245,16 +233,6 @@ class PinterestCampaignsController extends Controller
                 'edit_status' => 'required|in:ACTIVE,PAUSED,ARCHIVED',
                 'edit_lifetime_spend_cap' => 'required_without:edit_daily_spend_cap|integer|nullable',
                 'edit_daily_spend_cap' => 'required_without:edit_lifetime_spend_cap|integer|nullable',
-                //                'edit_tracking_urls_impression' => 'sometimes|array|max:3',
-                //                'edit_tracking_urls_impression.*' => 'sometimes|url|nullable|max:2000',
-                //                'edit_tracking_urls_click' => 'sometimes|array|max:3',
-                //                'edit_tracking_urls_click.*' => 'sometimes|url|nullable|max:2000',
-                //                'edit_tracking_urls_engagement' => 'sometimes|array|max:3',
-                //                'edit_tracking_urls_engagement.*' => 'sometimes|url|nullable|max:2000',
-                //                'edit_tracking_urls_buyable_button' => 'sometimes|array|max:3',
-                //                'edit_tracking_urls_buyable_button.*' => 'sometimes|url|nullable|max:2000',
-                //                'edit_tracking_urls_audience_verification' => 'sometimes|array|max:3',
-                //                'edit_tracking_urls_audience_verification.*' => 'sometimes|url|nullable|max:2000',
                 'edit_start_time' => 'required|date',
                 'edit_end_time' => 'required|date',
                 'edit_summary_status' => 'sometimes|nullable|in:RUNNING,PAUSED,NOT_STARTED,COMPLETED,ADVERTISER_DISABLED,ARCHIVED',
@@ -277,7 +255,6 @@ class PinterestCampaignsController extends Controller
                     'status' => $request->get('edit_status', 'ACTIVE'),
                     'lifetime_spend_cap' => $request->has('edit_lifetime_spend_cap') && $request->edit_lifetime_spend_cap ? $request->get('edit_lifetime_spend_cap', 0) * 1000000 : null,
                     'daily_spend_cap' => $request->has('edit_daily_spend_cap') && $request->edit_daily_spend_cap ? $request->get('edit_daily_spend_cap', 0) * 1000000 : null,
-                    //                    'tracking_urls' => count($urls) > 0 ? $urls : null,
                     'start_time' => $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) * 1000 : null,
                     'end_time' => $request->has('edit_end_time') && $request->edit_end_time ? strtotime($request->get('edit_end_time')) * 1000 : null,
                     'summary_status' => $request->get('edit_summary_status'),
@@ -293,7 +270,6 @@ class PinterestCampaignsController extends Controller
                 $pinterestCampaign->status = $request->get('edit_status', 'ACTIVE');
                 $pinterestCampaign->lifetime_spend_cap = $request->has('edit_lifetime_spend_cap') && $request->edit_lifetime_spend_cap ? $request->get('edit_lifetime_spend_cap', 0) : null;
                 $pinterestCampaign->daily_spend_cap = $request->has('edit_daily_spend_cap') && $request->edit_daily_spend_cap ? $request->get('edit_daily_spend_cap', 0) : null;
-//                $pinterestCampaign->tracking_urls = json_encode($this->buildTrackingUrls($request->all(), true));
                 $pinterestCampaign->start_time = $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) * 1000 : null;
                 $pinterestCampaign->end_time = $request->has('edit_end_time') && $request->edit_end_time ? strtotime($request->get('edit_end_time')) * 1000 : null;
                 $pinterestCampaign->summary_status = $request->get('edit_summary_status');
@@ -495,7 +471,6 @@ class PinterestCampaignsController extends Controller
                     'budget_in_micro_currency' => $request->has('edit_budget_in_micro_currency') && $request->edit_budget_in_micro_currency ? $request->get('edit_budget_in_micro_currency', 0) * 1000000 : null,
                     'bid_in_micro_currency' => $request->has('edit_bid_in_micro_currency') && $request->edit_bid_in_micro_currency ? $request->get('edit_bid_in_micro_currency', 0) * 1000000 : null,
                     'budget_type' => $request->get('edit_budget_type'),
-                    //                    'start_time' => $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) : null,
                     'end_time' => $request->has('edit_end_time') && $request->edit_end_time ? strtotime($request->get('edit_end_time')) : null,
                     'lifetime_frequency_cap' => $request->has('edit_lifetime_frequency_cap') && $request->edit_lifetime_frequency_cap ? $request->get('edit_lifetime_frequency_cap', 0) * 1000000 : null,
                     'placement_group' => $request->get('edit_placement_group'),
@@ -512,7 +487,6 @@ class PinterestCampaignsController extends Controller
                 $pinterestAdsGroup->budget_in_micro_currency = $request->has('edit_lifetime_spend_cap') && $request->edit_lifetime_spend_cap ? $request->get('edit_lifetime_spend_cap', 0) : null;
                 $pinterestAdsGroup->bid_in_micro_currency = $request->has('edit_daily_spend_cap') && $request->edit_daily_spend_cap ? $request->get('edit_daily_spend_cap', 0) : null;
                 $pinterestAdsGroup->budget_type = $request->get('edit_budget_type');
-//                $pinterestAdsGroup->start_time = $request->has('edit_start_time') && $request->edit_start_time ? strtotime($request->get('edit_start_time')) : null;
                 $pinterestAdsGroup->end_time = $request->has('edit_end_time') && $request->edit_end_time ? strtotime($request->get('edit_end_time')) : null;
                 $pinterestAdsGroup->lifetime_frequency_cap = $request->has('edit_lifetime_frequency_cap') && $request->edit_lifetime_frequency_cap ? $request->get('edit_lifetime_frequency_cap', 0) : null;
                 $pinterestAdsGroup->placement_group = $request->get('edit_placement_group');
