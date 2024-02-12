@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Order;
-use App\Product;
 use App\Category;
 use Carbon\Carbon;
 use App\OrderProduct;
@@ -160,17 +159,6 @@ class ProductController extends Controller
                 $productCanDays = ProductCancellationPolicie::select('days_refund')->where('store_website_id', $storeWebsite->id)->first();
                 $categoriesRef = null;
                 $productRef = null;
-                /*$category = Product::select('id', 'category')->withTrashed()->where('sku', $sku[0])->first();
-                if ($category) {
-                    $categories = Category::select('days_refund')->where('id', '=', $category->category)->first();
-                    if ($categories) {
-                        $categoriesRef = $categories->days_refund;
-                        $productRef = $productCanDays->days_refund;
-                    } else {
-                        $categoriesRef = null;
-                        $productRef = null;
-                    }
-                }*/
 
                 $order = Order::select('created_at', 'order_return_request')->withTrashed()->where('id', $request->order_id)->first();
                 if ($order) {
@@ -184,8 +172,7 @@ class ProductController extends Controller
                 }
 
                 if ($returnExchange || (isset($daysPanding) && isset($productRef) && isset($categoriesRef) && $productRef >= $daysPanding && $categoriesRef >= $daysPanding)) {
-
-                    if(!empty($daysPanding)){
+                    if (! empty($daysPanding)) {
                         $result_input = ['has_return_request' => true, 'duration' => $daysPanding];
                     } else {
                         $result_input = ['has_return_request' => true];
@@ -209,12 +196,11 @@ class ProductController extends Controller
     public function checkCategoryIsEligibility(Request $request)
     {
         if ($request->category) {
-           
             $eligible_for_return = 'No';
             $duration = 0;
             $categories = Category::select('days_refund')->where('id', '=', $request->category)->first();
             if ($categories) {
-                if($categories->days_refund!=null){
+                if ($categories->days_refund != null) {
                     $categoriesRef = $categories->days_refund;
 
                     $eligible_for_return = 'Yes';
@@ -223,10 +209,10 @@ class ProductController extends Controller
             }
 
             $result_input = ['duration' => $duration, 'eligible_for_return' => $eligible_for_return];
-           
+
             return response()->json(['code' => 200, 'data' => $result_input]);
         }
-    
+
         return response()->json(['code' => 500, 'message' => 'Category not found', 'data' => []]);
     }
 

@@ -13,11 +13,6 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
-    public function __construct()
-    {
-        // $this->middleware('permission:customer');
-    }
-
     public function add_cart_data(Request $request)
     {
         $validator = Validator::make($request->all(), [
