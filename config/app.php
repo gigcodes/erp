@@ -150,7 +150,6 @@ return [
         /*
          * Package Service Providers...
          */
-        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -163,7 +162,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         App\Providers\NotificationServiceProvider::class,
         Plank\Mediable\MediableServiceProvider::class,
         Nestable\NestableServiceProvider::class,

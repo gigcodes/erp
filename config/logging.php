@@ -179,10 +179,6 @@ return [
             'days' => 7,
         ],
 
-        'bugsnag' => [
-            'driver' => 'bugsnag',
-        ],
-
         'papertrail' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
