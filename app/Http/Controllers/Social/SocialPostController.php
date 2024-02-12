@@ -8,9 +8,9 @@ use Session;
 use Response;
 use App\Setting;
 use Carbon\Carbon;
-use App\LogRequest;
 use App\StoreWebsite;
 use App\GoogleTranslate;
+use Plank\Mediable\Media;
 use App\Social\SocialPost;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class SocialPostController extends Controller
             return response()->json([
                 'tbody' => view('social.posts.data', compact('posts'))->render(),
                 'links' => $posts->render(),
-            ], 200);
+            ]);
         }
 
         return view('social.posts.index', compact('posts', 'websites', 'id'));
@@ -196,9 +196,10 @@ class SocialPostController extends Controller
         return view('social.posts.attach-images', compact('media'));
     }
 
-    /*
-     * @todo Video upload functionality has to be added
-     * Move the posting strategy to queue
+    /**
+     * @todo Video upload is pending
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(PostCreateRequest $request)
     {
@@ -236,6 +237,8 @@ class SocialPostController extends Controller
             'status' => 2,
         ]);
 
+        $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Post created in in the database');
+
         if ($request->has('source')) {
             $files = $request->file('source');
 
@@ -244,51 +247,34 @@ class SocialPostController extends Controller
                     ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
                     ->toDisk('s3')->upload();
                 $post->attachMedia($media, config('constants.media_tags'));
-                $pageInfoParams = [
-                    'endpoint_path' => $page_config->page_id . '/photos',
-                    'fields' => '',
-                    'access_token' => $page_config->page_token,
-                    'request_type' => 'POST',
-                    'data' => [
-                        'url' => $media->getUrl(),
-                        'published' => false,
-                    ],
-                ];
 
-                $response = getFacebookResults($pageInfoParams);
-                $added_media[] = ['media_fbid' => $response['data']['id']];
+                $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to disk');
+
+                [$pageInfoParams, $response, $added_media] = $this->uploadMediaToFacebook($page_config, $media, $added_media, $post);
             }
 
             $data['attached_media'] = $added_media;
         }
 
-        $pageInfoParams = [
-            'endpoint_path' => $page_config->page_id . '/feed',
-            'fields' => '',
-            'access_token' => $page_config->page_token,
-            'request_type' => 'POST',
-            'data' => $data,
-        ];
-
-        $response = getFacebookResults($pageInfoParams);
+        $response = $this->postToFacebook($page_config, $data);
 
         if (isset($response['data']['id'])) {
+            $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Facebook post created');
             $post->ref_post_id = $response['data']['id'];
             $post->status = 1;
             $post->save();
             $this->socialPostLog($post->config_id, $post->id, $page_config->platform, 'fb_post', $request->message);
             Session::flash('message', 'Post created successfully');
 
-            return redirect()->route('social.post.index', ['id' => $request->config_id]);
+            return redirect()->route('social.post.index', $page_config->id);
         } else {
             $post->status = 3;
             $post->save();
-            Session::flash('message', 'Post created successfully');
+            $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Facebook post unsuccessful');
+            Session::flash('message', 'Post not created successfully');
 
-            return redirect()->back()->withError('Unable to create post');
+            return redirect()->route('social.post.index', $page_config->id)->withError('Unable to create post');
         }
-
-        return redirect()->route('social.post.index', $config->id);
     }
 
     /**
@@ -331,116 +317,49 @@ class SocialPostController extends Controller
         ]);
     }
 
-    public function getPageAccessToken($config, $fb, $post_id)
-    {
-        $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token function call..');
-        $response = '';
-
-        try {
-            $token = $config->token;
-            $page_id = $config->page_id;
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'get token->' . $token);
-            $url = sprintf('https://graph.facebook.com/v15.0//me/accounts?access_token=' . $token);
-            $response = SocialHelper::curlGetRequest($url);
-
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get my accounts');
-        } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-            // When Graph returns an error
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
-        } catch (\Facebook\Exceptions\FacebookSDKException $e) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get accounts->' . $e->getMessage());
-        }
-
-        if ($response != '') {
-            try {
-                foreach ($response->data as $key => $value) {
-                    if (isset($value->id)) {
-                        if ($value->id == $page_id) {
-                            $this->socialPostLog($config->id, $post_id, $config->platform, 'success', 'get account details');
-
-                            return $value->access_token;
-                        }
-                    }
-                }
-
-                // foreach ($pages as $val) {
-                //     if ($val['id'] == $page_id) {
-                //         return $val['access_token'];
-                //     }
-                // }
-            } catch (\Exception $e) {
-                $this->socialPostLog($config->id, $post_id, $config->platform, 'error', 'not get token->' . $e->getMessage());
-            }
-        }
-    }
-
     public function history(Request $request)
     {
-        $logs = SocialPostLog::where('post_id', $request->post_id)->where('modal', 'SocialPost')->orderBy('created_at', 'desc')->get();
+        $logs = SocialPostLog::where('post_id', $request->post_id)
+            ->where('modal', 'SocialPost')
+            ->orderBy('created_at', 'desc')->get();
 
         return response()->json(['code' => 200, 'data' => $logs]);
     }
 
-    private function getInstaID($config, $fb, $post_id)
+    /**
+     * @throws \Plank\Mediable\Exceptions\MediaUrlException
+     */
+    public function uploadMediaToFacebook(SocialConfig $page_config, Media $media, array $added_media, SocialPost $post): array
     {
-        $token = $config->token;
-        $page_id = $config->page_id;
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $url = "https://graph.facebook.com/v15.0/$page_id?fields=instagram_business_account&access_token=$token";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'getInstaID');
-        $this->socialPostLog($config->id, $post_id, $config->platform, 'response-getInstaID', $resp);
-        $resp = json_decode($resp, true);
-        if (isset($resp['instagram_business_account'])) {
-            return $resp['instagram_business_account']['id'];
-        }
-
-        return '';
-    }
-
-    private function addMedia($config, $post, $mediaurl, $insta_id, $message)
-    {
-        $token = $config->token;
-        $page_id = $config->page_id;
-        $post_id = $post->id;
-        $caption = $message;
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $postfields = "image_url=$mediaurl&caption=$caption&access_token=$token";
-        $url = "https://graph.facebook.com/v15.0/$insta_id/media";
-
-        $request_params = [
-            'access_token' => $token,
-            'image_url' => $mediaurl,
-            'caption' => $caption,
+        $pageInfoParams = [
+            'endpoint_path' => $page_config->page_id . '/photos',
+            'fields' => '',
+            'access_token' => $page_config->page_token,
+            'request_type' => 'POST',
+            'data' => [
+                'url' => $media->getUrl(),
+                'published' => false,
+            ],
         ];
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $request_params);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $resp = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $response = getFacebookResults($pageInfoParams);
+        $added_media[] = ['media_fbid' => $response['data']['id']];
 
-        LogRequest::log($startTime, $url, 'POST', json_encode($request_params), json_decode($resp), $httpcode, \App\Http\Controllers\SocialPostController::class, 'addMedia');
-        $this->socialPostLog($config->id, $post_id, $config->platform, 'response-addMedia', $resp);
-        $resp = json_decode($resp, true);
-        if (isset($resp['id'])) {
-            $this->socialPostLog($config->id, $post_id, $config->platform, 'addMedia', $resp['id']);
+        $this->socialPostLog($page_config->id, $post->id, $page_config->platform, 'message', 'Image uploaded to facebook');
 
-            return $resp['id'];
-        }
+        return [$pageInfoParams, $response, $added_media];
+    }
 
-        return '';
+    public function postToFacebook(SocialConfig $page_config, array $data): array
+    {
+        $pageInfoParams = [
+            'endpoint_path' => $page_config->page_id . '/feed',
+            'fields' => '',
+            'access_token' => $page_config->page_token,
+            'request_type' => 'POST',
+            'data' => $data,
+        ];
+
+        return getFacebookResults($pageInfoParams);
     }
 }

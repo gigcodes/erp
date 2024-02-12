@@ -23,8 +23,8 @@
     @include("social.posts.history")
     @include("social.posts.translation-approve")
 
-    <div class="row" id="common-page-layout">
-        <div class="col-lg-12 margin-tb">
+    <div class="row p-lg-4 p-md-0" id="common-page-layout">
+        <div class="col-lg-12">
             <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
             <div class="pull-right">
                 <a class="btn btn-secondary btn-sm" href="{{ route('social.post.create',$id) }} ">+</a>
