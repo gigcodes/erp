@@ -17,7 +17,6 @@ Route::post('list-message', [SocialAccountController::class, 'listMessage'])->na
 Route::get('{account_id}/posts', [SocialAccountPostController::class, 'index'])->name('account.posts');
 Route::get('{post_id}/comments', [SocialAccountCommentController::class, 'index'])->name('account.comments');
 Route::post('delete-post', [SocialPostController::class, 'deletePost'])->name('post.postdelete');
-Route::get('view-posts/{id}', [SocialPostController::class, 'viewPost'])->name('post.viewpost');
 Route::post('reply-comments', [SocialAccountCommentController::class, 'replyComments'])->name('account.comments.reply');
 Route::post('dev-reply-comment', [SocialAccountCommentController::class, 'devCommentsReply'])->name('dev.reply.comment');
 Route::get('email-replise/{id}', [SocialAccountCommentController::class, 'getEmailreplies']);
