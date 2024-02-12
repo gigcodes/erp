@@ -449,8 +449,8 @@
 
                     @if (!in_array('Request Parameter', $dynamicColumnsToShowPostman))
                         <td class="expand-row-msg" data-name="paramiters" data-id="{{$postman->id}}">
-                            <span class="show-short-paramiters-{{$postman->id}}">{{ Str::limit($postman->body_json, 5, '..')}}</span>
-                            <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">{{$postman->body_json}}</span>
+                            <span class="show-short-paramiters-{{$postman->id}}">@if($postman->body_json){{ Str::limit($postman->body_json, 5, '..')}}@else{{"NULL"}}@endif</span>
+                            <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">@if($postman->body_json){{$postman->body_json}}@else{{"NULL"}}@endif</span>
                         </td>
                     @endif
 
@@ -551,6 +551,8 @@
                                     <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page - '.$postman->id  }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
 
                                     <button style="padding-left: 0;padding-left:3px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if ($postman) {{ $postman->id }} @endif" data-category="{{ $postman->id }}"><i class="fa fa-info-circle"></i></button>
+                                    <button type="button" title="Add Remark" style="padding:3px;" class="btn  btn-image d-inline add-remark" data-id="{{ $postman->id }}"><i class="fa fa-comment" aria-hidden="true"></i></button>
+                                    <button type="button" title="View Request History" style="padding:3px;" class="btn  btn-image d-inline responses-history" data-id="{{ $postman->id }}"><i class="fa fa-history" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                         </td>
@@ -607,8 +609,8 @@
               <span style="word-break:break-all;" class="show-full-url-{{$postman->id}} hidden">{{$postman->request_url}}</span>
             </td>
             <td class="expand-row-msg" data-name="paramiters" data-id="{{$postman->id}}">
-              <span class="show-short-paramiters-{{$postman->id}}">{{ Str::limit($postman->body_json, 5, '..')}}</span>
-              <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">{{$postman->body_json}}</span>
+              <span class="show-short-paramiters-{{$postman->id}}">@if($postman->body_json){{ Str::limit($postman->body_json, 5, '..')}}@else{{"NULL"}}@endif</span>
+              <span style="word-break:break-all;" class="show-full-paramiters-{{$postman->id}} hidden">@if($postman->body_json){{$postman->body_json}}@else{{"NULL"}}@endif</span>
             </td>
             <td class="expand-row-msg" data-name="params" data-id="{{$postman->id}}">
               <span class="show-short-params-{{$postman->id}}">{{ Str::limit($postman->params, 5, '...')}}</span>
@@ -671,6 +673,8 @@
                       <a title="Preview Error" data-id="{{ $postman->id }}" class="btn btn-image abtn-pd preview_postman_error pd-5 btn-ht" href="javascript:;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></a>
 
                       <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task " data-id="@if ($postman) {{ $postman->id }} @endif"  data-category_title="Postman Page" data-title="@if ($postman) {{$postman->request_name.' - Postman Page - '.$postman->id }} @endif"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                      <button type="button" title="Add Remark" style="padding:3px;" class="btn  btn-image d-inline add-remark" data-id="{{ $postman->id }}"><i class="fa fa-comment" aria-hidden="true"></i></button>
+                      <button type="button" title="View Request History" style="padding:3px;" class="btn  btn-image d-inline responses-history" data-id="{{ $postman->id }}"><i class="fa fa-history" aria-hidden="true"></i></button>
                     </div>
                 </div>
             </td>
@@ -798,7 +802,7 @@
                 <tr>
                   <th>ID</th>
                   <th>User Name</th>
-                  <th>Old Remark</th>
+                  <th>Remarks</th>
                   <th>Date</th>
                 </tr>
               </thead>
@@ -1499,19 +1503,41 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body postmanShowFullTextBody">
+          <div class="modal-body">
+            <div class="postmanShowFullTextBody postManViewDiv">
+
+            </div>
+            <div class="postmanFieldEditDiv postManEditDiv">
+              <form action="{{route('postman.updateField')}}" id="updatePostManField" method="POST">
+                @csrf
+                <div class="form-group">
+                  <textarea name="body_json" id="postManFieldEdit" cols="30" rows="10" class="form-control"></textarea>
+                  <input type="hidden" name="id" id="postManFieldId" value="">
+                </div>
+              </form>
+              
+            </div>
             
+          </div>
+          <div class="modal-footer postManShowEdit">
+            <button type="button" class="btn btn-default " id="postManFieldEditBtn">Edit</button>
+          </div>
+          <div class="modal-footer postManEditDiv">
+            <button type="button" class="btn btn-default " id="postManFieldSaveBtn">Save</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 {{-- /var/www/html/erp/resources/views/postman/postman-status-history.blade.php --}}
 @include('postman.postman-status-history')
 @include('postman.postman-api-issue-fix-done-history')
 @include("postman.column-visibility-modal")
 @include("postman.partials.modal-status-color")
+@include("postman.partials.modal-add-remark")
+@include("postman.partials.modal-responses-history")
 @include("postman.run-request-url-modal")
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('css/jquery.dropdown.css')}}">
@@ -1997,7 +2023,7 @@
         $.each(response.data, function(key, v) {
           t += '<tr><td>' + v.id + '</td>';
           t += '<td>' + v.userName + '</td>';
-          t += '<td>' + v.old_remark + '</td>';
+          t += '<td>' + v.remark + '</td>';
           t += '<td>' + v.created_at + '</td></tr>';
         });
         $(".tbodayPostmanRemarkHistory").html(t);
@@ -2124,6 +2150,26 @@
     var full = '.expand-row-msg .show-full-' + name + '-' + id;
     var fullText = $(full).html();
     $(".postmanShowFullTextBody").html(fullText);
+
+
+    $(".postManShowEdit").hide();
+    $('.postManEditDiv').hide();
+    if(name == 'paramiters') {
+      $(".postManShowEdit").show();
+      $("#postManFieldId").val(id);
+    }
+  });
+
+  $(document).on('click','#postManFieldEditBtn',function() {
+    $('.postManViewDiv').hide();
+    $(".postManShowEdit").hide();
+    $('.postManEditDiv').show();
+    $("#postManFieldEdit").val($(".postmanShowFullTextBody").html());
+  });
+
+  $(document).on('click','#postManFieldSaveBtn',function() {
+    $("#loading-image").show();
+    $("#updatePostManField").submit();
   });
 
   /*$(document).on('click', '.expand-row-msg', function() {
@@ -2650,5 +2696,88 @@
             toastr['error'](errObj.message, 'error');
         });
     });
+
+    $(document).on('click',".add-remark",function(){
+        var req_id = $(this).attr('data-id');
+        $("#remark-create").modal("show");
+        $("#remarkId").val(req_id);
+    });
+
+    $(document).on('submit','#remark-create-form',function(e){
+      e.preventDefault();
+      var this_form = $(this);
+      var form_data = this_form.serialize();
+      var ajax_url = this_form.attr('action');
+      $.ajax({
+            url: ajax_url,
+            type: 'POST',
+            data: form_data,
+            beforeSend: function() {
+                $("#loading-image").show();
+            },
+            dataType : 'json',
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    this_form[0].reset();
+                    $("#remark-create").modal("hide");
+                    toastr['success'](response.message);
+                } else {
+                    toastr['error']('Error');
+                }
+            },
+            error: function (data) {
+              $("#loading-image").hide();
+              toastr['error'](response.responseJSON.message);
+            }
+        });
+    });
+
+    $(document).on('click','.responses-history',function(){
+      //postman.responsesHistory
+      let postman_id = $(this).attr('data-id');
+      let res_ur = "{{route('postman.responsesHistory',':id')}}";
+      let ajax_url = res_ur.replace(":id",postman_id);
+      $.ajax({
+            url: ajax_url,
+            type: 'GET',
+            beforeSend: function() {
+              $(".tbodayPostmanResponsesHistory").html('');
+              $("#loading-image").show();
+
+            },
+            dataType : 'json',
+            success: function(response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                  let res_data = response.data;
+                  var content = '';
+                  for (var i = 0; i < res_data.length; i++) {
+                    content += '<tr id="res_data_' + res_data[i].id + '">';
+                      content += '<td>' + res_data[i].id + '</td>';
+                      content += '<td>' + res_data[i].request_url + '</td>';
+                      content += '<td>' + res_data[i].request_data + '</td>';
+                      content += '<td>' + res_data[i].response + '</td>';
+                      content += '<td>' + res_data[i].response_code + '</td>';
+                      content += '<td>' + res_data[i].userName + '</td>';
+                      content += '<td>' + res_data[i].created_at + '</td>';
+                    content += '</tr>';
+                    
+                  }
+
+                  $(".tbodayPostmanResponsesHistory").html(content);
+
+                  $("#responses-history-modal").modal("show");
+                  
+                } else {
+                    toastr['error']('Error');
+                }
+            },
+            error: function (data) {
+              $("#loading-image").hide();
+              toastr['error'](response.responseJSON.message);
+            }
+        });
+    })
 </script>
 @endsection
