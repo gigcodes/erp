@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Social;
 use Auth;
 use Crypt;
 use Session;
-use Storage;
 use Response;
 use App\Setting;
 use Carbon\Carbon;
 use App\LogRequest;
 use App\StoreWebsite;
-use Facebook\Facebook;
 use App\GoogleTranslate;
 use App\Social\SocialPost;
 use App\Social\SocialConfig;
@@ -122,7 +120,7 @@ class SocialPostController extends Controller
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('social.posts.data', compact('posts'))->render(),
-                'links' => (string)$posts->render(),
+                'links' => (string) $posts->render(),
             ], 200);
         }
 
@@ -178,6 +176,7 @@ class SocialPostController extends Controller
         if (isset($id['store_website_id'])) {
             $socialWebsiteAccount = SocialConfig::where('store_website_id', $id['store_website_id'])->get();
         }
+
         return view('social.posts.create', compact('id', 'socialWebsiteAccount'));
     }
 
@@ -197,8 +196,13 @@ class SocialPostController extends Controller
         return view('social.posts.attach-images', compact('media'));
     }
 
+    /*
+     * @todo Video upload functionality has to be added
+     * Move the posting strategy to queue
+     */
     public function store(PostCreateRequest $request)
     {
+        $added_media = [];
         $page_config = SocialConfig::where('id', $request->config_id)->first();
         $hashtagsOfUse = '';
         if ($request->has('hashtags')) {
@@ -221,6 +225,43 @@ class SocialPostController extends Controller
             $data['scheduled_publish_time'] = Carbon::parse($request->get('data'))->getTimestamp();
         }
 
+        $post = SocialPost::create([
+            'config_id' => $request->config_id,
+            'caption' => $request->message,
+            'post_body' => $request->message,
+            'post_by' => Auth::user()->id,
+            'posted_on' => $request->has('date') ? Carbon::parse($request->get('data')) : Carbon::now(),
+            'hashtag' => $request->hashtags,
+            'post_medium' => 'erp',
+            'status' => 2,
+        ]);
+
+        if ($request->has('source')) {
+            $files = $request->file('source');
+
+            foreach ($files as $file) {
+                $media = MediaUploader::fromSource($file)
+                    ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
+                    ->toDisk('s3')->upload();
+                $post->attachMedia($media, config('constants.media_tags'));
+                $pageInfoParams = [
+                    'endpoint_path' => $page_config->page_id . '/photos',
+                    'fields' => '',
+                    'access_token' => $page_config->page_token,
+                    'request_type' => 'POST',
+                    'data' => [
+                        'url' => $media->getUrl(),
+                        'published' => false,
+                    ],
+                ];
+
+                $response = getFacebookResults($pageInfoParams);
+                $added_media[] = ['media_fbid' => $response['data']['id']];
+            }
+
+            $data['attached_media'] = $added_media;
+        }
+
         $pageInfoParams = [
             'endpoint_path' => $page_config->page_id . '/feed',
             'fields' => '',
@@ -232,240 +273,20 @@ class SocialPostController extends Controller
         $response = getFacebookResults($pageInfoParams);
 
         if (isset($response['data']['id'])) {
-            $post = new SocialPost;
-            $post->config_id = $request->config_id;
-            $post->caption = $request->message;
-            $post->post_body = $request->message;
             $post->ref_post_id = $response['data']['id'];
-            $post->post_by = Auth::user()->id;
-            $post->posted_on = $request->has('date') ? Carbon::parse($request->get('data')) : Carbon::now();
-            $post->hashtag = $request->hashtags;
-            $post->post_medium = 'erp';
             $post->status = 1;
             $post->save();
-
+            $this->socialPostLog($post->config_id, $post->id, $page_config->platform, 'fb_post', $request->message);
             Session::flash('message', 'Post created successfully');
+
             return redirect()->route('social.post.index', ['id' => $request->config_id]);
         } else {
-            $post = new SocialPost;
-            $post->config_id = $request->config_id;
-            $post->caption = $request->message;
-            $post->post_body = $request->message;
-            $post->post_by = Auth::user()->id;
-            $post->hashtag = $request->hashtags;
-            $post->post_medium = 'erp';
             $post->status = 3;
             $post->save();
-
             Session::flash('message', 'Post created successfully');
+
             return redirect()->back()->withError('Unable to create post');
         }
-
-//        try {
-//            $configArray = [];
-//            if (isset($request->webpage)) {
-//                foreach ($request->webpage as $key => $value) {
-//                    $configArray[$key] = $value;
-//                }
-//                array_push($configArray, $request->config_id);
-//            } else {
-//                $configArray[0] = $request->config_id;
-//            }
-//
-//            foreach ($configArray as $value) {
-//                $config = SocialConfig::find($value);
-//                $this->page_access_token = $config->page_token;
-//                $message = $request->input('message');
-//
-//                $googleTranslate = new GoogleTranslate();
-//                $target = $config->page_language ? $config->page_language : 'en';
-//                $translationString = $googleTranslate->translate($target, $message);
-//                $message = $translationString;
-//
-//                $message = $message . ' ' . $hashtagsOfUse;
-//
-//                if ($this->page_access_token != '') {
-//                    if ($config->platform == 'facebook') {
-//                        $post = new SocialPost;
-//                        $post->config_id = $request->config_id;
-//                        $post->caption = $request->message;
-//                        $post->post_body = $request->description;
-//                        $post->post_by = Auth::user()->id;
-//                        $post->hashtag = $request->hashtags;
-//                        $post->save();
-//
-//                        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to facebook condition');
-//                        if ($request->hasFile('source')) {
-//                            ini_set('memory_limit', '-1');   // Added memory limit allowing maximum memory
-//                            ini_set('max_execution_time', '-1');
-//
-//                            $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to Image upload');
-//                            // Description
-//                            try {
-//                                foreach ($request->file('source') as $key => $source) {
-//                                    $media = MediaUploader::fromSource($source)
-//                                        ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
-//                                        ->upload();
-//                                    $post->attachMedia($media, config('constants.media_tags'));
-//                                }
-//
-//                                if ($post->getMedia(config('constants.media_tags'))->first()) {
-//                                    ini_set('memory_limit', '-1');   // Added memory limit allowing maximum memory
-//                                    ini_set('max_execution_time', '-1');
-//
-//                                    $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
-//                                    foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
-//                                        $mediaurl = $file->getUrl();
-//                                        //$mediaurl = 'https://www.1800flowers.com/blog/wp-content/uploads/2017/03/single-red-rose.jpg';
-//                                        $post->posted_on = $request->input('date');
-//                                        $post->image_path = $mediaurl;
-//                                        $post->status = 2;
-//                                        $post->save();
-//                                    }
-//                                }
-//                            } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-//                                \Log::info($e); // handle exception
-//                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
-//                            }
-//                        }    // Video Case
-//                        elseif ($request->hasFile('video1')) {
-//                            $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to video upload');
-//                            try {
-//                                ini_set('memory_limit', '-1');   // Added memory limit allowing maximum memory
-//                                ini_set('max_execution_time', '-1');
-//                                $access_token = $config->page_token;
-//                                $page_id = $config->page_id;
-//                                //  $message = $request->input('message');
-//                                $media = MediaUploader::fromSource($request->file('video1'))
-//                                    ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
-//                                    ->upload();
-//                                $post->attachMedia($media, config('constants.media_tags'));
-//
-//                                foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
-//                                    $mediaurl = $file->getUrl();
-//                                }
-//                                $post->posted_on = $request->input('date');
-//                                $post->image_path = $mediaurl;
-//                                $post->status = 2;
-//                                $post->save();
-//                            } catch (\Facebook\Exceptions\FacebookResponseException   $e) {
-//                                $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e->getMessage());
-//                            }
-//                        } elseif (isset($request->image)) {
-//                            $access_token = $config->page_token;
-//                            $page_id = $config->page_id;
-//
-//                            $image_upload_url = 'https://graph.facebook.com/' . $page_id . '/photos';
-//
-//                            foreach ($request->image as $key => $source) {
-//                                $fbImage = [
-//                                    'access_token' => $access_token,
-//                                    //'url' => 'https://i.pinimg.com/736x/0f/36/31/0f3631cab4db579656cfa612cce7dca0.jpg',
-//                                    'url' => $source,
-//                                    'caption' => $message,
-//                                ];
-//
-//                                $post->posted_on = $request->input('date');
-//                                $post->image_path = $source;
-//                                $post->status = 2;
-//                                $post->save();
-//                            }
-//                        } // Simple Post Case
-//                        else {
-//                            $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'Comes to text post');
-//
-//                            $access_token = $config->page_token;
-//                            $page_id = $config->page_id;
-//
-//                            $pageId = $config->page_id;
-//                            $messageText = $data['message'] = $message;
-//                            $apiEndpoint = 'https://graph.facebook.com/' . $pageId . '/feed?message=' . urlencode($messageText) . '&access_token=' . $access_token;
-//
-//                            $post->posted_on = $request->input('date');
-//                            $post->status = 2;
-//                            $post->save();
-//                        }
-//                    } else {
-//                        $post = new SocialPost;
-//                        $post->config_id = $request->config_id;
-//                        $post->caption = $request->message;
-//                        $post->post_body = $request->description;
-//                        $post->post_by = Auth::user()->id;
-//                        $post->hashtag = $request->hashtags;
-//                        $post->save();
-//
-//                        $this->socialPostLog($config->id, $post->id, $config->platform, 'message', 'comes to insta condition');
-//                        $insta_id = $this->getInstaID($config, $this->fb, $post->id);
-//
-//                        if ($insta_id != '') {
-//                            $this->socialPostLog($config->id, $post->id, $config->platform, 'get-insta-id', $insta_id);
-//                            $images = [];
-//
-//                            if ($request->hasfile('source')) {
-//                                ini_set('memory_limit', '-1');   // Added memory limit allowing maximum memory
-//                                ini_set('max_execution_time', '-1');
-//                                $this->socialPostLog($config->id, $post->id, $config->platform, 'come to image', 'source');
-//                                foreach ($request->file('source') as $image) {
-//                                    $media = MediaUploader::fromSource($image)
-//                                        ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
-//                                        ->upload();
-//                                    $post->attachMedia($media, config('constants.media_tags'));
-//                                }
-//                            }
-//
-//                            if ($request->hasfile('video1')) {
-//                                $this->socialPostLog($config->id, $post->id, $config->platform, 'come to video', 'video');
-//                                $media = MediaUploader::fromSource($request->file('video1'))
-//                                    ->toDirectory('social_images/' . floor($post->id / config('constants.image_per_folder')))
-//                                    ->upload();
-//                                $post->attachMedia($media, config('constants.media_tags'));
-//                            }
-//
-//                            if (isset($request['image'])) {
-//                                foreach ($request['image'] as $key => $value) {
-//                                    $mediaurl = $value;
-//                                    $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id, $message);
-//
-//                                    if (!empty($media_id)) {
-//                                        $res = $this->publishMedia($config, $post, $media_id, $insta_id);
-//                                    }
-//                                    if (!empty($res)) {
-//                                        $post->ref_post_id = $res;
-//                                        $post->status = 1;
-//                                        $post->save();
-//                                    }
-//                                }
-//                            }
-//
-//                            if ($post->getMedia(config('constants.media_tags'))->first()) {
-//                                ini_set('memory_limit', '-1');   // Added memory limit allowing maximum memory
-//                                ini_set('max_execution_time', '-1');
-//
-//                                $this->socialPostLog($config->id, $post->id, $config->platform, 'come to getMedia', 'find media');
-//                                foreach ($post->getMedia(config('constants.media_tags')) as $i => $file) {
-//                                    $mediaurl = $file->getUrl();
-//                                    $media_id = $this->addMedia($config, $post, $mediaurl, $insta_id, $message);
-//                                    if (!empty($media_id)) {
-//                                        $res = $this->publishMedia($config, $post, $media_id, $insta_id);
-//                                    }
-//                                    if (!empty($res)) {
-//                                        $post->ref_post_id = $res;
-//                                        $post->status = 1;
-//                                        $post->save();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    return redirect()->back()->withError('Error in creating post');
-//                }
-//            }
-//        } catch (\Exception $e) {
-//            $this->socialPostLog($config->id, $post->id, $config->platform, 'error', $e);
-//            Session::flash('message', $e);
-//            \Log::error($e);
-//        }
 
         return redirect()->route('social.post.index', $config->id);
     }

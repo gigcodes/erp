@@ -44,9 +44,8 @@ function getFacebookResults(array $params): array
     $endpointParams = [ // params for the endpoint
         'fields' => $params['fields'],
         'access_token' => $params['access_token'],
-        'data' => $params['data'] ?? null,
     ];
 
     // make the api call
-    return makeApiCall($endpoint, $params['request_type'], $endpointParams, $endpointParams['data']);
+    return makeApiCall($endpoint, $params['request_type'], $endpointParams, $params['data']);
 }
