@@ -4,22 +4,18 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use Elastic\Elasticsearch\Exception\ElasticsearchException;
 use Exception;
 use Throwable;
-use Elastic\Elasticsearch\ClientBuilder;
-use Elastic\Elasticsearch\Client;
 use GuzzleHttp\RequestOptions;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 
 class Elasticsearch
 {
     const INDEXES = [
-        'messages'
+        'messages',
     ];
 
-    /**
-     * @var Client
-     */
     protected Client $connection;
 
     /**
@@ -30,40 +26,29 @@ class Elasticsearch
         $this->connection = $this->connect();
     }
 
-    /**
-     * @return Client
-     */
     public function getConn(): Client
     {
         $this->createNonExistsIndexes();
+
         return $this->connection;
     }
 
     /**
-     * @param string $name
-     * @param array $arguments
      * @return void
      */
     public static function __callStatic(string $name, array $arguments)
     {
         try {
             return (new self())->getConn()->$name(...$arguments);
-        }
-        catch (Exception|Throwable $e) {
-
+        } catch (Exception|Throwable $e) {
         }
     }
 
-    /**
-     * @param int|string $index
-     * @return bool
-     */
     public function indexExist(int|string $index): bool
     {
         try {
             return $this->connection->indices()->exists(['index' => $index])->asBool();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -71,34 +56,32 @@ class Elasticsearch
     }
 
     /**
-     * @param int|string $index
      * @return \Elastic\Elasticsearch\Response\Elasticsearch|false|\Http\Promise\Promise
      */
     public function createIndex(int|string $index)
     {
         try {
             return $this->connection->index([
-                'index' => $index
+                'index' => $index,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
 
     /**
-     * @param array $indexes
      * @return array
      */
     public function createNonExistsIndexes(array $indexes = [])
     {
         $result = [];
-        foreach (!$indexes ? self::INDEXES : $indexes as $index) {
-            if (!$this->indexExist($index)) {
+        foreach (! $indexes ? self::INDEXES : $indexes as $index) {
+            if (! $this->indexExist($index)) {
                 $this->createIndex($index);
                 $result[] = $indexes;
             }
         }
+
         return $result;
     }
 
@@ -106,11 +89,11 @@ class Elasticsearch
     {
         try {
             $count = $this->connection->count(['index' => $index]);
-            if (!$count) {
+            if (! $count) {
                 return 0;
             }
 
-            return (int)$count['count'];
+            return (int) $count['count'];
         } catch (Exception|Throwable $e) {
             return 0;
         }
@@ -119,6 +102,7 @@ class Elasticsearch
     public function connect()
     {
         $hosts = explode(',', env('ELASTICSEARCH_HOST', []));
+
         return ClientBuilder::create()
             ->setHttpClientOptions([
                 RequestOptions::CONNECT_TIMEOUT => 5,
