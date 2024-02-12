@@ -693,7 +693,6 @@ class ImageController extends Controller
         if ($new->save()) {
             //call google image scraper
             $postData = ['data' => [['id' => $new->id, 'search_term' => $request->search_term]]];
-            $postData = json_encode($postData);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages';
 
@@ -701,11 +700,10 @@ class ImageController extends Controller
                 'Content-Type' => 'application/json',
             ])->post($url, $postData);
 
-            $httpcode = $response->status();
 
             $responseData = $response->json();
 
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($responseData), $httpcode, ImageController::class, 'imageQueue');
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($responseData), $response->status(), ImageController::class, 'imageQueue');
 
             $messages = 'new search queue added successfuly';
 

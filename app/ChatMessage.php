@@ -138,8 +138,7 @@ class ChatMessage extends Model
 
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
-        ])
-            ->post($url, $chatApiArray);
+        ])->post($url, $chatApiArray);
 
         if ($response->failed()) {
             $err = $response->body();
@@ -157,11 +156,8 @@ class ChatMessage extends Model
             // Log curl response
             Log::channel('chatapi')->debug('cUrl:' . $responseData . "\nMessage: " . $message . "\nFile:" . $file . "\n");
 
-            // Json decode response into result
-            $result = json_decode($responseData, true);
-
             // Check for possible incorrect response
-            if (! is_array($result) || array_key_exists('sent', $result) && ! $result['sent']) {
+            if (! is_array($responseData) || array_key_exists('sent', $responseData) && !$responseData['sent']) {
                 // Log error
                 Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Something was wrong with the message for number ' . $number . ': ' . $responseData);
 
@@ -172,7 +168,7 @@ class ChatMessage extends Model
             }
         }
 
-        return $result;
+        return $responseData;
     }
 
     /**

@@ -837,9 +837,7 @@ class HashtagController extends Controller
                             'Content-Type' => 'application/json',
                         ])->post($url, $data);
 
-                        $httpcode = $response->status();
-
-                        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, HashtagController::class, 'addmailinglist');
+                        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $response->status(), HashtagController::class, 'addmailinglist');
 
                         $res = $response->json();
 
@@ -885,11 +883,9 @@ class HashtagController extends Controller
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
 
-            $httpcode = $response->status();
-
             $responseData = $response->json();
 
-            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($responseData), $httpcode, HashtagController::class, 'addmailinglist');
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), $responseData, $response->status(), HashtagController::class, 'addmailinglist');
 
         }
 
@@ -913,19 +909,16 @@ class HashtagController extends Controller
             ], 200);
         }
 
-        $data = json_encode($data);
-
         Log::info('INFLUENCER_loginstance -->' . $data);
         $response = Http::withHeaders([
             'Content-Type' => 'application/json',
             'accept' => 'application/json',
         ])->post($url, $data);
-        $httpcode = $response->status();
         $responseData = $response->json();
 
-        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($responseData), $httpcode, HashtagController::class, 'loginstance');
+        LogRequest::log($startTime, $url, 'POST', json_encode($data), $responseData, $response->status(), HashtagController::class, 'loginstance');
 
-        $result = explode("\n", $responseData);
+        $result = explode("\n", json_encode($responseData));
 
         if (count($result) > 1) {
             return response()->json([
