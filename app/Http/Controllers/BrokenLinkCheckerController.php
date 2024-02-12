@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Storage;
 use Response;
 use App\BackLinkChecker;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class BrokenLinkCheckerController extends Controller
 {
@@ -27,13 +28,14 @@ class BrokenLinkCheckerController extends Controller
      * Get Broken Links Details
      * Function for API
      *
-     * @return json response
+     * @return JsonResponse response
+     *
+     * @throws FileNotFoundException
      */
     public function getBrokenLinkDetails()
     {
-        $json_file = Storage::disk('local')->get('/files/broken-link-checker.json');
+        $json_file = Storage::get('local/files/broken-link-checker.json');
         if ($json_file) {
-            $info = json_decode($json_file, true);
             $json['type'] = 'success';
             $json['message'] = 'Data Received Successfully';
 
@@ -50,7 +52,7 @@ class BrokenLinkCheckerController extends Controller
      * Get Broken Links Details
      * Function for display
      *
-     * @return json response
+     * @return View response
      */
     public function displayBrokenLinkDetails(Request $request)
     {
@@ -76,49 +78,16 @@ class BrokenLinkCheckerController extends Controller
         $domains = BackLinkChecker::select('domains')->pluck('domains')->toArray();
         $rankings = BackLinkChecker::select('rank')->pluck('rank')->toArray();
 
-        return View('broken-link-checker.index',
+        return view('broken-link-checker.index',
             compact('details', 'domains', 'rankings')
         );
-        // $json_file = Storage::disk('local')->get('/files/broken-link-checker.json');
-        // if ($json_file) {
-        //     $details = json_decode($json_file, true);
-        //     foreach($details as $detail) {
-        //         $results = $detail['results'];
-        //         foreach($results as $result){
-        //             // DB::table('back_link_checkers')->insert(
-        //             //     [
-        //             //         'domains' => $result['domain'], 'links' => $result['link'],
-        //             //         'link_type' => $result['link_type'],
-        //             //         'review_numbers' => $result['num_reviews'], 'rank' => $result['rank'],
-        //             //         'rating' => $result['rating'], 'serp_id' => $result['serp_id'],
-        //             //         'snippet' => $result['snippet'], 'title' => $result['title'],
-        //             //         'visible_link' => $result['visible_link'],
-        //             //         "created_at" => Carbon::now(), "updated_at" => Carbon::now()
-        //             //     ]
-        //             // );
-        //             $domains[] = $result['domain'];
-        //             $rankings[] = $result['rank'];
-        //         }
-        //     }
-        //     if (!empty($request['domain'])){
-        //         if (in_array($request['domain'], $domains)) {
-        //             $final_results[] = '';
-        //         }
-        //         dd($final_results);
-        //     }
-        //     return View('broken-link-checker.index',
-        //         compact('domains', 'rankings', 'details')
-        //     );
-        // } else {
-        //     abort('File Not Found');
-        // }
     }
 
     /**
      * Get Broken Links Details
      * Function for display
      *
-     * @return json response
+     * @return JsonResponse response
      */
     public function updateDomain(Request $request)
     {
@@ -136,7 +105,7 @@ class BrokenLinkCheckerController extends Controller
      * Updated Title
      * Function for display
      *
-     * @return json response
+     * @return JsonResponse response
      */
     public function updateTitle(Request $request)
     {

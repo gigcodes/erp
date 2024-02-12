@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Brand;
-use App\Product;
 use App\Scraper;
 use App\Setting;
 use App\Activity;
@@ -47,7 +46,6 @@ class BrandController extends Controller
         $category_segments = CategorySegment::where('status', 1)->get();
 
         $storeWebsite = \App\StoreWebsite::all()->pluck('website', 'id')->toArray();
-        $brandsData = \App\Brand::select('name', 'references', 'id')->get()->toArray();
         $attachedBrands = \App\StoreWebsiteBrand::groupBy('store_website_id')->select(
             [\DB::raw('count(brand_id) as total_brand'), 'store_website_id']
         )->get()->toArray();
@@ -62,15 +60,6 @@ class BrandController extends Controller
         $keyWord = $request->get('term', '');
         $dev = $request->get('dev', '');
         $devCheckboxs = $request->get('devCheckboxs');
-        $madeby = $request->get('scraper_made_by', 0);
-        $scrapeType = $request->get('scraper_type', 0);
-
-        // $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
-        // ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
-        // ->leftJoin("products as p","p.brand","brands.id")
-        // ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on"),\DB::raw("LOWER(trim(brands.name)) as lower_brand"), \DB::raw('COUNT(p.id) as total_products')])
-        // ->groupBy("brands.id")
-        // ->orderBy('total_products',"desc")->whereNull('brands.deleted_at');
 
         $brands = Brand::leftJoin('products as p', 'p.brand', 'brands.id')
         ->select(['brands.*', \DB::raw('LOWER(trim(brands.name)) as lower_brand'), \DB::raw('COUNT(p.id) as total_products')])
@@ -78,11 +67,9 @@ class BrandController extends Controller
         ->orderBy('total_products', 'desc')->with('singleBrandTask')->whereNull('brands.deleted_at');
 
         if ($devCheckboxs) {
-            /* foreach($request->get("devCheckboxs") as $devCheckbox){*/
             $brands->whereHas('brandTask', function ($q) use ($devCheckboxs) {
                 $q->whereIn('assigned_to', $devCheckboxs);
             });
-            /*}*/
         }
         $keyword = request('keyword');
         if (! empty($keyWord)) {
@@ -137,8 +124,6 @@ class BrandController extends Controller
         $data['euro_to_inr'] = '';
         $data['deduction_percentage'] = '';
         $data['magento_id'] = '';
-        $data['brand_segment'] = '';
-        $data['brand_segment'] = '';
         $data['brand_segment'] = '';
         $data['category_segments'] = CategorySegment::where('status', 1)->get();
         $data['amount'] = '';
@@ -235,64 +220,6 @@ class BrandController extends Controller
             CreateHashTags::dispatch(['data' => $chunk, 'user_id' => Auth::user()->id, 'category_postfix_string_list' => $category_postfix_string_list, 'type' => 'brand'])->onQueue('generategooglescraperkeywords');
         }
     }
-
-    /*
-    public function update(Request $request, Brand $brand)
-    {
-
-        $this->validate($request, [
-            'name' => 'required',
-            'euro_to_inr' => 'required|numeric',
-            'deduction_percentage' => 'required|numeric',
-            'magento_id' => 'required|numeric',
-        ]);
-
-        DB::table('category_segment_discounts')->where('brand_id', $brand->id)->update([
-            'category_segment_id' => $request->category_segment_id,
-            'amount' => $request->amount,
-            'amount_type' => 'percentage',
-            'updated_at' => now()
-        ]);
-
-        $data = $request->except(['_token', '_method','references', 'category_segment_id', 'amount']);
-
-        foreach ($data as $key => $value) {
-            $brand->$key = $value;
-        }
-        $brand->references = $request->references;
-        $brand->update();
-
-        $products = Product::where('brand', $brand->id)->get();
-
-        if (count($products) > 0) {
-            foreach ($products as $product) {
-                if (!empty($brand->euro_to_inr)) {
-                    $product->price_inr = $brand->euro_to_inr * $product->price;
-                } else {
-                    $product->price_inr = Setting::get('euro_to_inr') * $product->price;
-                }
-
-                $product->price_inr = round($product->price_inr, -3);
-                $product->price_inr_special = $product->price_inr - ($product->price_inr * $brand->deduction_percentage) / 100;
-
-                $product->price_inr_special = round($product->price_inr_special, -3);
-
-                $product->save();
-            }
-        }
-
-        // $uploaded_products = Product::where('brand', $brand->id)->where('isUploaded', 1)->get();
-        $uploaded_products = [];
-
-        if (count($uploaded_products) > 0) {
-            foreach ($uploaded_products as $product) {
-                $this->magentoSoapUpdatePrices($product);
-            }
-        }
-
-        return redirect()->route('brand.index')->with('success', 'Brand updated successfully');
-    }
-    */
 
     /**
      * @return \Illuminate\Http\JsonResponse
@@ -443,22 +370,6 @@ class BrandController extends Controller
         return response()->json(['code' => 500, 'data' => [], 'message' => 'Oops, something went wrong']);
     }
 
-    /*
-    public function updateReference(Request $request)
-    {
-        $reference = $request->get("reference");
-        $brandId = $request->get("brand_id");
-        if(is_array($reference)){
-            $reference = implode(',', $reference);
-        }
-        if(!empty($brandId)) {
-                $success = Brand::where("id",$brandId)->update(['references'=>$reference]);
-                return response()->json(["code" => 200 , "data" => [], "message" => "Reference updated successfully"]);
-        }
-
-        return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
-    }
-    */
     public function createRemoteId(Request $request, $id)
     {
         $brand = \App\Brand::where('id', $id)->first();
@@ -534,12 +445,6 @@ class BrandController extends Controller
                 $toBrand->references = implode(',', array_unique($mReference));
                 $toBrand->save();
                 $fromBrand->delete();
-                /*Activity::create([
-                    'subject_type' => 'Brand',
-                    'subject_id' => $fromBrand->id,
-                    'causer_id' => Auth::user()->id,
-                    'description' => Auth::user()->name.' has merged '.$fromBrand->name.' to '.$toBrand->name,
-                ]);*/
 
                 return response()->json(['code' => 200, 'data' => []]);
             }
@@ -708,17 +613,15 @@ class BrandController extends Controller
             $files = $request->file('file');
             $fileNameArray = [];
             foreach ($files as $key => $file) {
-                //echo $file->getClientOriginalName();
-                // $fileName = time().$key.'.'.$file->extension();
-                $fileName = $file->getClientOriginalName();
+                $fileName = $file->hashName();
                 $fileNameArray[] = $fileName;
 
                 $params['logo_image_name'] = $fileName;
                 $params['user_id'] = Auth::id();
 
-                $log = BrandLogo::create($params);
+                BrandLogo::create($params);
 
-                $file->move(public_path('brand_logo'), $fileName);
+                $file->storeAs('brand_logo', $fileName);
             }
 
             return response()->json(['code' => 200, 'msg' => 'files uploaded successfully', 'data' => $fileNameArray]);
