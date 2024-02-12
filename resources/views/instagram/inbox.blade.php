@@ -99,7 +99,7 @@
                                 <tr>
                                     <td style="width:50%">${value.text}</td>
                                     <td style="width:50%">${sentBy}</td>
-                                </tr>    
+                                </tr>
                             </table>
                             `)
                         })
@@ -108,7 +108,7 @@
                             <table class="table table-bordered">
                                 <tr>
                                     <td colspan="2">No conversations found</td>
-                                </tr>    
+                                </tr>
                             </table>
                             `)
                     }
@@ -122,10 +122,3 @@
         })
     </script>
 @endsection
-
-<tr class="out-background filter-message '+ reviewed_msg+'" data-message="'+message.message+'">
-    <td style="width:5%"><input data-object_type_id="'+message.object_type_id+'" data-id="'+message.id+'"
-            data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>
-</tr>
-
-<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'"></tr>
