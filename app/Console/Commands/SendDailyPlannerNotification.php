@@ -52,7 +52,6 @@ class SendDailyPlannerNotification extends Command
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'report added.']);
 
             // get the events which has 30  OR 05 Min left
-            // $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 AND TIMESTAMPDIFF(MINUTE, now(), start) <= 35 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ")->get();
             $events = UserEvent::havingRaw('TIMESTAMPDIFF(MINUTE,now() , start) = 30 OR TIMESTAMPDIFF(MINUTE, now(), start) = 05 ')->get();
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Event query finished.']);
 
@@ -149,7 +148,7 @@ class SendDailyPlannerNotification extends Command
             $report->update(['end_time' => Carbon::now()]);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Report time updated.']);
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'corn job ended.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

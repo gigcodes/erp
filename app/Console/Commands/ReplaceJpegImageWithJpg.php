@@ -62,7 +62,7 @@ class ReplaceJpegImageWithJpg extends Command
                     $media->save();
                     dump('done...');
                 } catch (\Exception $exception) {
-//                dump($exception);
+                    //
                 }
             }
 

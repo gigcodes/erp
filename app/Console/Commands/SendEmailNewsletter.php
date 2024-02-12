@@ -39,13 +39,10 @@ class SendEmailNewsletter extends Command
      */
     public function handle()
     {
-        //
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $newsletters = Newsletter::whereNull('sent_on')->where('sent_at', '!=', '')->get();
-        //$newsletters = Newsletter::where("id",2)->get();
 
         foreach ($newsletters as $newsletter) {
-            //$template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
             $template = $newsletter->mailinglistTemplate;
             if ($template) {
                 $products = $newsletter->products;
@@ -74,7 +71,6 @@ class SendEmailNewsletter extends Command
                                 'template_content' => view($template->mail_tpl, compact('products', 'newsletter')),
                             ];
                             curl_setopt_array($curl, [
-                                //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$mailinglist->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
                                 CURLOPT_URL => $url,
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_ENCODING => '',

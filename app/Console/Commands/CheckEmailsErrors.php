@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Agent;
-use App\Supplier;
-use Carbon\Carbon;
 use App\CronJobReport;
 use App\Helpers\LogHelper;
+use App\Supplier;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Webklex\PHPIMAP\ClientManager;
 

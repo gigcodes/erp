@@ -42,8 +42,6 @@ class TestMagentoProduct extends Command
      */
     public function handle()
     {
-        //
-
         $queueName = [
             '1' => 'mageone',
             '2' => 'magetwo',
@@ -64,18 +62,18 @@ class TestMagentoProduct extends Command
                     })->join('media', function ($q) {
                         $q->on('media.id', 'm.media_id')->where('media.filename', 'Like', '%cropped%');
                     })->join('brands as b', 'b.id', 'products.brand')
-                    ->where('products.short_description', '!=', '')
-                    ->where('products.name', '!=', '')
-                    ->where('products.size', '!=', '')
-                    ->where('products.price', '>', '0')
-                    ->where('products.isListed', '0')
-                    ->where('products.status_id', StatusHelper::$finalApproval)
-                    ->whereIn('products.category', [$swc->category_id])
-                    ->groupBy('m.mediable_id')
-                    ->select('products.*')
-                    ->orderBy('products.id', 'desc')
-                    ->limit(5)
-                    ->get();
+                        ->where('products.short_description', '!=', '')
+                        ->where('products.name', '!=', '')
+                        ->where('products.size', '!=', '')
+                        ->where('products.price', '>', '0')
+                        ->where('products.isListed', '0')
+                        ->where('products.status_id', StatusHelper::$finalApproval)
+                        ->whereIn('products.category', [$swc->category_id])
+                        ->groupBy('m.mediable_id')
+                        ->select('products.*')
+                        ->orderBy('products.id', 'desc')
+                        ->limit(5)
+                        ->get();
 
                     if (! $products->isEmpty()) {
                         foreach ($products as $product) {

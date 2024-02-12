@@ -54,7 +54,6 @@ class SetFormattedPricingForScrapedProducts extends Command
             ]);
             // Get all scraped products without formatted pricing
             ScrapedProducts::chunk(100, function ($scrapedProducts) {
-                //ScrapedProducts::whereNotNull( 'price_eur' )->chunk( 100, function ( $scrapedProducts ) {
                 foreach ($scrapedProducts as $scrapedProduct) {
                     // Check for price
                     $currency = $this->_getCurrencyFromPrice($scrapedProduct->price);

@@ -38,7 +38,6 @@ class ProductMoveBrand extends Command
      */
     public function handle()
     {
-        //
         $products = Product::where('updated_at', '>=', '2021-01-18 00:00:00')->where('last_brand', '>', 0)->get();
         foreach ($products as $product) {
             try {

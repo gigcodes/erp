@@ -36,7 +36,6 @@ class UpdateInventoryHistory extends Command
      */
     public function handle()
     {
-        //return false;
         LogHelper::createCustomLogForCron($this->signature, ['message' => 'cron was started.']);
         try {
             $date = date('Y-m-d');
@@ -68,7 +67,7 @@ class UpdateInventoryHistory extends Command
                 \App\InventoryHistory::insert($data);
             }
             LogHelper::createCustomLogForCron($this->signature, ['message' => 'Inventory history query finished.']);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

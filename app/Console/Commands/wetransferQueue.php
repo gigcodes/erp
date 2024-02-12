@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use App\LogRequest;
 use App\Wetransfer;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
-use seo2websites\ErpExcelImporter\ErpExcelImporter;
 
 class wetransferQueue extends Command
 {
@@ -76,21 +74,6 @@ class wetransferQueue extends Command
                         ];
                         Wetransfer::where('id', $list['id'])->update($update);
                     }
-
-                    // $attach = str_replace('email-attachments/', '', $attach);
-                    // if ($extension == 'xlsx' || $extension == 'xls') {
-                    //     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                    //         $excel = $list['supplier'];
-                    //         ErpExcelImporter::excelFileProcess($file, $excel,'');
-                    //     }
-                    // } elseif ($extension == 'zip') {
-                    //     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                    //         $excel = $list['supplier'];
-                    //         $attachments_array = [];
-                    //         $attachments       = ErpExcelImporter::excelZipProcess('', $file, $excel, '', $attachments_array);
-
-                    //     }
-                    // }
                 }
             }
         }
@@ -105,8 +88,6 @@ class wetransferQueue extends Command
      */
     private function downloadWetransferFiles($url = null)
     {
-        // $url                = 'https://we.tl/t-xqLJc4dOEM'; // zip
-        // $url                = 'https://we.tl/t-okoJwHbNhX'; // one file
         $WETRANSFER_API_URL = 'https://wetransfer.com/api/v4/transfers/';
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         try {
@@ -146,8 +127,6 @@ class wetransferQueue extends Command
             } else {
                 exit('Something is wrong with url');
             }
-
-            // $header = getCsrfFromWebsite();
 
             //making post request to get the url
             $data = [];
@@ -208,12 +187,7 @@ class wetransferQueue extends Command
             if (! file_exists(public_path('wetransfer'))) {
                 mkdir(public_path('wetransfer'), 0777, true);
             }
-            // $file = file_put_contents( storage_path('app/files/email-attachments/'.$file_name), file_get_contents($url));
             $file = file_put_contents(public_path('wetransfer/' . $file_name), file_get_contents($url));
-
-            // $zip  = new \ZipArchive;
-            // $zip->open( public_path( 'wetransfer/'.$file_name ) );
-            // $this->output->write('Loading.... '.$zip->count(), true);
 
             return $file_name;
         } catch (\Throwable $th) {

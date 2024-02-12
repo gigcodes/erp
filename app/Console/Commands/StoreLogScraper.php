@@ -57,7 +57,6 @@ class StoreLogScraper extends Command
             $dateBeforeSevenday = date('Y-m-d', strtotime('-7 day'));
 
             ScrapRemark::where('scrap_field', 'last_line_error')->whereDate('created_at', '<=', $dateBeforeSevenday)->delete();
-            // $root          = env('SCRAP_LOGS_FOLDER');
             $root = config('env.SCRAP_LOGS_FOLDER');
 
             $counter = 0;

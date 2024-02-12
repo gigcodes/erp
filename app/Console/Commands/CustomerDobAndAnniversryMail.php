@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Mail;
 use App\EmailAddress;
-use App\MailinglistTemplate;
-use Illuminate\Console\Command;
 use App\Mail\DobAndAnniversaryMail;
+use App\MailinglistTemplate;
 use App\MailinglistTemplateCategory;
+use Illuminate\Console\Command;
 
 class CustomerDobAndAnniversryMail extends Command
 {
@@ -69,8 +68,6 @@ class CustomerDobAndAnniversryMail extends Command
                         $emailData['subject'] = $templateData->subject;
                         $emailData['template'] = $bodyText;
                         $emailData['from'] = $storeEmailAddress->from_address;
-                        //Mail::to($customer->email)->send(new DobAndAnniversaryMail($emailData));
-
                         $emailClass = (new DobAndAnniversaryMail($emailData))->build();
 
                         $email = \App\Email::create([
@@ -121,8 +118,6 @@ class CustomerDobAndAnniversryMail extends Command
                         $emailData['subject'] = $templateData->subject;
                         $emailData['template'] = $bodyText;
                         $emailData['from'] = $storeEmailAddress->from_address;
-
-                        //Mail::to($customer->email)->send(new DobAndAnniversaryMail($emailData));
 
                         $emailClass = (new DobAndAnniversaryMail($emailData))->build();
 

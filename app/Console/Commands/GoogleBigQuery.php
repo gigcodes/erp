@@ -41,14 +41,12 @@ class GoogleBigQuery extends Command
     public function handle()
     {
         $storewebsites = StoreWebsite::select('id', 'key_file_path', 'project_id')->get();
-        //dd($storewebsites);
         foreach ($storewebsites as $storewebsite) {
             if ($storewebsite->key_file_path && $storewebsite->project_id) {
                 $config = [
                     'keyFilePath' => public_path('bigData/' . $storewebsite->key_file_path),
                     'projectId' => $storewebsite->project_id,
                 ];
-                //dd($config);
                 $bigQuery = new BigQueryClient($config);
                 $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "' . date('Y-m-d') . '"';
                 $queryJobConfig = $bigQuery->query($query)
@@ -56,7 +54,6 @@ class GoogleBigQuery extends Command
                 $queryResults = $bigQuery->runQuery($queryJobConfig);
                 foreach ($queryResults as $row) {
                     $row = (object) $row;
-                    //dd($row);
                     $gBigQ = new GoogleBigQueryData();
                     $gBigQ->google_project_id = $storewebsite->project_id;
                     $gBigQ->platform = $row->platform;

@@ -98,7 +98,6 @@ class GetLiveMessages extends Command
 
                     //FInding if customers is present in database
                     $customer = Customer::where('email', $user->email)->first();
-                    //dd($user);
                     if ($customer != null) {
                         $id = $customer->id;
                     } else {

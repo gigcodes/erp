@@ -67,8 +67,6 @@ class GetGoogleRefreshToken extends Command
      */
     public function handle()
     {
-        //
-
         $PRODUCTS = [
             ['AdWords API', self::ADWORDS_API_SCOPE],
             ['Ad Manager API', self::AD_MANAGER_API_SCOPE],

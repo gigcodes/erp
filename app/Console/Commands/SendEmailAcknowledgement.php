@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\LogRequest;
-use App\Models\EMailAcknowledgement;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use App\Models\EMailAcknowledgement;
 
 class SendEmailAcknowledgement extends Command
 {
@@ -45,19 +44,18 @@ class SendEmailAcknowledgement extends Command
 
             $EMailAcknowledgement = EMailAcknowledgement::with('email_address_record')->where('end_date', '>=', $currentTime)->get();
 
-            if(!empty($EMailAcknowledgement)){
+            if (! empty($EMailAcknowledgement)) {
                 foreach ($EMailAcknowledgement as $key => $value) {
                     $latest_email = \App\Email::where('to', $value->email_address_record->username)->where('is_reply', 0)->where('created_at', '>', $value->start_date)->where('created_at', '<', $value->end_date)->get();
 
-                    if(!empty($latest_email)){
+                    if (! empty($latest_email)) {
                         foreach ($latest_email as $key => $email) {
-
                             \App\Email::where('id', $email->id)->update(['is_reply' => 1]);
 
-                            if($value->ack_status==1){
+                            if ($value->ack_status == 1) {
                                 $status = 'outgoing';
                                 $is_draft = 0;
-                            } else{
+                            } else {
                                 $status = 'pre-send';
                                 $is_draft = 1;
                             }
@@ -67,7 +65,7 @@ class SendEmailAcknowledgement extends Command
                                 'model_type' => \App\Email::class,
                                 'from' => $email->to,
                                 'to' => $email->from,
-                                'subject' => "Re: ".$email->subject,
+                                'subject' => 'Re: ' . $email->subject,
                                 'message' => $value->ack_message,
                                 'template' => 'reply-email',
                                 'additional_data' => '',

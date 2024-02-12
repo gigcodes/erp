@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Email;
-use Carbon\Carbon;
 use App\CronJobReport;
 use App\Waybillinvoice;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 /**

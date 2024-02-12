@@ -182,8 +182,8 @@ class RunMessageQueue extends Command
         $number = ! empty($number) ? $number : 0;
 
         return isset(config('apiwha.instances')[$number])
-        ? config('apiwha.instances')[$number]
-        : config('apiwha.instances')[0];
+            ? config('apiwha.instances')[$number]
+            : config('apiwha.instances')[0];
     }
 
     /**

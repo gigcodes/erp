@@ -49,8 +49,6 @@ class GetColorsFromScrapedProducts extends Command
             Product::where('is_approved', 0)->orderBy('id', 'DESC')->where('color', '')->chunk(1000, function ($products) {
                 foreach ($products as $product) {
                     $scrapedProducts = $product->many_scraped_products;
-//                dump($product->name);
-                    //                dump(count($scrapedProducts));
                     if (! $scrapedProducts) {
                         continue;
                     }

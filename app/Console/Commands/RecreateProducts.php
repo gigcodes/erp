@@ -47,10 +47,8 @@ class RecreateProducts extends Command
             ]);
 
             $products = ScrapedProducts::where('website', 'angelominetti')->get();
-            // dd(count($products));
             foreach ($products as $key => $product) {
                 app(\App\Services\Products\ProductsCreator::class)->createProduct($product);
-
                 dump("$key - created product");
             }
 

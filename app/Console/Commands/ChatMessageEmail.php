@@ -37,7 +37,6 @@ class ChatMessageEmail extends Command
      */
     public function handle()
     {
-        //
         $sql = "SELECT DISTINCT REGEXP_SUBSTR(`message`, '([a-zA-Z0-9._%+\-]+)@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,4})') AS Email,customer_id FROM `chat_messages` where customer_id >0  having Email is not null and Email != ''";
         $records = \DB::select($sql);
         $no = 0;

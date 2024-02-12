@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\ChatMessage;
 use App\CronJobReport;
 use App\Helpers\LogHelper;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class DeleteChatMessages extends Command

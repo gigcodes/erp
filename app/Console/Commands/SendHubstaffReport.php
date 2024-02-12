@@ -40,7 +40,6 @@ class SendHubstaffReport extends Command
     {
         parent::__construct();
         $this->client = new Client();
-        // $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
         $this->init(config('env.HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
 
@@ -53,7 +52,6 @@ class SendHubstaffReport extends Command
     {
         return false;
         //STOPPED CERTAIN MESSAGES
-        //
         try {
             $report = \App\CronJobReport::create([
                 'signature' => $this->signature,
@@ -86,7 +84,7 @@ class SendHubstaffReport extends Command
 
             ChatMessage::sendWithChatApi('971502609192', null, $message);
             $report->update(['end_time' => Carbon::now()]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             LogHelper::createCustomLogForCron($this->signature, ['Exception' => $e->getTraceAsString(), 'message' => $e->getMessage()]);
 
             \App\CronJob::insertLastError($this->signature, $e->getMessage());

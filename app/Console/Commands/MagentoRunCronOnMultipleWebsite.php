@@ -4,15 +4,11 @@ namespace App\Console\Commands;
 
 use App\LogRequest;
 use App\StoreWebsite;
-use App\AssetsManager;
-use App\MagentoCommand;
-use App\MagentoCommandRunLog;
 use App\Models\MagentoCronList;
-use App\Models\MagentoCronRunLog;
 use Illuminate\Console\Command;
 use App\MagentoDevScripUpdateLog;
+use App\Models\MagentoCronRunLog;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Artisan;
 
 class MagentoRunCronOnMultipleWebsite extends Command
 {
@@ -58,7 +54,6 @@ class MagentoRunCronOnMultipleWebsite extends Command
             Log::info('Magento Cron Name: ' . $magCom->cron_name);
 
             foreach ($websites_ids as $websites_id) {
-                
                 $websites = StoreWebsite::where('id', $websites_id)->get();
                 if ($websites->isEmpty()) {
                     MagentoCronRunLog::create(
@@ -78,14 +73,12 @@ class MagentoRunCronOnMultipleWebsite extends Command
                     Log::info('Start Rum Magento Cron for website_id: ' . $website->id);
 
                     if ($magCom->cron_name != '' && $website->server_ip != '') {
-
                         Log::info('Cron Name: ' . $magCom->cron_name);
                         Log::info('website server_ip: ' . $website->server_ip);
 
                         $job_id = '';
                         $website_id = $website->id;
-                        
-                        //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
+
                         $url = getenv('MAGENTO_COMMAND_API_URL');
                         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
                         $requestParams = [
@@ -119,7 +112,7 @@ class MagentoRunCronOnMultipleWebsite extends Command
                                     'server_ip' => $website->server_ip,
                                     'working_directory' => $website->working_directory,
                                     'response' => curl_error($ch),
-                                    'request' =>  json_encode($requestParams),
+                                    'request' => json_encode($requestParams),
                                 ]
                             );
                         }
@@ -142,7 +135,7 @@ class MagentoRunCronOnMultipleWebsite extends Command
                                         'server_ip' => $website->server_ip,
                                         'working_directory' => $website->working_directory,
                                         'response' => $message,
-                                        'request' =>  json_encode($requestParams),
+                                        'request' => json_encode($requestParams),
                                     ]
                                 );
                             }
@@ -154,9 +147,7 @@ class MagentoRunCronOnMultipleWebsite extends Command
                                 Log::info('API Response job_id: ' . $job_id);
                             }
                         }
-                       
 
-                        //$cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH').$magCom->command_name.' --server ' . $magCom->server_ip.' --type custom --command ' . $website->command_type;
                         $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command '" . $magCom->command_type . "'";
                         if ($magCom->command_name == 'bin/magento cache:f' || $magCom->command_name == "'bin/magento cache:f'") {
                             $cmd = 'bash ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . 'magento-commands.sh  --server ' . $website->server_ip . " --type custom --command 'bin/magento cache:f'";
@@ -193,7 +184,7 @@ class MagentoRunCronOnMultipleWebsite extends Command
                                 'working_directory' => $website->working_directory,
                                 'response' => $result,
                                 'job_id' => $job_id,
-                                'request' =>  json_encode($requestParams),
+                                'request' => json_encode($requestParams),
                             ]
                         );
                     } else {

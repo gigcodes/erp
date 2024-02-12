@@ -44,10 +44,10 @@ class MagentoProductApiCallCommand extends Command
         \Log::channel('magentoProductApi')->info('Magento Product API Call Successfully');
 
         $produts = LogListMagento::join('products as p', 'p.id', 'log_list_magentos.product_id')
-                                ->where('sync_status', 'success')
-                                ->groupBy('product_id', 'store_website_id')
-                                ->orderBy('log_list_magentos.id', 'desc')
-                                ->get();
+            ->where('sync_status', 'success')
+            ->groupBy('product_id', 'store_website_id')
+            ->orderBy('log_list_magentos.id', 'desc')
+            ->get();
 
         $languages = ['arabic', 'german', 'spanish', 'french', 'italian', 'japanese', 'korean', 'russian', 'chinese'];
 
@@ -66,7 +66,6 @@ class MagentoProductApiCallCommand extends Command
                     'message' => 'Product Unique id Generated: ',
                 ]);
                 try {
-                    // $get_store_website = \App\StoreWebsite::find($websiteId);
                     $get_store_website = \App\StoreWebsite::find($websiteId);
                     $result = $magentoHelper->getProductBySku($sku, $get_store_website, null, $product_ref_id);
                     LogMagentoApi::create([

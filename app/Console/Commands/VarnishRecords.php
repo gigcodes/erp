@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Console\Commands;
-use App\AssetsManager;
+
 use App\StoreWebsite;
-use App\Models\VarnishStats;
-use App\Models\VarnishStatsLogs;
+use App\AssetsManager;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
+use App\Models\VarnishStatsLogs;
 use Illuminate\Support\Facades\Log;
 
 class VarnishRecords extends Command
@@ -46,20 +45,17 @@ class VarnishRecords extends Command
             Log::info('Start Varnish Records');
 
             $storeWebsites = StoreWebsite::get();
-            if(!empty($storeWebsites)){
+            if (! empty($storeWebsites)) {
                 foreach ($storeWebsites as $storeWebsite) {
-
                     Log::info($storeWebsite->title);
 
-                    if((!empty($storeWebsite->assets_manager_id)) && ($storeWebsite->assets_manager_id >0)){
+                    if ((! empty($storeWebsite->assets_manager_id)) && ($storeWebsite->assets_manager_id > 0)) {
+                        Log::info('asset -' . $storeWebsite->assets_manager_id);
 
-                        Log::info('asset -'.$storeWebsite->assets_manager_id);
-    
                         $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
-                
-                        if(!empty($storeWebsite->server_ip) && !empty($storeWebsite->title) && !empty($assetsmanager->ip_name)){
 
-                            Log::info('server_ip -'.$storeWebsite->server_ip.'--- title -'.$storeWebsite->title.'--- ip_name -'.$assetsmanager->ip_name);
+                        if (! empty($storeWebsite->server_ip) && ! empty($storeWebsite->title) && ! empty($assetsmanager->ip_name)) {
+                            Log::info('server_ip -' . $storeWebsite->server_ip . '--- title -' . $storeWebsite->title . '--- ip_name -' . $assetsmanager->ip_name);
 
                             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
@@ -76,17 +72,6 @@ class VarnishRecords extends Command
                             \Log::info('store output:' . print_r($output, true));
                             \Log::info('store return_var:' . $return_var);
 
-                            /*VarnishStats::create([
-                                'created_by' => 0,
-                                'store_website_id' => $storeWebsite->id,
-                                'assets_manager_id' => $storeWebsite->assets_manager_id,
-                                'server_name' => $storeWebsite->title,
-                                'server_ip' => $storeWebsite->server_ip,
-                                'website_name' => $assetsmanager->ip_name,
-                                'request_data' => $cmd,
-                                'response_data' => json_encode($result),
-                            ]);*/
-
                             VarnishStatsLogs::create([
                                 'request_data' => $cmd,
                                 'response_data' => json_encode($result),
@@ -97,7 +82,6 @@ class VarnishRecords extends Command
             }
 
             Log::info('End Sonar Qube');
-            
         } catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }

@@ -51,27 +51,7 @@ class SaveProductsImages extends Command
                 'start_time' => Carbon::now(),
             ]);
 
-            // $products = Product::where('is_without_image', 1)->whereNotIn('supplier', ['Tiziana Fausti', 'Giglio Lamezia Terme', "Al Duca d'Aosta", 'Carofiglio Junior'])->get();
-            // $products = Product::where('is_without_image', 1)->where('supplier', 'Tiziana Fausti')->get();
-            // $products = Product::where('is_without_image', 1)->where('supplier', 'Tessabit')->get();
-            // $products = Product::where('is_without_image', 1)->get();
-
             $products = Product::where('is_without_image', 1)->whereNotIn('supplier', ['MINETTI', 'Spinnaker 101'])->get();
-            // $products = Product::where('supplier', "Savannah's")->where('created_at', 'LIKE', "%2019-06-05%")->get();
-            // $products = Product::where('is_without_image', 1)->whereIn('supplier', ['Spinnaker 101'])->get();
-            // $products = Product::where('is_without_image', 1)->where('sku', '558882W088G9963')->get();
-
-            // $products = Product::where('is_without_image', 1)->where('sku', 'XXM45A00D80RE0')->get();
-            // dd(count($products));
-            // IGNOR GIGLIO !!!
-            // WRONG Tessabit
-
-            // $products = Product::doesnthave('Media')->whereRaw('products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 1)')->get();
-            //
-            // dd(count($products));
-
-            // dd(count($products));
-            // $products = Product::where('is_without_image', 1)->where('sku', 'BE2007E00C001')->get();
             $count = 0;
             $has_images = 0;
             foreach ($products as $key => $product) {
@@ -86,8 +66,6 @@ class SaveProductsImages extends Command
                     $count++;
                     // continue;
                 }
-
-                // dd($product->many_scraped_products);
 
                 foreach ($product->many_scraped_products as $scraped_product) {
                     dump("$key - Found Scraped Product - " . $product->scraped_products->sku);
@@ -229,9 +207,6 @@ class SaveProductsImages extends Command
                         }
                     }
                 }
-                // else {
-                //   echo "$key - Didn't find match - " . $product->sku . "\n";
-                // }
             }
 
             dump($count, $has_images);
