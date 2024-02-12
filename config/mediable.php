@@ -11,7 +11,7 @@ return [
     /*
      * Filesystem disk to use if none is specified
      */
-    'default_disk' => 'uploads',
+    'default_disk' => env('FILESYSTEM_DRIVER', 'local'),
 
     /*
      * Filesystems that can be used for media storage
@@ -23,6 +23,7 @@ return [
         'files',
         'adsapi',
         'google_ads',
+        's3'
     ],
 
     /*
