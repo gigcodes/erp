@@ -19,7 +19,6 @@ class UserController extends Controller
     public function __construct()
     {
         $this->client = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
             'auth' => [config('env.GITHUB_USERNAME'), config('env.GITHUB_TOKEN')],
         ]);
     }
@@ -27,7 +26,6 @@ class UserController extends Controller
     private function connectGithubClient($userName, $token)
     {
         $githubClient = new Client([
-            // 'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
             'auth' => [$userName, $token],
         ]);
 
@@ -51,8 +49,6 @@ class UserController extends Controller
 
     public function listUsersOfRepository($repoId)
     {
-        // $name = Route::current()->parameter('name');
-        //$users = $this->refreshUsersForRespository($name);
         $githubRepository = GithubRepository::with('users')->where('id', $repoId)->first();
         $users = $githubRepository->users;
 
@@ -122,7 +118,6 @@ class UserController extends Controller
         }
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
-        // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repoName . "/collaborators/" . $userName;
         $url = 'https://api.github.com/repos/' . config('env.GITHUB_ORG_ID') . '/' . $repoName . '/collaborators/' . $userName;
 
         // cannot update users access directly and hence need to remove and then add them explicitly
@@ -151,7 +146,6 @@ class UserController extends Controller
         $repository = $repositoryUser->githubRepository;
         $organization = $repository->organization;
 
-        // $url = "https://api.github.com/repos/" . getenv('GITHUB_ORG_ID')  . "/" . $repository->name . "/collaborators/" . $user->username;
         $url = 'https://api.github.com/repos/' . $organization->name . '/' . $repository->name . '/collaborators/' . $user->username;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
@@ -196,7 +190,6 @@ class UserController extends Controller
         $organization = $githubRepository->organization;
 
         //https://api.github.com/repos/:owner/:repo/collaborators/:username
-        // $url = 'https://api.github.com/repos/' . getenv('GITHUB_ORG_ID') . '/' . $repositoryName . '/collaborators/' . $username;
         $url = 'https://api.github.com/repos/' . $organization->name . '/' . $githubRepository->name . '/collaborators/' . $username;
 
         $githubClient = $this->connectGithubClient($organization->username, $organization->token);
