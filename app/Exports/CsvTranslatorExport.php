@@ -13,7 +13,7 @@ class CsvTranslatorExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        return  DB::table('csv_translators')->select('csv_translators.id as id', 'csv_translators.key as key', 'csv_translators.en as en', 'csv_translators.es as es',
+        return DB::table('csv_translators')->select('csv_translators.id as id', 'csv_translators.key as key', 'csv_translators.en as en', 'csv_translators.es as es',
             'csv_translators.ru as ru', 'csv_translators.ko as ko', 'csv_translators.ja  as ja', 'csv_translators.it as it',
             'csv_translators.de as de', 'csv_translators.fr as fr', 'csv_translators.nl as nl', 'csv_translators.zh as zh',
             'csv_translators.ar as ar', 'csv_translators.ur as ur', 'users.name as updator_name', 'csv_translators.status as status',

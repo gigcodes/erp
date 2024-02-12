@@ -70,7 +70,6 @@ class PurchasesExport implements FromArray, WithHeadings, ShouldAutoSize, WithEv
                             $products_array[$this->count]['discount'] = $product->percentage . '%';
                             $products_array[$this->count]['qty'] = $order_product->qty;
                             $products_array[$this->count]['final_cost'] = ($product->price - ($product->price * $product->percentage / 100) - $product->factor) * $order_product->qty;
-                            // $products_array[$this->count]['client_name'] = $order_product->order ? ($order_product->order->customer ? $order_product->order->customer->name : 'No Customer') : 'No Order';
 
                             $this->count++;
 
