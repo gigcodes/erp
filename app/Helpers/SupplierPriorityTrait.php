@@ -19,11 +19,9 @@ trait SupplierPriorityTrait
             if ($getTotalPriorities > $supplier->priority) {
                 $supplier->priority += 1;
                 $supplier->save();
-            // $updatePriority = \App\Supplier::where('id', '!=' , $id)->where('priority','>=', $getPriority->priority)->update(['priority' => $new_priority]);
             } else {
                 $supplier->priority = null;
                 $supplier->save();
-            //     $updatePriority = \App\Supplier::where('id', '!=' , $id)->where('priority','>=', $getPriority->priority)->update(['priority' => null]);
             }
         }
 

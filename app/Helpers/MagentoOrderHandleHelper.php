@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use App\Order;
-use App\Product;
 use App\Customer;
 use App\AutoReply;
 use Carbon\Carbon;
@@ -364,30 +363,7 @@ class MagentoOrderHandleHelper extends Model
 
                     \Log::info('Order is finished' . json_encode($websiteOrder));
                 }
-                /**Ajay singh */
-                /*$orders = OrderProduct::with('order')->whereHas('order',function($query){
-                $query->whereIn('order_status_id',[1,13]);
-                })->get();
-                foreach($orders as $order){
-                // if order 1 and 13
-                $size = $order->size;
-                $total_size = $order->qty;
-                $product_id = $order->product_id;
-                $productSizes = ProductSizes::where('product_id', $product_id)->where('size', $size)->get();
-                if($productSizes->count() > 0){
-                $size = 0;
-                foreach($productSizes as $product){
-                $size = $size + $product->quantity;
-                }
-                if($total_size >= $size)
-                {
-                $product = Product::find($product_id);
-                //make product outofstock
-                $ProductInventoryController = ProductInventoryController::magentoSoapUpdateStock($product,0);
-                }
-                }
-                }*/
-                /**Ajay singh */
+
                 return true;
             }
         } catch (\Throwable $th) {

@@ -276,8 +276,6 @@ function replace_dash($string)
     $string = str_replace(' ', '_', strtolower($string)); // Replaces all spaces with hyphens.
     $string = str_replace('-', '_', strtolower($string)); // Replaces all spaces with hyphens.
 
-    //$string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
-
     return preg_replace('/\s+/', '_', strtolower($string));
 }
 
@@ -296,6 +294,7 @@ function storeERPLog($erpData)
         ErpLog::create($erpData);
     }
 }
+
 function getStr($srt)
 {
     preg_match("/\[(.*)\]/", $srt, $matches);
@@ -308,11 +307,7 @@ function getStr($srt)
 
 function string_convert($msg2)
 {
-    // $message = str_replace('||',"\n",$msg2);
-    // $message = json_encode($msg2);
-    $message = explode('||', $msg2);
-
-    return $message;
+    return explode('||', $msg2);
 }
 
 function convertToThumbUrl($url, $extension)
@@ -379,11 +374,6 @@ function resizeCropImage($max_width, $max_height, $source_file, $dst_dir = null,
         $imagecopyresampled = imagecopyresampled($dst_img, $src_img, 0, 0, $w_point, 0, $max_width, $max_height, $width_new, $height);
         // return true;
     }
-
-    //    if($image === 'imagepng'){
-    //        imagesavealpha($dst_img, true);
-    //    }
-    // dd($dst_img, $dst_dir, $quality);
     $image($dst_img, $dst_dir, $quality);
 
     if ($dst_img) {
@@ -407,6 +397,7 @@ function _p($data, $exit = 0)
         exit('');
     }
 }
+
 function _pq($q, $exit = 0)
 {
     echo '<pre>';
@@ -420,6 +411,7 @@ function _pq($q, $exit = 0)
         exit('');
     }
 }
+
 function dateRangeArr($stDate, $enDate)
 {
     $data = [];
@@ -433,10 +425,12 @@ function dateRangeArr($stDate, $enDate)
 
     return $data;
 }
+
 function pad0($curr)
 {
     return $curr < 10 ? '0' . $curr : $curr;
 }
+
 function nextHour($curr)
 {
     $curr++;
@@ -446,6 +440,7 @@ function nextHour($curr)
 
     return $curr < 10 ? '0' . $curr : $curr;
 }
+
 function hourlySlots($stTime, $enTime, $lunchTime = null)
 {
     $slots = [];
@@ -465,20 +460,10 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
         }
     }
 
-    // echo $stTime < $enTime ? 'Y' : 'N';
-    // _p($stTime . ' -- ' . $enTime . ' || ' . $lunchTime);
-    // exit;
-
     if ($lunchTime && ($stTime <= $lunchTime && $lunchTime <= $enTime)) {
-        // $slots = array_merge_recursive($slots, hourlySlots($stTime, $enTime));
-        // _p('ORG: ' . $stTime . ' -- ' . $enTime . ' ||| ' . $lunchTime);
-
         $stTime1 = $stTime;
         $enTime1 = date('Y-m-d H:i:00', strtotime($lunchTime));
-        // _p('1st: ' . $stTime1 . ' -- ' . $enTime1 . ' ||| ' . $lunchTime);
         $slots = array_merge_recursive($slots, hourlySlots($stTime1, $enTime1));
-        // _p(hourlySlots($stTime1, $enTime1));
-
         $stTime = date('Y-m-d H:i:00', strtotime($lunchTime . ' +1 hour'));
 
         $temp = hourlySlots($lunchTime, $stTime);
@@ -488,7 +473,6 @@ function hourlySlots($stTime, $enTime, $lunchTime = null)
         $slots = array_merge_recursive($slots, $temp);
 
         $slots = array_merge_recursive($slots, hourlySlots($stTime, $enTime));
-    // _p('2nd: ' . $stTime . ' -- ' . $enTime . ' ||| ' . $lunchTime);
     } else {
         while ($stTime < $enTime) {
             $stSlot = $stTime;
@@ -546,6 +530,7 @@ function siteJs($path)
 {
     return env('APP_URL') . '/js/pages/' . $path . '?v=' . date('YmdH');
 }
+
 function makeDropdown($options = [], $selected = [], $keyValue = 1)
 {
     if (! is_array($selected)) {
@@ -575,22 +560,27 @@ function makeDropdown($options = [], $selected = [], $keyValue = 1)
 
     return implode('', $return);
 }
+
 function exMessage($e)
 {
     return 'Error on line ' . $e->getLine() . ' in ' . $e->getFile() . ': ' . $e->getMessage();
 }
+
 function respException($e, $data = [])
 {
     return response()->json(array_merge_recursive(['message' => exMessage($e)], $data), 500);
 }
+
 function isDeveloperTaskId($id)
 {
     return substr($id, 0, 3) == 'DT-' ? str_replace('DT-', '', $id) : 0;
 }
+
 function isRegularTaskId($id)
 {
     return substr($id, 0, 2) == 'T-' ? str_replace('T-', '', $id) : 0;
 }
+
 function respJson($code, $message = '', $data = [])
 {
     return response()->json(array_merge_recursive(['message' => $message], $data), $code);
@@ -606,6 +596,7 @@ function dailyHours($type = null)
 
     return $data;
 }
+
 function reqValidate($data, $rules = [], $messages = [])
 {
     $validator = Validator::make($data, $rules, $messages);
@@ -617,10 +608,12 @@ function loginId()
 {
     return \Auth::id() ?: 0;
 }
+
 function isAdmin()
 {
     return auth()->user()->isAdmin();
 }
+
 function printNum($num)
 {
     return number_format($num, 2, '.', ',');
@@ -634,13 +627,13 @@ function readFullFolders($dir, &$results = [])
         if (! is_dir($path)) {
             $results[] = $path;
         } elseif ($value != '.' && $value != '..') {
-            // $results[] = $path;
             readFullFolders($path, $results);
         }
     }
 
     return $results;
 }
+
 function readFolders($data)
 {
     $return = [];
@@ -653,6 +646,7 @@ function readFolders($data)
 
     return $return;
 }
+
 function getCommunicationData($sdc, $sw)
 {
     $site_dev = \App\SiteDevelopment::where(['site_development_category_id' => $sdc->id, 'website_id' => $sw->id])->orderBy('id', 'DESC')->get()->pluck('id');
