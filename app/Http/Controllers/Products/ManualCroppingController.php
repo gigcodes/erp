@@ -131,9 +131,9 @@ class ManualCroppingController extends Controller
             $this->deleteCroppedImages($product);
             foreach ($files['images'] as $file) {
                 $media = MediaUploader::fromSource($file)
-                                        ->useFilename(uniqid('cropped_', true))
-                                        ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->useFilename(uniqid('cropped_', true))
+                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                    ->upload();
                 $product->attachMedia($media, config('constants.media_tags'));
             }
         }

@@ -141,9 +141,9 @@ class ProductEnhancementController extends Controller
             foreach ($files['images'] as $file) {
                 // Upload media
                 $media = MediaUploader::fromSource($file)
-                                        ->useFilename(uniqid('cropped_', true))
-                                        ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->useFilename(uniqid('cropped_', true))
+                    ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')))
+                    ->upload();
 
                 // Attach media to product
                 $product->attachMedia($media, config('constants.media_tags'));
@@ -157,7 +157,6 @@ class ProductEnhancementController extends Controller
         } else {
             $product->status_id = StatusHelper::$priceCheck;
         }
-        // $product->status_id = StatusHelper::$finalApproval;
         $product->is_enhanced = 1;
         $product->save();
 
@@ -182,7 +181,6 @@ class ProductEnhancementController extends Controller
                 try {
                     $image->forceDelete();
                 } catch (\Exception $exception) {
-//                    echo $exception->getMessage();
                 }
             }
         }
