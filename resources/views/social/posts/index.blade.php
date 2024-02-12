@@ -1,28 +1,27 @@
 @extends('layouts.app')
 @section('title', 'Social Posts')
-<style>
-    #loading-image {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        margin: -50px 0px 0px -50px;
-        z-index: 60;
-    }
-
-    .carousel-inner.maincarousel img {
-        margin-top: 20px;
-    }
-
-</style>
-@section('content')
+@push('styles')
+    <style>
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+        .carousel-inner.maincarousel img {
+            margin-top: 20px;
+        }
+    </style>
     <link rel="stylesheet" type="text/css"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+@endpush
+@section('content')
     @include("social.posts.history")
     @include("social.posts.translation-approve")
-
     <div class="row p-lg-4 p-md-0" id="common-page-layout">
         <div class="col-lg-12">
             <h2 class="page-heading">Social Posts ({{ $posts->total() }})<span class="count-text"></span></h2>
@@ -88,8 +87,9 @@
             </div>
         </div>
     </div>
+@endsection
 
-
+@section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js">
     </script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
