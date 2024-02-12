@@ -43,11 +43,7 @@ class MailinglistController extends Controller
         $ch = curl_init();
         $url = 'http://165.232.42.174/api/v1/lists';
         $req = 'api_token=' . getenv('ACELLE_MAIL_API_TOKEN') . '&name=List+1&from_email=admin@abccorp.org&from_name=ABC+Corp.&default_subject=Welcome+to+ABC+Corp.&contact[company]=ABC+Corp.&contact[state]=Armagh&contact[address_1]=14+Tottenham+Court+Road+London+England&contact[address_2]=44-46+Morningside+Road+Edinburgh+Scotland&contact[city]=Noname&contact[zip]=80000&contact[phone]=123+456+889&contact[country_id]=1&contact[email]=info@abccorp.org&contact[url]=https://www.abccorp.org&subscribe_confirmation=1&send_welcome_email=1&unsubscribe_notification=1';
-
-        //curl_setopt($ch, CURLOPT_URL, 'https://acelle.wsl/api/v1/lists');
-        // curl_setopt($ch, CURLOPT_URL, 'https://demo.acellemail.com/api/v1/lists');
         curl_setopt($ch, CURLOPT_URL, $url);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch,
             CURLOPT_POSTFIELDS, $req);
@@ -107,7 +103,6 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -142,7 +137,6 @@ class MailinglistController extends Controller
                 $curl = curl_init();
 
                 curl_setopt_array($curl, [
-                    //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
                     CURLOPT_URL => 'https://acelle.theluxuryunlimited.com/api/v1/lists?api_token=' . config('env.ACELLE_MAIL_API_TOKEN'),
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
@@ -360,7 +354,6 @@ class MailinglistController extends Controller
 
         if ($list->service && isset($list->service->name)) {
             if ($list->service->name == 'AcelleMail') {
-                // $url = "http://165.232.42.174/api/v1/subscribers/email/'.$email.'?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
                 $url = "http://165.232.42.174/api/v1/subscribers/email/'.$email.'?api_token=" . config('env.ACELLE_MAIL_API_TOKEN');
                 $headers = ['Content-Type: application/json'];
                 $curl = curl_init();
@@ -391,7 +384,6 @@ class MailinglistController extends Controller
                 $url = 'http://165.232.42.174/api/v1/lists/' . $id . '/subscribers/store?api_token=' . config('env.ACELLE_MAIL_API_TOKEN');
 
                 curl_setopt_array($curl, [
-                    //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$id."/subscribers/store?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
@@ -408,9 +400,8 @@ class MailinglistController extends Controller
                 $response = json_decode($response);
                 $parameters = [];
                 LogRequest::log($startTime, $url, 'GET', json_encode($parameters), $res, $httpcode, \App\Http\Controllers\MailinglistController::class, 'addToList');
-                //dd($response);
-                //subscribe to emial
-                // $url =  "http://165.232.42.174/api/v1/lists/".$id."/subscribers/".$response->subscriber_uid."/subscribe?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
+
+                //subscribe to email
                 $url = 'http://165.232.42.174/api/v1/lists/' . $id . '/subscribers/' . $response->subscriber_uid . '/subscribe?api_token=' . config('env.ACELLE_MAIL_API_TOKEN');
                 $headers = ['Content-Type: application/json'];
                 $curl = curl_init();
@@ -451,7 +442,6 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => [
-                // "api-key: ".getenv('SEND_IN_BLUE_API'),
                 'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
@@ -476,7 +466,6 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'DELETE',
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -500,7 +489,6 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -553,7 +541,6 @@ class MailinglistController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'DELETE',
             CURLOPT_HTTPHEADER => [
-                // "api-key: ".getenv('SEND_IN_BLUE_API'),
                 'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
@@ -596,7 +583,6 @@ class MailinglistController extends Controller
                 $url = "http://165.232.42.174/api/v1/lists/' . $list->remote_id . '/delete?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
 
                 curl_setopt_array($curl, [
-                    //   CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$list->remote_id."/delete?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
                     CURLOPT_URL => $url,
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
@@ -632,7 +618,6 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'DELETE',
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -707,7 +692,6 @@ class MailinglistController extends Controller
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_HTTPHEADER => [
-                // "api-key: ".getenv('SEND_IN_BLUE_API'),
                 'api-key: ' . $api_key,
                 'Content-Type: application/json',
             ],
@@ -732,7 +716,6 @@ class MailinglistController extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'DELETE',
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -758,7 +741,6 @@ class MailinglistController extends Controller
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => json_encode($data),
                     CURLOPT_HTTPHEADER => [
-                        // "api-key: ".getenv('SEND_IN_BLUE_API'),
                         'api-key: ' . $api_key,
                         'Content-Type: application/json',
                     ],
@@ -834,11 +816,11 @@ class MailinglistController extends Controller
                 $spamedListContactIds = EmailEvent::where('spam', 1)->pluck('id')->toArray();
 
                 $mailingLists = MailingList::leftJoin('list_contacts', 'list_contacts.list_id', '=', 'mailinglists.id')
-                ->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')
-                ->where('mailinglists.created_at', '<', Carbon::parse($customer_created_at)->addMinutes(60))
-                ->where('mailinglists.created_at', '>=', $customer_created_at)
-                ->whereNotIn('list_contacts.id', $spamedListContactIds)->whereNotNull('list_contacts.id')
-                ->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'customers.name', 'list_contacts.id as list_contact_id')->get();
+                    ->leftJoin('customers', 'customers.id', '=', 'list_contacts.customer_id')
+                    ->where('mailinglists.created_at', '<', Carbon::parse($customer_created_at)->addMinutes(60))
+                    ->where('mailinglists.created_at', '>=', $customer_created_at)
+                    ->whereNotIn('list_contacts.id', $spamedListContactIds)->whereNotNull('list_contacts.id')
+                    ->select('mailinglists.id as mailingListId', 'customers.id as customerId', 'customers.email', 'customers.name', 'list_contacts.id as list_contact_id')->get();
                 foreach ($mailingLists as $mailingList) {
                     $service = Service::find($mailingList->service_id)
                     (new Mailinglist)->sendAutoEmails($mailingList, $mailing_item, $service);

@@ -8,7 +8,6 @@ use App\Mailinglist;
 use App\GmailDataList;
 use App\MailinglistEmail;
 use App\MailinglistTemplate;
-use App\MailingTemplateFile;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -52,11 +51,6 @@ class MailinglistEmailController extends Controller
         if (! empty($mtemplate)) {
             $content = @(string) view($mtemplate->mail_tpl);
         }
-
-        /*$template_html = MailingTemplateFile::where('mailing_id',$request->id)->where("path", "like", "%index.html%")->first();
-        if($template_html){
-            $content = file_get_contents($template_html->path);
-        }*/
 
         return response()->json(['template_html' => $content]);
     }
@@ -102,7 +96,6 @@ class MailinglistEmailController extends Controller
                     $url = "http://165.232.42.174/api/v1/campaign/create/' . $list->remote_id . '?api_token=' . config('env.ACELLE_MAIL_API_TOKEN')";
 
                     curl_setopt_array($curl, [
-                        //   CURLOPT_URL => "http://165.232.42.174/api/v1/campaign/create/".$list->remote_id."?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
                         CURLOPT_URL => $url,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_ENCODING => '',
@@ -148,7 +141,6 @@ class MailinglistEmailController extends Controller
                             CURLOPT_CUSTOMREQUEST => 'POST',
                             CURLOPT_POSTFIELDS => json_encode($data),
                             CURLOPT_HTTPHEADER => [
-                                // "api-key: ".getenv('SEND_IN_BLUE_API'),
                                 'api-key: ' . $api_key,
                                 'Content-Type: application/json',
                             ],
@@ -190,8 +182,6 @@ class MailinglistEmailController extends Controller
 
     public function show(Request $request)
     {
-        /*        dd($request->id);*/
-
         $data = MailinglistEmail::where('id', $request->id)->first();
 
         return response()->json([
@@ -201,8 +191,6 @@ class MailinglistEmailController extends Controller
 
     public function duplicate(Request $request)
     {
-        /*        dd($request->id);*/
-
         $data = MailinglistEmail::where('id', $request->id)->first();
 
         return response()->json([
