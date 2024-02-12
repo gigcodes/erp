@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\HashTag;
 //use App\FlaggedInstagramPosts;
+use App\Mailinglist;
 use App\Setting;
 use App\Customer;
 use Carbon\Carbon;
@@ -16,12 +17,14 @@ use App\LogRequest;
 use App\CommentsStats;
 use App\ScrapInfluencer;
 use Plank\Mediable\Media;
+use App\InfluencerKeyword;
 //use InstagramAPI\Instagram;
 //use InstagramAPI\Signatures;
-use App\InfluencerKeyword;
 use App\InfluencersHistory;
 use App\MailinglistTemplate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 //Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -821,41 +824,26 @@ class HashtagController extends Controller
 
             for ($count = 0; $count < count($email_list); $count++) {
                 $email = $email_list[$count]['email'];
-                if (! \App\Mailinglist::where('email', $email)->where('website_id', $website->id)->first()) {
+                if (! Mailinglist::where('email', $email)->where('website_id', $website->id)->first()) {
                     if (! isset($res->id)) {
                         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-                        $curl = curl_init();
                         $data = [
                             'folderId' => 1,
                             'name' => $name,
                         ];
                         $url = "'https://api.sendinblue.com/v3/contacts/lists'";
-                        curl_setopt_array($curl, [
-                            CURLOPT_URL => $url,
-                            CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_ENCODING => '',
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 0,
-                            CURLOPT_FOLLOWLOCATION => true,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => 'POST',
-                            CURLOPT_POSTFIELDS => json_encode($data),
-                            CURLOPT_HTTPHEADER => [
-                                'api-key: ' . $api_key,
-                                'Content-Type: application/json',
-                            ],
-                        ]);
+                        $response = Http::withHeaders([
+                            'api-key' => $api_key,
+                            'Content-Type' => 'application/json',
+                        ])->post($url, $data);
 
-                        $response = curl_exec($curl);
-                        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
-                        \Log::info($response);
+                        $httpcode = $response->status();
 
-                        curl_close($curl);
+                        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, HashtagController::class, 'addmailinglist');
 
-                        $res = json_decode($response);
+                        $res = $response->json();
 
-                        \App\Mailinglist::create([
+                        Mailinglist::create([
                             'name' => $name,
                             'website_id' => $website->id,
                             'service_id' => $service_id,
@@ -885,32 +873,24 @@ class HashtagController extends Controller
         for ($count = 0; $count < count($email_list2); $count++) {
             $email = $email_list2[$count]['email'];
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $curl = curl_init();
             $data = [
                 'email' => $email,
                 'listIds' => $listIds,
                 'attributes' => ['firstname' => $email_list2[$count]['name']],
             ];
             $url = 'https://api.sendinblue.com/v3/contacts';
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => json_encode($data),
-                CURLOPT_HTTPHEADER => [
-                    'api-key: ' . getenv('SEND_IN_BLUE_API'),
-                    'Content-Type: application/json',
-                ],
-            ]);
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $httpcode, \App\Http\Controllers\HashtagController::class, 'addmailinglist');
-            curl_close($curl);
+
+            $response = Http::withHeaders([
+                'api-key' => env('SEND_IN_BLUE_API'),
+                'Content-Type' => 'application/json',
+            ])->post($url, $data);
+
+            $httpcode = $response->status();
+
+            $responseData = $response->json();
+
+            LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($responseData), $httpcode, HashtagController::class, 'addmailinglist');
+
         }
 
         return redirect()->back()->with('message', 'mailinglist create successfully');
@@ -935,17 +915,17 @@ class HashtagController extends Controller
 
         $data = json_encode($data);
 
-        \Log::info('INFLUENCER_loginstance -->' . $data);
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'accept: application/json']);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $result1 = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($result1), $httpcode, \App\Http\Controllers\HashtagController::class, 'loginstance');
+        Log::info('INFLUENCER_loginstance -->' . $data);
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'accept' => 'application/json',
+        ])->post($url, $data);
+        $httpcode = $response->status();
+        $responseData = $response->json();
 
-        $result = explode("\n", $result1);
+        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($responseData), $httpcode, HashtagController::class, 'loginstance');
+
+        $result = explode("\n", $responseData);
 
         if (count($result) > 1) {
             return response()->json([
