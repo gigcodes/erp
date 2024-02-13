@@ -27,10 +27,7 @@ class AddMasterToVendorFlowChartsTable extends Migration
     public function down()
     {
         Schema::table('vendor_flow_charts', function (Blueprint $table) {
-            // 1. Drop foreign key constraints
-            $table->dropForeign(['vendor_flow_charts_master_id_foreign']);
-
-            // 2. Drop the column
+            $table->dropForeign(['master_id']);
             $table->dropColumn('master_id');
         });
     }

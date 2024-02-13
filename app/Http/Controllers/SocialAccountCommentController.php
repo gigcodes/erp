@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SocialComments;
 use App\Reply;
 use App\LogRequest;
 use App\BusinessComment;
@@ -18,13 +19,13 @@ class SocialAccountCommentController extends Controller
     {
         $post = SocialPost::where('ref_post_id', $postId)->firstOrFail();
         $search = $request->get('search');
-        $comments = BusinessComment::where('is_parent', 0)->where('post_id', $postId);
+        $comments = SocialComments::where('post_id', $postId)->whereNull('parent_id');
 
-        $comments = $comments->when($request->has('search'), function (Builder $builder) use ($search) {
-            return $builder->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
-        });
+//        $comments = $comments->when($request->has('search'), function (Builder $builder) use ($search) {
+//            return $builder->where('comment_id', 'LIKE', '%' . $search . '%')->orWhere('post_id', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%')->orWhere('message', 'LIKE', '%' . $search . '%');
+//        });
 
-        $comments = $comments->latest('time')->get();
+        $comments = $comments->latest()->get();
 
         $googleTranslate = new GoogleTranslate();
         $target = 'en';
