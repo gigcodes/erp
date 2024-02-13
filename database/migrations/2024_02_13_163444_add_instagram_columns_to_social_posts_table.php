@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 class AddInstagramColumnsToSocialPostsTable extends Migration
 {
@@ -17,6 +17,7 @@ class AddInstagramColumnsToSocialPostsTable extends Migration
             $table->json('media')->nullable();
             $table->string('permalink')->nullable();
             $table->json('custom_data')->nullable();
+            $table->string('image_path', 360)->change();
         });
     }
 
