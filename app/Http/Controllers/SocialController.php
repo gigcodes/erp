@@ -751,11 +751,13 @@ class SocialController extends Controller
 
         $httpcode = $response->status();
 
+        $responseData = $response->json();
+
         if ($response->failed()) {
             $err = $response->body();
         }
 
-        LogRequest::log($startTime, $url, 'GET', json_encode($data), $response, $httpcode, SocialController::class, 'changeAdStatus');
+        LogRequest::log($startTime, $url, 'GET', json_encode($data), $responseData, $httpcode, SocialController::class, 'changeAdStatus');
 
         if (isset($err)) {
             Session::flash('message', $err);

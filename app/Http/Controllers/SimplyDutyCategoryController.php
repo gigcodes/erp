@@ -109,7 +109,7 @@ class SimplyDutyCategoryController extends Controller
         $response = Http::get($url);
         $responseData = $response->json();
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($responseData), $response->status(), SimplyDutyCategoryController::class, 'getCategoryFromApi');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), SimplyDutyCategoryController::class, 'getCategoryFromApi');
         foreach ($responseData as $category) {
             $code = $category->Code;
             $description = $category->Description;

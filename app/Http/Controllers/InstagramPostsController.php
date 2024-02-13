@@ -993,17 +993,14 @@ class InstagramPostsController extends Controller
 
             $response = Http::post($url, $data)->withHeaders([
                 'cache-control' => 'no-cache',
-                'content-type' => 'application/x-www-form-urlencoded',
             ]);
-            $httpcode = $response->status();
 
             $responseData = $response->json();
 
             LogRequest::log($startTime, $url, 'POST', json_encode('grant_type=client_credentials&client_id=' . $consumerKey . '&client_secret=' . $consumerSecret),
-                json_decode($response),
-                $httpcode,
+                $responseData,
+                $response->status(),
                 InstagramPostsController::class, 'getHastagifyApiToken');
-
 
             if ($response->failed) {
                 Log::error(' hashtagify response ' . $response);
@@ -1013,36 +1010,47 @@ class InstagramPostsController extends Controller
 
                 return $responseData['access_token'];
             }
-
         }
     }
 
     public function getHashTashSuggestions($token, $word)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
         $url = 'https://api.hashtagify.me/1.0/tag/' . $word;
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'authorization: Bearer ' . $token,
-                'cache-control: no-cache',
-            ],
-        ]);
+        $response = Http::withHeaders(['authorization: Bearer ' . $token,
+            'cache-control: no-cache', ])->get($url);
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, InstagramPostsController::class, 'getHashTashSuggestions');
+        $responseData = $response->json();
 
-        curl_close($curl);
+        if ($response->failed()) {
+            $err = $response->body();
+        }
+
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), InstagramPostsController::class, 'getHashTashSuggestions');
+
+//        $curl = curl_init();
+//
+//        curl_setopt_array($curl, [
+//            CURLOPT_URL => $url,
+//            CURLOPT_RETURNTRANSFER => true,
+//            CURLOPT_ENCODING => '',
+//            CURLOPT_MAXREDIRS => 10,
+//            CURLOPT_TIMEOUT => 30,
+//            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//            CURLOPT_CUSTOMREQUEST => 'GET',
+//            CURLOPT_HTTPHEADER => [
+//                'authorization: Bearer ' . $token,
+//                'cache-control: no-cache',
+//            ],
+//        ]);
+//
+//        $response = curl_exec($curl);
+//        $err = curl_error($curl);
+//        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+//        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, InstagramPostsController::class, 'getHashTashSuggestions');
+//
+//        curl_close($curl);
 
         if ($err) {
             //echo "cURL Error #:" . $err;

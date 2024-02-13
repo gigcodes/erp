@@ -375,10 +375,9 @@ class TemplatesController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
 
         $result = Http::get($url);
-        $httpcode = $result->status();
         $response = $result->json();
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, TemplatesController::class, 'report');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $result->status(), TemplatesController::class, 'report');
 
         return $response;
     }

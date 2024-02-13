@@ -426,16 +426,15 @@ class SocialWebhookController extends Controller
         $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $userId, 'id,name', $pageAccessToken);
 
         $response = Http::get($url);
-        $httpcode = $response->status();
         $responseData = $response->json();
 
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Getting User) => Fetched user details using Page access Token', ['response' => $responseData, 'user_id' => $userId]);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($responseData), $httpcode, TemplatesController::class, 'getImageByCurl');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), TemplatesController::class, 'getImageByCurl');
 
         return [
             'response' => $response,
-            'http_code' => $httpcode,
+            'http_code' => $response->status(),
         ];
     }
 
@@ -450,15 +449,14 @@ class SocialWebhookController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = sprintf('https://graph.facebook.com/v12.0/%s?fields=%s&access_token=%s', $mediaId, 'caption,media_type,timestamp', $pageAccessToken);
         $response = Http::get($url);
-        $httpcode = $response->status();
         $responseData = $response->json();
         SocialWebhookLog::log(SocialWebhookLog::INFO, 'Webhook (Getting ID Media) => Fetched IG Media using Page access Token', ['response' => $responseData, 'media_id' => $mediaId]);
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($responseData), $httpcode, SocialWebhookController::class, 'getImageByCurl');
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), SocialWebhookController::class, 'getImageByCurl');
 
         return [
             'response' => $response,
-            'http_code' => $httpcode,
+            'http_code' => $response->status(),
         ];
     }
 }

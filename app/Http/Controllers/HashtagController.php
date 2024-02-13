@@ -909,7 +909,6 @@ class HashtagController extends Controller
 
         Log::info('INFLUENCER_loginstance -->' . $data);
         $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
             'accept' => 'application/json',
         ])->post($url, $data);
         $responseData = $response->json();

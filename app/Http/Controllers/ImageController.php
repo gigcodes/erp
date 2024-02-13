@@ -696,14 +696,12 @@ class ImageController extends Controller
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages';
 
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($url, $postData);
+            $response = Http::post($url, $postData);
 
 
             $responseData = $response->json();
 
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($responseData), $response->status(), ImageController::class, 'imageQueue');
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), ImageController::class, 'imageQueue');
 
             $messages = 'new search queue added successfuly';
 
