@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use App\LogRequest;
 use Plank\Mediable\Media;
 use Illuminate\Http\Request;
-use function GuzzleHttp\json_decode;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
 
 use Illuminate\Support\Facades\Validator;
@@ -693,28 +693,15 @@ class ImageController extends Controller
         if ($new->save()) {
             //call google image scraper
             $postData = ['data' => [['id' => $new->id, 'search_term' => $request->search_term]]];
-            $postData = json_encode($postData);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $curl = curl_init();
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchImages';
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                ],
-                CURLOPT_POSTFIELDS => "$postData",
-            ]);
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\ImageController::class, 'imageQueue');
-            $err = curl_error($curl);
-            curl_close($curl);
+
+            $response = Http::post($url, $postData);
+
+
+            $responseData = $response->json();
+
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), ImageController::class, 'imageQueue');
 
             $messages = 'new search queue added successfuly';
 

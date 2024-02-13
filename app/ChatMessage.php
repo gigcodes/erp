@@ -3,7 +3,9 @@
 namespace App;
 
 use App\Elasticsearch\Elasticsearch;
+use Illuminate\Support\Facades\Log;
 use Plank\Mediable\Mediable;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -39,6 +41,7 @@ class ChatMessage extends Model
     const ERROR_STATUS_SUCCESS = 0;
 
     const ERROR_STATUS_ERROR = 1;
+
     const ELASTIC_INDEX = 'messages';
 
     use Mediable;
@@ -131,59 +134,39 @@ class ChatMessage extends Model
             $chatApiArray['caption'] = $message;
         }
 
-        // Init cURL
-        $curl = curl_init();
+        $url = "https://api.chat-api.com/instance$instanceId/$link?token=" . $token;
 
-        // Set cURL options
-        curl_setopt_array($curl, [
-            CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/$link?token=" . $token,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 300,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($chatApiArray),
-            CURLOPT_HTTPHEADER => [
-                'content-type: application/json',
-            ],
-        ]);
+        $response = Http::post($url, $chatApiArray);
 
-        // Get response
-        $response = curl_exec($curl);
+        if ($response->failed()) {
+            $err = $response->body();
+        }
 
-        // Get possible error
-        $err = curl_error($curl);
-
-        // Close cURL
-        curl_close($curl);
+        $responseData = $response->json();
 
         // Check for errors
-        if ($err) {
+        if ($response->failed()) {
             // Log error
-            \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') cURL Error for number ' . $number . ':' . $err);
+            Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') cURL Error for number ' . $number . ':' . $err);
 
             return false;
         } else {
             // Log curl response
-            \Log::channel('chatapi')->debug('cUrl:' . $response . "\nMessage: " . $message . "\nFile:" . $file . "\n");
-
-            // Json decode response into result
-            $result = json_decode($response, true);
+            Log::channel('chatapi')->debug('cUrl:' . $responseData . "\nMessage: " . $message . "\nFile:" . $file . "\n");
 
             // Check for possible incorrect response
-            if (! is_array($result) || array_key_exists('sent', $result) && ! $result['sent']) {
+            if (! is_array($responseData) || array_key_exists('sent', $responseData) && !$responseData['sent']) {
                 // Log error
-                \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Something was wrong with the message for number ' . $number . ': ' . $response);
+                Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Something was wrong with the message for number ' . $number . ': ' . $responseData);
 
                 return false;
             } else {
                 // Log successful send
-                \Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Message was sent to number ' . $number . ':' . $response);
+                Log::channel('whatsapp')->debug('(file ' . __FILE__ . ' line ' . __LINE__ . ') Message was sent to number ' . $number . ':' . $responseData);
             }
         }
 
-        return $result;
+        return $responseData;
     }
 
     /**
