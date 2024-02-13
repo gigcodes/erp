@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+use App\BusinessPost;
 use App\Social\SocialConfig;
 use Illuminate\Database\Eloquent\Model;
 

@@ -6,6 +6,7 @@ use App\Customer;
 use App\LogRequest;
 use App\CallRecording;
 use Illuminate\Http\Request;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 
 class ExotelController extends FindByNumberController
 {
@@ -63,6 +64,8 @@ class ExotelController extends FindByNumberController
 
             return response('success', 200);
         } catch (\Exception $ex) {
+            Bugsnag::notifyException($ex);
+
             return response('error', 302);
         }
     }
