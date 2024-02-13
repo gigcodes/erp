@@ -37,8 +37,7 @@ class SendDailyActivityReport extends Mailable
     public function build()
     {
         return $this->from($this->fromMailer)
-                    // ->bcc($this->fromMailer)
-                    ->subject('Daily Planner Report')
-                    ->markdown('emails.daily-activity-report');
+            ->subject('Daily Planner Report')
+            ->markdown('emails.daily-activity-report');
     }
 }

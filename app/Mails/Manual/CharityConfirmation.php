@@ -51,7 +51,6 @@ class CharityConfirmation extends Mailable
             if ($emailAddress) {
                 $this->fromMailer = $emailAddress->from_address;
             }
-            // $template = \App\MailinglistTemplate::getOrderConfirmationTemplate($storeWebsiteOrder->website_id);
             $template = \App\MailinglistTemplate::getMailTemplate('Charity Confirmation');
         } else {
             $emailAddress = \App\EmailAddress::where('store_website_id', self::STORE_ERP_WEBSITE)->first();

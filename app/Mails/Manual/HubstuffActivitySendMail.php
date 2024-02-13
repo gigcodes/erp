@@ -33,6 +33,6 @@ class HubstuffActivitySendMail extends Mailable
     public function build()
     {
         return $this->subject('Hubstuff Activities Report')->view('hubstaff.hubstaff-activities-mail', ['data' => $this->data])
-                      ->attach($this->path);
+            ->attach($this->path);
     }
 }
