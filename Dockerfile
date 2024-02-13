@@ -14,3 +14,4 @@ RUN cd /usr/local/etc/php/conf.d/ && \
   echo 'memory_limit = -1' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql
+RUN docker-php-ext-configure pcntl --enable-pcntl && docker-php-ext-install pcntl

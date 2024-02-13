@@ -1517,4 +1517,98 @@ class PostmanRequestCreateController extends Controller
             return response()->json(['code' => 500, 'message' => $msg]);
         }
     }
+
+    public function updatePostManField(Request $request){
+        $fieldId = $request->id;
+        $postManRequest = PostmanRequestCreate::findOrfail($fieldId);
+        
+        if ($postManRequest->body_json != $request->body_json) {
+            $jsonVersion = PostmanRequestJsonHistory::create(
+                [
+                    'user_id' => \Auth::user()->id,
+                    'request_id' => $request->id,
+                    'request_data' => $request->body_json,
+                ]
+            );
+            PostmanRequestJsonHistory::where('id', $jsonVersion->id)->update(['version_json' => 'v' . $jsonVersion->id]);
+            
+            $postmanH = new PostmanEditHistory();
+            $postmanH->user_id = \Auth::user()->id;
+            $postmanH->postman_request_id = $postManRequest->id;
+            $postmanH->folder_name = $postManRequest->folder_name;
+            $postmanH->request_name = $postManRequest->request_name;
+            $postmanH->request_type = $postManRequest->request_types;
+            $postmanH->request_url = $postManRequest->request_url;
+            $postmanH->controller_name = $postManRequest->controller_name;
+            $postmanH->method_name = $postManRequest->method_name;
+            $postmanH->params = $postManRequest->params;
+            $postmanH->authorization_type = $postManRequest->authorization_type;
+            $postmanH->authorization_token = $postManRequest->authorization_token;
+            $postmanH->request_headers = $postManRequest->request_headers;
+            $postmanH->body_type = $postManRequest->body_type;
+            $postmanH->body_json = $request->body_json;
+            $postmanH->pre_request_script = $postManRequest->pre_request_script;
+            $postmanH->tests = $postManRequest->tests;
+            $postmanH->user_permission = $postManRequest->user_permission;
+            $postmanH->remark = $postManRequest->remark;
+            $postmanH->end_point = $postManRequest->end_point;
+
+            $postmanH->grumphp_errors = $postManRequest->grumphp_errors;
+            $postmanH->magento_api_standards = $postManRequest->magento_api_standards;
+            $postmanH->swagger_doc_block = $postManRequest->swagger_doc_block;
+            $postmanH->used_for = $postManRequest->used_for;
+            $postmanH->user_in = $postManRequest->user_in;
+
+            $postmanH->save();
+
+            $type = 'Update';
+            $this->createPostmanHistory($postManRequest->id, $type);
+        }
+
+        $postManRequest->body_json = $request->body_json;
+        $postManRequest->save();
+        return redirect()->back()->with('success', 'Field Updated successfully');
+
+        //updateField
+
+    }
+
+    public function addRemark(Request $request) {
+        $fieldId = $request->id;
+        $postManRequest = PostmanRequestCreate::findOrfail($fieldId);
+        PostmanRemarkHistory::create(
+            [
+                'user_id' => \Auth::user()->id,
+                'postman_request_create_id' => $request->id,
+                'old_remark' => $postManRequest->remark,
+                'remark' => $request->remark,
+            ]
+        );
+        $postManRequest->remark = $request->remark;
+        $postManRequest->save();
+        return response()->json(['code' => 200, 'message' => 'Remark Added']);
+    }
+
+    public function responsesHistory(Request $request) {
+        try {
+            $id = $request->id;
+            $q = PostmanResponse::query();
+            $q->select('postman_responses.*', 'u.name AS userName');
+            $q->where('request_id', $id);
+            $q->leftJoin('users AS u', 'u.id', 'postman_responses.user_id');
+            $q->orderBy('id', 'DESC');
+            $postHis = $q->get();
+            // $counter = $q->count();
+            // $postHis = $q->paginate(Setting::get('pagination'));
+
+            return response()->json(['code' => 200, 'data' => $postHis]);
+
+            
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            \Log::error('Postman controller index method error => ' . json_encode($msg));
+
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+    }
 }

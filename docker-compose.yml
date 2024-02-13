@@ -31,12 +31,19 @@ services:
     ports:
       - "9000:9000"
     #network_mode: host
+    command:
+      - /bin/sh
+      - -c
+      - |
+        php-fpm &
+        cd /var/www/ && php artisan horizon &
+        wait
     env_file:
       - ".env"
         #        command: bash -c "composer config -g github-oauth.github.com ${GITHUB_TOKEN}"
     networks:
       - erp
-      
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5.2.1
     container_name: pma
