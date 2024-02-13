@@ -17,8 +17,6 @@ namespace App\Meetings;
 use App\Vendor;
 use App\Customer;
 use App\Supplier;
-use Dotenv\Dotenv;
-use InvalidArgumentException;
 use Illuminate\Database\Eloquent\Model;
 use seo2websites\LaravelZoom\LaravelZoom;
 
@@ -50,13 +48,6 @@ class ZoomMeetings extends Model
         $time = time() + 7200;
         $token = $zoom->getJWTToken($time);
         if ($token) {
-            /*    try {
-                    $dotEnv = new Dotenv(app()->environmentPath(), app()->environmentFile());
-                    $dotEnv->load();
-                } catch (InvalidArgumentException $e) {
-                    //
-                }*/
-            //$meeting = $zoom->createInstantMeeting($data['user_id'],$data['topic'], '', $data['agenda'], '',$data['settings']);
             $meeting = $zoom->createScheduledMeeting($data['user_id'], $data['topic'], $data['startTime'], $data['duration'], $data['timezone'], '', '', $data['agenda'], [], $data['settings']);
             dd($meeting);
 
@@ -203,7 +194,6 @@ class ZoomMeetings extends Model
                 $meetingId = $meetings->meeting_id;
                 \Log::info('Get Recording ' . json_encode($meetings));
                 \Log::info('Get meetingId ' . $meetingId);
-                //$recordingAll = $zoom->getRecordings('-ISK-roPRUyC3-3N5-AT_g', 10);
                 $recordingAll = $zoom->getMeetingRecordings($meetingId);
                 \Log::info(json_encode($recordingAll));
                 if ($recordingAll) {
@@ -318,12 +308,9 @@ class ZoomMeetings extends Model
         $meetingId = $zoommeetingid;
         \Log::info('Get meetingId ' . $meetingId);
         $recordingAll = $zoom->getRecordings($zoomuserid, 10);
-        /*$recordingAll = $zoom->getMeetingRecordings($meetingId);*/
         \Log::info(json_encode($recordingAll));
         if ($recordingAll) {
             if ('200' == $recordingAll['status']) {
-                /*$recordingFiles = $recordingAll['body']['recording_files'];*/
-                /*if ($recordingFiles) {*/
                 if ($recordingAll) {
                     $folderPath = public_path() . '/zoom/0/' . $meetingId;
                     $databsePath = '/zoom/0/' . $meetingId;
