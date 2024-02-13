@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\Models\SocialMessages;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SocialContact extends Model
 {
@@ -14,7 +16,7 @@ class SocialContact extends Model
 
     const TEXT_FB = 'page';
 
-    protected $fillable = ['account_id', 'name', 'social_config_id', 'platform'];
+    protected $fillable = ['account_id', 'name', 'social_config_id', 'platform', 'conversation_id'];
 
     public function socialConfig()
     {
@@ -29,5 +31,10 @@ class SocialContact extends Model
     public function getLatestSocialContactThread()
     {
         return $this->hasone(\App\SocialContactThread::class, 'social_contact_id')->orderBy('sending_at', 'DESC');
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(SocialMessages::class, 'social_contact_id');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Social;
 
 use App\StoreWebsite;
+use App\SocialContact;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -40,5 +41,10 @@ class SocialConfig extends Model
     public function posts(): HasMany
     {
         return $this->hasMany(SocialPost::class, 'config_id');
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(SocialContact::class, 'social_config_id');
     }
 }
