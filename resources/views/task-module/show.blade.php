@@ -4970,6 +4970,7 @@ function funTaskInformationUpdatesTime(type,id) {
 }
 
 $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (event) {
+    var element = $(this);
     if (confirm('Are you sure, do you want to approve this task?')) {
         event.preventDefault();
         let type = $(this).data('type');
@@ -4985,8 +4986,9 @@ $(document).on("click", ".approveEstimateFromshortcutButtonTaskPage", function (
                 user_id: 0
             },
             success: function (response) {
+                element.hide('slow');
+                element.closest('tr').css('background', 'transparent')
                 toastr["success"]("Successfully approved", "success");
-                window.location.reload();
             },
             error: function (error) {
                 toastr["error"](error.responseJSON.message);
