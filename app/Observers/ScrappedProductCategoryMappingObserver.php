@@ -2,10 +2,7 @@
 
 namespace App\Observers;
 
-use App\Category;
 use App\ScrapedProducts;
-use App\ScrappedCategoryMapping;
-use App\ScrappedProductCategoryMapping;
 
 class ScrappedProductCategoryMappingObserver
 {
@@ -16,7 +13,6 @@ class ScrappedProductCategoryMappingObserver
      */
     public function created(ScrapedProducts $scrapedproducts)
     {
-        //
         $this->create($scrapedproducts);
     }
 
@@ -62,30 +58,5 @@ class ScrappedProductCategoryMappingObserver
 
     protected function create($scrapedproducts)
     {
-        /*
-        $all_category = ScrappedCategoryMapping::get()->pluck('name','id')->toArray();
-
-        if($scrapedproducts->properties != null)
-        {
-            $pro_arr = [];
-
-            $all_categ = ScrappedProductCategoryMapping::where('product_id',$scrapedproducts->id)->get()->pluck('category_id')->toArray();
-
-            foreach ($all_category as $key => $val)
-            {
-                if(is_string($val)) {
-                    if(strpos($scrapedproducts->properties, $val) !== false && !in_array($key, $all_categ)){
-                        $pro_arr[] = ['category_mapping_id' => $key,
-                            'product_id' => $scrapedproducts->id
-                        ];
-                    }
-                }
-            }
-
-            if(!empty($pro_arr)) {
-                ScrappedProductCategoryMapping::insert($pro_arr);
-            }
-        }
-        */
     }
 }
