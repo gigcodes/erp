@@ -29,6 +29,7 @@ class StoreRequest extends FormRequest
             'name' => 'required',
             'status' => 'required',
             'page_id' => 'required',
+            'account_id' => 'required',
             'page_token' => 'required',
             'webhook_token' => 'nullable',
         ];

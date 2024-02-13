@@ -64,6 +64,14 @@
                             <div class="alert alert-danger">{{$errors->first('page_id')}}</div>
                             @endif
                         </div>
+                        <div class="form-group">
+                            <strong>Account Id:</strong>
+                            <input type="text" name="page_id" class="form-control" value="{{ old('account_id') }}" >
+
+                            @if ($errors->has('account_id'))
+                                <div class="alert alert-danger">{{$errors->first('account_id')}}</div>
+                            @endif
+                        </div>
 
 						<div class="form-group">
                             <strong>Page Token:</strong>
