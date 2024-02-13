@@ -149,6 +149,6 @@ class PushWebsiteToMagento implements ShouldQueue
 
     public function tags()
     {
-        return ['mageone',  $this->_website->id];
+        return ['mageone', $this->_website->id];
     }
 }

@@ -49,27 +49,23 @@ class MagnetoGoogledriveUpload
         $client->addScope(Drive::DRIVE);
         try {
             $createFile = $this->uploadScreencast(env('GOOGLE_SCREENCAST_FOLDER'), $this->googleScreencast->read, $this->googleScreencast->write);
-          
+
             $screencastId = $createFile->id;
 
-            if($this->googleScreencast->description_file_name )
-            {
+            if ($this->googleScreencast->description_file_name) {
                 $this->googleScreencast->google_drive_file_id = $screencastId;
                 $this->googleScreencast->save();
             }
 
-            if($this->googleScreencast->admin_configuration_file_name )
-            {
+            if ($this->googleScreencast->admin_configuration_file_name) {
                 $this->googleScreencast->admin_config_google_drive_file_id = $screencastId;
                 $this->googleScreencast->save();
             }
-            if($this->googleScreencast->parent_google_file_drive_id)
-            {
+            if ($this->googleScreencast->parent_google_file_drive_id) {
                 $this->googleScreencast->parent_google_file_drive_id = $screencastId;
                 $this->googleScreencast->save();
             }
-            if($this->googleScreencast->google_drive_file_id)
-            {
+            if ($this->googleScreencast->google_drive_file_id) {
                 $this->googleScreencast->google_drive_file_id = $screencastId;
                 $this->googleScreencast->save();
             }
@@ -155,7 +151,7 @@ class MagnetoGoogledriveUpload
             }
 
             return $file;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             echo 'Error Message: ' . $e;
         }
     }

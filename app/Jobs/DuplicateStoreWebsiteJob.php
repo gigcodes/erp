@@ -24,7 +24,6 @@ use App\SiteDevelopmentCategory;
 use App\StoreWebsiteCategorySeo;
 use App\StoreWebsiteProductPrice;
 use App\StoreWebsiteTwilioNumber;
-use Illuminate\Support\Facades\DB;
 use App\StoreWebsiteProductAttribute;
 use App\StoreWebsitesCountryShipping;
 use App\StoreWebsiteProductScreenshot;
@@ -73,8 +72,6 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
             $this->enableDBLog($this->copyStoreWebsite);
             \Log::info('DB log enabled.');
         }
-
-//        DB::beginTransaction();
 
         try {
             $siteDevelopmentCategories = SiteDevelopmentCategory::all();
@@ -569,10 +566,7 @@ class DuplicateStoreWebsiteJob implements ShouldQueue
                 return response()->json(['code' => 500, 'error' => 'Something went wrong in update store view server of ' . $this->copyStoreWebsite->title . '!']);
             }
             \Log::info('Update store view server of ' . $this->copyStoreWebsite->title . ' completed.');
-//            DB::commit();
         } catch (\Exception $e) {
-//            DB::rollback();
-
             return response()->json(['code' => 500, 'error' => $e->getMessage()]);
             \Log::error($e->getMessage());
         }
