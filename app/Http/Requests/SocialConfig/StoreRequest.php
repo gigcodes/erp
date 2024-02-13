@@ -27,12 +27,10 @@ class StoreRequest extends FormRequest
             'store_website_id' => 'required',
             'platform' => 'required',
             'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
             'status' => 'required',
             'page_id' => 'required',
             'page_token' => 'required',
-            'webhook_token' => 'required',
+            'webhook_token' => 'nullable',
         ];
     }
 }

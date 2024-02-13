@@ -1,11 +1,9 @@
     <div id="ConfigCreateModal" class="modal fade" role="dialog">
     	<div class="modal-dialog">
-
     		<!-- Modal content-->
     		<div class="modal-content">
     			<form action="{{ route('social.config.store') }}" method="POST">
     				@csrf
-
     				<div class="modal-header">
     					<h4 class="modal-title">Social  Config</h4>
     					<button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -27,13 +25,12 @@
                         <div class="form-group">
                             <strong>Platform:</strong>
                             <select class="form-control" name="platform" required>
-                                <option value="0">Select Platform</option>
+                                <option selected disabled>Select Platform</option>
                                 <option value="facebook">Facebook</option>
                                 <option value="instagram">Instagram</option>
-                                
+
                             </select>
 
-                           
                         </div>
                         <div class="form-group">
     						<strong>Name:</strong>
@@ -43,51 +40,6 @@
     						<div class="alert alert-danger">{{$errors->first('name')}}</div>
     						@endif
     					</div>
-                        <div class="form-group">
-    						<strong>UserName:</strong>
-    						<input type="text" name="email" class="form-control" value="{{ old('email') }}" required>
-
-    						@if ($errors->has('email'))
-    						<div class="alert alert-danger">{{$errors->first('email')}}</div>
-    						@endif
-    					</div>
-
-    					<div class="form-group">
-    						<strong>Password:</strong>
-    						<input type="text" name="password" class="form-control" value="{{ old('password') }}" required>
-
-    						@if ($errors->has('password'))
-    						<div class="alert alert-danger">{{$errors->first('password')}}</div>
-    						@endif
-    					</div>
-
-    					<div class="form-group">
-    						<strong>Api Key:</strong>
-    						<input type="text" name="api_key" class="form-control" value="{{ old('api_key') }}" >
-
-    						@if ($errors->has('api_key'))
-    						<div class="alert alert-danger">{{$errors->first('api_key')}}</div>
-    						@endif
-    					</div>
-
-    					<div class="form-group">
-    						<strong>Secret:</strong>
-    						<input type="text" name="api_secret" class="form-control" value="{{ old('api_secret') }}" >
-
-    						@if ($errors->has('api_secret'))
-    						<div class="alert alert-danger">{{$errors->first('api_secret')}}</div>
-    						@endif
-    					</div>
-
-                        <div class="form-group">
-                            <strong>Token:</strong>
-                            <input type="text" id="token" name="token" class="form-control" value="{{ old('token') }}" >
-
-                            @if ($errors->has('token'))
-                            <div class="alert alert-danger">{{$errors->first('token')}}</div>
-                            @endif
-                        </div>
-
                         <div class="form-group">
                             <label for="">Choose Ads Manager Account</label>
                                 <select class="form-control" name="ads_manager"  id="adset_id">

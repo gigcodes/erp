@@ -27,7 +27,6 @@ class SocialAccountController extends Controller
         try {
             $contactId = $request->id;
             $messages = SocialMessages::where('social_contact_id', $contactId)->get();
-
             return response()->json(['messages' => $messages]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

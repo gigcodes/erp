@@ -31,10 +31,10 @@
                                 <option value="0">Select Platform</option>
                                 <option value="facebook" @if("facebook" == $socialConfig->platform) selected @endif>Facebook</option>
                                 <option value="instagram" @if("instagram" == $socialConfig->platform) selected @endif>Instagram</option>
-                                
+
                             </select>
 
-                           
+
                         </div>
                         <div class="form-group">
     						<strong>Name:</strong>
@@ -45,55 +45,12 @@
     						@endif
     					</div>
                         <div class="form-group">
-    						<strong>UserName:</strong>
-    						<input type="text" name="email" class="form-control" value="{{ $socialConfig->email }}" required>
-
-    						@if ($errors->has('email'))
-    						<div class="alert alert-danger">{{$errors->first('email')}}</div>
-    						@endif
-    					</div>
-                        <div class="form-group">
-    						<strong>Password:</strong>
-    						<input type="text" name="password" class="form-control" value="{{ $socialConfig->password }}" required>
-
-    						@if ($errors->has('password'))
-    						<div class="alert alert-danger">{{$errors->first('password')}}</div>
-    						@endif
-    					</div>
-
-    					<div class="form-group">
-    						<strong>Api Key:</strong>
-    						<input type="text" name="api_key" class="form-control" value="{{ $socialConfig->api_key }}" >
-
-    						@if ($errors->has('api_key'))
-    						<div class="alert alert-danger">{{$errors->first('api_key')}}</div>
-    						@endif
-    					</div>
-
-    					<div class="form-group">
-    						<strong>Secret:</strong>
-    						<input type="text" name="api_secret" class="form-control" value="{{ $socialConfig->api_secret }}" >
-
-    						@if ($errors->has('api_secret'))
-    						<div class="alert alert-danger">{{$errors->first('api_secret')}}</div>
-    						@endif
-    					</div>
-                        <div class="form-group">
-                            <strong>Token:</strong>
-                            <input type="text" name="token" class="form-control" value="{{  $socialConfig->token }}" >
-
-                            @if ($errors->has('token'))
-                            <div class="alert alert-danger">{{$errors->first('token')}}</div>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
                             <label for="">Choose Ads Manager Account</label>
                                 <input type="hidden" id="ads_manager_id" name="ads_manager_id" value="{{$socialConfig->ads_manager}}">
                                 <select class="form-control adsmanager" name="adsmanager"  id="adsmanager">
                                 <option value="">Select Ads Manager</option>
                                 </select>
-                            
+
                             @if ($errors->has('adsmanager'))
                                 <p class="text-danger">{{$errors->first('adsmanager')}}</p>
                             @endif
@@ -139,7 +96,7 @@
                             <div class="alert alert-danger">{{$errors->first('webhook_token')}}</div>
                             @endif
                         </div>
-    				
+
                         <div class="form-group">
                             <strong>Status:</strong>
                              <select class="form-control" name="status">
