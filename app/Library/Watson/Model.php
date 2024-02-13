@@ -66,17 +66,9 @@ class Model
                 }
             }
 
-//            $watson = new EntitiesService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
             if (! empty($keyword->workspace_id)) {
-                //$result = $watson->update($keyword->workspace_id, $keyword->value, $storeParams);
-
                 ManageWatson::dispatch('entity', $keyword, $storeParams, 'update')->onQueue('watson_push');
             } else {
-                //$result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
                 $keyword->save();
 
@@ -94,11 +86,6 @@ class Model
 
                 ManageWatson::dispatch('entity', $keyword, $storeParams, 'create')->onQueue('watson_push');
             }
-
-//            if ($result->getStatusCode() != 200) {
-            //                \Log::channel('chatapi')->info(print_r($result, true));
-            //                return $result->getContent();
-            //            }
         }
 
         return true;
@@ -113,14 +100,7 @@ class Model
         $keyword = ChatbotKeyword::where('id', $id)->first();
 
         if (! empty($keyword) && ! empty($keyword->workspace_id)) {
-//            $watson = new EntitiesService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
             ManageWatson::dispatch('entity', $keyword, [], 'delete', 'keyword')->onQueue('watson_push');
-
-            //$watson->delete($keyword->workspace_id, $keyword->keyword);
         }
 
         return true;
@@ -137,13 +117,11 @@ class Model
 
         if ($question) {
             $storeParams = [];
-//            $storeParams["intent"]   = $question->value;
             $storeParams[$question->keyword_or_question] = $question->value;
             $values = $question->chatbotQuestionExamples()->get();
 
             if ($question->keyword_or_question == 'entity') {
                 foreach ($values as $value) {
-//                    $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
                     $typeValue = ChatbotQuestionExample::where('id', $value['id'])->get()->pluck('question');
                     if ($value['types'] == 'synonyms') {
                         $storeParams['values'][] = ['value' => $value['question'], 'synonyms' => $typeValue];
@@ -174,19 +152,10 @@ class Model
                 }
             }
 
-//            $watson = new IntentService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
             if (! empty($question->workspace_id)) {
-                // $result = $watson->update($question->workspace_id, $question->value, $storeParams);
-
-//                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update', 'value', false, $oldValue)->onQueue('watson_push');
                 ChatbotQuestion::where('id', $question->id)->update(['watson_status' => 'watson sended']);
             } else {
-                // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
 
@@ -205,16 +174,9 @@ class Model
                 }
 
                 WatsonWorkspace::insert($data_to_insert);
-
-//                ManageWatson::dispatch('intent',$question, $storeParams, 'create');
                 ChatbotQuestion::where('id', $question->id)->update(['watson_status' => 'watson sended']);
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value', false, $oldValue)->onQueue('watson_push');
             }
-
-//            if ($result->getStatusCode() != 200) {
-            //                \Log::channel('chatapi')->info(print_r($result, true));
-            //                return $result->getContent();
-            //            }
         }
 
         return true;
@@ -263,16 +225,6 @@ class Model
                     }
                 }
             }
-
-            // if (!empty($question->workspace_id)) {
-            //     ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue);
-            // } else {
-            //     $question->workspace_id = $workSpaceId;
-            //     $question->save();
-            //     ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue);
-
-            // }
-
             $account = WatsonAccount::where('store_website_id', $store_website_id)->first();
             if (! $account) {
                 return false;
@@ -302,15 +254,6 @@ class Model
                 );
             }
             $watson->set_url($account->url);
-            // if ($this->method === 'create') {
-            //     $result = $watson->create($account->work_space_id, $this->storeParams);
-            // } else if ($this->method === 'update') {
-            //     $result = $watson->update($account->work_space_id, $value, $this->storeParams);
-            // } else if ($this->method === 'delete') {
-            //     $result = $watson->delete($account->work_space_id, $value);
-            // } else if ($this->method === 'update_example') {
-            //     $result = $watson->updateExample($account->work_space_id, $value, $this->old_example, $this->storeParams);
-            // }
             $result = $watson->create($account->work_space_id, $storeParams);
             $status = $result->getStatusCode();
             if ($status == 400) {
@@ -372,28 +315,9 @@ class Model
             if (! empty($sendMentions)) {
                 $storeParams['mentions'] = $sendMentions;
             }
-            /*"mentions" => [
-            [
-            "entity" => "payment_card",
-            "location" => [
-            7,10
-            ]
-            ]
-            ]*/
-
-//            $watson = new IntentService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
             if (! empty($questionModel->workspace_id)) {
                 ManageWatson::dispatch('intent', $question, $storeParams, 'update_example', 'value', $oldExample)->onQueue('watson_push');
-                //$result = $watson->updateExample($questionModel->workspace_id, $questionModel->value, $oldExample, $storeParams);
             }
-
-//            if ($result->getStatusCode() != 200) {
-            //                \Log::channel('chatapi')->info(print_r($result, true));
-            //            }
         }
 
         return true;
@@ -408,15 +332,7 @@ class Model
         $question = ChatbotQuestion::where('id', $id)->first();
 
         if (! empty($question) && ! empty($question->workspace_id)) {
-//            $watson = new IntentService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
-//            ManageWatson::dispatch('intent', $question, [], 'delete');
             ManageWatson::dispatch($question->keyword_or_question, $question, [], 'delete')->onQueue('watson_push');
-
-            // $response = $watson->delete($question->workspace_id, $question->value);
         }
 
         return true;
@@ -447,18 +363,10 @@ class Model
                 $genericOutput['values'][] = ['text' => $value->value];
             }
 
-//            $watson = new DialogService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
             if (! empty($dialog->workspace_id)) {
                 $storeParams['output']['generic'][] = $genericOutput;
-                //$result                             = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
-
                 ManageWatson::dispatch('dialog', $dialog, $storeParams, 'update', 'name')->onQueue('watson_push');
             } else {
-                //$result               = $watson->create($workSpaceId, $storeParams);
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
 
@@ -477,11 +385,6 @@ class Model
 
                 ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name')->onQueue('watson_push');
             }
-
-//            if ($result->getStatusCode() != 200) {
-            //                \Log::channel('chatapi')->info(print_r($result, true));
-            //                return $result->getContent();
-            //            }
         }
 
         return true;
@@ -496,14 +399,7 @@ class Model
         $dialog = ChatbotDialog::where('id', $id)->first();
 
         if (! empty($dialog) && ! empty($dialog->workspace_id)) {
-//            $watson = new DialogService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
-
             ManageWatson::dispatch('dialog', $dialog, [], 'delete', 'name')->onQueue('watson_push');
-
-            // $response = $watson->delete($dialog->workspace_id, $dialog->name);
         }
 
         return true;
@@ -702,33 +598,6 @@ class Model
                     }
                 }
             }
-            /*if (isset($result->output) && isset($result->output->generic)) {
-
-            $textMessage = reset($result->output->generic);
-            if(isset($result->output->entities)) {
-            $entities = $result->output->entities;
-            $imageFiles = [];
-            foreach($entities as $entity) {
-            // if a entity keyword is product then find image matching it brand and category
-            if( $entity->entity == "product") {
-            $value = strtoupper($entity->value);
-            $brand = explode(" ", $value);
-            $brand = Brand::where('name', 'LIKE',"%".$brand[0]."%")->first();
-            $category = trim(str_replace($brand->name,"", $value));
-            $images = Image::where('brand','LIKE',"%".$brand->name."%")->where('category','LIKE',"%".$category."%")->get();
-            foreach($images as $image) {
-            array_push($imageFiles, $image->filename);
-            }
-            }
-            }
-            }
-
-            if (isset($textMessage->text)) {
-            if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
-            return ["reply_text" => $textMessage, "response" => json_encode($result), "imageFiles"=>$imageFiles];
-            }
-            }
-            }*/
 
             return false;
         }
@@ -826,18 +695,6 @@ class Model
                 ],
             ],
         ];
-        //$contextReset = true;
-        /*if($contextReset) {
-        $params["context"]["global"]["system"]["turn_count"]                        = 0;
-        $params["context"]["skills"]["main skill"]["user_defined"]["brand_name"]    = null;
-        $params["context"]["skills"]["main skill"]["user_defined"] = null;
-        //$params["context"]["skills"]["main skill"]["user_defined"]["category_name"] = null;
-        }*/
-
-        // ManageWatson::dispatch('assistant', $assistantID, $params, 'send_message', false, $customer );
-
-        //  return '';
-
         $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, $params);
 
         return json_decode($result->getContent());
@@ -987,31 +844,15 @@ class Model
                     $genericOutput['values'][] = ['text' => $value->value];
                 }
             }
-
-            // update into watson api
-            //            $watson = new DialogService(
-            //                "apiKey",
-            //                self::API_KEY
-            //            );
             if (! empty($genericOutput) && $storeParams['type'] != 'folder') {
                 $storeParams['output']['generic'][] = $genericOutput;
             }
 
             if (! empty($dialog->workspace_id)) {
-                //$result = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
                 ManageWatson::dispatch('dialog', $dialog, $storeParams, 'update', 'name')->onQueue('watson_push');
             } else {
-                //$result = $watson->create($workSpaceId, $storeParams);
-
-//                if ($result->getStatusCode() != 200) {
-                //                    $error = json_decode($result->getContent());
-                //                    if (isset($error->error)) {
-                //                        return ["code" => 500, "error" => $error->error];
-                //                    }
-                //                }
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
-
                 ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name')->onQueue('watson_push');
             }
 
@@ -1034,31 +875,16 @@ class Model
                             $genericOutput['values'][] = ['text' => $value->value];
                         }
 
-//                        $watson = new DialogService(
-                        //                            "apiKey",
-                        //                            self::API_KEY
-                        //                        );
                         if (! empty($mulDialog->workspace_id)) {
                             $storeParams['output']['generic'][] = $genericOutput;
-                            //$result                             = $watson->update($mulDialog->workspace_id, $mulDialog->name, $storeParams);
                             ManageWatson::dispatch('dialog', $mulDialog, $storeParams, 'update', 'name')->onQueue('watson_push');
                         } else {
                             $storeParams['output']['generic'][] = $genericOutput;
-                            //$result                             = $watson->create($workSpaceId, $storeParams);
                             $mulDialog->workspace_id = $workSpaceId;
                             $mulDialog->save();
 
                             ManageWatson::dispatch('dialog', $mulDialog, $storeParams, 'create', 'name')->onQueue('watson_push');
                         }
-
-//                        if ($result->getStatusCode() != 200) {
-                        //                            $error = json_decode($result->getContent());
-                        //                            if (isset($error->error)) {
-                        //                                return ["code" => 500, "error" => $error->error];
-                        //                            }
-                        //                        } else {
-                        //                            return ["code" => 200, "error" => false];
-                        //                        }
                     }
                 }
             }
