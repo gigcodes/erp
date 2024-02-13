@@ -2,9 +2,11 @@
 
 namespace App;
 
+use App\Social\SocialConfig;
 use App\Models\SocialMessages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SocialContact extends Model
 {
@@ -18,23 +20,15 @@ class SocialContact extends Model
 
     protected $fillable = ['account_id', 'name', 'social_config_id', 'platform', 'conversation_id'];
 
-    public function socialConfig()
+    public function socialConfig(): BelongsTo
     {
-        return $this->belongsTo(\App\Social\SocialConfig::class);
-    }
-
-    public function socialContactThread()
-    {
-        return $this->hasMany(\App\SocialContactThread::class)->orderBy('sending_at', 'DESC');
-    }
-
-    public function getLatestSocialContactThread()
-    {
-        return $this->hasone(\App\SocialContactThread::class, 'social_contact_id')->orderBy('sending_at', 'DESC');
+        return $this->belongsTo(SocialConfig::class);
     }
 
     public function messages(): HasMany
     {
-        return $this->hasMany(SocialMessages::class, 'social_contact_id');
+        return $this
+            ->hasMany(SocialMessages::class, 'social_contact_id')
+            ->orderBy('created_time', 'ASC');
     }
 }

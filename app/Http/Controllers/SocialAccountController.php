@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\LogRequest;
+use App\Models\SocialMessages;
 use App\SocialContact;
 use App\SocialWebhookLog;
 use Illuminate\Http\Request;
@@ -14,8 +15,7 @@ class SocialAccountController extends Controller
      */
     public function inbox()
     {
-        $socialContact = SocialContact::with('socialConfig', 'getLatestSocialContactThread')->get();
-
+        $socialContact = SocialContact::with('socialConfig.storeWebsite', 'messages')->get();
         return view('instagram.inbox', compact('socialContact'));
     }
 
@@ -26,9 +26,8 @@ class SocialAccountController extends Controller
     {
         try {
             $contactId = $request->id;
-            $contact = SocialContact::with('socialConfig', 'socialContactThread')->findOrFail($contactId);
-
-            return response()->json(['messages' => $contact]);
+            $messages = SocialMessages::where('social_contact_id', $contactId)->get();
+            return response()->json(['messages' => $messages]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

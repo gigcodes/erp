@@ -6,7 +6,7 @@
 @section('styles')
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
-    <style type="text/css">
+    <style>
         .panel-img-shorts .remove-img {
             display: block;
             float: right;
@@ -16,6 +16,64 @@
 
         form.chatbot .col {
             flex-grow: unset !important;
+        }
+
+        .cls_remove_rightpadding {
+            padding-right: 0px !important;
+        }
+
+        .cls_remove_allpadding {
+            padding-left: 0px !important;
+            padding-right: 0px !important;
+        }
+
+        #chat-list-history tr {
+            word-break: break-word;
+        }
+
+        .reviewed_msg {
+            word-break: break-word;
+        }
+
+        .chatbot .communication {
+        }
+
+        .background-grey {
+            color: grey;
+        }
+
+        @media (max-width: 1400px) {
+            .btns {
+                padding: 3px 2px;
+            }
+        }
+
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #ddd !important;
+        }
+
+        .d-inline.form-inline .select2-container {
+            max-width: 100% !important;
+            /*width: unset !important;*/
+        }
+
+        .actions {
+            display: flex !important;
+            align-items: center;
+        }
+
+        .actions a {
+            padding: 0 3px !important;
+            display: flex !important;
+            align-items: center;
+        }
+
+        .actions .btn-image img {
+            width: 13px !important;
+        }
+
+        .read-message {
+            float: right;
         }
 
     </style>
@@ -31,7 +89,9 @@
     <div class="row m-0">
         <div class="col-md-12 pl-3 pr-3">
             <div class="table-responsive-lg" id="page-view-result">
-                @include("instagram.partials.message")
+                @include("instagram.partials.message",[
+                    'socialContact' => $socialContact
+                ])
             </div>
         </div>
     </div>
@@ -42,9 +102,7 @@
                 <div class="modal-header">
                     <h4 class="modal-title">Communication</h4>
                 </div>
-                <div class="modal-body" style="background-color: #999999;">
-
-                </div>
+                <div class="modal-body" />
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
@@ -66,7 +124,6 @@
       $(document).on("click", ".load-contact-communication-modal", function() {
         $("#loading-image").show();
         const data = $(this).data("id");
-
         $.ajax({
           url: "{{ route('social.message.list') }}",
           method: "POST",
@@ -76,25 +133,17 @@
           },
           success: function(response) {
             const res = response.messages;
-
             $("#loading-image").hide();
             $("#contact-chat-list-history .modal-body").empty();
-            if (res.social_contact_thread.length > 0) {
-
-              $(res.social_contact_thread).each(function(key, value) {
-                let sentBy = "";
-                if (value.type == 1) {
-                  sentBy =
-                    `From ${res.social_config.name} To ${res.name} On ${value.sending_at}`;
-                } else {
-                  sentBy =
-                    `From ${res.name} To ${res.social_config.name} On ${value.sending_at}`;
-                }
+            if (res.length > 0) {
+              $(res).each(function(key, value) {
+                const sentBy =
+                  `From ${value.from.name} To ${value.to.data[0].name} On ${value.created_time}`;
 
                 $("#contact-chat-list-history .modal-body").append(`
                             <table class="table table-bordered">
                                 <tr>
-                                    <td style="width:50%">${value.text}</td>
+                                    <td style="width:50%">${value.message}</td>
                                     <td style="width:50%">${sentBy}</td>
                                 </tr>
                             </table>
