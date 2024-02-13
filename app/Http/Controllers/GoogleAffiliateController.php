@@ -8,6 +8,7 @@ use App\Affiliates;
 use App\LogRequest;
 use Illuminate\Http\Request;
 use App\Mails\Manual\AffiliateEmail;
+use Illuminate\Support\Facades\Http;
 
 class GoogleAffiliateController extends Controller
 {
@@ -412,27 +413,12 @@ class GoogleAffiliateController extends Controller
             ], 400);
         } else {
             $postData = ['data' => $searchKeywords];
-            $postData = json_encode($postData);
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
-                    'Content-Type: application/json',
-                ],
-                CURLOPT_POSTFIELDS => "$postData",
-            ]);
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $err = curl_error($curl);
-            curl_close($curl);
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($response), $httpcode, \App\Http\Controllers\GoogleAffiliateController::class, 'callScraper');
+            $response = Http::post($url, $postData);
+        
+            $responseData = $response->json();
+
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), GoogleAffiliateController::class, 'callScraper');
             // Return
             return response()->json([
                 'success - scrapping initiated',

@@ -12,21 +12,23 @@ use Carbon\Carbon;
 //use App\InstagramPostsComments;
 use App\LogRequest;
 use UnsplashSearch;
-//use InstagramAPI\Instagram;
 use App\ChatMessage;
 use App\InstagramPosts;
-//use App\InstagramCommentQueue;
+//use InstagramAPI\Instagram;
 use App\ScrapInfluencer;
 use Plank\Mediable\Media;
-//use App\InstagramUsersList;
-//use App\Library\Instagram\PublishPost;
+//use App\InstagramCommentQueue;
 use App\StoreSocialContent;
 use Illuminate\Http\Request;
+//use App\InstagramUsersList;
+//use App\Library\Instagram\PublishPost;
+use App\Helpers\SocialHelper;
+use App\Jobs\InstaSchedulePost;
 //use App\InstagramPostLog;
 //use App\InstagramLog;
 //use App\InstagramUserLog;
-use App\Helpers\SocialHelper;
-use App\Jobs\InstaSchedulePost;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 //use App\Jobs\InstaSchedulePost;
@@ -981,45 +983,32 @@ class InstagramPostsController extends Controller
 
             \Log::error(' hashtagify credentials: ' . $consumerKey . ', ' . $consumerSecret);
             $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-            $curl = curl_init();
+
+            $data = [
+                'grant_type' => 'client_credentials',
+                'client_id' => $consumerKey,
+                'client_secret' => $consumerSecret,
+            ];
             $url = 'https://api.hashtagify.me/oauth/token';
 
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => 'grant_type=client_credentials&client_id=' . $consumerKey . '&client_secret=' . $consumerSecret,
-                CURLOPT_HTTPHEADER => [
-                    'cache-control: no-cache',
-                    'content-type: application/x-www-form-urlencoded',
-                ],
+            $response = Http::post($url, $data)->withHeaders([
+                'cache-control' => 'no-cache',
             ]);
 
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $responseData = $response->json();
+
             LogRequest::log($startTime, $url, 'POST', json_encode('grant_type=client_credentials&client_id=' . $consumerKey . '&client_secret=' . $consumerSecret),
-                json_decode($response),
-                $httpcode,
-                \App\Http\Controllers\InstagramPostsController::class, 'getHastagifyApiToken');
+                $responseData,
+                $response->status(),
+                InstagramPostsController::class, 'getHastagifyApiToken');
 
-            $err = curl_error($curl);
-            exit(var_dump('teeeest', $err));
-            \Log::error(' hashtagify response ' . $response);
-            \Log::error(' hashtagify error' . $err);
-            curl_close($curl);
-
-            if ($err) {
-                return false;
+            if ($response->failed) {
+                Log::error(' hashtagify response ' . $response);
+                Log::error(' hashtagify error' . $response->body);
             } else {
-                $response = json_decode($response);
-                // dd($response);
-                \Session()->put('hastagify', $response->access_token);
+                \Session()->put('hastagify', $responseData['access_token']);
 
-                return $response->access_token;
+                return $responseData['access_token'];
             }
         }
     }
@@ -1027,29 +1016,41 @@ class InstagramPostsController extends Controller
     public function getHashTashSuggestions($token, $word)
     {
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
         $url = 'https://api.hashtagify.me/1.0/tag/' . $word;
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'authorization: Bearer ' . $token,
-                'cache-control: no-cache',
-            ],
-        ]);
+        $response = Http::withHeaders(['authorization: Bearer ' . $token,
+            'cache-control: no-cache', ])->get($url);
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\InstagramPostsController::class, 'getHashTashSuggestions');
+        $responseData = $response->json();
 
-        curl_close($curl);
+        if ($response->failed()) {
+            $err = $response->body();
+        }
+
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), $responseData, $response->status(), InstagramPostsController::class, 'getHashTashSuggestions');
+
+//        $curl = curl_init();
+//
+//        curl_setopt_array($curl, [
+//            CURLOPT_URL => $url,
+//            CURLOPT_RETURNTRANSFER => true,
+//            CURLOPT_ENCODING => '',
+//            CURLOPT_MAXREDIRS => 10,
+//            CURLOPT_TIMEOUT => 30,
+//            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//            CURLOPT_CUSTOMREQUEST => 'GET',
+//            CURLOPT_HTTPHEADER => [
+//                'authorization: Bearer ' . $token,
+//                'cache-control: no-cache',
+//            ],
+//        ]);
+//
+//        $response = curl_exec($curl);
+//        $err = curl_error($curl);
+//        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+//        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, InstagramPostsController::class, 'getHashTashSuggestions');
+//
+//        curl_close($curl);
 
         if ($err) {
             //echo "cURL Error #:" . $err;
