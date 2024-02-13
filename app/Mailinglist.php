@@ -88,10 +88,7 @@ class Mailinglist extends Model
                 'template_content' => $htmlContent,
             ];
 
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-                ->post($url, $data)->json();
+            $response = Http::post($url, $data)->json();
             //}
         }
     }

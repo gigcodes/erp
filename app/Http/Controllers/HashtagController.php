@@ -834,12 +834,11 @@ class HashtagController extends Controller
                         $url = "'https://api.sendinblue.com/v3/contacts/lists'";
                         $response = Http::withHeaders([
                             'api-key' => $api_key,
-                            'Content-Type' => 'application/json',
                         ])->post($url, $data);
-
-                        LogRequest::log($startTime, $url, 'POST', json_encode($data), json_decode($response), $response->status(), HashtagController::class, 'addmailinglist');
-
                         $res = $response->json();
+
+                        LogRequest::log($startTime, $url, 'POST', json_encode($data), $res, $response->status(), HashtagController::class, 'addmailinglist');
+
 
                         Mailinglist::create([
                             'name' => $name,
@@ -880,7 +879,6 @@ class HashtagController extends Controller
 
             $response = Http::withHeaders([
                 'api-key' => env('SEND_IN_BLUE_API'),
-                'Content-Type' => 'application/json',
             ])->post($url, $data);
 
             $responseData = $response->json();

@@ -136,9 +136,7 @@ class ChatMessage extends Model
 
         $url = "https://api.chat-api.com/instance$instanceId/$link?token=" . $token;
 
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post($url, $chatApiArray);
+        $response = Http::post($url, $chatApiArray);
 
         if ($response->failed()) {
             $err = $response->body();

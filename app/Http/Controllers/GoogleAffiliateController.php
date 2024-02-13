@@ -414,9 +414,7 @@ class GoogleAffiliateController extends Controller
         } else {
             $postData = ['data' => $searchKeywords];
             $url = env('NODE_SCRAPER_SERVER') . 'api/googleSearchDetails';
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($url, $postData);
+            $response = Http::post($url, $postData);
         
             $responseData = $response->json();
 

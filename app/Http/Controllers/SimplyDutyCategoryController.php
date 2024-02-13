@@ -107,14 +107,10 @@ class SimplyDutyCategoryController extends Controller
         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         $url = 'https://www.api.simplyduty.com/api/Supporting/categories';
         $response = Http::get($url);
-        $httpcode = $response->status();
         $responseData = $response->json();
 
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($responseData), $httpcode, SimplyDutyCategoryController::class, 'getCategoryFromApi');
-
-        $categories = json_decode($responseData);
-
-        foreach ($categories as $category) {
+        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($responseData), $response->status(), SimplyDutyCategoryController::class, 'getCategoryFromApi');
+        foreach ($responseData as $category) {
             $code = $category->Code;
             $description = $category->Description;
             $cat = SimplyDutyCategory::where('code', $code)->where('description', $description)->first();
