@@ -14,7 +14,6 @@ class SeoProcessStatusSeeder extends Seeder
      */
     public function run()
     {
-        // SeoProcessStatus::truncate();
         $dataArr = [
             // Seo Status
             [
