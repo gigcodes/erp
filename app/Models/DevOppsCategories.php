@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Models;
-use App\Models\DevOppsSubCategory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DevOppsCategories extends Model
 {

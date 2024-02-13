@@ -4,89 +4,74 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Elasticsearch\Reindex\Messages;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Elasticsearch\Reindex\Messages;
 use Illuminate\Database\Eloquent\Model;
 use App\Elasticsearch\Reindex\Interfaces\Reindex;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class IndexerState extends Model
 {
     use HasFactory;
 
     const ID = 'id';
+
     const INDEX = 'index';
+
     const STATUS = 'status';
+
     const SETTINGS = 'settings';
+
     const UPDATED_AT = 'updated_at';
+
     const CREATED_AT = 'created_at';
+
     const LOGS = 'logs';
+
     const IDS = 'ids';
 
     const INDEXER_MAPPING = [
-        Messages::INDEX_NAME => Messages::class
+        Messages::INDEX_NAME => Messages::class,
     ];
 
     protected $table = 'indexer_state';
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int
     {
-        return (int)$this->getAttribute('id');
+        return (int) $this->getAttribute('id');
     }
 
-    /**
-     * @return string|null
-     */
     public function getIndex(): ?string
     {
-        return (string)$this->getAttribute(self::INDEX);
+        return (string) $this->getAttribute(self::INDEX);
     }
 
-    /**
-     * @return string|null
-     */
     public function getStatus(): ?string
     {
-        return (string)$this->getAttribute(self::STATUS);
+        return (string) $this->getAttribute(self::STATUS);
     }
 
-    /**
-     * @return array|null
-     */
     public function getSettings(): ?array
     {
         return json_decode($this->getAttribute(self::SETTINGS), true);
     }
 
-    /**
-     * @return mixed
-     */
     public function getLogs(): mixed
     {
         return json_decode($this->getAttribute(self::LOGS), true);
     }
 
-    /**
-     * @return Carbon|null
-     */
     public function getUpdatedAt(): ?Carbon
     {
         return $this->getAttribute(self::UPDATED_AT);
     }
 
-    /**
-     * @return Carbon|null
-     */
     public function getCreatedAt(): ?Carbon
     {
         return $this->getAttribute(self::CREATED_AT);
     }
 
     /**
-     * @param string $index
      * @return $this
      */
     public function setIndex(string $index): self
@@ -97,7 +82,6 @@ class IndexerState extends Model
     }
 
     /**
-     * @param string $status
      * @return $this
      */
     public function setStatus(string $status): self
@@ -108,7 +92,6 @@ class IndexerState extends Model
     }
 
     /**
-     * @param array $settings
      * @return $this
      */
     public function setSettings(array $settings = []): self
@@ -119,7 +102,6 @@ class IndexerState extends Model
     }
 
     /**
-     * @param array $logs
      * @return $this
      */
     public function setLogs(array $logs = []): self
@@ -152,18 +134,20 @@ class IndexerState extends Model
     {
         $settings = $this->getSettings() ?? [];
         $pId = $settings['processId'] ?? null;
-        return $pId ?: (int)$pId;
+
+        return $pId ?: (int) $pId;
     }
 
     public function getIds(): ?array
     {
         $ids = $this->getAttribute(self::IDS);
 
-        if (!$ids) {
+        if (! $ids) {
             return [];
         }
 
         $ids = json_decode($ids, true) ?? [];
+
         return $ids ?: [];
     }
 
@@ -187,7 +171,6 @@ class IndexerState extends Model
 
     /**
      * skip if running
-     * @return bool
      */
     public function isSkip(): bool
     {
@@ -198,9 +181,6 @@ class IndexerState extends Model
         return false;
     }
 
-    /**
-     * @return string|null
-     */
     public function getClassName(): ?string
     {
         return self::INDEXER_MAPPING[$this->getIndex()];

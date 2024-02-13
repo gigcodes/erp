@@ -12,7 +12,7 @@ class PostmanApiIssueFixDoneHistory extends Model
 
     protected $table = 'postman_api_issue_fix_done_histories';
 
-    protected $fillable = ['postman_create_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['postman_create_id', 'old_value', 'new_value', 'user_id'];
 
     protected $appends = ['new_value_text', 'old_value_text'];
 

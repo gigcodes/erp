@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Models;
+
 use App\User;
 use App\Order;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrderStatusMagentoRequestResponseLog extends Model
 {

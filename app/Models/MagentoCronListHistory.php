@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoCronListHistory extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'cron_id', 'user_id', 'store_website_id', 'server_ip', 'request_data', 'response_data', 'job_id', 'status', 'working_directory', 'last_execution_time'
+        'cron_id', 'user_id', 'store_website_id', 'server_ip', 'request_data', 'response_data', 'job_id', 'status', 'working_directory', 'last_execution_time',
     ];
 
     public function website()
@@ -18,11 +18,3 @@ class MagentoCronListHistory extends Model
         return $this->belongsTo(\App\StoreWebsite::class, 'website_ids');
     }
 }
-
-
-
-
-
-
-
-

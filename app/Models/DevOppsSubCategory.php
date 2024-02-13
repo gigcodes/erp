@@ -1,10 +1,9 @@
 <?php
 
 namespace App\Models;
-use App\Models\DevOopsStatus;
-use App\Models\DevOppsCategories;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DevOppsSubCategory extends Model
 {

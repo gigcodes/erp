@@ -12,7 +12,7 @@ class MagentoSettingValueHistory extends Model
 
     protected $table = 'magento_setting_value_histories';
 
-    protected $fillable = ['magento_setting_id', 'old_value', 'new_value',  'user_id'];
+    protected $fillable = ['magento_setting_id', 'old_value', 'new_value', 'user_id'];
 
     public function user()
     {

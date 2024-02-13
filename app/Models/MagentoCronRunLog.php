@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class MagentoCronRunLog extends Model
 {
@@ -18,6 +18,6 @@ class MagentoCronRunLog extends Model
         'working_directory',
         'response',
         'job_id',
-        'request'
+        'request',
     ];
 }
