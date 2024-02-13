@@ -418,7 +418,7 @@ class GoogleAffiliateController extends Controller
         
             $responseData = $response->json();
 
-            LogRequest::log($startTime, $url, 'POST', json_encode($postData), json_decode($responseData), $response->status(), GoogleAffiliateController::class, 'callScraper');
+            LogRequest::log($startTime, $url, 'POST', json_encode($postData), $responseData, $response->status(), GoogleAffiliateController::class, 'callScraper');
             // Return
             return response()->json([
                 'success - scrapping initiated',
