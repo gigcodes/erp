@@ -156,6 +156,19 @@ class PostmanRequestCreateController extends Controller
 
             $allUsers = User::where('is_active', '1')->select('id', 'name')->orderBy('name')->get();
 
+            if (request()->ajax()) {
+                return response()->json([
+                    'tbody' => view('postman.partials.table.tbody',compact(
+                        'postmans',
+                        'userID',
+                        'addAdimnAccessID',
+                        'status',
+                        'dynamicColumnsToShowPostman',
+                    ))->render(),
+                    'pagination' => view('postman.partials.table.pagination', compact('postmans'))->render(),
+                ], 200);
+            }
+
             return view('postman.index', compact(
                 'postmans',
                 'folders',
@@ -250,6 +263,15 @@ class PostmanRequestCreateController extends Controller
      */
     public function store(Request $request)
     {
+        $rules =  [
+            'request_name' => 'required|string|max:255',
+            'folder_name' => 'required|string|max:255',
+            'request_types' => 'required|string|max:255',
+            'user_permission' => 'present|array|min:1',
+        ];
+
+        $this->validate($request, $rules);
+
         try {
             $created_user_permission = '';
             if (isset($request->id) && $request->id > 0) {
