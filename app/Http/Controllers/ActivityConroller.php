@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Product;
-use App\Activity;
 use Carbon\Carbon;
 use App\LogScraperVsAi;
 use App\ScrapedProducts;
@@ -90,9 +89,7 @@ class ActivityConroller extends Controller
         $aiActivity = [];
 
         // Get total row count for products
-//        $products = Product::all();
         $aiActivity['total'] = 0;
-//        $products = Product::whereBetween( 'created_at', [ $range_start . ' 00:00', $range_end . ' 23:59' ] )->get();
         $aiActivity['total_range'] = 0;
 
         // Get ai activity
@@ -133,22 +130,6 @@ class ActivityConroller extends Controller
             ->where('is_crop_approved', 0)
             ->where('is_crop_being_verified', 0)
             ->whereDoesntHave('amends')->count();
-
-//        $productStats = DB::table( 'products' )->selectRaw( '(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped,
-//        (SELECT COUNT(*) FROM products WHERE is_crop_approved = 1 AND is_crop_ordered = 0) as left_for_sequencing ,
-//        SUM(is_approved) as total_approvals,
-//        SUM(is_listing_rejected) as total_rejections,
-//        SUM(is_crop_rejected) as crop_rejected,
-//        SUM(isListed) as total_listed,
-//        ' . $ca . ' AS crop_approval' )->first();
-
-//        $productStatsDateRange = DB::table( 'products' )->whereBetween( 'created_at', [ $range_start . ' 00:00', $range_end . ' 23:59' ] )->selectRaw( '(SELECT COUNT(*) FROM products p WHERE is_image_processed = 0 AND is_scraped = 1) as uncropped,
-//        (SELECT COUNT(*) FROM products WHERE is_crop_approved = 1 AND is_crop_ordered = 0) as left_for_sequencing ,
-//        SUM(is_approved) as total_approvals,
-//        SUM(is_listing_rejected) as total_rejections,
-//        SUM(is_crop_rejected) as crop_rejected,
-//        SUM(isListed) as total_listed,
-//        ' . $ca . ' AS crop_approval' )->first();
 
         $productStats = StatusHelper::getStatusCount();
         $productStatsDateRange = StatusHelper::getStatusCountByDateRange($range_start, $range_end);
@@ -200,7 +181,6 @@ class ActivityConroller extends Controller
         if (! $range_start || ! $range_end) {
             $inventoryCount = $inventoryCount->whereRaw('TIMESTAMPDIFF(HOUR, last_inventory_at, NOW())<= 48');
             $scrapCount = $scrapCount->where('created_at', 'LIKE', '%' . date('Y-m-d') . '%');
-//            $rejectedListingsCount = $rejectedListingsCount->where('listing_rejected_on', 'LIKE', "%".date('Y-m-d')."%");
         }
 
         $scrapCount = $scrapCount->count();
@@ -218,8 +198,6 @@ class ActivityConroller extends Controller
 
     public function showGraph(Request $request)
     {
-        //		return $request->all();
-
         $data['date_type'] = $request->input('date_type') ?? 'week';
 
         $data['week_range'] = $request->input('week_range') ?? date('Y-\WW');
@@ -294,8 +272,6 @@ class ActivityConroller extends Controller
             }
         }
 
-        //		return $benchmark;
-
         $data['benchmark'] = $benchmark ?? [];
         $data['workDone'] = $workDone ?? [];
 
@@ -304,8 +280,6 @@ class ActivityConroller extends Controller
 
     public function showUserGraph(Request $request)
     {
-        //		return $request->all();
-
         $data['users'] = $this->getUserArray();
         $data['selected_user'] = $request->input('selected_user') ?? 3;
 
@@ -338,7 +312,6 @@ class ActivityConroller extends Controller
             foreach ($workDone as $subject_type => $subject_type_array) {
                 for ($i = 0; $i <= 23; $i++) {
                     $workDone[$subject_type][$i] = $subject_type_array[$i] ?? 0;
-                    //					$workDone[ $subject_type ][gmdate("g:i a",$i*3600 )] = $subject_type_array[$i] ?? 0;
                 }
             }
         } else {
@@ -372,7 +345,6 @@ class ActivityConroller extends Controller
 
         $data['workDone'] = $workDone ?? [];
         $data['dataLabel'] = $data['date_type'] == 'day' ? $this->dataLabelDay : $this->dataLabelMonth;
-        //		return $data;
 
         return view('activity.graph-user', $data);
     }
@@ -392,14 +364,6 @@ class ActivityConroller extends Controller
 
     public static function create($subject_id, $subject_type, $description)
     {
-        /*$activity = new Activity();
-
-        $activity->create([
-            'subject_id' => $subject_id,
-            'subject_type' => $subject_type,
-            'causer_id' => \Auth::id() ?? 0,
-            'description' => $description,
-        ]);*/
     }
 
     public function getStartAndEndDateByWeek($week_range)
@@ -438,21 +402,11 @@ class ActivityConroller extends Controller
     public function recentActivities(Request $request)
     {
         $productStats = DB::table('productactivities')
-        ->where('status_id', $request->type)
-        ->whereDate('created_at', '>', Carbon::now()->subDays(10))
-        ->orderBy('created_at', 'DESC')
-        ->get();
+            ->where('status_id', $request->type)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(10))
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
         return $productStats;
     }
 }
-
-/*$total_data['selection']    += isset( $results['selection'] ) ? $results['selection'] : 0;
-        $total_data['searcher']     += isset( $results['searcher'] ) ? $results['searcher'] : 0;
-        $total_data['attribute']    += isset( $results['attribute'] ) ? $results['attribute'] : 0;
-        $total_data['supervisor']   += isset( $results['supervisor'] ) ? $results['supervisor'] : 0;
-        $total_data['imagecropper'] += isset( $results['imagecropper'] ) ? $results['imagecropper'] : 0;
-        $total_data['lister']       += isset( $results['lister'] ) ? $results['lister'] : 0;
-        $total_data['approver']     += isset( $results['approver'] ) ? $results['approver'] : 0;
-        $total_data['inventory']    += isset( $results['inventory'] ) ? $results['inventory'] : 0;
-        $total_data['sales']        += isset( $results['sales'] ) ? $results['sales'] : 0;*/

@@ -120,10 +120,10 @@ class UserLogController extends Controller
         $userslogs = $query->select(['id', 'user_id', 'url', 'created_at', 'user_name', 'updated_at'])->orderBy('id', 'desc');
 
         return Datatables::of($userslogs)
-        ->addColumn('user_name', function ($userslogs) {
-            return '<button class="btn btn-sm yellow edit" onclick="usertype(' . $userslogs->user_id . ')">' . $userslogs->user_name . '</button>';
-        })
-        ->rawColumns(['user_name'])
-        ->make(true);
+            ->addColumn('user_name', function ($userslogs) {
+                return '<button class="btn btn-sm yellow edit" onclick="usertype(' . $userslogs->user_id . ')">' . $userslogs->user_name . '</button>';
+            })
+            ->rawColumns(['user_name'])
+            ->make(true);
     }
 }

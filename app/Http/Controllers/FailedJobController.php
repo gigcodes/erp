@@ -17,8 +17,8 @@ class FailedJobController extends Controller
         );
         if ($validator->fails()) {
             return \Redirect::Back()
-                    ->withInput($request->all())
-                    ->withErrors($validator);
+                ->withInput($request->all())
+                ->withErrors($validator);
         }
 
         $jobs = \App\FailedJob::whereNotNull('id')->orderBy('id', 'desc');
@@ -42,7 +42,7 @@ class FailedJobController extends Controller
         $count = $jobs->total();
 
         return view('failedjob.list', compact('jobs', 'filters', 'count', 'checkbox'))
-                            ->withInput($request->all());
+            ->withInput($request->all());
     }
 
     public function delete(Request $request, $id)

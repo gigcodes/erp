@@ -16,26 +16,26 @@ use App\MagentoModuleHistory;
 use App\MagentoModuleCategory;
 use App\MagentoModuleLocation;
 use App\MagnetoLocationHistory;
+use App\Models\ColumnVisbility;
+use App\Models\DataTableColumn;
 use App\MagentoModuleVerifiedBy;
 use App\MagentoModuleVerifiedStatus;
 use App\MagentoModuleApiValueHistory;
 use App\MagnetoReviewStandardHistory;
 use App\Models\MagentoModuleDependency;
+use App\Models\MagentoModuleM2ErrorStatus;
 use App\MagentoModuleVerifiedStatusHistory;
+use App\Models\MagentoModuleUnitTestStatus;
+use App\MagentoModuleM2ErrorAssigneeHistory;
+use App\Models\MagentoModuleM2RemarkHistory;
+use App\Models\MagentoModuleUnitTestUserHistory;
+use App\Models\MagentoModuleM2ErrorStatusHistory;
 use App\Models\MagentoModuleReturnTypeErrorStatus;
+use App\Models\MagentoModuleUnitTestRemarkHistory;
+use App\Models\MagentoModuleUnitTestStatusHistory;
 use App\Http\Requests\MagentoModule\MagentoModuleRequest;
 use App\Models\MagentoModuleReturnTypeErrorHistoryStatus;
 use App\Http\Requests\MagentoModule\MagentoModuleRemarkRequest;
-use App\MagentoModuleM2ErrorAssigneeHistory;
-use App\Models\MagentoModuleM2ErrorStatus;
-use App\Models\MagentoModuleM2ErrorStatusHistory;
-use App\Models\MagentoModuleM2RemarkHistory;
-use App\Models\MagentoModuleUnitTestStatus;
-use App\Models\MagentoModuleUnitTestStatusHistory;
-use App\Models\MagentoModuleUnitTestUserHistory;
-use App\Models\MagentoModuleUnitTestRemarkHistory;
-use App\Models\ColumnVisbility;
-use App\Models\DataTableColumn;
 
 class MagentoModuleController extends Controller
 {
@@ -72,8 +72,8 @@ class MagentoModuleController extends Controller
         $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
         $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
         //get column visbilities
-        $columns = ColumnVisbility::select('columns')->where('user_id',auth()->user()->id)->first();
-        $hideColumns = $columns->columns ?? "";
+        $columns = ColumnVisbility::select('columns')->where('user_id', auth()->user()->id)->first();
+        $hideColumns = $columns->columns ?? '';
 
         $moduleNames = MagentoModule::with(['lastRemark'])
             ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
@@ -87,84 +87,6 @@ class MagentoModuleController extends Controller
             ->pluck('module', 'module')
             ->toArray();
 
-        // AJAX logic moved to indexPost function,
-        // Because facing "414 Request-URI Too Large" error when passing all the filter values in GET method
-        // if ($request->ajax()) {
-        //     $items = MagentoModule::with(['lastRemark'])
-        //         ->join('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
-        //         ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
-        //         ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
-        //         ->join('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
-        //         ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
-        //         ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
-        //         ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
-        //         ->select(
-        //             'magento_modules.*',
-        //             'magento_module_categories.category_name',
-        //             'magento_module_locations.magento_module_locations',
-        //             'magento_module_return_type_error_status.return_type_name',
-        //             'task_statuses.name as task_name',
-        //             'store_websites.website',
-        //             'store_websites.title',
-        //             'users.name as developer_name1',
-        //             'users.id as developer_id'
-        //         )
-        //         ->orderByDesc('magento_modules.module_review_standard')
-        //         ;
-
-        //     if (isset($request->module) && ! empty($request->module)) {
-        //         $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
-        //     }
-
-        //     if (isset($request->user_id) && ! empty($request->user_id)) {
-        //         $items->where('users.user_id', $request->user_id);
-        //     }
-
-        //     if (isset($request->store_website_id) && ! empty($request->store_website_id)) {
-        //         $items->where('magento_modules.store_website_id', $request->store_website_id);
-        //     }
-
-        //     if (isset($request->module_type) && ! empty($request->module_type)) {
-        //         $items->where('magento_modules.module_type', $request->module_type);
-        //     }
-
-        //     if (isset($request->task_status) && ! empty($request->task_status)) {
-        //         $items->where('magento_modules.task_status', $request->task_status);
-        //     }
-
-        //     if (isset($request->is_customized)) {
-        //         $items->where('magento_modules.is_customized', $request->is_customized);
-        //     }
-
-        //     if (isset($request->module_category_id) && ! empty($request->module_category_id)) {
-        //         $items->where('magento_modules.module_category_id', $request->module_category_id);
-        //     }
-        //     if (isset($request->site_impact)) {
-        //         $items->where('magento_modules.site_impact', $request->site_impact);
-        //     }
-
-        //     if (isset($request->modules_status)) {
-        //         $items->where('magento_modules.status', $request->modules_status);
-        //     }
-        //     if (isset($request->dev_verified_by)) {
-        //         $items->whereIn('magento_modules.dev_verified_by', $request->dev_verified_by);
-        //     }
-        //     if (isset($request->lead_verified_by)) {
-        //         $items->whereIn('magento_modules.lead_verified_by', $request->lead_verified_by);
-        //     }
-        //     if (isset($request->dev_verified_status_id)) {
-        //         $items->whereIn('magento_modules.dev_verified_status_id', $request->dev_verified_status_id);
-        //     }
-        //     if (isset($request->lead_verified_status_id)) {
-        //         $items->whereIn('magento_modules.lead_verified_status_id', $request->lead_verified_status_id);
-        //     }
-        //     if (isset($request->return_type_error_status)) {
-        //         $items->where('magento_modules.return_type_error_status', $request->return_type_error_status);
-        //     }
-        //     $items->groupBy('magento_modules.module');
-        //     return datatables()->eloquent($items)->addColumn('m_types', $magento_module_types)->addColumn('developer_list', $users)->addColumn('categories', $module_categories)->addColumn('website_list', $store_websites)->addColumn('verified_status', $verified_status)->addColumn('locations', $module_locations)->addColumn('module_return_type_statuserrors', $module_return_type_statuserrors)->toJson();
-        // } else {
-
         $title = 'Magento Module';
         $users = $users->pluck('name', 'id');
         $module_categories = $module_categories->pluck('category_name', 'id');
@@ -174,8 +96,7 @@ class MagentoModuleController extends Controller
         $store_websites = $store_websites->pluck('website', 'id');
         $module_return_type_statuserrors = $module_return_type_statuserrors->pluck('return_type_name', 'id');
 
-        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors','unit_test_status','hideColumns'));
-        // }
+        return view($this->index_view, compact('title', 'module_categories', 'magento_module_types', 'task_statuses', 'store_websites', 'users', 'verified_status', 'verified_status_array', 'm2_error_status', 'm2_error_status_array', 'moduleNames', 'module_locations', 'module_return_type_statuserrors', 'unit_test_status', 'hideColumns'));
     }
 
     public function indexPost(Request $request)
@@ -195,32 +116,31 @@ class MagentoModuleController extends Controller
         $m2_error_status = MagentoModuleM2ErrorStatus::select('m2_error_status_name', 'id')->get();
         $m2_error_status_array = $m2_error_status->pluck('m2_error_status_name', 'id');
         $unit_test_status = MagentoModuleUnitTestStatus::select('unit_test_status_name', 'id')->get();
-        
-        //get column visbilities
-        $columns = ColumnVisbility::select('columns')->where('user_id',auth()->user()->id)->first();
-        $hideColumns = $columns->columns ?? "";
 
+        //get column visbilities
+        $columns = ColumnVisbility::select('columns')->where('user_id', auth()->user()->id)->first();
+        $hideColumns = $columns->columns ?? '';
 
         $items = MagentoModule::with(['lastRemark'])
-                ->leftjoin('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
-                ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
-                ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
-                ->leftjoin('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
-                ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
-                ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
-                ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
-                ->select(
-                    'magento_modules.*',
-                    'magento_module_categories.category_name',
-                    'magento_module_locations.magento_module_locations',
-                    'magento_module_return_type_error_status.return_type_name',
-                    'task_statuses.name as task_name',
-                    'store_websites.website',
-                    'store_websites.title',
-                    'users.name as developer_name1',
-                    'users.id as developer_id'
-                )
-                ->orderByDesc('magento_modules.module_review_standard');
+            ->leftjoin('magento_module_categories', 'magento_module_categories.id', 'magento_modules.module_category_id')
+            ->leftjoin('magento_module_locations', 'magento_module_locations.id', 'magento_modules.magneto_location_id')
+            ->leftjoin('magento_module_return_type_error_status', 'magento_module_return_type_error_status.id', 'magento_modules.return_type_error_status')
+            ->leftjoin('magento_module_types', 'magento_module_types.id', 'magento_modules.module_type')
+            ->join('store_websites', 'store_websites.id', 'magento_modules.store_website_id')
+            ->leftjoin('users', 'users.id', 'magento_modules.developer_name')
+            ->leftJoin('task_statuses', 'task_statuses.id', 'magento_modules.task_status')
+            ->select(
+                'magento_modules.*',
+                'magento_module_categories.category_name',
+                'magento_module_locations.magento_module_locations',
+                'magento_module_return_type_error_status.return_type_name',
+                'task_statuses.name as task_name',
+                'store_websites.website',
+                'store_websites.title',
+                'users.name as developer_name1',
+                'users.id as developer_id'
+            )
+            ->orderByDesc('magento_modules.module_review_standard');
 
         if (isset($request->module) && ! empty($request->module)) {
             $items->where('magento_modules.module', 'Like', '%' . $request->module . '%');
@@ -327,7 +247,7 @@ class MagentoModuleController extends Controller
 
             $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
             if (empty($website) || empty($server) || empty($rootDir) || empty($websiteStoreProjectName)) {
-                MagentoModuleLogs::create(['magento_module_id' => $data->id, 'store_website_id' => $data->store_website_id, 'updated_by' => $input_data['user_id'], 'command' => $cmd, 'status' => 'Error', 'response' => "Parameter is missing in command"]);
+                MagentoModuleLogs::create(['magento_module_id' => $data->id, 'store_website_id' => $data->store_website_id, 'updated_by' => $input_data['user_id'], 'command' => $cmd, 'status' => 'Error', 'response' => 'Parameter is missing in command']);
 
                 $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $data->store_website_id, 'magento_module_id' => $data->id];
                 \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
@@ -440,7 +360,6 @@ class MagentoModuleController extends Controller
             $input_data['magento_module_id'] = $magento_module->id;
             unset($input_data['id']);
             $input_data['user_id'] = auth()->user()->id;
-            // dd($input_data);
             MagentoModuleHistory::create($input_data);
 
             return response()->json([
@@ -515,7 +434,7 @@ class MagentoModuleController extends Controller
                 $message = 'Return Type Error Status';
                 $update = MagentoModule::where('id', $request->magento_module_id)->update(['return_type_error_status' => $request->remark]);
             }
-            // dd($update, $request->magento_module_id, $request->remark);
+
             return response()->json([
                 'status' => true,
                 'message' => "{$message} added successfully",
@@ -717,38 +636,30 @@ class MagentoModuleController extends Controller
 
     public function magentoModuleList(Request $request)
     {
-        
         $all_store_websites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
-        
+
         $storeWebsites = StoreWebsite::where('website_source', 'magento')->pluck('title', 'id')->toArray();
-        
+
         $selecteStoreWebsites = ['151', '152', '153', '154'];
 
         if (isset($request->store_webs) && $request->store_webs) {
             $selecteStoreWebsites = $request->store_webs;
-            
+
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $request->store_webs)->pluck('title', 'id')->toArray();
-            
         } else {
-            
             // Default QA store websites will select
             $storeWebsites = StoreWebsite::where('website_source', 'magento')->whereIn('id', $selecteStoreWebsites)->pluck('title', 'id')->toArray();
-            
         }
 
-        if(!empty($request->store_webs)){
+        if (! empty($request->store_webs)) {
             $magento_modules_check = MagentoModule::groupBy('module')->get();
 
-            if(!empty($magento_modules_check)){
-                
+            if (! empty($magento_modules_check)) {
                 foreach ($magento_modules_check as $key => $value) {
-
                     foreach ($request->store_webs as $keyStoreWebsite => $valueStoreWebsite) {
-
                         $mmInCheckStoreWebsite = MagentoModule::where('module', $value->module)->where('store_website_id', $valueStoreWebsite)->select('id')->first();
 
-                        if(empty($mmInCheckStoreWebsite)){
-
+                        if (empty($mmInCheckStoreWebsite)) {
                             $mm_create = [];
                             $mm_create['store_website_id'] = $valueStoreWebsite;
                             $mm_create['module_category_id'] = $value['module_category_id'];
@@ -793,44 +704,37 @@ class MagentoModuleController extends Controller
                             $mm_create['unit_test_user_id'] = $value['unit_test_user_id'];
                             MagentoModule::create($mm_create);
                         }
-
                     }
-                    
                 }
             }
-            
         }
-        
+
         // For Filter
         $allMagentoModules = MagentoModule::orderBy('module', 'asc')->pluck('module', 'module')->toArray();
 
         $magento_modules = MagentoModule::orderBy('module', 'asc');
 
-       /* if (isset($request->store_webs) && $request->store_webs) {
-            $magento_modules = $magento_modules->whereIn('store_website_id', $request->store_webs);
-        }*/
-
         if (isset($request->module_name) && $request->module_name != '') {
             $magento_modules = $magento_modules->where('module', 'Like', '%' . $request->module_name . '%');
         }
-        
+
         $magento_modules_array = $magento_modules->get()->toArray();
-        
+
         $magento_modules = $magento_modules->groupBy('module')->get();
-        
+
         $magento_modules_count = $magento_modules->count();
 
         $result = [];
         array_walk($magento_modules_array, function ($value, $key) use (&$result) {
             $result[$value['store_website_id']][] = $value;
         });
-        
+
         $magento_modules_array = $result;
-        
+
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
         $dynamicColumnsToShow = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShow = json_decode($hideColumns, true);
         }
 
@@ -838,17 +742,17 @@ class MagentoModuleController extends Controller
     }
 
     public function magentoModuleListLogs(Request $request)
-    {   
+    {
         $allMagentoModules = MagentoModule::pluck('module', 'module')->toArray();
 
         $magento_modules = MagentoModuleLogs::select('magento_modules.module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('id', 'DESC');
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
-            $magento_modules = $magento_modules->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+            $magento_modules = $magento_modules->where('module', 'LIKE', '%' . $request->module_name_sync . '%');
         }
-        
+
         if (isset($request->selected_date) && $request->selected_date) {
-            $magento_modules = $magento_modules->whereDate('magento_module_logs.created_at', "=", $request->selected_date);
+            $magento_modules = $magento_modules->whereDate('magento_module_logs.created_at', '=', $request->selected_date);
         }
 
         $magento_modules = $magento_modules->paginate(10);
@@ -865,26 +769,25 @@ class MagentoModuleController extends Controller
         $perPage = 2;
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
-            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', '%' . $request->module_name_sync . '%');
         }
-        
+
         if (isset($request->selected_date) && $request->selected_date) {
-            $magento_modules_q = $magento_modules_q->whereDate('magento_module_logs.created_at', "=", $request->selected_date);
+            $magento_modules_q = $magento_modules_q->whereDate('magento_module_logs.created_at', '=', $request->selected_date);
         }
 
         $magento_modules_q = $magento_modules_q->select('module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('magento_module_logs.id', 'DESC')
-        ->paginate($perPage);
+            ->paginate($perPage);
 
         return response()->json(['code' => 200, 'data' => $magento_modules_q, 'message' => 'Listed successfully!!!']);
     }
 
     public function magentoModuleListLogsAjax_bk()
-    {   
-
+    {
         $magento_modules_q = MagentoModuleLogs::select('module', 'magento_module_logs.*')->leftJoin('magento_modules', 'magento_modules.id', 'magento_module_logs.magento_module_id')->orderBy('magento_module_logs.id', 'DESC');
 
         if (isset($request->module_name_sync) && $request->module_name_sync) {
-            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', "%" . $request->module_name_sync . "%");
+            $magento_modules_q = $magento_modules_q->where('module', 'LIKE', '%' . $request->module_name_sync . '%');
         }
 
         $magento_modules = $magento_modules_q->get();
@@ -924,7 +827,6 @@ class MagentoModuleController extends Controller
 
                     $headers = [];
                     $headers[] = 'Authorization: Basic ' . $key;
-                    //$headers[] = 'Content-Type: application/json';
                     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
                     $result = curl_exec($ch);
@@ -964,7 +866,6 @@ class MagentoModuleController extends Controller
 
         $website = StoreWebsite::where('id', $store_website_id)->first();
 
-        //$url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/commands';
         $url = getenv('MAGENTO_COMMAND_API_URL');
         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
 
@@ -1024,36 +925,37 @@ class MagentoModuleController extends Controller
         return true;
     }
 
-    public function syncModules (Request $request) 
+    public function syncModules(Request $request)
     {
-
-        \Log::info('Database name.'.\DB::connection()->getDatabaseName());
+        \Log::info('Database name.' . \DB::connection()->getDatabaseName());
         \Log::info('########## syncModules started ##########');
 
-        \Log::info('########## Database Host in env : '.env('DB_HOST'));
+        \Log::info('########## Database Host in env : ' . env('DB_HOST'));
 
-        \Log::info('########## Database Name in env : '.env('DB_DATABASE'));
+        \Log::info('########## Database Name in env : ' . env('DB_DATABASE'));
 
-        \Log::info('########## Database User in env: '.env('DB_USERNAME'));
+        \Log::info('########## Database User in env: ' . env('DB_USERNAME'));
 
-        \Log::info('########## Database Password in env: '.env('DB_PASSWORD'));
+        \Log::info('########## Database Password in env: ' . env('DB_PASSWORD'));
         if ($request->has('store_website_id') && $request->store_website_id != '') {
             \Log::info('selected websites:' . print_r($request->store_website_id, true));
             $return_data = [];
             $updated_by = auth()->user()->id;
             $storeWebsites = StoreWebsite::whereIn('id', $request->store_website_id)->get();
-            \Log::info('Database name after StoreWebsite.'.\DB::connection()->getDatabaseName());
+            \Log::info('Database name after StoreWebsite.' . \DB::connection()->getDatabaseName());
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-            foreach($storeWebsites as $storeWebsite) {
+            foreach ($storeWebsites as $storeWebsite) {
                 \App\Jobs\SyncMagentoModules::dispatch($storeWebsite, $scriptsPath, $updated_by)->onQueue('syncmagentomodules');
             }
 
             \Log::info('########## syncModules end ##########');
+
             return redirect(route('magento_module_listing'))->with('success', 'Sync process started in JOB, Please check the logs for more details');
         }
 
         \Log::info('########## syncModules end ##########');
+
         return redirect(route('magento_module_listing'))->with('error', 'Please select the store website!');
     }
 
@@ -1064,7 +966,7 @@ class MagentoModuleController extends Controller
         $status = $request->status;
         $magento_modules = MagentoModule::where('id', $magento_module_id)->where('store_website_id', $store_website_id)->first();
         if (! $magento_modules) {
-            return response()->json(['code' => 500,  'message' => 'The Magento module is not found on the store website!']);
+            return response()->json(['code' => 500, 'message' => 'The Magento module is not found on the store website!']);
         }
         $storeWebsite = StoreWebsite::where('id', $store_website_id)->first();
         if ($storeWebsite->parent_id) {
@@ -1092,188 +994,72 @@ class MagentoModuleController extends Controller
                 continue;
             }
             $magento_module_id = $magento_modules->id;
+            $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
+            $moduleName = $magento_modules->module;
 
-            // 3 = meta-package
-            // if ($magento_modules->magneto_location_id == '3') {
-                $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
-                // $project = $storeWebsite->title;
-                $moduleName = $magento_modules->module;
-                // $moduleStatus = 'disable';
-                // if ($status) {
-                //     $moduleStatus = 'enable';
-                // }
+            // New Script
+            $website = $storeWebsite->title;
+            $server = $storeWebsite->server_ip;
+            $rootDir = $storeWebsite->working_directory;
+            $websiteStoreProjectName = $storeWebsite->websiteStoreProject->name ?? null;
+            $action = 'disable';
+            if ($status) {
+                $action = 'enable';
+            }
 
-                // New Script
-                $website = $storeWebsite->title;
-                $server = $storeWebsite->server_ip;
-                $rootDir = $storeWebsite->working_directory;
-                $websiteStoreProjectName = $storeWebsite->websiteStoreProject->name ?? null;
-                $action = 'disable';
-                if ($status) {
-                    $action = 'enable';
+            $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
+            if (empty($website) || empty($server) || empty($rootDir) || empty($websiteStoreProjectName)) {
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Parameter is missing in command']);
+
+                $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+                \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
+
+                continue;
+            }
+            $result = exec($cmd, $output, $return_var);
+            \Log::info('magentoModuleUpdateStatus command:' . $cmd);
+            \Log::info('magentoModuleUpdateStatus output:' . print_r($output, true));
+            \Log::info('magentoModuleUpdateStatus return_var:' . $return_var);
+
+            // [0] => {"status":"success"}
+            if (! isset($output[0])) {
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
+
+                $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
+                \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
+
+                continue;
+            }
+
+            $response = json_decode($output[0]);
+            if (isset($response->status) && ($response->status == 'success' || $response->status)) {
+                $message = 'Magento module status change successfully';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
                 }
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Success', 'response' => json_encode($output)]);
+                $magento_modules->status = $status;
+                $magento_modules->save();
 
-                $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
-                if (empty($website) || empty($server) || empty($rootDir) || empty($websiteStoreProjectName)) {
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => "Parameter is missing in command"]);
+                $return_data[] = ['code' => 200, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                    $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-                    \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
-                    continue;
+                continue;
+            } else {
+                $message = 'Something Went Wrong! Please check Logs for more details';
+                if (isset($response->message) && $response->message != '') {
+                    $message = $response->message;
                 }
-                // NEW Script
+                MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
 
-                // OLD Script
-                // $cmd = "bash $scriptsPath" . "meta-package-update.sh -p \"$project\" -m \"$moduleName\" -a \"$moduleStatus\" 2>&1";
-                // OLD Script
-                $result = exec($cmd, $output, $return_var);
-                \Log::info('magentoModuleUpdateStatus command:' . $cmd);
-                \Log::info('magentoModuleUpdateStatus output:' . print_r($output, true));
-                \Log::info('magentoModuleUpdateStatus return_var:' . $return_var);
+                $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
 
-                // [0] => {"status":"success"}
-                if (! isset($output[0])) {
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
-
-                    $return_data[] = ['code' => 500, 'message' => 'The response is not found!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-                    \Log::info('magentoModuleUpdateStatus output is not set:' . print_r($return_data, true));
-                    continue;
-                }
-
-                $response = json_decode($output[0]);
-                if (isset($response->status) && ($response->status == 'success' || $response->status)) {
-                    $message = 'Magento module status change successfully';
-                    if (isset($response->message) && $response->message != '') {
-                        $message = $response->message;
-                    }
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Success', 'response' => json_encode($output)]);
-                    $magento_modules->status = $status;
-                    $magento_modules->save();
-
-                    $return_data[] = ['code' => 200, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-                    continue;
-                } else {
-                    $message = 'Something Went Wrong! Please check Logs for more details';
-                    if (isset($response->message) && $response->message != '') {
-                        $message = $response->message;
-                    }
-                    MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => json_encode($output)]);
-
-                    $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-                    continue;
-                }
-            // } 
-            
-            // else part not need. 
-            // else {
-            //     $cwd = '';
-            //     $assetsmanager = new AssetsManager;
-            //     if ($storeWebsite) {
-            //         $cwd = $storeWebsite->working_directory;
-            //         $assetsmanager = AssetsManager::where('id', $storeWebsite->assets_manager_id)->first();
-            //     }
-
-            //     if ($assetsmanager && $assetsmanager->client_id != '') {
-            //         $client_id = $assetsmanager->client_id;
-            //         //$url="https://s10.theluxuryunlimited.com:5000/api/v1/clients/".$client_id."/commands";
-            //         $url = 'https://s10.theluxuryunlimited.com:5000/api/v1/clients/' . $client_id . '/scripts';
-            //         $key = base64_encode('admin:86286706-032e-44cb-981c-588224f80a7d');
-
-            //         $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-
-            //         $ch = curl_init();
-            //         curl_setopt($ch, CURLOPT_URL, $url);
-            //         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            //         curl_setopt($ch, CURLOPT_POST, 1);
-            //         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            //         $parameters = [
-            //             //'command' => $cmd,
-            //             'script' => base64_encode($cmd),
-            //             'cwd' => $cwd,
-            //             'is_sudo' => true,
-            //             'timeout_sec' => 900,
-            //         ];
-            //         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
-
-            //         $headers = [];
-            //         $headers[] = 'Authorization: Basic ' . $key;
-            //         $headers[] = 'Content-Type: application/json';
-            //         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            //         $result = curl_exec($ch);
-
-            //         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-            //         \App\LogRequest::log($startTime, $url, 'POST', json_encode($parameters), json_decode($result),
-            //             $httpcode, App\Http\Controllers\MagentoModuleController::class, 'update');
-
-            //         \Log::info('API result: ' . $result);
-            //         \Log::info('API Error Number: ' . curl_errno($ch));
-            //         if (curl_errno($ch)) {
-            //             \Log::info('API Error: ' . curl_error($ch));
-
-            //             MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => curl_error($ch)]);
-
-            //             $return_data[] = ['code' => 500, 'message' => curl_error($ch), 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-            //             continue;
-            //         }
-
-            //         $response = json_decode($result);
-
-            //         curl_close($ch);
-
-            //         if (isset($response->errors)) {
-            //             $message = '';
-            //             foreach ($response->errors as $error) {
-            //                 $message .= ' ' . $error->code . ':' . $error->title . ':' . $error->detail;
-            //             }
-
-            //             MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => $message]);
-            //             \Log::info($message);
-
-            //             $return_data[] = ['code' => 500, 'message' => $message, 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-            //             continue;
-            //         } else {
-            //             if (isset($response->data) && isset($response->data->jid)) {
-            //                 $job_id = $response->data->jid;
-            //                 $status = 'Success';
-
-            //                 MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Success', 'response' => 'Success', 'job_id' => $job_id]);
-            //                 $magento_modules->status = $status;
-            //                 $magento_modules->save();
-            //                 \Log::info('Job Id:' . $job_id);
-
-            //                 $return_data[] = ['code' => 200, 'message' => 'Magento module status change successfully', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-            //                 continue;
-            //             } else {
-            //                 MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Job Id not found in response']);
-
-            //                 \Log::info('Job Id not found in response!');
-            //                 //return response()->json(['code' => 500, 'message' => 'Job Id not found in response!']);
-            //                 $return_data[] = ['code' => 500, 'message' => 'Job Id not found in response!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-            //                 continue;
-            //             }
-            //         }
-            //     } else {
-            //         MagentoModuleLogs::create(['magento_module_id' => $magento_module_id, 'store_website_id' => $store_website_id, 'updated_by' => $updated_by, 'command' => $cmd, 'status' => 'Error', 'response' => 'Assets Manager & Client id not found the Store Website!']);
-
-            //         \Log::info('Assets Manager & Client id not found the Store Website!');
-
-            //         $return_data[] = ['code' => 500, 'message' => 'Assets Manager & Client id not found the Store Website!', 'store_website_id' => $store_website_id, 'magento_module_id' => $magento_module_id];
-
-            //         continue;
-            //     }
-            // }
+                continue;
+            }
 
             \Log::info('End Magento module change status');
         }
 
-        return response()->json(['code' => 200,  'message' => '', 'data' => $return_data]);
+        return response()->json(['code' => 200, 'message' => '', 'data' => $return_data]);
     }
 
     public function storeVerifiedStatus(Request $request)
@@ -1353,7 +1139,6 @@ class MagentoModuleController extends Controller
             ], 500);
         }
     }
-
 
     protected function saveVerifiedStatusHistory($magentoModule, $oldStatusId, $newStatusId, $statusType)
     {
@@ -1562,7 +1347,7 @@ class MagentoModuleController extends Controller
         $magentoModule->m2_error_remark = $request->remark;
         $magentoModule->save();
 
-        $m2ErrorRemarkHistory =  new MagentoModuleM2RemarkHistory();
+        $m2ErrorRemarkHistory = new MagentoModuleM2RemarkHistory();
         $m2ErrorRemarkHistory->magento_module_id = $request->magento_module_id;
         $m2ErrorRemarkHistory->old_m2_error_remark = $oldM2ErrorRemark;
         $m2ErrorRemarkHistory->new_m2_error_remark = $request->remark;
@@ -1571,7 +1356,7 @@ class MagentoModuleController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => " M2 remark Added Successfully",
+            'message' => ' M2 remark Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1584,7 +1369,7 @@ class MagentoModuleController extends Controller
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
-    
+
             return response()->json([
                 'status' => true,
                 'data' => $histories,
@@ -1602,12 +1387,12 @@ class MagentoModuleController extends Controller
     public function getUnitTestRemarkHistories(Request $request)
     {
         try {
-            $id = $request->id; 
+            $id = $request->id;
             $histories = MagentoModuleUnitTestRemarkHistory::with(['user'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
-    
+
             return response()->json([
                 'status' => true,
                 'data' => $histories,
@@ -1625,12 +1410,12 @@ class MagentoModuleController extends Controller
     public function getM2RemarkHistories(Request $request)
     {
         try {
-            $id = $request->id; 
+            $id = $request->id;
             $histories = MagentoModuleM2RemarkHistory::with(['user'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
-    
+
             return response()->json([
                 'status' => true,
                 'data' => $histories,
@@ -1645,15 +1430,15 @@ class MagentoModuleController extends Controller
         }
     }
 
-    public function getUnitTestStatusHistories (Request $request)
+    public function getUnitTestStatusHistories(Request $request)
     {
         try {
             $id = $request->id;
-            $histories = MagentoModuleUnitTestStatusHistory::with(['user','newTestStatus','oldTestStatus'])
+            $histories = MagentoModuleUnitTestStatusHistory::with(['user', 'newTestStatus', 'oldTestStatus'])
                 ->where('magento_module_id', $id)
                 ->latest()
                 ->get();
-    
+
             return response()->json([
                 'status' => true,
                 'data' => $histories,
@@ -1675,8 +1460,7 @@ class MagentoModuleController extends Controller
         $magentoModule->unit_test_remark = $request->remark;
         $magentoModule->save();
 
-
-        $unittestRemarkHistory =  new MagentoModuleUnitTestRemarkHistory();
+        $unittestRemarkHistory = new MagentoModuleUnitTestRemarkHistory();
         $unittestRemarkHistory->magento_module_id = $request->magento_module_id;
         $unittestRemarkHistory->old_unit_test_remark = $oldM2ErrorRemark;
         $unittestRemarkHistory->new_unit_test_remark = $request->remark;
@@ -1685,30 +1469,29 @@ class MagentoModuleController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => " Unit test remark Added Successfully",
+            'message' => ' Unit test remark Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
 
     public function columnVisbilityUpdate(Request $request)
     {
-         $userCheck = ColumnVisbility::where('user_id',auth()->user()->id)->first();
+        $userCheck = ColumnVisbility::where('user_id', auth()->user()->id)->first();
 
-         if($userCheck)
-         {
-           $column = ColumnVisbility::find($userCheck->id);
-           $column->columns = json_encode($request->columns); 
-           $column->save();
-         } else {
-            $column = new ColumnVisbility();
-            $column->columns = json_encode($request->columns); 
-            $column->user_id =  Auth::user()->id ;
+        if ($userCheck) {
+            $column = ColumnVisbility::find($userCheck->id);
+            $column->columns = json_encode($request->columns);
             $column->save();
-         }
-       
-         return response()->json([
+        } else {
+            $column = new ColumnVisbility();
+            $column->columns = json_encode($request->columns);
+            $column->user_id = Auth::user()->id;
+            $column->save();
+        }
+
+        return response()->json([
             'status' => true,
-            'message' => " column visiblity Added Successfully",
+            'message' => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1727,25 +1510,24 @@ class MagentoModuleController extends Controller
 
     public function syncLogsColumnVisbilityUpdate(Request $request)
     {
-         $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','magento-modules-sync_logs')->first();
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'magento-modules-sync_logs')->first();
 
-         if($userCheck)
-         {
-           $column = DataTableColumn::find($userCheck->id);
-           $column->section_name = 'magento-modules-sync_logs';
-           $column->column_name = json_encode($request->columns); 
-           $column->save();
-         } else {
+        if ($userCheck) {
+            $column = DataTableColumn::find($userCheck->id);
+            $column->section_name = 'magento-modules-sync_logs';
+            $column->column_name = json_encode($request->columns);
+            $column->save();
+        } else {
             $column = new DataTableColumn();
             $column->section_name = 'magento-modules-sync_logs';
-            $column->column_name = json_encode($request->columns); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->columns);
+            $column->user_id = auth()->user()->id;
             $column->save();
-         }
+        }
 
-         return response()->json([
+        return response()->json([
             'status' => true,
-            'message' => " column visiblity Added Successfully",
+            'message' => ' column visiblity Added Successfully',
             'status_name' => 'success',
         ], 200);
     }
@@ -1769,7 +1551,7 @@ class MagentoModuleController extends Controller
         $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
         $cmd = "bash $scriptsPath" . "sync-magento-modules.sh -w \"$website\" -s \"$server\" -d \"$rootDir\" -m \"$moduleName\" -g \"$websiteStoreProjectName\" -a \"$action\" 2>&1";
-        
+
         $result = exec($cmd, $output, $return_var);
         \Log::info('store command:' . $cmd);
         \Log::info('store output:' . print_r($output, true));
@@ -1779,7 +1561,7 @@ class MagentoModuleController extends Controller
     }
 
     public function magentoModuleListLogsDetails($id)
-    {   
+    {
         $MagentoModuleLogs = MagentoModuleLogs::findorFail($id);
 
         return response()->json([

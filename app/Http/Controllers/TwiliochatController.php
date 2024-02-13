@@ -29,7 +29,6 @@ class TwiliochatController extends Controller
         }
 
         $chat_message = $query->where('message_application_id', 3)->orderBy('id', 'desc')->paginate(25);
-        // $chat_message = ChatMessage::where('message_application_id', 3)->orderBy("id", "desc")->paginate(25);
 
         if (count($chat_message) > 0) {
             foreach ($chat_message as $chat) {

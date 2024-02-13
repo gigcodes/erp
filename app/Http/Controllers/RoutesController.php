@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Artisan;
 use Session;
 use App\Routes;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 class RoutesController extends Controller
 {
@@ -32,10 +30,7 @@ class RoutesController extends Controller
             $request->search = preg_replace('/[\s]+/', '/', $request->search);
             $query = $query->whereRaw("MATCH(url)AGAINST('" . $request->search . "')")
                 ->orWhereRaw("MATCH(page_title, page_description)AGAINST('" . $request->search . "')");
-            /*$query = $query->where('url', 'LIKE','%'.$request->search.'%')->orWhere('page_title', 'LIKE', '%'.$request->search.'%')
-                    ->orWhere('page_description', 'LIKE', '%'.$request->search.'%');*/
         }
-        //dd($query->getQuery()->toSql());
         $routesData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
 
         return view('routes.index', compact('routesData'))
@@ -96,6 +91,5 @@ class RoutesController extends Controller
         }
 
         return view('routes.update', compact('routes'));
-        //return redirect('routes.update');
     }
 }

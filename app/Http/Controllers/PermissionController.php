@@ -64,7 +64,7 @@ class PermissionController extends Controller
         $permission->save();
 
         return redirect()->back()
-                         ->with('success', 'Permission created successfully');
+            ->with('success', 'Permission created successfully');
     }
 
     /**
@@ -113,7 +113,7 @@ class PermissionController extends Controller
         $permission->save();
 
         return redirect()->route('permissions.index')
-                         ->with('success', 'Role updated successfully');
+            ->with('success', 'Role updated successfully');
     }
 
     /**
@@ -128,7 +128,7 @@ class PermissionController extends Controller
         $permission->delete();
 
         return redirect()->route('permissions.index')
-                         ->with('success', 'Role deleted successfully');
+            ->with('success', 'Role deleted successfully');
     }
 
     public function delete_record(Request $request)

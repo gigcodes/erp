@@ -45,9 +45,7 @@ class MagentoCustomerReferenceController extends Controller
         $newArray['items'][] = $order;
         $order = json_decode(json_encode($newArray));
 
-        // if (isset($order->items[0]->website)) {
         $website = StoreWebsite::where('website', $order->items[0]->website)->first();
-        // if ($website) {
         $orderCreate = MagentoOrderHandleHelper::createOrder($order, $website);
         if ($orderCreate == true) {
             $message = $this->generate_erp_response('magento.order.success', 0, $default = 'Order create successfully', $lang_code);
@@ -57,10 +55,6 @@ class MagentoCustomerReferenceController extends Controller
                 'message' => $message,
             ]);
         }
-        // } else {
-            //     \Log::error('Magento website not found');
-        // }
-        // }
 
         $message = $this->generate_erp_response('magento.order.failed', 0, $default = 'Something went wrong, Please try again', $lang_code);
 
@@ -102,10 +96,6 @@ class MagentoCustomerReferenceController extends Controller
             return response()->json(['message' => $message], 403);
         }
 
-        // if (empty($request->phone)) {
-        //     return response()->json(['error' => 'Phone is required'], 403);
-        // }
-
         if (empty($request->email)) {
             $message = $this->generate_erp_response('customer_reference.403', 0, $default = 'Email is required', request('lang_code'));
 
@@ -124,9 +114,6 @@ class MagentoCustomerReferenceController extends Controller
             return response()->json(['message' => $message], 403);
         }
 
-        // if (empty($request->social)) {
-        //     return response()->json(['error' => 'Social is required'], 403);
-        // }
         $name = $request->name;
         $email = $request->email;
         $website = $request->website;

@@ -33,7 +33,6 @@ class SocialWebhookController extends Controller
 
         if ($countAccount == 1) {
             SocialWebhookLog::log(SocialWebhookLog::SUCCESS, 'Verify Webhook => Webhook Verified', ['token' => $verifyToken, 'challange' => $challange]);
-            //return $challange;
             SocialWebhookLog::log(SocialWebhookLog::INFO, 'ans.....', ['token' => $challange]);
             echo $hub['hub_challenge'];
         } else {

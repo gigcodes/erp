@@ -10,7 +10,6 @@ use App\LogRequest;
 use FacebookAds\Api;
 use App\AdsSchedules;
 use Facebook\Facebook;
-use FacebookAds\Object\Ad;
 use App\Social\SocialConfig;
 use Illuminate\Http\Request;
 use App\Helpers\SocialHelper;
@@ -19,7 +18,6 @@ use FacebookAds\Object\Fields\AdFields;
 
 class SocialController extends Controller
 {
-    //
     private $fb;
 
     private $user_access_token;
@@ -38,8 +36,6 @@ class SocialController extends Controller
         $this->page_access_token = env('PAGE_ACCESS_TOKEN', 'EAAIALK1F98IBAADvogUlzUYHxV93adk3qwiRDrxqByiVmiiEO1FZAqCOMFaRqrFZAS4Fa3f8EQ8Wa1ODKXV9NgXmW6aF4FUiWlaftWsZBpBFzlGTiUMUMazcy5x2LVVKRqOKOBJLwxGkpzZBKpGZAu91aXnZBjQKRqwwwDjHoocER0P2q7V5iDXJlmfwWoQ2iuan14pttYYKa1Lh7RtF7BaSeR7sjtGZBK3tIV4JvDzPQZDZD');
         $this->page_id = '107451495586072';
         $this->ad_acc_id = 'act_128125721296439';
-
-        //$this->middleware('permission:social-view');
     }
 
     public function getSchedules(Request $request)
@@ -61,7 +57,6 @@ class SocialController extends Controller
             $query = $request->get('nxt');
         }
 
-//        dd($query);
         // Call to Graph api here
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $query);
@@ -242,16 +237,6 @@ class SocialController extends Controller
             ];
         });
 
-//        $ads = AdsSchedules::all();
-//
-//        $ads = $ads->map(function($item) {
-//            return [
-//                'id' => $item->id,
-//                'title' => $item->name,
-//                'satart' => substr($item->scheduled_for,0,10)
-//            ];
-//        });
-
         return response()->json($ads);
     }
 
@@ -424,16 +409,13 @@ class SocialController extends Controller
             }
 
             return redirect()->route('social.post.page');
-        }
-
-        // Video Case
+        } // Video Case
         elseif ($request->hasFile('video')) {
             $data['title'] = '' . trim($message) . '';
 
             $data['description'] = '' . trim($request->input('description')) . '';
 
             $data['source'] = $this->fb->videoToUpload('' . trim($request->file('video')) . '');
-            // dd($thumb);
 
             if ($request->has('date') && $request->input('date') > date('Y-m-d')) {
                 $data['published'] = 'false';
@@ -448,9 +430,7 @@ class SocialController extends Controller
             }
 
             return redirect()->route('social.post.page');
-        }
-
-        // Simple Post Case
+        } // Simple Post Case
 
         else {
             $data['description'] = $request->input('description');
@@ -530,7 +510,6 @@ class SocialController extends Controller
             $page_id = $config->page_id;
             // Get the \Facebook\GraphNodes\GraphUser object for the current user.
             // If you provided a 'default_access_token', the '{access-token}' is optional.
-            // return $response = $fb->get('/me/adaccounts', $token);  //Old
             $url = sprintf('https://graph.facebook.com/v15.0//me/adaccounts?access_token=' . $token); //New using graph API
 
             return $response = SocialHelper::curlGetRequest($url);
@@ -610,6 +589,7 @@ class SocialController extends Controller
             ], 200);
         }
     }
+
     // Get pagination Report()
 
     public function paginateReport(Request $request)
@@ -885,7 +865,6 @@ class SocialController extends Controller
         $data['campaign_id'] = $request->input('campaign_id');
         $data['billing_event'] = $request->input('billing_event');
         $data['start_time'] = strtotime($request->input('start_time'));
-        // $data['OPTIMIZATION_GOAL'] ='REACH';
         $data['end_time'] = strtotime($request->input('end_time'));
         $data['targeting'] = json_encode(['geo_locations' => ['countries' => ['US']]]);
         if ($request->has('daily_budget')) {

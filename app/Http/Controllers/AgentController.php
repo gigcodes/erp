@@ -102,7 +102,6 @@ class AgentController extends Controller
 
         if ($agent->model_type == \App\Supplier::class) {
             return redirect()->back()->withSuccess('You have successfully updated an agent!');
-        // return redirect()->route('supplier.index')->withSuccess('You have successfully updated an agent!');
         } elseif ($agent->model_type == \App\Vendor::class) {
             return redirect()->back()->withSuccess('You have successfully updated an agent!');
         }

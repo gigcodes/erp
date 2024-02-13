@@ -27,8 +27,6 @@ class DubbizleController extends Controller
 
     public function index()
     {
-        // $posts = Dubbizle::all();
-
         $posts = DB::select('
                     SELECT *,
      							 (SELECT mm3.id FROM chat_messages mm3 WHERE mm3.id = message_id) AS message_id,
@@ -49,10 +47,6 @@ class DubbizleController extends Controller
      						');
 
         $keywords = Dubbizle::select('keywords')->get()->groupBy('keywords');
-
-        // dd($keywords);
-
-        // dd($posts);
 
         return view('dubbizle', [
             'posts' => $posts,

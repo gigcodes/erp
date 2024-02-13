@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Setting;
 use App\Customer;
 use Illuminate\Http\Request;
 use App\ReadOnly\SoloNumbers;
@@ -48,12 +47,10 @@ class QuickCustomerController extends Controller
             $chatMessagesWhere .= " and message != '' and message is not null and number = c.phone";
             $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id ' . $chatMessagesWhere . ' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
             $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
-//            $customer = $customer->where('cm.id' != 0);
             $customer = $customer->orderBy('cm.created_at', 'desc');
         } elseif ($type == null) {
             $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id ' . $chatMessagesWhere . ' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
             $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
-            //$customer = $customer->whereNotNull('cm.id');
         }
         $customer = $customer->orderBy('cm.created_at', 'desc');
         if ($request->customer_id != null) {
@@ -73,14 +70,8 @@ class QuickCustomerController extends Controller
             $customer = $customer->where('customers.do_not_disturb', $request->get('do_not_disturb'));
         }
 
-        //Setting::get('pagination')
-
-//        $customer = $customer->select(['customers.*', 'cm.id as message_id', 'cm.status as message_status', 'cm.message'])->toSql();
-//        dd($customer);
-
         $customer = $customer->select(['customers.*', 'cm.id as message_id', 'cm.status as message_status', 'cm.message'])->paginate(10);
 
-        // $customer = $customer->select("customers.*")->paginate(10);
         $items = [];
         foreach ($customer->items() as $item) {
             $item->message = utf8_encode($item->message);

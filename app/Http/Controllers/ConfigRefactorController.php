@@ -179,7 +179,7 @@ class ConfigRefactorController extends Controller
                     'message' => 'Remark updated successfully',
                 ], 200
             );
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json(
                 [
                     'status' => false,
@@ -213,7 +213,7 @@ class ConfigRefactorController extends Controller
                     'message' => 'Status updated successfully',
                 ], 200
             );
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json(
                 [
                     'status' => 'error',
@@ -260,7 +260,7 @@ class ConfigRefactorController extends Controller
                     'message' => 'User updated successfully',
                 ], 200
             );
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json(
                 [
                     'status' => 'error',

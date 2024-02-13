@@ -29,26 +29,13 @@ use Illuminate\Support\Arr;
 use App\WebhookNotification;
 use Illuminate\Http\Request;
 use App\Hubstaff\HubstaffActivity;
-use App\EmailNotificationEmailDetails; //Purpose : add MOdal - DEVTASK-4359
+use App\EmailNotificationEmailDetails;
 use App\Hubstaff\HubstaffPaymentAccount;
+
 
 class UserController extends Controller
 {
     const DEFAULT_FOR = 4; //For User
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function __construct()
-    {
-        //         $this->middleware('permission:user-list', ['except' => ['assignProducts']]);
-        //         $this->middleware('permission:user-create', ['only' => ['create','store']]);
-        //         $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
-        //         $this->middleware('permission:user-delete', ['only' => ['destroy']]);
-        //         $this->middleware('permission:product-lister', ['only' => ['assignProducts']]);
-    }
 
     /**
      * Display a listing of the resource.
@@ -185,8 +172,6 @@ class UserController extends Controller
                     ->orWhere('assign_to', $id);
             })->get();
 
-        // dd($pending_tasks);
-
         return view('users.show', [
             'user' => $user,
             'users_array' => $users_array,
@@ -238,7 +223,6 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd($request->all());
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $id,
@@ -262,9 +246,6 @@ class UserController extends Controller
         } else {
             $input['agent_role'] = '';
         }
-        //        $input['name'] = 'solo_admin';
-        //        $input['email'] = 'admin@example.com';
-        //        $input['password'] = 'admin@example.com';
 
         if (! empty($input['password'])) {
             $input['password'] = Hash::make($input['password']);
@@ -294,14 +275,6 @@ class UserController extends Controller
         if ($request->customer != null && $request->customer[0] != '') {
             $user->customers()->sync($request->customer);
         }
-
-        //        if (!$user->hasRole('Products Lister') && in_array('Products Lister', $request->roles)) {
-        //            $requestData = new Request();
-        //            $requestData->setMethod('POST');
-        //            $requestData->request->add(['amount_assigned' => 100]);
-        //
-        //            $this->assignProducts($requestData, Auth::id());
-        //        }
 
         $user->roles()->sync($request->input('roles'));
         $user->permissions()->sync($request->input('permissions'));
@@ -336,10 +309,6 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-
-        // NotificationQueue::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
-        // PushNotification::where('sent_to', $user->id)->orWhere('user_id', $user->id)->delete();
-
         $user->delete();
 
         return redirect()->route('users.index')
@@ -513,8 +482,6 @@ class UserController extends Controller
             }
 
             $user->balance = $userPaymentsToBeDone - $userPaymentsDone;
-
-            //echo $user->id. ' '.$userPaymentsToBeDone. ' '. $userPaymentsDone. PHP_EOL;
 
             $invidualRatesPreviousWeek = $usersRatesPreviousWeek->first(function ($value, $key) use ($user) {
                 return $value->user_id == $user->id;
@@ -847,7 +814,7 @@ class UserController extends Controller
                 return response()->json(['code' => 200, 'data' => 'Success']);
             }
         } catch (\Throwable $e) {
-            return response()->json(['code' => '500',  'message' => $e->getMessage()]);
+            return response()->json(['code' => '500', 'message' => $e->getMessage()]);
         }
     }
 

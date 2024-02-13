@@ -11,8 +11,6 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class BrandSizeChartController extends Controller
 {
-    //
-
     public function __construct()
     {
     }

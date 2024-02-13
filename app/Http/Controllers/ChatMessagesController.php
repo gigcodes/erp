@@ -326,7 +326,6 @@ class ChatMessagesController extends Controller
 
                     //parent image start here
                     if ($parentMessage->hasMedia(config('constants.media_tags'))) {
-                        // foreach ($parentMessage->getMedia(config('constants.media_tags')) as $key => $image) {
                         $images = $parentMessage->getMedia(config('constants.media_tags'));
                         $image = $images->first();
                         // Supplier checkbox
@@ -374,8 +373,6 @@ class ChatMessagesController extends Controller
                                 ];
                             }
                         }
-
-                        // }
                     }
                     //parent image ends
                 }
@@ -607,7 +604,6 @@ class ChatMessagesController extends Controller
 
     public function customChatRecords(Request $request)
     {
-//        dd($request->get('keyword'));
         if ($request->get('keyword') != null) {
             $delimiters = ['/', ','];
             $str = $request->get('keyword');
@@ -668,7 +664,6 @@ class ChatMessagesController extends Controller
             $message = $row->message;
             if ($row->is_audio) {
                 $message = \App\Helpers::getAudioUrl($row->message);
-                //dd($message);
             }
             $recorsArray[] = [
                 'id' => $row->id,

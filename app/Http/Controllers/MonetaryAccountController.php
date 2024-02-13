@@ -17,7 +17,6 @@ class MonetaryAccountController extends Controller
 
     public function __construct()
     {
-//        $this->middleware('permission:blogger-all');
         $this->middleware(function ($request, $next) {
             session()->flash('active_tab', 'blogger_list_tab');
 
@@ -158,7 +157,6 @@ class MonetaryAccountController extends Controller
             $where = " monetary_account_id = $id ";
             if ($daterange != '') {
                 $date = explode('-', $daterange);
-                //$where.=" AND (date beetween date('$date[0]') and date('$date[1]') ) ";
                 $datefrom = date('Y-m-d', strtotime($date[0]));
                 $dateto = date('Y-m-d', strtotime($date[1]));
                 $history->whereRaw("date(created_at) between date('$datefrom') and date('$dateto')");

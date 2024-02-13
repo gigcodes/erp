@@ -25,38 +25,6 @@ class VisitorController extends Controller
                 $query->where('browser', 'LIKE', "%{$request->location}%");
             }
 
-            //  if (request('log_created') != null) {
-            //     $query->whereDate('log_created',request('log_created'));
-            // }
-
-            // if (request('created') != null) {
-            //     $query->whereDate('created_at', request('created'));
-            // }
-
-            // if (request('updated') != null) {
-            //     $query->whereDate('updated_at', request('updated'));
-            // }
-
-            // if(request('orderCreated') != null){
-            //     if(request('orderCreated') == 0){
-            //         $query->orderby('created_at','asc');
-            //     }else{
-            //         $query->orderby('created_at','desc');
-            //     }
-            // }
-
-            // if(request('orderUpdated') != null){
-            //     if(request('orderUpdated') == 0){
-            //         $query->orderby('updated_at','asc');
-            //     }else{
-            //         $query->orderby('updated_at','desc');
-            //     }
-            // }
-
-            // if(request('orderCreated') == null && request('orderUpdated') == null){
-            //     $query->orderby('log_created','desc');
-            // }
-
             $paginate = (Setting::get('pagination') * 10);
             $logs = $query->paginate($paginate)->appends(request()->except(['page']));
         } else {

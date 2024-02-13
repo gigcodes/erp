@@ -14,11 +14,6 @@ class LawyerController extends Controller
 {
     protected $data;
 
-    public function __construct()
-    {
-        // $this->middleware('permission:lawyer-all');
-    }
-
     public function index(Lawyer $lawyer, Request $request)
     {
         $this->data['lawyers'] = $lawyer;

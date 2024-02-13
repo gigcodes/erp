@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Library\Hubstaff\Src\Repositories\User;
 
 class NegativeCouponResponseController extends Controller
 {
@@ -20,10 +19,7 @@ class NegativeCouponResponseController extends Controller
             $join->on('users.id', '=', 'nagative_coupon_responses.user_id');
         });
 
-        //$negativeCoupons->lefJoin('users', 'nagative_coupon_responses.user_id', 'users.id');
-        //$users = \App\User::all();
         $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination', 25));
-        //dd($negativeCouponsData);
         return view('negative-coupon-response.index', compact('negativeCouponsData'));
     }
 
@@ -34,7 +30,6 @@ class NegativeCouponResponseController extends Controller
         $negativeCoupons->leftJoin('users', function ($join) {
             $join->on('users.id', '=', 'nagative_coupon_responses.user_id');
         });
-        //$negativeCoupons->lefJoin('users', 'nagative_coupon_responses.user_id', 'users.id');
         if ($request->website) {
             $negativeCoupons->where('website', $request->website);
         }
@@ -44,7 +39,6 @@ class NegativeCouponResponseController extends Controller
         if ($request->user) {
             $negativeCoupons->where('user_id', $request->user);
         }
-        //$users = \App\User::where('id', '!=', '');
         $negativeCouponsData = $negativeCoupons->orderBy('id', 'DESC')->paginate(\App\Setting::get('pagination', 25));
 
         return view('negative-coupon-response.index', compact('negativeCouponsData'));

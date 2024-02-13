@@ -17,16 +17,6 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class ComplaintController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function __construct()
-    {
-        // $this->middleware('permission:review-view');
-    }
-
     public function index(Request $request)
     {
         $filter_platform = $request->platform ?? '';
@@ -222,7 +212,6 @@ class ComplaintController extends Controller
         $complaint->remarks()->delete();
         if ($complaint->hasMedia(config('constants.media_tags'))) {
             foreach ($complaint->getMedia(config('constants.media_tags')) as $image) {
-                // dd(public_path() . '/' . $image->getDiskPath());
                 Storage::delete($image->getDiskPath());
             }
 

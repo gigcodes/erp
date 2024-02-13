@@ -74,7 +74,7 @@ class RoleController extends Controller
         $role->permissions()->sync($request->input('permission'));
 
         return redirect()->route('roles.index')
-                         ->with('success', 'Role created successfully');
+            ->with('success', 'Role created successfully');
     }
 
     /**
@@ -150,7 +150,7 @@ class RoleController extends Controller
         Role::delete($id);
 
         return redirect()->route('roles.index')
-                         ->with('success', 'Role deleted successfully');
+            ->with('success', 'Role deleted successfully');
     }
 
     public function unAuthorized()

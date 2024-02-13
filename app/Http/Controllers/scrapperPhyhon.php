@@ -2,39 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use Validator;
-use App\Product;
+use App\BugType;
 use App\Setting;
 use App\Website;
-use App\Language;
+use App\BugStatus;
 use Carbon\Carbon;
+use App\BugSeverity;
 use App\scraperImags;
+use App\StoreWebsite;
 use App\WebsiteStore;
 use Dompdf\Exception;
 use GuzzleHttp\Client;
+use App\BugEnvironment;
 use App\SiteDevelopment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\BugStatus;
-use App\BugEnvironment;
-use App\BugSeverity;
-use App\BugType;
-use App\User;
 use App\SiteDevelopmentCategory;
-use App\StoreWebsite;
+use Illuminate\Support\Facades\DB;
 
 class scrapperPhyhon extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function __construct()
-    {
-        // $this->middleware('permission:product-lister', ['only' => ['listing']]);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -50,17 +38,9 @@ class scrapperPhyhon extends Controller
         if ($request->device != '') {
             $images = $images->where('device', $request->device);
         }
-        /*   $images= $images->leftJoin('website_store_views', 'website_store_views.code', '=', 'scraper_imags.website_id');
-           $images= $images->leftJoin('website_stores', 'website_store_views.website_store_id', '=', 'website_stores.id');
-           $images= $images->join('websites', function($join)
-               {
-                   $join->on('websites.id', '=', 'website_stores.website_id');
-                   $join->where('websites.store_website_id','=', 'scraper_imags.store_website');
-               });*/
 
         $images = $images->groupBy('scraper_imags.website_id', 'store_website', DB::raw('date(scraper_imags.created_at)'));
-        //$images = $images->orderByRaw('date(scraper_imags.created_at) DESC', 'store_website', 'scraper_imags.website_id');
-        $images = $images->orderByRaw("scraper_imags.created_at DESC, store_website ASC, scraper_imags.website_id ASC");
+        $images = $images->orderByRaw('scraper_imags.created_at DESC, store_website ASC, scraper_imags.website_id ASC');
         $images = $images->paginate(Setting::get('pagination'));
 
         foreach ($images as $image) {
@@ -68,7 +48,7 @@ class scrapperPhyhon extends Controller
             $Websites = $Websites->selectRaw('website_store_views.name as lang,website_stores.name as store_name,website_stores.id as website_stores_id,website_store_views.id as website_store_views_id,websites.id as website_table_id,website_stores.is_default as website_stores_default,website_stores.is_flag as website_stores_flag');
             $Websites = $Websites->join('website_stores', 'websites.id', '=', 'website_stores.website_id');
             $Websites = $Websites->join('website_store_views', 'website_store_views.website_store_id', '=', 'website_stores.id')
-             ->where('website_store_views.code', $image->website_id)->where('websites.store_website_id', $image->store_website)->first();
+                ->where('website_store_views.code', $image->website_id)->where('websites.store_website_id', $image->store_website)->first();
             if ($Websites) {
                 $image->lang = $Websites->lang;
                 $image->store_name = $Websites->store_name;
@@ -80,73 +60,23 @@ class scrapperPhyhon extends Controller
             }
 
             $desktop = scraperImags::selectRaw('count(id) as desktop')->where('website_id', $image->website_id)
-            ->where('store_website', $image->store_website)->where('device', 'desktop')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
-            ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
+                ->where('store_website', $image->store_website)->where('device', 'desktop')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
+                ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $mobile = scraperImags::selectRaw('count(id) as mobile')->where('website_id', $image->website_id)
-            ->where('store_website', $image->store_website)->where('device', 'mobile')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
-            ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
+                ->where('store_website', $image->store_website)->where('device', 'mobile')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
+                ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $tablet = scraperImags::selectRaw('count(id) as tablet')->where('website_id', $image->website_id)
-            ->where('store_website', $image->store_website)->where('device', 'tablet')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
-            ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
+                ->where('store_website', $image->store_website)->where('device', 'tablet')->whereRaw('date(created_at) = "' . $image->date_created_at . '"')
+                ->groupBy('website_id', 'store_website', DB::raw('date(created_at)'))->first();
 
             $image->desktop = isset($desktop->desktop) ? $desktop->desktop : 0;
             $image->mobile = isset($mobile->mobile) ? $mobile->mobile : 0;
             $image->tablet = isset($tablet->tablet) ? $tablet->tablet : 0;
-
-            //   dd($mobile);
         }
 
         $query = $request->search;
-
-        // this is language code. dont be confused with column name
-        /*
-                 $query=$request->search;
-
-                 $websites=new Website;
-                 if($request->website)
-                 {
-                   $websites= $websites->where('id',$request->website);
-                 }
-
-                 if($request->store)
-                 {
-                    $websites=$websites->WhereHas('stores', function ($query) use ($request) {
-
-                                 $query->where('id', 'like', $request->store);
-
-                                });
-                 }
-
-                 if($request->store_website_id > 0) {
-                    $websites= $websites->where('store_website_id',$request->store_website_id);
-                 }
-
-
-                 if($request->search)
-                 {
-                    $search='%'.$request->search.'%';
-
-
-
-                   $websites= $websites->where('name','like',$search);
-
-
-
-                   $websites= $websites->orWhereHas('stores', function ($query) use ($search) {
-
-                                 $query->where('name', 'like', $search);
-
-                                });
-
-
-                    //$websites=$websites->paginate(Setting::get('pagination'));
-
-                 }
-
-
-                     $websites=$websites->paginate(Setting::get('pagination')); */
 
         $allWebsites = Website::pluck('name', 'id');
 
@@ -157,16 +87,6 @@ class scrapperPhyhon extends Controller
 
         $startDate = $current_date;
         $endDate = $current_date;
-
-        //  echo '<pre>';print_r($websites->toArray());die;
-
-        // $websiteList = WebsiteStore::with('scrapperImage')->latest();
-        //  $websiteListRow = $websiteList->paginate(Setting::get('pagination'));
-        // $websiteList = $websiteList->get()->toArray();
-        // dd( $websiteList[0]['scrapper_image'] );
-
-        //  echo '<pre>';print_r($websites->toArray());die;
-        //      return view('scrapper-phyhon.list', compact('websites','query','allWebsites','request','storewebsite','current_date','startDate','endDate'));
 
         return view('scrapper-phyhon.list', compact('images', 'allWebsites', 'request', 'query', 'storewebsite', 'current_date', 'startDate', 'endDate', 'storewebsiteUrls'));
     }
@@ -182,9 +102,8 @@ class scrapperPhyhon extends Controller
 
         $categories = \App\SiteDevelopmentCategory::orderBy('title', 'asc')->get();
         $webStore = \App\WebsiteStore::where('id', $store_id)->first();
-    
-        if ($webStore) {
 
+        if ($webStore) {
             $list = Website::where('id', $webStore->website_id)->first();
             $website_id = $list->id;
 
@@ -192,13 +111,13 @@ class scrapperPhyhon extends Controller
 
             if ($website_store_views) {
                 $images = \App\scraperImags::where('store_website', $list->store_website_id)
-                ->where('website_id', $request->code); // this is language code. dont be confused with column name
+                    ->where('website_id', $request->code); // this is language code. dont be confused with column name
 
                 if (isset($request->startDate) && isset($request->endDate)) {
                     $images = $images->whereDate('created_at', '>=', date($request->startDate))
-                    ->whereDate('created_at', '<=', date($request->endDate));
+                        ->whereDate('created_at', '<=', date($request->endDate));
                 } else {
-                    //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                    //
                 }
 
                 if (isset($request->device) && ($request->device == 'mobile' || $request->device == 'tablet')) {
@@ -207,28 +126,21 @@ class scrapperPhyhon extends Controller
                     $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
                 }
 
-                if(!empty($request->si_status)){
-                    if($request->si_status==1){
+                if (! empty($request->si_status)) {
+                    if ($request->si_status == 1) {
                         $images = $images->where('si_status', 1);
-                    } else if($request->si_status==2){
+                    } elseif ($request->si_status == 2) {
                         $images = $images->where('si_status', 2);
-                    } else if($request->si_status==3){
+                    } elseif ($request->si_status == 3) {
                         $images = $images->where('si_status', 3);
-                    } else if($request->si_status==4){
+                    } elseif ($request->si_status == 4) {
                         $images = $images->where('manually_approve_flag', 1);
-                    } else{
+                    } else {
                         $images = $images->where('si_status', 1);
                     }
                 }
 
-                //     $images = $images->get()
-                //   ->toArray();
-                //        dd($images->pluck("id"));
-
-                //$images->update(['si_status' => 2]);
-
                 $images = $images->paginate(Setting::get('pagination'));
-                // $images =  $images->paginate(2);
             }
         }
 
@@ -239,7 +151,6 @@ class scrapperPhyhon extends Controller
         $startDate = $request->startDate;
         $endDate = $request->endDate;
         if ($request->ajax()) {
-
             $this->listImagesApprove($request);
             $view_path = 'scrapper-phyhon.list-image-products_ajax';
         } else {
@@ -252,7 +163,7 @@ class scrapperPhyhon extends Controller
         $bugTypes = BugType::get();
         $users = User::get();
         $filterCategories = SiteDevelopmentCategory::orderBy('title')->pluck('title')->toArray();
-        $filterWebsites = StoreWebsite::orderBy('website')->get();        
+        $filterWebsites = StoreWebsite::orderBy('website')->get();
 
         return view($view_path, compact('images', 'website_id', 'allWebsites', 'categories', 'startDate', 'endDate', 'bugTypes', 'bugEnvironments', 'bugSeveritys', 'bugStatuses', 'filterCategories', 'users', 'filterWebsites'));
     }
@@ -261,7 +172,7 @@ class scrapperPhyhon extends Controller
     {
         $store_id = $requestData->id;
 
-        $requestData->page = ($requestData->page-1);
+        $requestData->page = ($requestData->page - 1);
 
         $oldDate = null;
         $count = 0;
@@ -269,9 +180,8 @@ class scrapperPhyhon extends Controller
         $website_id = 0;
 
         $webStore = \App\WebsiteStore::where('id', $store_id)->first();
-    
-        if ($webStore) {
 
+        if ($webStore) {
             $list = Website::where('id', $webStore->website_id)->first();
             $website_id = $list->id;
 
@@ -279,13 +189,13 @@ class scrapperPhyhon extends Controller
 
             if ($website_store_views) {
                 $images = \App\scraperImags::where('store_website', $list->store_website_id)
-                ->where('website_id', $requestData->code); // this is language code. dont be confused with column name
+                    ->where('website_id', $requestData->code); // this is language code. dont be confused with column name
 
                 if (isset($requestData->startDate) && isset($requestData->endDate)) {
                     $images = $images->whereDate('created_at', '>=', date($requestData->startDate))
-                    ->whereDate('created_at', '<=', date($requestData->endDate));
+                        ->whereDate('created_at', '<=', date($requestData->endDate));
                 } else {
-                    //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                    //
                 }
 
                 if (isset($requestData->device) && ($requestData->device == 'mobile' || $requestData->device == 'tablet')) {
@@ -294,16 +204,16 @@ class scrapperPhyhon extends Controller
                     $images = $images->orWhereNull('device')->whereNotIn('device', ['mobile', 'tablet']);
                 }
 
-                if(!empty($requestData->si_status)){
-                    if($requestData->si_status==1){
+                if (! empty($requestData->si_status)) {
+                    if ($requestData->si_status == 1) {
                         $images = $images->where('si_status', 1);
-                    } else if($requestData->si_status==2){
+                    } elseif ($requestData->si_status == 2) {
                         $images = $images->where('si_status', 2);
-                    } else if($requestData->si_status==3){
+                    } elseif ($requestData->si_status == 3) {
                         $images = $images->where('si_status', 3);
-                    } else if($requestData->si_status==4){
+                    } elseif ($requestData->si_status == 4) {
                         $images = $images->where('manually_approve_flag', 1);
-                    } else{
+                    } else {
                         $images = $images->where('si_status', 1);
                     }
                 }
@@ -483,20 +393,17 @@ class scrapperPhyhon extends Controller
         $store_website = \App\StoreWebsite::find($request->webName);
         $log_data = ['user_id' => \Auth::id(), 'action' => $request->data_name, 'website' => $request->webName, 'device' => $request->type, 'created_at' => Carbon::now(), 'updated_at' => Carbon::now()];
         try {
-            //   $url = env("PYTHON_PRODUCT_TEMPLATES")."/".$request->data_name;
             $url = 'http://167.86.88.58:5000/' . $request->data_name;
             $data = [
                 'type' => $request->type,
                 'name' => $store_website->title,
             ];
             if ($request->webName != null && $request->is_flag != null) {
-                //  $flagUrls = \App\StoreWebsite::join('websites','store_websites.id','websites.store_website_id')->join('website_stores','websites.id','website_stores.website_id')->where('store_websites.id',$request->webName)->where('website_stores.is_flag',1)->get();
                 $flagUrls = \App\scraperImags::where('store_website', $request->webName)->where('is_flaged_url', '1')->select('url')->get();
                 $data['flagged'] = true;
                 $count = 1;
                 $fUrl = '';
                 foreach ($flagUrls as $flagUrl) {
-                    //   $fUrl .= $flagUrl['magento_url'];
                     $fUrl .= $flagUrl['url'];
                     if ($count < count($flagUrls)) {
                         $fUrl .= ',';
@@ -554,9 +461,9 @@ class scrapperPhyhon extends Controller
         if (count($site_development) > 0) {
             foreach ($site_development as $val) {
                 $sd_remarks = \App\StoreDevelopmentRemark::join('users as usr', 'usr.id', 'store_development_remarks.user_id')
-                                            ->where('store_development_remarks.store_development_id', $val->id)
-                                            ->select('store_development_remarks.*', 'usr.name as username')
-                                            ->get()->toArray();
+                    ->where('store_development_remarks.store_development_id', $val->id)
+                    ->select('store_development_remarks.*', 'usr.name as username')
+                    ->get()->toArray();
                 array_push($remarks, $sd_remarks);
             }
         }
@@ -567,17 +474,17 @@ class scrapperPhyhon extends Controller
     public function history(Request $request)
     {
         $all_data = \App\scraperImags::join('store_websites', 'store_websites.id', 'scraper_imags.store_website')
-        ->select('store_websites.website', 'scraper_imags.device', 'scraper_imags.created_at AS created_date', \DB::raw('count(`scraper_imags`.`id`) as no_image'));
+            ->select('store_websites.website', 'scraper_imags.device', 'scraper_imags.created_at AS created_date', \DB::raw('count(`scraper_imags`.`id`) as no_image'));
 
         if (isset($request->startDate) && isset($request->endDate)) {
             $all_data = $all_data->whereDate('scraper_imags.created_at', '>=', date($request->startDate))
-            ->whereDate('scraper_imags.created_at', '<=', date($request->endDate));
+                ->whereDate('scraper_imags.created_at', '<=', date($request->endDate));
         } else {
             $all_data = $all_data->whereDate('scraper_imags.created_at', Carbon::now()->format('Y-m-d'));
         }
 
         $all_data = $all_data->orderBy('no_image', 'DESC')->groupBy('store_websites.website', 'scraper_imags.device')
-        ->get();
+            ->get();
 
         return response()->json(['history' => $all_data]);
     }
@@ -585,17 +492,16 @@ class scrapperPhyhon extends Controller
     public function actionHistory(Request $request)
     {
         $logs = DB::table('scrapper_python_action_logs')
-        ->leftJoin('users', 'users.id', '=', 'scrapper_python_action_logs.user_id')
-        ->select(['scrapper_python_action_logs.*', 'users.name']);
+            ->leftJoin('users', 'users.id', '=', 'scrapper_python_action_logs.user_id')
+            ->select(['scrapper_python_action_logs.*', 'users.name']);
         if (isset($request->startDate) && isset($request->endDate)) {
             $logs = $logs->whereDate('scrapper_python_action_logs.created_at', '>=', date($request->startDate))
-            ->whereDate('scrapper_python_action_logs.created_at', '<=', date($request->endDate));
+                ->whereDate('scrapper_python_action_logs.created_at', '<=', date($request->endDate));
         } else {
-            //  $logs = $logs->whereDate('scrapper_python_action_logs.created_at',Carbon::now()->format('Y-m-d'));
+            //
         }
 
         $logs = $logs->orderBy('id', 'DESC')->get();
-        //dd($logs);
         $html = view('scrapper-phyhon.action_history', compact('logs'))->render();
 
         return ['message' => $html, 'statusCode' => 200];
@@ -638,15 +544,15 @@ class scrapperPhyhon extends Controller
 
                 if ($website_store_views) {
                     $urls = \App\scraperImags::join('store_websites', 'store_websites.id', '=', 'scraper_imags.store_website')
-                     ->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')
-                     ->where('store_website', $list->store_website_id)
-                     ->where('website_id', $request->code) // this is language code. dont be confused with column name
-                     ->whereRaw('url != "" and url IS  NOT NULL');
+                        ->select('scraper_imags.*', 'store_websites.title as wtitle', 'store_websites.id as swid')
+                        ->where('store_website', $list->store_website_id)
+                        ->where('website_id', $request->code) // this is language code. dont be confused with column name
+                        ->whereRaw('url != "" and url IS  NOT NULL');
                     if (isset($request->startDate) && isset($request->endDate)) {
                         $urls = $urls->whereDate('created_at', '>=', date($request->startDate))
-                         ->whereDate('created_at', '<=', date($request->endDate));
+                            ->whereDate('created_at', '<=', date($request->endDate));
                     } else {
-                        //$images = $images->whereDate('created_at',Carbon::now()->format('Y-m-d'));
+                        //
                     }
 
                     if ($request->flt_website && $request->flt_website != null) {
@@ -657,7 +563,6 @@ class scrapperPhyhon extends Controller
                     }
 
                     $urls = $urls->paginate(Setting::get('pagination'));
-                    // $images =  $images->paginate(2);
                 }
             }
         } else {
@@ -674,7 +579,6 @@ class scrapperPhyhon extends Controller
                 $urls->where('url', 'LIKE', '%' . $request->scrapper_url . '%');
             }
             $urls = $urls->paginate(Setting::get('pagination'));
-            //        $urls=$urls->get();
         }
 
         return view('scrapper-phyhon.list_urls', compact('urls', 'flagUrl', 'storeWebsites'));
@@ -698,6 +602,6 @@ class scrapperPhyhon extends Controller
         $image->manually_approve_flag = 0;
         $image->save();
 
-        return redirect()->back()->with('success', "Scrapper image has been successfully rejected.");
+        return redirect()->back()->with('success', 'Scrapper image has been successfully rejected.');
     }
 }

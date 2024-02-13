@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Foundation\Application;
 
 class ArticleController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Application|array|Factory|View
      */
     public function index()
     {
@@ -25,7 +29,7 @@ class ArticleController extends Controller
      * Get Broken Links Details
      * Function for display
      *
-     * @return json response
+     * @return JsonResponse response
      */
     public function updateTitle(Request $request)
     {
@@ -43,7 +47,7 @@ class ArticleController extends Controller
      * Updated Title
      * Function for display
      *
-     * @return json response
+     * @return JsonResponse response
      */
     public function updateDescription(Request $request)
     {

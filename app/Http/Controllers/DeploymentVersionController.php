@@ -54,7 +54,7 @@ class DeploymentVersionController extends Controller
             $jenkins->launchJob($jobName, ['branch_name' => $branch_name, 'serverenv' => $serverenv, 'revision' => $revision, 'pull_no' => $pullNo]);
             $job = $jenkins->getJob($jobName);
             $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
-            $record = ['deployement_version_id' => $deploymentVersion->id,  'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
+            $record = ['deployement_version_id' => $deploymentVersion->id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
             DeploymentVersionLog::create($record);
 
             return response()->json(['code' => 200, 'message' => 'Process builed complete successfully.']);
@@ -103,13 +103,13 @@ class DeploymentVersionController extends Controller
 
             // Send POST request with authentication
             $response = Http::withBasicAuth($username, $apiToken)
-                        ->post($buildUrl, $parameters);
+                ->post($buildUrl, $parameters);
 
             if ($response->successful()) {
                 return response()->json(['code' => 200, 'message' => 'Restore completed successfully.']);
             } else {
                 $buildDetail = 'Build Name: ' . $jobName . '<br> Brance Name: ' . $branch_name . '<br> Revision: ' . $revision;
-                $record = ['deployement_version_id' => $deploymentVersion->id,  'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
+                $record = ['deployement_version_id' => $deploymentVersion->id, 'error_message' => $buildDetail, 'build_number' => $deploymentVersion->build_number, 'user_id' => $user_id];
                 DeploymentVersionLog::create($record);
 
                 return response()->json(['code' => 500, 'message' => 'Failed To Restore']);

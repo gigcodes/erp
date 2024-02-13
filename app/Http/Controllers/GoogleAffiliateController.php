@@ -38,11 +38,11 @@ class GoogleAffiliateController extends Controller
         if ($request->term || $request->priority) {
             if ($request->term != null && $request->priority == 'on') {
                 $keywords = HashTag::query()
-                                ->where('priority', '1')
-                                ->where('platforms_id', $this->platformsId)
-                                ->where('hashtag', 'LIKE', "%{$request->term}%")
-                                ->orderBy($sortBy, $orderBy)
-                                ->paginate(Setting::get('pagination'));
+                    ->where('priority', '1')
+                    ->where('platforms_id', $this->platformsId)
+                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->orderBy($sortBy, $orderBy)
+                    ->paginate(Setting::get('pagination'));
 
                 $queryString = 'term=' . $request->term . '&priority=' . $request->priority . '&';
             } elseif ($request->priority == 'on') {
@@ -51,10 +51,10 @@ class GoogleAffiliateController extends Controller
                 $queryString = 'priority=' . $request->priority . '&';
             } elseif ($request->term != null) {
                 $keywords = HashTag::query()
-                                ->where('hashtag', 'LIKE', "%{$request->term}%")
-                                ->where('platforms_id', $this->platformsId)
-                                ->orderBy($sortBy, $orderBy)
-                                ->paginate(Setting::get('pagination'));
+                    ->where('hashtag', 'LIKE', "%{$request->term}%")
+                    ->where('platforms_id', $this->platformsId)
+                    ->orderBy($sortBy, $orderBy)
+                    ->paginate(Setting::get('pagination'));
 
                 $queryString = 'term=' . $request->term . '&';
             }
@@ -218,8 +218,8 @@ class GoogleAffiliateController extends Controller
 
                 // Get hashtag ID
                 $keywords = HashTag::query()
-                                ->where('hashtag', 'LIKE', $tag)
-                                ->where('platforms_id', $this->platformsId)->first();
+                    ->where('hashtag', 'LIKE', $tag)
+                    ->where('platforms_id', $this->platformsId)->first();
 
                 if (is_null($keywords)) {
                     //keyword not in DB. For now skip this...
@@ -396,7 +396,7 @@ class GoogleAffiliateController extends Controller
     /**
      * function to call google scraper
      *
-     * @param  \Illuminate\Http\Request  $request, id of keyword to scrap
+     * @param  \Illuminate\Http\Request  $request , id of keyword to scrap
      * @return success, failure
      */
     public function callScraper(Request $request)

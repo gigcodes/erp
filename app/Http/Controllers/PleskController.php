@@ -68,7 +68,6 @@ class PleskController extends Controller
     public function getMailAccounts($id, Request $request)
     {
         $pleskHelper = new PleskHelper;
-        // $mailAccount = $pleskHelper->getMailAccounts($id);
         try {
             $mailAccount = $pleskHelper->getMailAccounts($id);
             $msg = 'Successful';

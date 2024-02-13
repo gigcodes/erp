@@ -11,7 +11,6 @@ use App\Payment;
 use App\UserRate;
 use Carbon\Carbon;
 use App\DeveloperTask;
-
 use App\PayentMailData;
 use App\PaymentReceipt;
 use App\UserAvaibility;
@@ -91,18 +90,6 @@ class TimeDoctorActivitiesController extends Controller
             'u.name as total_working_hour',
         ])
             ->orderBy('total_track', 'desc')->get();
-
-        /*$records = \App\TimeDoctor\TimeDoctorActivityNotification::join('users as u', 'time_doctor_activity_notifications.user_id', 'u.id');
-
-        $records->leftJoin('user_avaibilities as av', 'time_doctor_activity_notifications.user_id', 'av.user_id');
-
-        $records = $records->select([
-            'time_doctor_activity_notifications.*',
-            'u.name as user_name',
-            'av.minute as daily_working_hour',
-            'u.name as total_working_hour',
-        ])
-            ->orderBy('total_track', 'desc')->get();*/
 
         $recordsArr = [];
 
@@ -308,7 +295,6 @@ class TimeDoctorActivitiesController extends Controller
                 $task->user;
 
                 $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
-                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
                 if ($totalPaid) {
                     $task->paid_amount = number_format($totalPaid, 2);
                     $task->balance = $task->rate_estimated - $totalPaid;
@@ -318,10 +304,8 @@ class TimeDoctorActivitiesController extends Controller
                     $task->balance = $task->rate_estimated;
                     $task->balance = number_format($task->balance, 2);
                 }
-                // $task->assignedUser;
                 if ($task->task_id) {
                     $task->taskdetails = Task::find($task->task_id);
-                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task_details;
@@ -333,7 +317,6 @@ class TimeDoctorActivitiesController extends Controller
                     }
                 } elseif ($task->developer_task_id) {
                     $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task;
@@ -351,7 +334,7 @@ class TimeDoctorActivitiesController extends Controller
 
             $activityUsers = collect([]);
 
-            foreach ($tasks  as $task) {
+            foreach ($tasks as $task) {
                 $a['date'] = $task->date;
                 $a['details'] = $task->details;
 
@@ -449,7 +432,6 @@ class TimeDoctorActivitiesController extends Controller
             $request->submit = $params['submit'];
             $request->response_type = $params['response_type'];
             Auth::login($request->user);
-            //   dd($params);
         }
 
         if ($where == 'TimeDoctorActivityCommand') {
@@ -470,12 +452,10 @@ class TimeDoctorActivitiesController extends Controller
                 $time_doctor_log->message = $time_doctor_log->message . '-->get payment receipt_in  date ' . json_encode($taskIds);
                 $time_doctor_log->save();
             }
-            //            dd($taskIds);
             foreach ($tasks as $task) {
                 $task->user;
 
                 $totalPaid = Payment::where('payment_receipt_id', $task->id)->sum('amount');
-                // $totalPaid =  isset($allPayments[$task->id] ) ? array_sum($allPayments[$task->id]) :0;
                 if ($totalPaid) {
                     $task->paid_amount = number_format($totalPaid, 2);
                     $task->balance = $task->rate_estimated - $totalPaid;
@@ -485,10 +465,8 @@ class TimeDoctorActivitiesController extends Controller
                     $task->balance = $task->rate_estimated;
                     $task->balance = number_format($task->balance, 2);
                 }
-                // $task->assignedUser;
                 if ($task->task_id) {
                     $task->taskdetails = Task::find($task->task_id);
-                    // $task->taskdetails      =  $newAllTask[$task->task_id] ;
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task_details;
@@ -500,7 +478,6 @@ class TimeDoctorActivitiesController extends Controller
                     }
                 } elseif ($task->developer_task_id) {
                     $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                    // $task->taskdetails      = $newAllDevTask[$task->developer_task_id];
                     $task->estimate_minutes = 0;
                     if ($task->taskdetails) {
                         $task->details = $task->taskdetails->task;
@@ -518,7 +495,7 @@ class TimeDoctorActivitiesController extends Controller
 
             $activityUsers = collect([]);
 
-            foreach ($tasks  as $task) {
+            foreach ($tasks as $task) {
                 $a['date'] = $task->date;
                 $a['details'] = $task->details;
 
@@ -1103,7 +1080,6 @@ class TimeDoctorActivitiesController extends Controller
 
         $starts_at = $request->time_doctor_start_date;
         $ends_at = $request->time_doctor_end_date;
-        // $userID = $request->get('fetch_user_id', Auth::user()->id);
         $userID = $request->fetch_user_id;
         $member = $time_doctor_user_id = TimeDoctorMember::where('user_id', $userID)->first();
 
@@ -1133,7 +1109,6 @@ class TimeDoctorActivitiesController extends Controller
             if ($dayDiff > 7) {
                 return response()->json(['message' => 'Can not fetch activities more then week'], 500);
             }
-            /*$activities = $this->timedoctor->getActivityList($company_id, $access_token, $user_id, $startString, $endString);*/
             $activities = $this->timedoctor->getActivityList($company_id, $access_token, $userID, $startString, $endString);
             if ($activities == false) {
                 return response()->json(['message' => 'Can not fetch activities as no activities found'], 500);
@@ -1336,8 +1311,6 @@ class TimeDoctorActivitiesController extends Controller
                 and user_id = '" . $request->user_id . "' 
                 and hour(starts_at) = '" . $record->onHour . "'")
             );
-            // _p($activities);
-
             $totalApproved = 0;
             $totalPending = 0;
             $isAllSelected = 0;
@@ -1653,7 +1626,6 @@ class TimeDoctorActivitiesController extends Controller
                                     $min = number_format($min, 2);
                                     $info_log[] = "number_format min  -->  $min";
                                     $hour_rate = $user_rate;
-                                    // $hour_rate =  $user_rate / 160;
                                     $info_log[] = "hour_rate  -->  $hour_rate";
                                     $hours = $min / 60;
                                     $info_log[] = "hours  -->  $hours";
@@ -1669,7 +1641,6 @@ class TimeDoctorActivitiesController extends Controller
                                     $min = number_format($min, 2);
                                     $info_log[] = "min  -->  $min";
                                     $hour_rate = $user_rate;
-                                    //    $hour_rate =  $user_rate / 160;
                                     $hours = $min / 60;
                                     $info_log[] = "hours  -->  $hours";
                                     $rate_estimated = $hours * $hour_rate;

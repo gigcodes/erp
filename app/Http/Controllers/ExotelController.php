@@ -10,14 +10,12 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 
 class ExotelController extends FindByNumberController
 {
-    public function call()
+    public function call($curl_setopt)
     {
         $post_data = [
             'From' => '02248931265',
             'To' => '02225921525',
             'CallerId' => '02248931265',
-            // 'TimeLimit' => "<time-in-seconds> (optional)",
-            // 'TimeOut' => "<time-in-seconds (optional)>",
             'CallType' => 'promo', //Can be "trans" for transactional and "promo" for promotional content
         ];
 
@@ -33,7 +31,6 @@ class ExotelController extends FindByNumberController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
         $http_result = curl_exec($ch);
         $error = curl_error($ch);

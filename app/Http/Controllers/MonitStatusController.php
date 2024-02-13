@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\MonitStatus;
-use Auth;
 use App\AssetsManager;
+use App\Models\MonitStatus;
+use Illuminate\Http\Request;
 use App\Models\MonitUnitCommandRunLogs;
 
 class MonitStatusController extends Controller
@@ -14,17 +13,13 @@ class MonitStatusController extends Controller
     {
         $assetsmanager = AssetsManager::where('monit_api_url', '!=', '')->get();
 
-        //MonitStatus::truncate();
-
         $iii = 0;
         $monitStatusArray = [];
-        if(!empty($assetsmanager)){
-
+        if (! empty($assetsmanager)) {
             foreach ($assetsmanager as $key => $value) {
-            
                 // URL of the XML data source
-                $url = $value->monit_api_url.'_status?format=xml';
-                
+                $url = $value->monit_api_url . '_status?format=xml';
+
                 // Your username and password for authentication
                 $username = $value->monit_api_username;
                 $password = $value->monit_api_password;
@@ -44,56 +39,32 @@ class MonitStatusController extends Controller
                 if (curl_errno($ch)) {
                 } else {
                     // Parse and process the XML data
-                    //$xml = simplexml_load_string($response);
-
-                    //$xmlString = '<element attribute="This has a &quot;quote&quot;">';
                     $xmlString = str_replace('&quot;', '&amp;quot;', $response);
                     $xml = simplexml_load_string($xmlString);
 
-                    if(!empty($xml)){
-
+                    if (! empty($xml)) {
                         $json = json_encode($xml);
-                        $xmlArray = json_decode($json,TRUE);
+                        $xmlArray = json_decode($json, true);
 
                         MonitStatus::where('monit_api_id', $xmlArray['server']['id'])->delete();
 
                         foreach ($xmlArray['service'] as $key => $valueXaml) {
-
-                            /*$monitStatusArray[$iii]['url'] = $url;
-                            $monitStatusArray[$iii]['username'] = $username;
-                            $monitStatusArray[$iii]['password'] = $password;*/
-
-                            $url = $url;
-                            $username = $username;
-                            $password = $password;
-
-                            //$monitStatusArray[$iii]['id'] = '';
                             $id = '';
-                            if(!empty($xmlArray['server']['id'])){
-                                //$monitStatusArray[$iii]['id'] = $xmlArray['server']['id'];
+                            if (! empty($xmlArray['server']['id'])) {
                                 $id = $xmlArray['server']['id'];
                             }
 
-                            //$monitStatusArray[$iii]['service_name'] = '';
                             $service_name = '';
-                            if(!empty($valueXaml['name'])){
-                                //$monitStatusArray[$iii]['service_name'] = $valueXaml['name'];
+                            if (! empty($valueXaml['name'])) {
                                 $service_name = $valueXaml['name'];
                             }
-                            
-                            //$monitStatusArray[$iii]['uptime'] = '';
-                            $uptime = '';
-                            /*if(!empty($xmlArray['server']['uptime'])){
-                                //$monitStatusArray[$iii]['uptime'] = $xmlArray['server']['uptime'];
-                                $uptime = $xmlArray['server']['uptime'];
-                            }*/
 
-                            if(!empty($valueXaml['uptime'])){
-                                //$monitStatusArray[$iii]['uptime'] = $valueXaml['uptime'];
+                            $uptime = '';
+
+                            if (! empty($valueXaml['uptime'])) {
                                 $uptime = $valueXaml['uptime'];
 
-                                if(is_numeric(trim($uptime))){
-
+                                if (is_numeric(trim($uptime))) {
                                     $seconds = $uptime;
 
                                     // Calculate days, hours, and minutes
@@ -104,43 +75,33 @@ class MonitStatusController extends Controller
                                     $minutes = floor($seconds / 60); // 1 minute = 60 seconds
 
                                     // Format the result
-                                    $uptime = $days.'d '.$hours.'h '.$minutes.'m';
+                                    $uptime = $days . 'd ' . $hours . 'h ' . $minutes . 'm';
                                 }
                             }
 
-                            //$monitStatusArray[$iii]['status'] = $valueXaml['status'];
                             $status = $valueXaml['status'];
 
-                            //$monitStatusArray[$iii]['memory'] = '';
                             $memory = '';
-                            if(!empty($valueXaml['memory'])){
+                            if (! empty($valueXaml['memory'])) {
                                 $memory = json_encode($valueXaml['memory']);
-                                //$monitStatusArray[$iii]['memory'] = json_encode($valueXaml['memory']);
                             }
-                            
-                            //$monitStatusArray[$iii]['server'] = '';
+
                             $ip = '';
-                            if(!empty($value['ip'])){
-                                //$monitStatusArray[$iii]['server'] = $value['ip'];
-                                 $ip = $value['ip'];
+                            if (! empty($value['ip'])) {
+                                $ip = $value['ip'];
                             }
 
-                            /*$monitStatusArray[$iii]['dir'] = "/home/prod-1-1/current/";
-                            $iii++;*/
-
-                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id.'-'.strtolower($service_name), 'ip' => $ip, 'monit_api_id' => $id, 'asset_management_id' => $value->id]);
+                            MonitStatus::create(['service_name' => $service_name, 'status' => $status, 'uptime' => $uptime, 'memory' => json_encode($memory), 'url' => $url, 'username' => $username, 'password' => $password, 'xmlid' => $id . '-' . strtolower($service_name), 'ip' => $ip, 'monit_api_id' => $id, 'asset_management_id' => $value->id]);
                         }
                     }
-                    
                 }
 
                 // Close cURL session
                 curl_close($ch);
-
             }
         }
 
-        $monitStatus =  MonitStatus::with('assetsManager');
+        $monitStatus = MonitStatus::with('assetsManager');
         if ($request->service_name) {
             $monitStatus = $monitStatus->where('service_name', 'LIKE', '%' . $request->service_name . '%');
         }
@@ -161,7 +122,6 @@ class MonitStatusController extends Controller
             $monitStatus = $monitStatus->where('uptime', 'LIKE', '%' . $request->search_uptime . '%');
         }
 
-        //$monitStatus = $monitStatus->latest()->paginate(\App\Setting::get('pagination', 25));
         $monitStatus = $monitStatus->latest()->orderBy('status', 'ASC')->get();
 
         return view('monit-status.monit-status-list', compact('monitStatus'));
@@ -170,7 +130,6 @@ class MonitStatusController extends Controller
     public function runCommand(Request $request)
     {
         try {
-
             $url = 'http://s10.theluxuryunlimited.com:5000/execute';
 
             $ch = curl_init();
@@ -182,12 +141,12 @@ class MonitStatusController extends Controller
             $ipAddress = $request->server_ip; // Valid IP address as a string
 
             // Ensure it's a string before use
-            $ipString = (string)$ipAddress;
+            $ipString = (string) $ipAddress;
 
             $parameters = [
                 'command' => $request->command,
                 'server' => $ipString,
-                'dir' => "/home/prod-1-1/current/"
+                'dir' => '/home/prod-1-1/current/',
             ];
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($parameters));
 
@@ -200,9 +159,8 @@ class MonitStatusController extends Controller
             $response = json_decode($result);
 
             curl_close($ch);
-            
-            MonitUnitCommandRunLogs::create(['created_by' => auth()->user()->id, 'xmlid' => $request->id, 'request_data' => json_encode($parameters), 'response_data' => json_decode($result)]);
 
+            MonitUnitCommandRunLogs::create(['created_by' => auth()->user()->id, 'xmlid' => $request->id, 'request_data' => json_encode($parameters), 'response_data' => json_decode($result)]);
 
             return response()->json(['code' => 200, 'message' => 'Magento Command Run successfully']);
         } catch (\Exception $e) {

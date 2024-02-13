@@ -23,27 +23,6 @@ class ErpEventController extends Controller
         }
 
         return view('erp-events.index', compact('events', 'listEvents'));
-
-        /*$events = ErpEvents::all();
-
-    if (!$events->isEmpty()) {
-    foreach ($events as $event) {
-    try{
-    $cron = CronExpression::factory("$event->minute $event->hour $event->day_of_month $event->month $event->day_of_week");
-    echo $cron->getNextRunDate()->format('Y-m-d H:i:s');die;
-    if ($cron->isDue()) {
-    $event->next_run_date = $cron->getNextRunDate()->format('Y-m-d H:i:s');
-    } else {
-    $event->is_closed = 1;
-    }
-    }catch(\Exception $e) {
-    $event->is_closed = 1;
-    }
-
-    $event->save();
-    dd($event);
-    }
-    }*/
     }
 
     public function store()

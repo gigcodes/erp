@@ -19,9 +19,9 @@ use Illuminate\Http\Request;
 use App\AssetManagerLinkUser;
 use App\AssetManamentUpdateLog;
 use App\assetUserChangeHistory;
+use App\Models\DataTableColumn;
 use App\AssetMagentoDevScripUpdateLog;
 use App\Models\AssetManagerUserAccess;
-use App\Models\DataTableColumn;
 use App\Models\AssetManagerTerminalUserAccess;
 use App\Models\AssetManagerTerminalUserAccessRemakrs;
 
@@ -34,7 +34,6 @@ class AssetsManagerController extends Controller
      */
     public function index(Request $request)
     {
-        // dd($request);
         $archived = 0;
         if ($request->archived == 1) {
             $archived = 1;
@@ -56,10 +55,10 @@ class AssetsManagerController extends Controller
 
         $assets = new AssetsManager;
         $assets = $assets->leftJoin('store_websites', 'store_websites.id', 'assets_manager.website_id')
-                ->leftJoin('asset_plate_forms AS apf', 'apf.id', 'assets_manager.asset_plate_form_id')
-                ->leftJoin('email_addresses As ea', 'ea.id', 'assets_manager.email_address_id')
-                ->leftJoin('whatsapp_configs AS wc', 'wc.id', 'assets_manager.whatsapp_config_id')
-                ->leftJoin('assets_manager_link_user as linkuser', 'linkuser.asset_manager_id', 'assets_manager.id');
+            ->leftJoin('asset_plate_forms AS apf', 'apf.id', 'assets_manager.asset_plate_form_id')
+            ->leftJoin('email_addresses As ea', 'ea.id', 'assets_manager.email_address_id')
+            ->leftJoin('whatsapp_configs AS wc', 'wc.id', 'assets_manager.whatsapp_config_id')
+            ->leftJoin('assets_manager_link_user as linkuser', 'linkuser.asset_manager_id', 'assets_manager.id');
 
         if (! Auth::user()->hasRole('Admin')) {
             $assets->where('assets_manager.created_by', Auth::user()->id)->orWhere('linkuser.user_id', Auth::user()->id);
@@ -82,7 +81,7 @@ class AssetsManagerController extends Controller
         if (! empty($purchaseType)) {
             $assets = $assets->where('assets_manager.purchase_type', $purchaseType);
         }
-        //////////////////////////////////////////////////////////
+
         if (! empty($website_id)) {
             $assets = $assets->where('assets_manager.website_id', $website_id);
         }
@@ -102,14 +101,14 @@ class AssetsManagerController extends Controller
             $assets = $assets->whereIn('assets_manager.created_by', $user_ids);
         }
 
-        if (!empty($ip_ids) && (count($ip_ids)>0)) {
-            $ip_idss = array_filter($ip_ids, fn ($ip_ids) => !is_null($ip_ids));
-            if (!in_array(null, $ip_idss)) {
+        if (! empty($ip_ids) && (count($ip_ids) > 0)) {
+            $ip_idss = array_filter($ip_ids, fn ($ip_ids) => ! is_null($ip_ids));
+            if (! in_array(null, $ip_idss)) {
                 $assets = $assets->whereIn('assets_manager.ip', $ip_idss);
             }
         }
-        
-        $assets = $assets->orderBy("id", "ASC");
+
+        $assets = $assets->orderBy('id', 'ASC');
 
         $assetsIds = $assets->select('assets_manager.id')->get()->toArray();
         $assets = $assets->select(\DB::raw('DISTINCT assets_manager.*, linkuser.asset_manager_id'), 'store_websites.website AS website_name', 'apf.name AS plateform_name', 'ea.from_address', 'wc.number');
@@ -122,13 +121,12 @@ class AssetsManagerController extends Controller
         //Cash Flows
         $cashflows = \App\CashFlow::whereIn('cash_flow_able_id', $assetsIds)->where(['cash_flow_able_type' => \App\AssetsManager::class])->get();
         $users = User::get()->toArray();
-        //dd($users);
 
         $datatableModel = DataTableColumn::select('column_name')->where('user_id', auth()->user()->id)->where('section_name', 'asset-manager')->first();
 
         $dynamicColumnsToShowAM = [];
-        if(!empty($datatableModel->column_name)){
-            $hideColumns = $datatableModel->column_name ?? "";
+        if (! empty($datatableModel->column_name)) {
+            $hideColumns = $datatableModel->column_name ?? '';
             $dynamicColumnsToShowAM = json_decode($hideColumns, true);
         }
 
@@ -137,20 +135,19 @@ class AssetsManagerController extends Controller
     }
 
     public function asColumnVisbilityUpdate(Request $request)
-    {   
-        $userCheck = DataTableColumn::where('user_id',auth()->user()->id)->where('section_name','asset-manager')->first();
+    {
+        $userCheck = DataTableColumn::where('user_id', auth()->user()->id)->where('section_name', 'asset-manager')->first();
 
-        if($userCheck)
-        {
+        if ($userCheck) {
             $column = DataTableColumn::find($userCheck->id);
             $column->section_name = 'asset-manager';
-            $column->column_name = json_encode($request->column_assetsmanager); 
+            $column->column_name = json_encode($request->column_assetsmanager);
             $column->save();
         } else {
             $column = new DataTableColumn();
             $column->section_name = 'asset-manager';
-            $column->column_name = json_encode($request->column_assetsmanager); 
-            $column->user_id =  auth()->user()->id;
+            $column->column_name = json_encode($request->column_assetsmanager);
+            $column->user_id = auth()->user()->id;
             $column->save();
         }
 
@@ -236,26 +233,16 @@ class AssetsManagerController extends Controller
         return redirect()->route('assets-manager.index')
             ->with('success', 'Assets created successfully');
     }
+
     /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /*public function show($id)
+    public function show($id)
     {
-    $assets = AssetsManager::find($id);
-    $reply_categories = ReplyCategory::all();
-    $users_array = Helpers::getUserArray(User::all());
-    $emails = [];
-
-    return view('assets-manager.show', [
-    'assets'  => $assets,
-    'reply_categories'  => $reply_categories,
-    'users_array'  => $users_array,
-    'emails'  => $emails
-    ]);
-    }*/
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -328,7 +315,6 @@ class AssetsManagerController extends Controller
         $data['email_address_id'] = $request->email_address_id;
         $data['whatsapp_config_id'] = $request->whatsapp_config_id;
         $data['link'] = $request->get('link');
-        //dd($data);
         AssetsManager::find($id)->update($data);
 
         return redirect()->route('assets-manager.index')
@@ -405,17 +391,13 @@ class AssetsManagerController extends Controller
     public function assetManamentLog(request $request)
     {
         $asset_id = $request->input('asset_id');
-        //dd($asset_id);
         $html = '';
-        //\DB::enableQueryLog();
         $assetLogs = AssetManamentUpdateLog::select('asset_manamentupdate_logs.*', 'users.name AS userName')
             ->leftJoin('users', 'users.id', '=', 'asset_manamentupdate_logs.user_id')
             ->where('asset_manamentupdate_logs.assetmenament_id', $asset_id)
             ->orderBy('asset_manamentupdate_logs.id', 'DESC')
             ->get();
-        //dd(\DB::getQueryLog());
         $i = 1;
-        //dd($assetLogs);
         if (count($assetLogs) > 0) {
             foreach ($assetLogs as $assetLog) {
                 $html .= '<tr>';
@@ -495,16 +477,13 @@ class AssetsManagerController extends Controller
     {
         $asset_id = $request->input('asset_id');
         $html = '';
-        //\DB::enableQueryLog();
         $assetLogs = assetUserChangeHistory::select('asset_user_change_histories.*', 'users.name AS userNameChangeBy', 'u.name AS userName')
             ->leftJoin('users', 'users.id', '=', 'asset_user_change_histories.user_id')
             ->leftJoin('users AS u', 'u.id', '=', 'asset_user_change_histories.new_user_id')
             ->where('asset_user_change_histories.asset_id', $asset_id)
             ->orderBy('asset_user_change_histories.id', 'DESC')
             ->get();
-        //dd(\DB::getQueryLog());
         $i = 1;
-        //dd($assetLogs);
         if (count($assetLogs) > 0) {
             foreach ($assetLogs as $assetLog) {
                 $html .= '<tr>';
@@ -693,13 +672,11 @@ class AssetsManagerController extends Controller
 
     public function assetManamentUsers(request $request)
     {
-        
         $html = '';
 
         $users = User::get();
 
         $i = 1;
-        //dd($assetLogs);
         if (count($users) > 0) {
             foreach ($users as $user) {
                 $html .= '<tr>';
@@ -724,8 +701,7 @@ class AssetsManagerController extends Controller
     {
         $html = '';
 
-        if(!empty($request->assets_management_id)){
-
+        if (! empty($request->assets_management_id)) {
             $user_accesses = new AssetManagerUserAccess;
             $user_accesses = $user_accesses->leftJoin('users', 'users.id', 'asset_manager_user_accesses.user_id')->where('assets_management_id', $request->assets_management_id)->select('asset_manager_user_accesses.*', 'users.name AS selectedUser')->get();
 
@@ -738,11 +714,9 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $user_access->username . '</td>';
                     $html .= '<td>' . $user_access->password . '</td>';
                     $html .= '<td>' . $user_access->created_at . '</td>';
-                    /*$html .= '<td>' . $user_access->request_data . '</td>';*/
-                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-request-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
-                    $html .= '<td><button type="button" data-id="'.$user_access->id.'" class="btn user-access-response-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
-                    /*$html .= '<td>' . $user_access->response_data . '</td>';*/
-                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
+                    $html .= '<td><button type="button" data-id="' . $user_access->id . '" class="btn user-access-request-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+                    $html .= '<td><button type="button" data-id="' . $user_access->id . '" class="btn user-access-response-view" style="padding:1px 0px;"><i class="fa fa-eye" aria-hidden="true"></i></button></td>';
+                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteUserAccess(' . $user_access->id . ')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';
                     $i++;
                 }
@@ -765,27 +739,21 @@ class AssetsManagerController extends Controller
     public function createUserAccess(Request $request)
     {
         try {
-
             // New Script
-            $action = "add";
+            $action = 'add';
             $SFTP = true;
             $ssh = true;
-            //$server = 'demo.mio-moda.com';
             $server = strval($request->server_var);
-                       
+
             $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-            if($request->login_type=='key'){
+            if ($request->login_type == 'key') {
                 $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$request->key_type\" -R \"$request->user_role\" 2>&1";
             } else {
                 $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$request->username\" -p \"$request->password\" -l \"$request->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$request->user_role\" 2>&1";
             }
             // NEW Script
             $result = exec($cmd, $output, $return_var);
-
-            /*\Log::info('command:' . $cmd);
-            \Log::info('output:' . print_r($output, true));
-            \Log::info('return_var:' . $return_var);*/
 
             $useraccess = AssetManagerUserAccess::create([
                 'assets_management_id' => $request->assets_management_id,
@@ -812,20 +780,18 @@ class AssetsManagerController extends Controller
     public function deleteUserAccess(Request $request)
     {
         try {
-
             $user_access = AssetManagerUserAccess::where('id', $request->id)->first();
 
-            if(!empty($user_access)){
-
+            if (! empty($user_access)) {
                 // New Script
-                $action = "delete";
+                $action = 'delete';
                 $SFTP = true;
                 $ssh = true;
                 $server = 'demo.mio-moda.com';
-                           
+
                 $scriptsPath = getenv('DEPLOYMENT_SCRIPTS_PATH');
 
-                if($user_access->login_type=='key'){
+                if ($user_access->login_type == 'key') {
                     $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$user_access->username\" -p \"$user_access->password\" -l \"$user_access->login_type\" -t \"$SFTP\" -b \"$ssh\" -r \"$user_access->key_type\" -R \"$user_access->user_role\" 2>&1";
                 } else {
                     $cmd = "bash $scriptsPath" . "manageusers.sh -f \"$action\" -s \"$server\" -u \"$user_access->username\" -p \"$user_access->password\" -l \"$user_access->login_type\" -t \"$SFTP\" -b \"$ssh\" -R \"$user_access->user_role\" 2>&1";
@@ -838,13 +804,9 @@ class AssetsManagerController extends Controller
                 $access->delete();
 
                 return response()->json(['code' => 200, 'message' => 'User Access has been deleted successfully']);
-
             } else {
-
                 return response()->json(['code' => 500, 'message' => 'Something went wrong. Please try again.']);
-
             }
-            
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
@@ -854,14 +816,13 @@ class AssetsManagerController extends Controller
 
     public function assetsUserList(Request $request)
     {
-
         $dataDropdown = User::pluck('name', 'id')->toArray();
 
         // Get the user input
         $input = $_GET['term'];
 
         // Filter tags based on user input
-        $filteredTags = array_filter($dataDropdown, function($tag) use ($input) {
+        $filteredTags = array_filter($dataDropdown, function ($tag) use ($input) {
             return stripos($tag, $input) !== false;
         });
 
@@ -870,7 +831,7 @@ class AssetsManagerController extends Controller
     }
 
     public function userAccessRequest($id)
-    {   
+    {
         $userAccessRequest = AssetManagerUserAccess::findorFail($id);
 
         return response()->json([
@@ -886,7 +847,6 @@ class AssetsManagerController extends Controller
     public function createTerminalUserAccess(Request $request)
     {
         try {
-
             $this->validate($request, [
                 'username' => 'required|unique:asset_manager_terminal_user_accesses,username',
             ]);
@@ -910,8 +870,7 @@ class AssetsManagerController extends Controller
     {
         $html = '';
 
-        if(!empty($request->assets_management_id)){
-
+        if (! empty($request->assets_management_id)) {
             $user_accesses = new AssetManagerTerminalUserAccess;
             $user_accesses = $user_accesses->where('assets_management_id', $request->assets_management_id)->select('asset_manager_terminal_user_accesses.*')->orderBy('id', 'DESC')->get();
 
@@ -922,31 +881,31 @@ class AssetsManagerController extends Controller
                     $html .= '<td>' . $i . '</td>';
                     $html .= '<td>';
                     $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
-                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="user_access_username" placeholder="Username" value="' . $user_access->username . '" id="user_access_username_'.$user_access->id.'">
+                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="user_access_username" placeholder="Username" value="' . $user_access->username . '" id="user_access_username_' . $user_access->id . '">
                                 <div style="margin-top: 0px;" class="d-flex p-0">
-                                    <button class="btn pr-0 btn-xs btn-image " onclick="updateUsernamePassword('.$user_access->id.', 1)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
+                                    <button class="btn pr-0 btn-xs btn-image " onclick="updateUsernamePassword(' . $user_access->id . ', 1)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
                                 </div>
-                            </div>'; 
-                    $html .= '</td>';   
-                    $html .= '<td>';
-                    $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
-                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="user_access_password" placeholder="Password" value="' . $user_access->password . '" id="user_access_password_'.$user_access->id.'">
-                                <div style="margin-top: 0px;" class="d-flex p-0">
-                                    <button class="btn pr-0 btn-xs btn-image " onclick="updateUsernamePassword('.$user_access->id.',2)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-                                </div>
-                            </div>';         
+                            </div>';
                     $html .= '</td>';
                     $html .= '<td>';
                     $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
-                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_'.$user_access->id.'">
+                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="user_access_password" placeholder="Password" value="' . $user_access->password . '" id="user_access_password_' . $user_access->id . '">
                                 <div style="margin-top: 0px;" class="d-flex p-0">
-                                    <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks('.$user_access->id.')"><img src="/images/filled-sent.png"></button>
-                                    <button type="button" data-id="'.$user_access->id.'" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                    <button class="btn pr-0 btn-xs btn-image " onclick="updateUsernamePassword(' . $user_access->id . ',2)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
                                 </div>
-                            </div>';                    
+                            </div>';
                     $html .= '</td>';
-                    $html .= '<td>' . $user_access->created_at . '</td>';                    
-                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteTerminalUserAccess('.$user_access->id.')"><i class="fa fa-trash"></i></button></td>';
+                    $html .= '<td>';
+                    $html .= '<div class=" mb-1 p-0 d-flex pt-2 mt-1">
+                                <input style="margin-top: 0px;width:80% !important;" type="text" class="form-control " name="message" placeholder="Remarks" value="" id="remark_' . $user_access->id . '">
+                                <div style="margin-top: 0px;" class="d-flex p-0">
+                                    <button class="btn pr-0 btn-xs btn-image " onclick="saveRemarks(' . $user_access->id . ')"><img src="/images/filled-sent.png"></button>
+                                    <button type="button" data-id="' . $user_access->id . '" class="btn btn-image remarks-history-show p-0 ml-2" title="Status Histories"><i class="fa fa-info-circle"></i></button>
+                                </div>
+                            </div>';
+                    $html .= '</td>';
+                    $html .= '<td>' . $user_access->created_at . '</td>';
+                    $html .= '<td> <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="deleteTerminalUserAccess(' . $user_access->id . ')"><i class="fa fa-trash"></i></button></td>';
                     $html .= '</tr>';
                     $i++;
                 }
@@ -969,22 +928,16 @@ class AssetsManagerController extends Controller
     public function deleteTerminalUserAccess(Request $request)
     {
         try {
-
             $user_access = AssetManagerTerminalUserAccess::where('id', $request->id)->first();
 
-            if(!empty($user_access)){
-
+            if (! empty($user_access)) {
                 $access = AssetManagerTerminalUserAccess::find($request->id);
                 $access->delete();
 
                 return response()->json(['code' => 200, 'message' => 'Terminal User Access has been deleted successfully']);
-
             } else {
-
                 return response()->json(['code' => 500, 'message' => 'Something went wrong. Please try again.']);
-
             }
-            
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 
@@ -993,8 +946,7 @@ class AssetsManagerController extends Controller
     }
 
     public function saveRemarks(Request $request)
-    {   
-
+    {
         $post = $request->all();
 
         $this->validate($request, [
@@ -1002,19 +954,19 @@ class AssetsManagerController extends Controller
             'remarks' => 'required',
         ]);
 
-        $input = $request->except(['_token']);  
+        $input = $request->except(['_token']);
         $input['added_by'] = Auth::user()->id;
         AssetManagerTerminalUserAccessRemakrs::create($input);
 
-        return response()->json(['code' => 200, 'data' => $input, 'message' => 'Remarks added successfully',]);
+        return response()->json(['code' => 200, 'data' => $input, 'message' => 'Remarks added successfully']);
     }
 
     public function getRemarksHistories(Request $request)
     {
         $datas = AssetManagerTerminalUserAccessRemakrs::with(['user'])
-                ->where('amtua_id', $request->amtua_id)
-                ->latest()
-                ->get();
+            ->where('amtua_id', $request->amtua_id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -1025,28 +977,27 @@ class AssetsManagerController extends Controller
     }
 
     public function updateUsernamePassword(Request $request)
-    {   
+    {
         try {
             $post = $request->all();
 
             $this->validate($request, [
                 'amtua_id' => 'required',
                 'type' => 'required',
-                'username' => 'required|unique:asset_manager_terminal_user_accesses,username,'.$request->amtua_id.',id',
+                'username' => 'required|unique:asset_manager_terminal_user_accesses,username,' . $request->amtua_id . ',id',
                 'password' => 'required',
             ]);
 
             $amtua = AssetManagerTerminalUserAccess::find($request->amtua_id);
 
-            if($request->type==1){
+            if ($request->type == 1) {
                 $amtua->username = $request->username;
             } else {
                 $amtua->password = $request->password;
             }
             $amtua->save();
 
-            return response()->json(['code' => 200, 'data' => $post, 'message' => 'User access has been updated successfully',]);
-
+            return response()->json(['code' => 200, 'data' => $post, 'message' => 'User access has been updated successfully']);
         } catch (\Exception $e) {
             $msg = $e->getMessage();
 

@@ -56,7 +56,7 @@ class TestController extends Controller
         $bigQuery = new BigQueryClient($config);
         $query = 'SELECT * FROM `brandsandlabels.firebase_crashlytics.com_app_brandslabels_ANDROID_REALTIME` WHERE DATE(event_timestamp) = "2022-06-03"';
         $queryJobConfig = $bigQuery->query($query)
-          ->parameters([]);
+            ->parameters([]);
         $queryResults = $bigQuery->runQuery($queryJobConfig);
         foreach ($queryResults as $row) {
             dd($row);

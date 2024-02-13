@@ -19,11 +19,6 @@ use Plank\Mediable\Facades\MediaUploader as MediaUploader;
 
 class StockController extends Controller
 {
-    public function __construct()
-    {
-        //  $this->middleware('permission:private-viewing', ['only' => ['privateViewing', 'privateViewingStore', 'privateViewingUpload', 'privateViewingUpdateStatus', 'updateOfficeBoy', 'privateViewingDestroy']]);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -101,36 +96,12 @@ class StockController extends Controller
     public function trackPackage(Request $request)
     {
         $url = "https://www.bluedart.com/servlet/RoutingServlet?handler=tnt&action=custawbquery&loginid=BOM07707&awb=awb&numbers=$request->awb&format=html&lickey=e2be31925a15e48125bfec50bfeb64a7&verno=1.3f&scan=1";
-        // $content = $_POST['data'];
-        //$content = '{"request":"{"event":"INBOX","from":"918879948245","to":"918291920455","text":"Let me know if u get this"}","response":"","status":200}';
-
         $curl = curl_init($url);
-        // curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($curl, CURLOPT_HTTPHEADER,
-        //         array("Content-type: application/json"));
-        // curl_setopt($curl, CURLOPT_POST, true);
-        // curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
-
         $response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        // $params = [
-        //   // 'request' => $content,
-        //   'response' => $response,
-        //   'status' => $status
-        // ];
-        // file_put_contents(__DIR__."/log.txt", json_encode($params));
-        // file_put_contents(__DIR__."/status.txt", json_encode($status));
-        // file_put_contents(__DIR__."/response.txt", json_encode($response));
-
         curl_close($curl);
-
         return response($response);
-
-        // $xml = simplexml_load_string($response);
-
-        // dd($xml);
-        // dd($response);
     }
 
     /**
@@ -228,8 +199,6 @@ class StockController extends Controller
             $private_view->products()->attach($product_id);
 
             $product = Product::find($product_id);
-            // $product->supplier = '';
-            // $product->save();
             if ($key == 0) {
                 $product_information .= "$product->name - Size $product->size - $product->color";
             } else {
@@ -290,8 +259,8 @@ class StockController extends Controller
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
                 $media = MediaUploader::fromSource($image)
-                                        ->toDirectory('privateview/' . floor($private_view->id / config('constants.image_per_folder')))
-                                        ->upload();
+                    ->toDirectory('privateview/' . floor($private_view->id / config('constants.image_per_folder')))
+                    ->upload();
                 $private_view->attachMedia($media, config('constants.media_tags'));
             }
         }
@@ -389,7 +358,6 @@ class StockController extends Controller
         $auto_message = preg_replace('/{customer_address}/i', $address, $auto_message);
         $auto_message = preg_replace('/{product_information}/i', $product_information, $auto_message);
 
-        // $params['message'] = "Details for Private Viewing: Customer - " . $private_view->customer->name . ", Phone: " . $private_view->customer->phone . ", Address: $address" . "; Products $product_information";
         $params['message'] = $auto_message;
 
         $params['erp_user'] = $request->assigned_user_id;

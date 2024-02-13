@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Auth;
+use App\Task;
+use App\User;
+use App\DeveloperTask;
 use GuzzleHttp\Client;
+use App\Models\SentyStatus;
 use Illuminate\Http\Request;
 use App\Sentry\SentryAccount;
 use App\Sentry\SentryErrorLog;
 use GuzzleHttp\RequestOptions;
-use App\Models\SentyStatus;
 use App\Models\SantryStatusHistory;
-use App\DeveloperTask;
-use App\Task;
-use App\User;
-use DB;
-use Auth;
 
 class SentryLogController extends Controller
 {
     public function index(Request $request)
-    {   
+    {
         $sentry_logs = SentryErrorLog::orderBy('id', 'DESC');
 
         if ($request->project_list) {
@@ -88,18 +88,6 @@ class SentryLogController extends Controller
             6 => 'last_seen',
         ];
 
-        /*  $limit = $request->input('length');
-          $start = $request->input('start');
-
-          $suppliercount = SupplierBrandCount::query();
-          $suppliercountTotal = SupplierBrandCount::count();
-          $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
-          $brand_list = Brand::orderby('name', 'asc')->get();
-          $category_parent = Category::where('parent_id', 0)->orderby('title', 'asc')->get();
-          $category_child = Category::where('parent_id', '!=', 0)->orderby('title', 'asc')->get();
-
-          $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();*/
-
         $url = 'https://sentry.io/api/0/projects/' . env('SENTRY_ORGANIZATION') . '/' . env('SENTRY_PROJECT') . '/issues/';
         $httpClient = new Client();
 
@@ -141,7 +129,6 @@ class SentryLogController extends Controller
             $data[] = $sub_array;
         }
 
-        // dd(count($data));
         if (! empty($data)) {
             $output = [
                 'draw' => intval($request->input('draw')),
@@ -264,7 +251,6 @@ class SentryLogController extends Controller
         $query = DeveloperTask::join('users', 'users.id', 'developer_tasks.assigned_to')->where('site_developement_id', $site_developement_id)->where('status', '!=', 'Done')->select('developer_tasks.id', 'developer_tasks.task as subject', 'developer_tasks.status', 'users.name as assigned_to_name');
         $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
-        //print_r($taskStatistics);
         $othertask = Task::where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select();
         $query1 = Task::join('users', 'users.id', 'tasks.assign_to')->where('site_developement_id', $site_developement_id)->whereNull('is_completed')->select('tasks.id', 'tasks.task_subject as subject', 'tasks.assign_status', 'users.name as assigned_to_name');
         $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
@@ -296,9 +282,9 @@ class SentryLogController extends Controller
     public function sentryStatusHistories($id)
     {
         $datas = SantryStatusHistory::with(['user', 'newValue', 'oldValue'])
-                ->where('santry_log_id', $id)
-                ->latest()
-                ->get();
+            ->where('santry_log_id', $id)
+            ->latest()
+            ->get();
 
         return response()->json([
             'status' => true,

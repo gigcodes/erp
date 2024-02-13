@@ -25,8 +25,8 @@ class AssetsManagerUsersAccessController extends Controller
             $user_accesses = $user_accesses->whereIn('asset_manager_user_accesses.created_by', $created_by);
         }
 
-        $user_accesses = $user_accesses->orderBy("created_at", "DESC")->get();
-        
+        $user_accesses = $user_accesses->orderBy('created_at', 'DESC')->get();
+
         return view('assets-manager.user-access-listing', ['user_accesses' => $user_accesses]);
     }
 
@@ -38,11 +38,11 @@ class AssetsManagerUsersAccessController extends Controller
         $url = 'https://demo.mio-moda.com:10000/virtual-server/remote.cgi';
 
         // Parameters
-        $params = array(
+        $params = [
             'program' => 'delete-user',
             'domain' => 'demo.mio-moda.com',
             'user' => $user_access->username,
-        );
+        ];
 
         // Append parameters to URL
         $url .= '?' . http_build_query($params);
@@ -55,9 +55,9 @@ class AssetsManagerUsersAccessController extends Controller
         // Set cURL options
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Return response as a string
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification (for development purposes only)
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization: Basic ' . base64_encode($token)
-        ));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Basic ' . base64_encode($token),
+        ]);
 
         // Execute cURL session and get the response
         $response = curl_exec($ch);
