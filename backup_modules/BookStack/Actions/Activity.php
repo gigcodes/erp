@@ -6,10 +6,10 @@ use Modules\BookStack\Model;
 use Modules\BookStack\Auth\User;
 
 /**
- * @property string  key
- * @property \User   user
+ * @property string key
+ * @property \User user
  * @property \Entity entity
- * @property string  extra
+ * @property string extra
  */
 class Activity extends Model
 {
