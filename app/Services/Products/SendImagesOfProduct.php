@@ -66,8 +66,6 @@ class SendImagesOfProduct
         $addKeyword->comment = implode("\n\r", $this->log);
         $addKeyword->keyword_match = implode("\n\r", $this->keyword_match);
         $addKeyword->save();
-
-        //$addKeyword
     }
 
     public function checkWithBrand($sentence)
