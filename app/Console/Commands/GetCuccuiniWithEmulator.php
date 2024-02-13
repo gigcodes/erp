@@ -87,8 +87,4 @@ class GetCuccuiniWithEmulator extends Command
         $this->country = 'IT';
     }
 
-    private function setIP(): void
-    {
-        $this->IP = '5.61.4.70  ' . ':' . '8080';
-    }
 }

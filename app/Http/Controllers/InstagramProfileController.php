@@ -40,42 +40,6 @@ class InstagramProfileController extends Controller
 //        return response()->json($instagramProfile);
     }
 
-    private function getInstagramUserData($customer)
-    {
-//        $instagram = new Instagram();
-//        $instagram->login(env('IG_USERNAME', 'sololuxury.official'), env('IG_PASSWORD', "NcG}4u'z;Fm7"));
-//        try {
-//            $profileData = $instagram->people->getInfoByName($customer['instahandler'])->asArray();
-//        } catch (\Exception $exception) {
-//            $profileData = [];
-//        }
-//
-//        if (!isset($profileData['user'])) {
-//            return [];
-//        }
-//
-//
-//        $profileData = $profileData['user'];
-//        $rank = Signatures::generateUUID();
-//        $followers = $instagram->people->getFollowers($profileData['pk'], $rank)->asArray()['users'];
-//        $following = $instagram->people->getFollowing($profileData['pk'], $rank)->asArray()['users'];
-//
-//        return [
-//            'id' => $profileData['pk'],
-//            'name' => $profileData['full_name'],
-//            'username' => $profileData['username'],
-//            'followers_count' => $profileData['follower_count'],
-//            'following_count' => $profileData['following_count'],
-//            'media' => $profileData['media_count'],
-//            'profile_pic_url' => $profileData['profile_pic_url'],
-//            'is_verified' => $profileData['is_verified'],
-//            'bio' => $profileData['biography'],
-//            'customer' => $customer,
-//            'followers' => $followers,
-//            'following' => $following
-//        ];
-    }
-
     public function getFollowers($id)
     {
 //        $instagram = new Instagram();

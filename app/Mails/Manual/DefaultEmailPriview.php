@@ -100,19 +100,4 @@ class DefaultEmailPriview extends Mailable
             return $th->getMessage();
         }
     }
-
-    private function asJSON($data)
-    {
-        $json = json_encode($data);
-        $json = preg_replace('/(["\]}])([,:])(["\[{])/', '$1$2 $3', $json);
-
-        return $json;
-    }
-
-    private function asString($data)
-    {
-        $json = $this->asJSON($data);
-
-        return wordwrap($json, 76, "\n   ");
-    }
 }

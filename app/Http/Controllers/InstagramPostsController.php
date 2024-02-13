@@ -272,35 +272,6 @@ class InstagramPostsController extends Controller
 //        return view('social-media.instagram-posts.grid', compact('posts', 'request'));
     }
 
-    private function _getFilteredInstagramPosts(Request $request)
-    {
-        // Base query
-//        $instagramPosts = InstagramPosts::orderBy('posted_at', 'DESC')
-//            ->join('hash_tags', 'instagram_posts.hashtag_id', '=', 'hash_tags.id')
-//            ->select(['instagram_posts.*','hash_tags.hashtag']);
-//
-//        //Ignore google search result from DB
-//        $instagramPosts->where('source', '!=', 'google');
-//
-//        // Apply hashtag filter
-//        if (!empty($request->hashtag)) {
-//            $instagramPosts->where('hash_tags.hashtag', str_replace('#', '', $request->hashtag));
-//        }
-//
-//        // Apply author filter
-//        if (!empty($request->author)) {
-//            $instagramPosts->where('username', 'LIKE', '%' . $request->author . '%');
-//        }
-//
-//        // Apply author filter
-//        if (!empty($request->post)) {
-//            $instagramPosts->where('caption', 'LIKE', '%' . $request->post . '%');
-//        }
-//
-//        // Return instagram posts
-//        return $instagramPosts;
-    }
-
     /**
      * @SWG\Post(
      *   path="/instagram/post",
@@ -1021,40 +992,6 @@ class InstagramPostsController extends Controller
 
                 return $response->access_token;
             }
-        }
-    }
-
-    public function getHashTashSuggestions($token, $word)
-    {
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
-        $curl = curl_init();
-        $url = 'https://api.hashtagify.me/1.0/tag/' . $word;
-
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            CURLOPT_HTTPHEADER => [
-                'authorization: Bearer ' . $token,
-                'cache-control: no-cache',
-            ],
-        ]);
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        LogRequest::log($startTime, $url, 'GET', json_encode([]), json_decode($response), $httpcode, \App\Http\Controllers\InstagramPostsController::class, 'getHashTashSuggestions');
-
-        curl_close($curl);
-
-        if ($err) {
-            //echo "cURL Error #:" . $err;
-        } else {
-            return  $response;
         }
     }
 

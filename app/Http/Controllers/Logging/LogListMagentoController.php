@@ -49,24 +49,6 @@ class LogListMagentoController extends Controller
         return $categories;
     }
 
-    private function check_successfully_listed_products()
-    {
-        $successfull_products = \App\Product::where('status_id', '=', '12')
-            ->leftJoin('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
-            ->whereNull('log_list_magentos.id')
-            ->select('products.*', 'log_list_magentos.id as exist')
-            ->get();
-
-        foreach ($successfull_products as $item) {
-            $new = new LogListMagento;
-            $new->product_id = $item->id;
-            $new->message = 'success';
-            $new->created_at = $new->updated_at = time();
-
-            $new->save();
-        }
-    }
-
     public function export(Request $request)
     {
         $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
@@ -692,11 +674,6 @@ class LogListMagentoController extends Controller
         }
 
         return $prepared_products_data;
-    }
-
-    public function key_value_pair_exists(array $haystack, $key)
-    {
-        return array_key_exists($key, $haystack);
     }
 
     public function getMagentoProductAPIAjaxCall(Request $request)

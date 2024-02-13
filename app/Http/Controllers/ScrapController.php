@@ -625,25 +625,6 @@ class ScrapController extends Controller
         return true;
     }
 
-    private function downloadImagesForSites($data, $prefix = 'img'): array
-    {
-        $images = [];
-        foreach ($data as $key => $datum) {
-            try {
-                $imgData = file_get_contents($datum);
-            } catch (\Exception $exception) {
-                continue;
-            }
-
-            $fileName = $prefix . '_' . md5(time()) . '.png';
-            Storage::disk('uploads')->put('social-media/' . $fileName, $imgData);
-
-            $images[] = $fileName;
-        }
-
-        return $images;
-    }
-
     public function excel_import()
     {
         $products = ScrapedProducts::where('website', 'EXCEL_IMPORT_TYPE_1')->paginate(25);

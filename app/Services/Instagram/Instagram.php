@@ -143,29 +143,6 @@ class Instagram
     }
 
     /**
-     * @return array
-     *
-     * @throws \Facebook\Exceptions\FacebookSDKException
-     * This will post the reply for a post
-     */
-    public function postReply($commentId, $message)
-    {
-        //send the reply to the comment
-        $comment = $this->facebook
-            ->post($commentId . '/replies',
-                [
-                    'message' => $message,
-                    'fields' => 'id,text,username,timestamp',
-                ],
-                $this->user_access_token
-            )->getDecodedBody();
-
-        $comment['status'] = 'success';
-
-        return $comment;
-    }
-
-    /**
      * @param $message
      * This will post a media to the Instragram sololuxury account
      */
@@ -198,35 +175,5 @@ class Instagram
 //            $instagram->timeline->uploadPhoto($files[0], ['caption' => $message]);
 //        }
 //        $this->imageIds = $return;
-    }
-
-    /**
-     * @return bool|mixed|null
-     * This will post media object to the facebook server.
-     */
-    private function postMediaObject(Image $image)
-    {
-        $data['caption'] = $image->schedule->description;
-        $data['access_token'] = $this->page_access_token;
-        $data['image_url'] = url(public_path() . '/uploads/social-media/' . $image->filename);
-
-        $containerId = null;
-
-        try {
-            //send the media objecct to facebook. Required for us because in next step we use this object ID to post on facebook
-            $response = $this->facebook->post($this->instagram_id . '/media', $data)->getDecodedBody();
-            if (is_array($response)) {
-                $containerId = $response['id'];
-            }
-        } catch (\Exception $exception) {
-            $containerId = false;
-        }
-
-        return $containerId;
-    }
-
-    public function getImageIds(): array
-    {
-        return $this->imageIds;
     }
 }

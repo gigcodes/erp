@@ -432,20 +432,6 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         return $images;
     }
 
-    private function isMaleOrFemale($url)
-    {
-        $url = strtolower($url);
-        if (strpos($url, 'donna') !== false || strpos($url, 'women') !== false) {
-            return 'female';
-        }
-
-        if (strpos($url, 'uomo') !== false || strpos($url, 'men') !== false) {
-            return 'female';
-        }
-
-        return 'male';
-    }
-
     private function getProperties(HtmlPageCrawler $c)
     {
         $keys = $c->filter('table#product-attribute-specs-table tbody th')->getIterator();
@@ -465,31 +451,5 @@ class GebnegozionlineProductDetailsScraper extends Scraper
         }
 
         return $propertiesData;
-    }
-
-    private function updateProductOnServer(ScrapedProducts $image)
-    {
-        $client = new Client();
-        $response = $client->request('POST', 'https://erp.sololuxury.co.in/api/sync-product', [
-            'form_params' => [
-                'sku' => $image->sku,
-                'website' => $image->website,
-                'has_sku' => $image->has_sku,
-                'title' => $image->title,
-                'brand_id' => $image->brand_id,
-                'description' => $image->description,
-                'images' => $this->imagesToDownload,
-                'price' => $image->price,
-                'properties' => $image->properties,
-                'url' => $image->url,
-                'is_property_updated' => 0,
-                'is_price_updated' => 1,
-                'is_enriched' => 0,
-            ],
-        ]);
-
-        if (! $response) {
-            dd($response->getBody()->getContents());
-        }
     }
 }

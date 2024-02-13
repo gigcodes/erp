@@ -58,19 +58,6 @@ class RoutesController extends Controller
     }
 
     /**
-     * Get all the register route
-     * $param String $method
-     *
-     * @return \Illuminate\Http\Response
-     */
-    private function getRoutesByMethod($method)
-    {
-        $routes = \Route::getRoutes()->getRoutesByMethod();
-
-        return $routes[$method];
-    }
-
-    /**
      * Sync the registered routes in DB.
      * It skip if any route entry is already exist
      * $param String $request

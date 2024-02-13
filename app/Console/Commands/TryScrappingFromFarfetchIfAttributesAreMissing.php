@@ -66,10 +66,4 @@ class TryScrappingFromFarfetchIfAttributesAreMissing extends Command
 
         return $response->getBody()->getContents();
     }
-
-    private function findGoogleSearch($sku)
-    {
-        $request = new Client();
-        $response = $request->get('');
-    }
 }
