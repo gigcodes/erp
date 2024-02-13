@@ -12,13 +12,11 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
         'zoom/webhook',
         'twilio/*',
         'run-webhook/*',
         'whatsapp/*',
         'livechat/*',
-        //        'api/instagram/post',
         'duty/v1/calculate',
         'hubstaff/linkuser',
         'time-doctor/link_time_doctor_user',

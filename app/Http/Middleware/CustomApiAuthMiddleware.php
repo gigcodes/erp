@@ -3,14 +3,14 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use App\Models\BearerAccessTokens;
+use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class CustomApiAuthMiddleware extends Middleware
 {
     public function handle($request, Closure $next, ...$guards)
     {
-        if (!$request->bearerToken()) {
+        if (! $request->bearerToken()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -29,8 +29,7 @@ class CustomApiAuthMiddleware extends Middleware
             } else {
                 throw new \Exception('Token not found or expired. Generate new token!');
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 401);
         }
 
