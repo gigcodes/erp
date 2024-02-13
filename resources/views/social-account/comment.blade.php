@@ -75,11 +75,6 @@
                             @else
                                 <small class="text-secondary">(No caption added)</small>
                             @endif
-                            <!-- @if ($value->translation)
-                                {{ $value->translation }}
-                            @else
-                                <small class="text-secondary">(No caption added)</small>
-                            @endif -->
                         </div>
                         @if ($value->photo)
                             <img src="{{ $value->photo }}" width="100" alt="{{ $value->message }}">
@@ -87,11 +82,6 @@
                     </td>
                     <td style="width:50%">
                         <div style="word-break: break-word;">
-                            <!-- @if ($value->message)
-                                {{ $value->message }}
-                            @else
-                                <small class="text-secondary">(No caption added)</small>
-                            @endif -->
                             @if ($value->translation)
                                 {{ $value->translation }}
                             @else
@@ -110,12 +100,12 @@
                                         <textarea rows="1"
                                                   class="form-control quick-message-field cls_quick_message addToAutoComplete"
                                                   name="message" placeholder="Message"
-                                                  id="textareaBox_{{ $value->comment_id }}"
-                                                  data-customer-id="{{ $value->comment_id }}"></textarea>
+                                                  id="textareaBox_{{ $value->id }}"
+                                                  data-customer-id="{{ $value->id }}"></textarea>
                                 </div>
                                 <div class="w-25 pl-2" role="group" aria-label="First group">
                                     <button type="button" class="btn btn-sm m-0 p-0 mr-1 btn-image send-message1"
-                                            data-id="textareaBox_{{ $value->comment_id }}">
+                                            data-id="textareaBox_{{ $value->id }}">
                                         <img src="/images/filled-sent.png">
                                     </button>
 
@@ -124,8 +114,8 @@
                         </div>
                     </td>
 
-                    <td>{{ $value->user->name }}</td>
-                    <td>{{ $value->time }}</td>
+                    <td>{{ $value->commented_by_user }}</td>
+                    <td>{{ $value->created_at->diffForHumans() }}</td>
                     <td id="shortcutsIds">
                         @include('social-account.shortcuts')
                     </td>

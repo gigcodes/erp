@@ -16,10 +16,12 @@ class CreateSocialCommentsTable extends Migration
         Schema::create('social_comments', function (Blueprint $table) {
             $table->id();
             $table->string('comment_ref_id');
+            $table->string('commented_by_id');
+            $table->string('commented_by_user');
             $table->unsignedBigInteger('post_id');
             $table->unsignedBigInteger('config_id');
             $table->string('message');
-            $table->unsignedBigInteger('parent_id');
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });
