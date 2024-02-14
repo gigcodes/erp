@@ -247,23 +247,10 @@ class SocialConfigController extends Controller
             return redirect()->back()->withError('Unable to refactor the token. Kindly validate it');
         }
 
-        $startTime = date('Y-m-d H:i:s', LARAVEL_START);
         if (isset($request->adsmanager)) {
             $data['ads_manager'] = $request->adsmanager;
         }
-        if ($request->platform == 'instagram') {
-            $url = sprintf($this->fb_base_url . $request->page_id . '?fields=%s&access_token=%s', 'id,name,instagram_business_account{id,username,profile_picture_url}', $neverExpiringToken);
-            $http = Http::get($url);
-            $response = $http->json();
-            LogRequest::log($startTime, $url, 'GET', json_encode([]), $response, $http->status(), SocialConfigController::class, 'edit');
-            if ($id = $response['instagram_business_account']['id']) {
-                $data['account_id'] = $id;
-            } else {
-                return redirect()->back()->withError('Page Linked Account ID not found.');
-            }
-        } else {
-            $data['account_id'] = $pageId;
-        }
+        $data['account_id'] = $pageId;
         $data['page_language'] = $request->page_language;
         $data['page_token'] = $neverExpiringToken;
 

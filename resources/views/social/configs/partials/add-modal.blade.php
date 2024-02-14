@@ -63,7 +63,7 @@
 
                         <div class="form-group">
                             <strong>Account Id:</strong>
-                            <input type="text" name="page_id" class="form-control" value="{{ old('account_id') }}" >
+                            <input type="text" name="account_id" class="form-control" value="{{ old('account_id') }}" >
 
                             @if ($errors->has('account_id'))
                                 <div class="alert alert-danger">{{$errors->first('account_id')}}</div>
