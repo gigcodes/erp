@@ -5,7 +5,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
@@ -19,21 +19,23 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <strong>User</strong>
-                                    <?php
-                                    echo Form::select( 'selected_user', $users, $selected_user, [
-                                        'class' => 'form-control',
-                                        'multiple' => 'multiple',
-                                        'id' => 'userList',
-                                        'name' => 'selected_user[]'
-                                    ] );?>
+                                    @php
+                                        echo Form::select( 'selected_user', $users, $selected_user, [
+                                            'class' => 'form-control',
+                                            'multiple' => 'multiple',
+                                            'id' => 'userList',
+                                            'name' => 'selected_user[]'
+                                        ] );
+                                    @endphp
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <strong>Date Range</strong>
-                                    <input type="text" value="{{ $range_start }}" name="range_start" hidden/>
-                                    <input type="text" value="{{ $range_end  }}" name="range_end" hidden/>
-                                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                    <input type="text" value="{{ $range_start }}" name="range_start" hidden />
+                                    <input type="text" value="{{ $range_end  }}" name="range_end" hidden />
+                                    <div id="reportrange"
+                                         style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                         <i class="fa fa-calendar"></i>&nbsp;
                                         <span></span> <i class="fa fa-caret-down"></i>
                                     </div>
@@ -63,11 +65,22 @@
                         <th>Auto crop</th>
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$import]) ? (int) $productStats[\App\Helpers\StatusHelper::$import] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$import}}" data-title="Import"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$scrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$scrape] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$scrape}}" data-title="Scraping"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingScraped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingScraped] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$isBeingScraped}}" data-title="Is being scraped"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$AI]) ? (int) $productStats[\App\Helpers\StatusHelper::$AI] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$AI}}" data-title="Queued for AI"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$autoCrop]) ? (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$autoCrop}}" data-title="Auto Crop"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$import]) ? (int) $productStats[\App\Helpers\StatusHelper::$import] : 0 }}
+                            <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$import}}"
+                               data-title="Import"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$scrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$scrape] : 0 }}
+                            <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$scrape}}"
+                               data-title="Scraping"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingScraped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingScraped] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$isBeingScraped}}"
+                               data-title="Is being scraped"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$AI]) ? (int) $productStats[\App\Helpers\StatusHelper::$AI] : 0 }}
+                            <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$AI}}"
+                               data-title="Queued for AI"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$autoCrop]) ? (int) $productStats[\App\Helpers\StatusHelper::$autoCrop] : 0 }}
+                            <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$autoCrop}}"
+                               data-title="Auto Crop"></i></td>
                     </tr>
                     <tr>
                         <th>Is being cropped</th>
@@ -77,11 +90,26 @@
                         <th>Unknown Measurement</th>
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingCropped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingCropped] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$isBeingCropped}}"  data-title="Is being cropped"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApproval] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$cropApproval}}" data-title="Crop Approval"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownCategory]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownCategory] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unknownCategory}}" data-title="Unknown Category"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownColor]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownColor] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unknownColor}}" data-title="Unknown Color"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownMeasurement]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownMeasurement] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unknownMeasurement}}" data-title="Unknown Measurement"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$isBeingCropped]) ? (int) $productStats[\App\Helpers\StatusHelper::$isBeingCropped] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$isBeingCropped}}"
+                               data-title="Is being cropped"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropApproval] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$cropApproval}}" data-title="Crop Approval"></i>
+                        </td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownCategory]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownCategory] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unknownCategory}}"
+                               data-title="Unknown Category"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownColor]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownColor] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unknownColor}}" data-title="Unknown Color"></i>
+                        </td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownMeasurement]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownMeasurement] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unknownMeasurement}}"
+                               data-title="Unknown Measurement"></i></td>
                     </tr>
                     <tr>
                         <th>Unknown Composition</th>
@@ -89,15 +117,30 @@
                         <th>Manual Attribute</th>
                         <th>Final Approval</th>
                         <th>Queued for Magento</th>
-                        
+
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownComposition]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownComposition] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unknownComposition}}" data-title="Unknown Composition"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownSize]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownSize] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unknownSize}}" data-title="Unknown Size"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$manualAttribute]) ? (int) $productStats[\App\Helpers\StatusHelper::$manualAttribute] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$manualAttribute}}" data-title="Manual Attribute"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$finalApproval}}" data-title="Final Approval"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$pushToMagento}}" data-title="Queued for Magento"></i></td>
-                        
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownComposition]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownComposition] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unknownComposition}}"
+                               data-title="Unknown Composition"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unknownSize]) ? (int) $productStats[\App\Helpers\StatusHelper::$unknownSize] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unknownSize}}" data-title="Unknown Size"></i>
+                        </td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$manualAttribute]) ? (int) $productStats[\App\Helpers\StatusHelper::$manualAttribute] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$manualAttribute}}"
+                               data-title="Manual Attribute"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStats[\App\Helpers\StatusHelper::$finalApproval] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$finalApproval}}" data-title="Final Approval"></i>
+                        </td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$pushToMagento}}"
+                               data-title="Queued for Magento"></i></td>
+
                     </tr>
                     <tr>
                         <th>In Magento</th>
@@ -105,15 +148,29 @@
                         <th>Unable to scrape images</th>
                         <th>Crop Rejected</th>
                         <th>Crop Skipped</th>
-                        
+
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$inMagento] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$inMagento}}" data-title="In Magento"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unableToScrape}}" data-title="Unable to scrape"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$unableToScrapeImages}}" data-title="Unable to scrape images"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$cropRejected}}" data-title="Crop Rejected"></i></td>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$cropSkipped}}" data-title="Crop Skipped"></i></td>
-                        
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStats[\App\Helpers\StatusHelper::$inMagento] : 0 }}
+                            <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$inMagento}}"
+                               data-title="In Magento"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unableToScrape}}"
+                               data-title="Unable to scrape"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$unableToScrapeImages}}"
+                               data-title="Unable to scrape images"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$cropRejected}}" data-title="Crop Rejected"></i>
+                        </td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$cropSkipped}}" data-title="Crop Skipped"></i>
+                        </td>
+
                     </tr>
                     <tr>
                         <th>Send To External Scraper</th>
@@ -122,10 +179,17 @@
                         <th>Total</th>
                     </tr>
                     <tr>
-                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$requestForExternalScraper]) ? (int) $productStats[\App\Helpers\StatusHelper::$requestForExternalScraper] : 0 }} <i class="fa fa-info-circle modalShow" data-get="{{\App\Helpers\StatusHelper::$requestForExternalScraper}}" data-title="Send To External Scraper"></i></td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$requestForExternalScraper]) ? (int) $productStats[\App\Helpers\StatusHelper::$requestForExternalScraper] : 0 }}
+                            <i class="fa fa-info-circle modalShow"
+                               data-get="{{\App\Helpers\StatusHelper::$requestForExternalScraper}}"
+                               data-title="Send To External Scraper"></i></td>
                         <td colspan="2">&nbsp;</td>
-                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ isset($resultScrapedProductsInStock[0]->ttl) ? (int) $resultScrapedProductsInStock[0]->ttl : '-' }}</strong></td>
-                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStats) }}</strong></td>
+                        <td style="background-color: #eee;"><strong
+                                    style="font-size: 1.5em; text-align: center;">{{ isset($resultScrapedProductsInStock[0]->ttl) ? (int) $resultScrapedProductsInStock[0]->ttl : '-' }}</strong>
+                        </td>
+                        <td style="background-color: #eee;"><strong
+                                    style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStats) }}</strong>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -166,7 +230,7 @@
                         <th>Manual Attribute</th>
                         <th>Final Approval</th>
                         <th>Queued for Magento</th>
-                        
+
                     </tr>
                     <tr>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$unknownComposition]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$unknownComposition] : 0 }}</td>
@@ -174,7 +238,7 @@
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$manualAttribute]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$manualAttribute] : 0 }}</td>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$finalApproval]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$finalApproval] : 0 }}</td>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$pushToMagento]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$pushToMagento] : 0 }}</td>
-                        
+
                     </tr>
                     <tr>
                         <th>In Magento</th>
@@ -182,7 +246,7 @@
                         <th>Unable to scrape images</th>
                         <th>Crop Rejected</th>
                         <th>Crop Skipped</th>
-                        
+
                     </tr>
                     <tr>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$inMagento]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$inMagento] : 0 }}</td>
@@ -190,7 +254,7 @@
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }}</td>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$cropRejected] : 0 }}</td>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$cropSkipped] : 0 }}</td>
-                        
+
                     </tr>
                     <tr>
                         <th>Send To External Scraper</th>
@@ -201,8 +265,12 @@
                     <tr>
                         <td>{{ isset($productStatsDateRange[\App\Helpers\StatusHelper::$requestForExternalScraper]) ? (int) $productStatsDateRange[\App\Helpers\StatusHelper::$requestForExternalScraper] : 0 }}</td>
                         <td colspan="2">&nbsp;</td>
-                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ isset($resultScrapedProductsInStock[0]->ttl) ? (int) $resultScrapedProductsInStock[0]->ttl : '-' }}</strong></td>
-                        <td style="background-color: #eee;"><strong style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStatsDateRange) }}</strong></td>
+                        <td style="background-color: #eee;"><strong
+                                    style="font-size: 1.5em; text-align: center;">{{ isset($resultScrapedProductsInStock[0]->ttl) ? (int) $resultScrapedProductsInStock[0]->ttl : '-' }}</strong>
+                        </td>
+                        <td style="background-color: #eee;"><strong
+                                    style="font-size: 1.5em; text-align: center;">{{ (int) array_sum($productStatsDateRange) }}</strong>
+                        </td>
                     </tr>
                 </table>
             @endif
@@ -256,7 +324,8 @@
                         <td>{{ $scrapCount }}</td>
                         <td>{{ $inventoryCount }}</td>
                         @if ( $allActivity->crop_approval_denied > 0 )
-                            <td>{{ $allActivity->crop_approved }} - {{ $allActivity->crop_approval_denied }} = {{ $allActivity->crop_approved - $allActivity->crop_approval_denied }}</td>
+                            <td>{{ $allActivity->crop_approved }} - {{ $allActivity->crop_approval_denied }}
+                                = {{ $allActivity->crop_approved - $allActivity->crop_approval_denied }}</td>
                         @else
                             <td>{{ $allActivity->crop_approved }}</td>
                         @endif
@@ -283,7 +352,8 @@
                         <tr>
                             <td>{{-- $users[$user->user_id] --}}</td>
                             @if ( $user->crop_approval_denied > 0 )
-                                <td>{{ $user->crop_approved }} - {{ $user->crop_approval_denied }} = {{ $user->crop_approved - $user->crop_approval_denied }}</td>
+                                <td>{{ $user->crop_approved }} - {{ $user->crop_approval_denied }}
+                                    = {{ $user->crop_approved - $user->crop_approval_denied }}</td>
                             @else
                                 <td>{{ $user->crop_approved }}</td>
                             @endif
@@ -304,17 +374,17 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                <!-- <h5 class="modal-title">Estimated Time History</h5> -->
+                    <!-- <h5 class="modal-title">Estimated Time History</h5> -->
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="col-md-12" id="time_history_div">
                     <table class="table table table-bordered" style="font-size: 14px;">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Value</th>
-                            </tr>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
                         </thead>
                         <tbody>
                         </tbody>
@@ -331,110 +401,110 @@
              <div class="row">
                  <div class="col-lg-12">
                      --}}
-                     {{--<div class="col-xl-6 col-md-6">--}}
-                    {{--
-                     <div class="row">
-                         <div class="card activity-chart">
-                             <div class="card-header d-flex align-items-center">
-                                 <h4>Activity Chart</h4>
-                             </div>
-                             <div class="card-body">
-                                 <canvas id="ActivityChart"></canvas>
-                             </div>
-                         </div>
-                     </div>
-                     --}}
-                    {{--</div>--}}
-                    {{--
-                 </div>
+    {{--<div class="col-xl-6 col-md-6">--}}
+    {{--
+     <div class="row">
+         <div class="card activity-chart">
+             <div class="card-header d-flex align-items-center">
+                 <h4>Activity Chart</h4>
+             </div>
+             <div class="card-body">
+                 <canvas id="ActivityChart"></canvas>
              </div>
          </div>
-     </section>--}}
+     </div>
+     --}}
+    {{--</div>--}}
+    {{--
+ </div>
+</div>
+</div>
+</section>--}}
 
 
     <script>
 
-        jQuery('#userList').select2(
-            {
-                placeholder: 'Select a User'
-            }
-        );
+      jQuery("#userList").select2(
+        {
+          placeholder: "Select a User"
+        }
+      );
     </script>
 
 
     <script type="text/javascript">
-        $(function () {
+      $(function() {
 
-            let r_s = jQuery('input[name="range_start"]').val();
-            let r_e = jQuery('input[name="range_end"]').val()
+        let r_s = jQuery("input[name=\"range_start\"]").val();
+        let r_e = jQuery("input[name=\"range_end\"]").val();
 
-            let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
-            let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
+        let start = r_s ? moment(r_s, "YYYY-MM-DD") : moment().subtract(6, "days");
+        let end = r_e ? moment(r_e, "YYYY-MM-DD") : moment();
 
-            // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
-            // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+        // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
+        // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
 
-            function cb(start, end) {
-                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-            }
+        function cb(start, end) {
+          $("#reportrange span").html(start.format("MMMM D, YYYY") + " - " + end.format("MMMM D, YYYY"));
+        }
 
-            $('#reportrange').daterangepicker({
-                startDate: start,
-                maxYear: 1,
-                endDate: end,
-                ranges: {
-                    'Today': [moment(), moment()],
-                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month': [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                }
-            }, cb);
+        $("#reportrange").daterangepicker({
+          startDate: start,
+          maxYear: 1,
+          endDate: end,
+          ranges: {
+            "Today": [moment(), moment()],
+            "Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
+            "Last 7 Days": [moment().subtract(6, "days"), moment()],
+            "Last 30 Days": [moment().subtract(29, "days"), moment()],
+            "This Month": [moment().startOf("month"), moment().endOf("month")],
+            "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+          }
+        }, cb);
 
-            cb(start, end);
+        cb(start, end);
 
-        });
+      });
 
-        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+      $("#reportrange").on("apply.daterangepicker", function(ev, picker) {
 
-            jQuery('input[name="range_start"]').val(picker.startDate.format('YYYY-MM-DD'));
-            jQuery('input[name="range_end"]').val(picker.endDate.format('YYYY-MM-DD'));
+        jQuery("input[name=\"range_start\"]").val(picker.startDate.format("YYYY-MM-DD"));
+        jQuery("input[name=\"range_end\"]").val(picker.endDate.format("YYYY-MM-DD"));
 
-        });
-        $(document).on('click','.modalShow',function(event){
-            event.preventDefault();
-            var title=$(this).attr('data-title');
-            $.ajax({
-                url: "{{action([\App\Http\Controllers\ActivityConroller::class, 'recentActivities'])}}",
-                type: 'POST',
-                //data : formData,
-                data: {
-                    "type": $(this).attr('data-get'),
-                    "_token": "{{csrf_token()}}",
-                },
-                dataType: "json",
-                success: function (response) {
-                    var $html = '';
-                    $('#time_history_modal').modal('show');
-                    $.each(response,function(i, item){
-                        $html += '<tr>';
-                        $html += '<td>'+item.created_at+'</td>';
-                        $html += '<td>'+title+'</td>';
-                        $html += '<td>'+item.value+'</td>';
-                        $html += '</tr>'; 
-                    });
-                    $('#time_history_modal #time_history_div table tbody').html($html);
-                },
-                beforeSend: function () {
-                    $(self).attr('disabled', true);
-                },
-                error: function () {
-                    alert('There was an error sending the message...');
-                    $(self).removeAttr('disabled', true);
-                }
+      });
+      $(document).on("click", ".modalShow", function(event) {
+        event.preventDefault();
+        var title = $(this).attr("data-title");
+        $.ajax({
+          url: "{{action([\App\Http\Controllers\ActivityConroller::class, 'recentActivities'])}}",
+          type: "POST",
+          //data : formData,
+          data: {
+            "type": $(this).attr("data-get"),
+            "_token": "{{csrf_token()}}"
+          },
+          dataType: "json",
+          success: function(response) {
+            var $html = "";
+            $("#time_history_modal").modal("show");
+            $.each(response, function(i, item) {
+              $html += "<tr>";
+              $html += "<td>" + item.created_at + "</td>";
+              $html += "<td>" + title + "</td>";
+              $html += "<td>" + item.value + "</td>";
+              $html += "</tr>";
             });
+            $("#time_history_modal #time_history_div table tbody").html($html);
+          },
+          beforeSend: function() {
+            $(self).attr("disabled", true);
+          },
+          error: function() {
+            alert("There was an error sending the message...");
+            $(self).removeAttr("disabled", true);
+          }
         });
+      });
     </script>
 
     {{--<script>
